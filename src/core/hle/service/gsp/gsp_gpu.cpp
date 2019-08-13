@@ -628,7 +628,7 @@ void GSP_GPU::TriggerCmdReqQueue(Kernel::HLERequestContext& ctx) {
     IPC::RequestParser rp(ctx, 0xC, 0, 0);
 
     // Iterate through each thread's command queue...
-    for (unsigned thread_id = 0; thread_id < 0x4; ++thread_id) {
+    for (unsigned thread_id = 0; thread_id < MaxGSPThreads; ++thread_id) {
         CommandBuffer* command_buffer = (CommandBuffer*)GetCommandBuffer(shared_memory, thread_id);
 
         // Iterate through each command...

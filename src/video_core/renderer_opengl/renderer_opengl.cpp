@@ -275,6 +275,12 @@ void RendererOpenGL::InitOpenGLObjects() {
     glClearColor(Settings::values.bg_red, Settings::values.bg_green, Settings::values.bg_blue,
                  0.0f);
 
+    // Generate VBO handle for drawing
+    vertex_buffer.Create();
+
+    // Generate VAO
+    vertex_array.Create();
+
     // Link shaders and get variable locations
     if (GLES) {
         std::string frag_source(fragment_shader_precision_OES);
@@ -283,23 +289,18 @@ void RendererOpenGL::InitOpenGLObjects() {
     } else {
         shader.Create(vertex_shader, fragment_shader);
     }
+
+    // apply
     state.draw.shader_program = shader.handle;
-    state.Apply();
-    uniform_modelview_matrix = glGetUniformLocation(shader.handle, "modelview_matrix");
-    uniform_color_texture = glGetUniformLocation(shader.handle, "color_texture");
-    attrib_position = glGetAttribLocation(shader.handle, "vert_position");
-    attrib_tex_coord = glGetAttribLocation(shader.handle, "vert_tex_coord");
-
-    // Generate VBO handle for drawing
-    vertex_buffer.Create();
-
-    // Generate VAO
-    vertex_array.Create();
-
     state.draw.vertex_array = vertex_array.handle;
     state.draw.vertex_buffer = vertex_buffer.handle;
     state.draw.uniform_buffer = 0;
     state.Apply();
+
+    uniform_modelview_matrix = glGetUniformLocation(shader.handle, "modelview_matrix");
+    uniform_color_texture = glGetUniformLocation(shader.handle, "color_texture");
+    attrib_position = glGetAttribLocation(shader.handle, "vert_position");
+    attrib_tex_coord = glGetAttribLocation(shader.handle, "vert_tex_coord");
 
     // Attach vertex data to VAO
     glBufferData(GL_ARRAY_BUFFER, sizeof(ScreenRectVertex) * 4, nullptr, GL_STREAM_DRAW);
@@ -415,9 +416,6 @@ void RendererOpenGL::DrawSingleScreenRotated(const ScreenInfo& screen_info, floa
 
     glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(vertices), vertices.data());
     glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
-
-    state.texture_units[0].texture_2d = 0;
-    state.Apply();
 }
 
 /**

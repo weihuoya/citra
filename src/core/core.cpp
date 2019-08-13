@@ -116,7 +116,7 @@ System::ResultStatus System::Load(Frontend::EmuWindow& emu_window, const std::st
     }
 
     ASSERT(system_mode.first);
-    ResultStatus init_result{Init(emu_window, *system_mode.first)};
+    ResultStatus init_result{Init(emu_window, Settings::values.is_new_3ds ? 6 : *system_mode.first)};
     if (init_result != ResultStatus::Success) {
         LOG_CRITICAL(Core, "Failed to initialize system (Error {})!",
                      static_cast<u32>(init_result));

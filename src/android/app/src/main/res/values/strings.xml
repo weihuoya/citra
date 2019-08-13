@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <!-- Title of the app -->
+    <string name="app_name">Citra</string>
+    <string name="app_name_version">Citra %1$s</string>
+    <string name="host">app</string>
+    <string name="scheme">citra</string>
+
+    <string name="setting_core_ticks_hack">FMV Hack</string>
+    <string name="joystick_relative_center">Joystick use relative center</string>
+
+    <string name="grid_menu_refresh">Refresh Library</string>
+    <string name="preferences_settings">Settings</string>
+
+    <string name="emulation_edit_layout">Edit Layout</string>
+    <string name="emulation_done">Done</string>
+    <string name="input_binding">Input Binding</string>
+    <string name="input_binding_description">Press or move an input to bind it to &lt;b>%1$s&lt;/b>.</string>
+    <string name="emulation_screenshot">Take Screenshot</string>
+    <string name="add_directory_title">Add Folder to Library</string>
+
+    <string name="setting_header_core">System</string>
+    <string name="setting_header_renderer">Renderer</string>
+    <string name="setting_header_audio">Audio</string>
+
+    <string name="setting_is_new_3ds">New 3DS Mode</string>
+    <string name="setting_use_virtual_sd">Use Virtual SD</string>
+    <string name="setting_region_value">Emulation Region</string>
+
+    <string name="layout_option">Screen Layout</string>
+    <string name="internal_resolution">Internal Resolution</string>
+    <string name="setting_shaders_accurate_mul">Accurate Multiplication</string>
+    <string name="setting_shaders_accurate_gs">Accurate Geometry Shader</string>
+
+    <string name="setting_audio_output">Audio Output</string>
+    <string name="setting_audio_stretching">Enable Audio Stretching</string>
+
+    <string name="single_screen">Single Screen</string>
+    <string name="large_screen">Large Screen</string>
+    <string name="side_screen">Side Screen</string>
+    <string name="default_value">Default</string>
+    <string name="auto">Auto</string>
+    <string name="off">Off</string>
+    <string name="clear_input_binding">Clear</string>
+    <string name="write_permission_needed">You need to allow write access to external storage for the emulator to work.</string>
+
+    <string name="nnf_new_folder">New folder</string>
+    <string name="nnf_create_folder_error">Failed to create folder</string>
+    <string name="nnf_name">Name</string>
+    <string name="nnf_select_something_first">Please select something first</string>
+    <string name="nnf_need_valid_filename">Please enter or select a valid filename</string>
+    <string name="nnf_permission_external_write_denied">Permisson to access filesystem denied</string>
+    <string name="nnf_filename">Filename</string>
+    <string name="nnf_list_ok">@android:string/ok</string>
+    <string name="nnf_list_cancel">@android:string/cancel</string>
+    <string name="nnf_new_folder_ok">@android:string/ok</string>
+    <string name="nnf_new_folder_cancel">@android:string/cancel</string>
+
+</resources>

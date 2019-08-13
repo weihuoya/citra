@@ -1147,7 +1147,8 @@ void main() {
 }
 
 RasterizerCacheOpenGL::~RasterizerCacheOpenGL() {
-    FlushAll();
+    // flush all is very slow and will crash when shutdown opengl device
+    // FlushAll();
     while (!surface_cache.empty())
         UnregisterSurface(*surface_cache.begin()->second.begin());
 }

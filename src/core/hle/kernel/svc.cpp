@@ -896,6 +896,10 @@ ResultCode SVC::CreateThread(Handle* out_handle, u32 entry_point, u32 arg, VAddr
         LOG_ERROR(Kernel_SVC,
                   "Newly created thread must run in the SysCore (Core1), unimplemented.");
         break;
+    case ThreadProcessorId2:
+        LOG_ERROR(Kernel_SVC,
+                  "Newly created thread must run in the SysCore (Core2), unimplemented.");
+        break;
     default:
         // TODO(bunnei): Implement support for other processor IDs
         ASSERT_MSG(false, "Unsupported thread processor ID: {}", processor_id);

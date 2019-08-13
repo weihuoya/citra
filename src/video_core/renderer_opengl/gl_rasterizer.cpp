@@ -22,6 +22,7 @@
 #include "video_core/regs_texturing.h"
 #include "video_core/renderer_opengl/gl_rasterizer.h"
 #include "video_core/renderer_opengl/gl_shader_gen.h"
+#include "video_core/renderer_opengl/gl_vars.h"
 #include "video_core/renderer_opengl/pica_to_gl.h"
 #include "video_core/renderer_opengl/renderer_opengl.h"
 #include "video_core/video_core.h"
@@ -137,6 +138,14 @@ RasterizerOpenGL::RasterizerOpenGL(Frontend::EmuWindow& window)
 
     // Create render framebuffer
     framebuffer.Create();
+
+    // null texture
+    texture_null.Create();
+    state.texture_units[0].texture_2d = texture_null.handle;
+    state.Apply();
+    // For some reason alpha 0 wraps around to 1.0, so use 1/255 instead
+    u8 null_data[4] = {0, 0, 0, 1};
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, 1, 1, 0, GL_RGBA, GL_UNSIGNED_BYTE, null_data);
 
     // Allocate and bind texture buffer lut textures
     texture_buffer_lut_rg.Create();
@@ -755,10 +764,10 @@ bool RasterizerOpenGL::Draw(bool accelerate, bool is_indexed) {
                                  surface->texture.handle);
             } else {
                 // Can occur when texture addr is null or its memory is unmapped/invalid
-                state.texture_units[texture_index].texture_2d = 0;
+                state.texture_units[texture_index].texture_2d = texture_null.handle;
             }
         } else {
-            state.texture_units[texture_index].texture_2d = 0;
+            state.texture_units[texture_index].texture_2d = texture_null.handle;
         }
     }
 
@@ -1622,7 +1631,7 @@ void RasterizerOpenGL::SamplerInfo::SyncWithConfig(
         glSamplerParameterf(s, GL_TEXTURE_MAX_LOD, lod_max);
     }
 
-    if (lod_bias != config.lod.bias) {
+    if (!GLES && lod_bias != config.lod.bias) {
         lod_bias = config.lod.bias;
         glSamplerParameterf(s, GL_TEXTURE_LOD_BIAS, lod_bias / 256.0f);
     }

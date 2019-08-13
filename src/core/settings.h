@@ -146,6 +146,7 @@ struct Values {
     bool vsync_enabled;
     bool use_frame_limit;
     u16 frame_limit;
+    u32 core_ticks_hack;
 
     LayoutOption layout_option;
     bool swap_screen;
