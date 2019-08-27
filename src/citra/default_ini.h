@@ -108,10 +108,6 @@ use_hw_shader =
 # 0: Off (Default. Faster, but causes issues in some games) 1: On (Slower, but correct)
 shaders_accurate_mul =
 
-# Whether to fallback to software for geometry shaders
-# 0: Off (Faster, but causes issues in some games) 1: On (Default. Slower, but correct)
-shaders_accurate_gs =
-
 # Whether to use the Just-In-Time (JIT) compiler for shader emulation
 # 0: Interpreter (slow), 1 (default): JIT (fast)
 use_shader_jit =
@@ -139,13 +135,23 @@ bg_red =
 bg_blue =
 bg_green =
 
-# Toggles Stereoscopic 3D
-# 0 (default): Off, 1: On
-toggle_3d =
+# Whether and how Stereoscopic 3D should be rendered
+# 0 (default): Off, 1: Side by Side, 2: Anaglyph
+render_3d =
 
 # Change 3D Intensity
 # 0 - 100: Intensity. 0 (default)
 factor_3d =
+
+# The name of the post processing shader to apply.
+# Loaded from shaders if render_3d is off or side by side.
+# Loaded from shaders/anaglyph if render_3d is anaglyph
+pp_shader_name =
+
+# Whether to enable linear filtering or not
+# This is required for some shaders to work correctly
+# 0: Nearest, 1 (default): Linear
+filter_mode =
 
 [Layout]
 # Layout for the screen inside the render window.
@@ -251,6 +257,8 @@ camera_inner_flip =
 log_filter = *:Info
 
 [Debugging]
+# Record frame time data, can be found in the log directory. Boolean value
+record_frame_times =
 # Port for listening to GDB connections.
 use_gdbstub=false
 gdbstub_port=24689

@@ -6,7 +6,7 @@
 #include <QUrl>
 #include "citra_qt/configuration/configure_debug.h"
 #include "citra_qt/debugger/console.h"
-#include "citra_qt/ui_settings.h"
+#include "citra_qt/uisettings.h"
 #include "common/file_util.h"
 #include "common/logging/backend.h"
 #include "common/logging/filter.h"
@@ -19,7 +19,7 @@ ConfigureDebug::ConfigureDebug(QWidget* parent) : QWidget(parent), ui(new Ui::Co
     ui->setupUi(this);
     SetConfiguration();
 
-    connect(ui->open_log_button, &QPushButton::pressed, []() {
+    connect(ui->open_log_button, &QPushButton::clicked, []() {
         QString path = QString::fromStdString(FileUtil::GetUserPath(FileUtil::UserPath::LogDir));
         QDesktopServices::openUrl(QUrl::fromLocalFile(path));
     });

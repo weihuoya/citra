@@ -15,6 +15,9 @@
 #include <QtGui>
 #include <QtWidgets>
 #include <fmt/format.h>
+#ifdef __APPLE__
+#include <unistd.h> // for chdir
+#endif
 #include "citra_qt/aboutdialog.h"
 #include "citra_qt/applets/mii_selector.h"
 #include "citra_qt/applets/swkbd.h"
@@ -42,7 +45,7 @@
 #include "citra_qt/hotkeys.h"
 #include "citra_qt/main.h"
 #include "citra_qt/multiplayer/state.h"
-#include "citra_qt/ui_settings.h"
+#include "citra_qt/uisettings.h"
 #include "citra_qt/updater/updater.h"
 #include "citra_qt/util/clickable_label.h"
 #include "common/common_paths.h"
@@ -56,6 +59,7 @@
 #include "common/scm_rev.h"
 #include "common/scope_exit.h"
 #include "core/core.h"
+#include "core/dumping/backend.h"
 #include "core/file_sys/archive_extsavedata.h"
 #include "core/file_sys/archive_source_sd_savedata.h"
 #include "core/frontend/applets/default_applets.h"
@@ -66,6 +70,8 @@
 #include "core/movie.h"
 #include "core/settings.h"
 #include "game_list_p.h"
+#include "video_core/renderer_base.h"
+#include "video_core/video_core.h"
 
 #ifdef USE_DISCORD_PRESENCE
 #include "citra_qt/discord_impl.h"
@@ -158,9 +164,9 @@ GMainWindow::GMainWindow() : config(new Config()), emu_thread(nullptr) {
     ConnectMenuEvents();
     ConnectWidgetEvents();
 
-    SetupUIStrings();
     LOG_INFO(Frontend, "Citra Version: {} | {}-{}", Common::g_build_fullname, Common::g_scm_branch,
              Common::g_scm_desc);
+    UpdateWindowTitle();
 
     show();
 
@@ -600,6 +606,17 @@ void GMainWindow::ConnectMenuEvents() {
     connect(ui.action_Capture_Screenshot, &QAction::triggered, this,
             &GMainWindow::OnCaptureScreenshot);
 
+#ifndef ENABLE_FFMPEG_VIDEO_DUMPER
+    ui.action_Dump_Video->setEnabled(false);
+#endif
+    connect(ui.action_Dump_Video, &QAction::triggered, [this] {
+        if (ui.action_Dump_Video->isChecked()) {
+            OnStartVideoDumping();
+        } else {
+            OnStopVideoDumping();
+        }
+    });
+
     // Help
     connect(ui.action_Open_Citra_Folder, &QAction::triggered, this,
             &GMainWindow::OnOpenCitraFolder);
@@ -797,7 +814,7 @@ bool GMainWindow::LoadROM(const QString& filename) {
     std::string title;
     system.GetAppLoader().ReadTitle(title);
     game_title = QString::fromStdString(title);
-    SetupUIStrings();
+    UpdateWindowTitle();
 
     game_path = filename;
 
@@ -861,10 +878,25 @@ void GMainWindow::BootGame(const QString& filename) {
     if (ui.action_Fullscreen->isChecked()) {
         ShowFullscreen();
     }
+
+    if (video_dumping_on_start) {
+        Layout::FramebufferLayout layout{
+            Layout::FrameLayoutFromResolutionScale(VideoCore::GetResolutionScaleFactor())};
+        Core::System::GetInstance().VideoDumper().StartDumping(video_dumping_path.toStdString(),
+                                                               "webm", layout);
+        video_dumping_on_start = false;
+        video_dumping_path.clear();
+    }
     OnStartGame();
 }
 
 void GMainWindow::ShutdownGame() {
+    if (Core::System::GetInstance().VideoDumper().IsDumping()) {
+        game_shutdown_delayed = true;
+        OnStopVideoDumping();
+        return;
+    }
+
     discord_rpc->Pause();
     OnStopRecordingPlayback();
     emu_thread->RequestStop();
@@ -927,7 +959,7 @@ void GMainWindow::ShutdownGame() {
     }
 
     game_title.clear();
-    SetupUIStrings();
+    UpdateWindowTitle();
 
     game_path.clear();
 }
@@ -1594,6 +1626,51 @@ void GMainWindow::OnCaptureScreenshot() {
     OnStartGame();
 }
 
+void GMainWindow::OnStartVideoDumping() {
+    const QString path = QFileDialog::getSaveFileName(
+        this, tr("Save Video"), UISettings::values.video_dumping_path, tr("WebM Videos (*.webm)"));
+    if (path.isEmpty()) {
+        ui.action_Dump_Video->setChecked(false);
+        return;
+    }
+    UISettings::values.video_dumping_path = QFileInfo(path).path();
+    if (emulation_running) {
+        Layout::FramebufferLayout layout{
+            Layout::FrameLayoutFromResolutionScale(VideoCore::GetResolutionScaleFactor())};
+        Core::System::GetInstance().VideoDumper().StartDumping(path.toStdString(), "webm", layout);
+    } else {
+        video_dumping_on_start = true;
+        video_dumping_path = path;
+    }
+}
+
+void GMainWindow::OnStopVideoDumping() {
+    ui.action_Dump_Video->setChecked(false);
+
+    if (video_dumping_on_start) {
+        video_dumping_on_start = false;
+        video_dumping_path.clear();
+    } else {
+        const bool was_dumping = Core::System::GetInstance().VideoDumper().IsDumping();
+        if (!was_dumping)
+            return;
+        OnPauseGame();
+
+        auto future =
+            QtConcurrent::run([] { Core::System::GetInstance().VideoDumper().StopDumping(); });
+        auto* future_watcher = new QFutureWatcher<void>(this);
+        connect(future_watcher, &QFutureWatcher<void>::finished, this, [this] {
+            if (game_shutdown_delayed) {
+                game_shutdown_delayed = false;
+                ShutdownGame();
+            } else {
+                OnStartGame();
+            }
+        });
+        future_watcher->setFuture(future);
+    }
+}
+
 void GMainWindow::UpdateStatusBar() {
     if (emu_thread == nullptr) {
         status_bar_update_timer.stop();
@@ -1650,7 +1727,7 @@ void GMainWindow::OnCoreError(Core::System::ResultStatus result, std::string det
     message_box.setWindowTitle(title);
     message_box.setText(message);
     message_box.setIcon(QMessageBox::Icon::Critical);
-    QPushButton* continue_button = message_box.addButton(tr("Continue"), QMessageBox::RejectRole);
+    message_box.addButton(tr("Continue"), QMessageBox::RejectRole);
     QPushButton* abort_button = message_box.addButton(tr("Abort"), QMessageBox::AcceptRole);
     if (result != Core::System::ResultStatus::ShutdownRequested)
         message_box.exec();
@@ -1813,7 +1890,7 @@ void GMainWindow::OnLanguageChanged(const QString& locale) {
     LoadTranslation();
     ui.retranslateUi(this);
     RetranslateStatusBar();
-    SetupUIStrings();
+    UpdateWindowTitle();
 
     if (emulation_running)
         ui.action_Start->setText(tr("Continue"));
@@ -1826,11 +1903,13 @@ void GMainWindow::OnMoviePlaybackCompleted() {
     ui.action_Stop_Recording_Playback->setEnabled(false);
 }
 
-void GMainWindow::SetupUIStrings() {
+void GMainWindow::UpdateWindowTitle() {
+    const QString full_name = QString::fromUtf8(Common::g_build_fullname);
+
     if (game_title.isEmpty()) {
-        setWindowTitle(tr("Citra %1").arg(Common::g_build_fullname));
+        setWindowTitle(tr("Citra %1").arg(full_name));
     } else {
-        setWindowTitle(tr("Citra %1| %2").arg(Common::g_build_fullname, game_title));
+        setWindowTitle(tr("Citra %1| %2").arg(full_name, game_title));
     }
 }
 
@@ -1886,6 +1965,11 @@ int main(int argc, char* argv[]) {
     // Init settings params
     QCoreApplication::setOrganizationName("Citra team");
     QCoreApplication::setApplicationName("Citra");
+
+#ifdef __APPLE__
+    std::string bin_path = FileUtil::GetBundleDirectory() + DIR_SEP + "..";
+    chdir(bin_path.c_str());
+#endif
 
     QApplication app(argc, argv);
 

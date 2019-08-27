@@ -14,7 +14,7 @@
 #include "citra_qt/multiplayer/message.h"
 #include "citra_qt/multiplayer/state.h"
 #include "citra_qt/multiplayer/validation.h"
-#include "citra_qt/ui_settings.h"
+#include "citra_qt/uisettings.h"
 #include "core/hle/service/cfg/cfg.h"
 #include "core/settings.h"
 #include "network/network.h"
@@ -45,7 +45,7 @@ DirectConnectWindow::DirectConnectWindow(QWidget* parent)
 
     // TODO(jroweboy): Show or hide the connection options based on the current value of the combo
     // box. Add this back in when the traversal server support is added.
-    connect(ui->connect, &QPushButton::pressed, this, &DirectConnectWindow::Connect);
+    connect(ui->connect, &QPushButton::clicked, this, &DirectConnectWindow::Connect);
 }
 
 DirectConnectWindow::~DirectConnectWindow() = default;

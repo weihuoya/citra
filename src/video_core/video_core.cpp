@@ -21,9 +21,10 @@ std::unique_ptr<RendererBase> g_renderer; ///< Renderer plugin
 std::atomic<bool> g_hw_renderer_enabled;
 std::atomic<bool> g_shader_jit_enabled;
 std::atomic<bool> g_hw_shader_enabled;
-std::atomic<bool> g_hw_shader_accurate_gs;
 std::atomic<bool> g_hw_shader_accurate_mul;
 std::atomic<bool> g_renderer_bg_color_update_requested;
+std::atomic<bool> g_renderer_sampler_update_requested;
+std::atomic<bool> g_renderer_shader_update_requested;
 // Screenshot
 std::atomic<bool> g_renderer_screenshot_requested;
 void* g_screenshot_bits;

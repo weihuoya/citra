@@ -261,6 +261,7 @@ private:
     bool is_amd;
 
     OpenGLState state;
+    GLuint default_texture;
 
     RasterizerCacheOpenGL res_cache;
 
@@ -287,8 +288,8 @@ private:
 
     // They shall be big enough for about one frame.
     static constexpr std::size_t VERTEX_BUFFER_SIZE = 16 * 1024 * 1024;
-    static constexpr std::size_t INDEX_BUFFER_SIZE = 4 * 1024 * 1024;
-    static constexpr std::size_t UNIFORM_BUFFER_SIZE = 4 * 1024 * 1024;
+    static constexpr std::size_t INDEX_BUFFER_SIZE = 1 * 1024 * 1024;
+    static constexpr std::size_t UNIFORM_BUFFER_SIZE = 2 * 1024 * 1024;
     static constexpr std::size_t TEXTURE_BUFFER_SIZE = 1 * 1024 * 1024;
 
     OGLVertexArray sw_vao; // VAO for software shader draw
@@ -308,7 +309,6 @@ private:
 
     SamplerInfo texture_cube_sampler;
 
-    OGLTexture texture_null;
     OGLTexture texture_buffer_lut_rg;
     OGLTexture texture_buffer_lut_rgba;
 

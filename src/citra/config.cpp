@@ -115,8 +115,6 @@ void Config::ReadValues() {
 #else
     Settings::values.use_hw_shader = sdl2_config->GetBoolean("Renderer", "use_hw_shader", true);
 #endif
-    Settings::values.shaders_accurate_gs =
-        sdl2_config->GetBoolean("Renderer", "shaders_accurate_gs", true);
     Settings::values.shaders_accurate_mul =
         sdl2_config->GetBoolean("Renderer", "shaders_accurate_mul", false);
     Settings::values.use_shader_jit = sdl2_config->GetBoolean("Renderer", "use_shader_jit", true);
@@ -127,9 +125,15 @@ void Config::ReadValues() {
     Settings::values.frame_limit =
         static_cast<u16>(sdl2_config->GetInteger("Renderer", "frame_limit", 100));
 
-    Settings::values.toggle_3d = sdl2_config->GetBoolean("Renderer", "toggle_3d", false);
+    Settings::values.render_3d = static_cast<Settings::StereoRenderOption>(
+        sdl2_config->GetInteger("Renderer", "render_3d", 0));
     Settings::values.factor_3d =
         static_cast<u8>(sdl2_config->GetInteger("Renderer", "factor_3d", 0));
+    Settings::values.pp_shader_name = sdl2_config->GetString(
+        "Renderer", "pp_shader_name",
+        (Settings::values.render_3d == Settings::StereoRenderOption::Anaglyph) ? "dubois (builtin)"
+                                                                               : "none (builtin)");
+    Settings::values.filter_mode = sdl2_config->GetBoolean("Renderer", "filter_mode", true);
 
     Settings::values.bg_red = static_cast<float>(sdl2_config->GetReal("Renderer", "bg_red", 0.0));
     Settings::values.bg_green =
@@ -228,6 +232,8 @@ void Config::ReadValues() {
     Settings::values.log_filter = sdl2_config->GetString("Miscellaneous", "log_filter", "*:Info");
 
     // Debugging
+    Settings::values.record_frame_times =
+        sdl2_config->GetBoolean("Debugging", "record_frame_times", false);
     Settings::values.use_gdbstub = sdl2_config->GetBoolean("Debugging", "use_gdbstub", false);
     Settings::values.gdbstub_port =
         static_cast<u16>(sdl2_config->GetInteger("Debugging", "gdbstub_port", 24689));

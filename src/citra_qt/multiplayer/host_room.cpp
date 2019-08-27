@@ -17,7 +17,7 @@
 #include "citra_qt/multiplayer/message.h"
 #include "citra_qt/multiplayer/state.h"
 #include "citra_qt/multiplayer/validation.h"
-#include "citra_qt/ui_settings.h"
+#include "citra_qt/uisettings.h"
 #include "common/logging/log.h"
 #include "core/announce_multiplayer_session.h"
 #include "core/hle/service/cfg/cfg.h"
@@ -49,7 +49,7 @@ HostRoomWindow::HostRoomWindow(QWidget* parent, QStandardItemModel* list,
     ui->game_list->setModel(proxy);
 
     // Connect all the widgets to the appropriate events
-    connect(ui->host, &QPushButton::pressed, this, &HostRoomWindow::Host);
+    connect(ui->host, &QPushButton::clicked, this, &HostRoomWindow::Host);
 
     // Restore the settings:
     ui->username->setText(UISettings::values.room_nickname);

@@ -8,6 +8,7 @@
 #include <QKeySequence>
 #include <QSettings>
 #include "citra_qt/configuration/config.h"
+#include "citra_qt/uisettings.h"
 #include "common/file_util.h"
 #include "core/hle/service/service.h"
 #include "input_common/main.h"
@@ -51,29 +52,31 @@ const std::array<std::array<int, 5>, Settings::NativeAnalog::NumAnalogs> Config:
 }};
 
 // This shouldn't have anything except static initializers (no functions). So
-// QKeySequnce(...).toString() is NOT ALLOWED HERE.
+// QKeySequence(...).toString() is NOT ALLOWED HERE.
 // This must be in alphabetical order according to action name as it must have the same order as
 // UISetting::values.shortcuts, which is alphabetically ordered.
-const std::array<UISettings::Shortcut, 19> Config::default_hotkeys{
-    {{"Advance Frame", "Main Window", {"\\", Qt::ApplicationShortcut}},
-     {"Capture Screenshot", "Main Window", {"Ctrl+P", Qt::ApplicationShortcut}},
-     {"Continue/Pause Emulation", "Main Window", {"F4", Qt::WindowShortcut}},
-     {"Decrease Speed Limit", "Main Window", {"-", Qt::ApplicationShortcut}},
-     {"Exit Citra", "Main Window", {"Ctrl+Q", Qt::WindowShortcut}},
-     {"Exit Fullscreen", "Main Window", {"Esc", Qt::WindowShortcut}},
-     {"Fullscreen", "Main Window", {"F11", Qt::WindowShortcut}},
-     {"Increase Speed Limit", "Main Window", {"+", Qt::ApplicationShortcut}},
-     {"Load Amiibo", "Main Window", {"F2", Qt::ApplicationShortcut}},
-     {"Load File", "Main Window", {"Ctrl+O", Qt::WindowShortcut}},
-     {"Remove Amiibo", "Main Window", {"F3", Qt::ApplicationShortcut}},
-     {"Restart Emulation", "Main Window", {"F6", Qt::WindowShortcut}},
-     {"Stop Emulation", "Main Window", {"F5", Qt::WindowShortcut}},
-     {"Swap Screens", "Main Window", {"F9", Qt::WindowShortcut}},
-     {"Toggle Filter Bar", "Main Window", {"Ctrl+F", Qt::WindowShortcut}},
-     {"Toggle Frame Advancing", "Main Window", {"Ctrl+A", Qt::ApplicationShortcut}},
-     {"Toggle Screen Layout", "Main Window", {"F10", Qt::WindowShortcut}},
-     {"Toggle Speed Limit", "Main Window", {"Ctrl+Z", Qt::ApplicationShortcut}},
-     {"Toggle Status Bar", "Main Window", {"Ctrl+S", Qt::WindowShortcut}}}};
+// clang-format off
+const std::array<UISettings::Shortcut, 19> default_hotkeys{
+    {{QStringLiteral("Advance Frame"),            QStringLiteral("Main Window"), {QStringLiteral("\\"), Qt::ApplicationShortcut}},
+     {QStringLiteral("Capture Screenshot"),       QStringLiteral("Main Window"), {QStringLiteral("Ctrl+P"), Qt::ApplicationShortcut}},
+     {QStringLiteral("Continue/Pause Emulation"), QStringLiteral("Main Window"), {QStringLiteral("F4"), Qt::WindowShortcut}},
+     {QStringLiteral("Decrease Speed Limit"),     QStringLiteral("Main Window"), {QStringLiteral("-"), Qt::ApplicationShortcut}},
+     {QStringLiteral("Exit Citra"),               QStringLiteral("Main Window"), {QStringLiteral("Ctrl+Q"), Qt::WindowShortcut}},
+     {QStringLiteral("Exit Fullscreen"),          QStringLiteral("Main Window"), {QStringLiteral("Esc"), Qt::WindowShortcut}},
+     {QStringLiteral("Fullscreen"),               QStringLiteral("Main Window"), {QStringLiteral("F11"), Qt::WindowShortcut}},
+     {QStringLiteral("Increase Speed Limit"),     QStringLiteral("Main Window"), {QStringLiteral("+"), Qt::ApplicationShortcut}},
+     {QStringLiteral("Load Amiibo"),              QStringLiteral("Main Window"), {QStringLiteral("F2"), Qt::ApplicationShortcut}},
+     {QStringLiteral("Load File"),                QStringLiteral("Main Window"), {QStringLiteral("Ctrl+O"), Qt::WindowShortcut}},
+     {QStringLiteral("Remove Amiibo"),            QStringLiteral("Main Window"), {QStringLiteral("F3"), Qt::ApplicationShortcut}},
+     {QStringLiteral("Restart Emulation"),        QStringLiteral("Main Window"), {QStringLiteral("F6"), Qt::WindowShortcut}},
+     {QStringLiteral("Stop Emulation"),           QStringLiteral("Main Window"), {QStringLiteral("F5"), Qt::WindowShortcut}},
+     {QStringLiteral("Swap Screens"),             QStringLiteral("Main Window"), {QStringLiteral("F9"), Qt::WindowShortcut}},
+     {QStringLiteral("Toggle Filter Bar"),        QStringLiteral("Main Window"), {QStringLiteral("Ctrl+F"), Qt::WindowShortcut}},
+     {QStringLiteral("Toggle Frame Advancing"),   QStringLiteral("Main Window"), {QStringLiteral("Ctrl+A"), Qt::ApplicationShortcut}},
+     {QStringLiteral("Toggle Screen Layout"),     QStringLiteral("Main Window"), {QStringLiteral("F10"), Qt::WindowShortcut}},
+     {QStringLiteral("Toggle Speed Limit"),       QStringLiteral("Main Window"), {QStringLiteral("Ctrl+Z"), Qt::ApplicationShortcut}},
+     {QStringLiteral("Toggle Status Bar"),        QStringLiteral("Main Window"), {QStringLiteral("Ctrl+S"), Qt::WindowShortcut}}}};
+// clang-format on
 
 void Config::ReadValues() {
     qt_config->beginGroup("Controls");
@@ -157,7 +160,6 @@ void Config::ReadValues() {
 #else
     Settings::values.use_hw_shader = ReadSetting("use_hw_shader", true).toBool();
 #endif
-    Settings::values.shaders_accurate_gs = ReadSetting("shaders_accurate_gs", true).toBool();
     Settings::values.shaders_accurate_mul = ReadSetting("shaders_accurate_mul", false).toBool();
     Settings::values.use_shader_jit = ReadSetting("use_shader_jit", true).toBool();
     Settings::values.resolution_factor =
@@ -172,8 +174,17 @@ void Config::ReadValues() {
     qt_config->endGroup();
 
     qt_config->beginGroup("Layout");
-    Settings::values.toggle_3d = ReadSetting("toggle_3d", false).toBool();
+    Settings::values.render_3d =
+        static_cast<Settings::StereoRenderOption>(ReadSetting("render_3d", 0).toInt());
     Settings::values.factor_3d = ReadSetting("factor_3d", 0).toInt();
+    Settings::values.pp_shader_name =
+        ReadSetting("pp_shader_name",
+                    (Settings::values.render_3d == Settings::StereoRenderOption::Anaglyph)
+                        ? "dubois (builtin)"
+                        : "none (builtin)")
+            .toString()
+            .toStdString();
+    Settings::values.filter_mode = ReadSetting("filter_mode", true).toBool();
     Settings::values.layout_option =
         static_cast<Settings::LayoutOption>(ReadSetting("layout_option").toInt());
     Settings::values.swap_screen = ReadSetting("swap_screen", false).toBool();
@@ -243,6 +254,8 @@ void Config::ReadValues() {
     qt_config->endGroup();
 
     qt_config->beginGroup("Debugging");
+    // Intentionally not using the QT default setting as this is intended to be changed in the ini
+    Settings::values.record_frame_times = qt_config->value("record_frame_times", false).toBool();
     Settings::values.use_gdbstub = ReadSetting("use_gdbstub", false).toBool();
     Settings::values.gdbstub_port = ReadSetting("gdbstub_port", 24689).toInt();
 
@@ -314,6 +327,7 @@ void Config::ReadValues() {
     UISettings::values.movie_record_path = ReadSetting("movieRecordPath").toString();
     UISettings::values.movie_playback_path = ReadSetting("moviePlaybackPath").toString();
     UISettings::values.screenshot_path = ReadSetting("screenshotPath").toString();
+    UISettings::values.video_dumping_path = ReadSetting("videoDumpingPath").toString();
     UISettings::values.game_dir_deprecated = ReadSetting("gameListRootDir", ".").toString();
     UISettings::values.game_dir_deprecated_deepscan =
         ReadSetting("gameListDeepScan", false).toBool();
@@ -447,7 +461,6 @@ void Config::SaveValues() {
     qt_config->beginGroup("Renderer");
     WriteSetting("use_hw_renderer", Settings::values.use_hw_renderer, true);
     WriteSetting("use_hw_shader", Settings::values.use_hw_shader, true);
-    WriteSetting("shaders_accurate_gs", Settings::values.shaders_accurate_gs, true);
     WriteSetting("shaders_accurate_mul", Settings::values.shaders_accurate_mul, false);
     WriteSetting("use_shader_jit", Settings::values.use_shader_jit, true);
     WriteSetting("resolution_factor", Settings::values.resolution_factor, 1);
@@ -462,8 +475,13 @@ void Config::SaveValues() {
     qt_config->endGroup();
 
     qt_config->beginGroup("Layout");
-    WriteSetting("toggle_3d", Settings::values.toggle_3d, false);
+    WriteSetting("render_3d", static_cast<int>(Settings::values.render_3d), 0);
     WriteSetting("factor_3d", Settings::values.factor_3d.load(), 0);
+    WriteSetting("pp_shader_name", QString::fromStdString(Settings::values.pp_shader_name),
+                 (Settings::values.render_3d == Settings::StereoRenderOption::Anaglyph)
+                     ? "dubois (builtin)"
+                     : "none (builtin)");
+    WriteSetting("filter_mode", Settings::values.filter_mode, true);
     WriteSetting("layout_option", static_cast<int>(Settings::values.layout_option));
     WriteSetting("swap_screen", Settings::values.swap_screen, false);
     WriteSetting("custom_layout", Settings::values.custom_layout, false);
@@ -526,6 +544,8 @@ void Config::SaveValues() {
     qt_config->endGroup();
 
     qt_config->beginGroup("Debugging");
+    // Intentionally not using the QT default setting as this is intended to be changed in the ini
+    qt_config->setValue("record_frame_times", Settings::values.record_frame_times);
     WriteSetting("use_gdbstub", Settings::values.use_gdbstub, false);
     WriteSetting("gdbstub_port", Settings::values.gdbstub_port, 24689);
 
@@ -577,6 +597,7 @@ void Config::SaveValues() {
     WriteSetting("movieRecordPath", UISettings::values.movie_record_path);
     WriteSetting("moviePlaybackPath", UISettings::values.movie_playback_path);
     WriteSetting("screenshotPath", UISettings::values.screenshot_path);
+    WriteSetting("videoDumpingPath", UISettings::values.video_dumping_path);
     qt_config->beginWriteArray("gamedirs");
     for (int i = 0; i < UISettings::values.game_dirs.size(); ++i) {
         qt_config->setArrayIndex(i);
