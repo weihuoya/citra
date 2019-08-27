@@ -4,9 +4,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Environment;
 import android.support.v4.content.LocalBroadcastManager;
-
-import org.citra.emu.NativeLibrary;
-
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -14,6 +11,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.concurrent.atomic.AtomicBoolean;
+import org.citra.emu.NativeLibrary;
 
 public final class DirectoryInitialization {
     public static final String BROADCAST_ACTION = "org.citra.emu.DIRECTORY_INITIALIZATION";
@@ -25,8 +23,8 @@ public final class DirectoryInitialization {
 
     public static void start(Context context) {
         // Can take a few seconds to run, so don't block UI thread.
-        //noinspection TrivialFunctionalExpressionUsage
-        ((Runnable) () -> init(context)).run();
+        // noinspection TrivialFunctionalExpressionUsage
+        ((Runnable)() -> init(context)).run();
     }
 
     private static void init(Context context) {
@@ -123,9 +121,9 @@ public final class DirectoryInitialization {
                     createdFolder = true;
                 }
                 copyAssetFolder(assetFolder + File.separator + file, new File(outputFolder, file),
-                        overwrite, context);
-                copyAsset(assetFolder + File.separator + file, new File(outputFolder, file), overwrite,
-                        context);
+                                overwrite, context);
+                copyAsset(assetFolder + File.separator + file, new File(outputFolder, file),
+                          overwrite, context);
             }
         } catch (IOException e) {
         }
@@ -137,7 +135,6 @@ public final class DirectoryInitialization {
             OutputStream out = new FileOutputStream(to);
             copyFile(in, out);
         } catch (IOException e) {
-
         }
     }
 

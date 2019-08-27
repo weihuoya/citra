@@ -28,10 +28,11 @@
     <string name="setting_use_virtual_sd">使用虚拟SD卡</string>
     <string name="setting_region_value">模拟地区</string>
 
+    <string name="show_fps">显示帧率</string>
     <string name="layout_option">屏幕布局</string>
     <string name="internal_resolution">内部分辨率</string>
     <string name="setting_shaders_accurate_mul">精确乘法运算</string>
-    <string name="setting_shaders_accurate_gs">精确几何着色器</string>
+    <string name="post_processing_shader">后处理效果</string>
 
     <string name="setting_audio_output">音频输出</string>
     <string name="setting_audio_stretching">音频拉伸</string>
@@ -44,6 +45,16 @@
     <string name="off">关闭</string>
     <string name="clear_input_binding">清除</string>
     <string name="write_permission_needed">You need to allow write access to external storage for the emulator to work.</string>
+
+    <string name="region_invalid">未知</string>
+    <string name="region_japan">日本</string>
+    <string name="region_north_america">北美</string>
+    <string name="region_europe">欧洲</string>
+    <string name="region_australia">澳大利亚</string>
+    <string name="region_china">中国</string>
+    <string name="region_korea">韩国</string>
+    <string name="region_taiwan">台湾</string>
+    <string name="region_region_free">全球</string>
 
     <string name="nnf_new_folder">New folder</string>
     <string name="nnf_create_folder_error">Failed to create folder</string>

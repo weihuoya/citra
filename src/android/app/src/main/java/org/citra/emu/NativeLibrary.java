@@ -35,6 +35,10 @@ public final class NativeLibrary {
 
     public static native String GetAppTitle(String path);
 
+    public static native int[] GetAppIcon(String path);
+
+    public static native int GetAppRegion(String path);
+
     public static native void SaveScreenShot();
 
     public static native void SetUserPath(String path);
@@ -104,5 +108,29 @@ public final class NativeLibrary {
     public static final class ButtonState {
         public static final int RELEASED = 0;
         public static final int PRESSED = 1;
+    }
+
+    public static final class TouchEvent {
+        public static final int TOUCH_PRESSED = 1;
+        public static final int TOUCH_MOVED = 2;
+        public static final int TOUCH_RELEASED = 4;
+        public static final int BEGIN_TILT = 8;
+        public static final int TILT = 16;
+        public static final int END_TILT = 32;
+    }
+
+    /**
+     * Game regions
+     */
+    public static final class GameRegion {
+        public static final int Invalid = -1;
+        public static final int Japan = 0;
+        public static final int NorthAmerica = 1;
+        public static final int Europe = 2;
+        public static final int Australia = 3;
+        public static final int China = 4;
+        public static final int Korea = 5;
+        public static final int Taiwan = 6;
+        public static final int RegionFree = 7;
     }
 }

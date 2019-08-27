@@ -18,14 +18,11 @@ import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.SeekBar;
 import android.widget.TextView;
-
 import com.nononsenseapps.filepicker.DividerItemDecoration;
-
+import java.util.ArrayList;
 import org.citra.emu.NativeLibrary;
 import org.citra.emu.R;
 import org.citra.emu.overlay.InputOverlay;
-
-import java.util.ArrayList;
 
 public class RunningSettingDialog extends DialogFragment {
     private SettingsAdapter mAdapter;
@@ -38,8 +35,8 @@ public class RunningSettingDialog extends DialogFragment {
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
-        ViewGroup contents = (ViewGroup) getActivity().getLayoutInflater()
-                .inflate(R.layout.dialog_running_settings, null);
+        ViewGroup contents = (ViewGroup)getActivity().getLayoutInflater().inflate(
+            R.layout.dialog_running_settings, null);
 
         int columns = 1;
         Drawable lineDivider = getContext().getDrawable(R.drawable.line_divider);
@@ -111,8 +108,8 @@ public class RunningSettingDialog extends DialogFragment {
         }
     }
 
-    public abstract class SettingViewHolder extends RecyclerView.ViewHolder
-            implements View.OnClickListener {
+    public abstract class SettingViewHolder
+        extends RecyclerView.ViewHolder implements View.OnClickListener {
         public SettingViewHolder(View itemView) {
             super(itemView);
             itemView.setOnClickListener(this);
@@ -126,8 +123,8 @@ public class RunningSettingDialog extends DialogFragment {
         public abstract void onClick(View clicked);
     }
 
-    public final class CheckBoxSettingViewHolder extends SettingViewHolder
-            implements CompoundButton.OnCheckedChangeListener {
+    public final class CheckBoxSettingViewHolder
+        extends SettingViewHolder implements CompoundButton.OnCheckedChangeListener {
         SettingsItem mItem;
         private TextView mTextSettingName;
         private CheckBox mCheckbox;
@@ -198,22 +195,16 @@ public class RunningSettingDialog extends DialogFragment {
                 }
 
                 @Override
-                public void onStartTrackingTouch(SeekBar seekBar) {
-
-                }
+                public void onStartTrackingTouch(SeekBar seekBar) {}
 
                 @Override
-                public void onStopTrackingTouch(SeekBar seekBar) {
-
-                }
+                public void onStopTrackingTouch(SeekBar seekBar) {}
             });
             mSeekBar.setProgress(item.getValue());
         }
 
         @Override
-        public void onClick(View clicked) {
-
-        }
+        public void onClick(View clicked) {}
     }
 
     public class SettingsAdapter extends RecyclerView.Adapter<SettingViewHolder> {
@@ -248,12 +239,12 @@ public class RunningSettingDialog extends DialogFragment {
             View itemView;
             LayoutInflater inflater = LayoutInflater.from(parent.getContext());
             switch (viewType) {
-                case SettingsItem.TYPE_CHECKBOX:
-                    itemView = inflater.inflate(R.layout.list_item_running_checkbox, parent, false);
-                    return new CheckBoxSettingViewHolder(itemView);
-                case SettingsItem.TYPE_SEEK_BAR:
-                    itemView = inflater.inflate(R.layout.list_item_running_seekbar, parent, false);
-                    return new SeekBarSettingViewHolder(itemView);
+            case SettingsItem.TYPE_CHECKBOX:
+                itemView = inflater.inflate(R.layout.list_item_running_checkbox, parent, false);
+                return new CheckBoxSettingViewHolder(itemView);
+            case SettingsItem.TYPE_SEEK_BAR:
+                itemView = inflater.inflate(R.layout.list_item_running_seekbar, parent, false);
+                return new SeekBarSettingViewHolder(itemView);
             }
             return null;
         }
@@ -298,5 +289,4 @@ public class RunningSettingDialog extends DialogFragment {
             }
         }
     }
-
 }

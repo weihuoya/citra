@@ -33,8 +33,7 @@ public interface LogicHandler<T> {
      * @param path
      * @return filename of path
      */
-    @NonNull
-    String getName(@NonNull final T path);
+    @NonNull String getName(@NonNull final T path);
 
     /**
      * Convert the path to a URI for the return intent
@@ -42,8 +41,7 @@ public interface LogicHandler<T> {
      * @param path
      * @return a Uri
      */
-    @NonNull
-    Uri toUri(@NonNull final T path);
+    @NonNull Uri toUri(@NonNull final T path);
 
     /**
      * Return the path to the parent directory. Should return the root if
@@ -51,36 +49,31 @@ public interface LogicHandler<T> {
      *
      * @param from
      */
-    @NonNull
-    T getParent(@NonNull final T from);
+    @NonNull T getParent(@NonNull final T from);
 
     /**
      * @param path
      * @return the full path to the file
      */
-    @NonNull
-    String getFullPath(@NonNull final T path);
+    @NonNull String getFullPath(@NonNull final T path);
 
     /**
      * Convert the path to the type used.
      *
      * @param path
      */
-    @NonNull
-    T getPath(@NonNull final String path);
+    @NonNull T getPath(@NonNull final String path);
 
     /**
      * Get the root path (lowest allowed).
      */
-    @NonNull
-    T getRoot();
+    @NonNull T getRoot();
 
     /**
      * Get a loader that lists the files in the current path,
      * and monitors changes.
      */
-    @NonNull
-    Loader<SortedList<T>> getLoader();
+    @NonNull Loader<SortedList<T>> getLoader();
 
     /**
      * Bind the header ".." which goes to parent folder.
@@ -96,8 +89,7 @@ public interface LogicHandler<T> {
      * @param viewType
      * @return a view holder for a file or directory
      */
-    @NonNull
-    RecyclerView.ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType);
+    @NonNull RecyclerView.ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType);
 
     /**
      * @param viewHolder to bind data from either a file or directory

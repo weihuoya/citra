@@ -26,5 +26,5 @@ add_library(main SHARED
             config/config_loader.h
             )
 
-target_link_libraries(main android EGL log core common)
-target_include_directories(main PRIVATE "../../" "./" "../../../externals/glad/include/")
+target_link_libraries(main android EGL log core input_common)
+target_include_directories(main PRIVATE "./" "../../../externals/glad/include/")

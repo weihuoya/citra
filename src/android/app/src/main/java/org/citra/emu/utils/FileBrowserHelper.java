@@ -5,15 +5,12 @@ import android.content.Intent;
 import android.net.Uri;
 import android.os.Environment;
 import android.support.annotation.Nullable;
-
 import com.nononsenseapps.filepicker.FilePickerActivity;
 import com.nononsenseapps.filepicker.Utils;
-
-import org.citra.emu.ui.GameFilePickerActivity;
-import org.citra.emu.ui.MainActivity;
-
 import java.io.File;
 import java.util.List;
+import org.citra.emu.ui.GameFilePickerActivity;
+import org.citra.emu.ui.MainActivity;
 
 public final class FileBrowserHelper {
     public static void openDirectoryPicker(Activity activity) {
@@ -21,7 +18,7 @@ public final class FileBrowserHelper {
         i.putExtra(FilePickerActivity.EXTRA_ALLOW_MULTIPLE, false);
         i.putExtra(FilePickerActivity.EXTRA_MODE, FilePickerActivity.MODE_DIR);
         i.putExtra(FilePickerActivity.EXTRA_START_PATH,
-                Environment.getExternalStorageDirectory().getPath());
+                   Environment.getExternalStorageDirectory().getPath());
         activity.startActivityForResult(i, MainActivity.REQUEST_ADD_DIRECTORY);
     }
 
@@ -30,7 +27,7 @@ public final class FileBrowserHelper {
         i.putExtra(FilePickerActivity.EXTRA_ALLOW_MULTIPLE, true);
         i.putExtra(FilePickerActivity.EXTRA_MODE, FilePickerActivity.MODE_FILE);
         i.putExtra(FilePickerActivity.EXTRA_START_PATH,
-                Environment.getExternalStorageDirectory().getPath());
+                   Environment.getExternalStorageDirectory().getPath());
         activity.startActivityForResult(i, requestCode);
     }
 

@@ -6,6 +6,8 @@
 
 package com.nononsenseapps.filepicker;
 
+import static com.nononsenseapps.filepicker.Utils.appendPath;
+
 import android.app.Activity;
 import android.content.Context;
 import android.content.res.TypedArray;
@@ -32,14 +34,10 @@ import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
-
-import org.citra.emu.R;
-
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
-
-import static com.nononsenseapps.filepicker.Utils.appendPath;
+import org.citra.emu.R;
 
 /**
  * A fragment representing a list of Files.
@@ -49,8 +47,8 @@ import static com.nononsenseapps.filepicker.Utils.appendPath;
  * OnFilePickedListener}
  * interface.
  */
-public abstract class AbstractFilePickerFragment<T> extends Fragment
-        implements LoaderManager.LoaderCallbacks<SortedList<T>>, LogicHandler<T> {
+public abstract class AbstractFilePickerFragment<T>
+    extends Fragment implements LoaderManager.LoaderCallbacks<SortedList<T>>, LogicHandler<T> {
 
     // The different preset modes of operation. This impacts the behaviour
     // and possible actions in the UI.
@@ -130,12 +128,12 @@ public abstract class AbstractFilePickerFragment<T> extends Fragment
                         final boolean singleClick) {
         // Validate some assumptions so users don't get surprised (or get surprised early)
         if (mode == MODE_NEW_FILE && allowMultiple) {
-            throw new IllegalArgumentException(
-                    "MODE_NEW_FILE does not support 'allowMultiple'");
+            throw new IllegalArgumentException("MODE_NEW_FILE does not support 'allowMultiple'");
         }
         // Single click only makes sense if we are not selecting multiple items
         if (singleClick && allowMultiple) {
-            throw new IllegalArgumentException("'singleClick' can not be used with 'allowMultiple'");
+            throw new IllegalArgumentException(
+                "'singleClick' can not be used with 'allowMultiple'");
         }
         // There might have been arguments set elsewhere, if so do not overwrite them.
         Bundle b = getArguments();
@@ -158,12 +156,12 @@ public abstract class AbstractFilePickerFragment<T> extends Fragment
                              Bundle savedInstanceState) {
         final View view = inflateRootView(inflater, container);
 
-        Toolbar toolbar = (Toolbar) view.findViewById(R.id.nnf_picker_toolbar);
+        Toolbar toolbar = (Toolbar)view.findViewById(R.id.nnf_picker_toolbar);
         if (toolbar != null) {
             setupToolbar(toolbar);
         }
 
-        recyclerView = (RecyclerView) view.findViewById(android.R.id.list);
+        recyclerView = (RecyclerView)view.findViewById(android.R.id.list);
         // improve performance if you know that changes in content
         // do not change the size of the RecyclerView
         recyclerView.setHasFixedSize(true);
@@ -176,42 +174,37 @@ public abstract class AbstractFilePickerFragment<T> extends Fragment
         mAdapter = new FileItemAdapter<>(this);
         recyclerView.setAdapter(mAdapter);
 
-        view.findViewById(R.id.nnf_button_cancel)
-                .setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(final View v) {
-                        onClickCancel(v);
-                    }
-                });
+        view.findViewById(R.id.nnf_button_cancel).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(final View v) {
+                onClickCancel(v);
+            }
+        });
 
         view.findViewById(R.id.nnf_button_ok).setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(final View v) {
-                        onClickOk(v);
-                    }
-                });
-        view.findViewById(R.id.nnf_button_ok_newfile).setOnClickListener(
-                new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        onClickOk(v);
-                    }
-                });
+            @Override
+            public void onClick(final View v) {
+                onClickOk(v);
+            }
+        });
+        view.findViewById(R.id.nnf_button_ok_newfile)
+            .setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    onClickOk(v);
+                }
+            });
 
         mNewFileButtonContainer = view.findViewById(R.id.nnf_newfile_button_container);
         mRegularButtonContainer = view.findViewById(R.id.nnf_button_container);
 
-        mEditTextFileName = (EditText) view.findViewById(R.id.nnf_text_filename);
+        mEditTextFileName = (EditText)view.findViewById(R.id.nnf_text_filename);
         mEditTextFileName.addTextChangedListener(new TextWatcher() {
             @Override
-            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
-
-            }
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
 
             @Override
-            public void onTextChanged(CharSequence s, int start, int before, int count) {
-
-            }
+            public void onTextChanged(CharSequence s, int start, int before, int count) {}
 
             @Override
             public void afterTextChanged(Editable s) {
@@ -220,7 +213,7 @@ public abstract class AbstractFilePickerFragment<T> extends Fragment
             }
         });
 
-        mCurrentDirView = (TextView) view.findViewById(R.id.nnf_current_dir);
+        mCurrentDirView = (TextView)view.findViewById(R.id.nnf_current_dir);
         // Restore state
         if (mCurrentPath != null && mCurrentDirView != null) {
             mCurrentDirView.setText(getFullPath(mCurrentPath));
@@ -230,7 +223,7 @@ public abstract class AbstractFilePickerFragment<T> extends Fragment
     }
 
     protected View inflateRootView(LayoutInflater inflater, ViewGroup container) {
-        return inflater.inflate( R.layout.nnf_fragment_filepicker, container, false);
+        return inflater.inflate(R.layout.nnf_fragment_filepicker, container, false);
     }
 
     /**
@@ -240,7 +233,7 @@ public abstract class AbstractFilePickerFragment<T> extends Fragment
     protected void configureItemDecoration(@NonNull LayoutInflater inflater,
                                            @NonNull RecyclerView recyclerView) {
         final TypedArray attributes =
-                getActivity().obtainStyledAttributes(new int[]{R.attr.nnf_list_item_divider});
+            getActivity().obtainStyledAttributes(new int[] {R.attr.nnf_list_item_divider});
         Drawable divider = attributes.getDrawable(0);
         attributes.recycle();
 
@@ -278,10 +271,10 @@ public abstract class AbstractFilePickerFragment<T> extends Fragment
             return;
         }*/
         if ((allowMultiple || mode == MODE_FILE) &&
-                (mCheckedItems.isEmpty() || getFirstCheckedItem() == null)) {
+            (mCheckedItems.isEmpty() || getFirstCheckedItem() == null)) {
             if (mToast == null) {
                 mToast = Toast.makeText(getActivity(), R.string.nnf_select_something_first,
-                        Toast.LENGTH_SHORT);
+                                        Toast.LENGTH_SHORT);
             }
             mToast.show();
             return;
@@ -302,7 +295,7 @@ public abstract class AbstractFilePickerFragment<T> extends Fragment
         } else if (allowMultiple) {
             mListener.onFilesPicked(toUri(mCheckedItems));
         } else if (mode == MODE_FILE) {
-            //noinspection ConstantConditions
+            // noinspection ConstantConditions
             mListener.onFilePicked(toUri(getFirstCheckedItem()));
         } else if (mode == MODE_DIR) {
             mListener.onFilePicked(toUri(mCurrentPath));
@@ -333,22 +326,18 @@ public abstract class AbstractFilePickerFragment<T> extends Fragment
      * @param toolbar from layout with id "picker_toolbar"
      */
     protected void setupToolbar(@NonNull Toolbar toolbar) {
-        ((AppCompatActivity) getActivity()).setSupportActionBar(toolbar);
+        ((AppCompatActivity)getActivity()).setSupportActionBar(toolbar);
     }
 
-    public
-    @Nullable
-    T getFirstCheckedItem() {
-        //noinspection LoopStatementThatDoesntLoop
+    public @Nullable T getFirstCheckedItem() {
+        // noinspection LoopStatementThatDoesntLoop
         for (T file : mCheckedItems) {
             return file;
         }
         return null;
     }
 
-    protected
-    @NonNull
-    List<Uri> toUri(@NonNull Iterable<T> files) {
+    protected @NonNull List<Uri> toUri(@NonNull Iterable<T> files) {
         ArrayList<Uri> uris = new ArrayList<>();
         for (T file : files) {
             uris.add(toUri(file));
@@ -360,7 +349,7 @@ public abstract class AbstractFilePickerFragment<T> extends Fragment
         boolean checkable = false;
         if (isDir(data)) {
             checkable = false;
-        } else if(mode == MODE_FILE) {
+        } else if (mode == MODE_FILE) {
             checkable = true;
         }
         return checkable;
@@ -370,10 +359,10 @@ public abstract class AbstractFilePickerFragment<T> extends Fragment
     public void onAttach(Context context) {
         super.onAttach(context);
         try {
-            mListener = (OnFilePickedListener) context;
+            mListener = (OnFilePickedListener)context;
         } catch (ClassCastException e) {
             throw new ClassCastException(context.toString() +
-                    " must implement OnFilePickedListener");
+                                         " must implement OnFilePickedListener");
         }
     }
 
@@ -397,12 +386,10 @@ public abstract class AbstractFilePickerFragment<T> extends Fragment
         if (mCurrentPath == null) {
             if (savedInstanceState != null) {
                 mode = savedInstanceState.getInt(KEY_MODE, mode);
-                allowMultiple = savedInstanceState
-                        .getBoolean(KEY_ALLOW_MULTIPLE, allowMultiple);
-                allowExistingFile = savedInstanceState
-                        .getBoolean(KEY_ALLOW_EXISTING_FILE, allowExistingFile);
-                singleClick = savedInstanceState
-                        .getBoolean(KEY_SINGLE_CLICK, singleClick);
+                allowMultiple = savedInstanceState.getBoolean(KEY_ALLOW_MULTIPLE, allowMultiple);
+                allowExistingFile =
+                    savedInstanceState.getBoolean(KEY_ALLOW_EXISTING_FILE, allowExistingFile);
+                singleClick = savedInstanceState.getBoolean(KEY_SINGLE_CLICK, singleClick);
 
                 String path = savedInstanceState.getString(KEY_CURRENT_PATH);
                 if (path != null) {
@@ -410,12 +397,10 @@ public abstract class AbstractFilePickerFragment<T> extends Fragment
                 }
             } else if (getArguments() != null) {
                 mode = getArguments().getInt(KEY_MODE, mode);
-                allowMultiple = getArguments()
-                        .getBoolean(KEY_ALLOW_MULTIPLE, allowMultiple);
-                allowExistingFile = getArguments()
-                        .getBoolean(KEY_ALLOW_EXISTING_FILE, allowExistingFile);
-                singleClick = getArguments()
-                        .getBoolean(KEY_SINGLE_CLICK, singleClick);
+                allowMultiple = getArguments().getBoolean(KEY_ALLOW_MULTIPLE, allowMultiple);
+                allowExistingFile =
+                    getArguments().getBoolean(KEY_ALLOW_EXISTING_FILE, allowExistingFile);
+                singleClick = getArguments().getBoolean(KEY_SINGLE_CLICK, singleClick);
                 if (getArguments().containsKey(KEY_START_PATH)) {
                     String path = getArguments().getString(KEY_START_PATH);
                     if (path != null) {
@@ -481,8 +466,7 @@ public abstract class AbstractFilePickerFragment<T> extends Fragment
         if (hasPermission(nextPath)) {
             mCurrentPath = nextPath;
             isLoading = true;
-            getLoaderManager()
-                    .restartLoader(0, null, AbstractFilePickerFragment.this);
+            getLoaderManager().restartLoader(0, null, AbstractFilePickerFragment.this);
         } else {
             handlePermission(nextPath);
         }
@@ -530,8 +514,7 @@ public abstract class AbstractFilePickerFragment<T> extends Fragment
      * @param data   The data generated by the Loader.
      */
     @Override
-    public void onLoadFinished(final Loader<SortedList<T>> loader,
-                               final SortedList<T> data) {
+    public void onLoadFinished(final Loader<SortedList<T>> loader, final SortedList<T> data) {
         isLoading = false;
         mCheckedItems.clear();
         mCheckedVisibleViewHolders.clear();
@@ -542,7 +525,7 @@ public abstract class AbstractFilePickerFragment<T> extends Fragment
             mCurrentDirView.setText(getFullPath(mCurrentPath));
         }
         // Stop loading now to avoid a refresh clearing the user's selections
-        getLoaderManager().destroyLoader( 0 );
+        getLoaderManager().destroyLoader(0);
     }
 
     /**
@@ -586,19 +569,19 @@ public abstract class AbstractFilePickerFragment<T> extends Fragment
     public RecyclerView.ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         View v;
         switch (viewType) {
-            case LogicHandler.VIEWTYPE_HEADER:
-                v = LayoutInflater.from(getActivity()).inflate(R.layout.nnf_filepicker_listitem_dir,
-                        parent, false);
-                return new HeaderViewHolder(v);
-            case LogicHandler.VIEWTYPE_CHECKABLE:
-                v = LayoutInflater.from(getActivity()).inflate(R.layout.nnf_filepicker_listitem_checkable,
-                        parent, false);
-                return new CheckableViewHolder(v);
-            case LogicHandler.VIEWTYPE_DIR:
-            default:
-                v = LayoutInflater.from(getActivity()).inflate(R.layout.nnf_filepicker_listitem_dir,
-                        parent, false);
-                return new DirViewHolder(v);
+        case LogicHandler.VIEWTYPE_HEADER:
+            v = LayoutInflater.from(getActivity())
+                    .inflate(R.layout.nnf_filepicker_listitem_dir, parent, false);
+            return new HeaderViewHolder(v);
+        case LogicHandler.VIEWTYPE_CHECKABLE:
+            v = LayoutInflater.from(getActivity())
+                    .inflate(R.layout.nnf_filepicker_listitem_checkable, parent, false);
+            return new CheckableViewHolder(v);
+        case LogicHandler.VIEWTYPE_DIR:
+        default:
+            v = LayoutInflater.from(getActivity())
+                    .inflate(R.layout.nnf_filepicker_listitem_dir, parent, false);
+            return new DirViewHolder(v);
         }
     }
 
@@ -610,17 +593,18 @@ public abstract class AbstractFilePickerFragment<T> extends Fragment
     @Override
     public void onBindViewHolder(@NonNull DirViewHolder vh, int position, @NonNull T data) {
         vh.file = data;
-        vh.icon.setImageResource(isDir(data) ? R.drawable.nnf_ic_folder_black_48dp : R.mipmap.ic_country);
+        vh.icon.setImageResource(isDir(data) ? R.drawable.nnf_ic_folder_black_48dp
+                                             : R.mipmap.ic_country);
         vh.text.setText(getName(data));
 
         if (isCheckable(data)) {
             if (mCheckedItems.contains(data)) {
-                mCheckedVisibleViewHolders.add((CheckableViewHolder) vh);
-                ((CheckableViewHolder) vh).checkbox.setChecked(true);
+                mCheckedVisibleViewHolders.add((CheckableViewHolder)vh);
+                ((CheckableViewHolder)vh).checkbox.setChecked(true);
             } else {
-                //noinspection SuspiciousMethodCalls
+                // noinspection SuspiciousMethodCalls
                 mCheckedVisibleViewHolders.remove(vh);
-                ((CheckableViewHolder) vh).checkbox.setChecked(false);
+                ((CheckableViewHolder)vh).checkbox.setChecked(false);
             }
         }
     }
@@ -636,7 +620,6 @@ public abstract class AbstractFilePickerFragment<T> extends Fragment
         mCheckedVisibleViewHolders.clear();
         mCheckedItems.clear();
     }
-
 
     /**
      * Called when a header item ("..") is clicked.
@@ -794,7 +777,7 @@ public abstract class AbstractFilePickerFragment<T> extends Fragment
         public HeaderViewHolder(View v) {
             super(v);
             v.setOnClickListener(this);
-            text = (TextView) v.findViewById(android.R.id.text1);
+            text = (TextView)v.findViewById(android.R.id.text1);
         }
 
         /**
@@ -808,8 +791,8 @@ public abstract class AbstractFilePickerFragment<T> extends Fragment
         }
     }
 
-    public class DirViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener,
-            View.OnLongClickListener {
+    public class DirViewHolder
+        extends RecyclerView.ViewHolder implements View.OnClickListener, View.OnLongClickListener {
 
         public ImageView icon;
         public TextView text;
@@ -820,7 +803,7 @@ public abstract class AbstractFilePickerFragment<T> extends Fragment
             v.setOnClickListener(this);
             v.setOnLongClickListener(this);
             icon = v.findViewById(R.id.item_icon);
-            text = (TextView) v.findViewById(android.R.id.text1);
+            text = (TextView)v.findViewById(android.R.id.text1);
         }
 
         /**
@@ -853,7 +836,7 @@ public abstract class AbstractFilePickerFragment<T> extends Fragment
             super(v);
             boolean nf = mode == MODE_NEW_FILE;
 
-            checkbox = (CheckBox) v.findViewById(R.id.checkbox);
+            checkbox = (CheckBox)v.findViewById(R.id.checkbox);
             checkbox.setVisibility((nf || singleClick) ? View.GONE : View.VISIBLE);
             checkbox.setOnClickListener(new View.OnClickListener() {
                 @Override
@@ -884,5 +867,4 @@ public abstract class AbstractFilePickerFragment<T> extends Fragment
             return onLongClickCheckable(v, this);
         }
     }
-
 }

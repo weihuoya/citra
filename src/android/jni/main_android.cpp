@@ -13,6 +13,9 @@
 #include "common/logging/log.h"
 #include "core/core.h"
 #include "core/frontend/applets/default_applets.h"
+#include "core/hle/service/am/am.h"
+#include "core/hle/service/cfg/cfg.h"
+#include "core/loader/smdh.h"
 #include "core/settings.h"
 #include "video_core/video_core.h"
 
@@ -104,6 +107,63 @@ void BootGame(const std::string& path) {
     s_is_running = false;
 }
 
+static Loader::AppLoader* GetAppLoader(const std::string& path) {
+    auto iter = s_app_loaders.find(path);
+    if (iter != s_app_loaders.end()) {
+        return iter->second.get();
+    }
+
+    auto result = s_app_loaders.emplace(path, Loader::GetLoader(path));
+    return result.first->second.get();
+}
+
+static bool GetSMDHData(Loader::AppLoader* loader, Loader::SMDH* smdh) {
+    std::vector<u8> smdh_data;
+    [&loader, &smdh_data]() -> void {
+        u64 program_id = 0;
+        loader->ReadProgramId(program_id);
+        loader->ReadIcon(smdh_data);
+        if (program_id < 0x00040000'00000000 || program_id > 0x00040000'FFFFFFFF)
+            return;
+
+        std::string update_path = Service::AM::GetTitleContentPath(
+            Service::FS::MediaType::SDMC, program_id + 0x0000000E'00000000);
+
+        if (!FileUtil::Exists(update_path))
+            return;
+
+        std::unique_ptr<Loader::AppLoader> update_loader = Loader::GetLoader(update_path);
+        if (!update_loader)
+            return;
+
+        smdh_data.clear();
+        update_loader->ReadIcon(smdh_data);
+    }();
+
+    if (Loader::IsValidSMDH(smdh_data)) {
+        memcpy(smdh, smdh_data.data(), sizeof(Loader::SMDH));
+        return true;
+    }
+
+    return false;
+}
+
+static std::vector<u16> GetIconData(Loader::AppLoader* loader) {
+    Loader::SMDH smdh;
+    if (GetSMDHData(loader, &smdh)) {
+        return smdh.GetIcon(true);
+    }
+    return std::vector<u16>();
+}
+
+static std::vector<Loader::SMDH::GameRegion> GetGameRegions(Loader::AppLoader* loader) {
+    Loader::SMDH smdh;
+    if (GetSMDHData(loader, &smdh)) {
+        return smdh.GetRegions();
+    }
+    return {};
+}
+
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -125,7 +185,8 @@ JNIEXPORT void JNICALL Java_org_citra_emu_NativeLibrary_SetUserPath(JNIEnv* env,
     // create user directory
     FileUtil::CreateFullPath(FileUtil::GetUserPath(FileUtil::UserPath::ConfigDir));
     FileUtil::CreateFullPath(FileUtil::GetUserPath(FileUtil::UserPath::LogDir));
-    if (!FileUtil::Exists(FileUtil::GetUserPath(FileUtil::UserPath::ConfigDir) + "config-mmj.ini")) {
+    if (!FileUtil::Exists(FileUtil::GetUserPath(FileUtil::UserPath::ConfigDir) +
+                          "config-mmj.ini")) {
         Config::SaveDefault();
     }
 
@@ -134,6 +195,12 @@ JNIEXPORT void JNICALL Java_org_citra_emu_NativeLibrary_SetUserPath(JNIEnv* env,
 
     // profile
     InputManager::GetInstance().InitProfile();
+
+    //
+    VideoCore::g_dump_texture_callback = [](u32* pixels, u32 width, u32 height,
+                                            const std::string& path) {
+        SaveImageToFile(path, width, height, pixels);
+    };
 }
 
 JNIEXPORT jboolean JNICALL Java_org_citra_emu_NativeLibrary_IsRunning(JNIEnv* env, jobject obj) {
@@ -191,15 +258,17 @@ JNIEXPORT void JNICALL Java_org_citra_emu_NativeLibrary_Run(JNIEnv* env, jobject
     Settings::values.region_value = Config::Get(Config::SYSTEM_REGION);
     // use opengl es on android
     Settings::values.use_gles = Config::Get(Config::USE_GLES);
+    Settings::values.show_fps = Config::Get(Config::SHOW_FPS);
     Settings::values.use_hw_renderer = Config::Get(Config::USE_HW_RENDERER);
     Settings::values.use_hw_shader = Config::Get(Config::USE_HW_SHADER);
     Settings::values.use_shader_jit = Config::Get(Config::USE_SHADER_JIT);
     Settings::values.shaders_accurate_mul = Config::Get(Config::SHADERS_ACCURATE_MUL);
-    Settings::values.shaders_accurate_gs = Config::Get(Config::SHADERS_ACCURATE_GS);
     Settings::values.use_frame_limit = Config::Get(Config::USE_FRAME_LIMIT);
     Settings::values.frame_limit = Config::Get(Config::FRAME_LIMIT);
     Settings::values.resolution_factor = Config::Get(Config::RESOLUTION_FACTOR);
+    Settings::values.factor_3d = Config::Get(Config::FACTOR_3D);
     Settings::values.layout_option = Config::Get(Config::LAYOUT_OPTION);
+    Settings::values.pp_shader_name = Config::Get(Config::POST_PROCESSING_SHADER);
     // audio
     Settings::values.enable_dsp_lle = Config::Get(Config::ENABLE_DSP_LLE);
     Settings::values.enable_dsp_lle_multithread = Config::Get(Config::DSP_LLE_MULTITHREAD);
@@ -207,6 +276,10 @@ JNIEXPORT void JNICALL Java_org_citra_emu_NativeLibrary_Run(JNIEnv* env, jobject
     Settings::values.sink_id = Config::Get(Config::AUDIO_ENGINE);
     Settings::values.audio_device_id = Config::Get(Config::AUDIO_DEVICE);
     Settings::values.enable_audio_stretching = Config::Get(Config::AUDIO_STRETCHING);
+    // debug
+    Settings::values.gl_separate_shader = Config::Get(Config::GL_SEPARATE_SHADER);
+    Settings::values.allow_shadow = Config::Get(Config::ALLOW_SHADOW);
+    Settings::values.dump_textures = Config::Get(Config::DUMP_TEXTURES);
     //
     Settings::values.init_clock = Settings::InitClock::SystemTime;
     Settings::values.init_time = 946681277;
@@ -220,16 +293,7 @@ JNIEXPORT void JNICALL Java_org_citra_emu_NativeLibrary_Run(JNIEnv* env, jobject
 }
 
 JNIEXPORT void JNICALL Java_org_citra_emu_NativeLibrary_SaveScreenShot(JNIEnv* env, jobject obj) {
-    u16 res_scale = VideoCore::GetResolutionScaleFactor();
-    const Layout::FramebufferLayout layout{Layout::FrameLayoutFromResolutionScale(res_scale)};
-    std::vector<u32> pixels(layout.width * layout.height);
-    VideoCore::RequestScreenshot(
-        pixels.data(),
-        [=] {
-            auto path = FileUtil::GetUserPath(FileUtil::UserPath::UserDir) + "screenshot.png";
-            SaveImageToFile(path, layout.width, layout.height, pixels);
-        },
-        layout);
+    VideoCore::RequestScreenshot();
 }
 
 JNIEXPORT void JNICALL Java_org_citra_emu_NativeLibrary_ResumeEmulation(JNIEnv* env, jobject obj) {
@@ -253,7 +317,7 @@ JNIEXPORT jintArray JNICALL Java_org_citra_emu_NativeLibrary_getRunningSettings(
     int settings[2];
 
     // get settings
-    settings[i++] = sqrt(Settings::values.core_ticks_hack / 3);
+    settings[i++] = Settings::values.core_ticks_hack > 0;
     settings[i++] = Settings::values.layout_option == Settings::LayoutOption::SingleScreen;
 
     jintArray array = env->NewIntArray(i);
@@ -267,8 +331,7 @@ JNIEXPORT void JNICALL Java_org_citra_emu_NativeLibrary_setRunningSettings(JNIEn
     jint* settings = env->GetIntArrayElements(array, nullptr);
 
     // FMV Hack
-    u32 ticks = settings[i++];
-    Settings::values.core_ticks_hack = ticks * ticks * 3;
+    Settings::values.core_ticks_hack = settings[i++] ? 0xFFFF : 0;
 
     // Change Layout
     bool single_screen = settings[i++] == 1;
@@ -289,22 +352,27 @@ JNIEXPORT void JNICALL Java_org_citra_emu_NativeLibrary_setRunningSettings(JNIEn
 
 JNIEXPORT jstring JNICALL Java_org_citra_emu_NativeLibrary_GetAppTitle(JNIEnv* env, jobject obj,
                                                                        jstring jPath) {
-    std::string path = GetJString(jPath);
-    auto iter = s_app_loaders.find(path);
-    if (iter != s_app_loaders.end()) {
-        std::string title;
-        iter->second->ReadTitle(title);
-        return ToJString(title);
-    }
+    Loader::AppLoader* app_loader = GetAppLoader(GetJString(jPath));
+    std::string title;
+    app_loader->ReadTitle(title);
+    return ToJString(title);
+}
 
-    auto result = s_app_loaders.emplace(path, Loader::GetLoader(path));
-    if (result.second) {
-        std::string title;
-        result.first->second->ReadTitle(title);
-        return ToJString(title);
-    }
+JNIEXPORT jintArray JNICALL Java_org_citra_emu_NativeLibrary_GetAppIcon(JNIEnv* env, jobject obj,
+                                                                        jstring jPath) {
+    Loader::AppLoader* app_loader = GetAppLoader(GetJString(jPath));
+    std::vector<u16> icon = GetIconData(app_loader);
+    return ToJIntArray(reinterpret_cast<u32*>(icon.data()), icon.size() / 2);
+}
 
-    return ToJString(std::string());
+JNIEXPORT jint JNICALL Java_org_citra_emu_NativeLibrary_GetAppRegion(JNIEnv* env, jobject obj,
+                                                                     jstring jPath) {
+    Loader::AppLoader* app_loader = GetAppLoader(GetJString(jPath));
+    std::vector<Loader::SMDH::GameRegion> regions = GetGameRegions(app_loader);
+    if (regions.empty()) {
+        regions.push_back(Loader::SMDH::GameRegion::RegionFree);
+    }
+    return static_cast<jint>(regions[0]);
 }
 
 #ifdef __cplusplus

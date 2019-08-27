@@ -25,9 +25,14 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
-
 import com.nononsenseapps.filepicker.DividerItemDecoration;
-
+import java.io.File;
+import java.io.FileReader;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.lang.ref.WeakReference;
+import java.util.ArrayList;
+import java.util.List;
 import org.citra.emu.NativeLibrary;
 import org.citra.emu.R;
 import org.citra.emu.model.GameFile;
@@ -36,13 +41,6 @@ import org.citra.emu.settings.SettingsActivity;
 import org.citra.emu.utils.DirectoryInitialization;
 import org.citra.emu.utils.FileBrowserHelper;
 import org.citra.emu.utils.PermissionsHandler;
-
-import java.io.File;
-import java.io.FileReader;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
 
 public final class MainActivity extends AppCompatActivity {
     public static final int REQUEST_ADD_DIRECTORY = 1;
@@ -133,29 +131,30 @@ public final class MainActivity extends AppCompatActivity {
     }
 
     @Override
-    public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
+    public void onRequestPermissionsResult(int requestCode, String[] permissions,
+                                           int[] grantResults) {
         switch (requestCode) {
-            case PermissionsHandler.REQUEST_CODE_WRITE_PERMISSION:
-                if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                    IntentFilter filter = new IntentFilter();
-                    filter.addAction(DirectoryInitialization.BROADCAST_ACTION);
-                    mBroadcastReceiver = new BroadcastReceiver() {
-                        @Override
-                        public void onReceive(Context context, Intent intent) {
-                            loadGameList();
-                            showGames();
-                        }
-                    };
-                    LocalBroadcastManager.getInstance(this).registerReceiver(mBroadcastReceiver, filter);
-                    DirectoryInitialization.start(this);
-                } else {
-                    Toast.makeText(this, R.string.write_permission_needed, Toast.LENGTH_SHORT)
-                            .show();
-                }
-                break;
-            default:
-                super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-                break;
+        case PermissionsHandler.REQUEST_CODE_WRITE_PERMISSION:
+            if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                IntentFilter filter = new IntentFilter();
+                filter.addAction(DirectoryInitialization.BROADCAST_ACTION);
+                mBroadcastReceiver = new BroadcastReceiver() {
+                    @Override
+                    public void onReceive(Context context, Intent intent) {
+                        loadGameList();
+                        showGames();
+                    }
+                };
+                LocalBroadcastManager.getInstance(this).registerReceiver(mBroadcastReceiver,
+                                                                         filter);
+                DirectoryInitialization.start(this);
+            } else {
+                Toast.makeText(this, R.string.write_permission_needed, Toast.LENGTH_SHORT).show();
+            }
+            break;
+        default:
+            super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+            break;
         }
     }
 
@@ -214,7 +213,6 @@ public final class MainActivity extends AppCompatActivity {
             sb.append(";");
         }
 
-
         File cache = getGameListCache();
         FileWriter writer = null;
         try {
@@ -231,7 +229,7 @@ public final class MainActivity extends AppCompatActivity {
         File cache = getGameListCache();
         try {
             FileReader reader = new FileReader(cache);
-            char[] buffer = new char[(int) cache.length()];
+            char[] buffer = new char[(int)cache.length()];
             int size = reader.read(buffer);
             content = new String(buffer);
             reader.close();
@@ -248,7 +246,8 @@ public final class MainActivity extends AppCompatActivity {
     }
 
     public File getGameListCache() {
-        return new File(DirectoryInitialization.getUserDirectory() + File.separator + "gamelist.cache");
+        return new File(DirectoryInitialization.getUserDirectory() + File.separator +
+                        "gamelist.cache");
     }
 
     public void showGames() {
@@ -257,21 +256,32 @@ public final class MainActivity extends AppCompatActivity {
     }
 
     static class GameViewHolder extends RecyclerView.ViewHolder {
+        private ImageView mImageIcon;
         private TextView mTextTitle;
+        private TextView mTextRegion;
         private TextView mTextCompany;
         private GameFile mModel;
 
         public GameViewHolder(View itemView) {
             super(itemView);
             itemView.setTag(this);
+            mImageIcon = itemView.findViewById(R.id.image_game_screen);
             mTextTitle = itemView.findViewById(R.id.text_game_title);
+            mTextRegion = itemView.findViewById(R.id.text_region);
             mTextCompany = itemView.findViewById(R.id.text_company);
         }
 
         public void bind(GameFile model) {
+            int[] regions = {
+                R.string.region_invalid, R.string.region_japan,     R.string.region_north_america,
+                R.string.region_europe,  R.string.region_australia, R.string.region_china,
+                R.string.region_korea,   R.string.region_taiwan,    R.string.region_region_free,
+            };
             mModel = model;
             mTextTitle.setText(model.getName());
             mTextCompany.setText(model.getInfo());
+            mTextRegion.setText(regions[model.getRegion() + 1]);
+            mImageIcon.setImageBitmap(model.getIcon(mImageIcon.getContext()));
         }
 
         public String getPath() {
@@ -279,12 +289,14 @@ public final class MainActivity extends AppCompatActivity {
         }
     }
 
-    static class GameAdapter extends RecyclerView.Adapter<GameViewHolder> implements View.OnClickListener, View.OnLongClickListener {
+    static class GameAdapter extends RecyclerView.Adapter<GameViewHolder>
+        implements View.OnClickListener, View.OnLongClickListener {
         private List<GameFile> mGameList = new ArrayList<>();
 
         @Override
         public GameViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-            View gameCard = LayoutInflater.from(parent.getContext()).inflate(viewType, parent, false);
+            View gameCard =
+                LayoutInflater.from(parent.getContext()).inflate(viewType, parent, false);
             gameCard.setOnClickListener(this);
             gameCard.setOnLongClickListener(this);
             return new GameViewHolder(gameCard);
@@ -307,7 +319,7 @@ public final class MainActivity extends AppCompatActivity {
 
         @Override
         public void onClick(View view) {
-            GameViewHolder holder = (GameViewHolder) view.getTag();
+            GameViewHolder holder = (GameViewHolder)view.getTag();
             EmulationActivity.launch(view.getContext(), holder.getPath());
         }
 

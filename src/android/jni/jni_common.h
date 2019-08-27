@@ -8,8 +8,11 @@
 
 std::string GetJString(jstring jstr);
 jstring ToJString(const std::string& str);
-jintArray ToJIntArray(const std::vector<u32>& buffer);
+jintArray ToJIntArray(const u32* buffer, size_t size);
+jobjectArray ToJStringArray(const std::vector<std::string>& strs);
+std::vector<std::string> JStringArrayToVector(jobjectArray array);
+
 JNIEnv* GetEnvForThread();
 jobject GetEmulationContext();
-void SaveImageToFile(const std::string& path, u32 width, u32 height,
-                     const std::vector<u32>& pixels);
+
+void SaveImageToFile(const std::string& path, u32 width, u32 height, const u32* pixels);

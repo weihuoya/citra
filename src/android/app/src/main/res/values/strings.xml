@@ -28,10 +28,11 @@
     <string name="setting_use_virtual_sd">Use Virtual SD</string>
     <string name="setting_region_value">Emulation Region</string>
 
+    <string name="show_fps">Show FPS</string>
     <string name="layout_option">Screen Layout</string>
     <string name="internal_resolution">Internal Resolution</string>
     <string name="setting_shaders_accurate_mul">Accurate Multiplication</string>
-    <string name="setting_shaders_accurate_gs">Accurate Geometry Shader</string>
+    <string name="post_processing_shader">Post-Processing Effect</string>
 
     <string name="setting_audio_output">Audio Output</string>
     <string name="setting_audio_stretching">Enable Audio Stretching</string>
@@ -44,6 +45,16 @@
     <string name="off">Off</string>
     <string name="clear_input_binding">Clear</string>
     <string name="write_permission_needed">You need to allow write access to external storage for the emulator to work.</string>
+
+    <string name="region_invalid">Unknown</string>
+    <string name="region_japan">Japan</string>
+    <string name="region_north_america">North America</string>
+    <string name="region_europe">Europe</string>
+    <string name="region_australia">Australia</string>
+    <string name="region_china">China</string>
+    <string name="region_korea">Korea</string>
+    <string name="region_taiwan">Taiwan</string>
+    <string name="region_region_free">Region Free</string>
 
     <string name="nnf_new_folder">New folder</string>
     <string name="nnf_create_folder_error">Failed to create folder</string>

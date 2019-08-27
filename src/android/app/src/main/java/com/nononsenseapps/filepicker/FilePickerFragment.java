@@ -18,10 +18,8 @@ import android.support.v4.content.Loader;
 import android.support.v7.util.SortedList;
 import android.support.v7.widget.util.SortedListAdapterCallback;
 import android.widget.Toast;
-
-import org.citra.emu.R;
-
 import java.io.File;
+import org.citra.emu.R;
 
 /**
  * An implementation of the picker which allows you to select a file from the internal/external
@@ -33,15 +31,14 @@ public class FilePickerFragment extends AbstractFilePickerFragment<File> {
     protected boolean showHiddenItems = false;
     private File mRequestedPath = null;
 
-    public FilePickerFragment() {
-    }
+    public FilePickerFragment() {}
 
     /**
      * This method is used to dictate whether hidden files and folders should be shown or not
      *
      * @param showHiddenItems whether hidden items should be shown or not
      */
-    public void showHiddenItems(boolean showHiddenItems){
+    public void showHiddenItems(boolean showHiddenItems) {
         this.showHiddenItems = showHiddenItems;
     }
 
@@ -51,7 +48,7 @@ public class FilePickerFragment extends AbstractFilePickerFragment<File> {
      * @return true if hidden items are shown, otherwise false
      */
 
-    public boolean areHiddenItemsShown(){
+    public boolean areHiddenItemsShown() {
         return showHiddenItems;
     }
 
@@ -61,8 +58,8 @@ public class FilePickerFragment extends AbstractFilePickerFragment<File> {
     @Override
     protected boolean hasPermission(@NonNull File path) {
         return PackageManager.PERMISSION_GRANTED ==
-                ContextCompat.checkSelfPermission(getContext(),
-                        Manifest.permission.WRITE_EXTERNAL_STORAGE);
+            ContextCompat.checkSelfPermission(getContext(),
+                                              Manifest.permission.WRITE_EXTERNAL_STORAGE);
     }
 
     /**
@@ -70,15 +67,15 @@ public class FilePickerFragment extends AbstractFilePickerFragment<File> {
      */
     @Override
     protected void handlePermission(@NonNull File path) {
-//         Should we show an explanation?
-//        if (shouldShowRequestPermissionRationale(
-//                Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
-//             Explain to the user why we need permission
-//        }
+        //         Should we show an explanation?
+        //        if (shouldShowRequestPermissionRationale(
+        //                Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
+        //             Explain to the user why we need permission
+        //        }
 
         mRequestedPath = path;
-        requestPermissions(new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE},
-                PERMISSIONS_REQUEST_WRITE_EXTERNAL_STORAGE);
+        requestPermissions(new String[] {Manifest.permission.WRITE_EXTERNAL_STORAGE},
+                           PERMISSIONS_REQUEST_WRITE_EXTERNAL_STORAGE);
     }
 
     /**
@@ -90,8 +87,7 @@ public class FilePickerFragment extends AbstractFilePickerFragment<File> {
      * @param grantResults results for requests. empty if process was cancelled.
      */
     @Override
-    public void onRequestPermissionsResult(int requestCode,
-                                           @NonNull String[] permissions,
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions,
                                            @NonNull int[] grantResults) {
         // If arrays are empty, then process was cancelled
         if (permissions.length == 0) {
@@ -106,8 +102,10 @@ public class FilePickerFragment extends AbstractFilePickerFragment<File> {
                     refresh(mRequestedPath);
                 }
             } else {
-                Toast.makeText(getContext(), R.string.nnf_permission_external_write_denied,
-                        Toast.LENGTH_SHORT).show();
+                Toast
+                    .makeText(getContext(), R.string.nnf_permission_external_write_denied,
+                              Toast.LENGTH_SHORT)
+                    .show();
                 // Treat this as a cancel press
                 if (mListener != null) {
                     mListener.onCancelled();
@@ -199,10 +197,9 @@ public class FilePickerFragment extends AbstractFilePickerFragment<File> {
     @NonNull
     @Override
     public Uri toUri(@NonNull final File file) {
-        return FileProvider
-                .getUriForFile(getContext(),
-                        getContext().getApplicationContext().getPackageName() + ".provider",
-                        file);
+        return FileProvider.getUriForFile(
+            getContext(), getContext().getApplicationContext().getPackageName() + ".provider",
+            file);
     }
 
     /**
@@ -213,7 +210,6 @@ public class FilePickerFragment extends AbstractFilePickerFragment<File> {
     @Override
     public Loader<SortedList<File>> getLoader() {
         return new AsyncTaskLoader<SortedList<File>>(getActivity()) {
-
             FileObserver fileObserver;
 
             @Override
@@ -221,23 +217,24 @@ public class FilePickerFragment extends AbstractFilePickerFragment<File> {
                 File[] listFiles = mCurrentPath.listFiles();
                 final int initCap = listFiles == null ? 0 : listFiles.length;
 
-                SortedList<File> files = new SortedList<>(File.class, new SortedListAdapterCallback<File>(getDummyAdapter()) {
-                    @Override
-                    public int compare(File lhs, File rhs) {
-                        return compareFiles(lhs, rhs);
-                    }
+                SortedList<File> files = new SortedList<>(
+                    File.class, new SortedListAdapterCallback<File>(getDummyAdapter()) {
+                        @Override
+                        public int compare(File lhs, File rhs) {
+                            return compareFiles(lhs, rhs);
+                        }
 
-                    @Override
-                    public boolean areContentsTheSame(File file, File file2) {
-                        return file.getAbsolutePath().equals(file2.getAbsolutePath()) && (file.isFile() == file2.isFile());
-                    }
+                        @Override
+                        public boolean areContentsTheSame(File file, File file2) {
+                            return file.getAbsolutePath().equals(file2.getAbsolutePath()) &&
+                                (file.isFile() == file2.isFile());
+                        }
 
-                    @Override
-                    public boolean areItemsTheSame(File file, File file2) {
-                        return areContentsTheSame(file, file2);
-                    }
-                }, initCap);
-
+                        @Override
+                        public boolean areItemsTheSame(File file, File file2) {
+                            return areContentsTheSame(file, file2);
+                        }
+                    }, initCap);
 
                 files.beginBatchedUpdates();
                 if (listFiles != null) {
@@ -265,12 +262,9 @@ public class FilePickerFragment extends AbstractFilePickerFragment<File> {
                 }
 
                 // Start watching for changes
-                fileObserver = new FileObserver(mCurrentPath.getPath(),
-                        FileObserver.CREATE |
-                                FileObserver.DELETE
-                                | FileObserver.MOVED_FROM | FileObserver.MOVED_TO
-                ) {
-
+                fileObserver = new FileObserver(
+                    mCurrentPath.getPath(), FileObserver.CREATE | FileObserver.DELETE |
+                                                FileObserver.MOVED_FROM | FileObserver.MOVED_TO) {
                     @Override
                     public void onEvent(int event, String path) {
                         // Reload

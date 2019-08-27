@@ -5,7 +5,6 @@
 package org.citra.emu;
 
 import android.app.Application;
-
 import org.citra.emu.utils.DirectoryInitialization;
 import org.citra.emu.utils.PermissionsHandler;
 
@@ -21,5 +20,4 @@ public class CitraApplication extends Application {
         if (PermissionsHandler.hasWriteAccess(getApplicationContext()))
             DirectoryInitialization.start(getApplicationContext());
     }
-
 }

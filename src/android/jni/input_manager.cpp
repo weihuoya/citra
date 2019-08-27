@@ -7,6 +7,7 @@
 
 #include "core/frontend/input.h"
 #include "core/settings.h"
+#include "input_common/main.h"
 
 static const char* TOUCHSCREEN = "touchscreen";
 
@@ -24,7 +25,8 @@ private:
 
 class Analog final : public Input::AnalogDevice {
 public:
-    explicit Analog(int axisX, int axisY) : mAxisX(axisX), mAxisY(axisY) {}
+    explicit Analog(int axisX, int axisY)
+        : mAxisX(axisX), mAxisY(axisY) {}
 
     std::tuple<float, float> GetStatus() const override {
         float axisX = InputManager::GetInstance().GetInput(mAxisX);
@@ -35,33 +37,6 @@ public:
 private:
     int mAxisX;
     int mAxisY;
-};
-
-class Motion final : public Input::MotionDevice {
-public:
-    explicit Motion() {}
-
-    std::tuple<Common::Vec3<float>, Common::Vec3<float>> GetStatus() const override {
-        return std::make_tuple<Common::Vec3<float>, Common::Vec3<float>>(
-            Common::Vec3<float>(0.0F, 0.0F, 0.0F), Common::Vec3<float>(0.0F, 0.0F, 0.0F));
-    }
-};
-
-class Touch final : public Input::TouchDevice {
-public:
-    explicit Touch(int axisX, int axisY, int axisZ) : mAxisX(axisX), mAxisY(axisY), mAxisZ(axisZ) {}
-
-    std::tuple<float, float, bool> GetStatus() const override {
-        float axisX = InputManager::GetInstance().GetInput(mAxisX);
-        float axisY = InputManager::GetInstance().GetInput(mAxisY);
-        float axisZ = InputManager::GetInstance().GetInput(mAxisZ);
-        return std::make_tuple(axisX, axisY, axisZ == 1.0F);
-    }
-
-private:
-    int mAxisX;
-    int mAxisY;
-    int mAxisZ;
 };
 
 class ButtonFactory final : public Input::Factory<Input::ButtonDevice> {
@@ -81,41 +56,22 @@ public:
     }
 };
 
-class MotionFactory final : public Input::Factory<Input::MotionDevice> {
-public:
-    std::unique_ptr<Input::MotionDevice> Create(const Common::ParamPackage& params) override {
-        return std::make_unique<Motion>();
-    }
-};
-
-class TouchFactory final : public Input::Factory<Input::TouchDevice> {
-public:
-    std::unique_ptr<Input::TouchDevice> Create(const Common::ParamPackage& params) override {
-        int axisX = params.Get("axis_x", 0);
-        int axisY = params.Get("axis_y", 0);
-        int axisZ = params.Get("axis_z", 0);
-        return std::make_unique<Touch>(axisX, axisY, axisZ);
-    }
-};
-
 InputManager& InputManager::GetInstance() {
     static InputManager s_input_manager;
     return s_input_manager;
 }
 
 InputManager::InputManager() {
-    mInputs.resize(N3DS_INPUT_COUNT + 1);
+    InputCommon::Init();
+    mInputs.resize(N3DS_INPUT_COUNT);
     Input::RegisterFactory<Input::ButtonDevice>(TOUCHSCREEN, std::make_shared<ButtonFactory>());
     Input::RegisterFactory<Input::AnalogDevice>(TOUCHSCREEN, std::make_shared<AnalogFactory>());
-    Input::RegisterFactory<Input::MotionDevice>(TOUCHSCREEN, std::make_shared<MotionFactory>());
-    Input::RegisterFactory<Input::TouchDevice>(TOUCHSCREEN, std::make_shared<TouchFactory>());
 }
 
 InputManager::~InputManager() {
     Input::UnregisterFactory<Input::ButtonDevice>(TOUCHSCREEN);
     Input::UnregisterFactory<Input::AnalogDevice>(TOUCHSCREEN);
-    Input::UnregisterFactory<Input::MotionDevice>(TOUCHSCREEN);
-    Input::UnregisterFactory<Input::TouchDevice>(TOUCHSCREEN);
+    InputCommon::Shutdown();
 }
 
 void InputManager::InitProfile() {
@@ -132,7 +88,7 @@ void InputManager::InitProfile() {
     profile.analogs[Settings::NativeAnalog::CStick] =
         fmt::format("axis_x:{},axis_y:{},engine:{}", N3DS_STICK_X, N3DS_STICK_Y, TOUCHSCREEN);
 
-    profile.motion_device = fmt::format("engine:{}", TOUCHSCREEN);
+    profile.motion_device = "engine:motion_emu";
     profile.touch_device = "engine:emu_window";
     profile.udp_input_address = "127.0.0.1";
     profile.udp_input_port = 26760;

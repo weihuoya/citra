@@ -3,16 +3,16 @@ package org.citra.emu.model;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-
+import java.nio.IntBuffer;
 import org.citra.emu.NativeLibrary;
 import org.citra.emu.R;
-
-import java.nio.IntBuffer;
 
 public final class GameFile {
     private String mPath;
     private String mName;
     private String mInfo;
+    private Bitmap mIcon;
+    private int mRegion = NativeLibrary.GameRegion.Invalid;
 
     public GameFile(String path) {
         mPath = path;
@@ -34,5 +34,25 @@ public final class GameFile {
 
     public String getPath() {
         return mPath;
+    }
+
+    public Bitmap getIcon(Context context) {
+        if (mIcon == null) {
+            int[] pixels = NativeLibrary.GetAppIcon(mPath);
+            if (pixels == null || pixels.length == 0) {
+                mIcon = BitmapFactory.decodeResource(context.getResources(), R.drawable.no_banner);
+            } else {
+                mIcon = Bitmap.createBitmap(48, 48, Bitmap.Config.RGB_565);
+                mIcon.copyPixelsFromBuffer(IntBuffer.wrap(pixels));
+            }
+        }
+        return mIcon;
+    }
+
+    public int getRegion() {
+        if (mRegion == NativeLibrary.GameRegion.Invalid) {
+            mRegion = NativeLibrary.GetAppRegion(mPath);
+        }
+        return mRegion;
     }
 }

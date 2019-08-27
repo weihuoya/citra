@@ -125,7 +125,6 @@ public final class SettingsFragment extends Fragment {
         Setting layoutOption = rendererSection.getSetting(SettingsFile.KEY_LAYOUT_OPTION);
         Setting resolution = rendererSection.getSetting(SettingsFile.KEY_RESOLUTION_FACTOR);
         Setting accurateMul = rendererSection.getSetting(SettingsFile.KEY_SHADERS_ACCURATE_MUL);
-        Setting accurateGS = rendererSection.getSetting(SettingsFile.KEY_SHADERS_ACCURATE_GS);
 
         sl.add(new SingleChoiceSetting(SettingsFile.KEY_LAYOUT_OPTION,
                 Settings.SECTION_INI_RENDERER, R.string.layout_option, 0,
@@ -135,8 +134,6 @@ public final class SettingsFragment extends Fragment {
                 R.array.internalResolutionEntries, R.array.internalResolutionValues, 1, resolution));
         sl.add(new CheckBoxSetting(SettingsFile.KEY_SHADERS_ACCURATE_MUL, Settings.SECTION_INI_RENDERER,
                 R.string.setting_shaders_accurate_mul, 0, false, accurateMul));
-        sl.add(new CheckBoxSetting(SettingsFile.KEY_SHADERS_ACCURATE_GS, Settings.SECTION_INI_RENDERER,
-                R.string.setting_shaders_accurate_gs, 0, false, accurateGS));
 
         // audio
         sl.add(new HeaderSetting(null, null, R.string.setting_header_audio, 0));

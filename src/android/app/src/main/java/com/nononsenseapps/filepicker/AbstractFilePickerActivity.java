@@ -6,7 +6,6 @@
 
 package com.nononsenseapps.filepicker;
 
-
 import android.annotation.TargetApi;
 import android.app.Activity;
 import android.content.ClipData;
@@ -19,11 +18,9 @@ import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v7.app.AppCompatActivity;
-
-import org.citra.emu.R;
-
 import java.util.ArrayList;
 import java.util.List;
+import org.citra.emu.R;
 
 /**
  * An abstract base activity that handles all the fluff you don't care about.
@@ -53,14 +50,18 @@ import java.util.List;
  *
  * @param <T>
  */
-public abstract class AbstractFilePickerActivity<T> extends AppCompatActivity
-        implements AbstractFilePickerFragment.OnFilePickedListener {
-    public static final String EXTRA_START_PATH = "nononsense.intent" + ".START_PATH";
+public abstract class AbstractFilePickerActivity<T>
+    extends AppCompatActivity implements AbstractFilePickerFragment.OnFilePickedListener {
+    public static final String EXTRA_START_PATH = "nononsense.intent"
+                                                  + ".START_PATH";
     public static final String EXTRA_MODE = "nononsense.intent.MODE";
-    public static final String EXTRA_SINGLE_CLICK = "nononsense.intent" + ".SINGLE_CLICK";
+    public static final String EXTRA_SINGLE_CLICK = "nononsense.intent"
+                                                    + ".SINGLE_CLICK";
     // For compatibility
-    public static final String EXTRA_ALLOW_MULTIPLE = "android.intent.extra" + ".ALLOW_MULTIPLE";
-    public static final String EXTRA_ALLOW_EXISTING_FILE = "android.intent.extra" + ".ALLOW_EXISTING_FILE";
+    public static final String EXTRA_ALLOW_MULTIPLE = "android.intent.extra"
+                                                      + ".ALLOW_MULTIPLE";
+    public static final String EXTRA_ALLOW_EXISTING_FILE = "android.intent.extra"
+                                                           + ".ALLOW_EXISTING_FILE";
     public static final String EXTRA_PATHS = "nononsense.intent.PATHS";
     public static final int MODE_FILE = AbstractFilePickerFragment.MODE_FILE;
     public static final int MODE_FILE_AND_DIR = AbstractFilePickerFragment.MODE_FILE_AND_DIR;
@@ -84,7 +85,8 @@ public abstract class AbstractFilePickerActivity<T> extends AppCompatActivity
             startPath = intent.getStringExtra(EXTRA_START_PATH);
             mode = intent.getIntExtra(EXTRA_MODE, mode);
             allowMultiple = intent.getBooleanExtra(EXTRA_ALLOW_MULTIPLE, allowMultiple);
-            allowExistingFile = intent.getBooleanExtra(EXTRA_ALLOW_EXISTING_FILE, allowExistingFile);
+            allowExistingFile =
+                intent.getBooleanExtra(EXTRA_ALLOW_EXISTING_FILE, allowExistingFile);
             singleClick = intent.getBooleanExtra(EXTRA_SINGLE_CLICK, singleClick);
         }
 
@@ -108,9 +110,11 @@ public abstract class AbstractFilePickerActivity<T> extends AppCompatActivity
         }
     }
 
-    protected abstract AbstractFilePickerFragment<T> getFragment(
-            @Nullable final String startPath, final int mode, final boolean allowMultiple,
-            final boolean allowExistingFile, final boolean singleClick);
+    protected abstract AbstractFilePickerFragment<T> getFragment(@Nullable final String startPath,
+                                                                 final int mode,
+                                                                 final boolean allowMultiple,
+                                                                 final boolean allowExistingFile,
+                                                                 final boolean singleClick);
 
     @Override
     public void onSaveInstanceState(Bundle b) {
@@ -144,8 +148,7 @@ public abstract class AbstractFilePickerActivity<T> extends AppCompatActivity
             ClipData clip = null;
             for (Uri file : files) {
                 if (clip == null) {
-                    clip = new ClipData("Paths", new String[]{},
-                            new ClipData.Item(file));
+                    clip = new ClipData("Paths", new String[] {}, new ClipData.Item(file));
                 } else {
                     clip.addItem(new ClipData.Item(file));
                 }

@@ -1,18 +1,17 @@
 package com.nononsenseapps.filepicker;
 
+import static com.nononsenseapps.filepicker.AbstractFilePickerActivity.EXTRA_ALLOW_MULTIPLE;
+import static com.nononsenseapps.filepicker.AbstractFilePickerActivity.EXTRA_PATHS;
+
 import android.content.Intent;
 import android.net.Uri;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.text.TextUtils;
-
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-
-import static com.nononsenseapps.filepicker.AbstractFilePickerActivity.EXTRA_ALLOW_MULTIPLE;
-import static com.nononsenseapps.filepicker.AbstractFilePickerActivity.EXTRA_PATHS;
 
 /**
  * Some utility methods
@@ -28,10 +27,8 @@ public class Utils {
      * @param name The name of the folder the user wishes to create.
      */
     public static boolean isValidFileName(@Nullable String name) {
-        return !TextUtils.isEmpty(name)
-                && !name.contains("/")
-                && !name.equals(".")
-                && !name.equals("..");
+        return !TextUtils.isEmpty(name) && !name.contains("/") && !name.equals(".") &&
+            !name.equals("..");
     }
 
     /**
@@ -42,8 +39,7 @@ public class Utils {
      * Multiple slashes will be shortened to a single slash, so /A///B is equivalent to /A/B
      */
     @NonNull
-    public static String appendPath(@NonNull String first,
-                                    @NonNull String second) {
+    public static String appendPath(@NonNull String first, @NonNull String second) {
         String result = first + SEP + second;
 
         while (result.contains("//")) {
@@ -76,8 +72,7 @@ public class Utils {
 
         if (!"root".equalsIgnoreCase(tag)) {
             throw new IllegalArgumentException(
-                    String.format("Can't decode paths to '%s', only for 'root' paths.",
-                            tag));
+                String.format("Can't decode paths to '%s', only for 'root' paths.", tag));
         }
 
         final File root = new File("/");

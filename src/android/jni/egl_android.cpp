@@ -2,7 +2,7 @@
 
 #include <android/native_window_jni.h>
 
-#include "glad/glad.h"
+#include <glad/glad.h>
 
 static void* EGL_GetFuncAddress(const char* name) {
     return (void*)eglGetProcAddress(name);

@@ -18,13 +18,13 @@
         <ImageView
             android:id="@+id/image_game_screen"
             android:src="@drawable/no_banner"
-            android:layout_width="96dp"
+            android:layout_width="72dp"
             android:layout_height="match_parent"
             android:layout_alignParentStart="true"
             android:layout_alignBottom="@id/game_info"
             android:layout_alignTop="@id/game_info"
             android:layout_gravity="start|center"
-            android:scaleType="centerCrop"/>
+            android:scaleType="fitCenter"/>
 
         <LinearLayout
             android:id="@+id/game_info"
@@ -44,6 +44,15 @@
                 android:ellipsize="end"
                 android:singleLine="true"
                 tools:text="The Legend of Zelda: The Wind Waker"/>
+
+            <TextView
+                android:id="@+id/text_region"
+                style="@android:style/TextAppearance.Material.Caption"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:ellipsize="end"
+                android:singleLine="true"
+                tools:text="The Legend of Zelda"/>
 
             <TextView
                 android:id="@+id/text_company"

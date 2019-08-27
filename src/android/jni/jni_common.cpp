@@ -54,25 +54,44 @@ jstring ToJString(const std::string& str) {
     return GetEnvForThread()->NewStringUTF(str.c_str());
 }
 
-jintArray ToJIntArray(const std::vector<u32>& buffer) {
-    const jsize size = static_cast<jsize>(buffer.size());
-    const jintArray array = GetEnvForThread()->NewIntArray(size);
+jintArray ToJIntArray(const u32* buffer, size_t size) {
+    JNIEnv* env = GetEnvForThread();
+    jintArray array = env->NewIntArray(size);
     if (!array) {
         __android_log_print(ANDROID_LOG_INFO, "zhangwei", "ToJIntArray error");
         return nullptr;
     }
-    GetEnvForThread()->SetIntArrayRegion(array, 0, size,
-                                         reinterpret_cast<const jint*>(buffer.data()));
+    env->SetIntArrayRegion(array, 0, size, reinterpret_cast<const jint*>(buffer));
     return array;
+}
+
+jobjectArray ToJStringArray(const std::vector<std::string>& strs) {
+    JNIEnv* env = GetEnvForThread();
+    jobjectArray array =
+        env->NewObjectArray(strs.size(), env->FindClass("java/lang/String"), env->NewStringUTF(""));
+    for (int i = 0; i < strs.size(); ++i) {
+        env->SetObjectArrayElement(array, i, ToJString(strs[i]));
+    }
+    return array;
+}
+
+std::vector<std::string> JStringArrayToVector(jobjectArray array) {
+    JNIEnv* env = GetEnvForThread();
+    const jsize size = env->GetArrayLength(array);
+    std::vector<std::string> result;
+    for (jsize i = 0; i < size; ++i)
+        result.push_back(GetJString((jstring)env->GetObjectArrayElement(array, i)));
+    return result;
 }
 
 jobject GetEmulationContext() {
     return s_native_library->GetEmulationContext();
 }
 
-void SaveImageToFile(const std::string& path, u32 width, u32 height,
-                     const std::vector<u32>& pixels) {
-    s_native_library->SaveImageToFile(ToJString(path), width, height, ToJIntArray(pixels));
+void SaveImageToFile(const std::string& path, u32 width, u32 height, const u32* pixels) {
+    jintArray array = ToJIntArray(pixels, width * height);
+    s_native_library->SaveImageToFile(ToJString(path), width, height, array);
+    GetEnvForThread()->DeleteLocalRef(array);
 }
 
 JNIEnv* GetEnvForThread() {
