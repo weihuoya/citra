@@ -15,7 +15,7 @@ public final class CheckBoxSetting extends SettingsItem {
     public boolean isChecked() {
         boolean value = mDefaultValue;
         if (getSetting() != null) {
-            BooleanSetting setting = (BooleanSetting) getSetting();
+            BooleanSetting setting = (BooleanSetting)getSetting();
             value = isInvertedSetting() != setting.getValue();
         }
         return value;
@@ -34,7 +34,7 @@ public final class CheckBoxSetting extends SettingsItem {
             setSetting(setting);
             return setting;
         } else {
-            BooleanSetting setting = (BooleanSetting) getSetting();
+            BooleanSetting setting = (BooleanSetting)getSetting();
             setting.setValue(checked);
             return null;
         }

@@ -42,8 +42,8 @@ public enum MenuTag {
                 return menuTag;
         }
 
-        throw new IllegalArgumentException("You are asking for a menu that is not available or " +
-                "passing a wrong subtype");
+        throw new IllegalArgumentException("You are asking for a menu that is not available or "
+                                           + "passing a wrong subtype");
     }
 
     @Override

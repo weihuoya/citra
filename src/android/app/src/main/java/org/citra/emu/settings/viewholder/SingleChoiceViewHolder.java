@@ -3,7 +3,6 @@ package org.citra.emu.settings.viewholder;
 import android.content.res.Resources;
 import android.view.View;
 import android.widget.TextView;
-
 import org.citra.emu.R;
 import org.citra.emu.settings.SettingsAdapter;
 import org.citra.emu.settings.view.SettingsItem;
@@ -34,7 +33,7 @@ public final class SingleChoiceViewHolder extends SettingViewHolder {
         if (item.getDescriptionId() > 0) {
             mTextSettingDescription.setText(item.getDescriptionId());
         } else if (item instanceof SingleChoiceSetting) {
-            SingleChoiceSetting setting = (SingleChoiceSetting) item;
+            SingleChoiceSetting setting = (SingleChoiceSetting)item;
             int selected = setting.getSelectedValue();
             Resources resMgr = mTextSettingDescription.getContext().getResources();
             String[] choices = resMgr.getStringArray(setting.getChoicesId());
@@ -45,7 +44,7 @@ public final class SingleChoiceViewHolder extends SettingViewHolder {
                 }
             }
         } else if (item instanceof StringSingleChoiceSetting) {
-            StringSingleChoiceSetting setting = (StringSingleChoiceSetting) item;
+            StringSingleChoiceSetting setting = (StringSingleChoiceSetting)item;
             String[] choices = setting.getChoicesId();
             int valueIndex = setting.getSelectValueIndex();
             if (valueIndex != -1)
@@ -57,9 +56,9 @@ public final class SingleChoiceViewHolder extends SettingViewHolder {
     public void onClick(View clicked) {
         int position = getAdapterPosition();
         if (mItem instanceof SingleChoiceSetting) {
-            getAdapter().onSingleChoiceClick((SingleChoiceSetting) mItem, position);
+            getAdapter().onSingleChoiceClick((SingleChoiceSetting)mItem, position);
         } else if (mItem instanceof StringSingleChoiceSetting) {
-            getAdapter().onStringSingleChoiceClick((StringSingleChoiceSetting) mItem, position);
+            getAdapter().onStringSingleChoiceClick((StringSingleChoiceSetting)mItem, position);
         }
     }
 }

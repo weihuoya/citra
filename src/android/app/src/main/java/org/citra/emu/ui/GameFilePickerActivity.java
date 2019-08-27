@@ -5,23 +5,24 @@ import android.os.Environment;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.content.FileProvider;
-
 import com.nononsenseapps.filepicker.AbstractFilePickerFragment;
 import com.nononsenseapps.filepicker.FilePickerActivity;
 import com.nononsenseapps.filepicker.FilePickerFragment;
-
 import java.io.File;
 
 public final class GameFilePickerActivity extends FilePickerActivity {
     @Override
-    protected AbstractFilePickerFragment<File> getFragment(
-            @Nullable final String startPath, final int mode, final boolean allowMultiple,
-            final boolean allowExistingFile, final boolean singleClick) {
+    protected AbstractFilePickerFragment<File> getFragment(@Nullable final String startPath,
+                                                           final int mode,
+                                                           final boolean allowMultiple,
+                                                           final boolean allowExistingFile,
+                                                           final boolean singleClick) {
         AbstractFilePickerFragment<File> fragment = new GameFilePickerFragment();
-        // startPath is allowed to be null. In that case, default folder should be SD-card and not "/"
-        fragment.setArgs(
-                startPath != null ? startPath : Environment.getExternalStorageDirectory().getPath(),
-                mode, allowMultiple, allowExistingFile, singleClick);
+        // startPath is allowed to be null. In that case, default folder should be SD-card and not
+        // "/"
+        fragment.setArgs(startPath != null ? startPath
+                                           : Environment.getExternalStorageDirectory().getPath(),
+                         mode, allowMultiple, allowExistingFile, singleClick);
         return fragment;
     }
 
@@ -29,10 +30,9 @@ public final class GameFilePickerActivity extends FilePickerActivity {
         @NonNull
         @Override
         public Uri toUri(@NonNull final File file) {
-            return FileProvider
-                    .getUriForFile(getContext(),
-                            getContext().getApplicationContext().getPackageName() + ".filesprovider",
-                            file);
+            return FileProvider.getUriForFile(
+                getContext(),
+                getContext().getApplicationContext().getPackageName() + ".filesprovider", file);
         }
     }
 }

@@ -6,12 +6,10 @@ import android.util.Log;
 import android.view.InputDevice;
 import android.view.KeyEvent;
 import android.view.MotionEvent;
-
-import org.citra.emu.settings.view.InputBindingSetting;
-import org.citra.emu.utils.ControllerMappingHelper;
-
 import java.util.ArrayList;
 import java.util.List;
+import org.citra.emu.settings.view.InputBindingSetting;
+import org.citra.emu.utils.ControllerMappingHelper;
 
 /**
  * {@link AlertDialog} derivative that listens for
@@ -39,16 +37,16 @@ public final class MotionAlertDialog extends AlertDialog {
     public boolean onKeyEvent(int keyCode, KeyEvent event) {
         Log.d("zhangwei", "[MotionAlertDialog] Received key event: " + event.getAction());
         switch (event.getAction()) {
-            case KeyEvent.ACTION_UP:
-                if (!ControllerMappingHelper.shouldKeyBeIgnored(event.getDevice(), keyCode)) {
-                    setting.onKeyInput(event);
-                    dismiss();
-                }
-                // Even if we ignore the key, we still consume it. Thus return true regardless.
-                return true;
+        case KeyEvent.ACTION_UP:
+            if (!ControllerMappingHelper.shouldKeyBeIgnored(event.getDevice(), keyCode)) {
+                setting.onKeyInput(event);
+                dismiss();
+            }
+            // Even if we ignore the key, we still consume it. Thus return true regardless.
+            return true;
 
-            default:
-                return false;
+        default:
+            return false;
         }
     }
 
@@ -98,12 +96,13 @@ public final class MotionAlertDialog extends AlertDialog {
                     // Only handle the axes that are not neutral (more than 0.5)
                     // but ignore any axis that has a constant value (e.g. always 1)
                     if (Math.abs(value) > 0.5f && value != previousValue) {
-                        // It is common to have multiple axes with the same physical input. For example,
-                        // shoulder butters are provided as both AXIS_LTRIGGER and AXIS_BRAKE.
-                        // To handle this, we ignore an axis motion that's the exact same as a motion
-                        // we already saw. This way, we ignore axes with two names, but catch the case
-                        // where a joystick is moved in two directions.
-                        // ref: bottom of https://developer.android.com/training/game-controllers/controller-input.html
+                        // It is common to have multiple axes with the same physical input. For
+                        // example, shoulder butters are provided as both AXIS_LTRIGGER and
+                        // AXIS_BRAKE. To handle this, we ignore an axis motion that's the exact
+                        // same as a motion we already saw. This way, we ignore axes with two names,
+                        // but catch the case where a joystick is moved in two directions. ref:
+                        // bottom of
+                        // https://developer.android.com/training/game-controllers/controller-input.html
                         if (value != axisMoveValue) {
                             axisMoveValue = value;
                             numMovedAxis++;

@@ -14,7 +14,8 @@ public abstract class Setting {
      * Base constructor.
      *
      * @param key     Everything to the left of the = in a line from the ini file.
-     * @param section The corresponding recent section header; e.g. [Core] or [Enhancements] without the brackets.
+     * @param section The corresponding recent section header; e.g. [Core] or [Enhancements] without
+     *     the brackets.
      */
     public Setting(String key, String section) {
         mKey = key;
@@ -35,9 +36,9 @@ public abstract class Setting {
         return mSection;
     }
 
-
     /**
-     * @return A representation of this Setting's backing value converted to a String (e.g. for serialization).
+     * @return A representation of this Setting's backing value converted to a String (e.g. for
+     *     serialization).
      */
     public abstract String getValueAsString();
 }

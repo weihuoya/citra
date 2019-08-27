@@ -2,15 +2,6 @@ package org.citra.emu.settings;
 
 import android.text.TextUtils;
 import android.util.Log;
-
-import org.citra.emu.settings.model.BooleanSetting;
-import org.citra.emu.settings.model.FloatSetting;
-import org.citra.emu.settings.model.IntSetting;
-import org.citra.emu.settings.model.Setting;
-import org.citra.emu.settings.model.SettingSection;
-import org.citra.emu.settings.model.StringSetting;
-import org.citra.emu.utils.DirectoryInitialization;
-
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -21,6 +12,13 @@ import java.io.UnsupportedEncodingException;
 import java.util.HashMap;
 import java.util.Set;
 import java.util.TreeSet;
+import org.citra.emu.settings.model.BooleanSetting;
+import org.citra.emu.settings.model.FloatSetting;
+import org.citra.emu.settings.model.IntSetting;
+import org.citra.emu.settings.model.Setting;
+import org.citra.emu.settings.model.SettingSection;
+import org.citra.emu.settings.model.StringSetting;
+import org.citra.emu.utils.DirectoryInitialization;
 
 public final class SettingsFile {
     // Core
@@ -30,15 +28,16 @@ public final class SettingsFile {
     public static final String KEY_SYSTEM_REGION = "region_value";
     // Renderer
     public static final String KEY_USE_GLES = "use_gles";
+    public static final String KEY_SHOW_FPS = "show_fps";
     public static final String KEY_USE_HW_RENDERER = "use_hw_renderer";
     public static final String KEY_USE_HW_SHADER = "use_hw_shader";
     public static final String KEY_USE_SHADER_JIT = "use_shader_jit";
     public static final String KEY_SHADERS_ACCURATE_MUL = "shaders_accurate_mul";
-    public static final String KEY_SHADERS_ACCURATE_GS = "shaders_accurate_gs";
     public static final String KEY_RESOLUTION_FACTOR = "resolution_factor";
     public static final String KEY_USE_FRAME_LIMIT = "use_frame_limit";
     public static final String KEY_FRAME_LIMIT = "frame_limit";
     public static final String KEY_LAYOUT_OPTION = "layout_option";
+    public static final String KEY_POST_PROCESSING_SHADER = "pp_shader_name";
     // Audio
     public static final String KEY_ENABLE_DSP_LLE = "enable_dsp_lle";
     public static final String KEY_AUDIO_STRETCHING = "enable_audio_stretching";
@@ -60,7 +59,7 @@ public final class SettingsFile {
             reader = new BufferedReader(new FileReader(ini));
 
             SettingSection current = null;
-            for (String line; (line = reader.readLine()) != null; ) {
+            for (String line; (line = reader.readLine()) != null;) {
                 if (line.startsWith("[") && line.endsWith("]")) {
                     current = new SettingSection(line.substring(1, line.length() - 1));
                     sections.put(current.getName(), current);
@@ -72,15 +71,18 @@ public final class SettingsFile {
                 }
             }
         } catch (FileNotFoundException e) {
-            Log.e("zhangwei", "[SettingsFile] File not found: " + ini.getAbsolutePath() + e.getMessage());
+            Log.e("zhangwei",
+                  "[SettingsFile] File not found: " + ini.getAbsolutePath() + e.getMessage());
         } catch (IOException e) {
-            Log.e("zhangwei", "[SettingsFile] Error reading from: " + ini.getAbsolutePath() + e.getMessage());
+            Log.e("zhangwei",
+                  "[SettingsFile] Error reading from: " + ini.getAbsolutePath() + e.getMessage());
         } finally {
             if (reader != null) {
                 try {
                     reader.close();
                 } catch (IOException e) {
-                    Log.e("zhangwei", "[SettingsFile] Error closing: " + ini.getAbsolutePath() + e.getMessage());
+                    Log.e("zhangwei", "[SettingsFile] Error closing: " + ini.getAbsolutePath() +
+                                          e.getMessage());
                 }
             }
         }
@@ -121,12 +123,12 @@ public final class SettingsFile {
         }
 
         switch (value) {
-            case "True":
-                return new BooleanSetting(key, current.getName(), true);
-            case "False":
-                return new BooleanSetting(key, current.getName(), false);
-            default:
-                return new StringSetting(key, current.getName(), value);
+        case "True":
+            return new BooleanSetting(key, current.getName(), true);
+        case "False":
+            return new BooleanSetting(key, current.getName(), false);
+        default:
+            return new StringSetting(key, current.getName(), value);
         }
     }
 
@@ -152,7 +154,8 @@ public final class SettingsFile {
         } catch (FileNotFoundException e) {
             Log.e("zhangwei", "[SettingsFile] File not found: " + e.getMessage());
         } catch (UnsupportedEncodingException e) {
-            Log.e("zhangwei", "[SettingsFile] Bad encoding; please file a bug report: " + e.getMessage());
+            Log.e("zhangwei",
+                  "[SettingsFile] Bad encoding; please file a bug report: " + e.getMessage());
         } finally {
             if (writer != null) {
                 writer.close();

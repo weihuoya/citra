@@ -1,8 +1,7 @@
 package org.citra.emu.settings;
 
-import org.citra.emu.settings.model.SettingSection;
-
 import java.util.HashMap;
+import org.citra.emu.settings.model.SettingSection;
 
 public final class Settings {
 
@@ -29,8 +28,8 @@ public final class Settings {
     }
 
     /**
-     * A HashMap<String, SettingSection> that constructs a new SettingSection instead of returning null
-     * when getting a key not already in the map
+     * A HashMap<String, SettingSection> that constructs a new SettingSection instead of returning
+     * null when getting a key not already in the map
      */
     public static final class SettingsSectionMap extends HashMap<String, SettingSection> {
         @Override
@@ -39,7 +38,7 @@ public final class Settings {
                 return null;
             }
 
-            String stringKey = (String) key;
+            String stringKey = (String)key;
 
             if (!super.containsKey(stringKey)) {
                 SettingSection section = new SettingSection(stringKey);

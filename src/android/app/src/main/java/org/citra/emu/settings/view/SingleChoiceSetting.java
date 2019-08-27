@@ -27,7 +27,7 @@ public final class SingleChoiceSetting extends SettingsItem {
 
     public int getSelectedValue() {
         if (getSetting() != null) {
-            IntSetting setting = (IntSetting) getSetting();
+            IntSetting setting = (IntSetting)getSetting();
             return setting.getValue();
         } else {
             return mDefaultValue;
@@ -47,7 +47,7 @@ public final class SingleChoiceSetting extends SettingsItem {
             setSetting(setting);
             return setting;
         } else {
-            IntSetting setting = (IntSetting) getSetting();
+            IntSetting setting = (IntSetting)getSetting();
             setting.setValue(selection);
             return null;
         }

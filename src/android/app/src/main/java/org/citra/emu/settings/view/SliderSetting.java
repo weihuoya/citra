@@ -29,10 +29,10 @@ public final class SliderSetting extends SettingsItem {
         }
 
         if (setting instanceof IntSetting) {
-            IntSetting intSetting = (IntSetting) setting;
+            IntSetting intSetting = (IntSetting)setting;
             return intSetting.getValue();
         } else if (setting instanceof FloatSetting) {
-            FloatSetting floatSetting = (FloatSetting) setting;
+            FloatSetting floatSetting = (FloatSetting)setting;
             if (isPercentSetting()) {
                 return Math.round(floatSetting.getValue() * 100);
             } else {
@@ -60,14 +60,14 @@ public final class SliderSetting extends SettingsItem {
                 return setting;
             }
         } else if (getSetting() instanceof FloatSetting) {
-            FloatSetting setting = (FloatSetting) getSetting();
+            FloatSetting setting = (FloatSetting)getSetting();
             if (isPercentSetting())
                 setting.setValue(selection / 100.0f);
             else
                 setting.setValue(selection);
             return null;
         } else {
-            IntSetting setting = (IntSetting) getSetting();
+            IntSetting setting = (IntSetting)getSetting();
             setting.setValue(selection);
             return null;
         }

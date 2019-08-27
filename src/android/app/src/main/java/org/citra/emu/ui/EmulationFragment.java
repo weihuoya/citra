@@ -9,7 +9,6 @@ import android.view.SurfaceView;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
-
 import org.citra.emu.NativeLibrary;
 import org.citra.emu.R;
 import org.citra.emu.overlay.InputOverlay;
@@ -43,7 +42,8 @@ public final class EmulationFragment extends Fragment implements SurfaceHolder.C
     }
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+    public View onCreateView(LayoutInflater inflater, ViewGroup container,
+                             Bundle savedInstanceState) {
         View contents = inflater.inflate(R.layout.fragment_emulation, container, false);
 
         SurfaceView surfaceView = contents.findViewById(R.id.surface_emulation);
@@ -134,8 +134,7 @@ public final class EmulationFragment extends Fragment implements SurfaceHolder.C
     private void runWithValidSurface() {
         mRunWhenSurfaceIsValid = false;
         if (mState == EmulationState.STOPPED) {
-            new Thread(() ->
-            {
+            new Thread(() -> {
                 NativeLibrary.SurfaceChanged(mSurface);
                 NativeLibrary.Run(mPath);
             }, "NativeEmulation").start();
@@ -148,7 +147,5 @@ public final class EmulationFragment extends Fragment implements SurfaceHolder.C
         mState = EmulationState.RUNNING;
     }
 
-    private enum EmulationState {
-        STOPPED, RUNNING, PAUSED
-    }
+    private enum EmulationState { STOPPED, RUNNING, PAUSED }
 }

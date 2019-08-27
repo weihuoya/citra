@@ -5,7 +5,6 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AppCompatActivity;
-
 import org.citra.emu.R;
 import org.citra.emu.settings.model.Setting;
 
@@ -39,7 +38,7 @@ public final class SettingsActivity extends AppCompatActivity {
 
         if (savedInstanceState == null) {
             Intent intent = getIntent();
-            mMenuTag = (MenuTag) intent.getSerializableExtra(ARG_MENU_TAG);
+            mMenuTag = (MenuTag)intent.getSerializableExtra(ARG_MENU_TAG);
             mGameId = intent.getStringExtra(ARG_GAME_ID);
         } else {
             String menuTagStr = savedInstanceState.getString(KEY_MENU_TAG);
@@ -78,22 +77,22 @@ public final class SettingsActivity extends AppCompatActivity {
         }
     }
 
-    public void showSettingsFragment(MenuTag menuTag, Bundle extras, boolean addToStack, String gameID) {
+    public void showSettingsFragment(MenuTag menuTag, Bundle extras, boolean addToStack,
+                                     String gameID) {
         FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
 
         if (addToStack) {
             if (areSystemAnimationsEnabled()) {
-                transaction.setCustomAnimations(
-                        R.animator.settings_enter,
-                        R.animator.settings_exit,
-                        R.animator.settings_pop_enter,
-                        R.animator.setttings_pop_exit);
+                transaction.setCustomAnimations(R.animator.settings_enter, R.animator.settings_exit,
+                                                R.animator.settings_pop_enter,
+                                                R.animator.setttings_pop_exit);
             }
 
             transaction.addToBackStack(null);
             mStackCount++;
         }
-        transaction.replace(R.id.frame_content, SettingsFragment.newInstance(menuTag, gameID, extras), FRAGMENT_TAG);
+        transaction.replace(R.id.frame_content,
+                            SettingsFragment.newInstance(menuTag, gameID, extras), FRAGMENT_TAG);
         transaction.commit();
 
         // show settings
@@ -105,18 +104,16 @@ public final class SettingsActivity extends AppCompatActivity {
 
     private boolean areSystemAnimationsEnabled() {
         float duration = android.provider.Settings.Global.getFloat(
-                getContentResolver(),
-                android.provider.Settings.Global.ANIMATOR_DURATION_SCALE, 1);
+            getContentResolver(), android.provider.Settings.Global.ANIMATOR_DURATION_SCALE, 1);
 
         float transition = android.provider.Settings.Global.getFloat(
-                getContentResolver(),
-                android.provider.Settings.Global.TRANSITION_ANIMATION_SCALE, 1);
+            getContentResolver(), android.provider.Settings.Global.TRANSITION_ANIMATION_SCALE, 1);
 
         return duration != 0 && transition != 0;
     }
 
     private SettingsFragment getSettingsFragment() {
-        return (SettingsFragment) getSupportFragmentManager().findFragmentByTag(FRAGMENT_TAG);
+        return (SettingsFragment)getSupportFragmentManager().findFragmentByTag(FRAGMENT_TAG);
     }
 
     public Settings getSettings() {

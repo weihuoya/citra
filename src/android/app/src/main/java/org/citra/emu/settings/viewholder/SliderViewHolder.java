@@ -2,7 +2,6 @@ package org.citra.emu.settings.viewholder;
 
 import android.view.View;
 import android.widget.TextView;
-
 import org.citra.emu.R;
 import org.citra.emu.settings.SettingsAdapter;
 import org.citra.emu.settings.view.SettingsItem;
@@ -26,7 +25,7 @@ public final class SliderViewHolder extends SettingViewHolder {
 
     @Override
     public void bind(SettingsItem item) {
-        mItem = (SliderSetting) item;
+        mItem = (SliderSetting)item;
         mTextSettingName.setText(item.getNameId());
         if (item.getDescriptionId() > 0) {
             mTextSettingDescription.setText(item.getDescriptionId());

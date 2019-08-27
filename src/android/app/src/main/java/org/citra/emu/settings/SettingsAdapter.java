@@ -13,7 +13,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.SeekBar;
 import android.widget.TextView;
-
+import java.util.ArrayList;
 import org.citra.emu.R;
 import org.citra.emu.settings.model.BooleanSetting;
 import org.citra.emu.settings.model.IntSetting;
@@ -35,10 +35,8 @@ import org.citra.emu.settings.viewholder.SingleChoiceViewHolder;
 import org.citra.emu.settings.viewholder.SliderViewHolder;
 import org.citra.emu.settings.viewholder.SubmenuViewHolder;
 
-import java.util.ArrayList;
-
 public final class SettingsAdapter extends RecyclerView.Adapter<SettingViewHolder>
-        implements DialogInterface.OnClickListener, SeekBar.OnSeekBarChangeListener {
+    implements DialogInterface.OnClickListener, SeekBar.OnSeekBarChangeListener {
     private SettingsActivity mActivity;
     private ArrayList<SettingsItem> mSettings;
 
@@ -60,38 +58,38 @@ public final class SettingsAdapter extends RecyclerView.Adapter<SettingViewHolde
         LayoutInflater inflater = LayoutInflater.from(parent.getContext());
 
         switch (viewType) {
-            case SettingsItem.TYPE_HEADER:
-                view = inflater.inflate(R.layout.list_item_settings_header, parent, false);
-                return new HeaderViewHolder(view, this);
+        case SettingsItem.TYPE_HEADER:
+            view = inflater.inflate(R.layout.list_item_settings_header, parent, false);
+            return new HeaderViewHolder(view, this);
 
-            case SettingsItem.TYPE_CHECKBOX:
-                view = inflater.inflate(R.layout.list_item_setting_checkbox, parent, false);
-                return new CheckBoxSettingViewHolder(view, this);
+        case SettingsItem.TYPE_CHECKBOX:
+            view = inflater.inflate(R.layout.list_item_setting_checkbox, parent, false);
+            return new CheckBoxSettingViewHolder(view, this);
 
-            case SettingsItem.TYPE_STRING_SINGLE_CHOICE:
-            case SettingsItem.TYPE_SINGLE_CHOICE:
-                view = inflater.inflate(R.layout.list_item_setting, parent, false);
-                return new SingleChoiceViewHolder(view, this);
+        case SettingsItem.TYPE_STRING_SINGLE_CHOICE:
+        case SettingsItem.TYPE_SINGLE_CHOICE:
+            view = inflater.inflate(R.layout.list_item_setting, parent, false);
+            return new SingleChoiceViewHolder(view, this);
 
-            case SettingsItem.TYPE_SLIDER:
-                view = inflater.inflate(R.layout.list_item_setting, parent, false);
-                return new SliderViewHolder(view, this);
+        case SettingsItem.TYPE_SLIDER:
+            view = inflater.inflate(R.layout.list_item_setting, parent, false);
+            return new SliderViewHolder(view, this);
 
-            case SettingsItem.TYPE_SUBMENU:
-                view = inflater.inflate(R.layout.list_item_setting, parent, false);
-                return new SubmenuViewHolder(view, this);
+        case SettingsItem.TYPE_SUBMENU:
+            view = inflater.inflate(R.layout.list_item_setting, parent, false);
+            return new SubmenuViewHolder(view, this);
 
-            case SettingsItem.TYPE_INPUT_BINDING:
-                view = inflater.inflate(R.layout.list_item_setting, parent, false);
-                return new InputBindingSettingViewHolder(view, this);
+        case SettingsItem.TYPE_INPUT_BINDING:
+            view = inflater.inflate(R.layout.list_item_setting, parent, false);
+            return new InputBindingSettingViewHolder(view, this);
 
-            case SettingsItem.TYPE_SEEKBAR:
-                view = inflater.inflate(R.layout.list_item_setting_seekbar, parent, false);
-                return new SeekbarViewHolder(view, this);
+        case SettingsItem.TYPE_SEEKBAR:
+            view = inflater.inflate(R.layout.list_item_setting_seekbar, parent, false);
+            return new SeekbarViewHolder(view, this);
 
-            default:
-                Log.e("zhangwei", "[SettingsAdapter] Invalid view type: " + viewType);
-                return null;
+        default:
+            Log.e("zhangwei", "[SettingsAdapter] Invalid view type: " + viewType);
+            return null;
         }
     }
 
@@ -208,18 +206,20 @@ public final class SettingsAdapter extends RecyclerView.Adapter<SettingViewHolde
 
         final MotionAlertDialog dialog = new MotionAlertDialog(mActivity, item);
         dialog.setTitle(R.string.input_binding);
-        dialog.setMessage(getFormatString(R.string.input_binding_description, mActivity.getString(item.getNameId())));
-        dialog.setButton(AlertDialog.BUTTON_NEGATIVE, mActivity.getString(android.R.string.cancel), this);
-        dialog.setButton(AlertDialog.BUTTON_NEUTRAL, mActivity.getString(R.string.clear_input_binding),
-                (dialogInterface, i) ->
-                {
-                    SharedPreferences preferences =
-                            PreferenceManager.getDefaultSharedPreferences(mActivity);
-                    item.clearValue();
-                });
-        dialog.setOnDismissListener(dialog1 ->
-        {
-            StringSetting setting = new StringSetting(item.getKey(), item.getSection(), item.getValue());
+        dialog.setMessage(getFormatString(R.string.input_binding_description,
+                                          mActivity.getString(item.getNameId())));
+        dialog.setButton(AlertDialog.BUTTON_NEGATIVE, mActivity.getString(android.R.string.cancel),
+                         this);
+        dialog.setButton(AlertDialog.BUTTON_NEUTRAL,
+                         mActivity.getString(R.string.clear_input_binding),
+                         (dialogInterface, i) -> {
+                             SharedPreferences preferences =
+                                 PreferenceManager.getDefaultSharedPreferences(mActivity);
+                             item.clearValue();
+                         });
+        dialog.setOnDismissListener(dialog1 -> {
+            StringSetting setting =
+                new StringSetting(item.getKey(), item.getSection(), item.getValue());
             notifyItemChanged(position);
             mActivity.putSetting(setting);
             mActivity.setSettingChanged();
@@ -231,13 +231,14 @@ public final class SettingsAdapter extends RecyclerView.Adapter<SettingViewHolde
     @Override
     public void onClick(DialogInterface dialog, int which) {
         if (mClickedItem instanceof SingleChoiceSetting) {
-            SingleChoiceSetting scSetting = (SingleChoiceSetting) mClickedItem;
+            SingleChoiceSetting scSetting = (SingleChoiceSetting)mClickedItem;
 
             int value = getValueForSingleChoiceSelection(scSetting, which);
             if (scSetting.getSelectedValue() != value)
                 mActivity.setSettingChanged();
 
-            // Get the backing Setting, which may be null (if for example it was missing from the file)
+            // Get the backing Setting, which may be null (if for example it was missing from the
+            // file)
             IntSetting setting = scSetting.setSelectedValue(value);
             if (setting != null) {
                 mActivity.putSetting(setting);
@@ -247,7 +248,7 @@ public final class SettingsAdapter extends RecyclerView.Adapter<SettingViewHolde
 
             closeDialog();
         } else if (mClickedItem instanceof StringSingleChoiceSetting) {
-            StringSingleChoiceSetting scSetting = (StringSingleChoiceSetting) mClickedItem;
+            StringSingleChoiceSetting scSetting = (StringSingleChoiceSetting)mClickedItem;
             String value = scSetting.getValueAt(which);
             if (!scSetting.getSelectedValue().equals(value))
                 mActivity.setSettingChanged();
@@ -259,7 +260,7 @@ public final class SettingsAdapter extends RecyclerView.Adapter<SettingViewHolde
 
             closeDialog();
         } else if (mClickedItem instanceof SliderSetting) {
-            SliderSetting sliderSetting = (SliderSetting) mClickedItem;
+            SliderSetting sliderSetting = (SliderSetting)mClickedItem;
             if (sliderSetting.getSelectedValue() != mSeekbarProgress)
                 mActivity.setSettingChanged();
 
@@ -293,12 +294,10 @@ public final class SettingsAdapter extends RecyclerView.Adapter<SettingViewHolde
     }
 
     @Override
-    public void onStartTrackingTouch(SeekBar seekBar) {
-    }
+    public void onStartTrackingTouch(SeekBar seekBar) {}
 
     @Override
-    public void onStopTrackingTouch(SeekBar seekBar) {
-    }
+    public void onStopTrackingTouch(SeekBar seekBar) {}
 
     private int getValueForSingleChoiceSelection(SingleChoiceSetting item, int which) {
         int valuesId = item.getValuesId();
@@ -329,5 +328,4 @@ public final class SettingsAdapter extends RecyclerView.Adapter<SettingViewHolde
 
         return -1;
     }
-
 }

@@ -2,12 +2,11 @@ package org.citra.emu.settings.viewholder;
 
 import android.support.v7.widget.RecyclerView;
 import android.view.View;
-
 import org.citra.emu.settings.SettingsAdapter;
 import org.citra.emu.settings.view.SettingsItem;
 
-public abstract class SettingViewHolder extends RecyclerView.ViewHolder
-        implements View.OnClickListener {
+public abstract class SettingViewHolder
+    extends RecyclerView.ViewHolder implements View.OnClickListener {
     private SettingsAdapter mAdapter;
 
     public SettingViewHolder(View itemView, SettingsAdapter adapter) {

@@ -2,7 +2,6 @@ package org.citra.emu.settings.viewholder;
 
 import android.view.View;
 import android.widget.TextView;
-
 import org.citra.emu.R;
 import org.citra.emu.settings.SettingsAdapter;
 import org.citra.emu.settings.view.InputBindingSetting;
@@ -26,7 +25,7 @@ public final class InputBindingSettingViewHolder extends SettingViewHolder {
 
     @Override
     public void bind(SettingsItem item) {
-        mItem = (InputBindingSetting) item;
+        mItem = (InputBindingSetting)item;
         mTextSettingName.setText(mItem.getNameId());
         mTextSettingDescription.setText(mItem.getSettingText());
     }

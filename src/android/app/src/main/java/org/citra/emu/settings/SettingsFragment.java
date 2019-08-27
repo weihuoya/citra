@@ -10,9 +10,10 @@ import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-
 import com.nononsenseapps.filepicker.DividerItemDecoration;
-
+import java.io.File;
+import java.util.ArrayList;
+import java.util.List;
 import org.citra.emu.R;
 import org.citra.emu.settings.model.Setting;
 import org.citra.emu.settings.model.SettingSection;
@@ -22,10 +23,6 @@ import org.citra.emu.settings.view.SettingsItem;
 import org.citra.emu.settings.view.SingleChoiceSetting;
 import org.citra.emu.settings.view.StringSingleChoiceSetting;
 import org.citra.emu.utils.DirectoryInitialization;
-
-import java.io.File;
-import java.util.ArrayList;
-import java.util.List;
 
 public final class SettingsFragment extends Fragment {
     private static final String ARGUMENT_MENU_TAG = "menu_tag";
@@ -56,7 +53,7 @@ public final class SettingsFragment extends Fragment {
     @Override
     public void onAttach(Context context) {
         super.onAttach(context);
-        mActivity = (SettingsActivity) context;
+        mActivity = (SettingsActivity)context;
     }
 
     @Override
@@ -65,7 +62,7 @@ public final class SettingsFragment extends Fragment {
 
         setRetainInstance(true);
         Bundle args = getArguments();
-        mMenuTag = (MenuTag) args.getSerializable(ARGUMENT_MENU_TAG);
+        mMenuTag = (MenuTag)args.getSerializable(ARGUMENT_MENU_TAG);
         mGameID = getArguments().getString(ARGUMENT_GAME_ID);
         mAdapter = new SettingsAdapter(mActivity);
     }
@@ -112,28 +109,41 @@ public final class SettingsFragment extends Fragment {
         Setting systemRegion = coreSection.getSetting(SettingsFile.KEY_SYSTEM_REGION);
 
         sl.add(new CheckBoxSetting(SettingsFile.KEY_IS_NEW_3DS, Settings.SECTION_INI_CORE,
-                R.string.setting_is_new_3ds, 0, false, isNew3DS));
+                                   R.string.setting_is_new_3ds, 0, false, isNew3DS));
         sl.add(new CheckBoxSetting(SettingsFile.KEY_USE_VIRTUAL_SD, Settings.SECTION_INI_CORE,
-                R.string.setting_use_virtual_sd, 0, true, useVirtualSD));
-        sl.add(new SingleChoiceSetting(SettingsFile.KEY_SYSTEM_REGION,
-                Settings.SECTION_INI_CORE, R.string.setting_region_value, 0,
-                R.array.systemRegionEntries, R.array.systemRegionValues, -1, systemRegion));
+                                   R.string.setting_use_virtual_sd, 0, true, useVirtualSD));
+        sl.add(new SingleChoiceSetting(SettingsFile.KEY_SYSTEM_REGION, Settings.SECTION_INI_CORE,
+                                       R.string.setting_region_value, 0,
+                                       R.array.systemRegionEntries, R.array.systemRegionValues, -1,
+                                       systemRegion));
 
         // renderer
         sl.add(new HeaderSetting(null, null, R.string.setting_header_renderer, 0));
         SettingSection rendererSection = mSettings.getSection(Settings.SECTION_INI_RENDERER);
         Setting layoutOption = rendererSection.getSetting(SettingsFile.KEY_LAYOUT_OPTION);
+        Setting showFPS = rendererSection.getSetting(SettingsFile.KEY_SHOW_FPS);
         Setting resolution = rendererSection.getSetting(SettingsFile.KEY_RESOLUTION_FACTOR);
         Setting accurateMul = rendererSection.getSetting(SettingsFile.KEY_SHADERS_ACCURATE_MUL);
+        Setting shader = rendererSection.getSetting(SettingsFile.KEY_POST_PROCESSING_SHADER);
 
-        sl.add(new SingleChoiceSetting(SettingsFile.KEY_LAYOUT_OPTION,
-                Settings.SECTION_INI_RENDERER, R.string.layout_option, 0,
-                R.array.layoutOptionEntries, R.array.layoutOptionValues, 0, layoutOption));
+        sl.add(new SingleChoiceSetting(
+            SettingsFile.KEY_LAYOUT_OPTION, Settings.SECTION_INI_RENDERER, R.string.layout_option,
+            0, R.array.layoutOptionEntries, R.array.layoutOptionValues, 0, layoutOption));
         sl.add(new SingleChoiceSetting(SettingsFile.KEY_RESOLUTION_FACTOR,
-                Settings.SECTION_INI_RENDERER, R.string.internal_resolution, 0,
-                R.array.internalResolutionEntries, R.array.internalResolutionValues, 1, resolution));
-        sl.add(new CheckBoxSetting(SettingsFile.KEY_SHADERS_ACCURATE_MUL, Settings.SECTION_INI_RENDERER,
-                R.string.setting_shaders_accurate_mul, 0, false, accurateMul));
+                                       Settings.SECTION_INI_RENDERER, R.string.internal_resolution,
+                                       0, R.array.internalResolutionEntries,
+                                       R.array.internalResolutionValues, 1, resolution));
+        sl.add(new CheckBoxSetting(SettingsFile.KEY_SHOW_FPS, Settings.SECTION_INI_RENDERER,
+                                   R.string.show_fps, 0, true, showFPS));
+        sl.add(new CheckBoxSetting(SettingsFile.KEY_SHADERS_ACCURATE_MUL,
+                                   Settings.SECTION_INI_RENDERER,
+                                   R.string.setting_shaders_accurate_mul, 0, false, accurateMul));
+        // post process shaders
+        String[] shaderListValues = getShaderValues();
+        String[] shaderListEntries = getShaderEntries(shaderListValues);
+        sl.add(new StringSingleChoiceSetting(
+            SettingsFile.KEY_POST_PROCESSING_SHADER, Settings.SECTION_INI_RENDERER,
+            R.string.post_processing_shader, 0, shaderListEntries, shaderListValues, "", shader));
 
         // audio
         sl.add(new HeaderSetting(null, null, R.string.setting_header_audio, 0));
@@ -143,10 +153,11 @@ public final class SettingsFragment extends Fragment {
 
         String[] outputEntries = getResources().getStringArray(R.array.audioOuputEntries);
         String[] outputValues = getResources().getStringArray(R.array.audioOuputValues);
-        sl.add(new StringSingleChoiceSetting(SettingsFile.KEY_AUDIO_ENGINE, Settings.SECTION_INI_AUDIO,
-                R.string.setting_audio_output, 0, outputEntries, outputValues, "auto", audioOutput));
+        sl.add(new StringSingleChoiceSetting(
+            SettingsFile.KEY_AUDIO_ENGINE, Settings.SECTION_INI_AUDIO,
+            R.string.setting_audio_output, 0, outputEntries, outputValues, "auto", audioOutput));
         sl.add(new CheckBoxSetting(SettingsFile.KEY_AUDIO_STRETCHING, Settings.SECTION_INI_AUDIO,
-                R.string.setting_audio_stretching, 0, false, audioStretching));
+                                   R.string.setting_audio_stretching, 0, false, audioStretching));
 
         return sl;
     }

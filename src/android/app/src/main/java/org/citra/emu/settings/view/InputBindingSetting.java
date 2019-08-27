@@ -2,7 +2,6 @@ package org.citra.emu.settings.view;
 
 import android.view.InputDevice;
 import android.view.KeyEvent;
-
 import org.citra.emu.settings.model.Setting;
 import org.citra.emu.settings.model.StringSetting;
 
@@ -16,7 +15,7 @@ public class InputBindingSetting extends SettingsItem {
             return "";
         }
 
-        StringSetting setting = (StringSetting) getSetting();
+        StringSetting setting = (StringSetting)getSetting();
         return setting.getValue();
     }
 
@@ -31,7 +30,7 @@ public class InputBindingSetting extends SettingsItem {
             StringSetting setting = new StringSetting(getKey(), getSection(), bind);
             setSetting(setting);
         } else {
-            StringSetting setting = (StringSetting) getSetting();
+            StringSetting setting = (StringSetting)getSetting();
             setting.setValue(bind);
         }
     }
@@ -49,16 +48,17 @@ public class InputBindingSetting extends SettingsItem {
     }
 
     /**
-     * Saves the provided motion input setting both to the INI file (so native code can use it) and as
-     * an Android preference (so it persists correctly and is human-readable.)
+     * Saves the provided motion input setting both to the INI file (so native code can use it) and
+     * as an Android preference (so it persists correctly and is human-readable.)
      *
      * @param device      InputDevice from which the input event originated.
      * @param motionRange MotionRange of the movement
      * @param axisDir     Either '-' or '+'
      */
-    public void onMotionInput(InputDevice device, InputDevice.MotionRange motionRange, char axisDir) {
+    public void onMotionInput(InputDevice device, InputDevice.MotionRange motionRange,
+                              char axisDir) {
         String bindStr =
-                "Device '" + device.getDescriptor() + "'-Axis " + motionRange.getAxis() + axisDir;
+            "Device '" + device.getDescriptor() + "'-Axis " + motionRange.getAxis() + axisDir;
         setValue(bindStr);
     }
 

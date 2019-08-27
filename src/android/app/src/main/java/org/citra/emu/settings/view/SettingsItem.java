@@ -35,10 +35,12 @@ public abstract class SettingsItem {
      * @param section       Section to which the Setting belongs.
      * @param setting       A possibly-null backing Setting, to be modified on UI events.
      * @param nameId        Resource ID for a text string to be displayed as this setting's name.
-     * @param descriptionId Resource ID for a text string to be displayed as this setting's description.
+     * @param descriptionId Resource ID for a text string to be displayed as this setting's
+     *     description.
      */
 
-    public SettingsItem(String key, String section, Setting setting, int nameId, int descriptionId) {
+    public SettingsItem(String key, String section, Setting setting, int nameId,
+                        int descriptionId) {
         mKey = key;
         mSection = section;
         mSetting = setting;
@@ -59,7 +61,6 @@ public abstract class SettingsItem {
     public String getSection() {
         return mSection;
     }
-
 
     /**
      * @return The backing Setting, possibly null.

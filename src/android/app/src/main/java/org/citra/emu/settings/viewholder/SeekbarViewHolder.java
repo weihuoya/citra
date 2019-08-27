@@ -3,7 +3,6 @@ package org.citra.emu.settings.viewholder;
 import android.view.View;
 import android.widget.SeekBar;
 import android.widget.TextView;
-
 import org.citra.emu.R;
 import org.citra.emu.settings.SettingsAdapter;
 import org.citra.emu.settings.view.SettingsItem;
@@ -29,7 +28,7 @@ public final class SeekbarViewHolder extends SettingViewHolder {
 
     @Override
     public void bind(SettingsItem item) {
-        mItem = (SliderSetting) item;
+        mItem = (SliderSetting)item;
         mName.setText(item.getNameId());
         mSeekBar.setMax(mItem.getMax());
         mSeekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
@@ -45,20 +44,14 @@ public final class SeekbarViewHolder extends SettingViewHolder {
             }
 
             @Override
-            public void onStartTrackingTouch(SeekBar seekBar) {
-
-            }
+            public void onStartTrackingTouch(SeekBar seekBar) {}
 
             @Override
-            public void onStopTrackingTouch(SeekBar seekBar) {
-
-            }
+            public void onStopTrackingTouch(SeekBar seekBar) {}
         });
         mSeekBar.setProgress(mItem.getSelectedValue());
     }
 
     @Override
-    public void onClick(View clicked) {
-
-    }
+    public void onClick(View clicked) {}
 }

@@ -3,7 +3,6 @@ package org.citra.emu.settings.viewholder;
 import android.view.View;
 import android.widget.CheckBox;
 import android.widget.TextView;
-
 import org.citra.emu.R;
 import org.citra.emu.settings.SettingsAdapter;
 import org.citra.emu.settings.view.CheckBoxSetting;
@@ -30,7 +29,7 @@ public final class CheckBoxSettingViewHolder extends SettingViewHolder {
 
     @Override
     public void bind(SettingsItem item) {
-        mItem = (CheckBoxSetting) item;
+        mItem = (CheckBoxSetting)item;
         mTextSettingName.setText(item.getNameId());
         if (item.getDescriptionId() > 0) {
             mTextSettingDescription.setText(item.getDescriptionId());
