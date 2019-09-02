@@ -174,17 +174,9 @@ void Config::ReadValues() {
     qt_config->endGroup();
 
     qt_config->beginGroup("Layout");
-    Settings::values.render_3d =
-        static_cast<Settings::StereoRenderOption>(ReadSetting("render_3d", 0).toInt());
     Settings::values.factor_3d = ReadSetting("factor_3d", 0).toInt();
     Settings::values.pp_shader_name =
-        ReadSetting("pp_shader_name",
-                    (Settings::values.render_3d == Settings::StereoRenderOption::Anaglyph)
-                        ? "dubois (builtin)"
-                        : "none (builtin)")
-            .toString()
-            .toStdString();
-    Settings::values.filter_mode = ReadSetting("filter_mode", true).toBool();
+        ReadSetting("pp_shader_name", "none (builtin)").toString().toStdString();
     Settings::values.layout_option =
         static_cast<Settings::LayoutOption>(ReadSetting("layout_option").toInt());
     Settings::values.swap_screen = ReadSetting("swap_screen", false).toBool();
@@ -254,8 +246,6 @@ void Config::ReadValues() {
     qt_config->endGroup();
 
     qt_config->beginGroup("Debugging");
-    // Intentionally not using the QT default setting as this is intended to be changed in the ini
-    Settings::values.record_frame_times = qt_config->value("record_frame_times", false).toBool();
     Settings::values.use_gdbstub = ReadSetting("use_gdbstub", false).toBool();
     Settings::values.gdbstub_port = ReadSetting("gdbstub_port", 24689).toInt();
 
@@ -327,7 +317,6 @@ void Config::ReadValues() {
     UISettings::values.movie_record_path = ReadSetting("movieRecordPath").toString();
     UISettings::values.movie_playback_path = ReadSetting("moviePlaybackPath").toString();
     UISettings::values.screenshot_path = ReadSetting("screenshotPath").toString();
-    UISettings::values.video_dumping_path = ReadSetting("videoDumpingPath").toString();
     UISettings::values.game_dir_deprecated = ReadSetting("gameListRootDir", ".").toString();
     UISettings::values.game_dir_deprecated_deepscan =
         ReadSetting("gameListDeepScan", false).toBool();
@@ -544,8 +533,6 @@ void Config::SaveValues() {
     qt_config->endGroup();
 
     qt_config->beginGroup("Debugging");
-    // Intentionally not using the QT default setting as this is intended to be changed in the ini
-    qt_config->setValue("record_frame_times", Settings::values.record_frame_times);
     WriteSetting("use_gdbstub", Settings::values.use_gdbstub, false);
     WriteSetting("gdbstub_port", Settings::values.gdbstub_port, 24689);
 
@@ -597,7 +584,6 @@ void Config::SaveValues() {
     WriteSetting("movieRecordPath", UISettings::values.movie_record_path);
     WriteSetting("moviePlaybackPath", UISettings::values.movie_playback_path);
     WriteSetting("screenshotPath", UISettings::values.screenshot_path);
-    WriteSetting("videoDumpingPath", UISettings::values.video_dumping_path);
     qt_config->beginWriteArray("gamedirs");
     for (int i = 0; i < UISettings::values.game_dirs.size(); ++i) {
         qt_config->setArrayIndex(i);

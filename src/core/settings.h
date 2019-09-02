@@ -32,8 +32,6 @@ enum class MicInputType {
     Static,
 };
 
-enum class StereoRenderOption { Off, SideBySide, Anaglyph };
-
 namespace NativeButton {
 enum Values {
     A,
@@ -138,6 +136,7 @@ struct Values {
     u64 init_time;
 
     // Renderer
+    bool show_fps;
     bool use_gles;
     bool use_hw_renderer;
     bool use_hw_shader;
@@ -165,10 +164,7 @@ struct Values {
     float bg_green;
     float bg_blue;
 
-    StereoRenderOption render_3d;
     std::atomic<u8> factor_3d;
-
-    bool filter_mode;
     std::string pp_shader_name;
 
     // Audio
@@ -187,11 +183,14 @@ struct Values {
     std::array<int, Service::CAM::NumCameras> camera_flip;
 
     // Debugging
-    bool record_frame_times;
     bool use_gdbstub;
     u16 gdbstub_port;
     std::string log_filter;
     std::unordered_map<std::string, bool> lle_modules;
+
+    bool gl_separate_shader;
+    bool allow_shadow;
+    bool dump_textures;
 
     // WebService
     bool enable_telemetry;

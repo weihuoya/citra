@@ -16,10 +16,6 @@
 #include "core/cheats/cheats.h"
 #include "core/core.h"
 #include "core/core_timing.h"
-#include "core/dumping/backend.h"
-#ifdef ENABLE_FFMPEG_VIDEO_DUMPER
-#include "core/dumping/ffmpeg_backend.h"
-#endif
 #include "core/gdbstub/gdbstub.h"
 #include "core/hle/kernel/client_port.h"
 #include "core/hle/kernel/kernel.h"
@@ -146,12 +142,7 @@ System::ResultStatus System::Load(Frontend::EmuWindow& emu_window, const std::st
         }
     }
     cheat_engine = std::make_unique<Cheats::CheatEngine>(*this);
-    u64 title_id{0};
-    if (app_loader->ReadProgramId(title_id) != Loader::ResultStatus::Success) {
-        LOG_ERROR(Core, "Failed to find title id for ROM (Error {})",
-                  static_cast<u32>(load_result));
-    }
-    perf_stats = std::make_unique<PerfStats>(title_id);
+    perf_stats = std::make_unique<PerfStats>();
     status = ResultStatus::Success;
     m_emu_window = &emu_window;
     m_filepath = filepath;
@@ -231,12 +222,6 @@ System::ResultStatus System::Init(Frontend::EmuWindow& emu_window, u32 system_mo
         return result;
     }
 
-#ifdef ENABLE_FFMPEG_VIDEO_DUMPER
-    video_dumper = std::make_unique<VideoDumper::FFmpegBackend>();
-#else
-    video_dumper = std::make_unique<VideoDumper::NullBackend>();
-#endif
-
     LOG_DEBUG(Core, "Initialized OK");
 
     return ResultStatus::Success;
@@ -290,14 +275,6 @@ const Cheats::CheatEngine& System::CheatEngine() const {
     return *cheat_engine;
 }
 
-VideoDumper::Backend& System::VideoDumper() {
-    return *video_dumper;
-}
-
-const VideoDumper::Backend& System::VideoDumper() const {
-    return *video_dumper;
-}
-
 void System::RegisterMiiSelector(std::shared_ptr<Frontend::MiiSelector> mii_selector) {
     registered_mii_selector = std::move(mii_selector);
 }
@@ -316,7 +293,7 @@ void System::Shutdown() {
     telemetry_session->AddField(Telemetry::FieldType::Performance, "Shutdown_Frametime",
                                 perf_results.frametime * 1000.0);
     telemetry_session->AddField(Telemetry::FieldType::Performance, "Mean_Frametime_MS",
-                                perf_stats->GetMeanFrametime());
+                                20.0);
 
     // Shutdown emulation session
     GDBStub::Shutdown();
@@ -332,10 +309,6 @@ void System::Shutdown() {
     kernel.reset();
     timing.reset();
     app_loader.reset();
-
-    if (video_dumper->IsDumping()) {
-        video_dumper->StopDumping();
-    }
 
     if (auto room_member = Network::GetRoomMember().lock()) {
         Network::GameInfo game_info{};

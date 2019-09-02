@@ -49,10 +49,6 @@ namespace Cheats {
 class CheatEngine;
 }
 
-namespace VideoDumper {
-class Backend;
-}
-
 namespace Core {
 
 class Timing;
@@ -210,12 +206,6 @@ public:
     /// Gets a const reference to the cheat engine
     const Cheats::CheatEngine& CheatEngine() const;
 
-    /// Gets a reference to the video dumper backend
-    VideoDumper::Backend& VideoDumper();
-
-    /// Gets a const reference to the video dumper backend
-    const VideoDumper::Backend& VideoDumper() const;
-
     std::unique_ptr<PerfStats> perf_stats;
     FrameLimiter frame_limiter;
 
@@ -285,9 +275,6 @@ private:
 
     /// Cheats manager
     std::unique_ptr<Cheats::CheatEngine> cheat_engine;
-
-    /// Video dumper backend
-    std::unique_ptr<VideoDumper::Backend> video_dumper;
 
     /// RPC Server for scripting support
     std::unique_ptr<RPC::RPCServer> rpc_server;
