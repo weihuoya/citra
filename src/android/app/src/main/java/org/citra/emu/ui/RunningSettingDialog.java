@@ -63,6 +63,9 @@ public class RunningSettingDialog extends DialogFragment {
 
         // pref
         public static final int SETTING_JOYSTICK_RELATIVE = 100;
+        public static final int SETTING_CONTROLLER_SCALE = 101;
+        public static final int SETTING_CONTROLLER_ALPHA = 102;
+        public static final int SETTING_EMULATE_MOTION_BY_TOUCH = 103;
 
         // view type
         public static final int TYPE_CHECKBOX = 0;
@@ -210,27 +213,45 @@ public class RunningSettingDialog extends DialogFragment {
     public class SettingsAdapter extends RecyclerView.Adapter<SettingViewHolder> {
         private int[] mRunningSettings;
         private int mJoystickRelative;
+        private int mControllerScale;
+        private int mControllerAlpha;
+        private int mEmulateMotionByTouch;
         private ArrayList<SettingsItem> mSettings;
 
         public SettingsAdapter() {
             int i = 0;
-            SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getContext());
+            EmulationActivity activity = (EmulationActivity)NativeLibrary.getEmulationContext();
             mRunningSettings = NativeLibrary.getRunningSettings();
             mSettings = new ArrayList<>();
 
             // pref settings
-            mJoystickRelative = prefs.getBoolean(InputOverlay.RELATIVE_PREF_KEY, true) ? 1 : 0;
+            mJoystickRelative = InputOverlay.sJoystickRelative ? 1 : 0;
             mSettings.add(new SettingsItem(SettingsItem.SETTING_JOYSTICK_RELATIVE,
-                    R.string.joystick_relative_center, SettingsItem.TYPE_CHECKBOX,
-                    mJoystickRelative));
+                                           R.string.joystick_relative_center,
+                                           SettingsItem.TYPE_CHECKBOX, mJoystickRelative));
+
+            mControllerScale = InputOverlay.sControllerScale;
+            mSettings.add(new SettingsItem(SettingsItem.SETTING_CONTROLLER_SCALE,
+                                           R.string.controller_scale, SettingsItem.TYPE_SEEK_BAR,
+                                           mControllerScale));
+
+            mControllerAlpha = InputOverlay.sControllerAlpha;
+            mSettings.add(new SettingsItem(SettingsItem.SETTING_CONTROLLER_ALPHA,
+                                           R.string.controller_alpha, SettingsItem.TYPE_SEEK_BAR,
+                                           mControllerAlpha));
+
+            mEmulateMotionByTouch = InputOverlay.sEmulateMotionByTouch ? 1 : 0;
+            mSettings.add(new SettingsItem(SettingsItem.SETTING_EMULATE_MOTION_BY_TOUCH,
+                                           R.string.emulate_motion_by_touch,
+                                           SettingsItem.TYPE_CHECKBOX, mEmulateMotionByTouch));
 
             // native settings
             mSettings.add(new SettingsItem(SettingsItem.SETTING_CORE_TICKS_HACK,
-                    R.string.setting_core_ticks_hack, SettingsItem.TYPE_SEEK_BAR,
-                    mRunningSettings[i++]));
+                                           R.string.setting_core_ticks_hack,
+                                           SettingsItem.TYPE_CHECKBOX, mRunningSettings[i++]));
             mSettings.add(new SettingsItem(SettingsItem.SETTING_LAYOUT_SINGLE_SCREEN,
-                    R.string.single_screen, SettingsItem.TYPE_CHECKBOX,
-                    mRunningSettings[i++]));
+                                           R.string.single_screen, SettingsItem.TYPE_CHECKBOX,
+                                           mRunningSettings[i++]));
         }
 
         @NonNull
@@ -265,15 +286,41 @@ public class RunningSettingDialog extends DialogFragment {
         }
 
         public void saveSettings() {
+            EmulationActivity activity = (EmulationActivity)NativeLibrary.getEmulationContext();
+
             // pref settings
-            SharedPreferences.Editor editor = PreferenceManager.getDefaultSharedPreferences(getContext()).edit();
+            SharedPreferences.Editor editor =
+                PreferenceManager.getDefaultSharedPreferences(activity).edit();
             int relative = mSettings.get(0).getValue();
             if (mJoystickRelative != relative) {
-                editor.putBoolean(InputOverlay.RELATIVE_PREF_KEY, relative > 0);
+                editor.putBoolean(InputOverlay.PREF_JOYSTICK_RELATIVE, relative > 0);
                 InputOverlay.sJoystickRelative = relative > 0;
             }
             mSettings.remove(0);
+
+            int scale = mSettings.get(0).getValue();
+            if (mControllerScale != scale) {
+                editor.putInt(InputOverlay.PREF_CONTROLLER_SCALE, scale);
+                InputOverlay.sControllerScale = scale;
+            }
+            mSettings.remove(0);
+
+            int alpha = mSettings.get(0).getValue();
+            if (mControllerAlpha != alpha) {
+                editor.putInt(InputOverlay.PREF_CONTROLLER_ALPHA, alpha);
+                InputOverlay.sControllerAlpha = alpha;
+            }
+            mSettings.remove(0);
+
+            int motion = mSettings.get(0).getValue();
+            if (mEmulateMotionByTouch != motion) {
+                InputOverlay.sEmulateMotionByTouch = motion > 0;
+            }
+            mSettings.remove(0);
+
+            // applay prefs
             editor.apply();
+            activity.refreshControls();
 
             // native settings
             boolean isChanged = false;

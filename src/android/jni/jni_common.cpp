@@ -12,6 +12,15 @@ public:
             env->GetStaticMethodID(mClazz, "getEmulationContext", "()Landroid/content/Context;");
         mSaveImageToFile =
             env->GetStaticMethodID(mClazz, "saveImageToFile", "(Ljava/lang/String;II[I)V");
+        mUpdateProgress =
+            env->GetStaticMethodID(mClazz, "updateProgress", "(Ljava/lang/String;II)V");
+        mShowInputBoxDialog = env->GetStaticMethodID(
+            mClazz, "showInputBoxDialog",
+            "(ILjava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)V");
+        mShowMessageDialog =
+            env->GetStaticMethodID(mClazz, "showMessageDialog", "(ILjava/lang/String;)V");
+        mShowMiiSelectorDialog = env->GetStaticMethodID(
+            mClazz, "showMiiSelectorDialog", "(ZLjava/lang/String;[Ljava/lang/String;)V");
     }
 
     ~NativeLibrary() {
@@ -27,10 +36,33 @@ public:
                                                 pixels);
     }
 
+    void UpdateProgress(jstring name, u32 written, u32 total) {
+        GetEnvForThread()->CallStaticVoidMethod(mClazz, mUpdateProgress, name, written, total);
+    }
+
+    void ShowInputBoxDialog(jint maxLength, jstring hint, jstring button0, jstring button1,
+                            jstring button2) {
+        GetEnvForThread()->CallStaticVoidMethod(mClazz, mShowInputBoxDialog, maxLength, hint,
+                                                button0, button1, button2);
+    }
+
+    void ShowMiiSelectorDialog(jboolean cancel, jstring title, jobjectArray miis) {
+        GetEnvForThread()->CallStaticVoidMethod(mClazz, mShowMiiSelectorDialog, cancel, title,
+                                                miis);
+    }
+
+    void ShowMessageDialog(jint type, jstring msg) {
+        GetEnvForThread()->CallStaticVoidMethod(mClazz, mShowMessageDialog, type, msg);
+    }
+
 private:
     jclass mClazz;
     jmethodID mGetEmulationContext;
     jmethodID mSaveImageToFile;
+    jmethodID mUpdateProgress;
+    jmethodID mShowInputBoxDialog;
+    jmethodID mShowMessageDialog;
+    jmethodID mShowMiiSelectorDialog;
 };
 
 static constexpr jint JNI_VERSION = JNI_VERSION_1_6;
@@ -92,6 +124,25 @@ void SaveImageToFile(const std::string& path, u32 width, u32 height, const u32* 
     jintArray array = ToJIntArray(pixels, width * height);
     s_native_library->SaveImageToFile(ToJString(path), width, height, array);
     GetEnvForThread()->DeleteLocalRef(array);
+}
+
+void UpdateProgress(const std::string& name, u32 written, u32 total) {
+    s_native_library->UpdateProgress(ToJString(name), written, total);
+}
+
+void ShowInputBoxDialog(int maxLength, const std::string& hint, const std::string& button0,
+                        const std::string& button1, const std::string& button2) {
+    s_native_library->ShowInputBoxDialog(maxLength, ToJString(hint), ToJString(button0),
+                                         ToJString(button1), ToJString(button2));
+}
+
+void ShowMiiSelectorDialog(bool cancel, const std::string& title,
+                           const std::vector<std::string>& miis) {
+    s_native_library->ShowMiiSelectorDialog(cancel, ToJString(title), ToJStringArray(miis));
+}
+
+void ShowMessageDialog(int type, const std::string& msg) {
+    s_native_library->ShowMessageDialog(type, ToJString(msg));
 }
 
 JNIEnv* GetEnvForThread() {

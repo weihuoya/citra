@@ -34,13 +34,13 @@
     <!-- system region Preference -->
     <string-array name="systemRegionEntries" translatable="false">
         <item>@string/auto</item>
-        <item>JPN</item>
-        <item>USA</item>
-        <item>EUR</item>
-        <item>AUS</item>
-        <item>CHN</item>
-        <item>KOR</item>
-        <item>TWN</item>
+        <item>@string/region_japan</item>
+        <item>@string/region_north_america</item>
+        <item>@string/region_europe</item>
+        <item>@string/region_australia</item>
+        <item>@string/region_china</item>
+        <item>@string/region_korea</item>
+        <item>@string/region_taiwan</item>
     </string-array>
     <integer-array name="systemRegionValues" translatable="false">
         <item>-1</item>

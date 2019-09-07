@@ -3,7 +3,6 @@ package org.citra.emu.overlay;
 import android.graphics.Canvas;
 import android.graphics.Rect;
 import android.graphics.drawable.BitmapDrawable;
-
 import org.citra.emu.NativeLibrary;
 
 public final class InputOverlayDpad {
@@ -46,8 +45,8 @@ public final class InputOverlayDpad {
         Rect bounds = getBounds();
         mControlPositionX += x - mPreviousTouchX;
         mControlPositionY += y - mPreviousTouchY;
-        setBounds(new Rect(mControlPositionX, mControlPositionY,
-                mControlPositionX + bounds.width(), mControlPositionY + bounds.height()));
+        setBounds(new Rect(mControlPositionX, mControlPositionY, mControlPositionX + bounds.width(),
+                           mControlPositionY + bounds.height()));
         mPreviousTouchX = x;
         mPreviousTouchY = y;
     }
@@ -107,24 +106,24 @@ public final class InputOverlayDpad {
     public void onPointerDown(int id, float x, float y) {
         mPointerId = id;
         if (mIsStick)
-            setDpadState2((int) x, (int) y);
+            setDpadState2((int)x, (int)y);
         else
-            setDpadState4((int) x, (int) y);
+            setDpadState4((int)x, (int)y);
     }
 
     public void onPointerMove(int id, float x, float y) {
         if (mIsStick)
-            setDpadState2((int) x, (int) y);
+            setDpadState2((int)x, (int)y);
         else
-            setDpadState4((int) x, (int) y);
+            setDpadState4((int)x, (int)y);
     }
 
     public void onPointerUp(int id, float x, float y) {
         mPointerId = -1;
         if (mIsStick)
-            setDpadState2((int) x, (int) y);
+            setDpadState2((int)x, (int)y);
         else
-            setDpadState4((int) x, (int) y);
+            setDpadState4((int)x, (int)y);
     }
 
     private void setDpadState2(int pointerX, int pointerY) {
@@ -155,8 +154,8 @@ public final class InputOverlayDpad {
             }
         }
 
-        NativeLibrary.InputEvent(NativeLibrary.TouchScreenDevice, mButtonIds[0], axises[0]);
-        NativeLibrary.InputEvent(NativeLibrary.TouchScreenDevice, mButtonIds[1], axises[1]);
+        NativeLibrary.InputEvent(mButtonIds[0], axises[0]);
+        NativeLibrary.InputEvent(mButtonIds[1], axises[1]);
     }
 
     private void setDpadState4(int pointerX, int pointerY) {
@@ -178,8 +177,9 @@ public final class InputOverlayDpad {
 
         for (int i = 0; i < pressed.length; ++i) {
             if (pressed[i] != mPressStates[i]) {
-                NativeLibrary.InputEvent(NativeLibrary.TouchScreenDevice, mButtonIds[i],
-                        pressed[i] ? NativeLibrary.ButtonState.PRESSED : NativeLibrary.ButtonState.RELEASED);
+                NativeLibrary.InputEvent(mButtonIds[i], pressed[i]
+                                                            ? NativeLibrary.ButtonState.PRESSED
+                                                            : NativeLibrary.ButtonState.RELEASED);
                 mPressStates[i] = pressed[i];
             }
         }

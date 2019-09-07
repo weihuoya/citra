@@ -3,7 +3,6 @@ package org.citra.emu.overlay;
 import android.graphics.Canvas;
 import android.graphics.Rect;
 import android.graphics.drawable.BitmapDrawable;
-
 import org.citra.emu.NativeLibrary;
 
 public final class InputOverlayJoystick {
@@ -54,15 +53,15 @@ public final class InputOverlayJoystick {
         mControlPositionX += deltaX;
         mControlPositionY += deltaY;
         setBounds(new Rect(mControlPositionX, mControlPositionY,
-                mOuterBitmap.getIntrinsicWidth() + mControlPositionX,
-                mOuterBitmap.getIntrinsicHeight() + mControlPositionY));
+                           mOuterBitmap.getIntrinsicWidth() + mControlPositionX,
+                           mOuterBitmap.getIntrinsicHeight() + mControlPositionY));
         mVirtBounds.set(mControlPositionX, mControlPositionY,
-                mOuterBitmap.getIntrinsicWidth() + mControlPositionX,
-                mOuterBitmap.getIntrinsicHeight() + mControlPositionY);
+                        mOuterBitmap.getIntrinsicWidth() + mControlPositionX,
+                        mOuterBitmap.getIntrinsicHeight() + mControlPositionY);
         updateInnerBounds();
         mOrigBounds.set(mControlPositionX, mControlPositionY,
-                mOuterBitmap.getIntrinsicWidth() + mControlPositionX,
-                mOuterBitmap.getIntrinsicHeight() + mControlPositionY);
+                        mOuterBitmap.getIntrinsicWidth() + mControlPositionX,
+                        mOuterBitmap.getIntrinsicHeight() + mControlPositionY);
         mPreviousTouchX = x;
         mPreviousTouchY = y;
     }
@@ -78,7 +77,7 @@ public final class InputOverlayJoystick {
         mBoundsBoxBitmap.setAlpha(mAlpha);
         if (InputOverlay.sJoystickRelative) {
             // reCenter
-            mVirtBounds.offset((int) x - mVirtBounds.centerX(), (int) y - mVirtBounds.centerY());
+            mVirtBounds.offset((int)x - mVirtBounds.centerX(), (int)y - mVirtBounds.centerY());
         }
         mBoundsBoxBitmap.setBounds(mVirtBounds);
         mPointerId = id;
@@ -118,8 +117,8 @@ public final class InputOverlayJoystick {
 
         updateInnerBounds();
 
-        NativeLibrary.InputEvent(NativeLibrary.TouchScreenDevice, mAxisIDs[0], mAxises[0]);
-        NativeLibrary.InputEvent(NativeLibrary.TouchScreenDevice, mAxisIDs[1], mAxises[1]);
+        NativeLibrary.InputEvent(mAxisIDs[0], mAxises[0]);
+        NativeLibrary.InputEvent(mAxisIDs[1], mAxises[1]);
     }
 
     public void setPosition(int x, int y) {
@@ -154,8 +153,8 @@ public final class InputOverlayJoystick {
     }
 
     private void updateInnerBounds() {
-        int X = mVirtBounds.centerX() + (int) ((mAxises[0]) * (mVirtBounds.width() / 2));
-        int Y = mVirtBounds.centerY() + (int) ((-mAxises[1]) * (mVirtBounds.height() / 2));
+        int X = mVirtBounds.centerX() + (int)((mAxises[0]) * (mVirtBounds.width() / 2));
+        int Y = mVirtBounds.centerY() + (int)((-mAxises[1]) * (mVirtBounds.height() / 2));
 
         if (X > mVirtBounds.centerX() + (mVirtBounds.width() / 2))
             X = mVirtBounds.centerX() + (mVirtBounds.width() / 2);

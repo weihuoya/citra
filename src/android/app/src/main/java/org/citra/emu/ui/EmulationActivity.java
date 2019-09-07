@@ -5,13 +5,18 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.v7.app.AppCompatActivity;
+import android.view.InputDevice;
+import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
+import android.view.MotionEvent;
 import android.view.View;
 import java.lang.ref.WeakReference;
+import java.util.List;
 import org.citra.emu.NativeLibrary;
 import org.citra.emu.R;
+import org.citra.emu.utils.ControllerMappingHelper;
 
 public final class EmulationActivity extends AppCompatActivity {
     private static final String EXTRA_GAMEPATH = "SelectedGames";
@@ -133,5 +138,85 @@ public final class EmulationActivity extends AppCompatActivity {
         } else {
             disableFullscreenImmersive();
         }
+    }
+
+    // Gets button presses
+    @Override
+    public boolean dispatchKeyEvent(KeyEvent event) {
+        if (mMenuVisible) {
+            return super.dispatchKeyEvent(event);
+        }
+
+        InputDevice input = event.getDevice();
+        int button = event.getKeyCode();
+        int action;
+        switch (event.getAction()) {
+        case KeyEvent.ACTION_DOWN:
+            // Handling the case where the back button is pressed.
+            if (button == KeyEvent.KEYCODE_BACK) {
+                onBackPressed();
+                return true;
+            }
+            // Normal key events.
+            action = NativeLibrary.ButtonState.PRESSED;
+            break;
+        case KeyEvent.ACTION_UP:
+            action = NativeLibrary.ButtonState.RELEASED;
+            break;
+        default:
+            return false;
+        }
+
+        if (input != null)
+            return NativeLibrary.KeyEvent(button, action);
+        else
+            return false;
+    }
+
+    @Override
+    public boolean dispatchGenericMotionEvent(MotionEvent event) {
+        if (mMenuVisible) {
+            return false;
+        }
+
+        if (((event.getSource() & InputDevice.SOURCE_CLASS_JOYSTICK) == 0)) {
+            return super.dispatchGenericMotionEvent(event);
+        }
+
+        // Don't attempt to do anything if we are disconnecting a device.
+        if (event.getActionMasked() == MotionEvent.ACTION_CANCEL)
+            return true;
+
+        InputDevice input = event.getDevice();
+        List<InputDevice.MotionRange> motions = input.getMotionRanges();
+
+        for (InputDevice.MotionRange range : motions) {
+            int axis = range.getAxis();
+            float origValue = event.getAxisValue(axis);
+            float value = ControllerMappingHelper.scaleAxis(input, axis, origValue);
+            // If the input is still in the "flat" area, that means it's really zero.
+            // This is used to compensate for imprecision in joysticks.
+            if (Math.abs(value) > range.getFlat()) {
+                NativeLibrary.MoveEvent(axis, value);
+            } else {
+                NativeLibrary.MoveEvent(axis, 0.0f);
+            }
+        }
+
+        return true;
+    }
+
+    public void showInputBoxDialog(int maxLength, String hint, String button0, String button1,
+                                   String button2) {
+        KeyboardDialog.newInstance(maxLength, hint, button0, button1, button2)
+            .show(getSupportFragmentManager(), "KeyboardDialog");
+    }
+
+    public void showMiiSelectorDialog(boolean cancel, String title, String[] miis) {
+        // todo
+    }
+
+    public void refreshControls() {
+        mEmulationFragment.refreshControls();
     }
 }

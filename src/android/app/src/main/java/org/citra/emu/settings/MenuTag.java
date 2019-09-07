@@ -4,9 +4,7 @@ import android.support.annotation.Nullable;
 
 public enum MenuTag {
     CONFIG("Config"),
-    CONFIG_CORE("Core"),
-    CONFIG_RENDERER("Renderer"),
-    CONFIG_AUDIO("Audio");
+    INPUT("Input");
 
     private String mTag;
     private int mSubType;

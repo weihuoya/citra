@@ -11,6 +11,8 @@ import android.content.IntentFilter;
 import android.content.pm.PackageManager;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Message;
 import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
@@ -23,6 +25,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 import com.nononsenseapps.filepicker.DividerItemDecoration;
@@ -44,20 +47,31 @@ import org.citra.emu.utils.PermissionsHandler;
 
 public final class MainActivity extends AppCompatActivity {
     public static final int REQUEST_ADD_DIRECTORY = 1;
-
-    List<GameFile> mGames;
+    public static final int REQUEST_OPEN_FILE = 2;
+    private final static int MSG_UPDATE_PROGRESS_BAR = 1;
+    private static WeakReference<MainActivity> sInstance = new WeakReference<>(null);
+    private List<GameFile> mGames;
+    private Handler mUIHandler;
     private String mDirToAdd;
+    private String[] mFilesToAdd;
     private GameAdapter mAdapter;
+    private ProgressBar mProgressBar;
     private BroadcastReceiver mBroadcastReceiver;
+
+    public static MainActivity get() {
+        return sInstance.get();
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        sInstance = new WeakReference<>(this);
 
         Toolbar toolbar = findViewById(R.id.toolbar_main);
         setSupportActionBar(toolbar);
 
+        mProgressBar = findViewById(R.id.progress_bar);
         mGames = new ArrayList<>();
         mAdapter = new GameAdapter();
         RecyclerView GameList = findViewById(R.id.grid_games);
@@ -77,23 +91,32 @@ public final class MainActivity extends AppCompatActivity {
     public boolean onCreateOptionsMenu(Menu menu) {
         MenuInflater inflater = getMenuInflater();
         inflater.inflate(R.menu.menu_main, menu);
+        menu.findItem(R.id.menu_input_binding).setVisible(false);
         return true;
     }
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
-            case R.id.menu_add_directory:
-                FileBrowserHelper.openDirectoryPicker(this);
-                return true;
+        case R.id.menu_add_directory:
+            FileBrowserHelper.openDirectoryPicker(this);
+            return true;
 
-            case R.id.menu_settings_core:
-                SettingsActivity.launch(this, MenuTag.CONFIG, "");
-                return true;
+        case R.id.menu_settings_core:
+            SettingsActivity.launch(this, MenuTag.CONFIG, "");
+            return true;
 
-            case R.id.menu_refresh:
-                refreshLibrary();
-                return true;
+        case R.id.menu_input_binding:
+            SettingsActivity.launch(this, MenuTag.INPUT, "");
+            return true;
+
+        case R.id.menu_install_cia:
+            FileBrowserHelper.openFilePicker(this, REQUEST_OPEN_FILE);
+            return true;
+
+        case R.id.menu_refresh:
+            refreshLibrary();
+            return true;
         }
 
         return false;
@@ -108,6 +131,21 @@ public final class MainActivity extends AppCompatActivity {
             saveGameList();
             showGames();
         }
+
+        if (mFilesToAdd != null) {
+            List<String> filelist = new ArrayList<>();
+            for (String f : mFilesToAdd) {
+                if (f.toLowerCase().endsWith(".cia")) {
+                    filelist.add(f);
+                }
+            }
+            mFilesToAdd = null;
+            final String[] files = filelist.toArray(new String[0]);
+            new Thread(() -> NativeLibrary.InstallCIA(files)).start();
+            if (mUIHandler == null) {
+                mUIHandler = new MainUIHandler();
+            }
+        }
     }
 
     @Override
@@ -121,12 +159,17 @@ public final class MainActivity extends AppCompatActivity {
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent result) {
         switch (requestCode) {
-            case REQUEST_ADD_DIRECTORY:
-                // If the user picked a file, as opposed to just backing out.
-                if (resultCode == MainActivity.RESULT_OK) {
-                    mDirToAdd = FileBrowserHelper.getSelectedDirectory(result);
-                }
-                break;
+        case REQUEST_ADD_DIRECTORY:
+            // If the user picked a file, as opposed to just backing out.
+            if (resultCode == MainActivity.RESULT_OK) {
+                mDirToAdd = FileBrowserHelper.getSelectedDirectory(result);
+            }
+            break;
+        case REQUEST_OPEN_FILE:
+            if (resultCode == MainActivity.RESULT_OK) {
+                mFilesToAdd = FileBrowserHelper.getSelectedFiles(result);
+            }
+            break;
         }
     }
 
@@ -250,9 +293,50 @@ public final class MainActivity extends AppCompatActivity {
                         "gamelist.cache");
     }
 
+    public void updateProgress(String name, int written, int total) {
+        if (mUIHandler == null)
+            return;
+        Bundle args = new Bundle();
+        args.putString("name", name);
+        args.putInt("written", written);
+        args.putInt("total", total);
+        Message msg = new Message();
+        msg.what = MSG_UPDATE_PROGRESS_BAR;
+        msg.setData(args);
+        mUIHandler.sendMessage(msg);
+    }
+
     public void showGames() {
         mGames.sort((GameFile x, GameFile y) -> x.getName().compareTo(y.getName()));
         mAdapter.setGameList(mGames);
+    }
+
+    static class MainUIHandler extends Handler {
+        @Override
+        public void handleMessage(Message msg) {
+            if (msg.what == MSG_UPDATE_PROGRESS_BAR) {
+                Bundle args = msg.getData();
+                String name = args.getString("name", "");
+                int written = args.getInt("written", 0);
+                int total = args.getInt("total", 0);
+                MainActivity activity = MainActivity.get();
+                if (activity == null) {
+                    return;
+                }
+                if (written < total) {
+                    activity.mProgressBar.setVisibility(View.VISIBLE);
+                } else {
+                    activity.mProgressBar.setVisibility(View.INVISIBLE);
+                    if (total == 0) {
+                        if (written == 0) {
+                            Toast.makeText(activity, "Install Success!", Toast.LENGTH_LONG).show();
+                        } else {
+                            Toast.makeText(activity, "Error: " + name, Toast.LENGTH_LONG).show();
+                        }
+                    }
+                }
+            }
+        }
     }
 
     static class GameViewHolder extends RecyclerView.ViewHolder {
@@ -286,6 +370,14 @@ public final class MainActivity extends AppCompatActivity {
 
         public String getPath() {
             return mModel.getPath();
+        }
+
+        public String getProgramId() {
+            return mModel.getId();
+        }
+
+        public String getTitle() {
+            return mModel.getName();
         }
     }
 
@@ -325,6 +417,8 @@ public final class MainActivity extends AppCompatActivity {
 
         @Override
         public boolean onLongClick(View view) {
+            GameViewHolder holder = (GameViewHolder)view.getTag();
+            EditorActivity.launch(view.getContext(), holder.getProgramId(), holder.getTitle());
             return true;
         }
 

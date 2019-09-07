@@ -7,10 +7,18 @@
     <string name="host">app</string>
     <string name="scheme">citra</string>
 
+    <string name="error">Error</string>
+    <string name="input_text_max_length">Max input length: %1$d.</string>
+
     <string name="setting_core_ticks_hack">FMV Hack</string>
+    <string name="emulate_motion_by_touch">Emulate motion by touch</string>
     <string name="joystick_relative_center">Joystick use relative center</string>
+    <string name="controller_scale">Controller Scale</string>
+    <string name="controller_alpha">Controller Opacity</string>
 
     <string name="grid_menu_refresh">Refresh Library</string>
+    <string name="grid_menu_input_binding">Input Binding</string>
+    <string name="grid_menu_install_cia">Install CIA</string>
     <string name="preferences_settings">Settings</string>
 
     <string name="emulation_edit_layout">Edit Layout</string>
@@ -31,6 +39,7 @@
     <string name="show_fps">Show FPS</string>
     <string name="layout_option">Screen Layout</string>
     <string name="internal_resolution">Internal Resolution</string>
+    <string name="setting_hw_shader">Enable Hardware Shader</string>
     <string name="setting_shaders_accurate_mul">Accurate Multiplication</string>
     <string name="post_processing_shader">Post-Processing Effect</string>
 
@@ -44,6 +53,8 @@
     <string name="auto">Auto</string>
     <string name="off">Off</string>
     <string name="clear_input_binding">Clear</string>
+    <string name="save">Save</string>
+    <string name="cheat_code">Cheat Code</string>
     <string name="write_permission_needed">You need to allow write access to external storage for the emulator to work.</string>
 
     <string name="region_invalid">Unknown</string>
@@ -55,6 +66,22 @@
     <string name="region_korea">Korea</string>
     <string name="region_taiwan">Taiwan</string>
     <string name="region_region_free">Region Free</string>
+
+    <string name="controller_stick">Main Stick</string>
+    <string name="controller_dpad">D-Pad</string>
+    <string name="generic_buttons">Buttons</string>
+    <string name="button_a">A</string>
+    <string name="button_b">B</string>
+    <string name="button_x">X</string>
+    <string name="button_y">Y</string>
+    <string name="button_up">Up</string>
+    <string name="button_down">Down</string>
+    <string name="button_left">Left</string>
+    <string name="button_right">Right</string>
+    <string name="button_l">L</string>
+    <string name="button_r">R</string>
+    <string name="button_start">START</string>
+    <string name="button_select">SELECT</string>
 
     <string name="nnf_new_folder">New folder</string>
     <string name="nnf_create_folder_error">Failed to create folder</string>

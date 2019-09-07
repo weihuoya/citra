@@ -8,6 +8,7 @@ public final class Settings {
     public static final String SECTION_INI_CORE = "Core";
     public static final String SECTION_INI_RENDERER = "Renderer";
     public static final String SECTION_INI_AUDIO = "Audio";
+    public static final String SECTION_INI_CONTROLS = "Controls";
     private HashMap<String, SettingSection> mSections = new SettingsSectionMap();
 
     public SettingSection getSection(String sectionName) {

@@ -131,6 +131,11 @@ public final class EmulationFragment extends Fragment implements SurfaceHolder.C
         }
     }
 
+    public void refreshControls() {
+        mInputOverlay.refreshControls();
+        mInputOverlay.invalidate();
+    }
+
     private void runWithValidSurface() {
         mRunWhenSurfaceIsValid = false;
         if (mState == EmulationState.STOPPED) {

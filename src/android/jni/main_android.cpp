@@ -9,8 +9,6 @@
 
 #include "common/common_paths.h"
 #include "common/file_util.h"
-#include "common/logging/filter.h"
-#include "common/logging/log.h"
 #include "core/core.h"
 #include "core/frontend/applets/default_applets.h"
 #include "core/hle/service/am/am.h"
@@ -23,7 +21,7 @@
 #include "egl_android.h"
 #include "input_manager.h"
 #include "jni_common.h"
-#include "logcat_backend.h"
+#include "keyboard.h"
 
 static ANativeWindow* s_surface = nullptr;
 
@@ -32,6 +30,7 @@ static std::atomic<bool> s_is_running;
 static std::mutex s_running_mutex;
 static std::condition_variable s_running_cv;
 static std::unique_ptr<EGLAndroid> s_render_window;
+static std::shared_ptr<AndroidKeyboard> s_keyboard;
 static std::map<std::string, std::unique_ptr<Loader::AppLoader>> s_app_loaders;
 
 void BootGame(const std::string& path) {
@@ -39,6 +38,14 @@ void BootGame(const std::string& path) {
     s_render_window->Initialize(s_surface, 1.0f);
 
     Core::System& system{Core::System::GetInstance()};
+
+    // system config
+    // std::shared_ptr<Service::CFG::Module> cfg = Service::CFG::GetModule(system);
+    // cfg->SetSystemLanguage(Service::CFG::SystemLanguage::LANGUAGE_EN);
+    // cfg->SetSoundOutputMode(Service::CFG::SoundOutputMode::SOUND_SURROUND);
+    // cfg->SetCountryCode(49); // USA
+    // cfg->UpdateConfigNANDSavegame();
+
     const Core::System::ResultStatus result{system.Load(*s_render_window, path)};
     if (result != Core::System::ResultStatus::Success) {
         switch (result) {
@@ -92,8 +99,9 @@ void BootGame(const std::string& path) {
                 // End emulation execution
                 break;
             } else if (result != Core::System::ResultStatus::Success) {
-                LOG_CRITICAL(Frontend, "Error {}: {}", static_cast<u32>(result),
-                             system.GetStatusDetails());
+                ShowMessageDialog(0, fmt::format("Error {}: {}", static_cast<u32>(result),
+                                                 system.GetStatusDetails()));
+                break;
             }
         } else {
             std::unique_lock lock{s_running_mutex};
@@ -168,14 +176,23 @@ static std::vector<Loader::SMDH::GameRegion> GetGameRegions(Loader::AppLoader* l
 extern "C" {
 #endif
 
-JNIEXPORT void JNICALL Java_org_citra_emu_NativeLibrary_SetUserPath(JNIEnv* env, jobject obj,
-                                                                    jstring jPath) {
-    // set log backend
-    Log::Filter log_filter(Log::Level::Info);
-    log_filter.ParseFilterString(Settings::values.log_filter);
-    Log::SetGlobalFilter(log_filter);
-    Log::AddBackend(std::make_unique<Log::LogcatBackend>());
+JNIEXPORT void JNICALL Java_org_citra_emu_NativeLibrary_InstallCIA(JNIEnv* env, jclass obj,
+                                                                   jobjectArray jPaths) {
+    const std::vector<std::string> paths = JStringArrayToVector(jPaths);
+    Service::AM::InstallStatus status;
+    for (const auto& path : paths) {
+        status = Service::AM::InstallCIA(
+            path, std::bind(UpdateProgress, path, std::placeholders::_1, std::placeholders::_2));
+        if (Service::AM::InstallStatus::Success != status) {
+            UpdateProgress(path, static_cast<u32>(status), 0);
+        } else {
+            UpdateProgress(path, 0, 0);
+        }
+    }
+}
 
+JNIEXPORT void JNICALL Java_org_citra_emu_NativeLibrary_SetUserPath(JNIEnv* env, jclass obj,
+                                                                    jstring jPath) {
     // init user path
     std::string path = GetJString(jPath);
     if (path[path.size() - 1] != '/')
@@ -192,9 +209,8 @@ JNIEXPORT void JNICALL Java_org_citra_emu_NativeLibrary_SetUserPath(JNIEnv* env,
 
     // Register frontend applets
     Frontend::RegisterDefaultApplets();
-
-    // profile
-    InputManager::GetInstance().InitProfile();
+    s_keyboard = std::make_shared<AndroidKeyboard>();
+    Core::System::GetInstance().RegisterSoftwareKeyboard(s_keyboard);
 
     //
     VideoCore::g_dump_texture_callback = [](u32* pixels, u32 width, u32 height,
@@ -203,11 +219,11 @@ JNIEXPORT void JNICALL Java_org_citra_emu_NativeLibrary_SetUserPath(JNIEnv* env,
     };
 }
 
-JNIEXPORT jboolean JNICALL Java_org_citra_emu_NativeLibrary_IsRunning(JNIEnv* env, jobject obj) {
+JNIEXPORT jboolean JNICALL Java_org_citra_emu_NativeLibrary_IsRunning(JNIEnv* env, jclass obj) {
     return s_is_running;
 }
 
-JNIEXPORT void JNICALL Java_org_citra_emu_NativeLibrary_SurfaceChanged(JNIEnv* env, jobject obj,
+JNIEXPORT void JNICALL Java_org_citra_emu_NativeLibrary_SurfaceChanged(JNIEnv* env, jclass obj,
                                                                        jobject surf) {
     s_surface = ANativeWindow_fromSurface(env, surf);
     if (s_render_window) {
@@ -215,7 +231,7 @@ JNIEXPORT void JNICALL Java_org_citra_emu_NativeLibrary_SurfaceChanged(JNIEnv* e
     }
 }
 
-JNIEXPORT void JNICALL Java_org_citra_emu_NativeLibrary_SurfaceDestroyed(JNIEnv* env, jobject obj) {
+JNIEXPORT void JNICALL Java_org_citra_emu_NativeLibrary_SurfaceDestroyed(JNIEnv* env, jclass obj) {
     ANativeWindow_release(s_surface);
     s_surface = nullptr;
     if (s_render_window) {
@@ -223,31 +239,56 @@ JNIEXPORT void JNICALL Java_org_citra_emu_NativeLibrary_SurfaceDestroyed(JNIEnv*
     }
 }
 
-JNIEXPORT jboolean JNICALL Java_org_citra_emu_NativeLibrary_InputEvent(JNIEnv* env, jobject obj,
-                                                                       jstring jDevice, jint button,
-                                                                       jfloat value) {
-    return InputManager::GetInstance().InputEvent(GetJString(jDevice), button, value);
+JNIEXPORT void JNICALL Java_org_citra_emu_NativeLibrary_InputEvent(JNIEnv* env, jclass obj,
+                                                                       jint button, jfloat value) {
+    InputManager::GetInstance().InputEvent(button, value);
 }
 
-JNIEXPORT void JNICALL Java_org_citra_emu_NativeLibrary_TouchEvent(JNIEnv* env, jobject obj,
-                                                                   jint action, jfloat x,
-                                                                   jfloat y) {
+JNIEXPORT void JNICALL Java_org_citra_emu_NativeLibrary_TouchEvent(JNIEnv* env, jclass obj,
+                                                                   jint action, jint x, jint y) {
+    const int TOUCH_PRESSED = 1;
+    const int TOUCH_MOVED = 2;
+    const int TOUCH_RELEASED = 4;
+    const int BEGIN_TILT = 8;
+    const int TILT = 16;
+    const int END_TILT = 32;
+
     if (s_render_window) {
-        switch (action) {
-        case 0:
+        if (action & TOUCH_PRESSED) {
             s_render_window->TouchPressed(x, y);
-            break;
-        case 1:
+        } else if (action & TOUCH_MOVED) {
             s_render_window->TouchMoved(x, y);
-            break;
-        case 2:
+        } else if (action & TOUCH_RELEASED) {
             s_render_window->TouchReleased();
-            break;
+        }
+
+        if (action & BEGIN_TILT) {
+            InputManager::GetInstance().BeginTilt(x, y);
+        } else if (action & TILT) {
+            InputManager::GetInstance().Tilt(x, y);
+        } else if (action & END_TILT) {
+            InputManager::GetInstance().EndTilt();
         }
     }
 }
 
-JNIEXPORT void JNICALL Java_org_citra_emu_NativeLibrary_Run(JNIEnv* env, jobject obj,
+JNIEXPORT void JNICALL Java_org_citra_emu_NativeLibrary_KeyboardEvent(JNIEnv* env, jclass obj,
+                                                                      jint action, jstring jtext) {
+    if (s_keyboard)
+        s_keyboard->Accept(action, GetJString(jtext));
+}
+
+JNIEXPORT jboolean JNICALL Java_org_citra_emu_NativeLibrary_KeyEvent(JNIEnv* env, jclass obj,
+                                                                     jint button, jint action) {
+    return InputManager::GetInstance().KeyEvent(button, action);
+}
+
+JNIEXPORT void JNICALL Java_org_citra_emu_NativeLibrary_MoveEvent(JNIEnv* env, jclass obj,
+                                                                  jint axis, jfloat value) {
+    InputManager::GetInstance().KeyEvent(axis, value);
+}
+
+JNIEXPORT void JNICALL Java_org_citra_emu_NativeLibrary_Run(JNIEnv* env, jclass obj,
                                                             jstring jFile) {
     // load
     Config::Load();
@@ -277,7 +318,6 @@ JNIEXPORT void JNICALL Java_org_citra_emu_NativeLibrary_Run(JNIEnv* env, jobject
     Settings::values.audio_device_id = Config::Get(Config::AUDIO_DEVICE);
     Settings::values.enable_audio_stretching = Config::Get(Config::AUDIO_STRETCHING);
     // debug
-    Settings::values.gl_separate_shader = Config::Get(Config::GL_SEPARATE_SHADER);
     Settings::values.allow_shadow = Config::Get(Config::ALLOW_SHADOW);
     Settings::values.dump_textures = Config::Get(Config::DUMP_TEXTURES);
     //
@@ -286,33 +326,34 @@ JNIEXPORT void JNICALL Java_org_citra_emu_NativeLibrary_Run(JNIEnv* env, jobject
     Settings::values.core_ticks_hack = 0;
     Settings::Apply();
 
-    // settings
-    Settings::LogSettings();
+    // profile
+    InputManager::GetInstance().InitProfile();
+
     // run
     BootGame(GetJString(jFile));
 }
 
-JNIEXPORT void JNICALL Java_org_citra_emu_NativeLibrary_SaveScreenShot(JNIEnv* env, jobject obj) {
+JNIEXPORT void JNICALL Java_org_citra_emu_NativeLibrary_SaveScreenShot(JNIEnv* env, jclass obj) {
     VideoCore::RequestScreenshot();
 }
 
-JNIEXPORT void JNICALL Java_org_citra_emu_NativeLibrary_ResumeEmulation(JNIEnv* env, jobject obj) {
+JNIEXPORT void JNICALL Java_org_citra_emu_NativeLibrary_ResumeEmulation(JNIEnv* env, jclass obj) {
     s_is_running = true;
     s_running_cv.notify_all();
 }
 
-JNIEXPORT void JNICALL Java_org_citra_emu_NativeLibrary_PauseEmulation(JNIEnv* env, jobject obj) {
+JNIEXPORT void JNICALL Java_org_citra_emu_NativeLibrary_PauseEmulation(JNIEnv* env, jclass obj) {
     s_is_running = false;
     s_running_cv.notify_all();
 }
 
-JNIEXPORT void JNICALL Java_org_citra_emu_NativeLibrary_StopEmulation(JNIEnv* env, jobject obj) {
+JNIEXPORT void JNICALL Java_org_citra_emu_NativeLibrary_StopEmulation(JNIEnv* env, jclass obj) {
     s_stop_run = true;
     s_running_cv.notify_all();
 }
 
 JNIEXPORT jintArray JNICALL Java_org_citra_emu_NativeLibrary_getRunningSettings(JNIEnv* env,
-                                                                                jobject obj) {
+                                                                                jclass obj) {
     int i = 0;
     int settings[2];
 
@@ -325,7 +366,7 @@ JNIEXPORT jintArray JNICALL Java_org_citra_emu_NativeLibrary_getRunningSettings(
     return array;
 }
 
-JNIEXPORT void JNICALL Java_org_citra_emu_NativeLibrary_setRunningSettings(JNIEnv* env, jobject obj,
+JNIEXPORT void JNICALL Java_org_citra_emu_NativeLibrary_setRunningSettings(JNIEnv* env, jclass obj,
                                                                            jintArray array) {
     int i = 0;
     jint* settings = env->GetIntArrayElements(array, nullptr);
@@ -350,7 +391,15 @@ JNIEXPORT void JNICALL Java_org_citra_emu_NativeLibrary_setRunningSettings(JNIEn
     env->ReleaseIntArrayElements(array, settings, 0);
 }
 
-JNIEXPORT jstring JNICALL Java_org_citra_emu_NativeLibrary_GetAppTitle(JNIEnv* env, jobject obj,
+JNIEXPORT jstring JNICALL Java_org_citra_emu_NativeLibrary_GetAppId(JNIEnv* env, jclass obj,
+                                                                    jstring jPath) {
+    Loader::AppLoader* app_loader = GetAppLoader(GetJString(jPath));
+    u64 programId;
+    app_loader->ReadProgramId(programId);
+    return ToJString(fmt::format("{:016X}", programId));
+}
+
+JNIEXPORT jstring JNICALL Java_org_citra_emu_NativeLibrary_GetAppTitle(JNIEnv* env, jclass obj,
                                                                        jstring jPath) {
     Loader::AppLoader* app_loader = GetAppLoader(GetJString(jPath));
     std::string title;
@@ -358,14 +407,14 @@ JNIEXPORT jstring JNICALL Java_org_citra_emu_NativeLibrary_GetAppTitle(JNIEnv* e
     return ToJString(title);
 }
 
-JNIEXPORT jintArray JNICALL Java_org_citra_emu_NativeLibrary_GetAppIcon(JNIEnv* env, jobject obj,
+JNIEXPORT jintArray JNICALL Java_org_citra_emu_NativeLibrary_GetAppIcon(JNIEnv* env, jclass obj,
                                                                         jstring jPath) {
     Loader::AppLoader* app_loader = GetAppLoader(GetJString(jPath));
     std::vector<u16> icon = GetIconData(app_loader);
     return ToJIntArray(reinterpret_cast<u32*>(icon.data()), icon.size() / 2);
 }
 
-JNIEXPORT jint JNICALL Java_org_citra_emu_NativeLibrary_GetAppRegion(JNIEnv* env, jobject obj,
+JNIEXPORT jint JNICALL Java_org_citra_emu_NativeLibrary_GetAppRegion(JNIEnv* env, jclass obj,
                                                                      jstring jPath) {
     Loader::AppLoader* app_loader = GetAppLoader(GetJString(jPath));
     std::vector<Loader::SMDH::GameRegion> regions = GetGameRegions(app_loader);

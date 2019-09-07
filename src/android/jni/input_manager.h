@@ -27,21 +27,27 @@ public:
         N3DS_CPAD_Y = 18,
         N3DS_STICK_X = 19,
         N3DS_STICK_Y = 20,
-        N3DS_TOUCH_X = 21,
-        N3DS_TOUCH_Y = 22,
-        N3DS_TOUCH_Z = 23,
 
-        N3DS_INPUT_COUNT = 24,
+        N3DS_INPUT_COUNT = 21,
     };
 
     static InputManager& GetInstance();
     ~InputManager();
 
     void InitProfile();
-    bool InputEvent(const std::string& dev, int button, float value);
+
     float GetInput(int button);
+    void InputEvent(int button, float value);
+
+    bool KeyEvent(int button, float value);
+
+    void BeginTilt(int x, int y);
+    void Tilt(int x, int y);
+    void EndTilt();
 
 private:
     InputManager();
-    std::vector<float> mInputs;
+
+    std::vector<int> mKeys;
+    std::vector<float> mAnalogs;
 };

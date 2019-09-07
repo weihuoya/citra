@@ -1,14 +1,16 @@
 cmake_minimum_required(VERSION 3.8)
 
 add_library(main SHARED
-            logcat_backend.cpp
-            logcat_backend.h
             jni_common.cpp
             jni_common.h
             input_manager.cpp
             input_manager.h
             egl_android.cpp
             egl_android.h
+            mii_selector.cpp
+            mii_selector.h
+            keyboard.cpp
+            keyboard.h
             main_android.cpp
             config/config.cpp
             config/config.h

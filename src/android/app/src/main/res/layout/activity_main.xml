@@ -13,6 +13,13 @@
         android:layout_height="?attr/actionBarSize"
         android:layout_alignParentTop="true" />
 
+    <ProgressBar
+        android:id="@+id/progress_bar"
+        android:visibility="invisible"
+        android:layout_centerInParent="true"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"/>
+
     <android.support.v7.widget.RecyclerView
         android:id="@+id/grid_games"
         android:layout_below="@id/toolbar_main"

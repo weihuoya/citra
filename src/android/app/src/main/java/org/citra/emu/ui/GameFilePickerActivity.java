@@ -34,5 +34,15 @@ public final class GameFilePickerActivity extends FilePickerActivity {
                 getContext(),
                 getContext().getApplicationContext().getPackageName() + ".filesprovider", file);
         }
+
+        @Override
+        protected boolean isItemVisible(final File file) {
+            if (file.isHidden())
+                return false;
+            if (file.isDirectory())
+                return true;
+            String filename = file.getName().toLowerCase();
+            return filename.endsWith(".cci") || filename.endsWith(".cia");
+        }
     }
 }

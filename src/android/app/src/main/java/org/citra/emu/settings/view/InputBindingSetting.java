@@ -42,8 +42,7 @@ public class InputBindingSetting extends SettingsItem {
      * @param keyEvent KeyEvent of this key press.
      */
     public void onKeyInput(KeyEvent keyEvent) {
-        InputDevice device = keyEvent.getDevice();
-        String bindStr = "Device '" + device.getDescriptor() + "'-Button " + keyEvent.getKeyCode();
+        String bindStr = "code:" + keyEvent.getKeyCode();
         setValue(bindStr);
     }
 
@@ -57,8 +56,7 @@ public class InputBindingSetting extends SettingsItem {
      */
     public void onMotionInput(InputDevice device, InputDevice.MotionRange motionRange,
                               char axisDir) {
-        String bindStr =
-            "Device '" + device.getDescriptor() + "'-Axis " + motionRange.getAxis() + axisDir;
+        String bindStr = "code:" + motionRange.getAxis() + ",dir:" + axisDir;
         setValue(bindStr);
     }
 
@@ -72,16 +70,9 @@ public class InputBindingSetting extends SettingsItem {
     }
 
     public String getSettingText() {
-        String uiText = null;
         if (getSetting() != null) {
-            String bindStr = getSetting().getValueAsString();
-            int index = bindStr.indexOf('-');
-            if (index > 0) {
-                uiText = bindStr.substring(index + 1);
-            } else {
-                uiText = bindStr;
-            }
+            return getSetting().getValueAsString();
         }
-        return uiText;
+        return null;
     }
 }

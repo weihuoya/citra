@@ -44,6 +44,28 @@ public final class SettingsFile {
     public static final String KEY_AUDIO_VOLUME = "volume";
     public static final String KEY_AUDIO_ENGINE = "output_engine";
     public static final String KEY_AUDIO_DEVICE = "output_device";
+    // controls
+    public static final String KEY_BUTTON_A = "button_a";
+    public static final String KEY_BUTTON_B = "button_b";
+    public static final String KEY_BUTTON_X = "button_x";
+    public static final String KEY_BUTTON_Y = "button_y";
+    public static final String KEY_BUTTON_UP = "button_up";
+    public static final String KEY_BUTTON_DOWN = "button_down";
+    public static final String KEY_BUTTON_LEFT = "button_left";
+    public static final String KEY_BUTTON_RIGHT = "button_right";
+    public static final String KEY_BUTTON_L = "button_l";
+    public static final String KEY_BUTTON_R = "button_r";
+    public static final String KEY_BUTTON_START = "button_start";
+    public static final String KEY_BUTTON_SELECT = "button_select";
+    public static final String KEY_BUTTON_DEBUG = "button_debug";
+    public static final String KEY_BUTTON_GPIO14 = "button_gpio14";
+    public static final String KEY_BUTTON_ZL = "button_zl";
+    public static final String KEY_BUTTON_ZR = "button_zr";
+    public static final String KEY_BUTTON_HOME = "button_home";
+    public static final String KEY_CIRCLE_PAD_UP = "circle_pad_up";
+    public static final String KEY_CIRCLE_PAD_DOWN = "circle_pad_down";
+    public static final String KEY_CIRCLE_PAD_LEFT = "circle_pad_left";
+    public static final String KEY_CIRCLE_PAD_RIGHT = "circle_pad_right";
 
     /**
      * Reads a given .ini file from disk and returns it as a HashMap of Settings, themselves

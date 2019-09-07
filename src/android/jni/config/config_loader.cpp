@@ -19,7 +19,7 @@
 
 namespace ConfigLoaders {
 
-static const char * CONFIG_FILE = "config-mmj.ini";
+static const char* CONFIG_FILE = "config-mmj.ini";
 
 // INI layer configuration loader
 class BaseConfigLayerLoader final : public Config::ConfigLayerLoader {

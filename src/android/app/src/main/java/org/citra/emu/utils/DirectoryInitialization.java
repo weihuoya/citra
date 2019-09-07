@@ -85,6 +85,14 @@ public final class DirectoryInitialization {
         return mUserPath;
     }
 
+    public static File getCheatFile(String programId) {
+        File cheatsPath = new File(mUserPath, "cheats");
+        if (!cheatsPath.isDirectory() && !cheatsPath.mkdir()) {
+            return null;
+        }
+        return new File(cheatsPath, programId + ".txt");
+    }
+
     public static String getConfigFile() {
         return getUserDirectory() + File.separator + "config" + File.separator + "config-mmj.ini";
     }

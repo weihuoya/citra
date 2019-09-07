@@ -8,6 +8,7 @@ import org.citra.emu.NativeLibrary;
 import org.citra.emu.R;
 
 public final class GameFile {
+    private String mId;
     private String mPath;
     private String mName;
     private String mInfo;
@@ -16,6 +17,13 @@ public final class GameFile {
 
     public GameFile(String path) {
         mPath = path;
+    }
+
+    public String getId() {
+        if (mId == null) {
+            mId = NativeLibrary.GetAppId(mPath);
+        }
+        return mId;
     }
 
     public String getName() {

@@ -1,20 +1,42 @@
 package org.citra.emu;
 
+import android.app.AlertDialog;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.util.Log;
 import android.view.Surface;
-
-import org.citra.emu.ui.EmulationActivity;
-
 import java.io.File;
 import java.io.FileOutputStream;
+import org.citra.emu.ui.EmulationActivity;
+import org.citra.emu.ui.MainActivity;
 
 public final class NativeLibrary {
-    public static final String TouchScreenDevice = "touchscreen";
+
+    public static Context getMainContext() {
+        return MainActivity.get();
+    }
 
     public static Context getEmulationContext() {
         return EmulationActivity.get();
+    }
+
+    public static void showMessageDialog(int type, String msg) {
+        Log.e("zhangwei", "showMessageDialog: " + msg);
+    }
+
+    public static void showInputBoxDialog(int maxLength, String hint, String button0,
+                                          String button1, String button2) {
+        EmulationActivity activity = EmulationActivity.get();
+        if (activity != null) {
+            activity.showInputBoxDialog(maxLength, hint, button0, button1, button2);
+        }
+    }
+
+    public static void showMiiSelectorDialog(boolean cancel, String title, String[] miis) {
+        EmulationActivity activity = EmulationActivity.get();
+        if (activity != null) {
+            activity.showMiiSelectorDialog(cancel, title, miis);
+        }
     }
 
     public static void saveImageToFile(String path, int width, int height, int[] pixels) {
@@ -32,6 +54,14 @@ public final class NativeLibrary {
         }
     }
 
+    public static void updateProgress(String name, int written, int total) {
+        MainActivity activity = MainActivity.get();
+        if (activity != null) {
+            activity.updateProgress(name, written, total);
+        }
+    }
+
+    public static native String GetAppId(String path);
 
     public static native String GetAppTitle(String path);
 
@@ -41,11 +71,22 @@ public final class NativeLibrary {
 
     public static native void SaveScreenShot();
 
+    public static native void InstallCIA(String[] path);
+
     public static native void SetUserPath(String path);
 
-    public static native boolean InputEvent(String device, int button, float value);
+    // input overlay
+    public static native void InputEvent(int button, float value);
 
-    public static native void TouchEvent(int action, float x, float y);
+    // touch screen
+    public static native void TouchEvent(int action, int x, int y);
+
+    // gamepad
+    public static native boolean KeyEvent(int button, int action);
+    public static native void MoveEvent(int axis, float value);
+
+    // edit box
+    public static native void KeyboardEvent(int type, String text);
 
     public static native boolean IsRunning();
 

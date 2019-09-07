@@ -15,6 +15,16 @@
         app:showAsAction="never"/>
 
     <item
+        android:id="@+id/menu_input_binding"
+        android:title="@string/grid_menu_input_binding"
+        app:showAsAction="never"/>
+
+    <item
+        android:id="@+id/menu_install_cia"
+        android:title="@string/grid_menu_install_cia"
+        app:showAsAction="never"/>
+
+    <item
         android:id="@+id/menu_refresh"
         android:title="@string/grid_menu_refresh"
         app:showAsAction="never"/>

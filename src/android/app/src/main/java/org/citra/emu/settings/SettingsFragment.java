@@ -19,6 +19,7 @@ import org.citra.emu.settings.model.Setting;
 import org.citra.emu.settings.model.SettingSection;
 import org.citra.emu.settings.view.CheckBoxSetting;
 import org.citra.emu.settings.view.HeaderSetting;
+import org.citra.emu.settings.view.InputBindingSetting;
 import org.citra.emu.settings.view.SettingsItem;
 import org.citra.emu.settings.view.SingleChoiceSetting;
 import org.citra.emu.settings.view.StringSingleChoiceSetting;
@@ -92,7 +93,11 @@ public final class SettingsFragment extends Fragment {
 
     public void showSettingsList(Settings settings) {
         mSettings = settings;
-        mSettingsList = loadSettingsList();
+        if (mMenuTag == MenuTag.INPUT) {
+            mSettingsList = loadBindingsList();
+        } else {
+            mSettingsList = loadSettingsList();
+        }
         if (mSettingsList != null) {
             mAdapter.setSettings(mSettingsList);
         }
@@ -123,6 +128,7 @@ public final class SettingsFragment extends Fragment {
         Setting layoutOption = rendererSection.getSetting(SettingsFile.KEY_LAYOUT_OPTION);
         Setting showFPS = rendererSection.getSetting(SettingsFile.KEY_SHOW_FPS);
         Setting resolution = rendererSection.getSetting(SettingsFile.KEY_RESOLUTION_FACTOR);
+        Setting hwShader = rendererSection.getSetting(SettingsFile.KEY_USE_HW_SHADER);
         Setting accurateMul = rendererSection.getSetting(SettingsFile.KEY_SHADERS_ACCURATE_MUL);
         Setting shader = rendererSection.getSetting(SettingsFile.KEY_POST_PROCESSING_SHADER);
 
@@ -135,6 +141,9 @@ public final class SettingsFragment extends Fragment {
                                        R.array.internalResolutionValues, 1, resolution));
         sl.add(new CheckBoxSetting(SettingsFile.KEY_SHOW_FPS, Settings.SECTION_INI_RENDERER,
                                    R.string.show_fps, 0, true, showFPS));
+        sl.add(new CheckBoxSetting(SettingsFile.KEY_USE_HW_SHADER,
+                                   Settings.SECTION_INI_RENDERER,
+                                   R.string.setting_hw_shader, 0, true, hwShader));
         sl.add(new CheckBoxSetting(SettingsFile.KEY_SHADERS_ACCURATE_MUL,
                                    Settings.SECTION_INI_RENDERER,
                                    R.string.setting_shaders_accurate_mul, 0, false, accurateMul));
@@ -158,6 +167,59 @@ public final class SettingsFragment extends Fragment {
             R.string.setting_audio_output, 0, outputEntries, outputValues, "auto", audioOutput));
         sl.add(new CheckBoxSetting(SettingsFile.KEY_AUDIO_STRETCHING, Settings.SECTION_INI_AUDIO,
                                    R.string.setting_audio_stretching, 0, false, audioStretching));
+
+        return sl;
+    }
+
+    private ArrayList<SettingsItem> loadBindingsList() {
+        ArrayList<SettingsItem> sl = new ArrayList<>();
+
+        // controls
+        SettingSection bindingsSection = mSettings.getSection(Settings.SECTION_INI_CONTROLS);
+        Setting buttonA = bindingsSection.getSetting(SettingsFile.KEY_BUTTON_A);
+        Setting buttonB = bindingsSection.getSetting(SettingsFile.KEY_BUTTON_B);
+        Setting buttonX = bindingsSection.getSetting(SettingsFile.KEY_BUTTON_X);
+        Setting buttonY = bindingsSection.getSetting(SettingsFile.KEY_BUTTON_Y);
+
+        Setting buttonUp = bindingsSection.getSetting(SettingsFile.KEY_BUTTON_UP);
+        Setting buttonDown = bindingsSection.getSetting(SettingsFile.KEY_BUTTON_DOWN);
+        Setting buttonLeft = bindingsSection.getSetting(SettingsFile.KEY_BUTTON_LEFT);
+        Setting buttonRight = bindingsSection.getSetting(SettingsFile.KEY_BUTTON_RIGHT);
+
+        Setting buttonL = bindingsSection.getSetting(SettingsFile.KEY_BUTTON_L);
+        Setting buttonR = bindingsSection.getSetting(SettingsFile.KEY_BUTTON_R);
+        Setting buttonStart = bindingsSection.getSetting(SettingsFile.KEY_BUTTON_START);
+        Setting buttonSelect = bindingsSection.getSetting(SettingsFile.KEY_BUTTON_SELECT);
+
+        sl.add(new HeaderSetting(null, null, R.string.generic_buttons, 0));
+        sl.add(new InputBindingSetting(SettingsFile.KEY_BUTTON_A, Settings.SECTION_INI_CONTROLS,
+                                       R.string.button_a, buttonA));
+        sl.add(new InputBindingSetting(SettingsFile.KEY_BUTTON_B, Settings.SECTION_INI_CONTROLS,
+                                       R.string.button_b, buttonB));
+        sl.add(new InputBindingSetting(SettingsFile.KEY_BUTTON_X, Settings.SECTION_INI_CONTROLS,
+                                       R.string.button_x, buttonX));
+        sl.add(new InputBindingSetting(SettingsFile.KEY_BUTTON_Y, Settings.SECTION_INI_CONTROLS,
+                                       R.string.button_y, buttonY));
+
+        sl.add(new InputBindingSetting(SettingsFile.KEY_BUTTON_L, Settings.SECTION_INI_CONTROLS,
+                R.string.button_l, buttonL));
+        sl.add(new InputBindingSetting(SettingsFile.KEY_BUTTON_R, Settings.SECTION_INI_CONTROLS,
+                R.string.button_r, buttonR));
+        sl.add(new InputBindingSetting(SettingsFile.KEY_BUTTON_START, Settings.SECTION_INI_CONTROLS,
+                R.string.button_start, buttonStart));
+        sl.add(new InputBindingSetting(SettingsFile.KEY_BUTTON_SELECT,
+                Settings.SECTION_INI_CONTROLS, R.string.button_select,
+                buttonSelect));
+
+        sl.add(new HeaderSetting(null, null, R.string.controller_dpad, 0));
+        sl.add(new InputBindingSetting(SettingsFile.KEY_BUTTON_UP, Settings.SECTION_INI_CONTROLS,
+                                       R.string.button_up, buttonUp));
+        sl.add(new InputBindingSetting(SettingsFile.KEY_BUTTON_DOWN, Settings.SECTION_INI_CONTROLS,
+                                       R.string.button_down, buttonDown));
+        sl.add(new InputBindingSetting(SettingsFile.KEY_BUTTON_LEFT, Settings.SECTION_INI_CONTROLS,
+                                       R.string.button_left, buttonLeft));
+        sl.add(new InputBindingSetting(SettingsFile.KEY_BUTTON_RIGHT, Settings.SECTION_INI_CONTROLS,
+                                       R.string.button_right, buttonRight));
 
         return sl;
     }

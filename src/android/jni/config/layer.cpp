@@ -13,9 +13,7 @@ namespace Config {
 ConfigLayerLoader::ConfigLayerLoader() = default;
 ConfigLayerLoader::~ConfigLayerLoader() = default;
 
-Layer::Layer(std::unique_ptr<ConfigLayerLoader> loader)
-    : m_loader(std::move(loader)) {
-}
+Layer::Layer(std::unique_ptr<ConfigLayerLoader> loader) : m_loader(std::move(loader)) {}
 
 Layer::~Layer() {
     Save();

@@ -3,7 +3,6 @@ package org.citra.emu.overlay;
 import android.graphics.Canvas;
 import android.graphics.Rect;
 import android.graphics.drawable.BitmapDrawable;
-
 import org.citra.emu.NativeLibrary;
 
 public final class InputOverlayButton {
@@ -14,7 +13,8 @@ public final class InputOverlayButton {
     private int mPointerId;
     private int mButtonId;
 
-    public InputOverlayButton(BitmapDrawable defaultBitmap, BitmapDrawable pressedBitmap, int buttonId) {
+    public InputOverlayButton(BitmapDrawable defaultBitmap, BitmapDrawable pressedBitmap,
+                              int buttonId) {
         mPointerId = -1;
         mButtonId = buttonId;
         mDefaultBitmap = defaultBitmap;
@@ -30,8 +30,8 @@ public final class InputOverlayButton {
         Rect bounds = getBounds();
         mControlPositionX += x - mPreviousTouchX;
         mControlPositionY += y - mPreviousTouchY;
-        setBounds(new Rect(mControlPositionX, mControlPositionY,
-                mControlPositionX + bounds.width(), mControlPositionY + bounds.height()));
+        setBounds(new Rect(mControlPositionX, mControlPositionY, mControlPositionX + bounds.width(),
+                           mControlPositionY + bounds.height()));
         mPreviousTouchX = x;
         mPreviousTouchY = y;
     }
@@ -42,16 +42,14 @@ public final class InputOverlayButton {
 
     public void onPointerDown(int id, float x, float y) {
         mPointerId = id;
-        NativeLibrary.InputEvent(NativeLibrary.TouchScreenDevice, mButtonId, NativeLibrary.ButtonState.PRESSED);
+        NativeLibrary.InputEvent(mButtonId, NativeLibrary.ButtonState.PRESSED);
     }
 
-    public void onPointerMove(int id, float x, float y) {
-
-    }
+    public void onPointerMove(int id, float x, float y) {}
 
     public void onPointerUp(int id, float x, float y) {
         mPointerId = -1;
-        NativeLibrary.InputEvent(NativeLibrary.TouchScreenDevice, mButtonId, NativeLibrary.ButtonState.RELEASED);
+        NativeLibrary.InputEvent(mButtonId, NativeLibrary.ButtonState.RELEASED);
     }
 
     private BitmapDrawable getCurrentBitmapDrawable() {

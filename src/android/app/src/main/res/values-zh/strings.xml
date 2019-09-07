@@ -7,10 +7,18 @@
     <string name="host">app</string>
     <string name="scheme">citra</string>
 
+    <string name="error">错误</string>
+    <string name="input_text_max_length">输入长度限制：%1$d.</string>
+
     <string name="setting_core_ticks_hack">FMV Hack</string>
+    <string name="emulate_motion_by_touch">触摸屏模拟体感</string>
     <string name="joystick_relative_center">摇杆使用相对位置</string>
+    <string name="controller_scale">按键缩放</string>
+    <string name="controller_alpha">按键透明度</string>
 
     <string name="grid_menu_refresh">刷新游戏库</string>
+    <string name="grid_menu_input_binding">手柄绑定</string>
+    <string name="grid_menu_install_cia">安装 CIA</string>
     <string name="preferences_settings">设置</string>
 
     <string name="emulation_edit_layout">编辑布局</string>
@@ -31,6 +39,7 @@
     <string name="show_fps">显示帧率</string>
     <string name="layout_option">屏幕布局</string>
     <string name="internal_resolution">内部分辨率</string>
+    <string name="setting_hw_shader">开启硬件着色器</string>
     <string name="setting_shaders_accurate_mul">精确乘法运算</string>
     <string name="post_processing_shader">后处理效果</string>
 
@@ -44,6 +53,8 @@
     <string name="auto">自动</string>
     <string name="off">关闭</string>
     <string name="clear_input_binding">清除</string>
+    <string name="save">保存</string>
+    <string name="cheat_code">金手指</string>
     <string name="write_permission_needed">You need to allow write access to external storage for the emulator to work.</string>
 
     <string name="region_invalid">未知</string>
@@ -55,6 +66,22 @@
     <string name="region_korea">韩国</string>
     <string name="region_taiwan">台湾</string>
     <string name="region_region_free">全球</string>
+
+    <string name="controller_stick">主摇杆</string>
+    <string name="controller_dpad">方向键</string>
+    <string name="generic_buttons">按键</string>
+    <string name="button_a">A</string>
+    <string name="button_b">B</string>
+    <string name="button_x">X</string>
+    <string name="button_y">Y</string>
+    <string name="button_up">Up</string>
+    <string name="button_down">Down</string>
+    <string name="button_left">Left</string>
+    <string name="button_right">Right</string>
+    <string name="button_l">L</string>
+    <string name="button_r">R</string>
+    <string name="button_start">START</string>
+    <string name="button_select">SELECT</string>
 
     <string name="nnf_new_folder">New folder</string>
     <string name="nnf_create_folder_error">Failed to create folder</string>
