@@ -48,10 +48,8 @@ import org.citra.emu.utils.PermissionsHandler;
 public final class MainActivity extends AppCompatActivity {
     public static final int REQUEST_ADD_DIRECTORY = 1;
     public static final int REQUEST_OPEN_FILE = 2;
-    private final static int MSG_UPDATE_PROGRESS_BAR = 1;
     private static WeakReference<MainActivity> sInstance = new WeakReference<>(null);
     private List<GameFile> mGames;
-    private Handler mUIHandler;
     private String mDirToAdd;
     private String[] mFilesToAdd;
     private GameAdapter mAdapter;
@@ -142,9 +140,6 @@ public final class MainActivity extends AppCompatActivity {
             mFilesToAdd = null;
             final String[] files = filelist.toArray(new String[0]);
             new Thread(() -> NativeLibrary.InstallCIA(files)).start();
-            if (mUIHandler == null) {
-                mUIHandler = new MainUIHandler();
-            }
         }
     }
 
@@ -294,49 +289,23 @@ public final class MainActivity extends AppCompatActivity {
     }
 
     public void updateProgress(String name, int written, int total) {
-        if (mUIHandler == null)
-            return;
-        Bundle args = new Bundle();
-        args.putString("name", name);
-        args.putInt("written", written);
-        args.putInt("total", total);
-        Message msg = new Message();
-        msg.what = MSG_UPDATE_PROGRESS_BAR;
-        msg.setData(args);
-        mUIHandler.sendMessage(msg);
+        if (written < total) {
+            mProgressBar.setVisibility(View.VISIBLE);
+        } else {
+            mProgressBar.setVisibility(View.INVISIBLE);
+            if (total == 0) {
+                if (written == 0) {
+                    Toast.makeText(this, "Install Success!", Toast.LENGTH_LONG).show();
+                } else {
+                    Toast.makeText(this, "Error: " + name, Toast.LENGTH_LONG).show();
+                }
+            }
+        }
     }
 
     public void showGames() {
         mGames.sort((GameFile x, GameFile y) -> x.getName().compareTo(y.getName()));
         mAdapter.setGameList(mGames);
-    }
-
-    static class MainUIHandler extends Handler {
-        @Override
-        public void handleMessage(Message msg) {
-            if (msg.what == MSG_UPDATE_PROGRESS_BAR) {
-                Bundle args = msg.getData();
-                String name = args.getString("name", "");
-                int written = args.getInt("written", 0);
-                int total = args.getInt("total", 0);
-                MainActivity activity = MainActivity.get();
-                if (activity == null) {
-                    return;
-                }
-                if (written < total) {
-                    activity.mProgressBar.setVisibility(View.VISIBLE);
-                } else {
-                    activity.mProgressBar.setVisibility(View.INVISIBLE);
-                    if (total == 0) {
-                        if (written == 0) {
-                            Toast.makeText(activity, "Install Success!", Toast.LENGTH_LONG).show();
-                        } else {
-                            Toast.makeText(activity, "Error: " + name, Toast.LENGTH_LONG).show();
-                        }
-                    }
-                }
-            }
-        }
     }
 
     static class GameViewHolder extends RecyclerView.ViewHolder {
@@ -359,7 +328,7 @@ public final class MainActivity extends AppCompatActivity {
             int[] regions = {
                 R.string.region_invalid, R.string.region_japan,     R.string.region_north_america,
                 R.string.region_europe,  R.string.region_australia, R.string.region_china,
-                R.string.region_korea,   R.string.region_taiwan,    R.string.region_region_free,
+                R.string.region_korea,   R.string.region_taiwan,
             };
             mModel = model;
             mTextTitle.setText(model.getName());

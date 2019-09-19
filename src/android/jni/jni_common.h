@@ -17,6 +17,7 @@ jobject GetEmulationContext();
 
 void SaveImageToFile(const std::string& path, u32 width, u32 height, const u32* pixels);
 void UpdateProgress(const std::string& name, u32 written, u32 total);
+void NotifyGameShudown();
 void ShowInputBoxDialog(int maxLength, const std::string& hint, const std::string& button0,
                         const std::string& button1, const std::string& button2);
 void ShowMiiSelectorDialog(bool cancel, const std::string& title,

@@ -75,22 +75,14 @@ void InputManager::InitProfile() {
     profile.name = TOUCHSCREEN;
 
     std::array<std::string, Settings::NativeButton::NumButtons> buttonConfigs = {
-        Config::Get(Config::BUTTON_A),
-        Config::Get(Config::BUTTON_B),
-        Config::Get(Config::BUTTON_X),
-        Config::Get(Config::BUTTON_Y),
-        Config::Get(Config::BUTTON_UP),
-        Config::Get(Config::BUTTON_DOWN),
-        Config::Get(Config::BUTTON_LEFT),
-        Config::Get(Config::BUTTON_RIGHT),
-        Config::Get(Config::BUTTON_L),
-        Config::Get(Config::BUTTON_R),
-        Config::Get(Config::BUTTON_START),
-        Config::Get(Config::BUTTON_SELECT),
-        Config::Get(Config::BUTTON_DEBUG),
-        Config::Get(Config::BUTTON_GPIO14),
-        Config::Get(Config::BUTTON_ZL),
-        Config::Get(Config::BUTTON_ZR),
+        Config::Get(Config::BUTTON_A),     Config::Get(Config::BUTTON_B),
+        Config::Get(Config::BUTTON_X),     Config::Get(Config::BUTTON_Y),
+        Config::Get(Config::BUTTON_UP),    Config::Get(Config::BUTTON_DOWN),
+        Config::Get(Config::BUTTON_LEFT),  Config::Get(Config::BUTTON_RIGHT),
+        Config::Get(Config::BUTTON_L),     Config::Get(Config::BUTTON_R),
+        Config::Get(Config::BUTTON_START), Config::Get(Config::BUTTON_SELECT),
+        Config::Get(Config::BUTTON_DEBUG), Config::Get(Config::BUTTON_GPIO14),
+        Config::Get(Config::BUTTON_ZL),    Config::Get(Config::BUTTON_ZR),
         Config::Get(Config::BUTTON_HOME),
     };
 
@@ -109,8 +101,10 @@ void InputManager::InitProfile() {
     }
 
     mAnalogs.resize(4);
-    profile.analogs[Settings::NativeAnalog::CirclePad] = fmt::format("axis_x:0,axis_y:1,engine:{}", TOUCHSCREEN);
-    profile.analogs[Settings::NativeAnalog::CStick] = fmt::format("axis_x:2,axis_y:3,engine:{}", TOUCHSCREEN);
+    profile.analogs[Settings::NativeAnalog::CirclePad] =
+        fmt::format("axis_x:0,axis_y:1,engine:{}", TOUCHSCREEN);
+    profile.analogs[Settings::NativeAnalog::CStick] =
+        fmt::format("axis_x:2,axis_y:3,engine:{}", TOUCHSCREEN);
 
     profile.motion_device = "engine:motion_emu";
     profile.touch_device = "engine:emu_window";

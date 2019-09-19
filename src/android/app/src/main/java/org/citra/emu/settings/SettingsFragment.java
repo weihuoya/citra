@@ -141,8 +141,7 @@ public final class SettingsFragment extends Fragment {
                                        R.array.internalResolutionValues, 1, resolution));
         sl.add(new CheckBoxSetting(SettingsFile.KEY_SHOW_FPS, Settings.SECTION_INI_RENDERER,
                                    R.string.show_fps, 0, true, showFPS));
-        sl.add(new CheckBoxSetting(SettingsFile.KEY_USE_HW_SHADER,
-                                   Settings.SECTION_INI_RENDERER,
+        sl.add(new CheckBoxSetting(SettingsFile.KEY_USE_HW_SHADER, Settings.SECTION_INI_RENDERER,
                                    R.string.setting_hw_shader, 0, true, hwShader));
         sl.add(new CheckBoxSetting(SettingsFile.KEY_SHADERS_ACCURATE_MUL,
                                    Settings.SECTION_INI_RENDERER,
@@ -202,14 +201,14 @@ public final class SettingsFragment extends Fragment {
                                        R.string.button_y, buttonY));
 
         sl.add(new InputBindingSetting(SettingsFile.KEY_BUTTON_L, Settings.SECTION_INI_CONTROLS,
-                R.string.button_l, buttonL));
+                                       R.string.button_l, buttonL));
         sl.add(new InputBindingSetting(SettingsFile.KEY_BUTTON_R, Settings.SECTION_INI_CONTROLS,
-                R.string.button_r, buttonR));
+                                       R.string.button_r, buttonR));
         sl.add(new InputBindingSetting(SettingsFile.KEY_BUTTON_START, Settings.SECTION_INI_CONTROLS,
-                R.string.button_start, buttonStart));
+                                       R.string.button_start, buttonStart));
         sl.add(new InputBindingSetting(SettingsFile.KEY_BUTTON_SELECT,
-                Settings.SECTION_INI_CONTROLS, R.string.button_select,
-                buttonSelect));
+                                       Settings.SECTION_INI_CONTROLS, R.string.button_select,
+                                       buttonSelect));
 
         sl.add(new HeaderSetting(null, null, R.string.controller_dpad, 0));
         sl.add(new InputBindingSetting(SettingsFile.KEY_BUTTON_UP, Settings.SECTION_INI_CONTROLS,

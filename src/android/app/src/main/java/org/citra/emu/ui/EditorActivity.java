@@ -15,15 +15,13 @@ import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ProgressBar;
-
-import org.citra.emu.R;
-import org.citra.emu.utils.DirectoryInitialization;
-
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
+import org.citra.emu.R;
+import org.citra.emu.utils.DirectoryInitialization;
 
 public final class EditorActivity extends AppCompatActivity {
 
@@ -59,16 +57,14 @@ public final class EditorActivity extends AppCompatActivity {
         mProgressBar.setVisibility(View.INVISIBLE);
 
         Button buttonConfirm = findViewById(R.id.button_confirm);
-        buttonConfirm.setOnClickListener(view ->
-        {
+        buttonConfirm.setOnClickListener(view -> {
             saveCheatCode(programId);
             mEditor.clearFocus();
             finish();
         });
 
         Button buttonCancel = findViewById(R.id.button_cancel);
-        buttonCancel.setOnClickListener(view ->
-        {
+        buttonCancel.setOnClickListener(view -> {
             mEditor.clearFocus();
             finish();
         });
@@ -79,7 +75,8 @@ public final class EditorActivity extends AppCompatActivity {
 
     private void toggleListView(boolean isShowList) {
         if (isShowList) {
-            InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+            InputMethodManager imm =
+                (InputMethodManager)getSystemService(Context.INPUT_METHOD_SERVICE);
             imm.hideSoftInputFromWindow(getWindow().getDecorView().getWindowToken(), 0);
             mListView.setVisibility(View.VISIBLE);
             mEditor.setVisibility(View.INVISIBLE);

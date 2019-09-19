@@ -290,11 +290,13 @@ void Config::ReadValues() {
     qt_config->endGroup();
 
     qt_config->beginGroup("GameList");
-    int icon_size = ReadSetting("iconSize", 2).toInt();
-    if (icon_size < 0 || icon_size > 2) {
-        icon_size = 2;
+    auto icon_size = UISettings::GameListIconSize{
+        ReadSetting("iconSize", static_cast<int>(UISettings::GameListIconSize::LargeIcon)).toInt()};
+    if (icon_size < UISettings::GameListIconSize::NoIcon ||
+        icon_size > UISettings::GameListIconSize::LargeIcon) {
+        icon_size = UISettings::GameListIconSize::LargeIcon;
     }
-    UISettings::values.game_list_icon_size = UISettings::GameListIconSize{icon_size};
+    UISettings::values.game_list_icon_size = icon_size;
 
     int row_1 = ReadSetting("row1", 2).toInt();
     if (row_1 < 0 || row_1 > 3) {
@@ -309,6 +311,7 @@ void Config::ReadValues() {
     UISettings::values.game_list_row_2 = UISettings::GameListText{row_2};
 
     UISettings::values.game_list_hide_no_icon = ReadSetting("hideNoIcon", false).toBool();
+    UISettings::values.game_list_single_line_mode = ReadSetting("singleLineMode", false).toBool();
     qt_config->endGroup();
 
     qt_config->beginGroup("Paths");
@@ -576,6 +579,7 @@ void Config::SaveValues() {
     WriteSetting("row1", static_cast<int>(UISettings::values.game_list_row_1), 2);
     WriteSetting("row2", static_cast<int>(UISettings::values.game_list_row_2), 0);
     WriteSetting("hideNoIcon", UISettings::values.game_list_hide_no_icon, false);
+    WriteSetting("singleLineMode", UISettings::values.game_list_single_line_mode, false);
     qt_config->endGroup();
 
     qt_config->beginGroup("Paths");

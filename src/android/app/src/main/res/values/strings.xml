@@ -65,7 +65,6 @@
     <string name="region_china">China</string>
     <string name="region_korea">Korea</string>
     <string name="region_taiwan">Taiwan</string>
-    <string name="region_region_free">Region Free</string>
 
     <string name="controller_stick">Main Stick</string>
     <string name="controller_dpad">D-Pad</string>

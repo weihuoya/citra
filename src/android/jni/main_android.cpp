@@ -51,20 +51,20 @@ void BootGame(const std::string& path) {
         switch (result) {
         case Core::System::ResultStatus::ErrorGetLoader:
             LOG_CRITICAL(Frontend, "Failed to obtain loader for {}!", path);
-            LOG_CRITICAL(Frontend, "Invalid ROM Format, Your ROM format is not supported.");
+            ShowMessageDialog(0, "Invalid ROM Format, Your ROM format is not supported.");
             break;
 
         case Core::System::ResultStatus::ErrorSystemMode:
             LOG_CRITICAL(Frontend, "Failed to load ROM!");
-            LOG_CRITICAL(Frontend, "ROM Corrupted, Your ROM is corrupted.");
+            ShowMessageDialog(0, "ROM Corrupted, Your ROM is corrupted.");
             break;
 
         case Core::System::ResultStatus::ErrorLoader_ErrorEncrypted:
-            LOG_CRITICAL(Frontend, "ROM Encrypted, Your ROM is encrypted.");
+            ShowMessageDialog(0, "ROM Encrypted, Your ROM is encrypted.");
             break;
 
         case Core::System::ResultStatus::ErrorLoader_ErrorInvalidFormat:
-            LOG_CRITICAL(Frontend, "Invalid ROM Format, Your ROM format is not supported.");
+            ShowMessageDialog(0, "Invalid ROM Format, Your ROM format is not supported.");
             break;
 
         case Core::System::ResultStatus::ErrorVideoCore:
@@ -83,7 +83,7 @@ void BootGame(const std::string& path) {
             break;
 
         default:
-            LOG_CRITICAL(Frontend, "Error while loading ROM! An unknown error occured.");
+            ShowMessageDialog(0, "Error while loading ROM! An unknown error occured.");
             break;
         }
         return;
@@ -113,6 +113,7 @@ void BootGame(const std::string& path) {
     system.Shutdown();
     s_render_window.reset();
     s_is_running = false;
+    NotifyGameShudown();
 }
 
 static Loader::AppLoader* GetAppLoader(const std::string& path) {
@@ -240,7 +241,7 @@ JNIEXPORT void JNICALL Java_org_citra_emu_NativeLibrary_SurfaceDestroyed(JNIEnv*
 }
 
 JNIEXPORT void JNICALL Java_org_citra_emu_NativeLibrary_InputEvent(JNIEnv* env, jclass obj,
-                                                                       jint button, jfloat value) {
+                                                                   jint button, jfloat value) {
     InputManager::GetInstance().InputEvent(button, value);
 }
 
@@ -419,7 +420,7 @@ JNIEXPORT jint JNICALL Java_org_citra_emu_NativeLibrary_GetAppRegion(JNIEnv* env
     Loader::AppLoader* app_loader = GetAppLoader(GetJString(jPath));
     std::vector<Loader::SMDH::GameRegion> regions = GetGameRegions(app_loader);
     if (regions.empty()) {
-        regions.push_back(Loader::SMDH::GameRegion::RegionFree);
+        regions.push_back(Loader::SMDH::GameRegion::Japan);
     }
     return static_cast<jint>(regions[0]);
 }

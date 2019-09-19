@@ -1,5 +1,6 @@
 package org.citra.emu;
 
+import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.graphics.Bitmap;
@@ -20,15 +21,37 @@ public final class NativeLibrary {
         return EmulationActivity.get();
     }
 
+    public static void notifyGameShudown() {
+        Activity activity = EmulationActivity.get();
+        if (activity != null) {
+            activity.finish();
+        }
+    }
+
     public static void showMessageDialog(int type, String msg) {
-        Log.e("zhangwei", "showMessageDialog: " + msg);
+        Context context = getMainContext();
+        if (context == null) {
+            context = getEmulationContext();
+            if (context == null) {
+                Log.e("citra", "showMessageDialog: " + msg);
+                return;
+            }
+        }
+        final Activity activity = (Activity)context;
+        activity.runOnUiThread(() -> {
+            AlertDialog.Builder builder = new AlertDialog.Builder(activity);
+            builder.setTitle(R.string.error);
+            builder.setMessage(msg);
+            builder.show();
+        });
     }
 
     public static void showInputBoxDialog(int maxLength, String hint, String button0,
                                           String button1, String button2) {
         EmulationActivity activity = EmulationActivity.get();
         if (activity != null) {
-            activity.showInputBoxDialog(maxLength, hint, button0, button1, button2);
+            activity.runOnUiThread(
+                () -> activity.showInputBoxDialog(maxLength, hint, button0, button1, button2));
         }
     }
 
@@ -49,7 +72,7 @@ public final class NativeLibrary {
                 bitmap.compress(Bitmap.CompressFormat.PNG, 100, out);
                 out.close();
             } catch (Exception e) {
-                Log.i("zhangwei", "saveImageToFile error: " + e.getMessage());
+                Log.i("citra", "saveImageToFile error: " + e.getMessage());
             }
         }
     }
@@ -57,7 +80,7 @@ public final class NativeLibrary {
     public static void updateProgress(String name, int written, int total) {
         MainActivity activity = MainActivity.get();
         if (activity != null) {
-            activity.updateProgress(name, written, total);
+            activity.runOnUiThread(() -> activity.updateProgress(name, written, total));
         }
     }
 
@@ -172,6 +195,5 @@ public final class NativeLibrary {
         public static final int China = 4;
         public static final int Korea = 5;
         public static final int Taiwan = 6;
-        public static final int RegionFree = 7;
     }
 }

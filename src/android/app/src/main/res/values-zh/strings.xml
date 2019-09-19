@@ -65,7 +65,6 @@
     <string name="region_china">中国</string>
     <string name="region_korea">韩国</string>
     <string name="region_taiwan">台湾</string>
-    <string name="region_region_free">全球</string>
 
     <string name="controller_stick">主摇杆</string>
     <string name="controller_dpad">方向键</string>

@@ -1,6 +1,5 @@
-#include "jni_common.h"
-
 #include <android/log.h>
+#include "jni_common.h"
 
 class NativeLibrary {
 public:
@@ -14,6 +13,7 @@ public:
             env->GetStaticMethodID(mClazz, "saveImageToFile", "(Ljava/lang/String;II[I)V");
         mUpdateProgress =
             env->GetStaticMethodID(mClazz, "updateProgress", "(Ljava/lang/String;II)V");
+        mNotifyGameShudown = env->GetStaticMethodID(mClazz, "notifyGameShudown", "()V");
         mShowInputBoxDialog = env->GetStaticMethodID(
             mClazz, "showInputBoxDialog",
             "(ILjava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)V");
@@ -55,11 +55,16 @@ public:
         GetEnvForThread()->CallStaticVoidMethod(mClazz, mShowMessageDialog, type, msg);
     }
 
+    void NotifyGameShudown() {
+        GetEnvForThread()->CallStaticVoidMethod(mClazz, mNotifyGameShudown);
+    }
+
 private:
     jclass mClazz;
     jmethodID mGetEmulationContext;
     jmethodID mSaveImageToFile;
     jmethodID mUpdateProgress;
+    jmethodID mNotifyGameShudown;
     jmethodID mShowInputBoxDialog;
     jmethodID mShowMessageDialog;
     jmethodID mShowMiiSelectorDialog;
@@ -128,6 +133,10 @@ void SaveImageToFile(const std::string& path, u32 width, u32 height, const u32* 
 
 void UpdateProgress(const std::string& name, u32 written, u32 total) {
     s_native_library->UpdateProgress(ToJString(name), written, total);
+}
+
+void NotifyGameShudown() {
+    s_native_library->NotifyGameShudown();
 }
 
 void ShowInputBoxDialog(int maxLength, const std::string& hint, const std::string& button0,

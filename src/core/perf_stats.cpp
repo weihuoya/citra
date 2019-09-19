@@ -6,6 +6,7 @@
 #include <chrono>
 #include <mutex>
 #include <thread>
+#include <fmt/chrono.h>
 #include "core/hw/gpu.h"
 #include "core/perf_stats.h"
 #include "core/settings.h"
