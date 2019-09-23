@@ -46,7 +46,7 @@ void BootGame(const std::string& path) {
     // cfg->SetCountryCode(49); // USA
     // cfg->UpdateConfigNANDSavegame();
 
-    const Core::System::ResultStatus result{system.Load(*s_render_window, path)};
+    Core::System::ResultStatus result = system.Load(*s_render_window, path);
     if (result != Core::System::ResultStatus::Success) {
         switch (result) {
         case Core::System::ResultStatus::ErrorGetLoader:
@@ -91,10 +91,9 @@ void BootGame(const std::string& path) {
 
     s_stop_run = false;
     s_is_running = true;
-    s_render_window->MakeCurrent();
     while (!s_stop_run) {
         if (s_is_running) {
-            Core::System::ResultStatus result = system.RunLoop();
+            result = system.RunLoop();
             if (result == Core::System::ResultStatus::ShutdownRequested) {
                 // End emulation execution
                 break;

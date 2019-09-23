@@ -188,7 +188,6 @@ struct Values {
     std::string log_filter;
     std::unordered_map<std::string, bool> lle_modules;
 
-    bool gl_separate_shader;
     bool allow_shadow;
     bool dump_textures;
 

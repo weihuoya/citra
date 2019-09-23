@@ -39,7 +39,7 @@ namespace OpenGL {
 
 class RasterizerOpenGL : public VideoCore::RasterizerInterface {
 public:
-    explicit RasterizerOpenGL(Frontend::EmuWindow& renderer);
+    RasterizerOpenGL();
     ~RasterizerOpenGL() override;
 
     void AddTriangle(const Pica::Shader::OutputVertex& v0, const Pica::Shader::OutputVertex& v1,
@@ -264,8 +264,6 @@ private:
     GLuint default_texture;
 
     RasterizerCacheOpenGL res_cache;
-
-    Frontend::EmuWindow& emu_window;
 
     std::vector<HardwareVertex> vertex_batch;
 

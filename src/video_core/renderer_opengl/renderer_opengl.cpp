@@ -12,7 +12,6 @@
 #include "common/logging/log.h"
 #include "core/core.h"
 #include "core/core_timing.h"
-#include "core/dumping/backend.h"
 #include "core/frontend/emu_window.h"
 #include "core/frontend/framebuffer_layout.h"
 #include "core/hw/gpu.h"
@@ -24,7 +23,6 @@
 #include "video_core/debug_utils/debug_utils.h"
 #include "video_core/rasterizer_interface.h"
 #include "video_core/renderer_opengl/gl_vars.h"
-#include "video_core/renderer_opengl/post_processing_opengl.h"
 #include "video_core/renderer_opengl/renderer_opengl.h"
 #include "video_core/video_core.h"
 
@@ -176,64 +174,7 @@ void RendererOpenGL::SwapBuffers() {
 
     if (VideoCore::g_renderer_screenshot_requested) {
         // Draw this frame to the screenshot framebuffer
-        screenshot_framebuffer.Create();
-        GLuint old_read_fb = state.draw.read_framebuffer;
-        GLuint old_draw_fb = state.draw.draw_framebuffer;
-        state.draw.read_framebuffer = state.draw.draw_framebuffer = screenshot_framebuffer.handle;
-        state.Apply();
-
-        Layout::FramebufferLayout layout{VideoCore::g_screenshot_framebuffer_layout};
-
-        GLuint renderbuffer;
-        glGenRenderbuffers(1, &renderbuffer);
-        glBindRenderbuffer(GL_RENDERBUFFER, renderbuffer);
-        glRenderbufferStorage(GL_RENDERBUFFER, GL_RGB8, layout.width, layout.height);
-        glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_RENDERBUFFER,
-                                  renderbuffer);
-
-        DrawScreens(layout);
-
-        glReadPixels(0, 0, layout.width, layout.height, GL_BGRA, GL_UNSIGNED_INT_8_8_8_8_REV,
-                     VideoCore::g_screenshot_bits);
-
-        screenshot_framebuffer.Release();
-        state.draw.read_framebuffer = old_read_fb;
-        state.draw.draw_framebuffer = old_draw_fb;
-        state.Apply();
-        glDeleteRenderbuffers(1, &renderbuffer);
-
-        VideoCore::g_screenshot_complete_callback();
         VideoCore::g_renderer_screenshot_requested = false;
-    }
-
-    if (cleanup_video_dumping.exchange(false)) {
-        ReleaseVideoDumpingGLObjects();
-    }
-
-    if (Core::System::GetInstance().VideoDumper().IsDumping()) {
-        if (prepare_video_dumping.exchange(false)) {
-            InitVideoDumpingGLObjects();
-        }
-
-        const auto& layout = Core::System::GetInstance().VideoDumper().GetLayout();
-        glBindFramebuffer(GL_READ_FRAMEBUFFER, frame_dumping_framebuffer.handle);
-        glBindFramebuffer(GL_DRAW_FRAMEBUFFER, frame_dumping_framebuffer.handle);
-        DrawScreens(layout);
-
-        glBindBuffer(GL_PIXEL_PACK_BUFFER, frame_dumping_pbos[current_pbo].handle);
-        glReadPixels(0, 0, layout.width, layout.height, GL_BGRA, GL_UNSIGNED_INT_8_8_8_8_REV, 0);
-        glBindBuffer(GL_PIXEL_PACK_BUFFER, frame_dumping_pbos[next_pbo].handle);
-
-        GLubyte* pixels = static_cast<GLubyte*>(glMapBuffer(GL_PIXEL_PACK_BUFFER, GL_READ_ONLY));
-        VideoDumper::VideoFrame frame_data{layout.width, layout.height, pixels};
-        Core::System::GetInstance().VideoDumper().AddVideoFrame(frame_data);
-
-        glUnmapBuffer(GL_PIXEL_PACK_BUFFER);
-        glBindBuffer(GL_PIXEL_PACK_BUFFER, 0);
-        glBindFramebuffer(GL_READ_FRAMEBUFFER, 0);
-        glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
-        current_pbo = (current_pbo + 1) % 2;
-        next_pbo = (current_pbo + 1) % 2;
     }
 
     DrawScreens(render_window.GetFramebufferLayout());
@@ -344,9 +285,6 @@ void RendererOpenGL::InitOpenGLObjects() {
                  0.0f);
 
     filter_sampler.Create();
-    ReloadSampler();
-
-    ReloadShader();
 
     // Generate VBO handle for drawing
     vertex_buffer.Create();
@@ -390,63 +328,6 @@ void RendererOpenGL::InitOpenGLObjects() {
 
     state.texture_units[0].texture_2d = 0;
     state.Apply();
-}
-
-void RendererOpenGL::ReloadSampler() {
-    glSamplerParameteri(filter_sampler.handle, GL_TEXTURE_MIN_FILTER,
-                        Settings::values.filter_mode ? GL_LINEAR : GL_NEAREST);
-    glSamplerParameteri(filter_sampler.handle, GL_TEXTURE_MAG_FILTER,
-                        Settings::values.filter_mode ? GL_LINEAR : GL_NEAREST);
-    glSamplerParameteri(filter_sampler.handle, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-    glSamplerParameteri(filter_sampler.handle, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-}
-
-void RendererOpenGL::ReloadShader() {
-    // Link shaders and get variable locations
-    std::string shader_data;
-    if (GLES) {
-        shader_data += fragment_shader_precision_OES;
-    }
-    if (Settings::values.render_3d == Settings::StereoRenderOption::Anaglyph) {
-        if (Settings::values.pp_shader_name == "dubois (builtin)") {
-            shader_data += fragment_shader_anaglyph;
-        } else {
-            std::string shader_text =
-                OpenGL::GetPostProcessingShaderCode(true, Settings::values.pp_shader_name);
-            if (shader_text.empty()) {
-                // Should probably provide some information that the shader couldn't load
-                shader_data += fragment_shader_anaglyph;
-            } else {
-                shader_data += shader_text;
-            }
-        }
-    } else {
-        if (Settings::values.pp_shader_name == "none (builtin)") {
-            shader_data += fragment_shader;
-        } else {
-            std::string shader_text =
-                OpenGL::GetPostProcessingShaderCode(false, Settings::values.pp_shader_name);
-            if (shader_text.empty()) {
-                // Should probably provide some information that the shader couldn't load
-                shader_data += fragment_shader;
-            } else {
-                shader_data += shader_text;
-            }
-        }
-    }
-    shader.Create(vertex_shader, shader_data.c_str());
-    state.draw.shader_program = shader.handle;
-    state.Apply();
-    uniform_modelview_matrix = glGetUniformLocation(shader.handle, "modelview_matrix");
-    uniform_color_texture = glGetUniformLocation(shader.handle, "color_texture");
-    if (Settings::values.render_3d == Settings::StereoRenderOption::Anaglyph) {
-        uniform_color_texture_r = glGetUniformLocation(shader.handle, "color_texture_r");
-    }
-    uniform_i_resolution = glGetUniformLocation(shader.handle, "i_resolution");
-    uniform_o_resolution = glGetUniformLocation(shader.handle, "o_resolution");
-    uniform_layer = glGetUniformLocation(shader.handle, "layer");
-    attrib_position = glGetAttribLocation(shader.handle, "vert_position");
-    attrib_tex_coord = glGetAttribLocation(shader.handle, "vert_tex_coord");
 }
 
 void RendererOpenGL::ConfigureFramebufferTexture(TextureInfo& texture,
@@ -547,44 +428,6 @@ void RendererOpenGL::DrawSingleScreenRotated(const ScreenInfo& screen_info, floa
 }
 
 /**
- * Draws a single texture to the emulator window, rotating the texture to correct for the 3DS's LCD
- * rotation.
- */
-void RendererOpenGL::DrawSingleScreenAnaglyphRotated(const ScreenInfo& screen_info_l,
-                                                     const ScreenInfo& screen_info_r, float x,
-                                                     float y, float w, float h) {
-    const auto& texcoords = screen_info_l.display_texcoords;
-
-    const std::array<ScreenRectVertex, 4> vertices = {{
-        ScreenRectVertex(x, y, texcoords.bottom, texcoords.left),
-        ScreenRectVertex(x + w, y, texcoords.bottom, texcoords.right),
-        ScreenRectVertex(x, y + h, texcoords.top, texcoords.left),
-        ScreenRectVertex(x + w, y + h, texcoords.top, texcoords.right),
-    }};
-
-    u16 scale_factor = VideoCore::GetResolutionScaleFactor();
-    glUniform4f(uniform_i_resolution, screen_info_l.texture.width * scale_factor,
-                screen_info_l.texture.height * scale_factor,
-                1.0 / (screen_info_l.texture.width * scale_factor),
-                1.0 / (screen_info_l.texture.height * scale_factor));
-    glUniform4f(uniform_o_resolution, h, w, 1.0f / h, 1.0f / w);
-    state.texture_units[0].texture_2d = screen_info_l.display_texture;
-    state.texture_units[1].texture_2d = screen_info_r.display_texture;
-    state.texture_units[0].sampler = filter_sampler.handle;
-    state.texture_units[1].sampler = filter_sampler.handle;
-    state.Apply();
-
-    glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(vertices), vertices.data());
-    glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
-
-    state.texture_units[0].texture_2d = 0;
-    state.texture_units[1].texture_2d = 0;
-    state.texture_units[0].sampler = 0;
-    state.texture_units[1].sampler = 0;
-    state.Apply();
-}
-
-/**
  * Draws the emulated screens to the emulator window.
  */
 void RendererOpenGL::DrawScreens(const Layout::FramebufferLayout& layout) {
@@ -592,18 +435,6 @@ void RendererOpenGL::DrawScreens(const Layout::FramebufferLayout& layout) {
         // Update background color before drawing
         glClearColor(Settings::values.bg_red, Settings::values.bg_green, Settings::values.bg_blue,
                      0.0f);
-    }
-
-    if (VideoCore::g_renderer_sampler_update_requested.exchange(false)) {
-        // Set the new filtering mode for the sampler
-        ReloadSampler();
-    }
-
-    if (VideoCore::g_renderer_shader_update_requested.exchange(false)) {
-        // Update fragment shader before drawing
-        shader.Release();
-        // Link shaders and get variable locations
-        ReloadShader();
     }
 
     const auto& top_screen = layout.top_screen;
@@ -620,95 +451,21 @@ void RendererOpenGL::DrawScreens(const Layout::FramebufferLayout& layout) {
     // Bind texture in Texture Unit 0
     glUniform1i(uniform_color_texture, 0);
 
-    // Bind a second texture for the right eye if in Anaglyph mode
-    if (Settings::values.render_3d == Settings::StereoRenderOption::Anaglyph) {
-        glUniform1i(uniform_color_texture_r, 1);
-    }
-
     glUniform1i(uniform_layer, 0);
     if (layout.top_screen_enabled) {
-        if (Settings::values.render_3d == Settings::StereoRenderOption::Off) {
-            DrawSingleScreenRotated(screen_infos[0], (float)top_screen.left, (float)top_screen.top,
-                                    (float)top_screen.GetWidth(), (float)top_screen.GetHeight());
-        } else if (Settings::values.render_3d == Settings::StereoRenderOption::SideBySide) {
-            DrawSingleScreenRotated(screen_infos[0], (float)top_screen.left / 2,
-                                    (float)top_screen.top, (float)top_screen.GetWidth() / 2,
-                                    (float)top_screen.GetHeight());
-            glUniform1i(uniform_layer, 1);
-            DrawSingleScreenRotated(screen_infos[1],
-                                    ((float)top_screen.left / 2) + ((float)layout.width / 2),
-                                    (float)top_screen.top, (float)top_screen.GetWidth() / 2,
-                                    (float)top_screen.GetHeight());
-        } else if (Settings::values.render_3d == Settings::StereoRenderOption::Anaglyph) {
-            DrawSingleScreenAnaglyphRotated(
-                screen_infos[0], screen_infos[1], (float)top_screen.left, (float)top_screen.top,
-                (float)top_screen.GetWidth(), (float)top_screen.GetHeight());
-        }
+        DrawSingleScreenRotated(screen_infos[0], (float)top_screen.left, (float)top_screen.top,
+                                (float)top_screen.GetWidth(), (float)top_screen.GetHeight());
     }
     glUniform1i(uniform_layer, 0);
     if (layout.bottom_screen_enabled) {
-        if (Settings::values.render_3d == Settings::StereoRenderOption::Off) {
-            DrawSingleScreenRotated(screen_infos[2], (float)bottom_screen.left,
-                                    (float)bottom_screen.top, (float)bottom_screen.GetWidth(),
-                                    (float)bottom_screen.GetHeight());
-        } else if (Settings::values.render_3d == Settings::StereoRenderOption::SideBySide) {
-            DrawSingleScreenRotated(screen_infos[2], (float)bottom_screen.left / 2,
-                                    (float)bottom_screen.top, (float)bottom_screen.GetWidth() / 2,
-                                    (float)bottom_screen.GetHeight());
-            glUniform1i(uniform_layer, 1);
-            DrawSingleScreenRotated(screen_infos[2],
-                                    ((float)bottom_screen.left / 2) + ((float)layout.width / 2),
-                                    (float)bottom_screen.top, (float)bottom_screen.GetWidth() / 2,
-                                    (float)bottom_screen.GetHeight());
-        } else if (Settings::values.render_3d == Settings::StereoRenderOption::Anaglyph) {
-            DrawSingleScreenAnaglyphRotated(screen_infos[2], screen_infos[2],
-                                            (float)bottom_screen.left, (float)bottom_screen.top,
-                                            (float)bottom_screen.GetWidth(),
-                                            (float)bottom_screen.GetHeight());
-        }
+        DrawSingleScreenRotated(screen_infos[2], (float)bottom_screen.left,
+                                (float)bottom_screen.top, (float)bottom_screen.GetWidth(),
+                                (float)bottom_screen.GetHeight());
     }
 }
 
 /// Updates the framerate
 void RendererOpenGL::UpdateFramerate() {}
-
-void RendererOpenGL::PrepareVideoDumping() {
-    prepare_video_dumping = true;
-}
-
-void RendererOpenGL::CleanupVideoDumping() {
-    cleanup_video_dumping = true;
-}
-
-void RendererOpenGL::InitVideoDumpingGLObjects() {
-    const auto& layout = Core::System::GetInstance().VideoDumper().GetLayout();
-
-    frame_dumping_framebuffer.Create();
-    glGenRenderbuffers(1, &frame_dumping_renderbuffer);
-    glBindRenderbuffer(GL_RENDERBUFFER, frame_dumping_renderbuffer);
-    glRenderbufferStorage(GL_RENDERBUFFER, GL_RGB8, layout.width, layout.height);
-    glBindFramebuffer(GL_DRAW_FRAMEBUFFER, frame_dumping_framebuffer.handle);
-    glFramebufferRenderbuffer(GL_DRAW_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_RENDERBUFFER,
-                              frame_dumping_renderbuffer);
-    glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
-
-    for (auto& buffer : frame_dumping_pbos) {
-        buffer.Create();
-        glBindBuffer(GL_PIXEL_PACK_BUFFER, buffer.handle);
-        glBufferData(GL_PIXEL_PACK_BUFFER, layout.width * layout.height * 4, nullptr,
-                     GL_STREAM_READ);
-        glBindBuffer(GL_PIXEL_PACK_BUFFER, 0);
-    }
-}
-
-void RendererOpenGL::ReleaseVideoDumpingGLObjects() {
-    frame_dumping_framebuffer.Release();
-    glDeleteRenderbuffers(1, &frame_dumping_renderbuffer);
-
-    for (auto& buffer : frame_dumping_pbos) {
-        buffer.Release();
-    }
-}
 
 static const char* GetSource(GLenum source) {
 #define RET(s)                                                                                     \
@@ -793,6 +550,8 @@ Core::System::ResultStatus RendererOpenGL::Init() {
     if (!(GLAD_GL_VERSION_3_3 || GLAD_GL_ES_VERSION_3_1)) {
         return Core::System::ResultStatus::ErrorVideoCore_ErrorBelowGL33;
     }
+
+    OpenGL::GLES = Settings::values.use_gles;
 
     InitOpenGLObjects();
 

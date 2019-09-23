@@ -143,7 +143,6 @@ EGLNativeWindowType EGLAndroid::GetEGLNativeWindow(EGLConfig config) {
     window_width = ANativeWindow_getWidth(m_host_window);
     window_height = ANativeWindow_getHeight(m_host_window);
     UpdateCurrentFramebufferLayout(window_width, window_height);
-    NotifyClientAreaSizeChanged(std::make_pair(window_width, window_height));
     return static_cast<EGLNativeWindowType>(m_host_window);
 }
 

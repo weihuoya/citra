@@ -30,10 +30,8 @@
 #include "common/scope_exit.h"
 #include "common/string_util.h"
 #include "core/core.h"
-#include "core/dumping/backend.h"
 #include "core/file_sys/cia_container.h"
 #include "core/frontend/applets/default_applets.h"
-#include "core/frontend/framebuffer_layout.h"
 #include "core/gdbstub/gdbstub.h"
 #include "core/hle/service/am/am.h"
 #include "core/hle/service/cfg/cfg.h"
@@ -41,7 +39,6 @@
 #include "core/movie.h"
 #include "core/settings.h"
 #include "network/network.h"
-#include "video_core/video_core.h"
 
 #undef _UNICODE
 #include <getopt.h>
@@ -65,7 +62,6 @@ static void PrintHelp(const char* argv0) {
                  " Nickname, password, address and port for multiplayer\n"
                  "-r, --movie-record=[file]  Record a movie (game inputs) to the given file\n"
                  "-p, --movie-play=[file]    Playback the movie (game inputs) from the given file\n"
-                 "-d, --dump-video=[file]    Dumps audio and video to the given video file\n"
                  "-f, --fullscreen     Start in fullscreen mode\n"
                  "-h, --help           Display this help and exit\n"
                  "-v, --version        Output version information and exit\n";
@@ -191,7 +187,6 @@ int main(int argc, char** argv) {
     u32 gdb_port = static_cast<u32>(Settings::values.gdbstub_port);
     std::string movie_record;
     std::string movie_play;
-    std::string dump_video;
 
     InitializeLogging();
 
@@ -285,9 +280,6 @@ int main(int argc, char** argv) {
                 break;
             case 'p':
                 movie_play = optarg;
-                break;
-            case 'd':
-                dump_video = optarg;
                 break;
             case 'f':
                 fullscreen = true;
@@ -403,20 +395,12 @@ int main(int argc, char** argv) {
     if (!movie_record.empty()) {
         Core::Movie::GetInstance().StartRecording(movie_record);
     }
-    if (!dump_video.empty()) {
-        Layout::FramebufferLayout layout{
-            Layout::FrameLayoutFromResolutionScale(VideoCore::GetResolutionScaleFactor())};
-        system.VideoDumper().StartDumping(dump_video, "webm", layout);
-    }
 
     while (emu_window->IsOpen()) {
         system.RunLoop();
     }
 
     Core::Movie::GetInstance().Shutdown();
-    if (system.VideoDumper().IsDumping()) {
-        system.VideoDumper().StopDumping();
-    }
 
     detached_tasks.WaitForAllTasks();
     return 0;
