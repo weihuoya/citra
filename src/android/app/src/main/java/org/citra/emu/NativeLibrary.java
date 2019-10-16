@@ -58,7 +58,7 @@ public final class NativeLibrary {
     public static void showMiiSelectorDialog(boolean cancel, String title, String[] miis) {
         EmulationActivity activity = EmulationActivity.get();
         if (activity != null) {
-            activity.showMiiSelectorDialog(cancel, title, miis);
+            activity.runOnUiThread(() -> activity.showMiiSelectorDialog(cancel, title, miis));
         }
     }
 
@@ -84,6 +84,12 @@ public final class NativeLibrary {
         }
     }
 
+    public static boolean isValidFile(String filename) {
+        String name = filename.toLowerCase();
+        return (name.endsWith(".cia") || name.endsWith(".cci") || name.endsWith(".3ds") ||
+                name.endsWith(".cxi"));
+    }
+
     public static native String GetAppId(String path);
 
     public static native String GetAppTitle(String path);
@@ -91,6 +97,8 @@ public final class NativeLibrary {
     public static native int[] GetAppIcon(String path);
 
     public static native int GetAppRegion(String path);
+
+    public static native boolean IsAppExecutable(String path);
 
     public static native void SaveScreenShot();
 

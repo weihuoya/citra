@@ -6,6 +6,7 @@
 
 #include <atomic>
 #include <chrono>
+#include <cstddef>
 #include <mutex>
 #include "common/common_types.h"
 #include "common/thread.h"

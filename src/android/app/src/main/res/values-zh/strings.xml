@@ -56,6 +56,7 @@
     <string name="save">保存</string>
     <string name="cheat_code">金手指</string>
     <string name="write_permission_needed">You need to allow write access to external storage for the emulator to work.</string>
+    <string name="camera_permission_needed">You need to allow take photos for the emulator to work.</string>
 
     <string name="region_invalid">未知</string>
     <string name="region_japan">日本</string>

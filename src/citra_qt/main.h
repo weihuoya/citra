@@ -30,6 +30,7 @@ class GraphicsBreakPointsWidget;
 class GraphicsTracingWidget;
 class GraphicsVertexShaderWidget;
 class GRenderWindow;
+class IPCRecorderWidget;
 class LLEServiceModulesWidget;
 class MicroProfileDialog;
 class MultiplayerState;
@@ -68,6 +69,8 @@ public:
     GameList* game_list;
     std::unique_ptr<DiscordRPC::DiscordInterface> discord_rpc;
 
+public slots:
+    void OnAppFocusStateChanged(Qt::ApplicationState state);
 signals:
 
     /**
@@ -158,7 +161,7 @@ private slots:
     void OnGameListOpenFolder(u64 program_id, GameListOpenTarget target);
     void OnGameListNavigateToGamedbEntry(u64 program_id,
                                          const CompatibilityList& compatibility_list);
-    void OnGameListOpenDirectory(QString path);
+    void OnGameListOpenDirectory(const QString& directory);
     void OnGameListAddDirectory();
     void OnGameListShowList(bool show);
     void OnMenuLoadFile();
@@ -229,6 +232,8 @@ private:
     // The path to the game currently running
     QString game_path;
 
+    bool auto_paused = false;
+
     // Movie
     bool movie_record_on_start = false;
     QString movie_record_path;
@@ -242,6 +247,7 @@ private:
     GraphicsBreakPointsWidget* graphicsBreakpointsWidget;
     GraphicsVertexShaderWidget* graphicsVertexShaderWidget;
     GraphicsTracingWidget* graphicsTracingWidget;
+    IPCRecorderWidget* ipcRecorderWidget;
     LLEServiceModulesWidget* lleServiceModulesWidget;
     WaitTreeWidget* waitTreeWidget;
     Updater* updater;

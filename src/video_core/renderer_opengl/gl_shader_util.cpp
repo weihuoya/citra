@@ -6,7 +6,9 @@
 #include <string>
 #include <vector>
 #include <glad/glad.h>
+
 #include "common/assert.h"
+#include "common/file_util.h"
 #include "common/logging/log.h"
 #include "video_core/renderer_opengl/gl_shader_util.h"
 #include "video_core/renderer_opengl/gl_vars.h"
@@ -63,8 +65,18 @@ GLuint LoadShader(const char* source, GLenum type) {
             LOG_ERROR(Render_OpenGL, "Error compiling {} shader:\n{}", debug_type,
                       &shader_error[0]);
             LOG_ERROR(Render_OpenGL, "Shader source code:\n{}{}", src_arr[0], src_arr[1]);
+            // dump shader source code to file
+            static u32 file_id = 0;
+            const std::string& log_dir = FileUtil::GetUserPath(FileUtil::UserPath::LogDir);
+            const std::string filepath = fmt::format("{}{}_{}.txt", log_dir, debug_type, file_id++);
+            std::string shader(src_arr[0]);
+            shader.append(src_arr[1]);
+            shader.append("\n\n");
+            shader.append(shader_error.data(), shader_error.size());
+            FileUtil::WriteStringToFile(true, filepath, shader);
         }
     }
+
     return shader_id;
 }
 

@@ -3,6 +3,15 @@ package org.citra.emu.model;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.BitmapShader;
+import android.graphics.Canvas;
+import android.graphics.Paint;
+import android.graphics.PorterDuff;
+import android.graphics.PorterDuffXfermode;
+import android.graphics.Rect;
+import android.graphics.RectF;
+import android.graphics.Shader;
+
 import java.nio.IntBuffer;
 import org.citra.emu.NativeLibrary;
 import org.citra.emu.R;
@@ -53,6 +62,21 @@ public final class GameFile {
                 mIcon = Bitmap.createBitmap(48, 48, Bitmap.Config.RGB_565);
                 mIcon.copyPixelsFromBuffer(IntBuffer.wrap(pixels));
             }
+
+            // rounded corners
+            float radius = 5.0f;
+            Rect rect = new Rect(0, 0, mIcon.getWidth(), mIcon.getHeight());
+            Bitmap output = Bitmap.createBitmap(mIcon.getWidth(), mIcon.getHeight(), Bitmap.Config.ARGB_8888);
+            Canvas canvas = new Canvas(output);
+            BitmapShader shader = new BitmapShader(mIcon, Shader.TileMode.CLAMP, Shader.TileMode.CLAMP);
+            Paint paint = new Paint();
+            paint.setAntiAlias(true);
+            paint.setShader(shader);
+            // rect contains the bounds of the shape
+            // radius is the radius in pixels of the rounded corners
+            // paint contains the shader that will texture the shape
+            canvas.drawRoundRect(new RectF(rect), radius, radius, paint);
+            mIcon = output;
         }
         return mIcon;
     }

@@ -125,7 +125,7 @@ static void WritePicaReg(u32 id, u32 value, u32 mask) {
     const u32 write_mask = expand_bits_to_bytes[mask];
 
     regs.reg_array[id] = (old_value & ~write_mask) | (value & write_mask);
-
+#ifdef DEBUG_CONTEXT
     // Double check for is_pica_tracing to avoid call overhead
     if (DebugUtils::IsPicaTracing()) {
         DebugUtils::OnPicaRegWrite({(u16)id, (u16)mask, regs.reg_array[id]});
@@ -134,7 +134,7 @@ static void WritePicaReg(u32 id, u32 value, u32 mask) {
     if (g_debug_context)
         g_debug_context->OnEvent(DebugContext::Event::PicaCommandLoaded,
                                  reinterpret_cast<void*>(&id));
-
+#endif
     switch (id) {
     // Trigger IRQ
     case PICA_REG_INDEX(trigger_irq):
@@ -300,9 +300,11 @@ static void WritePicaReg(u32 id, u32 value, u32 mask) {
 
         if (accelerate_draw &&
             VideoCore::g_renderer->Rasterizer()->AccelerateDrawBatch(is_indexed)) {
+#ifdef DEBUG_CONTEXT
             if (g_debug_context) {
                 g_debug_context->OnEvent(DebugContext::Event::FinishedPrimitiveBatch, nullptr);
             }
+#endif
             break;
         }
 
@@ -319,7 +321,7 @@ static void WritePicaReg(u32 id, u32 value, u32 mask) {
             VideoCore::g_memory->GetPhysicalPointer(base_address + index_info.offset);
         const u16* index_address_16 = reinterpret_cast<const u16*>(index_address_8);
         bool index_u16 = index_info.format != 0;
-
+#ifdef DEBUG_CONTEXT
         if (g_debug_context && g_debug_context->recorder) {
             for (int i = 0; i < 3; ++i) {
                 const auto texture = regs.texturing.GetTextures()[i];
@@ -335,7 +337,7 @@ static void WritePicaReg(u32 id, u32 value, u32 mask) {
                     texture.config.GetPhysicalAddress());
             }
         }
-
+#endif
         DebugUtils::MemoryAccessTracker memory_accesses;
 
         // Simple circular-replacement vertex cache
@@ -371,13 +373,13 @@ static void WritePicaReg(u32 id, u32 value, u32 mask) {
                     g_state.geometry_pipeline.SubmitIndex(vertex);
                     continue;
                 }
-
+#ifdef DEBUG_CONTEXT
                 if (g_debug_context && Pica::g_debug_context->recorder) {
                     int size = index_u16 ? 2 : 1;
                     memory_accesses.AddAccess(base_address + index_info.offset + size * index,
                                               size);
                 }
-
+#endif
                 for (unsigned int i = 0; i < VERTEX_CACHE_SIZE; ++i) {
                     if (vertex_cache_valid[i] && vertex == vertex_cache_ids[i]) {
                         vs_output = vertex_cache[i];
@@ -411,17 +413,18 @@ static void WritePicaReg(u32 id, u32 value, u32 mask) {
             // Send to geometry pipeline
             g_state.geometry_pipeline.SubmitVertex(vs_output);
         }
-
+#ifdef DEBUG_CONTEXT
         for (auto& range : memory_accesses.ranges) {
             g_debug_context->recorder->MemoryAccessed(
                 VideoCore::g_memory->GetPhysicalPointer(range.first), range.second, range.first);
         }
-
+#endif
         VideoCore::g_renderer->Rasterizer()->DrawTriangles();
+#ifdef DEBUG_CONTEXT
         if (g_debug_context) {
             g_debug_context->OnEvent(DebugContext::Event::FinishedPrimitiveBatch, nullptr);
         }
-
+#endif
         break;
     }
 
@@ -634,10 +637,11 @@ static void WritePicaReg(u32 id, u32 value, u32 mask) {
     }
 
     VideoCore::g_renderer->Rasterizer()->NotifyPicaRegisterChanged(id);
-
+#ifdef DEBUG_CONTEXT
     if (g_debug_context)
         g_debug_context->OnEvent(DebugContext::Event::PicaCommandProcessed,
                                  reinterpret_cast<void*>(&id));
+#endif
 }
 
 void ProcessCommandList(const u32* list, u32 size) {

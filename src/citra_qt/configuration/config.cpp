@@ -298,17 +298,19 @@ void Config::ReadValues() {
     }
     UISettings::values.game_list_icon_size = icon_size;
 
-    int row_1 = ReadSetting("row1", 2).toInt();
-    if (row_1 < 0 || row_1 > 3) {
-        row_1 = 2;
+    UISettings::GameListText row_1 = UISettings::GameListText{
+        ReadSetting("row1", static_cast<int>(UISettings::GameListText::TitleName)).toInt()};
+    if (row_1 <= UISettings::GameListText::NoText || row_1 >= UISettings::GameListText::ListEnd) {
+        row_1 = UISettings::GameListText::TitleName;
     }
-    UISettings::values.game_list_row_1 = UISettings::GameListText{row_1};
+    UISettings::values.game_list_row_1 = row_1;
 
-    int row_2 = ReadSetting("row2", 0).toInt();
-    if (row_2 < -1 || row_2 > 3) {
-        row_2 = 0;
+    UISettings::GameListText row_2 = UISettings::GameListText{
+        ReadSetting("row2", static_cast<int>(UISettings::GameListText::FileName)).toInt()};
+    if (row_2 < UISettings::GameListText::NoText || row_2 >= UISettings::GameListText::ListEnd) {
+        row_2 = UISettings::GameListText::FileName;
     }
-    UISettings::values.game_list_row_2 = UISettings::GameListText{row_2};
+    UISettings::values.game_list_row_2 = row_2;
 
     UISettings::values.game_list_hide_no_icon = ReadSetting("hideNoIcon", false).toBool();
     UISettings::values.game_list_single_line_mode = ReadSetting("singleLineMode", false).toBool();
@@ -375,6 +377,8 @@ void Config::ReadValues() {
     UISettings::values.first_start = ReadSetting("firstStart", true).toBool();
     UISettings::values.callout_flags = ReadSetting("calloutFlags", 0).toUInt();
     UISettings::values.show_console = ReadSetting("showConsole", false).toBool();
+    UISettings::values.pause_when_in_background =
+        ReadSetting("pauseWhenInBackground", false).toBool();
 
     qt_config->beginGroup("Multiplayer");
     UISettings::values.nickname = ReadSetting("nickname", "").toString();
@@ -591,7 +595,7 @@ void Config::SaveValues() {
     qt_config->beginWriteArray("gamedirs");
     for (int i = 0; i < UISettings::values.game_dirs.size(); ++i) {
         qt_config->setArrayIndex(i);
-        const auto& game_dir = UISettings::values.game_dirs.at(i);
+        const auto& game_dir = UISettings::values.game_dirs[i];
         WriteSetting("path", game_dir.path);
         WriteSetting("deep_scan", game_dir.deep_scan, false);
         WriteSetting("expanded", game_dir.expanded, true);
@@ -624,6 +628,7 @@ void Config::SaveValues() {
     WriteSetting("firstStart", UISettings::values.first_start, true);
     WriteSetting("calloutFlags", UISettings::values.callout_flags, 0);
     WriteSetting("showConsole", UISettings::values.show_console, false);
+    WriteSetting("pauseWhenInBackground", UISettings::values.pause_when_in_background, false);
 
     qt_config->beginGroup("Multiplayer");
     WriteSetting("nickname", UISettings::values.nickname, "");

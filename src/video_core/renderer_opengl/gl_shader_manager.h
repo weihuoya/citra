@@ -97,16 +97,15 @@ public:
     ShaderProgramManager(bool separable, bool is_amd);
     ~ShaderProgramManager();
 
-    bool UseProgrammableVertexShader(const PicaVSConfig& config,
-                                     const Pica::Shader::ShaderSetup setup);
+    bool UseProgrammableVertexShader(const Pica::Regs& regs, Pica::Shader::ShaderSetup& setup);
 
     void UseTrivialVertexShader();
 
-    void UseFixedGeometryShader(const PicaFixedGSConfig& config);
+    void UseFixedGeometryShader(const Pica::Regs& regs);
 
     void UseTrivialGeometryShader();
 
-    void UseFragmentShader(const PicaFSConfig& config);
+    void UseFragmentShader(const Pica::Regs& regs);
 
     void ApplyTo(OpenGLState& state);
 

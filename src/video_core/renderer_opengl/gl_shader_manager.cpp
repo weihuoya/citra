@@ -4,7 +4,6 @@
 
 #include <algorithm>
 #include <unordered_map>
-#include <boost/functional/hash.hpp>
 #include <boost/variant.hpp>
 #include "video_core/renderer_opengl/gl_shader_manager.h"
 
@@ -45,9 +44,7 @@ static void SetShaderImageBinding(GLuint shader, const char* name, GLuint bindin
 }
 
 static void SetShaderSamplerBindings(GLuint shader) {
-    OpenGLState cur_state = OpenGLState::GetCurState();
-    GLuint old_program = std::exchange(cur_state.draw.shader_program, shader);
-    cur_state.Apply();
+    GLuint old_program = OpenGLState::BindShaderProgram(shader);
 
     // Set the texture samplers to correspond to different texture units
     SetShaderSamplerBinding(shader, "tex0", TextureUnits::PicaTexture(0));
@@ -67,8 +64,7 @@ static void SetShaderSamplerBindings(GLuint shader) {
     SetShaderImageBinding(shader, "shadow_texture_pz", ImageUnits::ShadowTexturePZ);
     SetShaderImageBinding(shader, "shadow_texture_nz", ImageUnits::ShadowTextureNZ);
 
-    cur_state.draw.shader_program = old_program;
-    cur_state.Apply();
+    OpenGLState::BindShaderProgram(old_program);
 }
 
 void PicaUniformsData::SetFromRegs(const Pica::ShaderRegs& regs,
@@ -138,125 +134,128 @@ private:
     OGLShaderStage program;
 };
 
-template <typename KeyConfigType, std::string (*CodeGenerator)(const KeyConfigType&, bool),
-          GLenum ShaderType>
-class ShaderCache {
-public:
-    explicit ShaderCache(bool separable) : separable(separable) {}
-    GLuint Get(const KeyConfigType& config) {
-        auto [iter, new_shader] = shaders.emplace(config, OGLShaderStage{separable});
-        OGLShaderStage& cached_shader = iter->second;
-        if (new_shader) {
-            cached_shader.Create(CodeGenerator(config, separable).c_str(), ShaderType);
-        }
-        return cached_shader.GetHandle();
-    }
-
-private:
-    bool separable;
-    std::unordered_map<KeyConfigType, OGLShaderStage> shaders;
-};
-
-// This is a cache designed for shaders translated from PICA shaders. The first cache matches the
-// config structure like a normal cache does. On cache miss, the second cache matches the generated
-// GLSL code. The configuration is like this because there might be leftover code in the PICA shader
-// program buffer from the previous shader, which is hashed into the config, resulting several
-// different config values from the same shader program.
-template <typename KeyConfigType,
-          std::optional<std::string> (*CodeGenerator)(const Pica::Shader::ShaderSetup&,
-                                                      const KeyConfigType&, bool),
-          GLenum ShaderType>
-class ShaderDoubleCache {
-public:
-    explicit ShaderDoubleCache(bool separable) : separable(separable) {}
-    GLuint Get(const KeyConfigType& key, const Pica::Shader::ShaderSetup& setup) {
-        auto map_it = shader_map.find(key);
-        if (map_it == shader_map.end()) {
-            auto program_opt = CodeGenerator(setup, key, separable);
-            if (!program_opt) {
-                shader_map[key] = nullptr;
-                return 0;
-            }
-
-            std::string& program = *program_opt;
-            auto [iter, new_shader] = shader_cache.emplace(program, OGLShaderStage{separable});
-            OGLShaderStage& cached_shader = iter->second;
-            if (new_shader) {
-                cached_shader.Create(program.c_str(), ShaderType);
-            }
-            shader_map[key] = &cached_shader;
-            return cached_shader.GetHandle();
-        }
-
-        if (map_it->second == nullptr) {
-            return 0;
-        }
-
-        return map_it->second->GetHandle();
-    }
-
-private:
-    bool separable;
-    std::unordered_map<KeyConfigType, OGLShaderStage*> shader_map;
-    std::unordered_map<std::string, OGLShaderStage> shader_cache;
-};
-
-using ProgrammableVertexShaders =
-    ShaderDoubleCache<PicaVSConfig, &GenerateVertexShader, GL_VERTEX_SHADER>;
-
-using FixedGeometryShaders =
-    ShaderCache<PicaFixedGSConfig, &GenerateFixedGeometryShader, GL_GEOMETRY_SHADER>;
-
-using FragmentShaders = ShaderCache<PicaFSConfig, &GenerateFragmentShader, GL_FRAGMENT_SHADER>;
-
 class ShaderProgramManager::Impl {
 public:
-    explicit Impl(bool separable, bool is_amd)
-        : is_amd(is_amd), separable(separable), programmable_vertex_shaders(separable),
-          trivial_vertex_shader(separable), fixed_geometry_shaders(separable),
-          fragment_shaders(separable) {
-        if (separable)
+    Impl(bool separable, bool is_amd)
+        : separable(separable), is_amd(is_amd), trivial_vertex_shader(separable) {
+        if (separable) {
             pipeline.Create();
+        }
     }
+
+    bool UseProgrammableVertexShader(const Pica::Regs& regs, Pica::Shader::ShaderSetup& setup) {
+        PicaVSConfig key(regs, setup);
+        u64 key_hash = Common::ComputeHash64(&key, sizeof(key));
+        auto iter_ref = shaders_ref.find(key_hash);
+        if (iter_ref == shaders_ref.end()) {
+            std::string vs_code = GenerateVertexShader(setup, key, separable);
+            if (vs_code.empty()) {
+                shaders_ref[key_hash] = nullptr;
+                current_shader.vs = 0;
+            } else {
+                u64 code_hash = Common::ComputeHash64(vs_code.data(), vs_code.size());
+                auto [iter, new_shader] = shaders.emplace(code_hash, OGLShaderStage{separable});
+                OGLShaderStage& cached_shader = iter->second;
+                if (new_shader) {
+                    cached_shader.Create(vs_code.c_str(), GL_VERTEX_SHADER);
+                }
+                shaders_ref[key_hash] = &cached_shader;
+                current_shader.vs = cached_shader.GetHandle();
+            }
+        } else if (iter_ref->second == nullptr) {
+            current_shader.vs = 0;
+        } else {
+            current_shader.vs = iter_ref->second->GetHandle();
+        }
+        return (current_shader.vs != 0);
+    }
+
+    void UseFixedGeometryShader(const Pica::Regs& regs) {
+        PicaFixedGSConfig key(regs);
+        u64 key_hash = Common::ComputeHash64(&key, sizeof(key));
+        auto [iter, new_shader] = shaders.emplace(key_hash, separable);
+        OGLShaderStage& cached_shader = iter->second;
+        if (new_shader) {
+            std::string gs_code = GenerateFixedGeometryShader(key, separable);
+            cached_shader.Create(gs_code.c_str(), GL_GEOMETRY_SHADER);
+        }
+        current_shader.gs = cached_shader.GetHandle();
+    }
+
+    void UseFragmentShader(const Pica::Regs& regs) {
+        auto key = PicaFSConfig::BuildFromRegs(regs);
+        u64 key_hash = Common::ComputeHash64(&key, sizeof(key));
+        auto iter_ref = shaders_ref.find(key_hash);
+        if (iter_ref == shaders_ref.end()) {
+            std::string fs_code = GenerateFragmentShader(key, separable);
+            u64 code_hash = Common::ComputeHash64(fs_code.data(), fs_code.size());
+            auto [iter, new_shader] = shaders.emplace(code_hash, OGLShaderStage{separable});
+            OGLShaderStage& cached_shader = iter->second;
+            if (new_shader) {
+                cached_shader.Create(fs_code.c_str(), GL_FRAGMENT_SHADER);
+            }
+            shaders_ref[key_hash] = &cached_shader;
+            current_shader.fs = cached_shader.GetHandle();
+        } else {
+            current_shader.fs = iter_ref->second->GetHandle();
+        }
+    }
+
+    void UseTrivialVertexShader() {
+        current_shader.vs = trivial_vertex_shader.Get();
+    }
+
+    void UseTrivialGeometryShader() {
+        current_shader.gs = 0;
+    }
+
+    void ApplyTo(OpenGLState& state) {
+        if (separable) {
+            if (is_amd) {
+                // Without this reseting, AMD sometimes freezes when one stage is changed but not
+                // for the others. On the other hand, including this reset seems to introduce memory
+                // leak in Intel Graphics.
+                glUseProgramStages(
+                    pipeline.handle,
+                    GL_VERTEX_SHADER_BIT | GL_GEOMETRY_SHADER_BIT | GL_FRAGMENT_SHADER_BIT, 0);
+            }
+
+            glUseProgramStages(pipeline.handle, GL_VERTEX_SHADER_BIT, current_shader.vs);
+            glUseProgramStages(pipeline.handle, GL_GEOMETRY_SHADER_BIT, current_shader.gs);
+            glUseProgramStages(pipeline.handle, GL_FRAGMENT_SHADER_BIT, current_shader.fs);
+            state.draw.shader_program = 0;
+            state.draw.program_pipeline = pipeline.handle;
+        } else {
+            u64 hash = Common::ComputeHash64(&current_shader, sizeof(current_shader));
+            OGLProgram& cached_program = program_cache[hash];
+            if (cached_program.handle == 0) {
+                cached_program.Create(false,
+                                      {current_shader.vs, current_shader.gs, current_shader.fs});
+                SetShaderUniformBlockBindings(cached_program.handle);
+                SetShaderSamplerBindings(cached_program.handle);
+            }
+            state.draw.shader_program = cached_program.handle;
+            state.draw.program_pipeline = 0;
+        }
+    }
+
+private:
+    bool separable;
+    bool is_amd;
 
     struct ShaderTuple {
         GLuint vs = 0;
         GLuint gs = 0;
         GLuint fs = 0;
-
-        bool operator==(const ShaderTuple& rhs) const {
-            return std::tie(vs, gs, fs) == std::tie(rhs.vs, rhs.gs, rhs.fs);
-        }
-
-        bool operator!=(const ShaderTuple& rhs) const {
-            return std::tie(vs, gs, fs) != std::tie(rhs.vs, rhs.gs, rhs.fs);
-        }
-
-        struct Hash {
-            std::size_t operator()(const ShaderTuple& tuple) const {
-                std::size_t hash = 0;
-                boost::hash_combine(hash, tuple.vs);
-                boost::hash_combine(hash, tuple.gs);
-                boost::hash_combine(hash, tuple.fs);
-                return hash;
-            }
-        };
     };
+    ShaderTuple current_shader;
 
-    bool is_amd;
-
-    ShaderTuple current;
-
-    ProgrammableVertexShaders programmable_vertex_shaders;
     TrivialVertexShader trivial_vertex_shader;
+    std::unordered_map<u64, OGLShaderStage*> shaders_ref;
+    std::unordered_map<u64, OGLShaderStage> shaders;
 
-    FixedGeometryShaders fixed_geometry_shaders;
-
-    FragmentShaders fragment_shaders;
-
-    bool separable;
-    std::unordered_map<ShaderTuple, OGLProgram, ShaderTuple::Hash> program_cache;
     OGLPipeline pipeline;
+    std::unordered_map<u64, OGLProgram> program_cache;
 };
 
 ShaderProgramManager::ShaderProgramManager(bool separable, bool is_amd)
@@ -264,56 +263,28 @@ ShaderProgramManager::ShaderProgramManager(bool separable, bool is_amd)
 
 ShaderProgramManager::~ShaderProgramManager() = default;
 
-bool ShaderProgramManager::UseProgrammableVertexShader(const PicaVSConfig& config,
-                                                       const Pica::Shader::ShaderSetup setup) {
-    GLuint handle = impl->programmable_vertex_shaders.Get(config, setup);
-    if (handle == 0)
-        return false;
-    impl->current.vs = handle;
-    return true;
+bool ShaderProgramManager::UseProgrammableVertexShader(const Pica::Regs& regs,
+                                                       Pica::Shader::ShaderSetup& setup) {
+    return impl->UseProgrammableVertexShader(regs, setup);
 }
 
 void ShaderProgramManager::UseTrivialVertexShader() {
-    impl->current.vs = impl->trivial_vertex_shader.Get();
+    impl->UseTrivialVertexShader();
 }
 
-void ShaderProgramManager::UseFixedGeometryShader(const PicaFixedGSConfig& config) {
-    impl->current.gs = impl->fixed_geometry_shaders.Get(config);
+void ShaderProgramManager::UseFixedGeometryShader(const Pica::Regs& regs) {
+    impl->UseFixedGeometryShader(regs);
 }
 
 void ShaderProgramManager::UseTrivialGeometryShader() {
-    impl->current.gs = 0;
+    impl->UseTrivialGeometryShader();
 }
 
-void ShaderProgramManager::UseFragmentShader(const PicaFSConfig& config) {
-    impl->current.fs = impl->fragment_shaders.Get(config);
+void ShaderProgramManager::UseFragmentShader(const Pica::Regs& regs) {
+    impl->UseFragmentShader(regs);
 }
 
 void ShaderProgramManager::ApplyTo(OpenGLState& state) {
-    if (impl->separable) {
-        if (impl->is_amd) {
-            // Without this reseting, AMD sometimes freezes when one stage is changed but not for
-            // the others.
-            // On the other hand, including this reset seems to introduce memory leak in Intel
-            // Graphics.
-            glUseProgramStages(
-                impl->pipeline.handle,
-                GL_VERTEX_SHADER_BIT | GL_GEOMETRY_SHADER_BIT | GL_FRAGMENT_SHADER_BIT, 0);
-        }
-
-        glUseProgramStages(impl->pipeline.handle, GL_VERTEX_SHADER_BIT, impl->current.vs);
-        glUseProgramStages(impl->pipeline.handle, GL_GEOMETRY_SHADER_BIT, impl->current.gs);
-        glUseProgramStages(impl->pipeline.handle, GL_FRAGMENT_SHADER_BIT, impl->current.fs);
-        state.draw.shader_program = 0;
-        state.draw.program_pipeline = impl->pipeline.handle;
-    } else {
-        OGLProgram& cached_program = impl->program_cache[impl->current];
-        if (cached_program.handle == 0) {
-            cached_program.Create(false, {impl->current.vs, impl->current.gs, impl->current.fs});
-            SetShaderUniformBlockBindings(cached_program.handle);
-            SetShaderSamplerBindings(cached_program.handle);
-        }
-        state.draw.shader_program = cached_program.handle;
-    }
+    impl->ApplyTo(state);
 }
 } // namespace OpenGL

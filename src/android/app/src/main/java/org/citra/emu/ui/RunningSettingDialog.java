@@ -38,7 +38,6 @@ public class RunningSettingDialog extends DialogFragment {
         ViewGroup contents = (ViewGroup)getActivity().getLayoutInflater().inflate(
             R.layout.dialog_running_settings, null);
 
-        int columns = 1;
         Drawable lineDivider = getContext().getDrawable(R.drawable.line_divider);
         RecyclerView recyclerView = contents.findViewById(R.id.list_settings);
         RecyclerView.LayoutManager layoutManager = new LinearLayoutManager(getContext());

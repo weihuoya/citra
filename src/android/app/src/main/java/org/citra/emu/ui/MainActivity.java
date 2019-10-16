@@ -11,8 +11,6 @@ import android.content.IntentFilter;
 import android.content.pm.PackageManager;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
-import android.os.Handler;
-import android.os.Message;
 import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
@@ -223,7 +221,7 @@ public final class MainActivity extends AppCompatActivity {
 
     public void addGamesInDirectory(String directory) {
         File[] files = new File(directory).listFiles((File dir, String name) -> {
-            if (name.toLowerCase().endsWith(".cci")) {
+            if (NativeLibrary.isValidFile(name)) {
                 String path = dir.getPath() + File.separator + name;
                 for (GameFile game : mGames) {
                     if (path.equals(game.getPath())) {
@@ -240,7 +238,9 @@ public final class MainActivity extends AppCompatActivity {
         }
 
         for (File f : files) {
-            mGames.add(new GameFile(f.getPath()));
+            String path = f.getPath();
+            if (NativeLibrary.IsAppExecutable(path))
+                mGames.add(new GameFile(path));
         }
     }
 
@@ -252,7 +252,7 @@ public final class MainActivity extends AppCompatActivity {
         }
 
         File cache = getGameListCache();
-        FileWriter writer = null;
+        FileWriter writer;
         try {
             writer = new FileWriter(cache);
             writer.write(sb.toString());
@@ -277,7 +277,8 @@ public final class MainActivity extends AppCompatActivity {
 
         mGames.clear();
         for (String path : content.split(";")) {
-            if (!path.isEmpty() && path.endsWith(".cci") && new File(path).exists()) {
+            if (NativeLibrary.isValidFile(path) && new File(path).exists() &&
+                NativeLibrary.IsAppExecutable(path)) {
                 mGames.add(new GameFile(path));
             }
         }

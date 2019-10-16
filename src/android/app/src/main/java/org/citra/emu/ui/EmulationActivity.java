@@ -56,7 +56,7 @@ public final class EmulationActivity extends AppCompatActivity {
             if ((visibility & View.SYSTEM_UI_FLAG_FULLSCREEN) == 0) {
                 // Go back to immersive fullscreen mode in 3s
                 Handler handler = new Handler(getMainLooper());
-                handler.postDelayed(this ::enableFullscreenImmersive, 3000 /* 3s */);
+                handler.postDelayed(this::enableFullscreenImmersive, 3000 /* 3s */);
             }
         });
         mStopEmulation = false;
@@ -213,7 +213,8 @@ public final class EmulationActivity extends AppCompatActivity {
     }
 
     public void showMiiSelectorDialog(boolean cancel, String title, String[] miis) {
-        // todo
+        MiiSelectorDialog.newInstance(cancel, title, miis)
+            .show(getSupportFragmentManager(), "MiiSelectorDialog");
     }
 
     public void refreshControls() {

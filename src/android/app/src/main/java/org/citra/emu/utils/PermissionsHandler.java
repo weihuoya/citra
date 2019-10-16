@@ -1,5 +1,6 @@
 package org.citra.emu.utils;
 
+import static android.Manifest.permission.CAMERA;
 import static android.Manifest.permission.WRITE_EXTERNAL_STORAGE;
 
 import android.annotation.TargetApi;
@@ -15,6 +16,7 @@ import org.citra.emu.R;
 
 public final class PermissionsHandler {
     public static final int REQUEST_CODE_WRITE_PERMISSION = 500;
+    public static final int REQUEST_CODE_CAMERA_PERMISSION = 501;
 
     @TargetApi(Build.VERSION_CODES.M)
     public static boolean checkWritePermission(final Activity activity) {
@@ -37,6 +39,29 @@ public final class PermissionsHandler {
 
             activity.requestPermissions(new String[] {WRITE_EXTERNAL_STORAGE},
                                         REQUEST_CODE_WRITE_PERMISSION);
+            return false;
+        }
+
+        return true;
+    }
+
+    @TargetApi(Build.VERSION_CODES.M)
+    public static boolean checkCameraPermission(final Activity activity) {
+        if (android.os.Build.VERSION.SDK_INT < Build.VERSION_CODES.M) {
+            return true;
+        }
+
+        int permission = ContextCompat.checkSelfPermission(activity, CAMERA);
+        if (permission != PackageManager.PERMISSION_GRANTED) {
+            if (activity.shouldShowRequestPermissionRationale(CAMERA)) {
+                showMessageOKCancel(activity, activity.getString(R.string.camera_permission_needed),
+                                    (dialog, which)
+                                        -> activity.requestPermissions(
+                                            new String[] {CAMERA}, REQUEST_CODE_CAMERA_PERMISSION));
+                return false;
+            }
+
+            activity.requestPermissions(new String[] {CAMERA}, REQUEST_CODE_CAMERA_PERMISSION);
             return false;
         }
 

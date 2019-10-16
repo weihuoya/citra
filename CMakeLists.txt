@@ -327,10 +327,12 @@ git_describe(GIT_DESC --always --long --dirty)
 git_branch_name(GIT_BRANCH)
 get_timestamp(BUILD_DATE)
 
-enable_testing()
+if(NOT ANDROID)
+    enable_testing()
+    add_subdirectory(dist/installer)
+endif()
 add_subdirectory(externals)
 add_subdirectory(src)
-add_subdirectory(dist/installer)
 
 
 # Set citra-qt project or citra project as default StartUp Project in Visual Studio depending on whether QT is enabled or not

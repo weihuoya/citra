@@ -472,12 +472,12 @@ inline void Write(u32 addr, const T data) {
             MICROPROFILE_SCOPE(GPU_CmdlistProcessing);
 
             u32* buffer = (u32*)g_memory->GetPhysicalPointer(config.GetPhysicalAddress());
-
+#ifdef DEBUG_CONTEXT
             if (Pica::g_debug_context && Pica::g_debug_context->recorder) {
                 Pica::g_debug_context->recorder->MemoryAccessed((u8*)buffer, config.size,
                                                                 config.GetPhysicalAddress());
             }
-
+#endif
             Pica::CommandProcessor::ProcessCommandList(buffer, config.size);
 
             g_regs.command_processor_config.trigger = 0;
@@ -488,7 +488,7 @@ inline void Write(u32 addr, const T data) {
     default:
         break;
     }
-
+#ifdef DEBUG_CONTEXT
     // Notify tracer about the register write
     // This is happening *after* handling the write to make sure we properly catch all memory reads.
     if (Pica::g_debug_context && Pica::g_debug_context->recorder) {
@@ -496,6 +496,7 @@ inline void Write(u32 addr, const T data) {
         Pica::g_debug_context->recorder->RegisterWritten<T>(
             addr + 0x1EF00000 - 0x1EC00000 + 0x10100000, data);
     }
+#endif
 }
 
 // Explicitly instantiate template functions because we aren't defining this in the header:

@@ -9,6 +9,7 @@ import com.nononsenseapps.filepicker.AbstractFilePickerFragment;
 import com.nononsenseapps.filepicker.FilePickerActivity;
 import com.nononsenseapps.filepicker.FilePickerFragment;
 import java.io.File;
+import org.citra.emu.NativeLibrary;
 
 public final class GameFilePickerActivity extends FilePickerActivity {
     @Override
@@ -41,8 +42,7 @@ public final class GameFilePickerActivity extends FilePickerActivity {
                 return false;
             if (file.isDirectory())
                 return true;
-            String filename = file.getName().toLowerCase();
-            return filename.endsWith(".cci") || filename.endsWith(".cia");
+            return NativeLibrary.isValidFile(file.getName());
         }
     }
 }

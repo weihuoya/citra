@@ -12,6 +12,7 @@
 #include <QMetaType>
 #include <QString>
 #include <QStringList>
+#include <QVector>
 #include "common/common_types.h"
 
 namespace UISettings {
@@ -46,11 +47,13 @@ enum class GameListIconSize {
 };
 
 enum class GameListText {
-    NoText = -1, ///< No text
-    FileName,    ///< Display the file name of the entry
-    FullPath,    ///< Display the full path of the entry
-    TitleName,   ///< Display the name of the title
-    TitleID,     ///< Display the title ID
+    NoText = -1,   ///< No text
+    FileName,      ///< Display the file name of the entry
+    FullPath,      ///< Display the full path of the entry
+    TitleName,     ///< Display the name of the title
+    TitleID,       ///< Display the title ID
+    LongTitleName, ///< Display the long name of the title
+    ListEnd,       ///< Keep this at the end of the enum.
 };
 
 struct Values {
@@ -72,6 +75,7 @@ struct Values {
 
     bool confirm_before_closing;
     bool first_start;
+    bool pause_when_in_background;
 
     bool updater_found;
     bool update_on_close;
@@ -96,7 +100,7 @@ struct Values {
     QString screenshot_path;
     QString game_dir_deprecated;
     bool game_dir_deprecated_deepscan;
-    QList<UISettings::GameDir> game_dirs;
+    QVector<UISettings::GameDir> game_dirs;
     QStringList recent_files;
     QString language;
 

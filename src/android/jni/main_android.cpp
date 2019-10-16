@@ -424,6 +424,16 @@ JNIEXPORT jint JNICALL Java_org_citra_emu_NativeLibrary_GetAppRegion(JNIEnv* env
     return static_cast<jint>(regions[0]);
 }
 
+JNIEXPORT jboolean JNICALL Java_org_citra_emu_NativeLibrary_IsAppExecutable(JNIEnv* env, jclass obj,
+                                                                            jstring jPath) {
+    bool executable = false;
+    Loader::AppLoader* app_loader = GetAppLoader(GetJString(jPath));
+    if (app_loader) {
+        app_loader->IsExecutable(executable);
+    }
+    return executable;
+}
+
 #ifdef __cplusplus
 }
 #endif

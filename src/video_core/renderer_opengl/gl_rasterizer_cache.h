@@ -30,6 +30,9 @@
 #include "video_core/regs_texturing.h"
 #include "video_core/renderer_opengl/gl_resource_manager.h"
 #include "video_core/texture/texture_decode.h"
+#ifdef ANDROID
+#include "video_core/renderer_opengl/graphic_buffer.h"
+#endif
 
 namespace OpenGL {
 
@@ -409,6 +412,7 @@ struct CachedSurface : SurfaceParams, std::enable_shared_from_this<CachedSurface
 
 private:
     std::list<std::weak_ptr<SurfaceWatcher>> watchers;
+    OGLBuffer upload_pbo;
 };
 
 struct CachedTextureCube {

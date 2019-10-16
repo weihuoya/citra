@@ -69,9 +69,8 @@ private:
     // OpenGL object IDs
     OGLVertexArray vertex_array;
     OGLBuffer vertex_buffer;
+    OGLBuffer indirect_buffer;
     OGLProgram shader;
-    OGLFramebuffer screenshot_framebuffer;
-    OGLSampler filter_sampler;
 
     /// Display information for top and bottom screens respectively
     std::array<ScreenInfo, 3> screen_infos;
@@ -79,12 +78,7 @@ private:
     // Shader uniform location indices
     GLuint uniform_modelview_matrix;
     GLuint uniform_color_texture;
-    GLuint uniform_color_texture_r;
-
-    // Shader uniform for Dolphin compatibility
-    GLuint uniform_i_resolution;
-    GLuint uniform_o_resolution;
-    GLuint uniform_layer;
+    GLuint uniform_resolution;
 
     // Shader attribute input indices
     GLuint attrib_position;
