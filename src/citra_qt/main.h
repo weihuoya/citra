@@ -120,7 +120,6 @@ private:
     void ShowNoUpdatePrompt();
     void CheckForUpdates();
     void SetDiscordEnabled(bool state);
-    void LoadAmiibo(const QString& filename);
 
     /**
      * Stores the filename in the recently loaded files list.
@@ -191,8 +190,6 @@ private slots:
     void OnPlayMovie();
     void OnStopRecordingPlayback();
     void OnCaptureScreenshot();
-    void OnStartVideoDumping();
-    void OnStopVideoDumping();
     void OnCoreError(Core::System::ResultStatus, std::string);
     /// Called whenever a user selects Help->About Citra
     void OnMenuAboutCitra();
@@ -240,12 +237,6 @@ private:
     // Movie
     bool movie_record_on_start = false;
     QString movie_record_path;
-
-    // Video dumping
-    bool video_dumping_on_start = false;
-    QString video_dumping_path;
-    // Whether game shutdown is delayed due to video dumping
-    bool game_shutdown_delayed = false;
 
     // Debugger panes
     ProfilerWidget* profilerWidget;

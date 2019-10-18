@@ -16,10 +16,6 @@
 #include "core/cheats/cheats.h"
 #include "core/core.h"
 #include "core/core_timing.h"
-#include "core/dumping/backend.h"
-#ifdef ENABLE_FFMPEG_VIDEO_DUMPER
-#include "core/dumping/ffmpeg_backend.h"
-#endif
 #include "core/gdbstub/gdbstub.h"
 #include "core/hle/kernel/client_port.h"
 #include "core/hle/kernel/kernel.h"
@@ -45,7 +41,7 @@ System::ResultStatus System::RunLoop(bool tight_loop) {
     if (!cpu_core) {
         return ResultStatus::ErrorNotInitialized;
     }
-
+#ifdef DEBUG_CONTEXT
     if (GDBStub::IsServerEnabled()) {
         GDBStub::HandlePacket();
 
@@ -59,7 +55,7 @@ System::ResultStatus System::RunLoop(bool tight_loop) {
             }
         }
     }
-
+#endif
     // If we don't have a currently active thread then don't execute instructions,
     // instead advance to the next event and try to yield to the next thread
     if (kernel->GetThreadManager().GetCurrentThread() == nullptr) {
@@ -75,11 +71,11 @@ System::ResultStatus System::RunLoop(bool tight_loop) {
             cpu_core->Step();
         }
     }
-
+#ifdef DEBUG_CONTEXT
     if (GDBStub::IsServerEnabled()) {
         GDBStub::SetCpuStepFlag(false);
     }
-
+#endif
     HW::Update();
     Reschedule();
 
@@ -120,7 +116,8 @@ System::ResultStatus System::Load(Frontend::EmuWindow& emu_window, const std::st
     }
 
     ASSERT(system_mode.first);
-    ResultStatus init_result{Init(emu_window, *system_mode.first)};
+    ResultStatus init_result{
+        Init(emu_window, Settings::values.is_new_3ds ? 6 : *system_mode.first)};
     if (init_result != ResultStatus::Success) {
         LOG_CRITICAL(Core, "Failed to initialize system (Error {})!",
                      static_cast<u32>(init_result));
@@ -146,12 +143,7 @@ System::ResultStatus System::Load(Frontend::EmuWindow& emu_window, const std::st
         }
     }
     cheat_engine = std::make_unique<Cheats::CheatEngine>(*this);
-    u64 title_id{0};
-    if (app_loader->ReadProgramId(title_id) != Loader::ResultStatus::Success) {
-        LOG_ERROR(Core, "Failed to find title id for ROM (Error {})",
-                  static_cast<u32>(load_result));
-    }
-    perf_stats = std::make_unique<PerfStats>(title_id);
+    perf_stats = std::make_unique<PerfStats>();
     status = ResultStatus::Success;
     m_emu_window = &emu_window;
     m_filepath = filepath;
@@ -184,9 +176,7 @@ System::ResultStatus System::Init(Frontend::EmuWindow& emu_window, u32 system_mo
     LOG_DEBUG(HW_Memory, "initialized OK");
 
     memory = std::make_unique<Memory::MemorySystem>();
-
     timing = std::make_unique<Timing>();
-
     kernel = std::make_unique<Kernel::KernelSystem>(*memory, *timing,
                                                     [this] { PrepareReschedule(); }, system_mode);
 
@@ -230,12 +220,6 @@ System::ResultStatus System::Init(Frontend::EmuWindow& emu_window, u32 system_mo
     if (result != ResultStatus::Success) {
         return result;
     }
-
-#ifdef ENABLE_FFMPEG_VIDEO_DUMPER
-    video_dumper = std::make_unique<VideoDumper::FFmpegBackend>();
-#else
-    video_dumper = std::make_unique<VideoDumper::NullBackend>();
-#endif
 
     LOG_DEBUG(Core, "Initialized OK");
 
@@ -290,14 +274,6 @@ const Cheats::CheatEngine& System::CheatEngine() const {
     return *cheat_engine;
 }
 
-VideoDumper::Backend& System::VideoDumper() {
-    return *video_dumper;
-}
-
-const VideoDumper::Backend& System::VideoDumper() const {
-    return *video_dumper;
-}
-
 void System::RegisterMiiSelector(std::shared_ptr<Frontend::MiiSelector> mii_selector) {
     registered_mii_selector = std::move(mii_selector);
 }
@@ -315,8 +291,7 @@ void System::Shutdown() {
                                 perf_results.game_fps);
     telemetry_session->AddField(Telemetry::FieldType::Performance, "Shutdown_Frametime",
                                 perf_results.frametime * 1000.0);
-    telemetry_session->AddField(Telemetry::FieldType::Performance, "Mean_Frametime_MS",
-                                perf_stats->GetMeanFrametime());
+    telemetry_session->AddField(Telemetry::FieldType::Performance, "Mean_Frametime_MS", 20.0);
 
     // Shutdown emulation session
     GDBStub::Shutdown();
@@ -332,10 +307,6 @@ void System::Shutdown() {
     kernel.reset();
     timing.reset();
     app_loader.reset();
-
-    if (video_dumper->IsDumping()) {
-        video_dumper->StopDumping();
-    }
 
     if (auto room_member = Network::GetRoomMember().lock()) {
         Network::GameInfo game_info{};

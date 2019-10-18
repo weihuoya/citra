@@ -209,11 +209,7 @@ if (ENABLE_FFMPEG)
         endif()
     endif()
 
-    if (ENABLE_FFMPEG_VIDEO_DUMPER)
-        find_package(FFmpeg REQUIRED COMPONENTS avcodec avformat avutil swscale swresample)
-    else()
-        find_package(FFmpeg REQUIRED COMPONENTS avcodec)
-    endif()
+    find_package(FFmpeg REQUIRED COMPONENTS avcodec)
     if ("${FFmpeg_avcodec_VERSION}" VERSION_LESS "57.48.101")
         message(FATAL_ERROR "Found version for libavcodec is too low. The required version is at least 57.48.101 (included in FFmpeg 3.1 and later).")
     endif()
@@ -331,10 +327,12 @@ git_describe(GIT_DESC --always --long --dirty)
 git_branch_name(GIT_BRANCH)
 get_timestamp(BUILD_DATE)
 
-enable_testing()
+if(NOT ANDROID)
+    enable_testing()
+    add_subdirectory(dist/installer)
+endif()
 add_subdirectory(externals)
 add_subdirectory(src)
-add_subdirectory(dist/installer)
 
 
 # Set citra-qt project or citra project as default StartUp Project in Visual Studio depending on whether QT is enabled or not

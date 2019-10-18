@@ -71,17 +71,53 @@ void VertexLoader::Setup(const PipelineRegs& regs) {
     is_setup = true;
 }
 
+using CopyHandler = void (*)(int, int, Shader::AttributeBuffer&, u32);
+
+static void CopyBYTE(int i, int size, Shader::AttributeBuffer& input, u32 source_addr) {
+    const s8* srcdata =
+        reinterpret_cast<const s8*>(VideoCore::g_memory->GetPhysicalPointer(source_addr));
+    for (unsigned int comp = 0; comp < size; ++comp) {
+        input.attr[i][comp] = float24::FromFloat32(srcdata[comp]);
+    }
+}
+
+static void CopyUBYTE(int i, int size, Shader::AttributeBuffer& input, u32 source_addr) {
+    const u8* srcdata =
+        reinterpret_cast<const u8*>(VideoCore::g_memory->GetPhysicalPointer(source_addr));
+    for (unsigned int comp = 0; comp < size; ++comp) {
+        input.attr[i][comp] = float24::FromFloat32(srcdata[comp]);
+    }
+}
+
+static void CopySHORT(int i, int size, Shader::AttributeBuffer& input, u32 source_addr) {
+    const s16* srcdata =
+        reinterpret_cast<const s16*>(VideoCore::g_memory->GetPhysicalPointer(source_addr));
+    for (unsigned int comp = 0; comp < size; ++comp) {
+        input.attr[i][comp] = float24::FromFloat32(srcdata[comp]);
+    }
+}
+
+static void CopyFLOAT(int i, int size, Shader::AttributeBuffer& input, u32 source_addr) {
+    const float* srcdata =
+        reinterpret_cast<const float*>(VideoCore::g_memory->GetPhysicalPointer(source_addr));
+    for (unsigned int comp = 0; comp < size; ++comp) {
+        input.attr[i][comp] = float24::FromFloat32(srcdata[comp]);
+    }
+}
+
 void VertexLoader::LoadVertex(u32 base_address, int index, int vertex,
                               Shader::AttributeBuffer& input,
                               DebugUtils::MemoryAccessTracker& memory_accesses) {
     ASSERT_MSG(is_setup, "A VertexLoader needs to be setup before loading vertices.");
+
+    CopyHandler handlers[4] = {&CopyBYTE, &CopyUBYTE, &CopySHORT, &CopyFLOAT};
 
     for (int i = 0; i < num_total_attributes; ++i) {
         if (vertex_attribute_elements[i] != 0) {
             // Load per-vertex data from the loader arrays
             u32 source_addr =
                 base_address + vertex_attribute_sources[i] + vertex_attribute_strides[i] * vertex;
-
+#ifdef DEBUG_CONTEXT
             if (g_debug_context && Pica::g_debug_context->recorder) {
                 memory_accesses.AddAccess(
                     source_addr,
@@ -93,41 +129,9 @@ void VertexLoader::LoadVertex(u32 base_address, int index, int vertex,
                                    ? 2
                                    : 1));
             }
-
-            switch (vertex_attribute_formats[i]) {
-            case PipelineRegs::VertexAttributeFormat::BYTE: {
-                const s8* srcdata = reinterpret_cast<const s8*>(
-                    VideoCore::g_memory->GetPhysicalPointer(source_addr));
-                for (unsigned int comp = 0; comp < vertex_attribute_elements[i]; ++comp) {
-                    input.attr[i][comp] = float24::FromFloat32(srcdata[comp]);
-                }
-                break;
-            }
-            case PipelineRegs::VertexAttributeFormat::UBYTE: {
-                const u8* srcdata = reinterpret_cast<const u8*>(
-                    VideoCore::g_memory->GetPhysicalPointer(source_addr));
-                for (unsigned int comp = 0; comp < vertex_attribute_elements[i]; ++comp) {
-                    input.attr[i][comp] = float24::FromFloat32(srcdata[comp]);
-                }
-                break;
-            }
-            case PipelineRegs::VertexAttributeFormat::SHORT: {
-                const s16* srcdata = reinterpret_cast<const s16*>(
-                    VideoCore::g_memory->GetPhysicalPointer(source_addr));
-                for (unsigned int comp = 0; comp < vertex_attribute_elements[i]; ++comp) {
-                    input.attr[i][comp] = float24::FromFloat32(srcdata[comp]);
-                }
-                break;
-            }
-            case PipelineRegs::VertexAttributeFormat::FLOAT: {
-                const float* srcdata = reinterpret_cast<const float*>(
-                    VideoCore::g_memory->GetPhysicalPointer(source_addr));
-                for (unsigned int comp = 0; comp < vertex_attribute_elements[i]; ++comp) {
-                    input.attr[i][comp] = float24::FromFloat32(srcdata[comp]);
-                }
-                break;
-            }
-            }
+#endif
+            handlers[static_cast<int>(vertex_attribute_formats[i])](i, vertex_attribute_elements[i],
+                                                                    input, source_addr);
 
             // Default attribute values set if array elements have < 4 components. This
             // is *not* carried over from the default attribute settings even if they're

@@ -286,51 +286,21 @@ std::string MemorySystem::ReadCString(VAddr vaddr, std::size_t max_length) {
 }
 
 u8* MemorySystem::GetPhysicalPointer(PAddr address) {
-    struct MemoryArea {
-        PAddr paddr_base;
-        u32 size;
-    };
-
-    static constexpr MemoryArea memory_areas[] = {
-        {VRAM_PADDR, VRAM_SIZE},
-        {DSP_RAM_PADDR, DSP_RAM_SIZE},
-        {FCRAM_PADDR, FCRAM_N3DS_SIZE},
-        {N3DS_EXTRA_RAM_PADDR, N3DS_EXTRA_RAM_SIZE},
-    };
-
-    const auto area =
-        std::find_if(std::begin(memory_areas), std::end(memory_areas), [&](const auto& area) {
-            // Note: the region end check is inclusive because the user can pass in an address that
-            // represents an open right bound
-            return address >= area.paddr_base && address <= area.paddr_base + area.size;
-        });
-
-    if (area == std::end(memory_areas)) {
-        LOG_ERROR(HW_Memory, "unknown GetPhysicalPointer @ 0x{:08X}", address);
-        return nullptr;
+    if (address > VRAM_PADDR - 1 && address < VRAM_PADDR + VRAM_SIZE + 1) {
+        return impl->vram.get() + (address - VRAM_PADDR);
     }
-
-    u32 offset_into_region = address - area->paddr_base;
-
-    u8* target_pointer = nullptr;
-    switch (area->paddr_base) {
-    case VRAM_PADDR:
-        target_pointer = impl->vram.get() + offset_into_region;
-        break;
-    case DSP_RAM_PADDR:
-        target_pointer = impl->dsp->GetDspMemory().data() + offset_into_region;
-        break;
-    case FCRAM_PADDR:
-        target_pointer = impl->fcram.get() + offset_into_region;
-        break;
-    case N3DS_EXTRA_RAM_PADDR:
-        target_pointer = impl->n3ds_extra_ram.get() + offset_into_region;
-        break;
-    default:
-        UNREACHABLE();
+    if (address > DSP_RAM_PADDR - 1 && address < DSP_RAM_PADDR + DSP_RAM_SIZE + 1) {
+        return impl->dsp->GetDspMemory().data() + (address - DSP_RAM_PADDR);
     }
-
-    return target_pointer;
+    if (address > FCRAM_PADDR - 1 && address < FCRAM_PADDR + FCRAM_N3DS_SIZE + 1) {
+        return impl->fcram.get() + (address - FCRAM_PADDR);
+    }
+    if (address > N3DS_EXTRA_RAM_PADDR - 1 &&
+        address < N3DS_EXTRA_RAM_PADDR + N3DS_EXTRA_RAM_SIZE + 1) {
+        return impl->n3ds_extra_ram.get() + (address - N3DS_EXTRA_RAM_PADDR);
+    }
+    LOG_ERROR(HW_Memory, "unknown GetPhysicalPointer @ 0x{:08X}", address);
+    return nullptr;
 }
 
 /// For a rasterizer-accessible PAddr, gets a list of all possible VAddr

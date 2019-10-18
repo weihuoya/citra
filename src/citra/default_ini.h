@@ -135,23 +135,12 @@ bg_red =
 bg_blue =
 bg_green =
 
-# Whether and how Stereoscopic 3D should be rendered
-# 0 (default): Off, 1: Side by Side, 2: Anaglyph
-render_3d =
-
 # Change 3D Intensity
 # 0 - 100: Intensity. 0 (default)
 factor_3d =
 
 # The name of the post processing shader to apply.
-# Loaded from shaders if render_3d is off or side by side.
-# Loaded from shaders/anaglyph if render_3d is anaglyph
 pp_shader_name =
-
-# Whether to enable linear filtering or not
-# This is required for some shaders to work correctly
-# 0: Nearest, 1 (default): Linear
-filter_mode =
 
 [Layout]
 # Layout for the screen inside the render window.
@@ -257,8 +246,6 @@ camera_inner_flip =
 log_filter = *:Info
 
 [Debugging]
-# Record frame time data, can be found in the log directory. Boolean value
-record_frame_times =
 # Port for listening to GDB connections.
 use_gdbstub=false
 gdbstub_port=24689
