@@ -167,6 +167,8 @@ void Config::ReadValues() {
     Settings::values.vsync_enabled = ReadSetting("vsync_enabled", false).toBool();
     Settings::values.use_frame_limit = ReadSetting("use_frame_limit", true).toBool();
     Settings::values.frame_limit = ReadSetting("frame_limit", 100).toInt();
+    Settings::values.use_format_reinterpret_hack =
+        ReadSetting("use_format_reinterpret_hack", true).toBool()
 
     Settings::values.bg_red = ReadSetting("bg_red", 0.0).toFloat();
     Settings::values.bg_green = ReadSetting("bg_green", 0.0).toFloat();
@@ -463,6 +465,7 @@ void Config::SaveValues() {
     WriteSetting("vsync_enabled", Settings::values.vsync_enabled, false);
     WriteSetting("use_frame_limit", Settings::values.use_frame_limit, true);
     WriteSetting("frame_limit", Settings::values.frame_limit, 100);
+    WriteSetting("use_format_reinterpret_hack", Settings::values.use_format_reinterpret_hack, true);
 
     // Cast to double because Qt's written float values are not human-readable
     WriteSetting("bg_red", (double)Settings::values.bg_red, 0.0);

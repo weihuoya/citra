@@ -27,6 +27,7 @@ void Apply() {
     VideoCore::g_shader_jit_enabled = values.use_shader_jit;
     VideoCore::g_hw_shader_enabled = values.use_hw_shader;
     VideoCore::g_hw_shader_accurate_mul = values.shaders_accurate_mul;
+    VideoCore::g_use_format_reinterpret_hack = values.use_format_reinterpret_hack;
 
     if (VideoCore::g_renderer) {
         VideoCore::g_renderer->UpdateCurrentFramebufferLayout();
@@ -78,6 +79,7 @@ void LogSettings() {
     LogSetting("Renderer_VsyncEnabled", Settings::values.vsync_enabled);
     LogSetting("Renderer_UseFrameLimit", Settings::values.use_frame_limit);
     LogSetting("Renderer_FrameLimit", Settings::values.frame_limit);
+    LogSetting("Renderer_FormatReinterpretHack", Settings::values.use_format_reinterpret_hack);
     LogSetting("Renderer_PostProcessingShader", Settings::values.pp_shader_name);
     LogSetting("Layout_Factor3d", Settings::values.factor_3d);
     LogSetting("Layout_LayoutOption", static_cast<int>(Settings::values.layout_option));

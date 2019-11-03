@@ -145,6 +145,7 @@ struct Values {
     u16 resolution_factor;
     bool vsync_enabled;
     bool use_frame_limit;
+    bool use_format_reinterpret_hack;
     u16 frame_limit;
     u32 core_ticks_hack;
 
