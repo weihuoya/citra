@@ -29,6 +29,7 @@ android {
                 storePassword project.property('storepass')
                 keyAlias project.property('keyalias')
                 keyPassword project.property('keypass')
+            }
         }
     }
 
