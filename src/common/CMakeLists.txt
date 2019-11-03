@@ -49,7 +49,7 @@ add_library(common STATIC
     detached_tasks.h
     bit_field.h
     bit_set.h
-    blocking_loop.h
+    
     chunk_file.h
     cityhash.cpp
     cityhash.h
