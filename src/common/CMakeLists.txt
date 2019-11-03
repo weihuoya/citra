@@ -59,7 +59,7 @@ add_library(common STATIC
     common_types.h
     file_util.cpp
     file_util.h
-    hash.cpp
+    
     hash.h
     linear_disk_cache.h
     logging/backend.cpp
