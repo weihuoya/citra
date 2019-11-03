@@ -168,7 +168,7 @@ void Config::ReadValues() {
     Settings::values.use_frame_limit = ReadSetting("use_frame_limit", true).toBool();
     Settings::values.frame_limit = ReadSetting("frame_limit", 100).toInt();
     Settings::values.use_format_reinterpret_hack =
-        ReadSetting("use_format_reinterpret_hack", true).toBool()
+        ReadSetting("use_format_reinterpret_hack", true).toBool();
 
     Settings::values.bg_red = ReadSetting("bg_red", 0.0).toFloat();
     Settings::values.bg_green = ReadSetting("bg_green", 0.0).toFloat();
