@@ -73,6 +73,16 @@ endif()
 # Detect current compilation architecture and create standard definitions
 # =======================================================================
 
+include(CheckAndAddFlag)
+if(CMAKE_SYSTEM_PROCESSOR STREQUAL "aarch64")
+    set(_M_ARM 1)
+    set(_M_ARM64 1)
+    add_definitions(-D_M_ARM=1)
+    add_definitions(-D_M_ARM64=1)
+    # CRC instruction set is used in the CRC32 hash function
+    check_and_add_flag(HAVE_ARCH_ARMV8 -march=armv8-a+crc)
+endif()
+
 include(CheckSymbolExists)
 function(detect_architecture symbol arch)
     if (NOT DEFINED ARCHITECTURE)
