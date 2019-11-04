@@ -24,10 +24,12 @@ android {
 
     signingConfigs {
         release {
-            keyAlias 'dolphin-release-key'
-            keyPassword 'zhangwei'
-            storeFile file('D:/Android/android-sign-key/dolphin-release-key.jks')
-            storePassword 'zhangwei'
+            if (project.hasProperty('keystore')) {
+                storeFile file(project.property('keystore'))
+                storePassword project.property('storepass')
+                keyAlias project.property('keyalias')
+                keyPassword project.property('keypass')
+            }
         }
     }
 
