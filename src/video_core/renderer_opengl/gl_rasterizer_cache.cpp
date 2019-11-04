@@ -26,7 +26,7 @@
 #include "core/memory.h"
 #include "core/settings.h"
 #include "core/core.h"
-#include "common/telemetry.h"
+// #include "common/telemetry.h"
 #include "video_core/pica_state.h"
 #include "video_core/renderer_base.h"
 #include "video_core/renderer_opengl/gl_rasterizer_cache.h"
@@ -1740,12 +1740,12 @@ void RasterizerCacheOpenGL::ValidateSurface(const Surface& surface, PAddr addr, 
             s += PixelFormatAsString(static_cast<PixelFormat>(format));
             s += ", ";
         }
-        LOG_DEBUG(Debug_GPU,
-                  "Validating surface with pixel format {} and found surfaces created on the gpu "
-                  "that have the following pixel formats: {}",
-                  PixelFormatAsString(surface->pixel_format), s);
-        Core::Telemetry().AddField(Telemetry::FieldType::Session, "VideoCore_FormatReinterpret",
-                                   true);
+        // LOG_DEBUG(Debug_GPU,
+        //           "Validating surface with pixel format {} and found surfaces created on the gpu "
+        //           "that have the following pixel formats: {}",
+        //           PixelFormatAsString(surface->pixel_format), s);
+        // Core::Telemetry().AddField(Telemetry::FieldType::Session, "VideoCore_FormatReinterpret",
+        //                            true);
     }
 }
 
