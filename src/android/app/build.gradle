@@ -24,12 +24,10 @@ android {
 
     signingConfigs {
         release {
-            if (project.hasProperty('keystore')) {
-                storeFile file(project.property('keystore'))
-                storePassword project.property('storepass')
-                keyAlias project.property('keyalias')
-                keyPassword project.property('keypass')
-            }
+             keyAlias System.getenv("BITRISEIO_ANDROID_KEYSTORE_ALIAS")
+             keyPassword System.getenv("BITRISEIO_ANDROID_KEYSTORE_PRIVATE_KEY_PASSWORD")
+             storeFile file(System.getenv("BITRISEIO_ANDROID_KEYSTORE_URL"))
+             storePassword System.getenv("BITRISEIO_ANDROID_KEYSTORE_PASSWORD")
         }
     }
 
