@@ -112,11 +112,14 @@ public final class SettingsFragment extends Fragment {
         Setting isNew3DS = coreSection.getSetting(SettingsFile.KEY_IS_NEW_3DS);
         Setting useVirtualSD = coreSection.getSetting(SettingsFile.KEY_USE_VIRTUAL_SD);
         Setting systemRegion = coreSection.getSetting(SettingsFile.KEY_SYSTEM_REGION);
+        Setting cpuJIT = coreSection.getSetting(SettingsFile.KEY_USE_CPU_JIT);
 
         sl.add(new CheckBoxSetting(SettingsFile.KEY_IS_NEW_3DS, Settings.SECTION_INI_CORE,
                                    R.string.setting_is_new_3ds, 0, false, isNew3DS));
         sl.add(new CheckBoxSetting(SettingsFile.KEY_USE_VIRTUAL_SD, Settings.SECTION_INI_CORE,
                                    R.string.setting_use_virtual_sd, 0, true, useVirtualSD));
+        sl.add(new CheckBoxSetting(SettingsFile.KEY_USE_CPU_JIT, Settings.SECTION_INI_CORE,
+                                   R.string.setting_enable_cpu_jit, 0, false, cpuJIT));
         sl.add(new SingleChoiceSetting(SettingsFile.KEY_SYSTEM_REGION, Settings.SECTION_INI_CORE,
                                        R.string.setting_region_value, 0,
                                        R.array.systemRegionEntries, R.array.systemRegionValues, -1,

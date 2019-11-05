@@ -9,7 +9,7 @@
 #include "audio_core/lle/lle.h"
 #include "common/logging/log.h"
 #include "core/arm/arm_interface.h"
-#ifdef ARCHITECTURE_x86_64
+#if defined(ARCHITECTURE_x86_64) || defined(ARCHITECTURE_ARM64)
 #include "core/arm/dynarmic/arm_dynarmic.h"
 #endif
 #include "core/arm/dyncom/arm_dyncom.h"
@@ -181,7 +181,7 @@ System::ResultStatus System::Init(Frontend::EmuWindow& emu_window, u32 system_mo
                                                     [this] { PrepareReschedule(); }, system_mode);
 
     if (Settings::values.use_cpu_jit) {
-#ifdef ARCHITECTURE_x86_64
+#if defined(ARCHITECTURE_x86_64) || defined(ARCHITECTURE_ARM64)
         cpu_core = std::make_shared<ARM_Dynarmic>(this, *memory, USER32MODE);
 #else
         cpu_core = std::make_shared<ARM_DynCom>(this, *memory, USER32MODE);

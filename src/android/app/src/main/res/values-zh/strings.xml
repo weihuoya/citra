@@ -34,6 +34,7 @@
 
     <string name="setting_is_new_3ds">New 3DS Mode</string>
     <string name="setting_use_virtual_sd">使用虚拟SD卡</string>
+    <string name="setting_enable_cpu_jit">开启 CPU JIT</string>
     <string name="setting_region_value">模拟地区</string>
 
     <string name="show_fps">显示帧率</string>
