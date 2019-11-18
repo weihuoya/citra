@@ -174,13 +174,13 @@ JNIEnv* GetEnvForThread() {
 }
 
 // jni for cubeb
-// JNIEnv* cubeb_get_jni_env_for_thread() {
-//    return GetEnvForThread();
-// }
+JNIEnv* cubeb_get_jni_env_for_thread() {
+    return GetEnvForThread();
+}
 
-// jobject cubeb_jni_get_context_instance() {
-//    return GetEmulationContext();
-// }
+jobject cubeb_jni_get_context_instance() {
+    return GetEmulationContext();
+}
 
 #ifdef __cplusplus
 extern "C" {
