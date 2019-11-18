@@ -111,7 +111,7 @@ void Timing::ForceExceptionCheck(s64 cycles) {
 void Timing::MoveEvents() {
     for (Event ev; ts_queue.Pop(ev);) {
         ev.fifo_order = event_fifo_id++;
-        event_queue.emplace_back(std::move(ev));
+        event_queue.emplace_back(ev);
         std::push_heap(event_queue.begin(), event_queue.end(), std::greater<>());
     }
 }
@@ -126,7 +126,7 @@ void Timing::Advance() {
     is_global_timer_sane = true;
 
     while (!event_queue.empty() && event_queue.front().time <= global_timer) {
-        Event evt = std::move(event_queue.front());
+        Event evt = event_queue.front();
         std::pop_heap(event_queue.begin(), event_queue.end(), std::greater<>());
         event_queue.pop_back();
         evt.type->callback(evt.userdata, global_timer - evt.time);

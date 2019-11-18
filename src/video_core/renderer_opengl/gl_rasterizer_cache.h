@@ -409,6 +409,7 @@ struct CachedSurface : SurfaceParams, std::enable_shared_from_this<CachedSurface
 
 private:
     std::list<std::weak_ptr<SurfaceWatcher>> watchers;
+    OGLBuffer upload_pbo;
 };
 
 struct CachedTextureCube {

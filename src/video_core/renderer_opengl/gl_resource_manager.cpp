@@ -29,7 +29,7 @@ void OGLTexture::Release() {
 
     MICROPROFILE_SCOPE(OpenGL_ResourceDeletion);
     glDeleteTextures(1, &handle);
-    OpenGLState::GetCurState().ResetTexture(handle).Apply();
+    OpenGLState::ResetTexture(handle);
     handle = 0;
 }
 
@@ -47,7 +47,7 @@ void OGLSampler::Release() {
 
     MICROPROFILE_SCOPE(OpenGL_ResourceDeletion);
     glDeleteSamplers(1, &handle);
-    OpenGLState::GetCurState().ResetSampler(handle).Apply();
+    OpenGLState::ResetSampler(handle);
     handle = 0;
 }
 
@@ -93,7 +93,7 @@ void OGLProgram::Release() {
 
     MICROPROFILE_SCOPE(OpenGL_ResourceDeletion);
     glDeleteProgram(handle);
-    OpenGLState::GetCurState().ResetProgram(handle).Apply();
+    OpenGLState::ResetProgram(handle);
     handle = 0;
 }
 
@@ -111,7 +111,7 @@ void OGLPipeline::Release() {
 
     MICROPROFILE_SCOPE(OpenGL_ResourceDeletion);
     glDeleteProgramPipelines(1, &handle);
-    OpenGLState::GetCurState().ResetPipeline(handle).Apply();
+    OpenGLState::ResetPipeline(handle);
     handle = 0;
 }
 
@@ -129,7 +129,7 @@ void OGLBuffer::Release() {
 
     MICROPROFILE_SCOPE(OpenGL_ResourceDeletion);
     glDeleteBuffers(1, &handle);
-    OpenGLState::GetCurState().ResetBuffer(handle).Apply();
+    OpenGLState::ResetBuffer(handle);
     handle = 0;
 }
 
@@ -147,7 +147,7 @@ void OGLVertexArray::Release() {
 
     MICROPROFILE_SCOPE(OpenGL_ResourceDeletion);
     glDeleteVertexArrays(1, &handle);
-    OpenGLState::GetCurState().ResetVertexArray(handle).Apply();
+    OpenGLState::ResetVertexArray(handle);
     handle = 0;
 }
 
@@ -165,7 +165,7 @@ void OGLFramebuffer::Release() {
 
     MICROPROFILE_SCOPE(OpenGL_ResourceDeletion);
     glDeleteFramebuffers(1, &handle);
-    OpenGLState::GetCurState().ResetFramebuffer(handle).Apply();
+    OpenGLState::ResetFramebuffer(handle);
     handle = 0;
 }
 
