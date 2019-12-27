@@ -72,10 +72,11 @@ std::tuple<u8*, GLintptr, bool> OGLStreamBuffer::Map(GLsizeiptr size, GLintptr a
     bool invalidate = false;
     if (buffer_pos + size > buffer_size) {
         buffer_pos = 0;
-        invalidate = true;
-
-        if (persistent) {
-            glUnmapBuffer(gl_target);
+        if (gl_target == GL_TEXTURE_BUFFER) {
+            invalidate = true;
+            if (persistent) {
+                glUnmapBuffer(gl_target);
+            }
         }
     }
 

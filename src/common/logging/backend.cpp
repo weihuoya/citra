@@ -11,6 +11,8 @@
 #include <regex>
 #include <thread>
 #include <vector>
+#include <android/log.h>
+
 #ifdef _WIN32
 #include <share.h>   // For _SH_DENYWR
 #include <windows.h> // For OutputDebugStringW
@@ -297,12 +299,13 @@ Backend* GetBackend(std::string_view backend_name) {
 void FmtLogMessageImpl(Class log_class, Level log_level, const char* filename,
                        unsigned int line_num, const char* function, const char* format,
                        const fmt::format_args& args) {
-    auto& instance = Impl::Instance();
-    const auto& filter = instance.GetGlobalFilter();
-    if (!filter.CheckMessage(log_class, log_level))
-        return;
+    // auto& instance = Impl::Instance();
+    // const auto& filter = instance.GetGlobalFilter();
+    // if (!filter.CheckMessage(log_class, log_level))
+    //    return;
 
-    instance.PushEntry(log_class, log_level, filename, line_num, function,
-                       fmt::vformat(format, args));
+    __android_log_print(ANDROID_LOG_INFO, "citra", "%s", fmt::vformat(format, args).c_str());
+    // instance.PushEntry(log_class, log_level, filename, line_num, function,
+    //                   fmt::vformat(format, args));
 }
 } // namespace Log

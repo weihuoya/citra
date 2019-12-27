@@ -628,19 +628,19 @@ void GSP_GPU::TriggerCmdReqQueue(Kernel::HLERequestContext& ctx) {
     IPC::RequestParser rp(ctx, 0xC, 0, 0);
 
     // Iterate through each thread's command queue...
-    for (unsigned thread_id = 0; thread_id < 0x4; ++thread_id) {
+    for (unsigned thread_id = 0; thread_id < MaxGSPThreads; ++thread_id) {
         CommandBuffer* command_buffer = (CommandBuffer*)GetCommandBuffer(shared_memory, thread_id);
 
         // Iterate through each command...
         for (unsigned i = 0; i < command_buffer->number_commands; ++i) {
+#ifdef DEBUG_CONTEXT
             g_debugger.GXCommandProcessed((u8*)&command_buffer->commands[i]);
-
+#endif
             // Decode and execute command
             ExecuteCommand(command_buffer->commands[i], thread_id);
-
-            // Indicates that command has completed
-            command_buffer->number_commands.Assign(command_buffer->number_commands - 1);
         }
+        // Indicates that command has completed
+        command_buffer->number_commands.Assign(0);
     }
 
     IPC::RequestBuilder rb = rp.MakeBuilder(1, 0);
