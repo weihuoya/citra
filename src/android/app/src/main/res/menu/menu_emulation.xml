@@ -1,0 +1,18 @@
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+      xmlns:tools="http://schemas.android.com/tools"
+      xmlns:app="http://schemas.android.com/apk/res-auto"
+      tools:context="org.dolphinemu.dolphinemu.activities.EmulationActivity">
+
+    <item
+        android:id="@+id/menu_running_setting"
+        app:showAsAction="ifRoom"
+        android:icon="@mipmap/ic_settings_core"
+        android:title="@string/preferences_settings"/>
+
+    <item
+        android:id="@+id/menu_emulation_edit_layout"
+        app:showAsAction="ifRoom"
+        android:icon="@mipmap/ic_settings_gcpad"
+        android:title="@string/emulation_edit_layout"/>
+
+</menu>

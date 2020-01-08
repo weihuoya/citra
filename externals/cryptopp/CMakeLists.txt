@@ -64,6 +64,9 @@ endif()
 if(CRYPTOPP_DISABLE_AESNI)
     add_definitions(-DCRYPTOPP_DISABLE_AESNI)
 endif()
+if(ARCHITECTURE_ARM64)
+    add_definitions(-DCRYPTOPP_ARM_NEON_HEADER)
+endif()
 
 # We need the output 'uname -s' for Unix and Linux system detection
 if (NOT CRYPTOPP_CROSS_COMPILE)
