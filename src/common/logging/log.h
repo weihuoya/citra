@@ -145,3 +145,19 @@ void FmtLogMessage(Class log_class, Level log_level, const char* filename, unsig
 #define LOG_CRITICAL(log_class, ...)                                                               \
     ::Log::FmtLogMessage(::Log::Class::log_class, ::Log::Level::Critical, __FILE__, __LINE__,      \
                          __func__, __VA_ARGS__)
+
+#ifdef ANDROID
+#undef LOG_GENERIC
+#undef LOG_DEBUG
+#undef LOG_INFO
+#undef LOG_WARNING
+#undef LOG_ERROR
+#undef LOG_CRITICAL
+
+#define LOG_GENERIC(...) (void(0))
+#define LOG_DEBUG(...) (void(0))
+#define LOG_INFO(...) (void(0))
+#define LOG_WARNING(...) (void(0))
+#define LOG_ERROR(...) (void(0))
+#define LOG_CRITICAL(...) (void(0))
+#endif
