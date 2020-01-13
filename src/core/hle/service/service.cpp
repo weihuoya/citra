@@ -192,7 +192,8 @@ std::string ServiceFrameworkBase::GetFunctionName(u32 header) const {
 // Module interface
 
 static bool AttemptLLE(const ServiceModuleInfo& service_module) {
-    if (!Settings::values.lle_modules.at(service_module.name))
+    const auto& iter = Settings::values.lle_modules.find(service_module.name);
+    if (iter == Settings::values.lle_modules.end() || !iter->second)
         return false;
     std::unique_ptr<Loader::AppLoader> loader =
         Loader::GetLoader(AM::GetTitleContentPath(FS::MediaType::NAND, service_module.title_id));

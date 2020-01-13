@@ -111,6 +111,10 @@ public:
     void Release();
 
     GLuint handle = 0;
+
+    /// binary program
+    void Create(GLenum format, const std::vector<GLbyte>& binary);
+    void GetProgramBinary(GLenum& format, std::vector<GLbyte>& binary);
 };
 
 class OGLPipeline : private NonCopyable {

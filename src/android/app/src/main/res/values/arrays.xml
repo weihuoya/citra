@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<!-- All lists for ListPreference keys/values are placed here -->
+<resources>
+
+    <!-- Layout Options Preference -->
+    <string-array name="layoutOptionEntries" translatable="false">
+        <item>@string/default_value</item>
+        <item>@string/single_screen</item>
+        <item>@string/large_screen</item>
+        <item>@string/side_screen</item>
+    </string-array>
+    <integer-array name="layoutOptionValues" translatable="false">
+        <item>0</item>
+        <item>1</item>
+        <item>2</item>
+        <item>3</item>
+    </integer-array>
+
+    <!-- Internal Resolution Preference -->
+    <string-array name="internalResolutionEntries" translatable="false">
+        <item>1x (400x240)</item>
+        <item>2x (800x480)</item>
+        <item>3x (1200x720)</item>
+        <item>4x (1600x960)</item>
+    </string-array>
+    <integer-array name="internalResolutionValues" translatable="false">
+        <item>1</item>
+        <item>2</item>
+        <item>3</item>
+        <item>4</item>
+    </integer-array>
+
+    <!-- system region Preference -->
+    <string-array name="systemRegionEntries" translatable="false">
+        <item>@string/auto</item>
+        <item>@string/region_japan</item>
+        <item>@string/region_north_america</item>
+        <item>@string/region_europe</item>
+        <item>@string/region_australia</item>
+        <item>@string/region_china</item>
+        <item>@string/region_korea</item>
+        <item>@string/region_taiwan</item>
+    </string-array>
+    <integer-array name="systemRegionValues" translatable="false">
+        <item>-1</item>
+        <item>0</item>
+        <item>1</item>
+        <item>2</item>
+        <item>3</item>
+        <item>4</item>
+        <item>5</item>
+        <item>6</item>
+    </integer-array>
+
+    <!-- Audio Output Preference -->
+    <string-array name="audioOuputEntries">
+        <item>@string/off</item>
+        <item>@string/auto</item>
+        <item>Oboe</item>
+        <item>Cubeb</item>
+    </string-array>
+    <string-array name="audioOuputValues">
+        <item>null</item>
+        <item>auto</item>
+        <item>oboe</item>
+        <item>cubeb</item>
+    </string-array>
+
+    <!-- Mic Input Preference -->
+    <string-array name="micInputEntries">
+        <item>@string/off</item>
+        <item>@string/real_device</item>
+        <item>@string/static_noise</item>
+    </string-array>
+    <integer-array name="micInputValues">
+        <item>0</item>
+        <item>1</item>
+        <item>2</item>
+    </integer-array>
+
+</resources>

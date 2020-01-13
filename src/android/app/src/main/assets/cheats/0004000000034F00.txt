@@ -1,0 +1,7 @@
+* Dead or Alive: Dimensions - USA
+
+[30 FPS]
+00717744 00000002
+
+[60 FPS]
+00717744 00000001

@@ -1,0 +1,7 @@
+* Resident Evil: The Mercenaries 3D
+
+[30 FPS v1.0]
+18D0AB42 000041F0
+
+[60 FPS v1.0]
+18D0AB42 00004270
