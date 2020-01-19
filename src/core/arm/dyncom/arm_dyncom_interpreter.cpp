@@ -23,6 +23,7 @@
 #include "core/gdbstub/gdbstub.h"
 #include "core/hle/kernel/svc.h"
 #include "core/memory.h"
+#include "core/settings.h"
 
 #define RM BITS(sht_oper, 0, 3)
 #define RS BITS(sht_oper, 8, 11)
@@ -3865,6 +3866,7 @@ SWI_INST : {
     if (inst_base->cond == ConditionCode::AL || CondPassed(cpu, inst_base->cond)) {
         DEBUG_ASSERT(cpu->system != nullptr);
         swi_inst* const inst_cream = (swi_inst*)inst_base->component;
+        num_instrs = std::max(num_instrs, Settings::values.core_ticks_hack);
         cpu->system->CoreTiming().AddTicks(num_instrs);
         cpu->NumInstrsToExecute =
             num_instrs >= cpu->NumInstrsToExecute ? 0 : cpu->NumInstrsToExecute - num_instrs;

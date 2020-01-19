@@ -39,7 +39,7 @@ namespace OpenGL {
 
 class RasterizerOpenGL : public VideoCore::RasterizerInterface {
 public:
-    explicit RasterizerOpenGL(Frontend::EmuWindow& renderer);
+    RasterizerOpenGL();
     ~RasterizerOpenGL() override;
 
     void AddTriangle(const Pica::Shader::OutputVertex& v0, const Pica::Shader::OutputVertex& v1,
@@ -56,6 +56,7 @@ public:
     bool AccelerateDisplay(const GPU::Regs::FramebufferConfig& config, PAddr framebuffer_addr,
                            u32 pixel_stride, ScreenInfo& screen_info) override;
     bool AccelerateDrawBatch(bool is_indexed) override;
+    void CheckForConfigChanges() override;
 
 private:
     struct SamplerInfo {
@@ -261,11 +262,8 @@ private:
     bool is_amd;
 
     OpenGLState state;
-    GLuint default_texture;
 
     RasterizerCacheOpenGL res_cache;
-
-    Frontend::EmuWindow& emu_window;
 
     std::vector<HardwareVertex> vertex_batch;
 
@@ -288,8 +286,8 @@ private:
 
     // They shall be big enough for about one frame.
     static constexpr std::size_t VERTEX_BUFFER_SIZE = 16 * 1024 * 1024;
-    static constexpr std::size_t INDEX_BUFFER_SIZE = 1 * 1024 * 1024;
-    static constexpr std::size_t UNIFORM_BUFFER_SIZE = 2 * 1024 * 1024;
+    static constexpr std::size_t INDEX_BUFFER_SIZE = 4 * 1024 * 1024;
+    static constexpr std::size_t UNIFORM_BUFFER_SIZE = 4 * 1024 * 1024;
     static constexpr std::size_t TEXTURE_BUFFER_SIZE = 1 * 1024 * 1024;
 
     OGLVertexArray sw_vao; // VAO for software shader draw
@@ -308,6 +306,7 @@ private:
 
     SamplerInfo texture_cube_sampler;
 
+    OGLTexture texture_null;
     OGLTexture texture_buffer_lut_rg;
     OGLTexture texture_buffer_lut_rgba;
 
@@ -318,8 +317,6 @@ private:
     std::array<GLvec2, 128> proctex_alpha_map_data{};
     std::array<GLvec4, 256> proctex_lut_data{};
     std::array<GLvec4, 256> proctex_diff_lut_data{};
-
-    bool allow_shadow;
 };
 
 } // namespace OpenGL

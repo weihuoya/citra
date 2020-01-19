@@ -58,6 +58,7 @@ add_library(common STATIC
     common_types.h
     file_util.cpp
     file_util.h
+    hash.cpp
     hash.h
     linear_disk_cache.h
     logging/backend.cpp
@@ -100,7 +101,6 @@ if(ARCHITECTURE_x86_64)
     target_sources(common
         PRIVATE
             x64/cpu_detect.cpp
-
             x64/cpu_detect.h
             x64/xbyak_abi.h
             x64/xbyak_util.h

@@ -71,5 +71,8 @@ public:
     virtual bool AccelerateDrawBatch(bool is_indexed) {
         return false;
     }
+
+    /// Handle any config changes, this gets propogated to the backend
+    virtual void CheckForConfigChanges() {}
 };
 } // namespace VideoCore

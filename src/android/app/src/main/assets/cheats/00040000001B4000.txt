@@ -1,0 +1,7 @@
+* Fire Emblem Echoes: Shadows of Valentia - USA
+
+[30 FPS]
+005C84D8 00000000
+
+[60 FPS]
+005C84D8 00000001

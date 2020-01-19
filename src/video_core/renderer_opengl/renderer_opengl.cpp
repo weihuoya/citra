@@ -12,7 +12,6 @@
 #include "common/logging/log.h"
 #include "core/core.h"
 #include "core/core_timing.h"
-#include "core/dumping/backend.h"
 #include "core/frontend/emu_window.h"
 #include "core/frontend/framebuffer_layout.h"
 #include "core/hw/gpu.h"
@@ -23,8 +22,9 @@
 #include "core/tracer/recorder.h"
 #include "video_core/debug_utils/debug_utils.h"
 #include "video_core/rasterizer_interface.h"
+#include "video_core/renderer_opengl/gl_state.h"
 #include "video_core/renderer_opengl/gl_vars.h"
-#include "video_core/renderer_opengl/post_processing_opengl.h"
+#include "video_core/renderer_opengl/on_screen_display.h"
 #include "video_core/renderer_opengl/renderer_opengl.h"
 #include "video_core/video_core.h"
 
@@ -55,10 +55,6 @@ static const char fragment_shader[] = R"(
 in vec2 frag_tex_coord;
 out vec4 color;
 
-uniform vec4 i_resolution;
-uniform vec4 o_resolution;
-uniform int layer;
-
 uniform sampler2D color_texture;
 
 void main() {
@@ -66,34 +62,30 @@ void main() {
 }
 )";
 
-static const char fragment_shader_anaglyph[] = R"(
+static const char post_processing_header[] = R"(
+// hlsl to glsl types
+#define float2 vec2
+#define float3 vec3
+#define float4 vec4
+#define uint2 uvec2
+#define uint3 uvec3
+#define uint4 uvec4
+#define int2 ivec2
+#define int3 ivec3
+#define int4 ivec4
 
-// Anaglyph Red-Cyan shader based on Dubois algorithm
-// Constants taken from the paper:
-// "Conversion of a Stereo Pair to Anaglyph with
-// the Least-Squares Projection Method"
-// Eric Dubois, March 2009
-const mat3 l = mat3( 0.437, 0.449, 0.164,
-              -0.062,-0.062,-0.024,
-              -0.048,-0.050,-0.017);
-const mat3 r = mat3(-0.011,-0.032,-0.007,
-               0.377, 0.761, 0.009,
-              -0.026,-0.093, 1.234);
+in float2 frag_tex_coord;
+out float4 output_color;
 
-in vec2 frag_tex_coord;
-out vec4 color;
-
-uniform vec4 resolution;
-uniform int layer;
-
+uniform float4 resolution;
 uniform sampler2D color_texture;
-uniform sampler2D color_texture_r;
 
-void main() {
-    vec4 color_tex_l = texture(color_texture, frag_tex_coord);
-    vec4 color_tex_r = texture(color_texture_r, frag_tex_coord);
-    color = vec4(color_tex_l.rgb*l+color_tex_r.rgb*r, color_tex_l.a);
-}
+float4 Sample() { return texture(color_texture, frag_tex_coord); }
+float4 SampleLocation(float2 location) { return texture(color_texture, location); }
+float2 GetResolution() { return resolution.xy; }
+float2 GetInvResolution() { return resolution.zw; }
+float2 GetCoordinates() { return frag_tex_coord; }
+void SetOutput(float4 color) { output_color = color; }
 )";
 
 /**
@@ -110,6 +102,16 @@ struct ScreenRectVertex {
     GLfloat position[2];
     GLfloat tex_coord[2];
 };
+
+// Indirect Command
+typedef struct {
+    uint count;        // Specifies the number of indices to be rendered.
+    uint primCount;    // Specifies the number of instances of the specified range of indices to be
+                       // rendered.
+    uint first;        // Specifies the starting index in the enabled arrays.
+    uint baseInstance; // Specifies the base instance for use in fetching instanced vertex
+                       // attributes.
+} DrawArraysIndirectCommand;
 
 /**
  * Defines a 1:1 pixel ortographic projection matrix with (0,0) on the top-left
@@ -135,8 +137,13 @@ RendererOpenGL::~RendererOpenGL() = default;
 
 /// Swap buffers (render frame)
 void RendererOpenGL::SwapBuffers() {
+    const Layout::FramebufferLayout& layout = render_window.GetFramebufferLayout();
     // Maintain the rasterizer's state as a priority
     OpenGLState prev_state = OpenGLState::GetCurState();
+    state.viewport.x = 0;
+    state.viewport.y = 0;
+    state.viewport.width = layout.width;
+    state.viewport.height = layout.height;
     state.Apply();
 
     for (int i : {0, 1, 2}) {
@@ -174,72 +181,13 @@ void RendererOpenGL::SwapBuffers() {
         }
     }
 
-    if (VideoCore::g_renderer_screenshot_requested) {
-        // Draw this frame to the screenshot framebuffer
-        screenshot_framebuffer.Create();
-        GLuint old_read_fb = state.draw.read_framebuffer;
-        GLuint old_draw_fb = state.draw.draw_framebuffer;
-        state.draw.read_framebuffer = state.draw.draw_framebuffer = screenshot_framebuffer.handle;
-        state.Apply();
-
-        Layout::FramebufferLayout layout{VideoCore::g_screenshot_framebuffer_layout};
-
-        GLuint renderbuffer;
-        glGenRenderbuffers(1, &renderbuffer);
-        glBindRenderbuffer(GL_RENDERBUFFER, renderbuffer);
-        glRenderbufferStorage(GL_RENDERBUFFER, GL_RGB8, layout.width, layout.height);
-        glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_RENDERBUFFER,
-                                  renderbuffer);
-
-        DrawScreens(layout);
-
-        glReadPixels(0, 0, layout.width, layout.height, GL_BGRA, GL_UNSIGNED_INT_8_8_8_8_REV,
-                     VideoCore::g_screenshot_bits);
-
-        screenshot_framebuffer.Release();
-        state.draw.read_framebuffer = old_read_fb;
-        state.draw.draw_framebuffer = old_draw_fb;
-        state.Apply();
-        glDeleteRenderbuffers(1, &renderbuffer);
-
-        VideoCore::g_screenshot_complete_callback();
-        VideoCore::g_renderer_screenshot_requested = false;
-    }
-
-    if (cleanup_video_dumping.exchange(false)) {
-        ReleaseVideoDumpingGLObjects();
-    }
-
-    if (Core::System::GetInstance().VideoDumper().IsDumping()) {
-        if (prepare_video_dumping.exchange(false)) {
-            InitVideoDumpingGLObjects();
-        }
-
-        const auto& layout = Core::System::GetInstance().VideoDumper().GetLayout();
-        glBindFramebuffer(GL_READ_FRAMEBUFFER, frame_dumping_framebuffer.handle);
-        glBindFramebuffer(GL_DRAW_FRAMEBUFFER, frame_dumping_framebuffer.handle);
-        DrawScreens(layout);
-
-        glBindBuffer(GL_PIXEL_PACK_BUFFER, frame_dumping_pbos[current_pbo].handle);
-        glReadPixels(0, 0, layout.width, layout.height, GL_BGRA, GL_UNSIGNED_INT_8_8_8_8_REV, 0);
-        glBindBuffer(GL_PIXEL_PACK_BUFFER, frame_dumping_pbos[next_pbo].handle);
-
-        GLubyte* pixels = static_cast<GLubyte*>(glMapBuffer(GL_PIXEL_PACK_BUFFER, GL_READ_ONLY));
-        VideoDumper::VideoFrame frame_data{layout.width, layout.height, pixels};
-        Core::System::GetInstance().VideoDumper().AddVideoFrame(frame_data);
-
-        glUnmapBuffer(GL_PIXEL_PACK_BUFFER);
-        glBindBuffer(GL_PIXEL_PACK_BUFFER, 0);
-        glBindFramebuffer(GL_READ_FRAMEBUFFER, 0);
-        glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
-        current_pbo = (current_pbo + 1) % 2;
-        next_pbo = (current_pbo + 1) % 2;
-    }
-
-    DrawScreens(render_window.GetFramebufferLayout());
+    DrawScreens(layout);
     m_current_frame++;
 
     Core::System::GetInstance().perf_stats->EndSystemFrame();
+
+    // draw on screen display
+    OSD::DrawMessage(render_window.GetFramebufferLayout());
 
     // Swap buffers
     render_window.PollEvents();
@@ -251,10 +199,11 @@ void RendererOpenGL::SwapBuffers() {
 
     prev_state.Apply();
     RefreshRasterizerSetting();
-
+#ifdef DEBUG_CONTEXT
     if (Pica::g_debug_context && Pica::g_debug_context->recorder) {
         Pica::g_debug_context->recorder->FrameFinished();
     }
+#endif
 }
 
 /**
@@ -295,10 +244,8 @@ void RendererOpenGL::LoadFBToScreenInfo(const GPU::Regs::FramebufferConfig& fram
 
         const u8* framebuffer_data = VideoCore::g_memory->GetPhysicalPointer(framebuffer_addr);
 
-        state.texture_units[0].texture_2d = screen_info.texture.resource.handle;
-        state.Apply();
+        GLuint old_tex = OpenGLState::BindTexture2D(0, screen_info.texture.resource.handle);
 
-        glActiveTexture(GL_TEXTURE0);
         glPixelStorei(GL_UNPACK_ROW_LENGTH, (GLint)pixel_stride);
 
         // Update existing texture
@@ -306,14 +253,28 @@ void RendererOpenGL::LoadFBToScreenInfo(const GPU::Regs::FramebufferConfig& fram
         //       they differ from the LCD resolution.
         // TODO: Applications could theoretically crash Citra here by specifying too large
         //       framebuffer sizes. We should make sure that this cannot happen.
-        glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, framebuffer.width, framebuffer.height,
-                        screen_info.texture.gl_format, screen_info.texture.gl_type,
-                        framebuffer_data);
+        if (GLES) {
+            u32 bytes_per_pixel = screen_info.texture.gl_format == GL_RGB ? 3 : 4;
+            std::vector<u8> pixels(framebuffer.width * framebuffer.height * 4);
+            u32 offsets[] = {2, 1, 0, 3};
+            for (u32 i = 0; i < framebuffer.width * framebuffer.height * bytes_per_pixel;
+                 i += bytes_per_pixel) {
+                for (u32 j = 0; j < bytes_per_pixel; ++j) {
+                    pixels[i + j] = framebuffer_data[i + offsets[j]];
+                }
+            }
+            glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, framebuffer.width, framebuffer.height,
+                            screen_info.texture.gl_format, screen_info.texture.gl_type,
+                            pixels.data());
+        } else {
+            glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, framebuffer.width, framebuffer.height,
+                            screen_info.texture.gl_format, screen_info.texture.gl_type,
+                            framebuffer_data);
+        }
 
         glPixelStorei(GL_UNPACK_ROW_LENGTH, 0);
 
-        state.texture_units[0].texture_2d = 0;
-        state.Apply();
+        OpenGLState::BindTexture2D(0, old_tex);
     }
 }
 
@@ -323,17 +284,13 @@ void RendererOpenGL::LoadFBToScreenInfo(const GPU::Regs::FramebufferConfig& fram
  */
 void RendererOpenGL::LoadColorToActiveGLTexture(u8 color_r, u8 color_g, u8 color_b,
                                                 const TextureInfo& texture) {
-    state.texture_units[0].texture_2d = texture.resource.handle;
-    state.Apply();
-
-    glActiveTexture(GL_TEXTURE0);
+    GLuint old_tex = OpenGLState::BindTexture2D(0, texture.resource.handle);
     u8 framebuffer_data[3] = {color_r, color_g, color_b};
 
     // Update existing texture
     glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, 1, 1, 0, GL_RGB, GL_UNSIGNED_BYTE, framebuffer_data);
 
-    state.texture_units[0].texture_2d = 0;
-    state.Apply();
+    OpenGLState::BindTexture2D(0, old_tex);
 }
 
 /**
@@ -343,21 +300,52 @@ void RendererOpenGL::InitOpenGLObjects() {
     glClearColor(Settings::values.bg_red, Settings::values.bg_green, Settings::values.bg_blue,
                  0.0f);
 
-    filter_sampler.Create();
-    ReloadSampler();
-
-    ReloadShader();
-
     // Generate VBO handle for drawing
     vertex_buffer.Create();
 
     // Generate VAO
     vertex_array.Create();
 
+    // Generate Indirect Buffer
+    indirect_buffer.Create();
+    DrawArraysIndirectCommand command{4, 1, 0, 0};
+    glBindBuffer(GL_DRAW_INDIRECT_BUFFER, indirect_buffer.handle);
+    glBufferData(GL_DRAW_INDIRECT_BUFFER, sizeof(command), &command, GL_STREAM_DRAW);
+
+    // Link shaders and get variable locations
+    std::string frag_source;
+    if (GLES) {
+        frag_source += fragment_shader_precision_OES;
+    }
+    if (!Settings::values.pp_shader_name.empty()) {
+        std::string pp_shader = FileUtil::GetUserPath(FileUtil::UserPath::ShaderDir) +
+                                Settings::values.pp_shader_name + ".glsl";
+        std::size_t size = FileUtil::ReadFileToString(true, pp_shader, pp_shader);
+        if (size > 0 && size == pp_shader.size()) {
+            frag_source += post_processing_header;
+            frag_source += pp_shader;
+        } else {
+            frag_source += fragment_shader;
+        }
+    } else {
+        frag_source += fragment_shader;
+    }
+    shader.Create(vertex_shader, frag_source.data());
+
+    // apply
+    state.draw.shader_program = shader.handle;
     state.draw.vertex_array = vertex_array.handle;
     state.draw.vertex_buffer = vertex_buffer.handle;
-    state.draw.uniform_buffer = 0;
     state.Apply();
+
+    uniform_modelview_matrix = glGetUniformLocation(shader.handle, "modelview_matrix");
+    uniform_color_texture = glGetUniformLocation(shader.handle, "color_texture");
+    uniform_resolution = glGetUniformLocation(shader.handle, "resolution");
+    attrib_position = glGetAttribLocation(shader.handle, "vert_position");
+    attrib_tex_coord = glGetAttribLocation(shader.handle, "vert_tex_coord");
+
+    // Bind texture in Texture Unit 0
+    glUniform1i(uniform_color_texture, 0);
 
     // Attach vertex data to VAO
     glBufferData(GL_ARRAY_BUFFER, sizeof(ScreenRectVertex) * 4, nullptr, GL_STREAM_DRAW);
@@ -375,10 +363,8 @@ void RendererOpenGL::InitOpenGLObjects() {
         // Allocation of storage is deferred until the first frame, when we
         // know the framebuffer size.
 
-        state.texture_units[0].texture_2d = screen_info.texture.resource.handle;
-        state.Apply();
+        OpenGLState::BindTexture2D(0, screen_info.texture.resource.handle);
 
-        glActiveTexture(GL_TEXTURE0);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAX_LEVEL, 0);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
@@ -388,65 +374,10 @@ void RendererOpenGL::InitOpenGLObjects() {
         screen_info.display_texture = screen_info.texture.resource.handle;
     }
 
-    state.texture_units[0].texture_2d = 0;
-    state.Apply();
-}
+    // init
+    OSD::Initialize();
 
-void RendererOpenGL::ReloadSampler() {
-    glSamplerParameteri(filter_sampler.handle, GL_TEXTURE_MIN_FILTER,
-                        Settings::values.filter_mode ? GL_LINEAR : GL_NEAREST);
-    glSamplerParameteri(filter_sampler.handle, GL_TEXTURE_MAG_FILTER,
-                        Settings::values.filter_mode ? GL_LINEAR : GL_NEAREST);
-    glSamplerParameteri(filter_sampler.handle, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-    glSamplerParameteri(filter_sampler.handle, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-}
-
-void RendererOpenGL::ReloadShader() {
-    // Link shaders and get variable locations
-    std::string shader_data;
-    if (GLES) {
-        shader_data += fragment_shader_precision_OES;
-    }
-    if (Settings::values.render_3d == Settings::StereoRenderOption::Anaglyph) {
-        if (Settings::values.pp_shader_name == "dubois (builtin)") {
-            shader_data += fragment_shader_anaglyph;
-        } else {
-            std::string shader_text =
-                OpenGL::GetPostProcessingShaderCode(true, Settings::values.pp_shader_name);
-            if (shader_text.empty()) {
-                // Should probably provide some information that the shader couldn't load
-                shader_data += fragment_shader_anaglyph;
-            } else {
-                shader_data += shader_text;
-            }
-        }
-    } else {
-        if (Settings::values.pp_shader_name == "none (builtin)") {
-            shader_data += fragment_shader;
-        } else {
-            std::string shader_text =
-                OpenGL::GetPostProcessingShaderCode(false, Settings::values.pp_shader_name);
-            if (shader_text.empty()) {
-                // Should probably provide some information that the shader couldn't load
-                shader_data += fragment_shader;
-            } else {
-                shader_data += shader_text;
-            }
-        }
-    }
-    shader.Create(vertex_shader, shader_data.c_str());
-    state.draw.shader_program = shader.handle;
-    state.Apply();
-    uniform_modelview_matrix = glGetUniformLocation(shader.handle, "modelview_matrix");
-    uniform_color_texture = glGetUniformLocation(shader.handle, "color_texture");
-    if (Settings::values.render_3d == Settings::StereoRenderOption::Anaglyph) {
-        uniform_color_texture_r = glGetUniformLocation(shader.handle, "color_texture_r");
-    }
-    uniform_i_resolution = glGetUniformLocation(shader.handle, "i_resolution");
-    uniform_o_resolution = glGetUniformLocation(shader.handle, "o_resolution");
-    uniform_layer = glGetUniformLocation(shader.handle, "layer");
-    attrib_position = glGetAttribLocation(shader.handle, "vert_position");
-    attrib_tex_coord = glGetAttribLocation(shader.handle, "vert_tex_coord");
+    OpenGLState::BindTexture2D(0, 0);
 }
 
 void RendererOpenGL::ConfigureFramebufferTexture(TextureInfo& texture,
@@ -499,15 +430,12 @@ void RendererOpenGL::ConfigureFramebufferTexture(TextureInfo& texture,
         UNIMPLEMENTED();
     }
 
-    state.texture_units[0].texture_2d = texture.resource.handle;
-    state.Apply();
+    GLuint old_tex = OpenGLState::BindTexture2D(0, texture.resource.handle);
 
-    glActiveTexture(GL_TEXTURE0);
     glTexImage2D(GL_TEXTURE_2D, 0, internal_format, texture.width, texture.height, 0,
                  texture.gl_format, texture.gl_type, nullptr);
 
-    state.texture_units[0].texture_2d = 0;
-    state.Apply();
+    OpenGLState::BindTexture2D(0, old_tex);
 }
 
 /**
@@ -520,68 +448,19 @@ void RendererOpenGL::DrawSingleScreenRotated(const ScreenInfo& screen_info, floa
 
     const std::array<ScreenRectVertex, 4> vertices = {{
         ScreenRectVertex(x, y, texcoords.bottom, texcoords.left),
-        ScreenRectVertex(x + w, y, texcoords.bottom, texcoords.right),
         ScreenRectVertex(x, y + h, texcoords.top, texcoords.left),
+        ScreenRectVertex(x + w, y, texcoords.bottom, texcoords.right),
         ScreenRectVertex(x + w, y + h, texcoords.top, texcoords.right),
     }};
 
-    // As this is the "DrawSingleScreenRotated" function, the output resolution dimensions have been
-    // swapped. If a non-rotated draw-screen function were to be added for book-mode games, those
-    // should probably be set to the standard (w, h, 1.0 / w, 1.0 / h) ordering.
-    u16 scale_factor = VideoCore::GetResolutionScaleFactor();
-    glUniform4f(uniform_i_resolution, screen_info.texture.width * scale_factor,
-                screen_info.texture.height * scale_factor,
-                1.0 / (screen_info.texture.width * scale_factor),
-                1.0 / (screen_info.texture.height * scale_factor));
-    glUniform4f(uniform_o_resolution, h, w, 1.0f / h, 1.0f / w);
-    state.texture_units[0].texture_2d = screen_info.display_texture;
-    state.texture_units[0].sampler = filter_sampler.handle;
-    state.Apply();
+    OpenGLState::BindTexture2D(0, screen_info.display_texture);
+
+    float src_width = screen_info.texture.width;
+    float src_height = screen_info.texture.height;
+    glUniform4f(uniform_resolution, src_width, src_height, 1.0F / src_width, 1.0F / src_height);
 
     glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(vertices), vertices.data());
-    glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
-
-    state.texture_units[0].texture_2d = 0;
-    state.texture_units[0].sampler = 0;
-    state.Apply();
-}
-
-/**
- * Draws a single texture to the emulator window, rotating the texture to correct for the 3DS's LCD
- * rotation.
- */
-void RendererOpenGL::DrawSingleScreenAnaglyphRotated(const ScreenInfo& screen_info_l,
-                                                     const ScreenInfo& screen_info_r, float x,
-                                                     float y, float w, float h) {
-    const auto& texcoords = screen_info_l.display_texcoords;
-
-    const std::array<ScreenRectVertex, 4> vertices = {{
-        ScreenRectVertex(x, y, texcoords.bottom, texcoords.left),
-        ScreenRectVertex(x + w, y, texcoords.bottom, texcoords.right),
-        ScreenRectVertex(x, y + h, texcoords.top, texcoords.left),
-        ScreenRectVertex(x + w, y + h, texcoords.top, texcoords.right),
-    }};
-
-    u16 scale_factor = VideoCore::GetResolutionScaleFactor();
-    glUniform4f(uniform_i_resolution, screen_info_l.texture.width * scale_factor,
-                screen_info_l.texture.height * scale_factor,
-                1.0 / (screen_info_l.texture.width * scale_factor),
-                1.0 / (screen_info_l.texture.height * scale_factor));
-    glUniform4f(uniform_o_resolution, h, w, 1.0f / h, 1.0f / w);
-    state.texture_units[0].texture_2d = screen_info_l.display_texture;
-    state.texture_units[1].texture_2d = screen_info_r.display_texture;
-    state.texture_units[0].sampler = filter_sampler.handle;
-    state.texture_units[1].sampler = filter_sampler.handle;
-    state.Apply();
-
-    glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(vertices), vertices.data());
-    glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
-
-    state.texture_units[0].texture_2d = 0;
-    state.texture_units[1].texture_2d = 0;
-    state.texture_units[0].sampler = 0;
-    state.texture_units[1].sampler = 0;
-    state.Apply();
+    glDrawArraysIndirect(GL_TRIANGLE_STRIP, (const void*)nullptr);
 }
 
 /**
@@ -594,22 +473,9 @@ void RendererOpenGL::DrawScreens(const Layout::FramebufferLayout& layout) {
                      0.0f);
     }
 
-    if (VideoCore::g_renderer_sampler_update_requested.exchange(false)) {
-        // Set the new filtering mode for the sampler
-        ReloadSampler();
-    }
-
-    if (VideoCore::g_renderer_shader_update_requested.exchange(false)) {
-        // Update fragment shader before drawing
-        shader.Release();
-        // Link shaders and get variable locations
-        ReloadShader();
-    }
-
     const auto& top_screen = layout.top_screen;
     const auto& bottom_screen = layout.bottom_screen;
 
-    glViewport(0, 0, layout.width, layout.height);
     glClear(GL_COLOR_BUFFER_BIT);
 
     // Set projection matrix
@@ -617,161 +483,20 @@ void RendererOpenGL::DrawScreens(const Layout::FramebufferLayout& layout) {
         MakeOrthographicMatrix((float)layout.width, (float)layout.height);
     glUniformMatrix3x2fv(uniform_modelview_matrix, 1, GL_FALSE, ortho_matrix.data());
 
-    // Bind texture in Texture Unit 0
-    glUniform1i(uniform_color_texture, 0);
-
-    // Bind a second texture for the right eye if in Anaglyph mode
-    if (Settings::values.render_3d == Settings::StereoRenderOption::Anaglyph) {
-        glUniform1i(uniform_color_texture_r, 1);
-    }
-
-    glUniform1i(uniform_layer, 0);
     if (layout.top_screen_enabled) {
-        if (Settings::values.render_3d == Settings::StereoRenderOption::Off) {
-            DrawSingleScreenRotated(screen_infos[0], (float)top_screen.left, (float)top_screen.top,
-                                    (float)top_screen.GetWidth(), (float)top_screen.GetHeight());
-        } else if (Settings::values.render_3d == Settings::StereoRenderOption::SideBySide) {
-            DrawSingleScreenRotated(screen_infos[0], (float)top_screen.left / 2,
-                                    (float)top_screen.top, (float)top_screen.GetWidth() / 2,
-                                    (float)top_screen.GetHeight());
-            glUniform1i(uniform_layer, 1);
-            DrawSingleScreenRotated(screen_infos[1],
-                                    ((float)top_screen.left / 2) + ((float)layout.width / 2),
-                                    (float)top_screen.top, (float)top_screen.GetWidth() / 2,
-                                    (float)top_screen.GetHeight());
-        } else if (Settings::values.render_3d == Settings::StereoRenderOption::Anaglyph) {
-            DrawSingleScreenAnaglyphRotated(
-                screen_infos[0], screen_infos[1], (float)top_screen.left, (float)top_screen.top,
-                (float)top_screen.GetWidth(), (float)top_screen.GetHeight());
-        }
+        DrawSingleScreenRotated(screen_infos[0], (float)top_screen.left, (float)top_screen.top,
+                                (float)top_screen.GetWidth(), (float)top_screen.GetHeight());
     }
-    glUniform1i(uniform_layer, 0);
     if (layout.bottom_screen_enabled) {
-        if (Settings::values.render_3d == Settings::StereoRenderOption::Off) {
-            DrawSingleScreenRotated(screen_infos[2], (float)bottom_screen.left,
-                                    (float)bottom_screen.top, (float)bottom_screen.GetWidth(),
-                                    (float)bottom_screen.GetHeight());
-        } else if (Settings::values.render_3d == Settings::StereoRenderOption::SideBySide) {
-            DrawSingleScreenRotated(screen_infos[2], (float)bottom_screen.left / 2,
-                                    (float)bottom_screen.top, (float)bottom_screen.GetWidth() / 2,
-                                    (float)bottom_screen.GetHeight());
-            glUniform1i(uniform_layer, 1);
-            DrawSingleScreenRotated(screen_infos[2],
-                                    ((float)bottom_screen.left / 2) + ((float)layout.width / 2),
-                                    (float)bottom_screen.top, (float)bottom_screen.GetWidth() / 2,
-                                    (float)bottom_screen.GetHeight());
-        } else if (Settings::values.render_3d == Settings::StereoRenderOption::Anaglyph) {
-            DrawSingleScreenAnaglyphRotated(screen_infos[2], screen_infos[2],
-                                            (float)bottom_screen.left, (float)bottom_screen.top,
-                                            (float)bottom_screen.GetWidth(),
-                                            (float)bottom_screen.GetHeight());
-        }
+        DrawSingleScreenRotated(screen_infos[2], (float)bottom_screen.left,
+                                (float)bottom_screen.top, (float)bottom_screen.GetWidth(),
+                                (float)bottom_screen.GetHeight());
     }
-}
-
-/// Updates the framerate
-void RendererOpenGL::UpdateFramerate() {}
-
-void RendererOpenGL::PrepareVideoDumping() {
-    prepare_video_dumping = true;
-}
-
-void RendererOpenGL::CleanupVideoDumping() {
-    cleanup_video_dumping = true;
-}
-
-void RendererOpenGL::InitVideoDumpingGLObjects() {
-    const auto& layout = Core::System::GetInstance().VideoDumper().GetLayout();
-
-    frame_dumping_framebuffer.Create();
-    glGenRenderbuffers(1, &frame_dumping_renderbuffer);
-    glBindRenderbuffer(GL_RENDERBUFFER, frame_dumping_renderbuffer);
-    glRenderbufferStorage(GL_RENDERBUFFER, GL_RGB8, layout.width, layout.height);
-    glBindFramebuffer(GL_DRAW_FRAMEBUFFER, frame_dumping_framebuffer.handle);
-    glFramebufferRenderbuffer(GL_DRAW_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_RENDERBUFFER,
-                              frame_dumping_renderbuffer);
-    glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
-
-    for (auto& buffer : frame_dumping_pbos) {
-        buffer.Create();
-        glBindBuffer(GL_PIXEL_PACK_BUFFER, buffer.handle);
-        glBufferData(GL_PIXEL_PACK_BUFFER, layout.width * layout.height * 4, nullptr,
-                     GL_STREAM_READ);
-        glBindBuffer(GL_PIXEL_PACK_BUFFER, 0);
-    }
-}
-
-void RendererOpenGL::ReleaseVideoDumpingGLObjects() {
-    frame_dumping_framebuffer.Release();
-    glDeleteRenderbuffers(1, &frame_dumping_renderbuffer);
-
-    for (auto& buffer : frame_dumping_pbos) {
-        buffer.Release();
-    }
-}
-
-static const char* GetSource(GLenum source) {
-#define RET(s)                                                                                     \
-    case GL_DEBUG_SOURCE_##s:                                                                      \
-        return #s
-    switch (source) {
-        RET(API);
-        RET(WINDOW_SYSTEM);
-        RET(SHADER_COMPILER);
-        RET(THIRD_PARTY);
-        RET(APPLICATION);
-        RET(OTHER);
-    default:
-        UNREACHABLE();
-    }
-#undef RET
-}
-
-static const char* GetType(GLenum type) {
-#define RET(t)                                                                                     \
-    case GL_DEBUG_TYPE_##t:                                                                        \
-        return #t
-    switch (type) {
-        RET(ERROR);
-        RET(DEPRECATED_BEHAVIOR);
-        RET(UNDEFINED_BEHAVIOR);
-        RET(PORTABILITY);
-        RET(PERFORMANCE);
-        RET(OTHER);
-        RET(MARKER);
-    default:
-        UNREACHABLE();
-    }
-#undef RET
-}
-
-static void APIENTRY DebugHandler(GLenum source, GLenum type, GLuint id, GLenum severity,
-                                  GLsizei length, const GLchar* message, const void* user_param) {
-    Log::Level level;
-    switch (severity) {
-    case GL_DEBUG_SEVERITY_HIGH:
-        level = Log::Level::Critical;
-        break;
-    case GL_DEBUG_SEVERITY_MEDIUM:
-        level = Log::Level::Warning;
-        break;
-    case GL_DEBUG_SEVERITY_NOTIFICATION:
-    case GL_DEBUG_SEVERITY_LOW:
-        level = Log::Level::Debug;
-        break;
-    }
-    LOG_GENERIC(Log::Class::Render_OpenGL, level, "{} {} {}: {}", GetSource(source), GetType(type),
-                id, message);
 }
 
 /// Initialize the renderer
 Core::System::ResultStatus RendererOpenGL::Init() {
     render_window.MakeCurrent();
-
-    if (GLAD_GL_KHR_debug) {
-        glEnable(GL_DEBUG_OUTPUT);
-        glDebugMessageCallback(DebugHandler, nullptr);
-    }
 
     const char* gl_version{reinterpret_cast<char const*>(glGetString(GL_VERSION))};
     const char* gpu_vendor{reinterpret_cast<char const*>(glGetString(GL_VENDOR))};
@@ -794,6 +519,14 @@ Core::System::ResultStatus RendererOpenGL::Init() {
         return Core::System::ResultStatus::ErrorVideoCore_ErrorBelowGL33;
     }
 
+    OpenGL::GLES = Settings::values.use_gles;
+
+    if (GLAD_GL_ARB_clip_control) {
+        glClipControl(GL_LOWER_LEFT, GL_ZERO_TO_ONE);
+    } else if (GLAD_GL_EXT_clip_control) {
+        glClipControlEXT(GL_LOWER_LEFT, GL_ZERO_TO_ONE);
+    }
+
     InitOpenGLObjects();
 
     RefreshRasterizerSetting();
@@ -802,6 +535,8 @@ Core::System::ResultStatus RendererOpenGL::Init() {
 }
 
 /// Shutdown the renderer
-void RendererOpenGL::ShutDown() {}
+void RendererOpenGL::ShutDown() {
+    OSD::Shutdown();
+}
 
 } // namespace OpenGL

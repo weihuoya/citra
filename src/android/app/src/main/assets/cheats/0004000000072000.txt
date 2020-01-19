@@ -1,0 +1,7 @@
+* Fire Emblem: Awakening
+
+[60FPS]
+004BAEFC 00000001
+
+[30FPS]
+004BAEFC 00000002

@@ -33,13 +33,6 @@ extern std::atomic<bool> g_shader_jit_enabled;
 extern std::atomic<bool> g_hw_shader_enabled;
 extern std::atomic<bool> g_hw_shader_accurate_mul;
 extern std::atomic<bool> g_renderer_bg_color_update_requested;
-extern std::atomic<bool> g_renderer_sampler_update_requested;
-extern std::atomic<bool> g_renderer_shader_update_requested;
-// Screenshot
-extern std::atomic<bool> g_renderer_screenshot_requested;
-extern void* g_screenshot_bits;
-extern std::function<void()> g_screenshot_complete_callback;
-extern Layout::FramebufferLayout g_screenshot_framebuffer_layout;
 
 extern Memory::MemorySystem* g_memory;
 
@@ -48,10 +41,6 @@ Core::System::ResultStatus Init(Frontend::EmuWindow& emu_window, Memory::MemoryS
 
 /// Shutdown the video core
 void Shutdown();
-
-/// Request a screenshot of the next frame
-void RequestScreenshot(void* data, std::function<void()> callback,
-                       const Layout::FramebufferLayout& layout);
 
 u16 GetResolutionScaleFactor();
 

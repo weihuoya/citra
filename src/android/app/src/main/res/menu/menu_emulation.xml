@@ -1,0 +1,30 @@
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+      xmlns:tools="http://schemas.android.com/tools"
+      xmlns:app="http://schemas.android.com/apk/res-auto"
+      tools:context="org.dolphinemu.dolphinemu.activities.EmulationActivity">
+
+    <item
+        android:id="@+id/menu_mem_region"
+        app:showAsAction="ifRoom"
+        android:icon="@android:drawable/ic_menu_search"
+        android:title="@string/emulation_memory_search"/>
+
+    <item
+        android:id="@+id/menu_running_setting"
+        app:showAsAction="ifRoom"
+        android:icon="@mipmap/ic_settings_core"
+        android:title="@string/preferences_settings"/>
+
+    <item
+        android:id="@+id/menu_emulation_edit_layout"
+        app:showAsAction="ifRoom"
+        android:icon="@mipmap/ic_settings_gcpad"
+        android:title="@string/emulation_edit_layout"/>
+
+    <item
+        android:id="@+id/menu_screen_rotation"
+        app:showAsAction="ifRoom"
+        android:icon="@mipmap/ic_screen_rotation"
+        android:title="@string/emulation_screen_rotation"/>
+
+</menu>
