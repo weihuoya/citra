@@ -10,17 +10,13 @@
 #include "common/logging/log.h"
 #include "common/texture.h"
 #include "core/arm/arm_interface.h"
-#ifdef ARCHITECTURE_x86_64
+#if defined(ARCHITECTURE_x86_64) || defined(ARCHITECTURE_ARM64)
 #include "core/arm/dynarmic/arm_dynarmic.h"
 #endif
 #include "core/arm/dyncom/arm_dyncom.h"
 #include "core/cheats/cheats.h"
 #include "core/core.h"
 #include "core/core_timing.h"
-#include "core/dumping/backend.h"
-#ifdef ENABLE_FFMPEG_VIDEO_DUMPER
-#include "core/dumping/ffmpeg_backend.h"
-#endif
 #include "core/custom_tex_cache.h"
 #include "core/gdbstub/gdbstub.h"
 #include "core/hle/kernel/client_port.h"
@@ -47,7 +43,7 @@ System::ResultStatus System::RunLoop(bool tight_loop) {
     if (!cpu_core) {
         return ResultStatus::ErrorNotInitialized;
     }
-
+#ifdef DEBUG_CONTEXT
     if (GDBStub::IsServerEnabled()) {
         GDBStub::HandlePacket();
 
@@ -61,7 +57,7 @@ System::ResultStatus System::RunLoop(bool tight_loop) {
             }
         }
     }
-
+#endif
     // If we don't have a currently active thread then don't execute instructions,
     // instead advance to the next event and try to yield to the next thread
     if (kernel->GetThreadManager().GetCurrentThread() == nullptr) {
@@ -77,11 +73,11 @@ System::ResultStatus System::RunLoop(bool tight_loop) {
             cpu_core->Step();
         }
     }
-
+#ifdef DEBUG_CONTEXT
     if (GDBStub::IsServerEnabled()) {
         GDBStub::SetCpuStepFlag(false);
     }
-
+#endif
     HW::Update();
     Reschedule();
 
@@ -122,7 +118,8 @@ System::ResultStatus System::Load(Frontend::EmuWindow& emu_window, const std::st
     }
 
     ASSERT(system_mode.first);
-    ResultStatus init_result{Init(emu_window, *system_mode.first)};
+    ResultStatus init_result{
+        Init(emu_window, Settings::values.is_new_3ds ? 6 : *system_mode.first)};
     if (init_result != ResultStatus::Success) {
         LOG_CRITICAL(Core, "Failed to initialize system (Error {})!",
                      static_cast<u32>(init_result));
@@ -153,19 +150,26 @@ System::ResultStatus System::Load(Frontend::EmuWindow& emu_window, const std::st
         LOG_ERROR(Core, "Failed to find title id for ROM (Error {})",
                   static_cast<u32>(load_result));
     }
-    perf_stats = std::make_unique<PerfStats>(title_id);
+    perf_stats = std::make_unique<PerfStats>();
+
     custom_tex_cache = std::make_unique<Core::CustomTexCache>();
     if (Settings::values.custom_textures) {
         FileUtil::CreateFullPath(fmt::format("{}textures/{:016X}/",
                                              FileUtil::GetUserPath(FileUtil::UserPath::LoadDir),
-                                             Kernel().GetCurrentProcess()->codeset->program_id));
+                                             title_id));
         custom_tex_cache->FindCustomTextures();
     }
     if (Settings::values.preload_textures)
         custom_tex_cache->PreloadTextures();
+
     status = ResultStatus::Success;
     m_emu_window = &emu_window;
     m_filepath = filepath;
+
+    if (title_id == 0x0004000000068B00 || title_id == 0x0004000000061300 || title_id == 0x000400000004A700) {
+        // hack for Tales of the Abyss / Pac Man Party 3D
+        Settings::values.display_transfer_hack = true;
+    }
 
     // Reset counters and set time origin to current frame
     GetAndResetPerfStats();
@@ -195,14 +199,12 @@ System::ResultStatus System::Init(Frontend::EmuWindow& emu_window, u32 system_mo
     LOG_DEBUG(HW_Memory, "initialized OK");
 
     memory = std::make_unique<Memory::MemorySystem>();
-
     timing = std::make_unique<Timing>();
-
     kernel = std::make_unique<Kernel::KernelSystem>(*memory, *timing,
                                                     [this] { PrepareReschedule(); }, system_mode);
 
     if (Settings::values.use_cpu_jit) {
-#ifdef ARCHITECTURE_x86_64
+#if defined(ARCHITECTURE_x86_64) || defined(ARCHITECTURE_ARM64)
         cpu_core = std::make_shared<ARM_Dynarmic>(this, *memory, USER32MODE);
 #else
         cpu_core = std::make_shared<ARM_DynCom>(this, *memory, USER32MODE);
@@ -241,12 +243,6 @@ System::ResultStatus System::Init(Frontend::EmuWindow& emu_window, u32 system_mo
     if (result != ResultStatus::Success) {
         return result;
     }
-
-#ifdef ENABLE_FFMPEG_VIDEO_DUMPER
-    video_dumper = std::make_unique<VideoDumper::FFmpegBackend>();
-#else
-    video_dumper = std::make_unique<VideoDumper::NullBackend>();
-#endif
 
     LOG_DEBUG(Core, "Initialized OK");
 
@@ -301,14 +297,6 @@ const Cheats::CheatEngine& System::CheatEngine() const {
     return *cheat_engine;
 }
 
-VideoDumper::Backend& System::VideoDumper() {
-    return *video_dumper;
-}
-
-const VideoDumper::Backend& System::VideoDumper() const {
-    return *video_dumper;
-}
-
 Core::CustomTexCache& System::CustomTexCache() {
     return *custom_tex_cache;
 }
@@ -338,8 +326,7 @@ void System::Shutdown() {
                                 perf_results.game_fps);
     telemetry_session->AddField(Telemetry::FieldType::Performance, "Shutdown_Frametime",
                                 perf_results.frametime * 1000.0);
-    telemetry_session->AddField(Telemetry::FieldType::Performance, "Mean_Frametime_MS",
-                                perf_stats->GetMeanFrametime());
+    telemetry_session->AddField(Telemetry::FieldType::Performance, "Mean_Frametime_MS", 20.0);
 
     // Shutdown emulation session
     GDBStub::Shutdown();
@@ -355,10 +342,6 @@ void System::Shutdown() {
     kernel.reset();
     timing.reset();
     app_loader.reset();
-
-    if (video_dumper->IsDumping()) {
-        video_dumper->StopDumping();
-    }
 
     if (auto room_member = Network::GetRoomMember().lock()) {
         Network::GameInfo game_info{};

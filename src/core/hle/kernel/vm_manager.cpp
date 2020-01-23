@@ -8,7 +8,6 @@
 #include "core/hle/kernel/errors.h"
 #include "core/hle/kernel/vm_manager.h"
 #include "core/memory.h"
-#include "core/mmio.h"
 
 namespace Kernel {
 
@@ -106,24 +105,6 @@ ResultVal<VMManager::VMAHandle> VMManager::MapBackingMemory(VAddr target, u8* me
     final_vma.permissions = VMAPermission::ReadWrite;
     final_vma.meminfo_state = state;
     final_vma.backing_memory = memory;
-    UpdatePageTableForVMA(final_vma);
-
-    return MakeResult<VMAHandle>(MergeAdjacent(vma_handle));
-}
-
-ResultVal<VMManager::VMAHandle> VMManager::MapMMIO(VAddr target, PAddr paddr, u32 size,
-                                                   MemoryState state,
-                                                   Memory::MMIORegionPointer mmio_handler) {
-    // This is the appropriately sized VMA that will turn into our allocation.
-    CASCADE_RESULT(VMAIter vma_handle, CarveVMA(target, size));
-    VirtualMemoryArea& final_vma = vma_handle->second;
-    ASSERT(final_vma.size == size);
-
-    final_vma.type = VMAType::MMIO;
-    final_vma.permissions = VMAPermission::ReadWrite;
-    final_vma.meminfo_state = state;
-    final_vma.paddr = paddr;
-    final_vma.mmio_handler = mmio_handler;
     UpdatePageTableForVMA(final_vma);
 
     return MakeResult<VMAHandle>(MergeAdjacent(vma_handle));
@@ -354,7 +335,7 @@ void VMManager::UpdatePageTableForVMA(const VirtualMemoryArea& vma) {
         memory.MapMemoryRegion(page_table, vma.base, vma.size, vma.backing_memory);
         break;
     case VMAType::MMIO:
-        memory.MapIoRegion(page_table, vma.base, vma.size, vma.mmio_handler);
+        ASSERT_MSG(false, "VMAType::MMIO unimplemented");
         break;
     }
 }

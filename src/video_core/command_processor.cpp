@@ -13,6 +13,7 @@
 #include "core/hle/service/gsp/gsp.h"
 #include "core/hw/gpu.h"
 #include "core/memory.h"
+#include "core/settings.h"
 #include "core/tracer/recorder.h"
 #include "video_core/command_processor.h"
 #include "video_core/debug_utils/debug_utils.h"
@@ -126,15 +127,6 @@ static void WritePicaReg(u32 id, u32 value, u32 mask) {
 
     regs.reg_array[id] = (old_value & ~write_mask) | (value & write_mask);
 
-    // Double check for is_pica_tracing to avoid call overhead
-    if (DebugUtils::IsPicaTracing()) {
-        DebugUtils::OnPicaRegWrite({(u16)id, (u16)mask, regs.reg_array[id]});
-    }
-
-    if (g_debug_context)
-        g_debug_context->OnEvent(DebugContext::Event::PicaCommandLoaded,
-                                 reinterpret_cast<void*>(&id));
-
     switch (id) {
     // Trigger IRQ
     case PICA_REG_INDEX(trigger_irq):
@@ -240,10 +232,6 @@ static void WritePicaReg(u32 id, u32 value, u32 mask) {
                     // change it to flush triangles whenever a drawing config register changes
                     // See: https://github.com/citra-emu/citra/pull/2866#issuecomment-327011550
                     VideoCore::g_renderer->Rasterizer()->DrawTriangles();
-                    if (g_debug_context) {
-                        g_debug_context->OnEvent(DebugContext::Event::FinishedPrimitiveBatch,
-                                                 nullptr);
-                    }
                 }
             }
         }
@@ -273,11 +261,7 @@ static void WritePicaReg(u32 id, u32 value, u32 mask) {
 #if PICA_LOG_TEV
         DebugUtils::DumpTevStageConfig(regs.GetTevStages());
 #endif
-        if (g_debug_context)
-            g_debug_context->OnEvent(DebugContext::Event::IncomingPrimitiveBatch, nullptr);
-
         PrimitiveAssembler<Shader::OutputVertex>& primitive_assembler = g_state.primitive_assembler;
-
         bool accelerate_draw = VideoCore::g_hw_shader_enabled && primitive_assembler.IsEmpty();
 
         if (regs.pipeline.use_gs == PipelineRegs::UseGS::No) {
@@ -300,9 +284,8 @@ static void WritePicaReg(u32 id, u32 value, u32 mask) {
 
         if (accelerate_draw &&
             VideoCore::g_renderer->Rasterizer()->AccelerateDrawBatch(is_indexed)) {
-            if (g_debug_context) {
-                g_debug_context->OnEvent(DebugContext::Event::FinishedPrimitiveBatch, nullptr);
-            }
+            break;
+        } else if (Settings::values.skip_slow_draw) {
             break;
         }
 
@@ -320,34 +303,8 @@ static void WritePicaReg(u32 id, u32 value, u32 mask) {
         const u16* index_address_16 = reinterpret_cast<const u16*>(index_address_8);
         bool index_u16 = index_info.format != 0;
 
-        if (g_debug_context && g_debug_context->recorder) {
-            for (int i = 0; i < 3; ++i) {
-                const auto texture = regs.texturing.GetTextures()[i];
-                if (!texture.enabled)
-                    continue;
-
-                u8* texture_data =
-                    VideoCore::g_memory->GetPhysicalPointer(texture.config.GetPhysicalAddress());
-                g_debug_context->recorder->MemoryAccessed(
-                    texture_data,
-                    Pica::TexturingRegs::NibblesPerPixel(texture.format) * texture.config.width /
-                        2 * texture.config.height,
-                    texture.config.GetPhysicalAddress());
-            }
-        }
-
         DebugUtils::MemoryAccessTracker memory_accesses;
-
-        // Simple circular-replacement vertex cache
-        // The size has been tuned for optimal balance between hit-rate and the cost of lookup
-        const std::size_t VERTEX_CACHE_SIZE = 32;
-        std::array<bool, VERTEX_CACHE_SIZE> vertex_cache_valid{};
-        std::array<u16, VERTEX_CACHE_SIZE> vertex_cache_ids;
-        std::array<Shader::AttributeBuffer, VERTEX_CACHE_SIZE> vertex_cache;
         Shader::AttributeBuffer vs_output;
-
-        unsigned int vertex_cache_pos = 0;
-
         auto* shader_engine = Shader::GetEngine();
         Shader::UnitState shader_unit;
 
@@ -355,73 +312,70 @@ static void WritePicaReg(u32 id, u32 value, u32 mask) {
 
         g_state.geometry_pipeline.Reconfigure();
         g_state.geometry_pipeline.Setup(shader_engine);
-        if (g_state.geometry_pipeline.NeedIndexInput())
-            ASSERT(is_indexed);
 
-        for (unsigned int index = 0; index < regs.pipeline.num_vertices; ++index) {
-            // Indexed rendering doesn't use the start offset
-            unsigned int vertex =
-                is_indexed ? (index_u16 ? index_address_16[index] : index_address_8[index])
-                           : (index + regs.pipeline.vertex_offset);
+        if (is_indexed) {
+            // Simple circular-replacement vertex cache
+            // The size has been tuned for optimal balance between hit-rate and the cost of lookup
+            const u32 VERTEX_CACHE_SIZE = 32;
+            std::array<bool, VERTEX_CACHE_SIZE> vertex_cache_valid{};
+            std::array<u16, VERTEX_CACHE_SIZE> vertex_cache_ids;
+            std::array<Shader::AttributeBuffer, VERTEX_CACHE_SIZE> vertex_cache;
+            u32 vertex_cache_pos = 0;
+            u32 cache_lookup_limit = std::min(VERTEX_CACHE_SIZE, regs.pipeline.num_vertices - 1);
 
-            bool vertex_cache_hit = false;
+            for (u32 index = 0; index < regs.pipeline.num_vertices; ++index) {
+                // Indexed rendering doesn't use the start offset
+                u32 vertex = index_u16 ? index_address_16[index] : index_address_8[index];
 
-            if (is_indexed) {
                 if (g_state.geometry_pipeline.NeedIndexInput()) {
                     g_state.geometry_pipeline.SubmitIndex(vertex);
                     continue;
                 }
 
-                if (g_debug_context && Pica::g_debug_context->recorder) {
-                    int size = index_u16 ? 2 : 1;
-                    memory_accesses.AddAccess(base_address + index_info.offset + size * index,
-                                              size);
-                }
-
-                for (unsigned int i = 0; i < VERTEX_CACHE_SIZE; ++i) {
+                bool vertex_cache_hit = false;
+                for (u32 i = 0; i < cache_lookup_limit; ++i) {
                     if (vertex_cache_valid[i] && vertex == vertex_cache_ids[i]) {
                         vs_output = vertex_cache[i];
                         vertex_cache_hit = true;
                         break;
                     }
                 }
-            }
 
-            if (!vertex_cache_hit) {
-                // Initialize data for the current vertex
-                Shader::AttributeBuffer input;
-                loader.LoadVertex(base_address, index, vertex, input, memory_accesses);
+                if (!vertex_cache_hit) {
+                    // Initialize data for the current vertex
+                    Shader::AttributeBuffer input;
+                    loader.LoadVertex(base_address, index, vertex, input, memory_accesses);
+                    shader_unit.LoadInput(regs.vs, input);
+                    shader_engine->Run(g_state.vs, shader_unit);
+                    shader_unit.WriteOutput(regs.vs, vs_output);
 
-                // Send to vertex shader
-                if (g_debug_context)
-                    g_debug_context->OnEvent(DebugContext::Event::VertexShaderInvocation,
-                                             (void*)&input);
-                shader_unit.LoadInput(regs.vs, input);
-                shader_engine->Run(g_state.vs, shader_unit);
-                shader_unit.WriteOutput(regs.vs, vs_output);
-
-                if (is_indexed) {
                     vertex_cache[vertex_cache_pos] = vs_output;
                     vertex_cache_valid[vertex_cache_pos] = true;
                     vertex_cache_ids[vertex_cache_pos] = vertex;
                     vertex_cache_pos = (vertex_cache_pos + 1) % VERTEX_CACHE_SIZE;
                 }
+
+                // Send to geometry pipeline
+                g_state.geometry_pipeline.SubmitVertex(vs_output);
             }
+        } else {
+            for (u32 index = 0; index < regs.pipeline.num_vertices; ++index) {
+                // Indexed rendering doesn't use the start offset
+                u32 vertex = index + regs.pipeline.vertex_offset;
 
-            // Send to geometry pipeline
-            g_state.geometry_pipeline.SubmitVertex(vs_output);
-        }
+                // Initialize data for the current vertex
+                Shader::AttributeBuffer input;
+                loader.LoadVertex(base_address, index, vertex, input, memory_accesses);
+                shader_unit.LoadInput(regs.vs, input);
+                shader_engine->Run(g_state.vs, shader_unit);
+                shader_unit.WriteOutput(regs.vs, vs_output);
 
-        for (auto& range : memory_accesses.ranges) {
-            g_debug_context->recorder->MemoryAccessed(
-                VideoCore::g_memory->GetPhysicalPointer(range.first), range.second, range.first);
+                // Send to geometry pipeline
+                g_state.geometry_pipeline.SubmitVertex(vs_output);
+            }
         }
 
         VideoCore::g_renderer->Rasterizer()->DrawTriangles();
-        if (g_debug_context) {
-            g_debug_context->OnEvent(DebugContext::Event::FinishedPrimitiveBatch, nullptr);
-        }
-
         break;
     }
 
@@ -582,6 +536,7 @@ static void WritePicaReg(u32 id, u32 value, u32 mask) {
 
         g_state.lighting.luts[lut_config.type][lut_config.index].raw = value;
         lut_config.index.Assign(lut_config.index + 1);
+        VideoCore::g_renderer->Rasterizer()->SyncLightingLutData();
         break;
     }
 
@@ -595,6 +550,7 @@ static void WritePicaReg(u32 id, u32 value, u32 mask) {
     case PICA_REG_INDEX(texturing.fog_lut_data[7]): {
         g_state.fog.lut[regs.texturing.fog_lut_offset % 128].raw = value;
         regs.texturing.fog_lut_offset.Assign(regs.texturing.fog_lut_offset + 1);
+        VideoCore::g_renderer->Rasterizer()->SyncFogLutData();
         break;
     }
 
@@ -627,17 +583,13 @@ static void WritePicaReg(u32 id, u32 value, u32 mask) {
             break;
         }
         index.Assign(index + 1);
+        VideoCore::g_renderer->Rasterizer()->SyncProcTexLutData();
         break;
     }
     default:
+        VideoCore::g_renderer->Rasterizer()->NotifyPicaRegisterChanged(id);
         break;
     }
-
-    VideoCore::g_renderer->Rasterizer()->NotifyPicaRegisterChanged(id);
-
-    if (g_debug_context)
-        g_debug_context->OnEvent(DebugContext::Event::PicaCommandProcessed,
-                                 reinterpret_cast<void*>(&id));
 }
 
 void ProcessCommandList(const u32* list, u32 size) {

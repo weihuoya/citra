@@ -14,7 +14,7 @@ OpenGLState OpenGLState::cur_state;
 
 OpenGLState::OpenGLState() {
     // These all match default OpenGL values
-    cull.enabled = false;
+    cull.enabled = true;
     cull.mode = GL_BACK;
     cull.front_face = GL_CCW;
 
@@ -36,7 +36,7 @@ OpenGLState::OpenGLState() {
     stencil.action_depth_pass = GL_KEEP;
     stencil.action_stencil_fail = GL_KEEP;
 
-    blend.enabled = true;
+    blend.enabled = false;
     blend.rgb_equation = GL_FUNC_ADD;
     blend.a_equation = GL_FUNC_ADD;
     blend.src_rgb_func = GL_ONE;
@@ -236,39 +236,41 @@ void OpenGLState::Apply() const {
     }
 
     // Shadow Images
-    if (image_shadow_buffer != cur_state.image_shadow_buffer) {
-        glBindImageTexture(ImageUnits::ShadowBuffer, image_shadow_buffer, 0, GL_FALSE, 0,
-                           GL_READ_WRITE, GL_R32UI);
-    }
+    if (AllowShadow) {
+        if (image_shadow_buffer != cur_state.image_shadow_buffer) {
+            glBindImageTexture(ImageUnits::ShadowBuffer, image_shadow_buffer, 0, GL_FALSE, 0,
+                               GL_READ_WRITE, GL_R32UI);
+        }
 
-    if (image_shadow_texture_px != cur_state.image_shadow_texture_px) {
-        glBindImageTexture(ImageUnits::ShadowTexturePX, image_shadow_texture_px, 0, GL_FALSE, 0,
-                           GL_READ_ONLY, GL_R32UI);
-    }
+        if (image_shadow_texture_px != cur_state.image_shadow_texture_px) {
+            glBindImageTexture(ImageUnits::ShadowTexturePX, image_shadow_texture_px, 0, GL_FALSE, 0,
+                               GL_READ_ONLY, GL_R32UI);
+        }
 
-    if (image_shadow_texture_nx != cur_state.image_shadow_texture_nx) {
-        glBindImageTexture(ImageUnits::ShadowTextureNX, image_shadow_texture_nx, 0, GL_FALSE, 0,
-                           GL_READ_ONLY, GL_R32UI);
-    }
+        if (image_shadow_texture_nx != cur_state.image_shadow_texture_nx) {
+            glBindImageTexture(ImageUnits::ShadowTextureNX, image_shadow_texture_nx, 0, GL_FALSE, 0,
+                               GL_READ_ONLY, GL_R32UI);
+        }
 
-    if (image_shadow_texture_py != cur_state.image_shadow_texture_py) {
-        glBindImageTexture(ImageUnits::ShadowTexturePY, image_shadow_texture_py, 0, GL_FALSE, 0,
-                           GL_READ_ONLY, GL_R32UI);
-    }
+        if (image_shadow_texture_py != cur_state.image_shadow_texture_py) {
+            glBindImageTexture(ImageUnits::ShadowTexturePY, image_shadow_texture_py, 0, GL_FALSE, 0,
+                               GL_READ_ONLY, GL_R32UI);
+        }
 
-    if (image_shadow_texture_ny != cur_state.image_shadow_texture_ny) {
-        glBindImageTexture(ImageUnits::ShadowTextureNY, image_shadow_texture_ny, 0, GL_FALSE, 0,
-                           GL_READ_ONLY, GL_R32UI);
-    }
+        if (image_shadow_texture_ny != cur_state.image_shadow_texture_ny) {
+            glBindImageTexture(ImageUnits::ShadowTextureNY, image_shadow_texture_ny, 0, GL_FALSE, 0,
+                               GL_READ_ONLY, GL_R32UI);
+        }
 
-    if (image_shadow_texture_pz != cur_state.image_shadow_texture_pz) {
-        glBindImageTexture(ImageUnits::ShadowTexturePZ, image_shadow_texture_pz, 0, GL_FALSE, 0,
-                           GL_READ_ONLY, GL_R32UI);
-    }
+        if (image_shadow_texture_pz != cur_state.image_shadow_texture_pz) {
+            glBindImageTexture(ImageUnits::ShadowTexturePZ, image_shadow_texture_pz, 0, GL_FALSE, 0,
+                               GL_READ_ONLY, GL_R32UI);
+        }
 
-    if (image_shadow_texture_nz != cur_state.image_shadow_texture_nz) {
-        glBindImageTexture(ImageUnits::ShadowTextureNZ, image_shadow_texture_nz, 0, GL_FALSE, 0,
-                           GL_READ_ONLY, GL_R32UI);
+        if (image_shadow_texture_nz != cur_state.image_shadow_texture_nz) {
+            glBindImageTexture(ImageUnits::ShadowTextureNZ, image_shadow_texture_nz, 0, GL_FALSE, 0,
+                               GL_READ_ONLY, GL_R32UI);
+        }
     }
 
     // Framebuffer
@@ -340,86 +342,182 @@ void OpenGLState::Apply() const {
     cur_state = *this;
 }
 
-OpenGLState& OpenGLState::ResetTexture(GLuint handle) {
-    for (auto& unit : texture_units) {
-        if (unit.texture_2d == handle) {
-            unit.texture_2d = 0;
+GLuint OpenGLState::BindVertexArray(GLuint array) {
+    GLuint previous_array = cur_state.draw.vertex_array;
+    glBindVertexArray(array);
+    cur_state.draw.vertex_array = array;
+    return previous_array;
+}
+
+GLuint OpenGLState::BindVertexBuffer(GLuint buffer) {
+    GLuint previous_buffer = cur_state.draw.vertex_buffer;
+    glBindBuffer(GL_ARRAY_BUFFER, buffer);
+    cur_state.draw.vertex_buffer = buffer;
+    return previous_buffer;
+}
+
+GLuint OpenGLState::BindUniformBuffer(GLuint buffer) {
+    GLuint previous_buffer = cur_state.draw.uniform_buffer;
+    glBindBuffer(GL_UNIFORM_BUFFER, buffer);
+    cur_state.draw.uniform_buffer = buffer;
+    return previous_buffer;
+}
+
+GLuint OpenGLState::BindTexture2D(int index, GLuint texture) {
+    GLuint previous_texture = cur_state.texture_units[index].texture_2d;
+    glActiveTexture(TextureUnits::PicaTexture(index).Enum());
+    glBindTexture(GL_TEXTURE_2D, texture);
+    cur_state.texture_units[index].texture_2d = texture;
+    return previous_texture;
+}
+
+GLuint OpenGLState::BindTextureCube(GLuint texture_cube) {
+    GLuint previous_texture = cur_state.texture_cube_unit.texture_cube;
+    glActiveTexture(TextureUnits::TextureCube.Enum());
+    glBindTexture(GL_TEXTURE_CUBE_MAP, texture_cube);
+    cur_state.texture_cube_unit.texture_cube = texture_cube;
+    return previous_texture;
+}
+
+GLuint OpenGLState::BindReadFramebuffer(GLuint framebuffer) {
+    GLuint previous_framebuffer = cur_state.draw.read_framebuffer;
+    glBindFramebuffer(GL_READ_FRAMEBUFFER, framebuffer);
+    cur_state.draw.read_framebuffer = framebuffer;
+    return previous_framebuffer;
+}
+
+GLuint OpenGLState::BindDrawFramebuffer(GLuint framebuffer) {
+    GLuint previous_framebuffer = cur_state.draw.draw_framebuffer;
+    glBindFramebuffer(GL_DRAW_FRAMEBUFFER, framebuffer);
+    cur_state.draw.draw_framebuffer = framebuffer;
+    return previous_framebuffer;
+}
+
+GLuint OpenGLState::BindShaderProgram(GLuint shader) {
+    GLuint previous_shader = cur_state.draw.shader_program;
+    glUseProgram(shader);
+    cur_state.draw.shader_program = shader;
+    return previous_shader;
+}
+
+void OpenGLState::ResetTexture(GLuint handle) {
+    for (unsigned i = 0; i < ARRAY_SIZE(cur_state.texture_units); ++i) {
+        if (cur_state.texture_units[i].texture_2d == handle) {
+            cur_state.texture_units[i].texture_2d = 0;
+            glActiveTexture(TextureUnits::PicaTexture(i).Enum());
+            glBindTexture(GL_TEXTURE_2D, 0);
         }
     }
-    if (texture_cube_unit.texture_cube == handle)
-        texture_cube_unit.texture_cube = 0;
-    if (texture_buffer_lut_rg.texture_buffer == handle)
-        texture_buffer_lut_rg.texture_buffer = 0;
-    if (texture_buffer_lut_rgba.texture_buffer == handle)
-        texture_buffer_lut_rgba.texture_buffer = 0;
-    if (image_shadow_buffer == handle)
-        image_shadow_buffer = 0;
-    if (image_shadow_texture_px == handle)
-        image_shadow_texture_px = 0;
-    if (image_shadow_texture_nx == handle)
-        image_shadow_texture_nx = 0;
-    if (image_shadow_texture_py == handle)
-        image_shadow_texture_py = 0;
-    if (image_shadow_texture_ny == handle)
-        image_shadow_texture_ny = 0;
-    if (image_shadow_texture_pz == handle)
-        image_shadow_texture_pz = 0;
-    if (image_shadow_texture_nz == handle)
-        image_shadow_texture_nz = 0;
-    return *this;
-}
 
-OpenGLState& OpenGLState::ResetSampler(GLuint handle) {
-    for (auto& unit : texture_units) {
-        if (unit.sampler == handle) {
-            unit.sampler = 0;
+    if (cur_state.texture_cube_unit.texture_cube == handle) {
+        cur_state.texture_cube_unit.texture_cube = 0;
+        glActiveTexture(TextureUnits::TextureCube.Enum());
+        glBindTexture(GL_TEXTURE_CUBE_MAP, 0);
+    }
+    if (cur_state.texture_buffer_lut_rg.texture_buffer == handle) {
+        cur_state.texture_buffer_lut_rg.texture_buffer = 0;
+        glActiveTexture(TextureUnits::TextureBufferLUT_RG.Enum());
+        glBindTexture(GL_TEXTURE_BUFFER, 0);
+    }
+    if (cur_state.texture_buffer_lut_rgba.texture_buffer == handle) {
+        cur_state.texture_buffer_lut_rgba.texture_buffer = 0;
+        glActiveTexture(TextureUnits::TextureBufferLUT_RGBA.Enum());
+        glBindTexture(GL_TEXTURE_BUFFER, 0);
+    }
+
+    if (AllowShadow) {
+        if (cur_state.image_shadow_buffer == handle) {
+            cur_state.image_shadow_buffer = 0;
+            glBindImageTexture(ImageUnits::ShadowBuffer, 0, 0, GL_FALSE, 0, GL_READ_WRITE,
+                               GL_R32UI);
+        }
+        if (cur_state.image_shadow_texture_px == handle) {
+            cur_state.image_shadow_texture_px = 0;
+            glBindImageTexture(ImageUnits::ShadowTexturePX, 0, 0, GL_FALSE, 0, GL_READ_ONLY,
+                               GL_R32UI);
+        }
+        if (cur_state.image_shadow_texture_nx == handle) {
+            cur_state.image_shadow_texture_nx = 0;
+            glBindImageTexture(ImageUnits::ShadowTextureNX, 0, 0, GL_FALSE, 0, GL_READ_ONLY,
+                               GL_R32UI);
+        }
+        if (cur_state.image_shadow_texture_py == handle) {
+            cur_state.image_shadow_texture_py = 0;
+            glBindImageTexture(ImageUnits::ShadowTexturePY, 0, 0, GL_FALSE, 0, GL_READ_ONLY,
+                               GL_R32UI);
+        }
+        if (cur_state.image_shadow_texture_ny == handle) {
+            cur_state.image_shadow_texture_ny = 0;
+            glBindImageTexture(ImageUnits::ShadowTextureNY, 0, 0, GL_FALSE, 0, GL_READ_ONLY,
+                               GL_R32UI);
+        }
+        if (cur_state.image_shadow_texture_pz == handle) {
+            cur_state.image_shadow_texture_pz = 0;
+            glBindImageTexture(ImageUnits::ShadowTexturePZ, 0, 0, GL_FALSE, 0, GL_READ_ONLY,
+                               GL_R32UI);
+        }
+        if (cur_state.image_shadow_texture_nz == handle) {
+            cur_state.image_shadow_texture_nz = 0;
+            glBindImageTexture(ImageUnits::ShadowTextureNZ, 0, 0, GL_FALSE, 0, GL_READ_ONLY,
+                               GL_R32UI);
         }
     }
-    if (texture_cube_unit.sampler == handle) {
-        texture_cube_unit.sampler = 0;
-    }
-    return *this;
 }
 
-OpenGLState& OpenGLState::ResetProgram(GLuint handle) {
-    if (draw.shader_program == handle) {
-        draw.shader_program = 0;
+void OpenGLState::ResetSampler(GLuint handle) {
+    for (unsigned i = 0; i < ARRAY_SIZE(cur_state.texture_units); ++i) {
+        if (cur_state.texture_units[i].sampler == handle) {
+            cur_state.texture_units[i].sampler = 0;
+            glBindSampler(i, 0);
+        }
     }
-    return *this;
+    if (cur_state.texture_cube_unit.sampler == handle) {
+        cur_state.texture_cube_unit.sampler = 0;
+        glBindSampler(TextureUnits::TextureCube.id, 0);
+    }
 }
 
-OpenGLState& OpenGLState::ResetPipeline(GLuint handle) {
-    if (draw.program_pipeline == handle) {
-        draw.program_pipeline = 0;
+void OpenGLState::ResetProgram(GLuint handle) {
+    if (cur_state.draw.shader_program == handle) {
+        cur_state.draw.shader_program = 0;
+        glUseProgram(0);
     }
-    return *this;
 }
 
-OpenGLState& OpenGLState::ResetBuffer(GLuint handle) {
-    if (draw.vertex_buffer == handle) {
-        draw.vertex_buffer = 0;
+void OpenGLState::ResetPipeline(GLuint handle) {
+    if (cur_state.draw.program_pipeline == handle) {
+        cur_state.draw.program_pipeline = 0;
+        glBindProgramPipeline(0);
     }
-    if (draw.uniform_buffer == handle) {
-        draw.uniform_buffer = 0;
-    }
-    return *this;
 }
 
-OpenGLState& OpenGLState::ResetVertexArray(GLuint handle) {
-    if (draw.vertex_array == handle) {
-        draw.vertex_array = 0;
+void OpenGLState::ResetBuffer(GLuint handle) {
+    if (cur_state.draw.vertex_buffer == handle) {
+        cur_state.draw.vertex_buffer = 0;
+        glBindBuffer(GL_ARRAY_BUFFER, 0);
     }
-    return *this;
+    if (cur_state.draw.uniform_buffer == handle) {
+        cur_state.draw.uniform_buffer = 0;
+        glBindBuffer(GL_UNIFORM_BUFFER, 0);
+    }
 }
 
-OpenGLState& OpenGLState::ResetFramebuffer(GLuint handle) {
-    if (draw.read_framebuffer == handle) {
-        draw.read_framebuffer = 0;
+void OpenGLState::ResetVertexArray(GLuint handle) {
+    if (cur_state.draw.vertex_array == handle) {
+        cur_state.draw.vertex_array = 0;
+        glBindVertexArray(0);
     }
-    if (draw.draw_framebuffer == handle) {
-        draw.draw_framebuffer = 0;
+}
+
+void OpenGLState::ResetFramebuffer(GLuint handle) {
+    if (cur_state.draw.read_framebuffer == handle) {
+        cur_state.draw.read_framebuffer = 0;
+        glBindFramebuffer(GL_READ_FRAMEBUFFER, 0);
     }
-    return *this;
+    if (cur_state.draw.draw_framebuffer == handle) {
+        cur_state.draw.draw_framebuffer = 0;
+        glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
+    }
 }
 
 } // namespace OpenGL

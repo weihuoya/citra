@@ -71,5 +71,13 @@ public:
     virtual bool AccelerateDrawBatch(bool is_indexed) {
         return false;
     }
+
+    /// sync
+    virtual void SyncFogLutData() = 0;
+    virtual void SyncLightingLutData() = 0;
+    virtual void SyncProcTexLutData() = 0;
+
+    /// Handle any config changes, this gets propogated to the backend
+    virtual void CheckForConfigChanges() {}
 };
 } // namespace VideoCore

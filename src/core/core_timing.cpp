@@ -34,9 +34,7 @@ TimingEventType* Timing::RegisterEvent(const std::string& name, TimedCallback ca
     return event_type;
 }
 
-Timing::~Timing() {
-    MoveEvents();
-}
+Timing::~Timing() = default;
 
 u64 Timing::GetTicks() const {
     u64 ticks = static_cast<u64>(global_timer);
@@ -67,11 +65,6 @@ void Timing::ScheduleEvent(s64 cycles_into_future, const TimingEventType* event_
     std::push_heap(event_queue.begin(), event_queue.end(), std::greater<>());
 }
 
-void Timing::ScheduleEventThreadsafe(s64 cycles_into_future, const TimingEventType* event_type,
-                                     u64 userdata) {
-    ts_queue.Push(Event{global_timer + cycles_into_future, 0, userdata, event_type});
-}
-
 void Timing::UnscheduleEvent(const TimingEventType* event_type, u64 userdata) {
     auto itr = std::remove_if(event_queue.begin(), event_queue.end(), [&](const Event& e) {
         return e.type == event_type && e.userdata == userdata;
@@ -95,11 +88,6 @@ void Timing::RemoveEvent(const TimingEventType* event_type) {
     }
 }
 
-void Timing::RemoveNormalAndThreadsafeEvent(const TimingEventType* event_type) {
-    MoveEvents();
-    RemoveEvent(event_type);
-}
-
 void Timing::ForceExceptionCheck(s64 cycles) {
     cycles = std::max<s64>(0, cycles);
     if (downcount > cycles) {
@@ -108,17 +96,7 @@ void Timing::ForceExceptionCheck(s64 cycles) {
     }
 }
 
-void Timing::MoveEvents() {
-    for (Event ev; ts_queue.Pop(ev);) {
-        ev.fifo_order = event_fifo_id++;
-        event_queue.emplace_back(std::move(ev));
-        std::push_heap(event_queue.begin(), event_queue.end(), std::greater<>());
-    }
-}
-
 void Timing::Advance() {
-    MoveEvents();
-
     s64 cycles_executed = slice_length - downcount;
     global_timer += cycles_executed;
     slice_length = MAX_SLICE_LENGTH;
@@ -126,7 +104,7 @@ void Timing::Advance() {
     is_global_timer_sane = true;
 
     while (!event_queue.empty() && event_queue.front().time <= global_timer) {
-        Event evt = std::move(event_queue.front());
+        Event evt = event_queue.front();
         std::pop_heap(event_queue.begin(), event_queue.end(), std::greater<>());
         event_queue.pop_back();
         evt.type->callback(evt.userdata, global_timer - evt.time);

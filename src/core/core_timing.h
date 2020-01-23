@@ -156,20 +156,10 @@ public:
      */
     void ScheduleEvent(s64 cycles_into_future, const TimingEventType* event_type, u64 userdata = 0);
 
-    /**
-     * This is to be called when outside of hle threads, such as the graphics thread, wants to
-     * schedule things to be executed on the main thread.
-     * Not that this doesn't change slice_length and thus events scheduled by this might be called
-     * with a delay of up to MAX_SLICE_LENGTH
-     */
-    void ScheduleEventThreadsafe(s64 cycles_into_future, const TimingEventType* event_type,
-                                 u64 userdata);
-
     void UnscheduleEvent(const TimingEventType* event_type, u64 userdata);
 
     /// We only permit one event of each type in the queue at a time.
     void RemoveEvent(const TimingEventType* event_type);
-    void RemoveNormalAndThreadsafeEvent(const TimingEventType* event_type);
 
     /** Advance must be called at the beginning of dispatcher loops, not the end. Advance() ends
      * the previous timing slice and begins the next one, you must Advance from the previous
@@ -178,7 +168,6 @@ public:
      * instructions is executed.
      */
     void Advance();
-    void MoveEvents();
 
     /// Pretend that the main CPU has executed enough cycles to reach the next event.
     void Idle();
@@ -216,9 +205,6 @@ private:
     // accomodated by the standard adaptor class.
     std::vector<Event> event_queue;
     u64 event_fifo_id = 0;
-    // the queue for storing the events from other threads threadsafe until they will be added
-    // to the event_queue by the emu thread
-    Common::MPSCQueue<Event> ts_queue;
     s64 idled_cycles = 0;
 
     // Are we in a function that has been called from Advance()

@@ -59,7 +59,9 @@ FramebufferLayout DefaultFrameLayout(u32 width, u32 height, bool swapped) {
         if (swapped) {
             bot_screen = bot_screen.TranslateY(height / 2 - bot_screen.GetHeight());
         } else {
-            top_screen = top_screen.TranslateY(height / 2 - top_screen.GetHeight());
+            u32 offset = (height / 2 - (width * 240) / 400) / 2;
+            top_screen = top_screen.TranslateY(offset);
+            bot_screen = bot_screen.TranslateY(-offset);
         }
     }
     // Move the top screen to the bottom if we are swapped.
