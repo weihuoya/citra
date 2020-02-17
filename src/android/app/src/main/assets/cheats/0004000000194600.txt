@@ -1,0 +1,7 @@
+* Infinite Dunamis
+
+[30 FPS]
+2023DE5C 00000001
+
+[60 FPS]
+2023DE5C 00000000

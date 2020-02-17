@@ -208,6 +208,8 @@ public:
     /// Retrieves a process from the current list of processes.
     std::shared_ptr<Process> GetProcessById(u32 process_id) const;
 
+    u32 GetProcessThreadsCount(std::shared_ptr<Process> process) const;
+
     std::shared_ptr<Process> GetCurrentProcess() const;
     void SetCurrentProcess(std::shared_ptr<Process> process);
 

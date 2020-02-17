@@ -11,15 +11,6 @@
 
 namespace Core {
 
-// Sort by time, unless the times are the same, in which case sort by the order added to the queue
-bool Timing::Event::operator>(const Event& right) const {
-    return std::tie(time, fifo_order) > std::tie(right.time, right.fifo_order);
-}
-
-bool Timing::Event::operator<(const Event& right) const {
-    return std::tie(time, fifo_order) < std::tie(right.time, right.fifo_order);
-}
-
 TimingEventType* Timing::RegisterEvent(const std::string& name, TimedCallback callback) {
     // check for existing type with same name.
     // we want event type names to remain unique so that we can use them for serialization.
@@ -34,9 +25,7 @@ TimingEventType* Timing::RegisterEvent(const std::string& name, TimedCallback ca
     return event_type;
 }
 
-Timing::~Timing() {
-    MoveEvents();
-}
+Timing::~Timing() = default;
 
 u64 Timing::GetTicks() const {
     u64 ticks = static_cast<u64>(global_timer);
@@ -67,11 +56,6 @@ void Timing::ScheduleEvent(s64 cycles_into_future, const TimingEventType* event_
     std::push_heap(event_queue.begin(), event_queue.end(), std::greater<>());
 }
 
-void Timing::ScheduleEventThreadsafe(s64 cycles_into_future, const TimingEventType* event_type,
-                                     u64 userdata) {
-    ts_queue.Push(Event{global_timer + cycles_into_future, 0, userdata, event_type});
-}
-
 void Timing::UnscheduleEvent(const TimingEventType* event_type, u64 userdata) {
     auto itr = std::remove_if(event_queue.begin(), event_queue.end(), [&](const Event& e) {
         return e.type == event_type && e.userdata == userdata;
@@ -95,11 +79,6 @@ void Timing::RemoveEvent(const TimingEventType* event_type) {
     }
 }
 
-void Timing::RemoveNormalAndThreadsafeEvent(const TimingEventType* event_type) {
-    MoveEvents();
-    RemoveEvent(event_type);
-}
-
 void Timing::ForceExceptionCheck(s64 cycles) {
     cycles = std::max<s64>(0, cycles);
     if (downcount > cycles) {
@@ -108,25 +87,18 @@ void Timing::ForceExceptionCheck(s64 cycles) {
     }
 }
 
-void Timing::MoveEvents() {
-    for (Event ev; ts_queue.Pop(ev);) {
-        ev.fifo_order = event_fifo_id++;
-        event_queue.emplace_back(std::move(ev));
-        std::push_heap(event_queue.begin(), event_queue.end(), std::greater<>());
-    }
-}
-
 void Timing::Advance() {
-    MoveEvents();
-
     s64 cycles_executed = slice_length - downcount;
     global_timer += cycles_executed;
     slice_length = MAX_SLICE_LENGTH;
 
     is_global_timer_sane = true;
 
-    while (!event_queue.empty() && event_queue.front().time <= global_timer) {
-        Event evt = std::move(event_queue.front());
+    while (!event_queue.empty()) {
+        Event evt = event_queue.front();
+        if (evt.time > global_timer) {
+            break;
+        }
         std::pop_heap(event_queue.begin(), event_queue.end(), std::greater<>());
         event_queue.pop_back();
         evt.type->callback(evt.userdata, global_timer - evt.time);

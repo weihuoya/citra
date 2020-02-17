@@ -1,0 +1,7 @@
+* Yo-kai Watch Blasters: White Dog Squad - Update Moon Rabbit Crew
+
+[30 FPS v2.4]
+006BD964 00000201
+
+[60 FPS v2.4]
+006BD964 00000101

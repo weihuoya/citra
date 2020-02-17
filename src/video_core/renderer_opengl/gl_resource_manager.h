@@ -12,31 +12,6 @@
 
 namespace OpenGL {
 
-class OGLRenderbuffer : private NonCopyable {
-public:
-    OGLRenderbuffer() = default;
-
-    OGLRenderbuffer(OGLRenderbuffer&& o) noexcept : handle(std::exchange(o.handle, 0)) {}
-
-    ~OGLRenderbuffer() {
-        Release();
-    }
-
-    OGLRenderbuffer& operator=(OGLRenderbuffer&& o) noexcept {
-        Release();
-        handle = std::exchange(o.handle, 0);
-        return *this;
-    }
-
-    /// Creates a new internal OpenGL resource and stores the handle
-    void Create();
-
-    /// Deletes the internal OpenGL resource
-    void Release();
-
-    GLuint handle = 0;
-};
-
 class OGLTexture : private NonCopyable {
 public:
     OGLTexture() = default;
@@ -136,6 +111,10 @@ public:
     void Release();
 
     GLuint handle = 0;
+
+    /// binary program
+    void Create(GLenum format, const std::vector<GLbyte>& binary);
+    void GetProgramBinary(GLenum& format, std::vector<GLbyte>& binary);
 };
 
 class OGLPipeline : private NonCopyable {

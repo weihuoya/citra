@@ -6,16 +6,11 @@
 
 #include <memory>
 #include <glad/glad.h>
-#include "video_core/rasterizer_interface.h"
 #include "video_core/regs_lighting.h"
 #include "video_core/renderer_opengl/gl_resource_manager.h"
 #include "video_core/renderer_opengl/gl_shader_gen.h"
 #include "video_core/renderer_opengl/gl_state.h"
 #include "video_core/renderer_opengl/pica_to_gl.h"
-
-namespace Core {
-class System;
-}
 
 namespace OpenGL {
 
@@ -102,10 +97,7 @@ public:
     ShaderProgramManager(bool separable, bool is_amd);
     ~ShaderProgramManager();
 
-    void LoadDiskCache(const std::atomic_bool& stop_loading,
-                       const VideoCore::DiskResourceLoadCallback& callback);
-
-    bool UseProgrammableVertexShader(const Pica::Regs& config, Pica::Shader::ShaderSetup& setup);
+    bool UseProgrammableVertexShader(const Pica::Regs& regs, Pica::Shader::ShaderSetup& setup);
 
     void UseTrivialVertexShader();
 
@@ -113,7 +105,7 @@ public:
 
     void UseTrivialGeometryShader();
 
-    void UseFragmentShader(const Pica::Regs& config);
+    void UseFragmentShader(const Pica::Regs& regs);
 
     void ApplyTo(OpenGLState& state);
 

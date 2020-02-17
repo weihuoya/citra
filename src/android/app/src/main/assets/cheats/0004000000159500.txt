@@ -1,0 +1,7 @@
+* Shin Megami Tensei: Devil Survivor 2 Record Breaker
+
+[30 FPS]
+005C5CD4 00000001
+
+[60 FPS]
+005C5CD4 00000000

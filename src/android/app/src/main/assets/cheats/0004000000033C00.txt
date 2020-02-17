@@ -1,0 +1,4 @@
+* Super Street Fighter IV: 3D Edition
+
+[Disable FSAA and dithering]
+08582D04 006F0309

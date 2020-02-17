@@ -90,6 +90,17 @@ public:
     /// Closes all handles held in this table.
     void Clear();
 
+    /// Get handle size
+    u32 Size() const {
+        u32 size = 0;
+        for (const auto& obj : objects) {
+            if (obj != nullptr) {
+                size += 1;
+            }
+        }
+        return size;
+    }
+
 private:
     /**
      * This is the maximum limit of handles allowed per process in CTR-OS. It can be further

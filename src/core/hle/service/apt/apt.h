@@ -601,6 +601,8 @@ public:
          */
         void CheckNew3DS(Kernel::HLERequestContext& ctx);
 
+        void ReplySleepQuery(Kernel::HLERequestContext& ctx);
+
     private:
         bool application_reset_prepared{};
         std::shared_ptr<Module> apt;
