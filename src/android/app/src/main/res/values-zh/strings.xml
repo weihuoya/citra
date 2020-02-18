@@ -1,0 +1,162 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <!-- Title of the app -->
+    <string name="app_name">Citra</string>
+    <string name="app_name_version">Citra %1$s</string>
+    <string name="host">app</string>
+    <string name="scheme">citra</string>
+
+    <string name="error">错误</string>
+    <string name="keyboard_please_input">请输入：</string>
+    <string name="input_text_max_length">输入长度限制：%1$d.</string>
+
+    <string name="setting_core_ticks_hack">FMV Hack</string>
+    <string name="setting_skip_slow_draw">跳过慢渲染</string>
+    <string name="emulate_motion_by_touch">触摸屏模拟体感</string>
+    <string name="joystick_relative_center">摇杆使用相对位置</string>
+    <string name="controller_scale">按键缩放</string>
+    <string name="controller_alpha">按键透明度</string>
+
+    <string name="grid_menu_refresh">刷新游戏库</string>
+    <string name="grid_menu_input_binding">手柄绑定</string>
+    <string name="grid_menu_install_cia">安装 CIA</string>
+    <string name="preferences_settings">设置</string>
+
+    <string name="emulation_memory_viewer">内存查看器</string>
+    <string name="emulation_memory_search">搜索内存</string>
+    <string name="memory_search_all_memory">全部内存</string>
+    <string name="memory_region_text">区域：</string>
+    <string name="memory_region_start">起始：</string>
+    <string name="memory_region_stop">结束：</string>
+    <string name="memory_value_type">类型：</string>
+    <string name="memory_search_type">搜索：</string>
+    <string name="memory_scan_type">比较：</string>
+    <string name="memory_search_value">数值：</string>
+    <string name="memory_scan_equal_to">等于</string>
+    <string name="memory_scan_not_equal_to">不等于</string>
+    <string name="memory_scan_bigger_than">大于</string>
+    <string name="memory_scan_bigger_or_equal">大于等于</string>
+    <string name="memory_scan_smaller_than">小于</string>
+    <string name="memory_scan_smaller_or_equal">小于等于</string>
+    <string name="memory_search_specified_value">指定数值</string>
+    <string name="memory_search_unknown">内存对比</string>
+    <string name="memory_value_four_bytes">4 字节</string>
+    <string name="memory_value_two_bytes">2 字节</string>
+    <string name="memory_value_one_byte">1 字节</string>
+    <string name="memory_btn_search">搜索</string>
+    <string name="memory_btn_view">查看</string>
+    <string name="memory_btn_reset">重置</string>
+    <string name="memory_btn_read">读取</string>
+    <string name="memory_btn_write">写入</string>
+    <string name="memory_hex_value">Hex:</string>
+    <string name="memory_int_value">整数:</string>
+    <string name="memory_float_value">浮点数:</string>
+
+    <string name="emulation_screen_rotation">屏幕旋转</string>
+    <string name="emulation_edit_layout">编辑布局</string>
+    <string name="emulation_done">确定</string>
+    <string name="input_binding">输入绑定</string>
+    <string name="input_binding_description">请按键将其绑定到 &lt;b>%1$s&lt;/b>。</string>
+    <string name="emulation_screenshot">截图</string>
+    <string name="menu_switch_list">切换列表</string>
+    <string name="add_directory_title">将文件夹添加到游戏库</string>
+
+    <string name="setting_header_core">系统设置</string>
+    <string name="setting_header_renderer">图形设置</string>
+    <string name="setting_header_audio">声音设置</string>
+
+    <string name="setting_is_new_3ds">New 3DS Mode</string>
+    <string name="setting_is_new_3ds_desc">新 3DS 的内存和处理器不一样，少数游戏只能在新 3DS 上才能启动。</string>
+    <string name="setting_use_virtual_sd">使用虚拟SD卡</string>
+    <string name="setting_enable_cpu_jit">开启 CPU JIT</string>
+    <string name="setting_region_value">模拟地区</string>
+
+    <string name="show_fps">显示帧率</string>
+    <string name="layout_option">屏幕布局</string>
+    <string name="internal_resolution">内部分辨率</string>
+    <string name="setting_hw_shader">开启硬件着色器</string>
+    <string name="setting_hw_shader_desc">开启可以提升性能，但部分2D游戏会有显示问题。</string>
+    <string name="setting_shaders_accurate_mul">精确乘法运算</string>
+    <string name="setting_shaders_accurate_mul_desc">开启可以修复部分游戏的显示问题，但会降低模拟速度。</string>
+    <string name="post_processing_shader">后处理效果</string>
+    <string name="setting_texture_load_hack">快速纹理加载</string>
+    <string name="setting_texture_load_hack_desc">开启可以提升性能，但很多游戏会有贴图错误。</string>
+    <string name="setting_custom_textures">使用自定义纹理</string>
+    <string name="setting_preload_textures">预加载自定义纹理</string>
+    <string name="setting_use_separable_shader">使用分离着色器</string>
+    <string name="setting_use_separable_shader_desc">部分手机上显示异常或者闪退的话，可以启用试一试，没问题就不要乱启用。</string>
+    <string name="setting_factor_3d">Factor 3D (3D Depth Slider)</string>
+
+    <string name="setting_audio_output">音频输出</string>
+    <string name="setting_audio_stretching">音频拉伸</string>
+    <string name="setting_audio_mic_type">麦克风类型</string>
+
+    <string name="running_resolution">分辨率</string>
+    <string name="running_layout">布局</string>
+    <string name="single_screen_option">单屏</string>
+    <string name="large_screen_option">大屏</string>
+    <string name="side_screen_option">并排</string>
+
+    <string name="single_screen">单屏显示</string>
+    <string name="large_screen">大屏显示</string>
+    <string name="side_screen">并排显示</string>
+    <string name="default_value">默认</string>
+    <string name="auto">自动</string>
+    <string name="off">关闭</string>
+    <string name="real_device">实体设备</string>
+    <string name="static_noise">静态噪音</string>
+    <string name="clear_input_binding">清除</string>
+    <string name="save">保存</string>
+    <string name="menu_cheat_code">金手指</string>
+    <string name="cheat_code">[CHEAT NAME]\n*citra_enabled\nFEDCBA98 76543210</string>
+    <string name="write_permission_needed">You need to allow write access to external storage for the emulator to work.</string>
+    <string name="camera_permission_needed">You need to allow take photos for the emulator to work.</string>
+    <string name="record_permission_needed">You need to allow record audio for the emulator to work.</string>
+
+    <string name="region_invalid">未知</string>
+    <string name="region_japan">日本</string>
+    <string name="region_north_america">北美</string>
+    <string name="region_europe">欧洲</string>
+    <string name="region_australia">澳大利亚</string>
+    <string name="region_china">中国</string>
+    <string name="region_korea">韩国</string>
+    <string name="region_taiwan">台湾</string>
+
+    <string name="emulation_info">文件支持：.CCI, .3DS, .CXI</string>
+    <string name="toggle_list">切换列表</string>
+    <string name="installed_app">(已安装：%1$s)</string>
+    <string name="delete_app_sdmc">删除存档目录</string>
+
+    <string name="controller_stick">主摇杆</string>
+    <string name="c_controller_stick">C 摇杆</string>
+    <string name="controller_dpad">方向键</string>
+    <string name="generic_buttons">按键</string>
+    <string name="button_a">A</string>
+    <string name="button_b">B</string>
+    <string name="button_x">X</string>
+    <string name="button_y">Y</string>
+    <string name="button_up">上</string>
+    <string name="button_down">下</string>
+    <string name="button_left">左</string>
+    <string name="button_right">右</string>
+    <string name="button_l">L</string>
+    <string name="button_r">R</string>
+    <string name="button_zl">ZL</string>
+    <string name="button_zr">ZR</string>
+    <string name="button_start">START</string>
+    <string name="button_select">SELECT</string>
+
+    <string name="nnf_new_folder">New folder</string>
+    <string name="nnf_create_folder_error">Failed to create folder</string>
+    <string name="nnf_name">Name</string>
+    <string name="nnf_select_something_first">Please select something first</string>
+    <string name="nnf_need_valid_filename">Please enter or select a valid filename</string>
+    <string name="nnf_permission_external_write_denied">Permisson to access filesystem denied</string>
+    <string name="nnf_filename">Filename</string>
+    <string name="nnf_list_ok">@android:string/ok</string>
+    <string name="nnf_list_cancel">@android:string/cancel</string>
+    <string name="nnf_new_folder_ok">@android:string/ok</string>
+    <string name="nnf_new_folder_cancel">@android:string/cancel</string>
+
+</resources>

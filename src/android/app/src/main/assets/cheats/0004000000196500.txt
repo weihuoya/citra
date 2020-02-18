@@ -1,0 +1,10 @@
+* Style Savvy: Fashion Forward
+
+[30 FPS]
+006F5C88 00000002
+
+[60FPS]
+006F5C88 00000001
+
+[No-Antialiasing]
+006F5C80 00000000

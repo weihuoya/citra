@@ -298,6 +298,7 @@ struct SurfaceParams {
     u16 res_scale = 1;
 
     bool is_tiled = false;
+    bool is_texture = false;
     PixelFormat pixel_format = PixelFormat::Invalid;
     SurfaceType type = SurfaceType::Invalid;
 };
@@ -356,6 +357,7 @@ struct CachedSurface : SurfaceParams, std::enable_shared_from_this<CachedSurface
     std::array<u8, 4> fill_data;
 
     OGLTexture texture;
+    OGLTexture texture_copy;
 
     /// max mipmap level that has been attached to the texture
     u32 max_level = 0;
@@ -384,13 +386,14 @@ struct CachedSurface : SurfaceParams, std::enable_shared_from_this<CachedSurface
     // Custom texture loading and dumping
     bool LoadCustomTexture(u64 tex_hash, Core::CustomTexInfo& tex_info,
                            Common::Rectangle<u32>& custom_rect);
-    void DumpTexture(GLuint target_tex, u64 tex_hash);
 
     // Upload/Download data in gl_buffer in/to this surface's texture
     void UploadGLTexture(const Common::Rectangle<u32>& rect, GLuint read_fb_handle,
                          GLuint draw_fb_handle);
     void DownloadGLTexture(const Common::Rectangle<u32>& rect, GLuint read_fb_handle,
                            GLuint draw_fb_handle);
+
+    GLuint GetTextureCopyHandle();
 
     std::shared_ptr<SurfaceWatcher> CreateWatcher() {
         auto watcher = std::make_shared<SurfaceWatcher>(weak_from_this());
@@ -482,6 +485,9 @@ public:
     /// Flush all cached resources tracked by this cache manager
     void FlushAll();
 
+    /// Handle any config changes
+    void CheckForConfigChanges();
+
 private:
     void DuplicateSurface(const Surface& src_surface, const Surface& dest_surface);
 
@@ -504,9 +510,6 @@ private:
     PageMap cached_pages;
     SurfaceMap dirty_regions;
     SurfaceSet remove_surfaces;
-
-    OGLFramebuffer read_framebuffer;
-    OGLFramebuffer draw_framebuffer;
 
     OGLVertexArray attributeless_vao;
     OGLBuffer d24s8_abgr_buffer;

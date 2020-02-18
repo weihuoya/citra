@@ -34,6 +34,7 @@ enum ThreadProcessorId : s32 {
     ThreadProcessorIdAll = -1,     ///< Run thread on either core
     ThreadProcessorId0 = 0,        ///< Run thread on core 0 (AppCore)
     ThreadProcessorId1 = 1,        ///< Run thread on core 1 (SysCore)
+    ThreadProcessorId2 = 2,        ///< Run thread on core 2 (SysCore)
     ThreadProcessorIdMax = 2,      ///< Processor ID must be less than this
 };
 
@@ -77,11 +78,6 @@ public:
     void Reschedule();
 
     /**
-     * Prints the thread queue for debugging purposes
-     */
-    void DebugThreadQueue();
-
-    /**
      * Returns whether there are any threads that are ready to run.
      */
     bool HaveReadyThreads();
@@ -115,12 +111,6 @@ private:
      * @param new_thread The thread to switch to
      */
     void SwitchContext(Thread* new_thread);
-
-    /**
-     * Pops and returns the next thread from the thread queue
-     * @return A pointer to the next ready thread
-     */
-    Thread* PopNextReadyThread();
 
     /**
      * Callback that will wake up the thread it was scheduled for

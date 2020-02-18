@@ -31,6 +31,7 @@ CFG_S::CFG_S(std::shared_ptr<Module> cfg) : Module::Interface(std::move(cfg), "c
         {0x04070000, nullptr, "SecureInfoGetByte101"},
         {0x04080042, nullptr, "SecureInfoGetSerialNo"},
         {0x04090000, nullptr, "UpdateConfigBlk00040003"},
+        {0x040F0000, nullptr, "ClearParentalControls"},
     };
     RegisterHandlers(functions);
 }

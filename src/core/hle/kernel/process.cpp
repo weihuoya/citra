@@ -426,4 +426,15 @@ std::shared_ptr<Process> KernelSystem::GetProcessById(u32 process_id) const {
 
     return *itr;
 }
+
+u32 KernelSystem::GetProcessThreadsCount(std::shared_ptr<Process> process) const {
+    u32 count = 0;
+    for (const auto& thread : thread_manager->thread_list) {
+        if (thread->owner_process == process.get()) {
+            count += 1;
+        }
+    }
+    return count;
+}
+
 } // namespace Kernel
