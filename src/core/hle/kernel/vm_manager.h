@@ -11,7 +11,6 @@
 #include "common/common_types.h"
 #include "core/hle/result.h"
 #include "core/memory.h"
-#include "core/mmio.h"
 
 namespace Kernel {
 
@@ -76,7 +75,6 @@ struct VirtualMemoryArea {
     // Settings for type = MMIO
     /// Physical address of the register area this VMA maps to.
     PAddr paddr = 0;
-    Memory::MMIORegionPointer mmio_handler = nullptr;
 
     /// Tests if this area can be merged to the right with `next`.
     bool CanBeMergedWith(const VirtualMemoryArea& next) const;
@@ -145,18 +143,6 @@ public:
      * @param state MemoryState tag to attach to the VMA.
      */
     ResultVal<VMAHandle> MapBackingMemory(VAddr target, u8* memory, u32 size, MemoryState state);
-
-    /**
-     * Maps a memory-mapped IO region at a given address.
-     *
-     * @param target The guest address to start the mapping at.
-     * @param paddr The physical address where the registers are present.
-     * @param size Size of the mapping.
-     * @param state MemoryState tag to attach to the VMA.
-     * @param mmio_handler The handler that will implement read and write for this MMIO region.
-     */
-    ResultVal<VMAHandle> MapMMIO(VAddr target, PAddr paddr, u32 size, MemoryState state,
-                                 Memory::MMIORegionPointer mmio_handler);
 
     /**
      * Updates the memory state and permissions of the specified range. The range's original memory

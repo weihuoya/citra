@@ -21,7 +21,7 @@ public:
     DspStatus Tick(DspConfiguration& config, const IntermediateMixSamples& read_samples,
                    IntermediateMixSamples& write_samples, const std::array<QuadFrame32, 3>& input);
 
-    StereoFrame16 GetOutput() const {
+    const StereoFrame16& GetOutput() const {
         return current_frame;
     }
 

@@ -51,12 +51,6 @@ namespace Cheats {
 class CheatEngine;
 }
 
-namespace VideoDumper {
-class Backend;
-}
-
-class RendererBase;
-
 namespace Core {
 
 class Timing;
@@ -172,8 +166,6 @@ public:
         return *dsp_core;
     }
 
-    RendererBase& Renderer();
-
     /**
      * Gets a reference to the service manager.
      * @returns A reference to the service manager.
@@ -224,13 +216,6 @@ public:
 
     /// Handles loading all custom textures from disk into cache.
     void PreloadCustomTextures();
-
-    /// Gets a reference to the video dumper backend
-    VideoDumper::Backend& VideoDumper();
-
-    /// Gets a const reference to the video dumper backend
-    const VideoDumper::Backend& VideoDumper() const;
-
     std::unique_ptr<PerfStats> perf_stats;
     FrameLimiter frame_limiter;
 
@@ -309,9 +294,6 @@ private:
     /// Cheats manager
     std::unique_ptr<Cheats::CheatEngine> cheat_engine;
 
-    /// Video dumper backend
-    std::unique_ptr<VideoDumper::Backend> video_dumper;
-
     /// Custom texture cache system
     std::unique_ptr<Core::CustomTexCache> custom_tex_cache;
 
@@ -331,7 +313,7 @@ private:
     static System s_instance;
 
     ResultStatus status = ResultStatus::Success;
-    std::string status_details = "";
+    std::string status_details;
     /// Saved variables for reset
     Frontend::EmuWindow* m_emu_window;
     std::string m_filepath;

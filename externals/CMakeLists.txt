@@ -12,9 +12,11 @@ target_include_directories(catch-single-include INTERFACE catch/single_include)
 add_subdirectory(cryptopp)
 
 # Dynarmic
-if (ARCHITECTURE_x86_64)
-    # Dynarmic will skip defining xbyak if it's already defined, we then define it below
-    add_library(xbyak INTERFACE)
+if (ARCHITECTURE_x86_64 OR ARCHITECTURE_ARM64)
+    if (ARCHITECTURE_x86_64)
+        # Dynarmic will skip defining xbyak if it's already defined, we then define it below
+        add_library(xbyak INTERFACE)
+    endif()
     option(DYNARMIC_TESTS OFF)
     set(DYNARMIC_NO_BUNDLED_FMT ON)
     add_subdirectory(dynarmic)
@@ -32,8 +34,12 @@ endif()
 # Glad
 add_subdirectory(glad)
 
-# inih
-add_subdirectory(inih)
+if (ANDROID)
+    add_subdirectory(oboe)
+else()
+    # inih
+    add_subdirectory(inih)
+endif()
 
 # MicroProfile
 add_library(microprofile INTERFACE)
@@ -61,10 +67,6 @@ if (ARCHITECTURE_x86_64)
     target_include_directories(xbyak INTERFACE ./xbyak/xbyak)
     target_compile_definitions(xbyak INTERFACE XBYAK_NO_OP_NAMES)
 endif()
-
-# Zstandard
-add_subdirectory(zstd/build/cmake EXCLUDE_FROM_ALL)
-target_include_directories(libzstd_static INTERFACE ./zstd/lib)
 
 # ENet
 add_subdirectory(enet)
@@ -104,6 +106,3 @@ if (ENABLE_WEB_SERVICE)
     add_library(cpp-jwt INTERFACE)
     target_include_directories(cpp-jwt INTERFACE ./cpp-jwt/include)
 endif()
-
-# lodepng
-add_subdirectory(lodepng)

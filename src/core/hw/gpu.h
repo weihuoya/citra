@@ -68,7 +68,7 @@ struct Regs {
     /**
      * Returns the number of bytes per pixel.
      */
-    static int BytesPerPixel(PixelFormat format) {
+    static u32 BytesPerPixel(PixelFormat format) {
         switch (format) {
         case PixelFormat::RGBA8:
             return 4;

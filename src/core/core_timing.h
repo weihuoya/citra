@@ -23,6 +23,7 @@
 #include <string>
 #include <unordered_map>
 #include <vector>
+#include <tuple>
 #include "common/common_types.h"
 #include "common/logging/log.h"
 #include "common/threadsafe_queue.h"
@@ -156,20 +157,10 @@ public:
      */
     void ScheduleEvent(s64 cycles_into_future, const TimingEventType* event_type, u64 userdata = 0);
 
-    /**
-     * This is to be called when outside of hle threads, such as the graphics thread, wants to
-     * schedule things to be executed on the main thread.
-     * Not that this doesn't change slice_length and thus events scheduled by this might be called
-     * with a delay of up to MAX_SLICE_LENGTH
-     */
-    void ScheduleEventThreadsafe(s64 cycles_into_future, const TimingEventType* event_type,
-                                 u64 userdata);
-
     void UnscheduleEvent(const TimingEventType* event_type, u64 userdata);
 
     /// We only permit one event of each type in the queue at a time.
     void RemoveEvent(const TimingEventType* event_type);
-    void RemoveNormalAndThreadsafeEvent(const TimingEventType* event_type);
 
     /** Advance must be called at the beginning of dispatcher loops, not the end. Advance() ends
      * the previous timing slice and begins the next one, you must Advance from the previous
@@ -178,7 +169,6 @@ public:
      * instructions is executed.
      */
     void Advance();
-    void MoveEvents();
 
     /// Pretend that the main CPU has executed enough cycles to reach the next event.
     void Idle();
@@ -196,8 +186,14 @@ private:
         u64 userdata;
         const TimingEventType* type;
 
-        bool operator>(const Event& right) const;
-        bool operator<(const Event& right) const;
+        // Sort by time, unless the times are the same, in which case sort by the order added to the queue
+        bool operator>(const Event& right) const {
+            return std::tie(time, fifo_order) > std::tie(right.time, right.fifo_order);
+        }
+
+        bool operator<(const Event& right) const {
+            return std::tie(time, fifo_order) < std::tie(right.time, right.fifo_order);
+        }
     };
 
     static constexpr int MAX_SLICE_LENGTH = 20000;
@@ -216,9 +212,6 @@ private:
     // accomodated by the standard adaptor class.
     std::vector<Event> event_queue;
     u64 event_fifo_id = 0;
-    // the queue for storing the events from other threads threadsafe until they will be added
-    // to the event_queue by the emu thread
-    Common::MPSCQueue<Event> ts_queue;
     s64 idled_cycles = 0;
 
     // Are we in a function that has been called from Advance()

@@ -15,6 +15,7 @@
 #include "core/gdbstub/gdbstub.h"
 #include "core/hle/kernel/svc.h"
 #include "core/memory.h"
+#include "core/settings.h"
 
 class DynarmicThreadContext final : public ARM_Interface::ThreadContext {
 public:
@@ -150,6 +151,7 @@ public:
     }
 
     void AddTicks(std::uint64_t ticks) override {
+        ticks = std::max(ticks, static_cast<std::uint64_t>(Settings::values.core_ticks_hack));
         timing.AddTicks(ticks);
     }
     std::uint64_t GetTicksRemaining() override {
