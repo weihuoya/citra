@@ -343,11 +343,28 @@ void FS_USER::OpenArchive(Kernel::HLERequestContext& ctx) {
     }
 }
 
+void FS_USER::ControlArchive(Kernel::HLERequestContext& ctx) {
+    IPC::RequestParser rp(ctx, 0x80D, 5, 4);
+    auto archive_handle = rp.PopRaw<ArchiveHandle>();
+    const u32 action = rp.Pop<u32>();
+    const u32 input_size = rp.Pop<u32>();
+    const u32 output_size = rp.Pop<u32>();
+    auto& input_buffer = rp.PopMappedBuffer();
+    auto& output_buffer = rp.PopMappedBuffer();
+    IPC::RequestBuilder rb = rp.MakeBuilder(1, 4);
+    rb.Push(RESULT_SUCCESS);
+    rb.PushMappedBuffer(input_buffer);
+    rb.PushMappedBuffer(output_buffer);
+    LOG_WARNING(Service_FS, "(STUBBED) action={:#08}, called input_size={:#08}, output_size={:#08}",
+                action, input_size, output_size);
+}
+
 void FS_USER::CloseArchive(Kernel::HLERequestContext& ctx) {
     IPC::RequestParser rp(ctx, 0x80E, 2, 0);
     auto archive_handle = rp.PopRaw<ArchiveHandle>();
 
-    IPC::RequestBuilder rb = rp.MakeBuilder(1, 0);
+    IPC::RequestBuilder rb = rp.MakeBuilder(2, 0);
+    rb.Push(RESULT_SUCCESS);
     rb.Push(archives.CloseArchive(archive_handle));
 }
 
@@ -791,7 +808,7 @@ FS_USER::FS_USER(Core::System& system)
         {0x080A0244, &FS_USER::RenameDirectory, "RenameDirectory"},
         {0x080B0102, &FS_USER::OpenDirectory, "OpenDirectory"},
         {0x080C00C2, &FS_USER::OpenArchive, "OpenArchive"},
-        {0x080D0144, nullptr, "ControlArchive"},
+        {0x080D0144, &FS_USER::ControlArchive, "ControlArchive"},
         {0x080E0080, &FS_USER::CloseArchive, "CloseArchive"},
         {0x080F0180, &FS_USER::FormatThisUserSaveData, "FormatThisUserSaveData"},
         {0x08100200, &FS_USER::CreateLegacySystemSaveData, "CreateLegacySystemSaveData"},

@@ -35,8 +35,6 @@ CMAKE_DEPENDENT_OPTION(ENABLE_MF "Use Media Foundation decoder (preferred over F
 
 CMAKE_DEPENDENT_OPTION(COMPILE_WITH_DWARF "Add DWARF debugging information" ON "MINGW" OFF)
 
-CMAKE_DEPENDENT_OPTION(ENABLE_FDK "Use FDK AAC decoder" OFF "NOT ENABLE_FFMPEG_AUDIO_DECODER;NOT ENABLE_MF" OFF)
-
 if(NOT EXISTS ${PROJECT_SOURCE_DIR}/.git/hooks/pre-commit)
     message(STATUS "Copying pre-commit hook")
     file(COPY hooks/pre-commit
@@ -74,6 +72,19 @@ endif()
 
 # Detect current compilation architecture and create standard definitions
 # =======================================================================
+
+include(CheckAndAddFlag)
+check_and_add_flag(VISIBILITY_INLINES_HIDDEN -fvisibility-inlines-hidden)
+check_and_add_flag(VISIBILITY_HIDDEN -fvisibility=hidden)
+
+if(CMAKE_SYSTEM_PROCESSOR STREQUAL "aarch64")
+    set(_M_ARM 1)
+    set(_M_ARM64 1)
+    add_definitions(-D_M_ARM=1)
+    add_definitions(-D_M_ARM64=1)
+    # CRC instruction set is used in the CRC32 hash function
+    check_and_add_flag(HAVE_ARCH_ARMV8 -march=armv8-a+crc)
+endif()
 
 include(CheckSymbolExists)
 function(detect_architecture symbol arch)
@@ -211,11 +222,7 @@ if (ENABLE_FFMPEG)
         endif()
     endif()
 
-    if (ENABLE_FFMPEG_VIDEO_DUMPER)
-        find_package(FFmpeg REQUIRED COMPONENTS avcodec avformat avutil swscale swresample)
-    else()
-        find_package(FFmpeg REQUIRED COMPONENTS avcodec)
-    endif()
+    find_package(FFmpeg REQUIRED COMPONENTS avcodec avformat avutil swscale swresample)
     if ("${FFmpeg_avcodec_VERSION}" VERSION_LESS "57.48.101")
         message(FATAL_ERROR "Found version for libavcodec is too low. The required version is at least 57.48.101 (included in FFmpeg 3.1 and later).")
     endif()
@@ -225,12 +232,6 @@ if (ENABLE_FFMPEG_VIDEO_DUMPER)
     add_definitions(-DENABLE_FFMPEG_VIDEO_DUMPER)
 endif()
 
-if (ENABLE_FDK)
-    find_library(FDK_AAC fdk-aac DOC "The path to fdk_aac library")
-    if(FDK_AAC STREQUAL "FDK_AAC-NOTFOUND")
-        message(FATAL_ERROR "fdk_aac library not found.")
-    endif()
-endif()
 # Platform-specific library requirements
 # ======================================
 
@@ -339,10 +340,12 @@ git_describe(GIT_DESC --always --long --dirty)
 git_branch_name(GIT_BRANCH)
 get_timestamp(BUILD_DATE)
 
-enable_testing()
+if(NOT ANDROID)
+    enable_testing()
+    add_subdirectory(dist/installer)
+endif()
 add_subdirectory(externals)
 add_subdirectory(src)
-add_subdirectory(dist/installer)
 
 
 # Set citra-qt project or citra project as default StartUp Project in Visual Studio depending on whether QT is enabled or not

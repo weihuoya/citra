@@ -1,0 +1,7 @@
+* Shin Sangoku Musou VS
+
+[30 FPS]
+080401B8 00000002
+
+[60 FPS]
+080401B8 00000001

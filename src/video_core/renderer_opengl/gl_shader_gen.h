@@ -16,12 +16,6 @@
 
 namespace OpenGL {
 
-namespace ShaderDecompiler {
-struct ProgramResult;
-}
-
-enum class ProgramType : u32 { VS, GS, FS };
-
 enum Attributes {
     ATTRIBUTE_POSITION,
     ATTRIBUTE_COLOR,
@@ -51,6 +45,7 @@ struct TevStageConfigRaw {
 };
 
 struct PicaFSConfigState {
+    Pica::FramebufferRegs::LogicOp logic_op;
     Pica::FramebufferRegs::CompareFunc alpha_test_func;
     Pica::RasterizerRegs::ScissorMode scissor_test_mode;
     Pica::TexturingRegs::TextureConfig::TextureType texture0_type;
@@ -130,8 +125,7 @@ struct PicaFSConfigState {
  * Pica state is not being captured in the shader cache key, thereby resulting in (what should be)
  * two separate shaders sharing the same key.
  */
-struct PicaFSConfig : Common::HashableStruct<PicaFSConfigState> {
-
+struct PicaFSConfig {
     /// Construct a PicaFSConfig with the given Pica register configuration.
     static PicaFSConfig BuildFromRegs(const Pica::Regs& regs);
 
@@ -142,6 +136,8 @@ struct PicaFSConfig : Common::HashableStruct<PicaFSConfigState> {
     bool TevStageUpdatesCombinerBufferAlpha(unsigned stage_index) const {
         return (stage_index < 4) && ((state.combiner_buffer_input >> 4) & (1 << stage_index));
     }
+
+    PicaFSConfigState state;
 };
 
 /**
@@ -166,13 +162,11 @@ struct PicaShaderConfigCommon {
  * This struct contains information to identify a GL vertex shader generated from PICA vertex
  * shader.
  */
-struct PicaVSConfig : Common::HashableStruct<PicaShaderConfigCommon> {
-    explicit PicaVSConfig(const Pica::ShaderRegs& regs, Pica::Shader::ShaderSetup& setup) {
-        state.Init(regs, setup);
+struct PicaVSConfig {
+    PicaVSConfig(const Pica::Regs& regs, Pica::Shader::ShaderSetup& setup) {
+        state.Init(regs.vs, setup);
     }
-    explicit PicaVSConfig(PicaShaderConfigCommon& conf) {
-        state = conf;
-    }
+    PicaShaderConfigCommon state;
 };
 
 struct PicaGSConfigCommonRaw {
@@ -194,10 +188,11 @@ struct PicaGSConfigCommonRaw {
  * This struct contains information to identify a GL geometry shader generated from PICA no-geometry
  * shader pipeline
  */
-struct PicaFixedGSConfig : Common::HashableStruct<PicaGSConfigCommonRaw> {
-    explicit PicaFixedGSConfig(const Pica::Regs& regs) {
+struct PicaFixedGSConfig {
+    PicaFixedGSConfig(const Pica::Regs& regs) {
         state.Init(regs);
     }
+    PicaGSConfigCommonRaw state;
 };
 
 /**
@@ -206,21 +201,20 @@ struct PicaFixedGSConfig : Common::HashableStruct<PicaGSConfigCommonRaw> {
  * @param separable_shader generates shader that can be used for separate shader object
  * @returns String of the shader source code
  */
-ShaderDecompiler::ProgramResult GenerateTrivialVertexShader(bool separable_shader);
+std::string GenerateTrivialVertexShader(bool separable_shader);
 
 /**
  * Generates the GLSL vertex shader program source code for the given VS program
  * @returns String of the shader source code; boost::none on failure
  */
-std::optional<ShaderDecompiler::ProgramResult> GenerateVertexShader(
-    const Pica::Shader::ShaderSetup& setup, const PicaVSConfig& config, bool separable_shader);
+std::string GenerateVertexShader(const Pica::Shader::ShaderSetup& setup, const PicaVSConfig& config,
+                                 bool separable_shader);
 
 /*
  * Generates the GLSL fixed geometry shader program source code for non-GS PICA pipeline
  * @returns String of the shader source code
  */
-ShaderDecompiler::ProgramResult GenerateFixedGeometryShader(const PicaFixedGSConfig& config,
-                                                            bool separable_shader);
+std::string GenerateFixedGeometryShader(const PicaFixedGSConfig& config, bool separable_shader);
 
 /**
  * Generates the GLSL fragment shader program source code for the current Pica state
@@ -229,30 +223,6 @@ ShaderDecompiler::ProgramResult GenerateFixedGeometryShader(const PicaFixedGSCon
  * @param separable_shader generates shader that can be used for separate shader object
  * @returns String of the shader source code
  */
-ShaderDecompiler::ProgramResult GenerateFragmentShader(const PicaFSConfig& config,
-                                                       bool separable_shader);
+std::string GenerateFragmentShader(const PicaFSConfig& config, bool separable_shader);
 
 } // namespace OpenGL
-
-namespace std {
-template <>
-struct hash<OpenGL::PicaFSConfig> {
-    std::size_t operator()(const OpenGL::PicaFSConfig& k) const {
-        return k.Hash();
-    }
-};
-
-template <>
-struct hash<OpenGL::PicaVSConfig> {
-    std::size_t operator()(const OpenGL::PicaVSConfig& k) const {
-        return k.Hash();
-    }
-};
-
-template <>
-struct hash<OpenGL::PicaFixedGSConfig> {
-    std::size_t operator()(const OpenGL::PicaFixedGSConfig& k) const {
-        return k.Hash();
-    }
-};
-} // namespace std

@@ -45,7 +45,7 @@ void CustomTexCache::FindCustomTextures() {
     // [TitleID]/tex1_[width]x[height]_[64-bit hash]_[format].png
 
     const std::string load_path =
-        fmt::format("{}textures/{:016X}/", FileUtil::GetUserPath(FileUtil::UserPath::LoadDir),
+        fmt::format("{}textures/{:016X}", FileUtil::GetUserPath(FileUtil::UserPath::LoadDir),
                     Core::System::GetInstance().Kernel().GetCurrentProcess()->codeset->program_id);
 
     if (FileUtil::Exists(load_path)) {
@@ -82,9 +82,8 @@ void CustomTexCache::PreloadTextures() {
         if (image_interface->DecodePNG(tex_info.tex, tex_info.width, tex_info.height,
                                        path_info.path)) {
             // Make sure the texture size is a power of 2
-            std::bitset<32> width_bits(tex_info.width);
-            std::bitset<32> height_bits(tex_info.height);
-            if (width_bits.count() == 1 && height_bits.count() == 1) {
+            if (!(tex_info.width & (tex_info.width - 1)) &&
+                !(tex_info.height & (tex_info.height - 1))) {
                 LOG_DEBUG(Render_OpenGL, "Loaded custom texture from {}", path_info.path);
                 Common::FlipRGBA8Texture(tex_info.tex, tex_info.width, tex_info.height);
                 CacheTexture(path_info.hash, tex_info.tex, tex_info.width, tex_info.height);

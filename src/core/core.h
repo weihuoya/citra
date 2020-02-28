@@ -51,10 +51,6 @@ namespace Cheats {
 class CheatEngine;
 }
 
-namespace VideoDumper {
-class Backend;
-}
-
 class RendererBase;
 
 namespace Core {
@@ -248,13 +244,6 @@ public:
 
     /// Handles loading all custom textures from disk into cache.
     void PreloadCustomTextures();
-
-    /// Gets a reference to the video dumper backend
-    VideoDumper::Backend& VideoDumper();
-
-    /// Gets a const reference to the video dumper backend
-    const VideoDumper::Backend& VideoDumper() const;
-
     std::unique_ptr<PerfStats> perf_stats;
     FrameLimiter frame_limiter;
 
@@ -303,7 +292,7 @@ private:
      * @param system_mode The system mode.
      * @return ResultStatus code, indicating if the operation succeeded.
      */
-    ResultStatus Init(Frontend::EmuWindow& emu_window, u32 system_mode);
+    ResultStatus Init(Frontend::EmuWindow& emu_window, u32 system_mode, u8 n3ds_mode);
 
     /// Reschedule the core emulation
     void Reschedule();
@@ -334,9 +323,6 @@ private:
     /// Cheats manager
     std::unique_ptr<Cheats::CheatEngine> cheat_engine;
 
-    /// Video dumper backend
-    std::unique_ptr<VideoDumper::Backend> video_dumper;
-
     /// Custom texture cache system
     std::unique_ptr<Core::CustomTexCache> custom_tex_cache;
 
@@ -358,7 +344,7 @@ private:
     bool initalized = false;
 
     ResultStatus status = ResultStatus::Success;
-    std::string status_details = "";
+    std::string status_details;
     /// Saved variables for reset
     Frontend::EmuWindow* m_emu_window;
     std::string m_filepath;

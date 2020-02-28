@@ -113,7 +113,7 @@ void DSP_DSP::ReadPipe(Kernel::HLERequestContext& ctx) {
 
     std::vector<u8> pipe_buffer;
     if (pipe_readable_size >= size)
-        pipe_buffer = system.DSP().PipeRead(pipe, size);
+        system.DSP().PipeRead(pipe, size, pipe_buffer);
     else
         UNREACHABLE(); // No more data is in pipe. Hardware hangs in this case; Should never happen.
 
@@ -152,7 +152,7 @@ void DSP_DSP::ReadPipeIfPossible(Kernel::HLERequestContext& ctx) {
 
     std::vector<u8> pipe_buffer;
     if (pipe_readable_size >= size)
-        pipe_buffer = system.DSP().PipeRead(pipe, size);
+        system.DSP().PipeRead(pipe, size, pipe_buffer);
 
     IPC::RequestBuilder rb = rp.MakeBuilder(2, 2);
     rb.Push(RESULT_SUCCESS);
@@ -301,8 +301,8 @@ void DSP_DSP::ForceHeadphoneOut(Kernel::HLERequestContext& ctx) {
 // that's waiting for an interrupt event. Immediately after this interrupt event, userland
 // normally updates the state in the next region and increments the relevant frame counter by two.
 void DSP_DSP::SignalInterrupt(InterruptType type, DspPipe pipe) {
-    LOG_DEBUG(Service_DSP, "called, type={}, pipe={}", static_cast<u32>(type),
-              static_cast<u32>(pipe));
+    // LOG_DEBUG(Service_DSP, "called, type={}, pipe={}", static_cast<u32>(type),
+    // static_cast<u32>(pipe));
     const auto& event = GetInterruptEvent(type, pipe);
     if (event)
         event->Signal();
