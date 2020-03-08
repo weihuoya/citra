@@ -86,7 +86,7 @@ class KernelSystem {
 public:
     explicit KernelSystem(Memory::MemorySystem& memory, Core::Timing& timing,
                           std::function<void()> prepare_reschedule_callback, u32 system_mode,
-                          u32 num_cores);
+                          u32 num_cores, u8 n3ds_mode);
     ~KernelSystem();
 
     using PortPair = std::pair<std::shared_ptr<ServerPort>, std::shared_ptr<ClientPort>>;
@@ -209,6 +209,8 @@ public:
     /// Retrieves a process from the current list of processes.
     std::shared_ptr<Process> GetProcessById(u32 process_id) const;
 
+    u32 GetProcessThreadsCount(std::shared_ptr<Process> process) const;
+
     std::shared_ptr<Process> GetCurrentProcess() const;
     void SetCurrentProcess(std::shared_ptr<Process> process);
     void SetCurrentProcessForCPU(std::shared_ptr<Process> process, u32 core_id);
@@ -263,7 +265,7 @@ public:
     Core::Timing& timing;
 
 private:
-    void MemoryInit(u32 mem_type);
+    void MemoryInit(u32 mem_type, u8 n3ds_mode);
 
     std::function<void()> prepare_reschedule_callback;
 

@@ -1,0 +1,194 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content">
+
+    <TextView
+        android:text="@string/emulation_memory_viewer"
+        android:textAlignment="center"
+        android:textColor="@android:color/white"
+        android:background="@color/citra_orange"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" />
+
+    <RelativeLayout
+        android:paddingStart="4dp"
+        android:paddingEnd="4dp"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <TextView
+            android:layout_alignParentStart="true"
+            android:layout_centerVertical="true"
+            android:text="@string/memory_value_type"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"/>
+
+        <RadioGroup
+            android:layout_alignParentEnd="true"
+            android:layout_centerVertical="true"
+            android:id="@+id/radio_group"
+            android:orientation="horizontal"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content">
+
+            <RadioButton
+                android:id="@+id/radio0"
+                android:text="@string/memory_value_four_bytes"
+                android:checked="true"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"/>
+
+            <RadioButton
+                android:id="@+id/radio1"
+                android:text="@string/memory_value_two_bytes"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"/>
+
+            <RadioButton
+                android:id="@+id/radio2"
+                android:text="@string/memory_value_one_byte"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"/>
+
+        </RadioGroup>
+
+    </RelativeLayout>
+
+    <RelativeLayout
+        android:paddingStart="4dp"
+        android:paddingEnd="4dp"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <TextView
+            android:layout_alignParentStart="true"
+            android:layout_centerVertical="true"
+            android:id="@+id/mem_region_text"
+            android:text="@string/memory_region_text"
+            android:layout_width="80dp"
+            android:layout_height="wrap_content"/>
+
+        <Button
+            android:id="@+id/mem_region_next"
+            android:layout_alignParentEnd="true"
+            android:text="+"
+            android:minWidth="50dp"
+            android:minHeight="0dp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"/>
+
+        <Button
+            android:id="@+id/mem_region_previous"
+            android:text="-"
+            android:minWidth="50dp"
+            android:minHeight="0dp"
+            android:layout_toStartOf="@id/mem_region_next"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"/>
+
+        <EditText
+            android:id="@+id/mem_region"
+            android:layout_centerVertical="true"
+            android:layout_toEndOf="@id/mem_region_text"
+            android:layout_toStartOf="@id/mem_region_previous"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"/>
+
+    </RelativeLayout>
+
+    <RelativeLayout
+        android:paddingStart="4dp"
+        android:paddingEnd="4dp"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <TextView
+            android:id="@+id/hex_value_text"
+            android:text="@string/memory_hex_value"
+            android:layout_centerVertical="true"
+            android:layout_alignParentStart="true"
+            android:layout_width="80dp"
+            android:layout_height="wrap_content"/>
+
+        <EditText
+            android:id="@+id/edit_hex_value"
+            android:layout_toEndOf="@id/hex_value_text"
+            android:layout_alignParentEnd="true"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"/>
+
+    </RelativeLayout>
+
+    <RelativeLayout
+        android:paddingStart="4dp"
+        android:paddingEnd="4dp"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <TextView
+            android:id="@+id/integer_value_text"
+            android:text="@string/memory_int_value"
+            android:layout_centerVertical="true"
+            android:layout_alignParentStart="true"
+            android:layout_width="80dp"
+            android:layout_height="wrap_content"/>
+
+        <EditText
+            android:id="@+id/edit_integer_value"
+            android:layout_toEndOf="@id/integer_value_text"
+            android:layout_alignParentEnd="true"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"/>
+
+    </RelativeLayout>
+
+    <RelativeLayout
+        android:paddingStart="4dp"
+        android:paddingEnd="4dp"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <TextView
+            android:id="@+id/float_value_text"
+            android:text="@string/memory_float_value"
+            android:layout_centerVertical="true"
+            android:layout_alignParentStart="true"
+            android:layout_width="80dp"
+            android:layout_height="wrap_content"/>
+
+        <EditText
+            android:id="@+id/edit_float_value"
+            android:layout_toEndOf="@id/float_value_text"
+            android:layout_alignParentEnd="true"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"/>
+
+    </RelativeLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <Button
+            android:id="@+id/btn_read"
+            android:text="@string/memory_btn_read"
+            android:layout_weight="1"
+            android:minWidth="0dp"
+            android:minHeight="0dp"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"/>
+
+        <Button
+            android:id="@+id/btn_write"
+            android:text="@string/memory_btn_write"
+            android:layout_weight="1"
+            android:minWidth="0dp"
+            android:minHeight="0dp"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"/>
+
+    </LinearLayout>
+
+</LinearLayout>

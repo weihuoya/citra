@@ -1,0 +1,7 @@
+* Animal Crossing: New Leaf - Welcome Amiibo
+
+[30FPS]
+328D55B0 00000002
+
+[60FPS]
+328D55B0 00000001

@@ -280,7 +280,8 @@ void Source::GenerateFrame() {
             break;
         case InterpolationMode::Polyphase:
             // TODO(merry): Implement polyphase interpolation
-            LOG_DEBUG(Audio_DSP, "Polyphase interpolation unimplemented; falling back to linear");
+            // LOG_DEBUG(Audio_DSP, "Polyphase interpolation unimplemented; falling back to
+            // linear");
             AudioInterp::Linear(state.interp_state, state.current_buffer, state.rate_multiplier,
                                 current_frame, frame_position);
             break;
@@ -289,7 +290,7 @@ void Source::GenerateFrame() {
             break;
         }
     }
-    state.next_sample_number += static_cast<u32>(frame_position);
+    state.next_sample_number += static_cast<u32>(frame_position * state.rate_multiplier);
 
     state.filters.ProcessFrame(current_frame);
 }

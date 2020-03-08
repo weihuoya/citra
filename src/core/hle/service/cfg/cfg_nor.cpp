@@ -12,6 +12,10 @@ CFG_NOR::CFG_NOR() : ServiceFramework("cfg:nor", 23) {
         {0x00020000, nullptr, "Shutdown"},
         {0x00050082, nullptr, "ReadData"},
         {0x00060082, nullptr, "WriteData"},
+        {0x00090000, nullptr, "ReadIdentification"},
+        {0x000E0000, nullptr, "ReadStatusRegister"},
+        {0x000F0082, nullptr, "ReadDataOther"},
+        {0x00100082, nullptr, "WriteDataOther"},
     };
     RegisterHandlers(functions);
 }

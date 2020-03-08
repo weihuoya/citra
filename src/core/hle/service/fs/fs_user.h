@@ -213,6 +213,8 @@ private:
      */
     void OpenArchive(Kernel::HLERequestContext& ctx);
 
+    void ControlArchive(Kernel::HLERequestContext& ctx);
+
     /**
      * FS_User::CloseArchive service function
      *  Inputs:

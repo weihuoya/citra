@@ -506,8 +506,9 @@ void Y2R_U::StartConversion(Kernel::HLERequestContext& ctx) {
         conversion.input_lines * (conversion.dst.transfer_unit + conversion.dst.gap);
     Memory::RasterizerFlushVirtualRegion(conversion.dst.address, total_output_size,
                                          Memory::FlushMode::FlushAndInvalidate);
-
-    HW::Y2R::PerformConversion(system.Memory(), conversion);
+    if (completion_event->ShouldWait(nullptr)) {
+        HW::Y2R::PerformConversion(system.Memory(), conversion);
+    }
 
     completion_event->Signal();
 

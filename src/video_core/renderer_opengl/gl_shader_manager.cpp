@@ -3,79 +3,11 @@
 // Refer to the license.txt file included.
 
 #include <algorithm>
-#include <thread>
 #include <unordered_map>
-#include <boost/functional/hash.hpp>
 #include <boost/variant.hpp>
-#include "core/core.h"
-#include "video_core/renderer_opengl/gl_shader_disk_cache.h"
 #include "video_core/renderer_opengl/gl_shader_manager.h"
-#include "video_core/video_core.h"
 
 namespace OpenGL {
-
-static u64 GetUniqueIdentifier(const Pica::Regs& regs, const ProgramCode& code) {
-    std::size_t hash = 0;
-    u64 regs_uid = Common::ComputeHash64(regs.reg_array.data(), Pica::Regs::NUM_REGS * sizeof(u32));
-    boost::hash_combine(hash, regs_uid);
-    if (code.size() > 0) {
-        u64 code_uid = Common::ComputeHash64(code.data(), code.size() * sizeof(u32));
-        boost::hash_combine(hash, code_uid);
-    }
-    return static_cast<u64>(hash);
-}
-
-static OGLProgram GeneratePrecompiledProgram(const ShaderDiskCacheDump& dump,
-                                             const std::set<GLenum>& supported_formats) {
-
-    if (supported_formats.find(dump.binary_format) == supported_formats.end()) {
-        LOG_INFO(Render_OpenGL, "Precompiled cache entry with unsupported format - removing");
-        return {};
-    }
-
-    auto shader = OGLProgram();
-    shader.handle = glCreateProgram();
-    glProgramParameteri(shader.handle, GL_PROGRAM_SEPARABLE, GL_TRUE);
-    glProgramBinary(shader.handle, dump.binary_format, dump.binary.data(),
-                    static_cast<GLsizei>(dump.binary.size()));
-
-    GLint link_status{};
-    glGetProgramiv(shader.handle, GL_LINK_STATUS, &link_status);
-    if (link_status == GL_FALSE) {
-        LOG_INFO(Render_OpenGL, "Precompiled cache rejected by the driver - removing");
-        return {};
-    }
-
-    return shader;
-}
-
-static std::set<GLenum> GetSupportedFormats() {
-    std::set<GLenum> supported_formats;
-
-    GLint num_formats{};
-    glGetIntegerv(GL_NUM_PROGRAM_BINARY_FORMATS, &num_formats);
-
-    std::vector<GLint> formats(num_formats);
-    glGetIntegerv(GL_PROGRAM_BINARY_FORMATS, formats.data());
-
-    for (const GLint format : formats)
-        supported_formats.insert(static_cast<GLenum>(format));
-    return supported_formats;
-}
-
-static std::tuple<PicaVSConfig, Pica::Shader::ShaderSetup> BuildVSConfigFromRaw(
-    const ShaderDiskCacheRaw& raw) {
-    Pica::Shader::ProgramCode program_code{};
-    Pica::Shader::SwizzleData swizzle_data{};
-    std::copy_n(raw.GetProgramCode().begin(), Pica::Shader::MAX_PROGRAM_CODE_LENGTH,
-                program_code.begin());
-    std::copy_n(raw.GetProgramCode().begin() + Pica::Shader::MAX_PROGRAM_CODE_LENGTH,
-                Pica::Shader::MAX_SWIZZLE_DATA_LENGTH, swizzle_data.begin());
-    Pica::Shader::ShaderSetup setup;
-    setup.program_code = program_code;
-    setup.swizzle_data = swizzle_data;
-    return {PicaVSConfig{raw.GetRawShaderConfig().vs, setup}, setup};
-}
 
 static void SetShaderUniformBlockBinding(GLuint shader, const char* name, UniformBindings binding,
                                          std::size_t expected_size) {
@@ -112,9 +44,7 @@ static void SetShaderImageBinding(GLuint shader, const char* name, GLuint bindin
 }
 
 static void SetShaderSamplerBindings(GLuint shader) {
-    OpenGLState cur_state = OpenGLState::GetCurState();
-    GLuint old_program = std::exchange(cur_state.draw.shader_program, shader);
-    cur_state.Apply();
+    GLuint old_program = OpenGLState::BindShaderProgram(shader);
 
     // Set the texture samplers to correspond to different texture units
     SetShaderSamplerBinding(shader, "tex0", TextureUnits::PicaTexture(0));
@@ -134,8 +64,7 @@ static void SetShaderSamplerBindings(GLuint shader) {
     SetShaderImageBinding(shader, "shadow_texture_pz", ImageUnits::ShadowTexturePZ);
     SetShaderImageBinding(shader, "shadow_texture_nz", ImageUnits::ShadowTextureNZ);
 
-    cur_state.draw.shader_program = old_program;
-    cur_state.Apply();
+    OpenGLState::BindShaderProgram(old_program);
 }
 
 void PicaUniformsData::SetFromRegs(const Pica::ShaderRegs& regs,
@@ -167,12 +96,14 @@ public:
         }
     }
 
-    void Create(const char* source, GLenum type) {
+    void Create(std::string&& source, GLenum type) {
+        shader_type = type;
+        shader_code = std::move(source);
         if (shader_or_program.which() == 0) {
-            boost::get<OGLShader>(shader_or_program).Create(source, type);
+            boost::get<OGLShader>(shader_or_program).Create(shader_code.c_str(), type);
         } else {
             OGLShader shader;
-            shader.Create(source, type);
+            shader.Create(shader_code.c_str(), type);
             OGLProgram& program = boost::get<OGLProgram>(shader_or_program);
             program.Create(true, {shader.handle});
             SetShaderUniformBlockBindings(program.handle);
@@ -188,22 +119,20 @@ public:
         }
     }
 
-    void Inject(OGLProgram&& program) {
-        SetShaderUniformBlockBindings(program.handle);
-        SetShaderSamplerBindings(program.handle);
-        shader_or_program = std::move(program);
-    }
-
 private:
+    friend struct OGLShaderCacheEntity;
     boost::variant<OGLShader, OGLProgram> shader_or_program;
+    std::string shader_code;
+    GLenum shader_type = 0;
 };
 
 class TrivialVertexShader {
 public:
     explicit TrivialVertexShader(bool separable) : program(separable) {
-        program.Create(GenerateTrivialVertexShader(separable).code.c_str(), GL_VERTEX_SHADER);
+        program.Create(GenerateTrivialVertexShader(separable), GL_VERTEX_SHADER);
     }
-    GLuint Get() const {
+
+    GLuint GetHandle() const {
         return program.GetHandle();
     }
 
@@ -211,146 +140,376 @@ private:
     OGLShaderStage program;
 };
 
-template <typename KeyConfigType,
-          ShaderDecompiler::ProgramResult (*CodeGenerator)(const KeyConfigType&, bool),
-          GLenum ShaderType>
-class ShaderCache {
-public:
-    explicit ShaderCache(bool separable) : separable(separable) {}
-    std::tuple<GLuint, std::optional<ShaderDecompiler::ProgramResult>> Get(
-        const KeyConfigType& config) {
-        auto [iter, new_shader] = shaders.emplace(config, OGLShaderStage{separable});
-        OGLShaderStage& cached_shader = iter->second;
-        std::optional<ShaderDecompiler::ProgramResult> result{};
-        if (new_shader) {
-            result = CodeGenerator(config, separable);
-            cached_shader.Create(result->code.c_str(), ShaderType);
+struct OGLShaderCacheEntity {
+    OGLShaderCacheEntity() = default;
+
+    OGLShaderCacheEntity(u64 hash, OGLShaderStage& shader)
+        : hashes(1, hash), shader_code(std::move(shader.shader_code)),
+          shader_type(shader.shader_type) {}
+
+    std::size_t Save(FileUtil::IOFile& file) {
+        std::size_t data_size;
+        std::size_t write_size;
+        std::size_t total_size = 0;
+
+        // shader
+        std::size_t code_size = shader_code.size();
+        data_size = sizeof(code_size);
+        write_size = file.WriteBytes(&code_size, data_size);
+        if (write_size != data_size) {
+            LOG_DEBUG(Render_OpenGL, "OGLShaderCacheEntity Save failed: code size!");
+            return static_cast<std::size_t>(-1);
         }
-        return {cached_shader.GetHandle(), result};
+        total_size += write_size;
+
+        data_size = code_size;
+        write_size = file.WriteBytes(shader_code.data(), data_size);
+        if (write_size != data_size) {
+            LOG_DEBUG(Render_OpenGL, "OGLShaderCacheEntity Save failed: shader code!");
+            return static_cast<std::size_t>(-1);
+        }
+        total_size += write_size;
+
+        // type
+        data_size = sizeof(shader_type);
+        write_size = file.WriteBytes(&shader_type, data_size);
+        if (write_size != data_size) {
+            LOG_DEBUG(Render_OpenGL, "OGLShaderCacheEntity Save failed: shader type!");
+            return static_cast<std::size_t>(-1);
+        }
+        total_size += write_size;
+
+        // hashes
+        std::size_t hash_count = hashes.size();
+        data_size = sizeof(hash_count);
+        write_size = file.WriteBytes(&hash_count, data_size);
+        if (write_size != data_size) {
+            LOG_DEBUG(Render_OpenGL, "OGLShaderCacheEntity Save failed: hash count!");
+            return static_cast<std::size_t>(-1);
+        }
+        total_size += write_size;
+
+        data_size = hash_count * sizeof(u64);
+        write_size = file.WriteBytes(hashes.data(), data_size);
+        if (write_size != data_size) {
+            LOG_DEBUG(Render_OpenGL, "OGLShaderCacheEntity Save failed: hashes!");
+            return static_cast<std::size_t>(-1);
+        }
+        total_size += write_size;
+
+        return total_size;
     }
 
-    void Inject(const KeyConfigType& key, std::string decomp, OGLProgram&& program) {
-        OGLShaderStage stage{separable};
-        stage.Inject(std::move(program));
-        shaders.emplace(key, std::move(stage));
+    std::size_t Load(FileUtil::IOFile& file) {
+        std::size_t data_size;
+        std::size_t read_size;
+        std::size_t total_size = 0;
+
+        // shader
+        std::size_t code_size = 0;
+        data_size = sizeof(code_size);
+        read_size = file.ReadBytes(&code_size, data_size);
+        if (read_size != data_size) {
+            LOG_DEBUG(Render_OpenGL, "OGLShaderCacheEntity Load failed: code size!");
+            return static_cast<std::size_t>(-1);
+        }
+        total_size += read_size;
+
+        data_size = code_size;
+        shader_code.resize(code_size);
+        read_size = file.ReadBytes(shader_code.data(), data_size);
+        if (read_size != data_size) {
+            LOG_DEBUG(Render_OpenGL, "OGLShaderCacheEntity Load failed: shader code!");
+            return static_cast<std::size_t>(-1);
+        }
+        total_size += read_size;
+
+        // type
+        data_size = sizeof(shader_type);
+        read_size = file.ReadBytes(&shader_type, data_size);
+        if (read_size != data_size) {
+            LOG_DEBUG(Render_OpenGL, "OGLShaderCacheEntity Load failed: shader type!");
+            return static_cast<std::size_t>(-1);
+        }
+        total_size += read_size;
+
+        // hashes
+        std::size_t hash_count = 0;
+        data_size = sizeof(hash_count);
+        read_size = file.ReadBytes(&hash_count, data_size);
+        if (read_size != data_size) {
+            LOG_DEBUG(Render_OpenGL, "OGLShaderCacheEntity Load failed: hash count!");
+            return static_cast<std::size_t>(-1);
+        }
+        total_size += read_size;
+
+        data_size = hash_count * sizeof(u64);
+        hashes.resize(hash_count);
+        read_size = file.ReadBytes(hashes.data(), data_size);
+        if (read_size != data_size) {
+            LOG_DEBUG(Render_OpenGL, "OGLShaderCacheEntity Load failed: hashes!");
+            return static_cast<std::size_t>(-1);
+        }
+        total_size += read_size;
+
+        return total_size;
     }
 
-private:
-    bool separable;
-    std::unordered_map<KeyConfigType, OGLShaderStage> shaders;
+    std::vector<u64> hashes;
+    std::string shader_code;
+    GLenum shader_type = 0;
 };
 
-// This is a cache designed for shaders translated from PICA shaders. The first cache matches the
-// config structure like a normal cache does. On cache miss, the second cache matches the generated
-// GLSL code. The configuration is like this because there might be leftover code in the PICA shader
-// program buffer from the previous shader, which is hashed into the config, resulting several
-// different config values from the same shader program.
-template <typename KeyConfigType,
-          std::optional<ShaderDecompiler::ProgramResult> (*CodeGenerator)(
-              const Pica::Shader::ShaderSetup&, const KeyConfigType&, bool),
-          GLenum ShaderType>
-class ShaderDoubleCache {
-public:
-    explicit ShaderDoubleCache(bool separable) : separable(separable) {}
-    std::tuple<GLuint, std::optional<ShaderDecompiler::ProgramResult>> Get(
-        const KeyConfigType& key, const Pica::Shader::ShaderSetup& setup) {
-        std::optional<ShaderDecompiler::ProgramResult> result{};
-        auto map_it = shader_map.find(key);
-        if (map_it == shader_map.end()) {
-            auto program_opt = CodeGenerator(setup, key, separable);
-            if (!program_opt) {
-                shader_map[key] = nullptr;
-                return {0, {}};
-            }
+static std::string OGLShaderCacheFile() {
+    u64 program_id = 0;
+    Core::System::GetInstance().GetAppLoader().ReadProgramId(program_id);
+    const std::string& log_dir = FileUtil::GetUserPath(FileUtil::UserPath::LogDir);
+    return fmt::format("{}{:016X}.cache", log_dir, program_id);
+}
 
-            std::string& program = program_opt->code;
-            auto [iter, new_shader] = shader_cache.emplace(program, OGLShaderStage{separable});
-            OGLShaderStage& cached_shader = iter->second;
-            if (new_shader) {
-                result->code = program;
-                cached_shader.Create(program.c_str(), ShaderType);
-            }
-            shader_map[key] = &cached_shader;
-            return {cached_shader.GetHandle(), result};
-        }
+#define SHADER_CACHE_VERSION 0x1
 
-        if (map_it->second == nullptr) {
-            return {0, {}};
-        }
-
-        return {map_it->second->GetHandle(), {}};
+static void OGLShaderCacheSave(bool separable, std::unordered_map<u64, OGLShaderStage>& shaders,
+                               std::unordered_map<u64, OGLShaderStage*>& shaders_ref,
+                               std::unordered_map<u64, OGLProgram>& programs) {
+    FileUtil::IOFile file;
+    if (!file.Open(OGLShaderCacheFile(), "wb")) {
+        LOG_DEBUG(Render_OpenGL, "OGLShaderCacheSave file open failed!");
+        return;
     }
 
-    void Inject(const KeyConfigType& key, std::string decomp, OGLProgram&& program) {
-        OGLShaderStage stage{separable};
-        stage.Inject(std::move(program));
-        auto [iter, new_shader] = shader_cache.emplace(decomp, std::move(stage));
-        OGLShaderStage& cached_shader = iter->second;
-        shader_map[key] = &cached_shader;
+    std::unordered_map<OGLShaderStage*, OGLShaderCacheEntity> caches;
+    for (auto& iter : shaders) {
+        caches.emplace(&iter.second, OGLShaderCacheEntity{iter.first, iter.second});
     }
 
-private:
-    bool separable;
-    std::unordered_map<KeyConfigType, OGLShaderStage*> shader_map;
-    std::unordered_map<std::string, OGLShaderStage> shader_cache;
-};
+    for (auto& iter_ref : shaders_ref) {
+        auto& entity = caches[iter_ref.second];
+        entity.hashes.push_back(iter_ref.first);
+    }
 
-using ProgrammableVertexShaders =
-    ShaderDoubleCache<PicaVSConfig, &GenerateVertexShader, GL_VERTEX_SHADER>;
+    std::size_t total_size = 0;
 
-using FixedGeometryShaders =
-    ShaderCache<PicaFixedGSConfig, &GenerateFixedGeometryShader, GL_GEOMETRY_SHADER>;
+    // version
+    std::size_t version = SHADER_CACHE_VERSION;
+    std::size_t data_size = sizeof(version);
+    std::size_t write_size = file.WriteBytes(&version, data_size);
+    if (write_size != data_size) {
+        LOG_DEBUG(Render_OpenGL, "OGLShaderCacheSave failed: version!");
+        return;
+    }
+    total_size += write_size;
 
-using FragmentShaders = ShaderCache<PicaFSConfig, &GenerateFragmentShader, GL_FRAGMENT_SHADER>;
+    // shader count
+    std::size_t item_count = caches.size();
+    data_size = sizeof(item_count);
+    write_size = file.WriteBytes(&item_count, data_size);
+    if (write_size != data_size) {
+        LOG_DEBUG(Render_OpenGL, "OGLShaderCacheSave failed: shader count!");
+        return;
+    }
+    total_size += write_size;
+
+    // shaders
+    for (auto& iter : caches) {
+        data_size = iter.second.Save(file);
+        if (data_size == std::size_t(-1)) {
+            LOG_DEBUG(Render_OpenGL, "OGLShaderCacheSave failed: shader error!");
+            return;
+        }
+        if (!file.IsGood()) {
+            LOG_DEBUG(Render_OpenGL, "OGLShaderCacheSave failed: file is bad!");
+            return;
+        }
+        total_size += data_size;
+    }
+}
+
+static void OGLShaderCacheLoad(bool separable, std::unordered_map<u64, OGLShaderStage>& shaders,
+                               std::unordered_map<u64, OGLShaderStage*>& shaders_ref,
+                               std::unordered_map<u64, OGLProgram>& programs) {
+    FileUtil::IOFile file;
+    if (!file.Open(OGLShaderCacheFile(), "rb")) {
+        LOG_DEBUG(Render_OpenGL, "OGLShaderCacheLoad file open failed!");
+        return;
+    }
+
+    std::size_t total_size = file.GetSize();
+
+    // version
+    std::size_t version = 0;
+    std::size_t data_size = sizeof(version);
+    std::size_t read_size = file.ReadBytes(&version, data_size);
+    if (read_size != data_size || version != SHADER_CACHE_VERSION) {
+        LOG_DEBUG(Render_OpenGL, "OGLShaderCacheLoad failed: version! version: {}", version);
+        return;
+    }
+    total_size -= read_size;
+
+    // shader count
+    std::size_t item_count = 0;
+    data_size = sizeof(item_count);
+    read_size = file.ReadBytes(&item_count, data_size);
+    if (read_size != data_size) {
+        LOG_DEBUG(Render_OpenGL, "OGLShaderCacheLoad failed: shader count!");
+        return;
+    }
+    total_size -= read_size;
+
+    // shaders
+    OGLShaderCacheEntity entity;
+    while (item_count > 0 && total_size > 0) {
+        data_size = entity.Load(file);
+        if (data_size == std::size_t(-1)) {
+            LOG_DEBUG(Render_OpenGL, "OGLShaderCacheLoad failed: shader error!");
+            return;
+        } else {
+            auto [iter, new_shader] = shaders.emplace(entity.hashes[0], separable);
+            iter->second.Create(std::move(entity.shader_code), entity.shader_type);
+            for (std::size_t i = 1; i < entity.hashes.size(); ++i) {
+                shaders_ref[entity.hashes[i]] = &iter->second;
+            }
+        }
+        if (!file.IsGood()) {
+            LOG_DEBUG(Render_OpenGL, "OGLShaderCacheLoad failed: file is bad!");
+            return;
+        }
+
+        item_count -= 1;
+        total_size -= data_size;
+    }
+}
 
 class ShaderProgramManager::Impl {
 public:
-    explicit Impl(bool separable, bool is_amd)
-        : is_amd(is_amd), separable(separable), programmable_vertex_shaders(separable),
-          trivial_vertex_shader(separable), fixed_geometry_shaders(separable),
-          fragment_shaders(separable), disk_cache(separable) {
-        if (separable)
+    Impl(bool separable, bool is_amd)
+        : separable(separable), is_amd(is_amd), trivial_vertex_shader(separable) {
+        if (separable) {
             pipeline.Create();
+        }
+        // load
+        // OGLShaderCacheLoad(separable, shaders, shaders_ref, program_cache);
     }
 
-    struct ShaderTuple {
-        GLuint vs = 0;
-        GLuint gs = 0;
-        GLuint fs = 0;
+    ~Impl() {
+        // save
+        // OGLShaderCacheSave(separable, shaders, shaders_ref, program_cache);
+    }
 
-        bool operator==(const ShaderTuple& rhs) const {
-            return std::tie(vs, gs, fs) == std::tie(rhs.vs, rhs.gs, rhs.fs);
-        }
-
-        bool operator!=(const ShaderTuple& rhs) const {
-            return std::tie(vs, gs, fs) != std::tie(rhs.vs, rhs.gs, rhs.fs);
-        }
-
-        struct Hash {
-            std::size_t operator()(const ShaderTuple& tuple) const {
-                std::size_t hash = 0;
-                boost::hash_combine(hash, tuple.vs);
-                boost::hash_combine(hash, tuple.gs);
-                boost::hash_combine(hash, tuple.fs);
-                return hash;
+    bool UseProgrammableVertexShader(const Pica::Regs& regs, Pica::Shader::ShaderSetup& setup) {
+        PicaVSConfig key(regs, setup);
+        u64 key_hash = Common::ComputeHash64(&key, sizeof(key));
+        auto iter_ref = shaders_ref.find(key_hash);
+        if (iter_ref == shaders_ref.end()) {
+            std::string vs_code = GenerateVertexShader(setup, key, separable);
+            if (vs_code.empty()) {
+                shaders_ref[key_hash] = nullptr;
+                current_shader.vs = 0;
+            } else {
+                u64 code_hash = Common::ComputeHash64(vs_code.data(), vs_code.size());
+                auto [iter, new_shader] = shaders.emplace(code_hash, OGLShaderStage{separable});
+                OGLShaderStage& cached_shader = iter->second;
+                if (new_shader) {
+                    cached_shader.Create(std::move(vs_code), GL_VERTEX_SHADER);
+                }
+                shaders_ref[key_hash] = &cached_shader;
+                current_shader.vs = cached_shader.GetHandle();
             }
-        };
-    };
+        } else if (iter_ref->second == nullptr) {
+            current_shader.vs = 0;
+        } else {
+            current_shader.vs = iter_ref->second->GetHandle();
+        }
+        return (current_shader.vs != 0);
+    }
 
-    bool is_amd;
+    void UseFixedGeometryShader(const Pica::Regs& regs) {
+        PicaFixedGSConfig key(regs);
+        u64 key_hash = Common::ComputeHash64(&key, sizeof(key));
+        auto [iter, new_shader] = shaders.emplace(key_hash, separable);
+        OGLShaderStage& cached_shader = iter->second;
+        if (new_shader) {
+            std::string gs_code = GenerateFixedGeometryShader(key, separable);
+            cached_shader.Create(std::move(gs_code), GL_GEOMETRY_SHADER);
+        }
+        current_shader.gs = cached_shader.GetHandle();
+    }
+
+    void UseFragmentShader(const Pica::Regs& regs) {
+        auto key = PicaFSConfig::BuildFromRegs(regs);
+        u64 key_hash = Common::ComputeHash64(&key, sizeof(key));
+        auto iter_ref = shaders_ref.find(key_hash);
+        if (iter_ref == shaders_ref.end()) {
+            std::string fs_code = GenerateFragmentShader(key, separable);
+            u64 code_hash = Common::ComputeHash64(fs_code.data(), fs_code.size());
+            auto [iter, new_shader] = shaders.emplace(code_hash, OGLShaderStage{separable});
+            OGLShaderStage& cached_shader = iter->second;
+            if (new_shader) {
+                cached_shader.Create(std::move(fs_code), GL_FRAGMENT_SHADER);
+            }
+            shaders_ref[key_hash] = &cached_shader;
+            current_shader.fs = cached_shader.GetHandle();
+        } else {
+            current_shader.fs = iter_ref->second->GetHandle();
+        }
+    }
+
+    void UseTrivialVertexShader() {
+        current_shader.vs = trivial_vertex_shader.GetHandle();
+    }
+
+    void UseTrivialGeometryShader() {
+        current_shader.gs = 0;
+    }
+
+    void ApplyTo(OpenGLState& state) {
+        if (separable) {
+            if (is_amd) {
+                // Without this reseting, AMD sometimes freezes when one stage is changed but not
+                // for the others. On the other hand, including this reset seems to introduce memory
+                // leak in Intel Graphics.
+                glUseProgramStages(
+                    pipeline.handle,
+                    GL_VERTEX_SHADER_BIT | GL_GEOMETRY_SHADER_BIT | GL_FRAGMENT_SHADER_BIT, 0);
+            }
+
+            glUseProgramStages(pipeline.handle, GL_VERTEX_SHADER_BIT, current_shader.vs);
+            glUseProgramStages(pipeline.handle, GL_GEOMETRY_SHADER_BIT, current_shader.gs);
+            glUseProgramStages(pipeline.handle, GL_FRAGMENT_SHADER_BIT, current_shader.fs);
+            state.draw.shader_program = 0;
+            state.draw.program_pipeline = pipeline.handle;
+        } else {
+            u64 hash = current_shader.vs; hash <<= 21;
+            hash |= current_shader.gs; hash <<= 21;
+            hash |= current_shader.fs;
+            OGLProgram& cached_program = program_cache[hash];
+            if (cached_program.handle == 0) {
+                cached_program.Create(false,
+                                      {current_shader.vs, current_shader.gs, current_shader.fs});
+                SetShaderUniformBlockBindings(cached_program.handle);
+                SetShaderSamplerBindings(cached_program.handle);
+            }
+            state.draw.shader_program = cached_program.handle;
+            state.draw.program_pipeline = 0;
+        }
+    }
+
+private:
     bool separable;
+    bool is_amd;
 
-    ShaderTuple current;
+    struct {
+        GLuint vs;
+        GLuint gs;
+        GLuint fs;
+    } current_shader;
 
-    ProgrammableVertexShaders programmable_vertex_shaders;
     TrivialVertexShader trivial_vertex_shader;
+    std::unordered_map<u64, OGLShaderStage*> shaders_ref;
+    std::unordered_map<u64, OGLShaderStage> shaders;
 
-    FixedGeometryShaders fixed_geometry_shaders;
-
-    FragmentShaders fragment_shaders;
-    std::unordered_map<ShaderTuple, OGLProgram, ShaderTuple::Hash> program_cache;
     OGLPipeline pipeline;
-    ShaderDiskCache disk_cache;
+    std::unordered_map<u64, OGLProgram> program_cache;
 };
 
 ShaderProgramManager::ShaderProgramManager(bool separable, bool is_amd)
@@ -360,264 +519,26 @@ ShaderProgramManager::~ShaderProgramManager() = default;
 
 bool ShaderProgramManager::UseProgrammableVertexShader(const Pica::Regs& regs,
                                                        Pica::Shader::ShaderSetup& setup) {
-    PicaVSConfig config{regs.vs, setup};
-    auto [handle, result] = impl->programmable_vertex_shaders.Get(config, setup);
-    if (handle == 0)
-        return false;
-    impl->current.vs = handle;
-    // Save VS to the disk cache if its a new shader
-    if (result) {
-        auto& disk_cache = impl->disk_cache;
-        ProgramCode program_code{setup.program_code.begin(), setup.program_code.end()};
-        program_code.insert(program_code.end(), setup.swizzle_data.begin(),
-                            setup.swizzle_data.end());
-        u64 unique_identifier = GetUniqueIdentifier(regs, program_code);
-        ShaderDiskCacheRaw raw{unique_identifier, ProgramType::VS, regs, program_code};
-        disk_cache.SaveRaw(raw);
-    }
-    return true;
+    return impl->UseProgrammableVertexShader(regs, setup);
 }
 
 void ShaderProgramManager::UseTrivialVertexShader() {
-    impl->current.vs = impl->trivial_vertex_shader.Get();
+    impl->UseTrivialVertexShader();
 }
 
 void ShaderProgramManager::UseFixedGeometryShader(const Pica::Regs& regs) {
-    PicaFixedGSConfig gs_config(regs);
-    auto [handle, _] = impl->fixed_geometry_shaders.Get(gs_config);
-    impl->current.gs = handle;
+    impl->UseFixedGeometryShader(regs);
 }
 
 void ShaderProgramManager::UseTrivialGeometryShader() {
-    impl->current.gs = 0;
+    impl->UseTrivialGeometryShader();
 }
 
 void ShaderProgramManager::UseFragmentShader(const Pica::Regs& regs) {
-    PicaFSConfig config = PicaFSConfig::BuildFromRegs(regs);
-    auto [handle, result] = impl->fragment_shaders.Get(config);
-    impl->current.fs = handle;
-    // Save FS to the disk cache if its a new shader
-    if (result) {
-        auto& disk_cache = impl->disk_cache;
-        u64 unique_identifier = GetUniqueIdentifier(regs, {});
-        ShaderDiskCacheRaw raw{unique_identifier, ProgramType::FS, regs, {}};
-        disk_cache.SaveRaw(raw);
-        disk_cache.SaveDecompiled(unique_identifier, *result, false);
-    }
+    impl->UseFragmentShader(regs);
 }
 
 void ShaderProgramManager::ApplyTo(OpenGLState& state) {
-    if (impl->separable) {
-        if (impl->is_amd) {
-            // Without this reseting, AMD sometimes freezes when one stage is changed but not
-            // for the others. On the other hand, including this reset seems to introduce memory
-            // leak in Intel Graphics.
-            glUseProgramStages(
-                impl->pipeline.handle,
-                GL_VERTEX_SHADER_BIT | GL_GEOMETRY_SHADER_BIT | GL_FRAGMENT_SHADER_BIT, 0);
-        }
-
-        glUseProgramStages(impl->pipeline.handle, GL_VERTEX_SHADER_BIT, impl->current.vs);
-        glUseProgramStages(impl->pipeline.handle, GL_GEOMETRY_SHADER_BIT, impl->current.gs);
-        glUseProgramStages(impl->pipeline.handle, GL_FRAGMENT_SHADER_BIT, impl->current.fs);
-        state.draw.shader_program = 0;
-        state.draw.program_pipeline = impl->pipeline.handle;
-    } else {
-        OGLProgram& cached_program = impl->program_cache[impl->current];
-        if (cached_program.handle == 0) {
-            cached_program.Create(false, {impl->current.vs, impl->current.gs, impl->current.fs});
-            SetShaderUniformBlockBindings(cached_program.handle);
-            SetShaderSamplerBindings(cached_program.handle);
-        }
-        state.draw.shader_program = cached_program.handle;
-    }
+    impl->ApplyTo(state);
 }
-
-void ShaderProgramManager::LoadDiskCache(const std::atomic_bool& stop_loading,
-                                         const VideoCore::DiskResourceLoadCallback& callback) {
-    if (!impl->separable) {
-        LOG_ERROR(Render_OpenGL,
-                  "Cannot load disk cache as separate shader programs are unsupported!");
-        return;
-    }
-    auto& disk_cache = impl->disk_cache;
-    const auto transferable = disk_cache.LoadTransferable();
-    if (!transferable) {
-        return;
-    }
-    const auto raws = *transferable;
-
-    auto [decompiled, dumps] = disk_cache.LoadPrecompiled();
-
-    if (stop_loading) {
-        return;
-    }
-
-    std::set<GLenum> supported_formats = GetSupportedFormats();
-
-    // Track if precompiled cache was altered during loading to know if we have to serialize the
-    // virtual precompiled cache file back to the hard drive
-    bool precompiled_cache_altered = false;
-
-    std::mutex mutex;
-    std::size_t built_shaders = 0; // It doesn't have be atomic since it's used behind a mutex
-    std::atomic_bool compilation_failed = false;
-    if (callback) {
-        callback(VideoCore::LoadCallbackStage::Decompile, 0, raws.size());
-    }
-    std::vector<std::size_t> load_raws_index;
-    // Loads both decompiled and precompiled shaders from the cache. If either one is missing for
-    const auto LoadPrecompiledWorker =
-        [&](std::size_t begin, std::size_t end, const std::vector<ShaderDiskCacheRaw>& raws,
-            const ShaderDecompiledMap& decompiled, const ShaderDumpsMap& dumps) {
-            for (std::size_t i = 0; i < end; ++i) {
-                if (stop_loading || compilation_failed) {
-                    return;
-                }
-                const auto& raw{raws[i]};
-                const u64 unique_identifier{raw.GetUniqueIdentifier()};
-
-                const u64 calculated_hash =
-                    GetUniqueIdentifier(raw.GetRawShaderConfig(), raw.GetProgramCode());
-                if (unique_identifier != calculated_hash) {
-                    LOG_ERROR(Render_OpenGL,
-                              "Invalid hash in entry={:016x} (obtained hash={:016x}) - removing "
-                              "shader cache",
-                              raw.GetUniqueIdentifier(), calculated_hash);
-                    disk_cache.InvalidateAll();
-                    return;
-                }
-
-                const auto dump{dumps.find(unique_identifier)};
-                const auto decomp{decompiled.find(unique_identifier)};
-
-                OGLProgram shader;
-
-                if (dump != dumps.end() && decomp != decompiled.end()) {
-                    // Only load this shader if its sanitize_mul setting matches
-                    if (decomp->second.sanitize_mul == VideoCore::g_hw_shader_accurate_mul) {
-                        continue;
-                    }
-
-                    // If the shader is dumped, attempt to load it
-                    shader = GeneratePrecompiledProgram(dump->second, supported_formats);
-                    if (shader.handle == 0) {
-                        // If any shader failed, stop trying to compile, delete the cache, and start
-                        // loading from raws
-                        compilation_failed = true;
-                        return;
-                    }
-                    // we have both the binary shader and the decompiled, so inject it into the
-                    // cache
-                    if (raw.GetProgramType() == ProgramType::VS) {
-                        auto [conf, setup] = BuildVSConfigFromRaw(raw);
-                        std::scoped_lock lock(mutex);
-
-                        impl->programmable_vertex_shaders.Inject(conf, decomp->second.result.code,
-                                                                 std::move(shader));
-                    } else if (raw.GetProgramType() == ProgramType::FS) {
-                        PicaFSConfig conf = PicaFSConfig::BuildFromRegs(raw.GetRawShaderConfig());
-                        std::scoped_lock lock(mutex);
-                        impl->fragment_shaders.Inject(conf, decomp->second.result.code,
-                                                      std::move(shader));
-                    } else {
-                        // Unsupported shader type got stored somehow so nuke the cache
-
-                        LOG_CRITICAL(Frontend, "failed to load raw programtype {}",
-                                     static_cast<u32>(raw.GetProgramType()));
-                        compilation_failed = true;
-                        return;
-                    }
-                } else {
-                    // Since precompiled didn't have the dump, we'll load them in the next phase
-                    std::scoped_lock lock(mutex);
-                    load_raws_index.push_back(i);
-                }
-                if (callback) {
-                    callback(VideoCore::LoadCallbackStage::Decompile, i, raws.size());
-                }
-            }
-        };
-
-    LoadPrecompiledWorker(0, raws.size(), raws, decompiled, dumps);
-
-    if (compilation_failed) {
-        // Invalidate the precompiled cache if a shader dumped shader was rejected
-        disk_cache.InvalidatePrecompiled();
-        dumps.clear();
-        precompiled_cache_altered = true;
-    }
-
-    if (callback) {
-        callback(VideoCore::LoadCallbackStage::Build, 0, raws.size());
-    }
-
-    compilation_failed = false;
-
-    const auto LoadTransferable = [&](std::size_t begin, std::size_t end,
-                                      const std::vector<ShaderDiskCacheRaw>& raws) {
-        for (std::size_t i = 0; i < end; ++i) {
-            if (stop_loading || compilation_failed) {
-                return;
-            }
-            const auto& raw{raws[i]};
-            const u64 unique_identifier{raw.GetUniqueIdentifier()};
-
-            bool sanitize_mul = false;
-            GLuint handle{0};
-            std::optional<ShaderDecompiler::ProgramResult> result;
-            // Otherwise decompile and build the shader at boot and save the result to the
-            // precompiled file
-            if (raw.GetProgramType() == ProgramType::VS) {
-                // TODO: This isn't the ideal place to lock, since we really only want to
-                // lock access to the shared cache
-                auto [conf, setup] = BuildVSConfigFromRaw(raw);
-                std::scoped_lock lock(mutex);
-                auto [h, r] = impl->programmable_vertex_shaders.Get(conf, setup);
-                handle = h;
-                result = r;
-                sanitize_mul = conf.state.sanitize_mul;
-            } else if (raw.GetProgramType() == ProgramType::FS) {
-                PicaFSConfig conf = PicaFSConfig::BuildFromRegs(raw.GetRawShaderConfig());
-                std::scoped_lock lock(mutex);
-                auto [h, r] = impl->fragment_shaders.Get(conf);
-                handle = h;
-                result = r;
-            } else {
-                // Unsupported shader type got stored somehow so nuke the cache
-                LOG_ERROR(Frontend, "failed to load raw programtype {}",
-                          static_cast<u32>(raw.GetProgramType()));
-                compilation_failed = true;
-                return;
-            }
-            if (handle == 0) {
-                LOG_ERROR(Frontend, "compilation from raw failed {:x} {:x}",
-                          raw.GetProgramCode().at(0), raw.GetProgramCode().at(1));
-                compilation_failed = true;
-                return;
-            }
-            // If this is a new shader, add it the precompiled cache
-            if (result) {
-                disk_cache.SaveDecompiled(unique_identifier, *result, sanitize_mul);
-                disk_cache.SaveDump(unique_identifier, handle);
-                precompiled_cache_altered = true;
-            }
-
-            if (callback) {
-                callback(VideoCore::LoadCallbackStage::Build, i, raws.size());
-            }
-        }
-    };
-
-    LoadTransferable(0, raws.size(), raws);
-
-    if (compilation_failed) {
-        disk_cache.InvalidateAll();
-    }
-
-    if (precompiled_cache_altered) {
-        disk_cache.SaveVirtualPrecompiledFile();
-    }
-} // namespace OpenGL
-
 } // namespace OpenGL

@@ -101,29 +101,6 @@ enum class ScaleMatch {
 };
 
 struct SurfaceParams {
-private:
-    static constexpr std::array<unsigned int, 18> BPP_TABLE = {
-        32, // RGBA8
-        24, // RGB8
-        16, // RGB5A1
-        16, // RGB565
-        16, // RGBA4
-        16, // IA8
-        16, // RG8
-        8,  // I8
-        8,  // A8
-        8,  // IA4
-        4,  // I4
-        4,  // A4
-        4,  // ETC1
-        8,  // ETC1A4
-        16, // D16
-        0,
-        24, // D24
-        32, // D24S8
-    };
-
-public:
     enum class PixelFormat {
         // First 5 formats are shared between textures and color buffers
         RGBA8 = 0,
@@ -162,11 +139,30 @@ public:
     };
 
     static constexpr unsigned int GetFormatBpp(PixelFormat format) {
-        const auto format_idx = static_cast<std::size_t>(format);
-        DEBUG_ASSERT_MSG(format_idx < BPP_TABLE.size(), "Invalid pixel format {}", format_idx);
-        return BPP_TABLE[format_idx];
-    }
+        constexpr std::array<unsigned int, 18> bpp_table = {
+            32, // RGBA8
+            24, // RGB8
+            16, // RGB5A1
+            16, // RGB565
+            16, // RGBA4
+            16, // IA8
+            16, // RG8
+            8,  // I8
+            8,  // A8
+            8,  // IA4
+            4,  // I4
+            4,  // A4
+            4,  // ETC1
+            8,  // ETC1A4
+            16, // D16
+            0,
+            24, // D24
+            32, // D24S8
+        };
 
+        assert(static_cast<std::size_t>(format) < bpp_table.size());
+        return bpp_table[static_cast<std::size_t>(format)];
+    }
     unsigned int GetFormatBpp() const {
         return GetFormatBpp(pixel_format);
     }
@@ -302,6 +298,7 @@ public:
     u16 res_scale = 1;
 
     bool is_tiled = false;
+    bool is_texture = false;
     PixelFormat pixel_format = PixelFormat::Invalid;
     SurfaceType type = SurfaceType::Invalid;
 };
@@ -360,6 +357,7 @@ struct CachedSurface : SurfaceParams, std::enable_shared_from_this<CachedSurface
     std::array<u8, 4> fill_data;
 
     OGLTexture texture;
+    OGLTexture texture_copy;
 
     /// max mipmap level that has been attached to the texture
     u32 max_level = 0;
@@ -388,13 +386,14 @@ struct CachedSurface : SurfaceParams, std::enable_shared_from_this<CachedSurface
     // Custom texture loading and dumping
     bool LoadCustomTexture(u64 tex_hash, Core::CustomTexInfo& tex_info,
                            Common::Rectangle<u32>& custom_rect);
-    void DumpTexture(GLuint target_tex, u64 tex_hash);
 
     // Upload/Download data in gl_buffer in/to this surface's texture
     void UploadGLTexture(const Common::Rectangle<u32>& rect, GLuint read_fb_handle,
                          GLuint draw_fb_handle);
     void DownloadGLTexture(const Common::Rectangle<u32>& rect, GLuint read_fb_handle,
                            GLuint draw_fb_handle);
+
+    GLuint GetTextureCopyHandle();
 
     std::shared_ptr<SurfaceWatcher> CreateWatcher() {
         auto watcher = std::make_shared<SurfaceWatcher>(weak_from_this());
@@ -486,6 +485,9 @@ public:
     /// Flush all cached resources tracked by this cache manager
     void FlushAll();
 
+    /// Handle any config changes
+    void CheckForConfigChanges();
+
 private:
     void DuplicateSurface(const Surface& src_surface, const Surface& dest_surface);
 
@@ -508,9 +510,6 @@ private:
     PageMap cached_pages;
     SurfaceMap dirty_regions;
     SurfaceSet remove_surfaces;
-
-    OGLFramebuffer read_framebuffer;
-    OGLFramebuffer draw_framebuffer;
 
     OGLVertexArray attributeless_vao;
     OGLBuffer d24s8_abgr_buffer;

@@ -625,6 +625,18 @@ void Module::APTInterface::CancelLibraryApplet(Kernel::HLERequestContext& ctx) {
     LOG_WARNING(Service_APT, "(STUBBED) called exiting={}", exiting);
 }
 
+void Module::APTInterface::ReplySleepQuery(Kernel::HLERequestContext& ctx) {
+    IPC::RequestParser rp(ctx, 0x3E, 2, 0); // 0x003E0080
+    u32 app_id = rp.Pop<u32>();
+    u32 unk = rp.Pop<u32>();
+
+    IPC::RequestBuilder rb = rp.MakeBuilder(2, 0);
+    rb.Push(RESULT_SUCCESS);                          // No error
+    rb.Push(static_cast<u32>(AppletId::Application)); // ?
+
+    LOG_WARNING(Service_APT, "(STUBBED) called app_id={:#04X}, unk={:#010X}", app_id, unk);
+}
+
 void Module::APTInterface::PrepareToCloseLibraryApplet(Kernel::HLERequestContext& ctx) {
     IPC::RequestParser rp(ctx, 0x25, 3, 0); // 0x002500C0
     bool not_pause = rp.Pop<bool>();

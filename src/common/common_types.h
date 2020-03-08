@@ -32,6 +32,10 @@
 #endif
 #endif
 
+#ifdef ANDROID
+#undef _DEBUG
+#endif
+
 typedef std::uint8_t u8;   ///< 8-bit unsigned byte
 typedef std::uint16_t u16; ///< 16-bit unsigned short
 typedef std::uint32_t u32; ///< 32-bit unsigned word
