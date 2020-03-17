@@ -20,6 +20,7 @@
 
 #include "citra/config.h"
 #include "citra/emu_window/emu_window_sdl2.h"
+#include "citra/lodepng_image_interface.h"
 #include "common/common_paths.h"
 #include "common/detached_tasks.h"
 #include "common/file_util.h"
@@ -34,6 +35,7 @@
 #include "core/file_sys/cia_container.h"
 #include "core/frontend/applets/default_applets.h"
 #include "core/frontend/framebuffer_layout.h"
+#include "core/frontend/scope_acquire_context.h"
 #include "core/gdbstub/gdbstub.h"
 #include "core/hle/service/am/am.h"
 #include "core/hle/service/cfg/cfg.h"
@@ -41,7 +43,7 @@
 #include "core/movie.h"
 #include "core/settings.h"
 #include "network/network.h"
-#include "video_core/video_core.h"
+#include "video_core/renderer_base.h"
 
 #undef _UNICODE
 #include <getopt.h>
@@ -342,11 +344,12 @@ int main(int argc, char** argv) {
     // Register frontend applets
     Frontend::RegisterDefaultApplets();
 
+    // Register generic image interface
+    Core::System::GetInstance().RegisterImageInterface(std::make_shared<LodePNGImageInterface>());
+
     std::unique_ptr<EmuWindow_SDL2> emu_window{std::make_unique<EmuWindow_SDL2>(fullscreen)};
-
+    Frontend::ScopeAcquireContext scope(*emu_window);
     Core::System& system{Core::System::GetInstance()};
-
-    SCOPE_EXIT({ system.Shutdown(); });
 
     const Core::System::ResultStatus load_result{system.Load(*emu_window, filepath)};
 
@@ -409,14 +412,26 @@ int main(int argc, char** argv) {
         system.VideoDumper().StartDumping(dump_video, "webm", layout);
     }
 
+    std::thread render_thread([&emu_window] { emu_window->Present(); });
+
+    std::atomic_bool stop_run;
+    Core::System::GetInstance().Renderer().Rasterizer()->LoadDiskResources(
+        stop_run, [](VideoCore::LoadCallbackStage stage, std::size_t value, std::size_t total) {
+            LOG_DEBUG(Frontend, "Loading stage {} progress {} {}", static_cast<u32>(stage), value,
+                      total);
+        });
+
     while (emu_window->IsOpen()) {
         system.RunLoop();
     }
+    render_thread.join();
 
     Core::Movie::GetInstance().Shutdown();
     if (system.VideoDumper().IsDumping()) {
         system.VideoDumper().StopDumping();
     }
+
+    system.Shutdown();
 
     detached_tasks.WaitForAllTasks();
     return 0;

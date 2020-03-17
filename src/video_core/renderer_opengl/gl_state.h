@@ -38,6 +38,13 @@ constexpr GLuint ShadowTexturePZ = 5;
 constexpr GLuint ShadowTextureNZ = 6;
 } // namespace ImageUnits
 
+struct Viewport {
+    GLint x;
+    GLint y;
+    GLsizei width;
+    GLsizei height;
+};
+
 class OpenGLState {
 public:
     struct {
@@ -135,14 +142,11 @@ public:
         GLsizei height;
     } scissor;
 
-    struct {
-        GLint x;
-        GLint y;
-        GLsizei width;
-        GLsizei height;
-    } viewport;
+    Viewport viewport;
 
     std::array<bool, 2> clip_distance; // GL_CLIP_DISTANCE
+
+    GLuint renderbuffer; // GL_RENDERBUFFER_BINDING
 
     OpenGLState();
 
@@ -162,6 +166,7 @@ public:
     OpenGLState& ResetBuffer(GLuint handle);
     OpenGLState& ResetVertexArray(GLuint handle);
     OpenGLState& ResetFramebuffer(GLuint handle);
+    OpenGLState& ResetRenderbuffer(GLuint handle);
 
 private:
     static OpenGLState cur_state;

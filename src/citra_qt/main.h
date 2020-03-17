@@ -30,7 +30,9 @@ class GraphicsBreakPointsWidget;
 class GraphicsTracingWidget;
 class GraphicsVertexShaderWidget;
 class GRenderWindow;
+class IPCRecorderWidget;
 class LLEServiceModulesWidget;
+class LoadingScreen;
 class MicroProfileDialog;
 class MultiplayerState;
 class ProfilerWidget;
@@ -40,6 +42,7 @@ class QProgressBar;
 class RegistersWidget;
 class Updater;
 class WaitTreeWidget;
+
 namespace DiscordRPC {
 class DiscordInterface;
 }
@@ -68,6 +71,13 @@ public:
     GameList* game_list;
     std::unique_ptr<DiscordRPC::DiscordInterface> discord_rpc;
 
+    bool DropAction(QDropEvent* event);
+    void AcceptDropEvent(QDropEvent* event);
+
+public slots:
+    void OnAppFocusStateChanged(Qt::ApplicationState state);
+    void OnLoadComplete();
+
 signals:
 
     /**
@@ -75,8 +85,8 @@ signals:
      * about to start. At this time, the core system emulation has been initialized, and all
      * emulation handles and memory should be valid.
      *
-     * @param emu_thread Pointer to the newly created EmuThread (to be used by widgets that need to
-     *      access/change emulation state).
+     * @param emu_thread Pointer to the newly created EmuThread (to be used by widgets that need
+     * to access/change emulation state).
      */
     void EmulationStarting(EmuThread* emu_thread);
 
@@ -117,6 +127,7 @@ private:
     void ShowNoUpdatePrompt();
     void CheckForUpdates();
     void SetDiscordEnabled(bool state);
+    void LoadAmiibo(const QString& filename);
 
     /**
      * Stores the filename in the recently loaded files list.
@@ -158,7 +169,8 @@ private slots:
     void OnGameListOpenFolder(u64 program_id, GameListOpenTarget target);
     void OnGameListNavigateToGamedbEntry(u64 program_id,
                                          const CompatibilityList& compatibility_list);
-    void OnGameListOpenDirectory(QString path);
+    void OnGameListDumpRomFS(QString game_path, u64 program_id);
+    void OnGameListOpenDirectory(const QString& directory);
     void OnGameListAddDirectory();
     void OnGameListShowList(bool show);
     void OnMenuLoadFile();
@@ -178,6 +190,7 @@ private slots:
     void ChangeScreenLayout();
     void ToggleScreenLayout();
     void OnSwapScreens();
+    void OnRotateScreens();
     void OnCheats();
     void ShowFullscreen();
     void HideFullscreen();
@@ -211,6 +224,7 @@ private:
     GRenderWindow* render_window;
 
     GameListPlaceholder* game_list_placeholder;
+    LoadingScreen* loading_screen;
 
     // Status bar elements
     QProgressBar* progress_bar = nullptr;
@@ -231,6 +245,8 @@ private:
     // The path to the game currently running
     QString game_path;
 
+    bool auto_paused = false;
+
     // Movie
     bool movie_record_on_start = false;
     QString movie_record_path;
@@ -250,6 +266,7 @@ private:
     GraphicsBreakPointsWidget* graphicsBreakpointsWidget;
     GraphicsVertexShaderWidget* graphicsVertexShaderWidget;
     GraphicsTracingWidget* graphicsTracingWidget;
+    IPCRecorderWidget* ipcRecorderWidget;
     LLEServiceModulesWidget* lleServiceModulesWidget;
     WaitTreeWidget* waitTreeWidget;
     Updater* updater;

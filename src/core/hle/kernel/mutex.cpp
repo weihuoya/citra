@@ -4,7 +4,6 @@
 
 #include <map>
 #include <vector>
-#include <boost/range/algorithm_ext/erase.hpp>
 #include "common/assert.h"
 #include "core/core.h"
 #include "core/hle/kernel/errors.h"
@@ -36,7 +35,7 @@ std::shared_ptr<Mutex> KernelSystem::CreateMutex(bool initial_locked, std::strin
 
     // Acquire mutex with current thread if initialized as locked
     if (initial_locked)
-        mutex->Acquire(thread_manager->GetCurrentThread());
+        mutex->Acquire(thread_managers[current_cpu->GetID()]->GetCurrentThread());
 
     return mutex;
 }

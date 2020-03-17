@@ -32,7 +32,7 @@ enum class MicInputType {
     Static,
 };
 
-enum class StereoRenderOption { Off, SideBySide, Anaglyph };
+enum class StereoRenderOption { Off, SideBySide, Anaglyph, Interlaced };
 
 namespace NativeButton {
 enum Values {
@@ -141,15 +141,18 @@ struct Values {
     bool use_gles;
     bool use_hw_renderer;
     bool use_hw_shader;
+    bool use_disk_shader_cache;
     bool shaders_accurate_mul;
     bool use_shader_jit;
     u16 resolution_factor;
-    bool vsync_enabled;
     bool use_frame_limit;
     u16 frame_limit;
+    u16 texture_filter_factor;
+    std::string texture_filter_name;
 
     LayoutOption layout_option;
     bool swap_screen;
+    bool upright_screen;
     bool custom_layout;
     u16 custom_top_left;
     u16 custom_top_top;
@@ -169,6 +172,12 @@ struct Values {
 
     bool filter_mode;
     std::string pp_shader_name;
+
+    bool dump_textures;
+    bool custom_textures;
+    bool preload_textures;
+
+    bool use_vsync_new;
 
     // Audio
     bool enable_dsp_lle;

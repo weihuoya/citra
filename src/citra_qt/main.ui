@@ -15,7 +15,7 @@
   </property>
   <property name="windowIcon">
    <iconset>
-    <normaloff>src/pcafe/res/icon3_64x64.ico</normaloff>src/pcafe/res/icon3_64x64.ico</iconset>
+    <normaloff>../dist/citra.ico</normaloff>../dist/citra.ico</iconset>
   </property>
   <property name="tabShape">
    <enum>QTabWidget::Rounded</enum>
@@ -109,6 +109,7 @@
      <addaction name="action_Screen_Layout_Large_Screen"/>
      <addaction name="action_Screen_Layout_Side_by_Side"/>
      <addaction name="separator"/>
+     <addaction name="action_Screen_Layout_Upright_Screens"/>
      <addaction name="action_Screen_Layout_Swap_Screens"/>
     </widget>
     <addaction name="action_Fullscreen"/>
@@ -185,11 +186,6 @@
   <action name="action_Install_CIA">
    <property name="text">
     <string>Install CIA...</string>
-   </property>
-  </action>
-  <action name="action_Load_Symbol_Map">
-   <property name="text">
-    <string>Load Symbol Map...</string>
    </property>
   </action>
   <action name="action_Exit">
@@ -271,14 +267,6 @@
    </property>
    <property name="text">
     <string>Show Status Bar</string>
-   </property>
-  </action>
-  <action name="action_Select_Game_List_Root">
-   <property name="text">
-    <string>Select Game Directory...</string>
-   </property>
-   <property name="toolTip">
-    <string>Selects a folder to display in the game list</string>
    </property>
   </action>
   <action name="action_Create_Pica_Surface_Viewer">
@@ -436,6 +424,14 @@
    </property>
    <property name="text">
     <string>Swap Screens</string>
+   </property>
+  </action>
+  <action name="action_Screen_Layout_Upright_Screens">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Rotate Upright</string>
    </property>
   </action>
   <action name="action_Check_For_Updates">

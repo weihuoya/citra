@@ -9,6 +9,8 @@
 #include "audio_core/hle/ffmpeg_decoder.h"
 #elif ANDROID
 #include "audio_core/hle/mediandk_decoder.h"
+#elif HAVE_FDK
+#include "audio_core/hle/fdk_decoder.h"
 #endif
 #include "audio_core/hle/common.h"
 #include "audio_core/hle/decoder.h"
@@ -89,16 +91,30 @@ DspHle::Impl::Impl(DspHle& parent_, Memory::MemorySystem& memory) : parent(paren
         source.SetMemory(memory);
     }
 
-#ifdef HAVE_MF
+#if defined(HAVE_MF) && defined(HAVE_FFMPEG)
     decoder = std::make_unique<HLE::WMFDecoder>(memory);
-#elif HAVE_FFMPEG
+    if (!decoder->IsValid()) {
+        LOG_WARNING(Audio_DSP, "Unable to load MediaFoundation. Attempting to load FFMPEG instead");
+        decoder = std::make_unique<HLE::FFMPEGDecoder>(memory);
+    }
+#elif defined(HAVE_MF)
+    decoder = std::make_unique<HLE::WMFDecoder>(memory);
+#elif defined(HAVE_FFMPEG)
     decoder = std::make_unique<HLE::FFMPEGDecoder>(memory);
 #elif ANDROID
     decoder = std::make_unique<HLE::MediaNDKDecoder>(memory);
+#elif defined(HAVE_FDK)
+    decoder = std::make_unique<HLE::FDKDecoder>(memory);
 #else
     LOG_WARNING(Audio_DSP, "No decoder found, this could lead to missing audio");
     decoder = std::make_unique<HLE::NullDecoder>();
 #endif // HAVE_MF
+
+    if (!decoder->IsValid()) {
+        LOG_WARNING(Audio_DSP,
+                    "Unable to load any decoders, this could cause missing audio in some games");
+        decoder = std::make_unique<HLE::NullDecoder>();
+    }
 
     Core::Timing& timing = Core::System::GetInstance().CoreTiming();
     tick_event =

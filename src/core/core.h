@@ -7,8 +7,10 @@
 #include <memory>
 #include <string>
 #include "common/common_types.h"
+#include "core/custom_tex_cache.h"
 #include "core/frontend/applets/mii_selector.h"
 #include "core/frontend/applets/swkbd.h"
+#include "core/frontend/image_interface.h"
 #include "core/loader/loader.h"
 #include "core/memory.h"
 #include "core/perf_stats.h"
@@ -52,6 +54,8 @@ class CheatEngine;
 namespace VideoDumper {
 class Backend;
 }
+
+class RendererBase;
 
 namespace Core {
 
@@ -136,7 +140,10 @@ public:
      * @returns True if the emulated system is powered on, otherwise false.
      */
     bool IsPoweredOn() const {
-        return cpu_core != nullptr;
+        return cpu_cores.size() > 0 &&
+               std::all_of(cpu_cores.begin(), cpu_cores.end(),
+                           [](std::shared_ptr<ARM_Interface> ptr) { return ptr != nullptr; });
+        ;
     }
 
     /**
@@ -156,8 +163,29 @@ public:
      * Gets a reference to the emulated CPU.
      * @returns A reference to the emulated CPU.
      */
-    ARM_Interface& CPU() {
-        return *cpu_core;
+
+    ARM_Interface& GetRunningCore() {
+        return *running_core;
+    };
+
+    /**
+     * Gets a reference to the emulated CPU.
+     * @param core_id The id of the core requested.
+     * @returns A reference to the emulated CPU.
+     */
+
+    ARM_Interface& GetCore(u32 core_id) {
+        return *cpu_cores[core_id];
+    };
+
+    u32 GetNumCores() const {
+        return cpu_cores.size();
+    }
+
+    void InvalidateCacheRange(u32 start_address, std::size_t length) {
+        for (const auto& cpu : cpu_cores) {
+            cpu->InvalidateCacheRange(start_address, length);
+        }
     }
 
     /**
@@ -167,6 +195,8 @@ public:
     AudioCore::DspInterface& DSP() {
         return *dsp_core;
     }
+
+    RendererBase& Renderer();
 
     /**
      * Gets a reference to the service manager.
@@ -210,6 +240,15 @@ public:
     /// Gets a const reference to the cheat engine
     const Cheats::CheatEngine& CheatEngine() const;
 
+    /// Gets a reference to the custom texture cache system
+    Core::CustomTexCache& CustomTexCache();
+
+    /// Gets a const reference to the custom texture cache system
+    const Core::CustomTexCache& CustomTexCache() const;
+
+    /// Handles loading all custom textures from disk into cache.
+    void PreloadCustomTextures();
+
     /// Gets a reference to the video dumper backend
     VideoDumper::Backend& VideoDumper();
 
@@ -248,6 +287,14 @@ public:
         return registered_swkbd;
     }
 
+    /// Image interface
+
+    void RegisterImageInterface(std::shared_ptr<Frontend::ImageInterface> image_interface);
+
+    std::shared_ptr<Frontend::ImageInterface> GetImageInterface() const {
+        return registered_image_interface;
+    }
+
 private:
     /**
      * Initialize the emulated system.
@@ -256,7 +303,7 @@ private:
      * @param system_mode The system mode.
      * @return ResultStatus code, indicating if the operation succeeded.
      */
-    ResultStatus Init(Frontend::EmuWindow& emu_window, u32 system_mode);
+    ResultStatus Init(Frontend::EmuWindow& emu_window, u32 system_mode, u8 n3ds_mode);
 
     /// Reschedule the core emulation
     void Reschedule();
@@ -265,7 +312,8 @@ private:
     std::unique_ptr<Loader::AppLoader> app_loader;
 
     /// ARM11 CPU core
-    std::shared_ptr<ARM_Interface> cpu_core;
+    std::vector<std::shared_ptr<ARM_Interface>> cpu_cores;
+    ARM_Interface* running_core = nullptr;
 
     /// DSP core
     std::unique_ptr<AudioCore::DspInterface> dsp_core;
@@ -289,6 +337,12 @@ private:
     /// Video dumper backend
     std::unique_ptr<VideoDumper::Backend> video_dumper;
 
+    /// Custom texture cache system
+    std::unique_ptr<Core::CustomTexCache> custom_tex_cache;
+
+    /// Image interface
+    std::shared_ptr<Frontend::ImageInterface> registered_image_interface;
+
     /// RPC Server for scripting support
     std::unique_ptr<RPC::RPCServer> rpc_server;
 
@@ -301,6 +355,8 @@ private:
 private:
     static System s_instance;
 
+    bool initalized = false;
+
     ResultStatus status = ResultStatus::Success;
     std::string status_details = "";
     /// Saved variables for reset
@@ -311,8 +367,16 @@ private:
     std::atomic<bool> shutdown_requested;
 };
 
-inline ARM_Interface& CPU() {
-    return System::GetInstance().CPU();
+inline ARM_Interface& GetRunningCore() {
+    return System::GetInstance().GetRunningCore();
+}
+
+inline ARM_Interface& GetCore(u32 core_id) {
+    return System::GetInstance().GetCore(core_id);
+}
+
+inline u32 GetNumCores() {
+    return System::GetInstance().GetNumCores();
 }
 
 inline AudioCore::DspInterface& DSP() {

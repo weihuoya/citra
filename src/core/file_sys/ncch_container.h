@@ -149,7 +149,8 @@ struct ExHeader_StorageInfo {
 struct ExHeader_ARM11_SystemLocalCaps {
     u64_le program_id;
     u32_le core_version;
-    u8 reserved_flags[2];
+    u8 reserved_flag;
+    u8 n3ds_mode;
     union {
         u8 flags0;
         BitField<0, 2, u8> ideal_processor;
@@ -247,7 +248,15 @@ public:
      * @param size The size of the romfs
      * @return ResultStatus result of function
      */
-    Loader::ResultStatus ReadRomFS(std::shared_ptr<RomFSReader>& romfs_file);
+    Loader::ResultStatus ReadRomFS(std::shared_ptr<RomFSReader>& romfs_file,
+                                   bool use_layered_fs = true);
+
+    /**
+     * Dump the RomFS of the NCCH container to the user folder.
+     * @param target_path target path to dump to
+     * @return ResultStatus result of function.
+     */
+    Loader::ResultStatus DumpRomFS(const std::string& target_path);
 
     /**
      * Get the override RomFS of the NCCH container
@@ -272,11 +281,11 @@ public:
     Loader::ResultStatus ReadExtdataId(u64& extdata_id);
 
     /**
-     * Apply an IPS patch for .code (if it exists).
+     * Apply a patch for .code (if it exists).
      * This should only be called after allocating .bss.
-     * @return bool true if a patch was applied, false otherwise
+     * @return ResultStatus success if a patch was applied, ErrorNotUsed if no patch was found
      */
-    bool ApplyIPSPatch(std::vector<u8>& code) const;
+    Loader::ResultStatus ApplyCodePatch(std::vector<u8>& code) const;
 
     /**
      * Checks whether the NCCH container contains an ExeFS

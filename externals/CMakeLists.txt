@@ -62,6 +62,10 @@ if (ARCHITECTURE_x86_64)
     target_compile_definitions(xbyak INTERFACE XBYAK_NO_OP_NAMES)
 endif()
 
+# Zstandard
+add_subdirectory(zstd/build/cmake EXCLUDE_FROM_ALL)
+target_include_directories(libzstd_static INTERFACE ./zstd/lib)
+
 # ENet
 add_subdirectory(enet)
 target_include_directories(enet INTERFACE ./enet/include)
@@ -92,11 +96,19 @@ if (ENABLE_WEB_SERVICE)
     # lurlparser
     add_subdirectory(lurlparser EXCLUDE_FROM_ALL)
 
+    if(ANDROID)
+        add_subdirectory(android-ifaddrs)
+    endif()
+
     # httplib
     add_library(httplib INTERFACE)
     target_include_directories(httplib INTERFACE ./httplib)
+    target_compile_options(httplib INTERFACE -DCPPHTTPLIB_OPENSSL_SUPPORT)
 
     # cpp-jwt
     add_library(cpp-jwt INTERFACE)
     target_include_directories(cpp-jwt INTERFACE ./cpp-jwt/include)
 endif()
+
+# lodepng
+add_subdirectory(lodepng)

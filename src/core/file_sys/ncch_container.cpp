@@ -11,7 +11,9 @@
 #include "common/common_types.h"
 #include "common/logging/log.h"
 #include "core/core.h"
+#include "core/file_sys/layered_fs.h"
 #include "core/file_sys/ncch_container.h"
+#include "core/file_sys/patch.h"
 #include "core/file_sys/seed_db.h"
 #include "core/hw/aes/key.h"
 #include "core/loader/loader.h"
@@ -24,51 +26,12 @@ namespace FileSys {
 static const int kMaxSections = 8;   ///< Maximum number of sections (files) in an ExeFs
 static const int kBlockSize = 0x200; ///< Size of ExeFS blocks (in bytes)
 
-/**
- * Attempts to patch a buffer using an IPS
- * @param ips Vector of the patches to apply
- * @param buffer Vector to patch data into
- */
-static void ApplyIPS(std::vector<u8>& ips, std::vector<u8>& buffer) {
-    u32 cursor = 5;
-    u32 patch_length = ips.size() - 3;
-    std::string ips_header(ips.begin(), ips.begin() + 5);
-
-    if (ips_header != "PATCH") {
-        LOG_INFO(Service_FS, "Attempted to load invalid IPS");
-        return;
+u64 GetModId(u64 program_id) {
+    constexpr u64 UPDATE_MASK = 0x0000000e'00000000;
+    if ((program_id & 0x000000ff'00000000) == UPDATE_MASK) { // Apply the mods to updates
+        return program_id & ~UPDATE_MASK;
     }
-
-    while (cursor < patch_length) {
-        std::string eof_check(ips.begin() + cursor, ips.begin() + cursor + 3);
-
-        if (eof_check == "EOF")
-            return;
-
-        u32 offset = ips[cursor] << 16 | ips[cursor + 1] << 8 | ips[cursor + 2];
-        std::size_t length = ips[cursor + 3] << 8 | ips[cursor + 4];
-
-        // check for an rle record
-        if (length == 0) {
-            length = ips[cursor + 5] << 8 | ips[cursor + 6];
-
-            if (buffer.size() < offset + length)
-                return;
-
-            for (u32 i = 0; i < length; ++i)
-                buffer[offset + i] = ips[cursor + 7];
-
-            cursor += 8;
-
-            continue;
-        }
-
-        if (buffer.size() < offset + length)
-            return;
-
-        std::memcpy(&buffer[offset], &ips[cursor + 5], length);
-        cursor += length + 5;
-    }
+    return program_id;
 }
 
 /**
@@ -325,20 +288,11 @@ Loader::ResultStatus NCCHContainer::Load() {
                 return file && file.ReadBytes(&exheader_header, size) == size;
             };
 
-            FileUtil::IOFile exheader_override_file{filepath + ".exheader", "rb"};
-            const bool has_exheader_override = read_exheader(exheader_override_file);
-            if (has_exheader_override) {
-                if (exheader_header.system_info.jump_id !=
-                    exheader_header.arm11_system_local_caps.program_id) {
-                    LOG_WARNING(Service_FS, "Jump ID and Program ID don't match. "
-                                            "The override exheader might not be decrypted.");
-                }
-                is_tainted = true;
-            } else if (!read_exheader(file)) {
+            if (!read_exheader(file)) {
                 return Loader::ResultStatus::Error;
             }
 
-            if (!has_exheader_override && is_encrypted) {
+            if (is_encrypted) {
                 // This ID check is masked to low 32-bit as a toleration to ill-formed ROM created
                 // by merging games and its updates.
                 if ((exheader_header.system_info.jump_id & 0xFFFFFFFF) ==
@@ -356,6 +310,31 @@ Loader::ResultStatus NCCHContainer::Load() {
                         primary_key.data(), primary_key.size(), exheader_ctr.data())
                         .ProcessData(data, data, sizeof(exheader_header));
                 }
+            }
+
+            const auto mods_path =
+                fmt::format("{}mods/{:016X}/", FileUtil::GetUserPath(FileUtil::UserPath::LoadDir),
+                            GetModId(ncch_header.program_id));
+            const std::array<std::string, 2> exheader_override_paths{{
+                mods_path + "exheader.bin",
+                filepath + ".exheader",
+            }};
+
+            bool has_exheader_override = false;
+            for (const auto& path : exheader_override_paths) {
+                FileUtil::IOFile exheader_override_file{path, "rb"};
+                if (read_exheader(exheader_override_file)) {
+                    has_exheader_override = true;
+                    break;
+                }
+            }
+            if (has_exheader_override) {
+                if (exheader_header.system_info.jump_id !=
+                    exheader_header.arm11_system_local_caps.program_id) {
+                    LOG_WARNING(Service_FS, "Jump ID and Program ID don't match. "
+                                            "The override exheader might not be decrypted.");
+                }
+                is_tainted = true;
             }
 
             is_compressed = (exheader_header.codeset_info.flags.flag & 1) == 1;
@@ -551,20 +530,40 @@ Loader::ResultStatus NCCHContainer::LoadSectionExeFS(const char* name, std::vect
     return Loader::ResultStatus::ErrorNotUsed;
 }
 
-bool NCCHContainer::ApplyIPSPatch(std::vector<u8>& code) const {
-    const std::string override_ips = filepath + ".exefsdir/code.ips";
+Loader::ResultStatus NCCHContainer::ApplyCodePatch(std::vector<u8>& code) const {
+    struct PatchLocation {
+        std::string path;
+        bool (*patch_fn)(const std::vector<u8>& patch, std::vector<u8>& code);
+    };
 
-    FileUtil::IOFile ips_file{override_ips, "rb"};
-    if (!ips_file)
-        return false;
+    const auto mods_path =
+        fmt::format("{}mods/{:016X}/", FileUtil::GetUserPath(FileUtil::UserPath::LoadDir),
+                    GetModId(ncch_header.program_id));
+    const std::array<PatchLocation, 6> patch_paths{{
+        {mods_path + "exefs/code.ips", Patch::ApplyIpsPatch},
+        {mods_path + "exefs/code.bps", Patch::ApplyBpsPatch},
+        {mods_path + "code.ips", Patch::ApplyIpsPatch},
+        {mods_path + "code.bps", Patch::ApplyBpsPatch},
+        {filepath + ".exefsdir/code.ips", Patch::ApplyIpsPatch},
+        {filepath + ".exefsdir/code.bps", Patch::ApplyBpsPatch},
+    }};
 
-    std::vector<u8> ips(ips_file.GetSize());
-    if (ips_file.ReadBytes(ips.data(), ips.size()) != ips.size())
-        return false;
+    for (const PatchLocation& info : patch_paths) {
+        FileUtil::IOFile file{info.path, "rb"};
+        if (!file)
+            continue;
 
-    LOG_INFO(Service_FS, "File {} patching code.bin", override_ips);
-    ApplyIPS(ips, code);
-    return true;
+        std::vector<u8> patch(file.GetSize());
+        if (file.ReadBytes(patch.data(), patch.size()) != patch.size())
+            return Loader::ResultStatus::Error;
+
+        LOG_INFO(Service_FS, "File {} patching code.bin", info.path);
+        if (!info.patch_fn(patch, code))
+            return Loader::ResultStatus::Error;
+
+        return Loader::ResultStatus::Success;
+    }
+    return Loader::ResultStatus::ErrorNotUsed;
 }
 
 Loader::ResultStatus NCCHContainer::LoadOverrideExeFSSection(const char* name,
@@ -583,23 +582,34 @@ Loader::ResultStatus NCCHContainer::LoadOverrideExeFSSection(const char* name,
     else
         return Loader::ResultStatus::Error;
 
-    std::string section_override = filepath + ".exefsdir/" + override_name;
-    FileUtil::IOFile section_file(section_override, "rb");
+    const auto mods_path =
+        fmt::format("{}mods/{:016X}/", FileUtil::GetUserPath(FileUtil::UserPath::LoadDir),
+                    GetModId(ncch_header.program_id));
+    const std::array<std::string, 3> override_paths{{
+        mods_path + "exefs/" + override_name,
+        mods_path + override_name,
+        filepath + ".exefsdir/" + override_name,
+    }};
 
-    if (section_file.IsOpen()) {
-        auto section_size = section_file.GetSize();
-        buffer.resize(section_size);
+    for (const auto& path : override_paths) {
+        FileUtil::IOFile section_file(path, "rb");
 
-        section_file.Seek(0, SEEK_SET);
-        if (section_file.ReadBytes(&buffer[0], section_size) == section_size) {
-            LOG_WARNING(Service_FS, "File {} overriding built-in ExeFS file", section_override);
-            return Loader::ResultStatus::Success;
+        if (section_file.IsOpen()) {
+            auto section_size = section_file.GetSize();
+            buffer.resize(section_size);
+
+            section_file.Seek(0, SEEK_SET);
+            if (section_file.ReadBytes(&buffer[0], section_size) == section_size) {
+                LOG_WARNING(Service_FS, "File {} overriding built-in ExeFS file", path);
+                return Loader::ResultStatus::Success;
+            }
         }
     }
     return Loader::ResultStatus::ErrorNotUsed;
 }
 
-Loader::ResultStatus NCCHContainer::ReadRomFS(std::shared_ptr<RomFSReader>& romfs_file) {
+Loader::ResultStatus NCCHContainer::ReadRomFS(std::shared_ptr<RomFSReader>& romfs_file,
+                                              bool use_layered_fs) {
     Loader::ResultStatus result = Load();
     if (result != Loader::ResultStatus::Success)
         return result;
@@ -629,14 +639,43 @@ Loader::ResultStatus NCCHContainer::ReadRomFS(std::shared_ptr<RomFSReader>& romf
     if (!romfs_file_inner.IsOpen())
         return Loader::ResultStatus::Error;
 
+    std::shared_ptr<RomFSReader> direct_romfs;
     if (is_encrypted) {
-        romfs_file = std::make_shared<RomFSReader>(std::move(romfs_file_inner), romfs_offset,
-                                                   romfs_size, secondary_key, romfs_ctr, 0x1000);
+        direct_romfs =
+            std::make_shared<DirectRomFSReader>(std::move(romfs_file_inner), romfs_offset,
+                                                romfs_size, secondary_key, romfs_ctr, 0x1000);
     } else {
-        romfs_file =
-            std::make_shared<RomFSReader>(std::move(romfs_file_inner), romfs_offset, romfs_size);
+        direct_romfs = std::make_shared<DirectRomFSReader>(std::move(romfs_file_inner),
+                                                           romfs_offset, romfs_size);
     }
 
+    const auto path =
+        fmt::format("{}mods/{:016X}/", FileUtil::GetUserPath(FileUtil::UserPath::LoadDir),
+                    GetModId(ncch_header.program_id));
+    if (use_layered_fs &&
+        (FileUtil::Exists(path + "romfs/") || FileUtil::Exists(path + "romfs_ext/"))) {
+
+        romfs_file = std::make_shared<LayeredFS>(std::move(direct_romfs), path + "romfs/",
+                                                 path + "romfs_ext/");
+    } else {
+        romfs_file = std::move(direct_romfs);
+    }
+
+    return Loader::ResultStatus::Success;
+}
+
+Loader::ResultStatus NCCHContainer::DumpRomFS(const std::string& target_path) {
+    std::shared_ptr<RomFSReader> direct_romfs;
+    Loader::ResultStatus result = ReadRomFS(direct_romfs, false);
+    if (result != Loader::ResultStatus::Success)
+        return result;
+
+    std::shared_ptr<LayeredFS> layered_fs =
+        std::make_shared<LayeredFS>(std::move(direct_romfs), "", "", false);
+
+    if (!layered_fs->DumpRomFS(target_path)) {
+        return Loader::ResultStatus::Error;
+    }
     return Loader::ResultStatus::Success;
 }
 
@@ -646,9 +685,10 @@ Loader::ResultStatus NCCHContainer::ReadOverrideRomFS(std::shared_ptr<RomFSReade
     if (FileUtil::Exists(split_filepath)) {
         FileUtil::IOFile romfs_file_inner(split_filepath, "rb");
         if (romfs_file_inner.IsOpen()) {
-            LOG_WARNING(Service_FS, "File {} overriding built-in RomFS", split_filepath);
-            romfs_file = std::make_shared<RomFSReader>(std::move(romfs_file_inner), 0,
-                                                       romfs_file_inner.GetSize());
+            LOG_WARNING(Service_FS, "File {} overriding built-in RomFS; LayeredFS not enabled",
+                        split_filepath);
+            romfs_file = std::make_shared<DirectRomFSReader>(std::move(romfs_file_inner), 0,
+                                                             romfs_file_inner.GetSize());
             return Loader::ResultStatus::Success;
         }
     }

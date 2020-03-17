@@ -26,7 +26,7 @@ bool HasSupportedFileExtension(const std::string& file_name) {
 }
 } // Anonymous namespace
 
-GameListWorker::GameListWorker(QList<UISettings::GameDir>& game_dirs,
+GameListWorker::GameListWorker(QVector<UISettings::GameDir>& game_dirs,
                                const CompatibilityList& compatibility_list)
     : game_dirs(game_dirs), compatibility_list(compatibility_list) {}
 
@@ -49,34 +49,35 @@ void GameListWorker::AddFstEntriesToGameList(const std::string& dir_path, unsign
             if (!loader)
                 return true;
 
+            bool executable = false;
+            loader->IsExecutable(executable);
+            if (!executable)
+                return true;
+
             u64 program_id = 0;
             loader->ReadProgramId(program_id);
 
             u64 extdata_id = 0;
             loader->ReadExtdataId(extdata_id);
 
-            std::vector<u8> smdh = [program_id, &loader]() -> std::vector<u8> {
-                std::vector<u8> original_smdh;
-                loader->ReadIcon(original_smdh);
-
-                if (program_id < 0x0004000000000000 || program_id > 0x00040000FFFFFFFF)
-                    return original_smdh;
-
+            std::vector<u8> smdh;
+            // Look for an update icon if available
+            if (!(program_id & ~0x00040000FFFFFFFF)) {
                 std::string update_path = Service::AM::GetTitleContentPath(
-                    Service::FS::MediaType::SDMC, program_id + 0x0000000E00000000);
+                    Service::FS::MediaType::SDMC, program_id | 0x0000000E00000000);
+                if (FileUtil::Exists(update_path)) {
+                    std::unique_ptr<Loader::AppLoader> update_loader =
+                        Loader::GetLoader(update_path);
+                    if (update_loader) {
+                        update_loader->ReadIcon(smdh);
+                    }
+                }
+            }
 
-                if (!FileUtil::Exists(update_path))
-                    return original_smdh;
-
-                std::unique_ptr<Loader::AppLoader> update_loader = Loader::GetLoader(update_path);
-
-                if (!update_loader)
-                    return original_smdh;
-
-                std::vector<u8> update_smdh;
-                update_loader->ReadIcon(update_smdh);
-                return update_smdh;
-            }();
+            if (!Loader::IsValidSMDH(smdh)) {
+                // Read the original smdh if there is no valid update smdh
+                loader->ReadIcon(smdh);
+            }
 
             if (!Loader::IsValidSMDH(smdh) && UISettings::values.game_list_hide_no_icon) {
                 // Skip this invalid entry
@@ -86,7 +87,7 @@ void GameListWorker::AddFstEntriesToGameList(const std::string& dir_path, unsign
             auto it = FindMatchingCompatibilityEntry(compatibility_list, program_id);
 
             // The game list uses this as compatibility number for untested games
-            QString compatibility("99");
+            QString compatibility(QStringLiteral("99"));
             if (it != compatibility_list.end())
                 compatibility = it->second.first;
 
@@ -116,35 +117,36 @@ void GameListWorker::AddFstEntriesToGameList(const std::string& dir_path, unsign
 void GameListWorker::run() {
     stop_processing = false;
     for (UISettings::GameDir& game_dir : game_dirs) {
-        if (game_dir.path == "INSTALLED") {
+        if (game_dir.path == QStringLiteral("INSTALLED")) {
             QString games_path =
                 QString::fromStdString(FileUtil::GetUserPath(FileUtil::UserPath::SDMCDir)) +
-                "Nintendo "
-                "3DS/00000000000000000000000000000000/"
-                "00000000000000000000000000000000/title/00040000";
+                QStringLiteral("Nintendo "
+                               "3DS/00000000000000000000000000000000/"
+                               "00000000000000000000000000000000/title/00040000");
             QString demos_path =
                 QString::fromStdString(FileUtil::GetUserPath(FileUtil::UserPath::SDMCDir)) +
-                "Nintendo "
-                "3DS/00000000000000000000000000000000/00000000000000000000000000000000/title/"
-                "00040002";
+                QStringLiteral(
+                    "Nintendo "
+                    "3DS/00000000000000000000000000000000/00000000000000000000000000000000/title/"
+                    "00040002");
             watch_list.append(games_path);
             watch_list.append(demos_path);
-            GameListDir* game_list_dir = new GameListDir(game_dir, GameListItemType::InstalledDir);
-            emit DirEntryReady({game_list_dir});
+            auto* const game_list_dir = new GameListDir(game_dir, GameListItemType::InstalledDir);
+            emit DirEntryReady(game_list_dir);
             AddFstEntriesToGameList(games_path.toStdString(), 2, game_list_dir);
             AddFstEntriesToGameList(demos_path.toStdString(), 2, game_list_dir);
-        } else if (game_dir.path == "SYSTEM") {
+        } else if (game_dir.path == QStringLiteral("SYSTEM")) {
             QString path =
                 QString::fromStdString(FileUtil::GetUserPath(FileUtil::UserPath::NANDDir)) +
-                "00000000000000000000000000000000/title/00040010";
+                QStringLiteral("00000000000000000000000000000000/title/00040010");
             watch_list.append(path);
-            GameListDir* game_list_dir = new GameListDir(game_dir, GameListItemType::SystemDir);
-            emit DirEntryReady({game_list_dir});
+            auto* const game_list_dir = new GameListDir(game_dir, GameListItemType::SystemDir);
+            emit DirEntryReady(game_list_dir);
             AddFstEntriesToGameList(path.toStdString(), 2, game_list_dir);
         } else {
             watch_list.append(game_dir.path);
-            GameListDir* game_list_dir = new GameListDir(game_dir);
-            emit DirEntryReady({game_list_dir});
+            auto* const game_list_dir = new GameListDir(game_dir);
+            emit DirEntryReady(game_list_dir);
             AddFstEntriesToGameList(game_dir.path.toStdString(), game_dir.deep_scan ? 256 : 0,
                                     game_list_dir);
         }

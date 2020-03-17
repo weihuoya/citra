@@ -36,19 +36,29 @@ struct ScreenInfo {
     TextureInfo texture;
 };
 
+struct PresentationTexture {
+    u32 width = 0;
+    u32 height = 0;
+    OGLTexture texture;
+};
+
 class RendererOpenGL : public RendererBase {
 public:
     explicit RendererOpenGL(Frontend::EmuWindow& window);
     ~RendererOpenGL() override;
 
-    /// Swap buffers (render frame)
-    void SwapBuffers() override;
-
     /// Initialize the renderer
-    Core::System::ResultStatus Init() override;
+    VideoCore::ResultStatus Init() override;
 
     /// Shutdown the renderer
     void ShutDown() override;
+
+    /// Finalizes rendering the guest frame
+    void SwapBuffers() override;
+
+    /// Draws the latest frame from texture mailbox to the currently bound draw framebuffer in this
+    /// context
+    void TryPresent(int timeout_ms) override;
 
     /// Prepares for video dumping (e.g. create necessary buffers, etc)
     void PrepareVideoDumping() override;
@@ -60,13 +70,19 @@ private:
     void InitOpenGLObjects();
     void ReloadSampler();
     void ReloadShader();
+    void PrepareRendertarget();
+    void RenderScreenshot();
+    void RenderVideoDumping();
     void ConfigureFramebufferTexture(TextureInfo& texture,
                                      const GPU::Regs::FramebufferConfig& framebuffer);
     void DrawScreens(const Layout::FramebufferLayout& layout);
     void DrawSingleScreenRotated(const ScreenInfo& screen_info, float x, float y, float w, float h);
-    void DrawSingleScreenAnaglyphRotated(const ScreenInfo& screen_info_l,
-                                         const ScreenInfo& screen_info_r, float x, float y, float w,
-                                         float h);
+    void DrawSingleScreen(const ScreenInfo& screen_info, float x, float y, float w, float h);
+    void DrawSingleScreenStereoRotated(const ScreenInfo& screen_info_l,
+                                       const ScreenInfo& screen_info_r, float x, float y, float w,
+                                       float h);
+    void DrawSingleScreenStereo(const ScreenInfo& screen_info_l, const ScreenInfo& screen_info_r,
+                                float x, float y, float w, float h);
     void UpdateFramerate();
 
     // Loads framebuffer from emulated memory into the display information structure

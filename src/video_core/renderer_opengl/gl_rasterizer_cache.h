@@ -25,6 +25,7 @@
 #include "common/common_funcs.h"
 #include "common/common_types.h"
 #include "common/math_util.h"
+#include "core/custom_tex_cache.h"
 #include "core/hw/gpu.h"
 #include "video_core/regs_framebuffer.h"
 #include "video_core/regs_texturing.h"
@@ -79,11 +80,15 @@ struct CachedSurface;
 using Surface = std::shared_ptr<CachedSurface>;
 using SurfaceSet = std::set<Surface>;
 
-using SurfaceRegions = boost::icl::interval_set<PAddr>;
-using SurfaceMap = boost::icl::interval_map<PAddr, Surface>;
-using SurfaceCache = boost::icl::interval_map<PAddr, SurfaceSet>;
+using SurfaceInterval = boost::icl::right_open_interval<PAddr>;
+using SurfaceRegions = boost::icl::interval_set<PAddr, std::less, SurfaceInterval>;
+using SurfaceMap =
+    boost::icl::interval_map<PAddr, Surface, boost::icl::partial_absorber, std::less,
+                             boost::icl::inplace_plus, boost::icl::inter_section, SurfaceInterval>;
+using SurfaceCache =
+    boost::icl::interval_map<PAddr, SurfaceSet, boost::icl::partial_absorber, std::less,
+                             boost::icl::inplace_plus, boost::icl::inter_section, SurfaceInterval>;
 
-using SurfaceInterval = SurfaceCache::interval_type;
 static_assert(std::is_same<SurfaceRegions::interval_type, SurfaceCache::interval_type>() &&
                   std::is_same<SurfaceMap::interval_type, SurfaceCache::interval_type>(),
               "incorrect interval types");
@@ -100,6 +105,29 @@ enum class ScaleMatch {
 };
 
 struct SurfaceParams {
+private:
+    static constexpr std::array<unsigned int, 18> BPP_TABLE = {
+        32, // RGBA8
+        24, // RGB8
+        16, // RGB5A1
+        16, // RGB565
+        16, // RGBA4
+        16, // IA8
+        16, // RG8
+        8,  // I8
+        8,  // A8
+        8,  // IA4
+        4,  // I4
+        4,  // A4
+        4,  // ETC1
+        8,  // ETC1A4
+        16, // D16
+        0,
+        24, // D24
+        32, // D24S8
+    };
+
+public:
     enum class PixelFormat {
         // First 5 formats are shared between textures and color buffers
         RGBA8 = 0,
@@ -138,30 +166,11 @@ struct SurfaceParams {
     };
 
     static constexpr unsigned int GetFormatBpp(PixelFormat format) {
-        constexpr std::array<unsigned int, 18> bpp_table = {
-            32, // RGBA8
-            24, // RGB8
-            16, // RGB5A1
-            16, // RGB565
-            16, // RGBA4
-            16, // IA8
-            16, // RG8
-            8,  // I8
-            8,  // A8
-            8,  // IA4
-            4,  // I4
-            4,  // A4
-            4,  // ETC1
-            8,  // ETC1A4
-            16, // D16
-            0,
-            24, // D24
-            32, // D24S8
-        };
-
-        assert(static_cast<std::size_t>(format) < bpp_table.size());
-        return bpp_table[static_cast<std::size_t>(format)];
+        const auto format_idx = static_cast<std::size_t>(format);
+        DEBUG_ASSERT_MSG(format_idx < BPP_TABLE.size(), "Invalid pixel format {}", format_idx);
+        return BPP_TABLE[format_idx];
     }
+
     unsigned int GetFormatBpp() const {
         return GetFormatBpp(pixel_format);
     }
@@ -244,7 +253,7 @@ struct SurfaceParams {
     }
 
     SurfaceInterval GetInterval() const {
-        return SurfaceInterval::right_open(addr, end);
+        return SurfaceInterval(addr, end);
     }
 
     // Returns the outer rectangle containing "interval"
@@ -361,6 +370,9 @@ struct CachedSurface : SurfaceParams, std::enable_shared_from_this<CachedSurface
     /// level_watchers[i] watches the (i+1)-th level mipmap source surface
     std::array<std::shared_ptr<SurfaceWatcher>, 7> level_watchers;
 
+    bool is_custom = false;
+    Core::CustomTexInfo custom_tex_info;
+
     static constexpr unsigned int GetGLBytesPerPixel(PixelFormat format) {
         // OpenGL needs 4 bpp alignment for D24 since using GL_UNSIGNED_INT as type
         return format == PixelFormat::Invalid
@@ -370,16 +382,18 @@ struct CachedSurface : SurfaceParams, std::enable_shared_from_this<CachedSurface
                          : SurfaceParams::GetFormatBpp(format) / 8;
     }
 
-    std::unique_ptr<u8[]> gl_buffer;
-    std::size_t gl_buffer_size = 0;
+    std::vector<u8> gl_buffer;
 
     // Read/Write data in 3DS memory to/from gl_buffer
     void LoadGLBuffer(PAddr load_start, PAddr load_end);
     void FlushGLBuffer(PAddr flush_start, PAddr flush_end);
 
+    // Custom texture loading and dumping
+    bool LoadCustomTexture(u64 tex_hash, Core::CustomTexInfo& tex_info);
+    void DumpTexture(GLuint target_tex, u64 tex_hash);
+
     // Upload/Download data in gl_buffer in/to this surface's texture
-    void UploadGLTexture(const Common::Rectangle<u32>& rect, GLuint read_fb_handle,
-                         GLuint draw_fb_handle);
+    void UploadGLTexture(Common::Rectangle<u32> rect, GLuint read_fb_handle, GLuint draw_fb_handle);
     void DownloadGLTexture(const Common::Rectangle<u32>& rect, GLuint read_fb_handle,
                            GLuint draw_fb_handle);
 
@@ -508,4 +522,14 @@ private:
 
     std::unordered_map<TextureCubeConfig, CachedTextureCube> texture_cube_cache;
 };
+
+struct FormatTuple {
+    GLint internal_format;
+    GLenum format;
+    GLenum type;
+};
+
+constexpr FormatTuple tex_tuple = {GL_RGBA8, GL_RGBA, GL_UNSIGNED_BYTE};
+
+const FormatTuple& GetFormatTuple(SurfaceParams::PixelFormat pixel_format);
 } // namespace OpenGL

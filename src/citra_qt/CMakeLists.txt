@@ -47,6 +47,8 @@ add_executable(citra-qt
     configuration/configure_debug.cpp
     configuration/configure_debug.h
     configuration/configure_debug.ui
+    configuration/configure_enhancements.cpp
+    configuration/configure_enhancements.h
     configuration/configure_dialog.cpp
     configuration/configure_dialog.h
     configuration/configure_general.cpp
@@ -90,6 +92,12 @@ add_executable(citra-qt
     debugger/graphics/graphics_tracing.h
     debugger/graphics/graphics_vertex_shader.cpp
     debugger/graphics/graphics_vertex_shader.h
+    debugger/ipc/record_dialog.cpp
+    debugger/ipc/record_dialog.h
+    debugger/ipc/record_dialog.ui
+    debugger/ipc/recorder.cpp
+    debugger/ipc/recorder.h
+    debugger/ipc/recorder.ui
     debugger/lle_service_modules.cpp
     debugger/lle_service_modules.h
     debugger/profiler.cpp
@@ -107,6 +115,9 @@ add_executable(citra-qt
     game_list_worker.h
     hotkeys.cpp
     hotkeys.h
+    loading_screen.cpp
+    loading_screen.h
+    loading_screen.ui
     main.cpp
     main.h
     main.ui
@@ -136,6 +147,8 @@ add_executable(citra-qt
     multiplayer/validation.h
     uisettings.cpp
     uisettings.h
+    qt_image_interface.cpp
+    qt_image_interface.h
     updater/updater.cpp
     updater/updater.h
     updater/updater_p.h
@@ -231,6 +244,10 @@ target_compile_definitions(citra-qt PRIVATE
 
     # Disable implicit QString->QUrl conversions to enforce use of proper resolving functions.
     -DQT_NO_URL_CAST_FROM_STRING
+
+    # Disable implicit conversions from/to C strings
+    -DQT_NO_CAST_FROM_ASCII
+    -DQT_NO_CAST_TO_ASCII
 )
 
 if (CITRA_ENABLE_COMPATIBILITY_REPORTING)

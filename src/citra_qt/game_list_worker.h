@@ -13,6 +13,7 @@
 #include <QObject>
 #include <QRunnable>
 #include <QString>
+#include <QVector>
 #include "citra_qt/compatibility_list.h"
 #include "common/common_types.h"
 
@@ -26,7 +27,7 @@ class GameListWorker : public QObject, public QRunnable {
     Q_OBJECT
 
 public:
-    GameListWorker(QList<UISettings::GameDir>& game_dirs,
+    GameListWorker(QVector<UISettings::GameDir>& game_dirs,
                    const CompatibilityList& compatibility_list);
     ~GameListWorker() override;
 
@@ -55,8 +56,9 @@ private:
     void AddFstEntriesToGameList(const std::string& dir_path, unsigned int recursion,
                                  GameListDir* parent_dir);
 
-    QStringList watch_list;
+    QVector<UISettings::GameDir>& game_dirs;
     const CompatibilityList& compatibility_list;
-    QList<UISettings::GameDir>& game_dirs;
+
+    QStringList watch_list;
     std::atomic_bool stop_processing;
 };

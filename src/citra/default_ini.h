@@ -112,14 +112,23 @@ shaders_accurate_mul =
 # 0: Interpreter (slow), 1 (default): JIT (fast)
 use_shader_jit =
 
+# Forces VSync on the display thread. Usually doesn't impact performance, but on some drivers it can
+# so only turn this off if you notice a speed difference.
+# 0: Off, 1 (default): On
+use_vsync_new =
+
+# Reduce stuttering by storing and loading generated shaders to disk
+# 0: Off, 1 (default. On)
+use_disk_shader_cache =
+
 # Resolution scale factor
 # 0: Auto (scales resolution to window size), 1: Native 3DS screen resolution, Otherwise a scale
 # factor for the 3DS resolution
 resolution_factor =
 
-# Whether to enable V-Sync (caps the framerate at 60FPS) or not.
-# 0 (default): Off, 1: On
-vsync_enabled =
+# Texture filter name and scale factor
+texture_filter_name =
+texture_filter_factor =
 
 # Turns on the frame limiter, which will limit frames output to the target game speed
 # 0: Off, 1: On (default)
@@ -136,7 +145,7 @@ bg_blue =
 bg_green =
 
 # Whether and how Stereoscopic 3D should be rendered
-# 0 (default): Off, 1: Side by Side, 2: Anaglyph
+# 0 (default): Off, 1: Side by Side, 2: Anaglyph, 3: Interlaced
 render_3d =
 
 # Change 3D Intensity
@@ -177,6 +186,22 @@ custom_bottom_bottom =
 # For example, if Single Screen is chosen, setting this to 1 will display the bottom screen instead of the top screen.
 # 0 (default): Top Screen is prominent, 1: Bottom Screen is prominent
 swap_screen =
+
+# Toggle upright orientation, for book style games.
+# 0 (default): Off, 1: On
+upright_screen =
+
+# Dumps textures as PNG to dump/textures/[Title ID]/.
+# 0 (default): Off, 1: On
+dump_textures =
+
+# Reads PNG files from load/textures/[Title ID]/ and replaces textures.
+# 0 (default): Off, 1: On
+custom_textures =
+
+# Loads all custom textures into memory before booting.
+# 0 (default): Off, 1: On
+preload_textures =
 
 [Audio]
 # Whether or not to enable DSP LLE

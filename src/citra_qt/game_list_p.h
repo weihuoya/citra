@@ -4,6 +4,7 @@
 
 #pragma once
 
+#include <algorithm>
 #include <map>
 #include <unordered_map>
 #include <utility>
@@ -70,6 +71,17 @@ static QString GetQStringShortTitleFromSMDH(const Loader::SMDH& smdh,
 }
 
 /**
+ * Gets the long game title from SMDH data.
+ * @param smdh SMDH data
+ * @param language title language
+ * @return QString long title
+ */
+static QString GetQStringLongTitleFromSMDH(const Loader::SMDH& smdh,
+                                           Loader::SMDH::TitleLanguage language) {
+    return QString::fromUtf16(smdh.GetLongTitle(language).data());
+}
+
+/**
  * Gets the game region from SMDH data.
  * @param smdh SMDH data
  * @return QString region
@@ -91,13 +103,19 @@ static QString GetRegionFromSMDH(const Loader::SMDH& smdh) {
         return QObject::tr("Invalid region");
     }
 
-    if (std::find(regions.begin(), regions.end(), GameRegion::RegionFree) != regions.end()) {
+    const bool region_free =
+        std::all_of(regions_map.begin(), regions_map.end(), [&regions](const auto& it) {
+            return std::find(regions.begin(), regions.end(), it.first) != regions.end();
+        });
+    if (region_free) {
         return QObject::tr("Region free");
     }
 
+    const QString separator =
+        UISettings::values.game_list_single_line_mode ? QStringLiteral(", ") : QStringLiteral("\n");
     QString result = QObject::tr(regions_map.at(regions.front()));
     for (auto region = ++regions.begin(); region != regions.end(); ++region) {
-        result += QStringLiteral("\n") + QObject::tr(regions_map.at(*region));
+        result += separator + QObject::tr(regions_map.at(*region));
     }
     return result;
 }
@@ -128,10 +146,11 @@ static const std::unordered_map<UISettings::GameListIconSize, int> IconSizes{
  */
 class GameListItemPath : public GameListItem {
 public:
-    static const int TitleRole = SortRole;
-    static const int FullPathRole = SortRole + 1;
-    static const int ProgramIdRole = SortRole + 2;
-    static const int ExtdataIdRole = SortRole + 3;
+    static const int TitleRole = SortRole + 1;
+    static const int FullPathRole = SortRole + 2;
+    static const int ProgramIdRole = SortRole + 3;
+    static const int ExtdataIdRole = SortRole + 4;
+    static const int LongTitleRole = SortRole + 5;
 
     GameListItemPath() = default;
     GameListItemPath(const QString& game_path, const std::vector<u8>& smdh_data, u64 program_id,
@@ -166,6 +185,10 @@ public:
         // Get title from SMDH
         setData(GetQStringShortTitleFromSMDH(smdh, Loader::SMDH::TitleLanguage::English),
                 TitleRole);
+
+        // Get long title from SMDH
+        setData(GetQStringLongTitleFromSMDH(smdh, Loader::SMDH::TitleLanguage::English),
+                LongTitleRole);
     }
 
     int type() const override {
@@ -173,7 +196,7 @@ public:
     }
 
     QVariant data(int role) const override {
-        if (role == Qt::DisplayRole) {
+        if (role == Qt::DisplayRole || role == SortRole) {
             std::string path, filename, extension;
             Common::SplitPath(data(FullPathRole).toString().toStdString(), &path, &filename,
                               &extension);
@@ -182,16 +205,25 @@ public:
                 {UISettings::GameListText::FileName, QString::fromStdString(filename + extension)},
                 {UISettings::GameListText::FullPath, data(FullPathRole).toString()},
                 {UISettings::GameListText::TitleName, data(TitleRole).toString()},
+                {UISettings::GameListText::LongTitleName, data(LongTitleRole).toString()},
                 {UISettings::GameListText::TitleID,
                  QString::fromStdString(fmt::format("{:016X}", data(ProgramIdRole).toULongLong()))},
             };
 
-            const QString& row1 = display_texts.at(UISettings::values.game_list_row_1);
+            const QString& row1 = display_texts.at(UISettings::values.game_list_row_1).simplified();
+
+            if (role == SortRole)
+                return row1.toLower();
 
             QString row2;
             auto row_2_id = UISettings::values.game_list_row_2;
             if (row_2_id != UISettings::GameListText::NoText) {
-                row2 = (row1.isEmpty() ? "" : "\n     ") + display_texts.at(row_2_id);
+                if (!row1.isEmpty()) {
+                    row2 = UISettings::values.game_list_single_line_mode
+                               ? QStringLiteral("     ")
+                               : QStringLiteral("\n     ");
+                }
+                row2 += display_texts.at(row_2_id).simplified();
             }
             return QString(row1 + row2);
         } else {
@@ -215,13 +247,13 @@ public:
         };
         // clang-format off
         static const std::map<QString, CompatStatus> status_data = {
-        {"0",  {"#5c93ed", QT_TR_NOOP("Perfect"),    QT_TR_NOOP("Game functions flawless with no audio or graphical glitches, all tested functionality works as intended without\nany workarounds needed.")}},
-        {"1",  {"#47d35c", QT_TR_NOOP("Great"),      QT_TR_NOOP("Game functions with minor graphical or audio glitches and is playable from start to finish. May require some\nworkarounds.")}},
-        {"2",  {"#94b242", QT_TR_NOOP("Okay"),       QT_TR_NOOP("Game functions with major graphical or audio glitches, but game is playable from start to finish with\nworkarounds.")}},
-        {"3",  {"#f2d624", QT_TR_NOOP("Bad"),        QT_TR_NOOP("Game functions, but with major graphical or audio glitches. Unable to progress in specific areas due to glitches\neven with workarounds.")}},
-        {"4",  {"#ff0000", QT_TR_NOOP("Intro/Menu"), QT_TR_NOOP("Game is completely unplayable due to major graphical or audio glitches. Unable to progress past the Start\nScreen.")}},
-        {"5",  {"#828282", QT_TR_NOOP("Won't Boot"), QT_TR_NOOP("The game crashes when attempting to startup.")}},
-        {"99", {"#000000", QT_TR_NOOP("Not Tested"), QT_TR_NOOP("The game has not yet been tested.")}}};
+        {QStringLiteral("0"),  {QStringLiteral("#5c93ed"), QT_TR_NOOP("Perfect"),    QT_TR_NOOP("Game functions flawless with no audio or graphical glitches, all tested functionality works as intended without\nany workarounds needed.")}},
+        {QStringLiteral("1"),  {QStringLiteral("#47d35c"), QT_TR_NOOP("Great"),      QT_TR_NOOP("Game functions with minor graphical or audio glitches and is playable from start to finish. May require some\nworkarounds.")}},
+        {QStringLiteral("2"),  {QStringLiteral("#94b242"), QT_TR_NOOP("Okay"),       QT_TR_NOOP("Game functions with major graphical or audio glitches, but game is playable from start to finish with\nworkarounds.")}},
+        {QStringLiteral("3"),  {QStringLiteral("#f2d624"), QT_TR_NOOP("Bad"),        QT_TR_NOOP("Game functions, but with major graphical or audio glitches. Unable to progress in specific areas due to glitches\neven with workarounds.")}},
+        {QStringLiteral("4"),  {QStringLiteral("#ff0000"), QT_TR_NOOP("Intro/Menu"), QT_TR_NOOP("Game is completely unplayable due to major graphical or audio glitches. Unable to progress past the Start\nScreen.")}},
+        {QStringLiteral("5"),  {QStringLiteral("#828282"), QT_TR_NOOP("Won't Boot"), QT_TR_NOOP("The game crashes when attempting to startup.")}},
+        {QStringLiteral("99"), {QStringLiteral("#000000"), QT_TR_NOOP("Not Tested"), QT_TR_NOOP("The game has not yet been tested.")}}};
         // clang-format on
 
         auto iterator = status_data.find(compatibility);
@@ -321,26 +353,38 @@ public:
         UISettings::GameDir* game_dir = &directory;
         setData(QVariant::fromValue(game_dir), GameDirRole);
 
-        int icon_size = IconSizes.at(UISettings::values.game_list_icon_size);
+        const int icon_size = IconSizes.at(UISettings::values.game_list_icon_size);
         switch (dir_type) {
         case GameListItemType::InstalledDir:
-            setData(QIcon::fromTheme("sd_card").pixmap(icon_size), Qt::DecorationRole);
-            setData("Installed Titles", Qt::DisplayRole);
+            setData(QIcon::fromTheme(QStringLiteral("sd_card")).pixmap(icon_size),
+                    Qt::DecorationRole);
+            setData(QObject::tr("Installed Titles"), Qt::DisplayRole);
             break;
         case GameListItemType::SystemDir:
-            setData(QIcon::fromTheme("chip").pixmap(icon_size), Qt::DecorationRole);
-            setData("System Titles", Qt::DisplayRole);
+            setData(QIcon::fromTheme(QStringLiteral("chip")).pixmap(icon_size), Qt::DecorationRole);
+            setData(QObject::tr("System Titles"), Qt::DisplayRole);
             break;
-        case GameListItemType::CustomDir:
-            QString icon_name = QFileInfo::exists(game_dir->path) ? "folder" : "bad_folder";
+        case GameListItemType::CustomDir: {
+            QString icon_name = QFileInfo::exists(game_dir->path) ? QStringLiteral("folder")
+                                                                  : QStringLiteral("bad_folder");
             setData(QIcon::fromTheme(icon_name).pixmap(icon_size), Qt::DecorationRole);
             setData(game_dir->path, Qt::DisplayRole);
             break;
-        };
-    };
+        }
+        default:
+            break;
+        }
+    }
 
     int type() const override {
         return static_cast<int>(dir_type);
+    }
+
+    /**
+     * Override to prevent automatic sorting.
+     */
+    bool operator<(const QStandardItem& other) const override {
+        return false;
     }
 
 private:
@@ -353,12 +397,16 @@ public:
         setData(type(), TypeRole);
 
         int icon_size = IconSizes.at(UISettings::values.game_list_icon_size);
-        setData(QIcon::fromTheme("plus").pixmap(icon_size), Qt::DecorationRole);
-        setData("Add New Game Directory", Qt::DisplayRole);
+        setData(QIcon::fromTheme(QStringLiteral("plus")).pixmap(icon_size), Qt::DecorationRole);
+        setData(QObject::tr("Add New Game Directory"), Qt::DisplayRole);
     }
 
     int type() const override {
         return static_cast<int>(GameListItemType::AddDir);
+    }
+
+    bool operator<(const QStandardItem& other) const override {
+        return false;
     }
 };
 
@@ -380,9 +428,6 @@ public:
     void clear();
     void setFocus();
 
-    int visible;
-    int total;
-
 private:
     class KeyReleaseEater : public QObject {
     public:
@@ -396,6 +441,9 @@ private:
         // EventFilter in order to process systemkeys while editing the searchfield
         bool eventFilter(QObject* obj, QEvent* event) override;
     };
+    int visible;
+    int total;
+
     QHBoxLayout* layout_filter = nullptr;
     QTreeView* tree_view = nullptr;
     QLabel* label_filter = nullptr;
