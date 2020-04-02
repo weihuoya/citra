@@ -3,6 +3,7 @@
 // Refer to the license.txt file included.
 
 #include <memory>
+#include <string>
 #include "common/logging/log.h"
 #include "core/settings.h"
 #include "video_core/pica.h"
@@ -22,29 +23,19 @@ std::atomic<bool> g_hw_renderer_enabled;
 std::atomic<bool> g_shader_jit_enabled;
 std::atomic<bool> g_hw_shader_enabled;
 std::atomic<bool> g_hw_shader_accurate_mul;
-std::atomic<bool> g_use_disk_shader_cache;
 std::atomic<bool> g_renderer_bg_color_update_requested;
-std::atomic<bool> g_renderer_sampler_update_requested;
-std::atomic<bool> g_renderer_shader_update_requested;
-// Screenshot
-std::atomic<bool> g_renderer_screenshot_requested;
-void* g_screenshot_bits;
-std::function<void()> g_screenshot_complete_callback;
-Layout::FramebufferLayout g_screenshot_framebuffer_layout;
 
 Memory::MemorySystem* g_memory;
 
 /// Initialize the video core
-ResultStatus Init(Frontend::EmuWindow& emu_window, Memory::MemorySystem& memory) {
+Core::System::ResultStatus Init(Frontend::EmuWindow& emu_window, Memory::MemorySystem& memory) {
     g_memory = &memory;
     Pica::Init();
 
-    OpenGL::GLES = Settings::values.use_gles;
-
     g_renderer = std::make_unique<OpenGL::RendererOpenGL>(emu_window);
-    ResultStatus result = g_renderer->Init();
+    Core::System::ResultStatus result = g_renderer->Init();
 
-    if (result != ResultStatus::Success) {
+    if (result != Core::System::ResultStatus::Success) {
         LOG_ERROR(Render, "initialization failed !");
     } else {
         LOG_DEBUG(Render, "initialized OK");
@@ -61,18 +52,6 @@ void Shutdown() {
     g_renderer.reset();
 
     LOG_DEBUG(Render, "shutdown OK");
-}
-
-void RequestScreenshot(void* data, std::function<void()> callback,
-                       const Layout::FramebufferLayout& layout) {
-    if (g_renderer_screenshot_requested) {
-        LOG_ERROR(Render, "A screenshot is already requested or in progress, ignoring the request");
-        return;
-    }
-    g_screenshot_bits = data;
-    g_screenshot_complete_callback = std::move(callback);
-    g_screenshot_framebuffer_layout = layout;
-    g_renderer_screenshot_requested = true;
 }
 
 u16 GetResolutionScaleFactor() {

@@ -52,7 +52,7 @@ ResultVal<std::unique_ptr<FileBackend>> SDMCArchive::OpenFile(const Path& path,
 
 ResultVal<std::unique_ptr<FileBackend>> SDMCArchive::OpenFileBase(const Path& path,
                                                                   const Mode& mode) const {
-    LOG_DEBUG(Service_FS, "called path={} mode={:01X}", path.DebugStr(), mode.hex);
+    LOG_DEBUG(Service_FS, "SDMCArchive OpenFileBase called path={} mode={:01X}", path.DebugStr(), mode.hex);
 
     const PathParser path_parser(path);
 

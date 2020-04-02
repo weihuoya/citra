@@ -4,8 +4,6 @@
 
 #pragma once
 
-#include <atomic>
-#include <functional>
 #include "common/common_types.h"
 #include "core/hw/gpu.h"
 
@@ -18,14 +16,6 @@ struct OutputVertex;
 } // namespace Pica::Shader
 
 namespace VideoCore {
-
-enum class LoadCallbackStage {
-    Prepare,
-    Decompile,
-    Build,
-    Complete,
-};
-using DiskResourceLoadCallback = std::function<void(LoadCallbackStage, std::size_t, std::size_t)>;
 
 class RasterizerInterface {
 public:
@@ -82,7 +72,12 @@ public:
         return false;
     }
 
-    virtual void LoadDiskResources(const std::atomic_bool& stop_loading,
-                                   const DiskResourceLoadCallback& callback) {}
+    /// sync
+    virtual void SyncFogLutData() = 0;
+    virtual void SyncLightingLutData() = 0;
+    virtual void SyncProcTexLutData() = 0;
+
+    /// Handle any config changes, this gets propogated to the backend
+    virtual void CheckForConfigChanges() {}
 };
 } // namespace VideoCore

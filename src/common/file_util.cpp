@@ -3,7 +3,6 @@
 // Refer to the license.txt file included.
 
 #include <array>
-#include <limits>
 #include <memory>
 #include <sstream>
 #include <unordered_map>
@@ -379,6 +378,16 @@ bool CreateEmptyFile(const std::string& filename) {
     return true;
 }
 
+u64 GetFileModificationTimestamp(const std::string& filename) {
+    if (Exists(filename)) {
+        struct stat64 file_info;
+        if (stat64(filename.c_str(), &file_info) == 0) {
+            return static_cast<u64>(file_info.st_mtim.tv_sec);
+        }
+    }
+    return 0;
+}
+
 bool ForeachDirectoryEntry(u64* num_entries_out, const std::string& directory,
                            DirectoryEntryCallable callback) {
     LOG_TRACE(Common_Filesystem, "directory {}", directory);
@@ -542,11 +551,11 @@ void CopyDir(const std::string& source_path, const std::string& dest_path) {
 std::optional<std::string> GetCurrentDir() {
 // Get the current working directory (getcwd uses malloc)
 #ifdef _WIN32
-    wchar_t* dir = _wgetcwd(nullptr, 0);
-    if (!dir) {
+    wchar_t* dir;
+    if (!(dir = _wgetcwd(nullptr, 0))) {
 #else
-    char* dir = getcwd(nullptr, 0);
-    if (!dir) {
+    char* dir;
+    if (!(dir = getcwd(nullptr, 0))) {
 #endif
         LOG_ERROR(Common_Filesystem, "GetCurrentDirectory failed: {}", GetLastErrorMsg());
         return {};
@@ -726,6 +735,7 @@ void SetUserPath(const std::string& path) {
     g_paths.emplace(UserPath::ShaderDir, user_path + SHADER_DIR DIR_SEP);
     g_paths.emplace(UserPath::DumpDir, user_path + DUMP_DIR DIR_SEP);
     g_paths.emplace(UserPath::LoadDir, user_path + LOAD_DIR DIR_SEP);
+    g_paths.emplace(UserPath::AmiiboDir, user_path + AMIIBO_DIR DIR_SEP);
 }
 
 const std::string& GetUserPath(UserPath path) {
@@ -734,6 +744,7 @@ const std::string& GetUserPath(UserPath path) {
         SetUserPath();
     return g_paths[path];
 }
+
 std::size_t WriteStringToFile(bool text_file, const std::string& filename, std::string_view str) {
     return IOFile(filename, text_file ? "w" : "wb").WriteString(str);
 }
@@ -890,16 +901,16 @@ IOFile::~IOFile() {
     Close();
 }
 
-IOFile::IOFile(IOFile&& other) noexcept {
+IOFile::IOFile(IOFile&& other) {
     Swap(other);
 }
 
-IOFile& IOFile::operator=(IOFile&& other) noexcept {
+IOFile& IOFile::operator=(IOFile&& other) {
     Swap(other);
     return *this;
 }
 
-void IOFile::Swap(IOFile& other) noexcept {
+void IOFile::Swap(IOFile& other) {
     std::swap(m_file, other.m_file);
     std::swap(m_good, other.m_good);
 }
@@ -910,16 +921,15 @@ bool IOFile::Open(const std::string& filename, const char openmode[], int flags)
     if (flags != 0) {
         m_file = _wfsopen(Common::UTF8ToUTF16W(filename).c_str(),
                           Common::UTF8ToUTF16W(openmode).c_str(), flags);
-        m_good = m_file != nullptr;
     } else {
-        m_good = _wfopen_s(&m_file, Common::UTF8ToUTF16W(filename).c_str(),
-                           Common::UTF8ToUTF16W(openmode).c_str()) == 0;
+        _wfopen_s(&m_file, Common::UTF8ToUTF16W(filename).c_str(),
+                  Common::UTF8ToUTF16W(openmode).c_str());
     }
 #else
-    m_file = std::fopen(filename.c_str(), openmode);
-    m_good = m_file != nullptr;
+    m_file = fopen(filename.c_str(), openmode);
 #endif
 
+    m_good = IsOpen();
     return m_good;
 }
 
@@ -949,7 +959,7 @@ u64 IOFile::Tell() const {
     if (IsOpen())
         return ftello(m_file);
 
-    return std::numeric_limits<u64>::max();
+    return -1;
 }
 
 bool IOFile::Flush() {

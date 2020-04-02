@@ -102,6 +102,10 @@ MemoryRegionInfo* KernelSystem::GetMemoryRegion(MemoryRegion region) {
     }
 }
 
+u32 KernelSystem::GetApplicationMemoryType() const {
+    return config_mem_handler->GetConfigMem().app_mem_type;
+}
+
 void KernelSystem::HandleSpecialMapping(VMManager& address_space, const AddressMapping& mapping) {
     using namespace Memory;
 

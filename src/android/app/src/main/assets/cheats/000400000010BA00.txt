@@ -1,0 +1,10 @@
+* Inazuma Eleven Go Galaxy - Big Bang
+
+[60 FPS v1.0]
+206BA921 00000001
+
+[Game Speed - v1.0]
+106BB4A2 00003F00
+
+[Game Speed + v1.0]
+106BB4A2 00004000

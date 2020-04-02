@@ -19,16 +19,21 @@ File::File(Core::System& system, std::unique_ptr<FileSys::FileBackend>&& backend
            const FileSys::Path& path)
     : ServiceFramework("", 1), path(path), backend(std::move(backend)), system(system) {
     static const FunctionInfo functions[] = {
+        {0x000100C6, nullptr, "Dummy1"},
+        {0x040100C4, nullptr, "Control"},
         {0x08010100, &File::OpenSubFile, "OpenSubFile"},
         {0x080200C2, &File::Read, "Read"},
         {0x08030102, &File::Write, "Write"},
         {0x08040000, &File::GetSize, "GetSize"},
         {0x08050080, &File::SetSize, "SetSize"},
+        {0x08060000, nullptr, "GetAttributes"},
+        {0x08070040, nullptr, "SetAttributes"},
         {0x08080000, &File::Close, "Close"},
         {0x08090000, &File::Flush, "Flush"},
         {0x080A0040, &File::SetPriority, "SetPriority"},
         {0x080B0000, &File::GetPriority, "GetPriority"},
         {0x080C0000, &File::OpenLinkFile, "OpenLinkFile"},
+        {0x0C010100, nullptr, "GetAvailable"},
     };
     RegisterHandlers(functions);
 }

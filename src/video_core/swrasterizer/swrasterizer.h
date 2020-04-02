@@ -22,6 +22,10 @@ class SWRasterizer : public RasterizerInterface {
     void FlushRegion(PAddr addr, u32 size) override {}
     void InvalidateRegion(PAddr addr, u32 size) override {}
     void FlushAndInvalidateRegion(PAddr addr, u32 size) override {}
+    /// sync
+    void SyncFogLutData() override {}
+    void SyncLightingLutData() override {}
+    void SyncProcTexLutData() override {}
 };
 
 } // namespace VideoCore

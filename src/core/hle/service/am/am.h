@@ -61,6 +61,9 @@ constexpr std::size_t TITLE_ID_VALID_LENGTH = 16;
 // Progress callback for InstallCIA, receives bytes written and total bytes
 using ProgressCallback = void(std::size_t, std::size_t);
 
+//
+using DownloadCallback = std::optional<std::vector<u8>>(const std::string&);
+
 // A file handled returned for CIAs to be written into and subsequently installed.
 class CIAFile final : public FileSys::FileBackend {
 public:
@@ -104,6 +107,13 @@ private:
  */
 InstallStatus InstallCIA(const std::string& path,
                          std::function<ProgressCallback>&& update_callback = nullptr);
+
+/**
+ * Downloads and installs title form the Nintendo Update Service.
+ * @param title_id the title_id to download
+ * @returns  whether the install was successful or error code
+ */
+InstallStatus InstallFromNus(u64 title_id, int version, std::function<DownloadCallback>&& download);
 
 /**
  * Get the mediatype for an installed title

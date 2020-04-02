@@ -9,6 +9,7 @@
 #include <cryptopp/aes.h>
 #include <cryptopp/modes.h>
 #include <fmt/format.h>
+#include "common/alignment.h"
 #include "common/file_util.h"
 #include "common/logging/log.h"
 #include "common/string_util.h"
@@ -32,6 +33,9 @@
 #include "core/hle/service/fs/archive.h"
 #include "core/loader/loader.h"
 #include "core/loader/smdh.h"
+#ifdef ENABLE_WEB_SERVICE
+#include "web_service/nus_download.h"
+#endif
 
 namespace Service::AM {
 
@@ -139,6 +143,8 @@ ResultCode CIAFile::WriteTitleMetadata() {
             decryption_state->content[i].SetKeyWithIV(title_key->data(), title_key->size(),
                                                       ctr.data());
         }
+    } else {
+        LOG_ERROR(Service_AM, "Can't get title key from ticket");
     }
 
     install_state = CIAInstallState::TMDLoaded;
@@ -180,6 +186,11 @@ ResultVal<std::size_t> CIAFile::WriteContentData(u64 offset, std::size_t length,
 
             if (tmd.GetContentTypeByIndex(static_cast<u16>(i)) &
                 FileSys::TMDContentTypeFlag::Encrypted) {
+                if (decryption_state->content.size() <= i) {
+                    // TODO: There is probably no correct error to return here. What error should be
+                    // returned?
+                    return FileSys::ERROR_INSUFFICIENT_SPACE;
+                }
                 decryption_state->content[i].ProcessData(temp.data(), temp.data(), temp.size());
             }
 
@@ -235,7 +246,7 @@ ResultVal<std::size_t> CIAFile::Write(u64 offset, std::size_t length, bool flush
         std::size_t buf_offset = buf_loaded - offset;
         std::size_t buf_copy_size =
             std::min(length, static_cast<std::size_t>(container.GetContentOffset() - offset)) -
-            buf_loaded;
+            buf_offset;
         std::size_t buf_max_size = std::min(offset + length, container.GetContentOffset());
         data.resize(buf_max_size);
         memcpy(data.data() + copy_offset, buffer + buf_offset, buf_copy_size);
@@ -378,6 +389,89 @@ InstallStatus InstallCIA(const std::string& path,
 
     LOG_ERROR(Service_AM, "CIA file {} is invalid!", path);
     return InstallStatus::ErrorInvalid;
+}
+
+InstallStatus InstallFromNus(u64 title_id, int version, std::function<DownloadCallback>&& download) {
+    Service::AM::CIAFile installFile(Service::AM::GetTitleMediaType(title_id));
+    constexpr auto host = "http://nus.cdn.c.shop.nintendowifi.net";
+    std::string url = fmt::format("{}/ccs/download/{:016X}/tmd", host, title_id);
+    if (version != -1)
+        url += fmt::format(".{}", version);
+    auto tmdResponse = download(url);
+    if (!tmdResponse) {
+        LOG_ERROR(Service_AM, "Failed to download tmd for {:016X}", title_id);
+        return InstallStatus::ErrorFileNotFound;
+    }
+    FileSys::TitleMetadata tmd;
+    tmd.Load(*tmdResponse);
+
+    url = fmt::format("{}/ccs/download/{:016X}/cetk", host, title_id);
+    auto cetkResponse = download(url);
+    if (!cetkResponse) {
+        LOG_ERROR(Service_AM, "Failed to download cetk for {:016X}", title_id);
+        return InstallStatus::ErrorFileNotFound;
+    }
+
+    std::vector<u8> content;
+    const auto content_count = tmd.GetContentCount();
+    for (std::size_t i = 0; i < content_count; ++i) {
+        std::string filename = fmt::format("{:08x}", tmd.GetContentIDByIndex(i));
+        url = fmt::format("{}/ccs/download/{:016X}/{}", host, title_id, filename);
+        auto response = download(url);
+        if (!response) {
+            LOG_ERROR(Service_NIM, "Failed to download content for {:016X}", title_id);
+            return InstallStatus::ErrorFileNotFound;
+        }
+        content.insert(content.end(), response->begin(), response->end());
+    }
+
+    FileSys::CIAContainer::Header fakeHeader;
+    fakeHeader.header_size = sizeof(fakeHeader);
+    fakeHeader.type = 0;
+    fakeHeader.version = 0;
+    fakeHeader.cert_size = 0;
+    fakeHeader.tik_size = cetkResponse->size();
+    fakeHeader.tmd_size = tmdResponse->size();
+    fakeHeader.meta_size = 0;
+    for (std::size_t i = 0; i < content_count; ++i) {
+        fakeHeader.setContentPresent(i);
+    }
+    std::vector<u8> header_data(sizeof(fakeHeader));
+    std::memcpy(header_data.data(), &fakeHeader, sizeof(fakeHeader));
+
+    std::size_t current_offset = 0;
+    auto WriteToCiaFileAligned = [&installFile, &current_offset](std::vector<u8>& data) {
+        u64 offset = Common::AlignUp(current_offset + data.size(), FileSys::CIA_SECTION_ALIGNMENT);
+        data.resize(offset - current_offset, 0);
+        auto result = installFile.Write(current_offset, data.size(), true, data.data());
+        if (result.Failed()) {
+            LOG_ERROR(Service_AM, "CIA file installation aborted with error code {:08x}",
+                      result.Code().raw);
+            return InstallStatus::ErrorAborted;
+        }
+        current_offset += data.size();
+        return InstallStatus::Success;
+    };
+    auto result = WriteToCiaFileAligned(header_data);
+    if (result != InstallStatus::Success) {
+        return result;
+    }
+
+    result = WriteToCiaFileAligned(*cetkResponse);
+    if (result != InstallStatus::Success) {
+        return result;
+    }
+
+    result = WriteToCiaFileAligned(*tmdResponse);
+    if (result != InstallStatus::Success) {
+        return result;
+    }
+
+    result = WriteToCiaFileAligned(content);
+    if (result != InstallStatus::Success) {
+        return result;
+    }
+    return InstallStatus::Success;
 }
 
 Service::FS::MediaType GetTitleMediaType(u64 titleId) {

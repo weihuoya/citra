@@ -43,7 +43,11 @@ Recorder::Recorder() = default;
 Recorder::~Recorder() = default;
 
 bool Recorder::IsEnabled() const {
+#ifdef ANDROID
+    return false;
+#else
     return enabled.load(std::memory_order_relaxed);
+#endif
 }
 
 void Recorder::RegisterRequest(const std::shared_ptr<Kernel::ClientSession>& client_session,

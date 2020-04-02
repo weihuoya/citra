@@ -22,6 +22,7 @@
 namespace HLE::Applets {
 
 ResultCode SoftwareKeyboard::ReceiveParameter(Service::APT::MessageParameter const& parameter) {
+    LOG_DEBUG(Service_APT, "SoftwareKeyboard ReceiveParameter signal: {}, object: {}", parameter.signal, (void*)parameter.object.get());
     switch (parameter.signal) {
     case Service::APT::SignalType::Request: {
         // The LibAppJustStarted message contains a buffer with the size of the framebuffer shared
@@ -56,7 +57,7 @@ ResultCode SoftwareKeyboard::ReceiveParameter(Service::APT::MessageParameter con
                    "The size of the parameter (SoftwareKeyboardConfig) is wrong");
 
         std::memcpy(&config, parameter.buffer.data(), parameter.buffer.size());
-
+        LOG_DEBUG(Service_APT, "SoftwareKeyboard ReceiveParameter callback_result: {}", config.callback_result);
         switch (config.callback_result) {
         case SoftwareKeyboardCallbackResult::OK:
             // Finish execution

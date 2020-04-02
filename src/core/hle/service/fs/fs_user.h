@@ -213,6 +213,10 @@ private:
      */
     void OpenArchive(Kernel::HLERequestContext& ctx);
 
+    void ControlArchive(Kernel::HLERequestContext& ctx);
+    void GetSdmcArchiveResource(Kernel::HLERequestContext& ctx);
+    void GetNandArchiveResource(Kernel::HLERequestContext& ctx);
+
     /**
      * FS_User::CloseArchive service function
      *  Inputs:

@@ -23,6 +23,7 @@ namespace FileUtil {
 
 // User paths for GetUserPath
 enum class UserPath {
+    AmiiboDir,
     CacheDir,
     CheatsDir,
     ConfigDir,
@@ -83,6 +84,9 @@ bool Copy(const std::string& srcFilename, const std::string& destFilename);
 
 // creates an empty file filename, returns true on success
 bool CreateEmptyFile(const std::string& filename);
+
+//
+u64 GetFileModificationTimestamp(const std::string& filename);
 
 /**
  * @param num_entries_out to be assigned by the callable with the number of iterated directory
@@ -216,10 +220,10 @@ public:
 
     ~IOFile();
 
-    IOFile(IOFile&& other) noexcept;
-    IOFile& operator=(IOFile&& other) noexcept;
+    IOFile(IOFile&& other);
+    IOFile& operator=(IOFile&& other);
 
-    void Swap(IOFile& other) noexcept;
+    void Swap(IOFile& other);
 
     bool Open(const std::string& filename, const char openmode[], int flags = 0);
     bool Close();

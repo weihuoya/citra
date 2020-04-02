@@ -34,7 +34,7 @@ APT_U::APT_U(std::shared_ptr<Module> apt)
         {0x00170040, &APT_U::FinishPreloadingLibraryApplet, "FinishPreloadingLibraryApplet"},
         {0x00180040, &APT_U::PrepareToStartLibraryApplet, "PrepareToStartLibraryApplet"},
         {0x00190040, nullptr, "PrepareToStartSystemApplet"},
-        {0x001A0000, nullptr, "PrepareToStartNewestHomeMenu"},
+        {0x001A0000, &APT_U::PrepareToStartNewestHomeMenu, "PrepareToStartNewestHomeMenu"},
         {0x001B00C4, nullptr, "StartApplication"},
         {0x001C0000, nullptr, "WakeupApplication"},
         {0x001D0000, nullptr, "CancelApplication"},
@@ -70,7 +70,7 @@ APT_U::APT_U(std::shared_ptr<Module> apt)
         {0x003B0040, &APT_U::CancelLibraryApplet, "CancelLibraryApplet"},
         {0x003C0042, nullptr, "SendDspSleep"},
         {0x003D0042, nullptr, "SendDspWakeUp"},
-        {0x003E0080, nullptr, "ReplySleepQuery"},
+        {0x003E0080, &APT_U::ReplySleepQuery, "ReplySleepQuery"},
         {0x003F0040, nullptr, "ReplySleepNotificationComplete"},
         {0x00400042, &APT_U::SendCaptureBufferInfo, "SendCaptureBufferInfo"},
         {0x00410040, &APT_U::ReceiveCaptureBufferInfo, "ReceiveCaptureBufferInfo"},
@@ -94,9 +94,13 @@ APT_U::APT_U(std::shared_ptr<Module> apt)
         {0x00530104, nullptr, "Unwrap1"},
         {0x00550040, &APT_U::SetScreenCapPostPermission, "SetScreenCapPostPermission"},
         {0x00560000, &APT_U::GetScreenCapPostPermission, "GetScreenCapPostPermission"},
+        {0x00570044, nullptr, "WakeupApplication2"},
         {0x00580002, nullptr, "GetProgramID"},
         {0x01010000, &APT_U::CheckNew3DSApp, "CheckNew3DSApp"},
         {0x01020000, &APT_U::CheckNew3DS, "CheckNew3DS"},
+        {0x01030000, nullptr, "UnknownMehod0x01030000"},
+        {0x01040000, &APT_U::IsStandardMemoryLayout, "IsStandardMemoryLayout"},
+        {0x01050100, nullptr, "IsTitleAllowed"},
     };
     RegisterHandlers(functions);
 }

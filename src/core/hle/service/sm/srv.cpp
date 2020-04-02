@@ -46,7 +46,7 @@ void SRV::RegisterClient(Kernel::HLERequestContext& ctx) {
 
     IPC::RequestBuilder rb = rp.MakeBuilder(1, 0);
     rb.Push(RESULT_SUCCESS);
-    LOG_WARNING(Service_SRV, "(STUBBED) called");
+    LOG_WARNING(Service_SRV, "(STUBBED) SRV::RegisterClient called");
 }
 
 /**
@@ -68,7 +68,7 @@ void SRV::EnableNotification(Kernel::HLERequestContext& ctx) {
     IPC::RequestBuilder rb = rp.MakeBuilder(1, 2);
     rb.Push(RESULT_SUCCESS);
     rb.PushCopyObjects(notification_semaphore);
-    LOG_WARNING(Service_SRV, "(STUBBED) called");
+    LOG_WARNING(Service_SRV, "(STUBBED) SRV::EnableNotification called");
 }
 
 /**
@@ -103,21 +103,21 @@ void SRV::GetServiceHandle(Kernel::HLERequestContext& ctx) {
     auto get_handle = [name, this](std::shared_ptr<Kernel::Thread> thread,
                                    Kernel::HLERequestContext& ctx,
                                    Kernel::ThreadWakeupReason reason) {
-        LOG_ERROR(Service_SRV, "called service={} wakeup", name);
+        LOG_ERROR(Service_SRV, "SRV GetServiceHandle called service={} wakeup", name);
         auto client_port = system.ServiceManager().GetServicePort(name);
 
         auto session = client_port.Unwrap()->Connect();
         if (session.Succeeded()) {
-            LOG_DEBUG(Service_SRV, "called service={} -> session={}", name,
+            LOG_DEBUG(Service_SRV, "SRV GetServiceHandle called service={} -> session={}", name,
                       (*session)->GetObjectId());
             IPC::RequestBuilder rb(ctx, 0x5, 1, 2);
             rb.Push(session.Code());
             rb.PushMoveObjects(std::move(session).Unwrap());
         } else if (session.Code() == Kernel::ERR_MAX_CONNECTIONS_REACHED) {
-            LOG_ERROR(Service_SRV, "called service={} -> ERR_MAX_CONNECTIONS_REACHED", name);
+            LOG_ERROR(Service_SRV, "SRV GetServiceHandle called service={} -> ERR_MAX_CONNECTIONS_REACHED", name);
             UNREACHABLE();
         } else {
-            LOG_ERROR(Service_SRV, "called service={} -> error 0x{:08X}", name, session.Code().raw);
+            LOG_ERROR(Service_SRV, "SRV GetServiceHandle called service={} -> error 0x{:08X}", name, session.Code().raw);
             IPC::RequestBuilder rb(ctx, 0x5, 1, 0);
             rb.Push(session.Code());
         }

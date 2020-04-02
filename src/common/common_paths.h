@@ -35,6 +35,7 @@
 #define JAP_DIR "JAP"
 
 // Subdirs in the User dir returned by GetUserPath(UserPath::UserDir)
+#define AMIIBO_DIR "amiibo"
 #define CONFIG_DIR "config"
 #define CACHE_DIR "cache"
 #define SDMC_DIR "sdmc"
@@ -46,7 +47,6 @@
 #define SHADER_DIR "shaders"
 #define DUMP_DIR "dump"
 #define LOAD_DIR "load"
-#define SHADER_DIR "shaders"
 
 // Filenames
 // Files in the directory returned by GetUserPath(UserPath::LogDir)

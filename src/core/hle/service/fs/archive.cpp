@@ -352,6 +352,10 @@ void ArchiveManager::RegisterSelfNCCH(Loader::AppLoader& app_loader) {
     factory->Register(app_loader);
 }
 
+bool ArchiveManager::CheckArchiveHandle(ArchiveHandle handle) {
+    return handle_map.find(handle) != handle_map.end();
+}
+
 ArchiveManager::ArchiveManager(Core::System& system) : system(system) {
     RegisterArchiveTypes();
 }

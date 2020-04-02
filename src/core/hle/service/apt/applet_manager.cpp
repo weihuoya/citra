@@ -339,6 +339,7 @@ ResultCode AppletManager::PrepareToStartLibraryApplet(AppletId applet_id) {
                     static_cast<u32>(applet_id));
         return RESULT_SUCCESS;
     } else {
+        LOG_DEBUG(Service_APT, "APT Applet Create applet_id={:08X}", applet_id);
         return HLE::Applets::Applet::Create(applet_id, shared_from_this());
     }
 }

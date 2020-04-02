@@ -233,6 +233,9 @@ public:
     /// Registers a new NCCH file with the SelfNCCH archive factory
     void RegisterSelfNCCH(Loader::AppLoader& app_loader);
 
+    /// check
+    bool CheckArchiveHandle(ArchiveHandle handle);
+
 private:
     Core::System& system;
 

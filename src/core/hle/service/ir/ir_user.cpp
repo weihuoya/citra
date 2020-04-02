@@ -291,7 +291,7 @@ void IR_USER::GetReceiveEvent(Kernel::HLERequestContext& ctx) {
     rb.Push(RESULT_SUCCESS);
     rb.PushCopyObjects(receive_event);
 
-    LOG_INFO(Service_IR, "called");
+    LOG_INFO(Service_IR, "IR_USER::GetReceiveEvent called");
 }
 
 void IR_USER::GetSendEvent(Kernel::HLERequestContext& ctx) {
@@ -300,7 +300,7 @@ void IR_USER::GetSendEvent(Kernel::HLERequestContext& ctx) {
     rb.Push(RESULT_SUCCESS);
     rb.PushCopyObjects(send_event);
 
-    LOG_INFO(Service_IR, "called");
+    LOG_INFO(Service_IR, "IR_USER::GetSendEvent called");
 }
 
 void IR_USER::Disconnect(Kernel::HLERequestContext& ctx) {
@@ -317,7 +317,7 @@ void IR_USER::Disconnect(Kernel::HLERequestContext& ctx) {
     IPC::RequestBuilder rb(ctx, 0x09, 1, 0);
     rb.Push(RESULT_SUCCESS);
 
-    LOG_INFO(Service_IR, "called");
+    LOG_INFO(Service_IR, "IR_USER::Disconnect called");
 }
 
 void IR_USER::GetConnectionStatusEvent(Kernel::HLERequestContext& ctx) {
@@ -326,7 +326,7 @@ void IR_USER::GetConnectionStatusEvent(Kernel::HLERequestContext& ctx) {
     rb.Push(RESULT_SUCCESS);
     rb.PushCopyObjects(conn_status_event);
 
-    LOG_INFO(Service_IR, "called");
+    LOG_INFO(Service_IR, "IR_USER::GetConnectionStatusEvent called");
 }
 
 void IR_USER::FinalizeIrNop(Kernel::HLERequestContext& ctx) {
@@ -341,7 +341,7 @@ void IR_USER::FinalizeIrNop(Kernel::HLERequestContext& ctx) {
     IPC::RequestBuilder rb(ctx, 0x02, 1, 0);
     rb.Push(RESULT_SUCCESS);
 
-    LOG_INFO(Service_IR, "called");
+    LOG_INFO(Service_IR, "IR_USER::FinalizeIrNop called");
 }
 
 void IR_USER::SendIrNop(Kernel::HLERequestContext& ctx) {
@@ -378,7 +378,7 @@ void IR_USER::ReleaseReceivedData(Kernel::HLERequestContext& ctx) {
                            ErrorLevel::Status));
     }
 
-    LOG_TRACE(Service_IR, "called, count={}", count);
+    LOG_TRACE(Service_IR, "IR_USER::ReleaseReceivedData called, count={}", count);
 }
 
 IR_USER::IR_USER(Core::System& system) : ServiceFramework("ir:USER", 1) {

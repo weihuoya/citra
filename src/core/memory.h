@@ -10,7 +10,6 @@
 #include <string>
 #include <vector>
 #include "common/common_types.h"
-#include "core/mmio.h"
 
 class ARM_Interface;
 
@@ -33,8 +32,8 @@ namespace Memory {
  */
 const u32 PAGE_SIZE = 0x1000;
 const u32 PAGE_MASK = PAGE_SIZE - 1;
-const int PAGE_BITS = 12;
-const std::size_t PAGE_TABLE_NUM_ENTRIES = 1 << (32 - PAGE_BITS);
+const u32 PAGE_BITS = 12;
+const u32 PAGE_TABLE_NUM_ENTRIES = 1 << (32 - PAGE_BITS);
 
 enum class PageType {
     /// Page is unmapped and should cause an access error.
@@ -44,14 +43,6 @@ enum class PageType {
     /// Page is mapped to regular memory, but also needs to check for rasterizer cache flushing and
     /// invalidation
     RasterizerCachedMemory,
-    /// Page is mapped to a I/O region. Writing and reading to this page is handled by functions.
-    Special,
-};
-
-struct SpecialRegion {
-    VAddr base;
-    u32 size;
-    MMIORegionPointer handler;
 };
 
 /**
@@ -66,12 +57,6 @@ struct PageTable {
      * corresponding entry in the `attributes` array is of type `Memory`.
      */
     std::array<u8*, PAGE_TABLE_NUM_ENTRIES> pointers;
-
-    /**
-     * Contains MMIO handlers that back memory regions whose entries in the `attribute` array is of
-     * type `Special`.
-     */
-    std::vector<SpecialRegion> special_regions;
 
     /**
      * Array of fine grained page attributes. If it is set to any value other than `Memory`, then
@@ -230,15 +215,6 @@ public:
      */
     void MapMemoryRegion(PageTable& page_table, VAddr base, u32 size, u8* target);
 
-    /**
-     * Maps a region of the emulated process address space as a IO region.
-     * @param page_table The page table of the emulated process.
-     * @param base The address to start mapping at. Must be page-aligned.
-     * @param size The amount of bytes to map. Must be page-aligned.
-     * @param mmio_handler The handler that backs the mapping.
-     */
-    void MapIoRegion(PageTable& page_table, VAddr base, u32 size, MMIORegionPointer mmio_handler);
-
     void UnmapRegion(PageTable& page_table, VAddr base, u32 size);
 
     /// Currently active page table
@@ -265,7 +241,7 @@ public:
     void CopyBlock(const Kernel::Process& dest_process, const Kernel::Process& src_process,
                    VAddr dest_addr, VAddr src_addr, std::size_t size);
 
-    std::string ReadCString(VAddr vaddr, std::size_t max_length);
+    std::string ReadCString(VAddr vaddr, u32 max_length);
 
     /**
      * Gets a pointer to the memory region beginning at the specified physical address.

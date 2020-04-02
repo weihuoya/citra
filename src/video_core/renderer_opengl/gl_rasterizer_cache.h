@@ -306,6 +306,7 @@ public:
     u16 res_scale = 1;
 
     bool is_tiled = false;
+    bool is_texture = false;
     PixelFormat pixel_format = PixelFormat::Invalid;
     SurfaceType type = SurfaceType::Invalid;
 };
@@ -364,6 +365,7 @@ struct CachedSurface : SurfaceParams, std::enable_shared_from_this<CachedSurface
     std::array<u8, 4> fill_data;
 
     OGLTexture texture;
+    OGLTexture texture_copy;
 
     /// max mipmap level that has been attached to the texture
     u32 max_level = 0;
@@ -372,6 +374,7 @@ struct CachedSurface : SurfaceParams, std::enable_shared_from_this<CachedSurface
 
     bool is_custom = false;
     Core::CustomTexInfo custom_tex_info;
+    u32 last_used_frame = 0;
 
     static constexpr unsigned int GetGLBytesPerPixel(PixelFormat format) {
         // OpenGL needs 4 bpp alignment for D24 since using GL_UNSIGNED_INT as type
@@ -389,13 +392,17 @@ struct CachedSurface : SurfaceParams, std::enable_shared_from_this<CachedSurface
     void FlushGLBuffer(PAddr flush_start, PAddr flush_end);
 
     // Custom texture loading and dumping
-    bool LoadCustomTexture(u64 tex_hash, Core::CustomTexInfo& tex_info);
-    void DumpTexture(GLuint target_tex, u64 tex_hash);
+    bool LoadCustomTexture(u64 tex_hash, Core::CustomTexInfo& tex_info,
+                           Common::Rectangle<u32>& custom_rect);
 
     // Upload/Download data in gl_buffer in/to this surface's texture
-    void UploadGLTexture(Common::Rectangle<u32> rect, GLuint read_fb_handle, GLuint draw_fb_handle);
+    void UploadGLTexture(const Common::Rectangle<u32>& rect, GLuint read_fb_handle,
+                         GLuint draw_fb_handle);
     void DownloadGLTexture(const Common::Rectangle<u32>& rect, GLuint read_fb_handle,
                            GLuint draw_fb_handle);
+
+    void DumpToFile();
+    GLuint GetTextureCopyHandle();
 
     std::shared_ptr<SurfaceWatcher> CreateWatcher() {
         auto watcher = std::make_shared<SurfaceWatcher>(weak_from_this());
@@ -487,6 +494,9 @@ public:
     /// Flush all cached resources tracked by this cache manager
     void FlushAll();
 
+    /// Handle any config changes
+    void CheckForConfigChanges();
+
 private:
     void DuplicateSurface(const Surface& src_surface, const Surface& dest_surface);
 
@@ -505,13 +515,14 @@ private:
     /// Increase/decrease the number of surface in pages touching the specified region
     void UpdatePagesCachedCount(PAddr addr, u32 size, int delta);
 
+    // clean surface cache
+    constexpr static u32 CLEAN_FRAME_INTERVAL = 60 * 60;
+    u32 last_clean_frame = 0;
+
     SurfaceCache surface_cache;
     PageMap cached_pages;
     SurfaceMap dirty_regions;
     SurfaceSet remove_surfaces;
-
-    OGLFramebuffer read_framebuffer;
-    OGLFramebuffer draw_framebuffer;
 
     OGLVertexArray attributeless_vao;
     OGLBuffer d24s8_abgr_buffer;

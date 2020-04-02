@@ -1,0 +1,7 @@
+* Fire Emblem Awakening - USA
+
+[30 FPS]
+004BDEFC 00000002
+
+[60 FPS]
+004BDEFC 00000001
