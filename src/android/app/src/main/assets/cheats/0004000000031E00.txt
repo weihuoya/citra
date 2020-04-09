@@ -1,0 +1,7 @@
+* Sengoku Musou Chronicle 1
+
+[30 FPS v1.0]
+204D8DAC 00000002
+
+[60 FPS v1.0]
+204D8DAC 00000001

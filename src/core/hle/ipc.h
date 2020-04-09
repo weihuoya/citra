@@ -56,13 +56,8 @@ union Header {
  * @note While @p normal_params_size is equivalent to the number of normal parameters,
  * @p translate_params_size includes the size occupied by the translate parameters headers.
  */
-inline u32 MakeHeader(u16 command_id, unsigned int normal_params_size,
-                      unsigned int translate_params_size) {
-    Header header{};
-    header.command_id.Assign(command_id);
-    header.normal_params_size.Assign(normal_params_size);
-    header.translate_params_size.Assign(translate_params_size);
-    return header.raw;
+constexpr u32 MakeHeader(u16 command_id, u32 normal_params_size, u32 translate_params_size) {
+    return ((u32) command_id << 16) | ((normal_params_size & 0x3F) << 6) | ((translate_params_size & 0x3F) << 0);
 }
 
 constexpr u32 MoveHandleDesc(u32 num_handles = 1) {
@@ -92,12 +87,8 @@ union StaticBufferDescInfo {
     BitField<14, 18, u32> size;
 };
 
-inline u32 StaticBufferDesc(std::size_t size, u8 buffer_id) {
-    StaticBufferDescInfo info{};
-    info.descriptor_type.Assign(StaticBuffer);
-    info.buffer_id.Assign(buffer_id);
-    info.size.Assign(static_cast<u32>(size));
-    return info.raw;
+constexpr u32 StaticBufferDesc(std::size_t size, u8 buffer_id) {
+    return ((u32) size << 14) | ((buffer_id & 0xF) << 10) | 0x2;
 }
 
 /**
@@ -130,12 +121,8 @@ union MappedBufferDescInfo {
     BitField<4, 28, u32> size;
 };
 
-inline u32 MappedBufferDesc(std::size_t size, MappedBufferPermissions perms) {
-    MappedBufferDescInfo info{};
-    info.flags.Assign(MappedBuffer);
-    info.perms.Assign(perms);
-    info.size.Assign(static_cast<u32>(size));
-    return info.raw;
+constexpr u32 MappedBufferDesc(std::size_t size, MappedBufferPermissions perms) {
+    return ((u32) size << 4) | MappedBuffer | perms;
 }
 
 inline DescriptorType GetDescriptorType(u32 descriptor) {

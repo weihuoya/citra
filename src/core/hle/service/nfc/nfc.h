@@ -241,6 +241,7 @@ private:
 
     AmiiboData amiibo_data{};
     bool amiibo_in_range = false;
+    Core::System& system;
 };
 
 void InstallInterfaces(Core::System& system);

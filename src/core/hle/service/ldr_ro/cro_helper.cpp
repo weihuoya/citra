@@ -72,11 +72,11 @@ ResultCode CROHelper::ApplyRelocation(VAddr target_address, RelocationType reloc
     case RelocationType::AbsoluteAddress:
     case RelocationType::AbsoluteAddress2:
         system.Memory().Write32(target_address, symbol_address + addend);
-        system.InvalidateCacheRange(target_address, sizeof(u32));
+        invalidate_cache_ranges.emplace_back(target_address, sizeof(u32));
         break;
     case RelocationType::RelativeAddress:
         system.Memory().Write32(target_address, symbol_address + addend - target_future_address);
-        system.InvalidateCacheRange(target_address, sizeof(u32));
+        invalidate_cache_ranges.emplace_back(target_address, sizeof(u32));
         break;
     case RelocationType::ThumbBranch:
     case RelocationType::ArmBranch:
@@ -85,8 +85,6 @@ ResultCode CROHelper::ApplyRelocation(VAddr target_address, RelocationType reloc
         // TODO(wwylele): implement other types
         UNIMPLEMENTED();
         break;
-    default:
-        return CROFormatError(0x22);
     }
     return RESULT_SUCCESS;
 }
@@ -99,7 +97,7 @@ ResultCode CROHelper::ClearRelocation(VAddr target_address, RelocationType reloc
     case RelocationType::AbsoluteAddress2:
     case RelocationType::RelativeAddress:
         system.Memory().Write32(target_address, 0);
-        system.InvalidateCacheRange(target_address, sizeof(u32));
+        invalidate_cache_ranges.emplace_back(target_address, sizeof(u32));
         break;
     case RelocationType::ThumbBranch:
     case RelocationType::ArmBranch:
@@ -108,8 +106,6 @@ ResultCode CROHelper::ClearRelocation(VAddr target_address, RelocationType reloc
         // TODO(wwylele): implement other types
         UNIMPLEMENTED();
         break;
-    default:
-        return CROFormatError(0x22);
     }
     return RESULT_SUCCESS;
 }
@@ -908,7 +904,7 @@ ResultCode CROHelper::ApplyModuleImport(VAddr crs_address) {
     return RESULT_SUCCESS;
 }
 
-ResultCode CROHelper::ApplyExportNamedSymbol(CROHelper target) {
+ResultCode CROHelper::ApplyExportNamedSymbol(CROHelper& target) {
     LOG_DEBUG(Service_LDR, "CRO \"{}\" exports named symbols to \"{}\"", ModuleName(),
               target.ModuleName());
     u32 target_import_strings_size = target.GetField(ImportStringsSize);
@@ -938,7 +934,7 @@ ResultCode CROHelper::ApplyExportNamedSymbol(CROHelper target) {
     return RESULT_SUCCESS;
 }
 
-ResultCode CROHelper::ResetExportNamedSymbol(CROHelper target) {
+ResultCode CROHelper::ResetExportNamedSymbol(CROHelper& target) {
     LOG_DEBUG(Service_LDR, "CRO \"{}\" unexports named symbols to \"{}\"", ModuleName(),
               target.ModuleName());
     u32 unresolved_symbol = target.GetOnUnresolvedAddress();
@@ -970,7 +966,7 @@ ResultCode CROHelper::ResetExportNamedSymbol(CROHelper target) {
     return RESULT_SUCCESS;
 }
 
-ResultCode CROHelper::ApplyModuleExport(CROHelper target) {
+ResultCode CROHelper::ApplyModuleExport(CROHelper& target) {
     std::string module_name = ModuleName();
     u32 target_import_string_size = target.GetField(ImportStringsSize);
     u32 target_import_module_num = target.GetField(ImportModuleNum);
@@ -1018,7 +1014,7 @@ ResultCode CROHelper::ApplyModuleExport(CROHelper target) {
     return RESULT_SUCCESS;
 }
 
-ResultCode CROHelper::ResetModuleExport(CROHelper target) {
+ResultCode CROHelper::ResetModuleExport(CROHelper& target) {
     u32 unresolved_symbol = target.GetOnUnresolvedAddress();
 
     std::string module_name = ModuleName();

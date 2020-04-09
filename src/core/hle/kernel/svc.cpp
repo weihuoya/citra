@@ -767,8 +767,8 @@ ResultCode SVC::CreateAddressArbiter(Handle* out_handle) {
 
 /// Arbitrate address
 ResultCode SVC::ArbitrateAddress(Handle handle, u32 address, u32 type, u32 value, s64 nanoseconds) {
-    LOG_TRACE(Kernel_SVC, "called handle=0x{:08X}, address=0x{:08X}, type=0x{:08X}, value=0x{:08X}",
-              handle, address, type, value);
+    LOG_TRACE(Kernel_SVC, "called handle=0x{:08X}, address=0x{:08X}, type=0x{:08X}, value=0x{:08X}, nanoseconds: {:08X}",
+              handle, address, type, value, nanoseconds);
 
     std::shared_ptr<AddressArbiter> arbiter =
         kernel.GetCurrentProcess()->handle_table.Get<AddressArbiter>(handle);
@@ -780,7 +780,7 @@ ResultCode SVC::ArbitrateAddress(Handle handle, u32 address, u32 type, u32 value
                                   static_cast<ArbitrationType>(type), address, value, nanoseconds);
 
     // TODO(Subv): Identify in which specific cases this call should cause a reschedule.
-    system.PrepareReschedule();
+    // system.PrepareReschedule();
 
     return res;
 }
@@ -1407,7 +1407,15 @@ ResultCode SVC::GetProcessInfo(s64* out, Handle process_handle, u32 type) {
 
     switch (type) {
     case 0:
+        // Returns the amount of executable memory allocated to the process +
+        // thread context size + page-rounded size of the external handle table
+    case 1:
+        // Returns the amount of <unknown> memory allocated to the process +
+        // thread context size + page-rounded size of the external handle table
     case 2:
+        // Returns the amount of DMA-able (code, data, IO pages, etc.) memory allocated to the process +
+        // thread context size + page-rounded size of the external handle table
+
         // TODO(yuriks): Type 0 returns a slightly higher number than type 2, but I'm not sure
         // what's the difference between them.
         *out = process->memory_used;
@@ -1416,26 +1424,47 @@ ResultCode SVC::GetProcessInfo(s64* out, Handle process_handle, u32 type) {
             return ERR_MISALIGNED_SIZE;
         }
         break;
-    case 1:
     case 3:
-    case 4:
-    case 5:
-    case 6:
-    case 7:
-    case 8:
-        // These are valid, but not implemented yet
+        // Returns the amount of <unknown> memory allocated to the process +
+        // thread context size + page-rounded size of the external handle table
         LOG_ERROR(Kernel_SVC, "unimplemented GetProcessInfo type={}", type);
         break;
+    case 4:
+        // Returns the amount handles in use by the process.
+        *out = process->handle_table.Size();
+        break;
+    case 5:
+        // Returns the highest count of handles that have been open at once by the process
+        LOG_ERROR(Kernel_SVC, "unimplemented GetProcessInfo type={}", type);
+        break;
+    case 6:
+        // Returns *(u32*)(KProcess+0x234) which is always 0
+        *out = 0;
+        break;
+    case 7:
+        // Returns the number of threads of the process
+        *out = kernel.GetProcessThreadsCount(process);
+        break;
+    case 8:
+        // Returns the maximum number of threads which can be opened by this process (always 0)
+        *out = 0;
+        break;
     case 20:
+        // low u32 = (0x20000000 - <LINEAR virtual-memory base for this process>).
         *out = Memory::FCRAM_PADDR - process->GetLinearHeapAreaAddress();
         break;
     case 21:
+        // Returns the maximum amount of VRAM memory allocatable by the process:
+        // 0x800000 bytes if the process has already allocated VRAM memory,
+        // otherwise 0 (+ error 0xE0E01BF4)
     case 22:
+        // Returns the address of the first chunk of VRAM allocated by this process
     case 23:
         // These return a different error value than higher invalid values
         LOG_ERROR(Kernel_SVC, "unknown GetProcessInfo type={}", type);
         return ERR_NOT_IMPLEMENTED;
     default:
+        // 9-18:  This only returns error 0xD8E007ED.
         LOG_ERROR(Kernel_SVC, "unknown GetProcessInfo type={}", type);
         return ERR_INVALID_ENUM_VALUE;
     }

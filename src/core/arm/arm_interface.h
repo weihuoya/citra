@@ -10,6 +10,7 @@
 #include "core/arm/skyeye_common/arm_regformat.h"
 #include "core/arm/skyeye_common/vfp/asm_vfp.h"
 #include "core/core_timing.h"
+#include "core/memory.h"
 
 /// Generic ARM11 CPU interface
 class ARM_Interface : NonCopyable {
@@ -73,7 +74,7 @@ public:
     virtual void InvalidateCacheRange(u32 start_address, std::size_t length) = 0;
 
     /// Notify CPU emulation that page tables have changed
-    virtual void PageTableChanged() = 0;
+    virtual void SetPageTable(Memory::PageTable* page_table) = 0;
 
     /**
      * Set the Program Counter to an address
@@ -146,7 +147,7 @@ public:
      * @param reg The CP15 register to retrieve the value from.
      * @return the value stored in the given CP15 register.
      */
-    virtual u32 GetCP15Register(CP15Register reg) = 0;
+    virtual u32 GetCP15Register(CP15Register reg) const = 0;
 
     /**
      * Stores the given value into the indicated CP15 register.
@@ -176,6 +177,8 @@ public:
     /// Prepare core for thread reschedule (if needed to correctly handle state)
     virtual void PrepareReschedule() = 0;
 
+    virtual void PurgeState() = 0;
+
     std::shared_ptr<Core::Timing::Timer> GetTimer() {
         return timer;
     }
@@ -185,6 +188,9 @@ public:
     }
 
 protected:
+    // This us used for serialization. Returning nullptr is valid if page tables are not used.
+    virtual Memory::PageTable* GetPageTable() const = 0;
+
     std::shared_ptr<Core::Timing::Timer> timer;
 
 private:

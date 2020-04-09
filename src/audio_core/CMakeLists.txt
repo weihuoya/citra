@@ -62,21 +62,16 @@ elseif(ENABLE_FFMPEG_AUDIO_DECODER)
         target_include_directories(audio_core PRIVATE ${FFMPEG_DIR}/include)
     endif()
     target_compile_definitions(audio_core PUBLIC HAVE_FFMPEG)
-elseif(ENABLE_FDK)
-    target_sources(audio_core PRIVATE
-        hle/fdk_decoder.cpp
-        hle/fdk_decoder.h
-    )
-    target_link_libraries(audio_core PRIVATE ${FDK_AAC})
-    target_compile_definitions(audio_core PUBLIC HAVE_FDK)
 endif()
 
 if(ANDROID)
     target_sources(audio_core PRIVATE
+        oboe_sink.cpp
+        oboe_sink.h
         hle/mediandk_decoder.cpp
         hle/mediandk_decoder.h
     )
-    target_link_libraries(audio_core PRIVATE mediandk)
+    target_link_libraries(audio_core PRIVATE mediandk oboe)
 endif()
 
 if(SDL2_FOUND)

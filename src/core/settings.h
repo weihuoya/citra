@@ -32,8 +32,6 @@ enum class MicInputType {
     Static,
 };
 
-enum class StereoRenderOption { Off, SideBySide, Anaglyph, Interlaced };
-
 namespace NativeButton {
 enum Values {
     A,
@@ -128,7 +126,6 @@ struct Values {
 
     // Core
     bool use_cpu_jit;
-    int cpu_clock_percentage;
 
     // Data Storage
     bool use_virtual_sd;
@@ -139,21 +136,19 @@ struct Values {
     u64 init_time;
 
     // Renderer
+    bool show_fps;
     bool use_gles;
     bool use_hw_renderer;
     bool use_hw_shader;
-    bool use_disk_shader_cache;
     bool shaders_accurate_mul;
     bool use_shader_jit;
     u16 resolution_factor;
+    bool vsync_enabled;
     bool use_frame_limit;
     u16 frame_limit;
-    u16 texture_filter_factor;
-    std::string texture_filter_name;
 
     LayoutOption layout_option;
     bool swap_screen;
-    bool upright_screen;
     bool custom_layout;
     u16 custom_top_left;
     u16 custom_top_top;
@@ -168,17 +163,11 @@ struct Values {
     float bg_green;
     float bg_blue;
 
-    StereoRenderOption render_3d;
     std::atomic<u8> factor_3d;
-
-    bool filter_mode;
     std::string pp_shader_name;
 
-    bool dump_textures;
     bool custom_textures;
     bool preload_textures;
-
-    bool use_vsync_new;
 
     // Audio
     bool enable_dsp_lle;
@@ -196,11 +185,17 @@ struct Values {
     std::array<int, Service::CAM::NumCameras> camera_flip;
 
     // Debugging
-    bool record_frame_times;
     bool use_gdbstub;
     u16 gdbstub_port;
     std::string log_filter;
     std::unordered_map<std::string, bool> lle_modules;
+
+    u32 core_ticks_hack;
+    bool allow_shadow;
+    bool use_separable_shader;
+    bool skip_slow_draw;
+    bool texture_load_hack;
+    bool display_transfer_hack;
 
     // WebService
     bool enable_telemetry;

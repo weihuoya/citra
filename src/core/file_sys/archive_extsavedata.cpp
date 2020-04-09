@@ -100,7 +100,7 @@ public:
 
     ResultVal<std::unique_ptr<FileBackend>> OpenFile(const Path& path,
                                                      const Mode& mode) const override {
-        LOG_DEBUG(Service_FS, "called path={} mode={:01X}", path.DebugStr(), mode.hex);
+        LOG_DEBUG(Service_FS, "ExtSaveDataArchive OpenFile called path={} mode={:01X}", path.DebugStr(), mode.hex);
 
         const PathParser path_parser(path);
 

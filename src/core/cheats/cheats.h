@@ -31,6 +31,7 @@ public:
     void RemoveCheat(int index);
     void UpdateCheat(int index, const std::shared_ptr<CheatBase>& new_cheat);
     void SaveCheatFile() const;
+    void ReloadCheatFile();
 
 private:
     void LoadCheatFile();

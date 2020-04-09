@@ -119,25 +119,6 @@ void ThreadManager::SwitchContext(Thread* new_thread) {
     }
 }
 
-Thread* ThreadManager::PopNextReadyThread() {
-    Thread* next = nullptr;
-    Thread* thread = GetCurrentThread();
-
-    if (thread && thread->status == ThreadStatus::Running) {
-        // We have to do better than the current thread.
-        // This call returns null when that's not possible.
-        next = ready_queue.pop_first_better(thread->current_priority);
-        if (!next) {
-            // Otherwise just keep going with the current thread
-            next = thread;
-        }
-    } else {
-        next = ready_queue.pop_first();
-    }
-
-    return next;
-}
-
 void ThreadManager::WaitCurrentThread_Sleep() {
     Thread* thread = GetCurrentThread();
     thread->status = ThreadStatus::WaitSleep;
@@ -180,6 +161,11 @@ void Thread::WakeAfterDelay(s64 nanoseconds) {
     if (nanoseconds == -1)
         return;
 
+    if ((nanoseconds & 0x7000000000000000) == 0x7000000000000000) {
+        // fx jit bug
+        nanoseconds &= 0xFFFFFFFF;
+    }
+
     thread_manager.kernel.timing.ScheduleEvent(nsToCycles(nanoseconds),
                                                thread_manager.ThreadWakeupEventType, thread_id);
 }
@@ -220,23 +206,6 @@ void Thread::ResumeFromWait() {
     thread_manager.ready_queue.push_back(current_priority, this);
     status = ThreadStatus::Ready;
     thread_manager.kernel.PrepareReschedule();
-}
-
-void ThreadManager::DebugThreadQueue() {
-    Thread* thread = GetCurrentThread();
-    if (!thread) {
-        LOG_DEBUG(Kernel, "Current: NO CURRENT THREAD");
-    } else {
-        LOG_DEBUG(Kernel, "0x{:02X} {} (current)", thread->current_priority,
-                  GetCurrentThread()->GetObjectId());
-    }
-
-    for (auto& t : thread_list) {
-        u32 priority = ready_queue.contains(t.get());
-        if (priority != -1) {
-            LOG_DEBUG(Kernel, "0x{:02X} {}", priority, t->GetObjectId());
-        }
-    }
 }
 
 /**
@@ -422,8 +391,20 @@ bool ThreadManager::HaveReadyThreads() {
 }
 
 void ThreadManager::Reschedule() {
+    Thread* next;
     Thread* cur = GetCurrentThread();
-    Thread* next = PopNextReadyThread();
+
+    if (cur && cur->status == ThreadStatus::Running) {
+        // We have to do better than the current thread.
+        // This call returns null when that's not possible.
+        next = ready_queue.pop_first_better(cur->current_priority);
+        if (!next) {
+            // Otherwise just keep going with the current thread
+            return;
+        }
+    } else {
+        next = ready_queue.pop_first();
+    }
 
     if (cur && next) {
         LOG_TRACE(Kernel, "context switch {} -> {}", cur->GetObjectId(), next->GetObjectId());

@@ -34,6 +34,7 @@
 #include "core/hle/service/http_c.h"
 #include "core/hle/service/ir/ir.h"
 #include "core/hle/service/ldr_ro/ldr_ro.h"
+#include "core/hle/service/mcu/mcu.h"
 #include "core/hle/service/mic_u.h"
 #include "core/hle/service/mvd/mvd.h"
 #include "core/hle/service/ndm/ndm_u.h"
@@ -94,11 +95,11 @@ const std::array<ServiceModuleInfo, 40> service_module_map{
      {"SOC", 0x00040130'00002E02, SOC::InstallInterfaces},
      {"SSL", 0x00040130'00002F02, SSL::InstallInterfaces},
      {"PS", 0x00040130'00003102, PS::InstallInterfaces},
+     {"MCU", 0x00040130'00001F02, MCU::InstallInterfaces},
      // no HLE implementation
      {"CDC", 0x00040130'00001802, nullptr},
      {"GPIO", 0x00040130'00001B02, nullptr},
      {"I2C", 0x00040130'00001E02, nullptr},
-     {"MCU", 0x00040130'00001F02, nullptr},
      {"MP", 0x00040130'00002A02, nullptr},
      {"PDN", 0x00040130'00002102, nullptr},
      {"SPI", 0x00040130'00002302, nullptr}}};
@@ -192,7 +193,8 @@ std::string ServiceFrameworkBase::GetFunctionName(u32 header) const {
 // Module interface
 
 static bool AttemptLLE(const ServiceModuleInfo& service_module) {
-    if (!Settings::values.lle_modules.at(service_module.name))
+    const auto& iter = Settings::values.lle_modules.find(service_module.name);
+    if (iter == Settings::values.lle_modules.end() || !iter->second)
         return false;
     std::unique_ptr<Loader::AppLoader> loader =
         Loader::GetLoader(AM::GetTitleContentPath(FS::MediaType::NAND, service_module.title_id));
