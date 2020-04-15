@@ -301,10 +301,10 @@ ResultCode SetBufferSwap(u32 screen_id, const FrameBufferInfo& info) {
     WriteSingleHWReg(
         base_address + 4 * static_cast<u32>(GPU_REG_INDEX(framebuffer_config[screen_id].active_fb)),
         info.shown_fb);
-
+#ifdef DEBUG_CONTEXT
     if (Pica::g_debug_context)
         Pica::g_debug_context->OnEvent(Pica::DebugContext::Event::BufferSwapped, nullptr);
-
+#endif
     if (screen_id == 0) {
         MicroProfileFlip();
         Core::System::GetInstance().perf_stats->EndGameFrame();
@@ -328,13 +328,13 @@ void GSP_GPU::FlushDataCache(Kernel::HLERequestContext& ctx) {
     u32 size = rp.Pop<u32>();
     auto process = rp.PopObject<Kernel::Process>();
 
-    // TODO(purpasmart96): Verify return header on HW
+    // This calls svcFlushProcessDataCache with the specified KProcess handle, address, and size.
 
     IPC::RequestBuilder rb = rp.MakeBuilder(1, 0);
     rb.Push(RESULT_SUCCESS);
 
-    LOG_DEBUG(Service_GSP, "(STUBBED) called address=0x{:08X}, size=0x{:08X}, process={}", address,
-              size, process->process_id);
+    //LOG_DEBUG(Service_GSP, "(STUBBED) GSP_GPU FlushDataCache called address=0x{:08X}, size=0x{:08X}, process={}", address,
+    //          size, process->process_id);
 }
 
 void GSP_GPU::InvalidateDataCache(Kernel::HLERequestContext& ctx) {
@@ -348,7 +348,7 @@ void GSP_GPU::InvalidateDataCache(Kernel::HLERequestContext& ctx) {
     IPC::RequestBuilder rb = rp.MakeBuilder(1, 0);
     rb.Push(RESULT_SUCCESS);
 
-    LOG_DEBUG(Service_GSP, "(STUBBED) called address=0x{:08X}, size=0x{:08X}, process={}", address,
+    LOG_DEBUG(Service_GSP, "(STUBBED) GSP_GPU InvalidateDataCache called address=0x{:08X}, size=0x{:08X}, process={}", address,
               size, process->process_id);
 }
 
@@ -402,13 +402,14 @@ void GSP_GPU::UnregisterInterruptRelayQueue(Kernel::HLERequestContext& ctx) {
     IPC::RequestBuilder rb = rp.MakeBuilder(1, 0);
     rb.Push(RESULT_SUCCESS);
 
-    LOG_DEBUG(Service_GSP, "called");
+    LOG_DEBUG(Service_GSP, "GSP_GPU UnregisterInterruptRelayQueue called");
 }
 
 void GSP_GPU::SignalInterruptForThread(InterruptId interrupt_id, u32 thread_id) {
     SessionData* session_data = FindRegisteredThreadData(thread_id);
-    if (session_data == nullptr)
+    if (session_data == nullptr) {
         return;
+    }
 
     auto interrupt_event = session_data->interrupt_event;
     if (interrupt_event == nullptr) {
@@ -465,8 +466,10 @@ void GSP_GPU::SignalInterrupt(InterruptId interrupt_id) {
     }
 
     // For normal interrupts, don't do anything if no process has acquired the GPU right.
-    if (active_thread_id == -1)
+    if (active_thread_id == -1) {
+        LOG_WARNING(Service_GSP, "GSP_GPU::SignalInterrupt active_thread_id is -1");
         return;
+    }
 
     SignalInterruptForThread(interrupt_id, active_thread_id);
 }
@@ -601,10 +604,11 @@ static void ExecuteCommand(const Command& command, u32 thread_id) {
     default:
         LOG_ERROR(Service_GSP, "unknown command 0x{:08X}", (int)command.id.Value());
     }
-
+#ifdef DEBUG_CONTEXT
     if (Pica::g_debug_context)
         Pica::g_debug_context->OnEvent(Pica::DebugContext::Event::GSPCommandProcessed,
                                        (void*)&command);
+#endif
 }
 
 void GSP_GPU::SetLcdForceBlack(Kernel::HLERequestContext& ctx) {
@@ -628,19 +632,19 @@ void GSP_GPU::TriggerCmdReqQueue(Kernel::HLERequestContext& ctx) {
     IPC::RequestParser rp(ctx, 0xC, 0, 0);
 
     // Iterate through each thread's command queue...
-    for (unsigned thread_id = 0; thread_id < 0x4; ++thread_id) {
+    for (unsigned thread_id = 0; thread_id < MaxGSPThreads; ++thread_id) {
         CommandBuffer* command_buffer = (CommandBuffer*)GetCommandBuffer(shared_memory, thread_id);
 
         // Iterate through each command...
         for (unsigned i = 0; i < command_buffer->number_commands; ++i) {
+#ifdef DEBUG_CONTEXT
             g_debugger.GXCommandProcessed((u8*)&command_buffer->commands[i]);
-
+#endif
             // Decode and execute command
             ExecuteCommand(command_buffer->commands[i], thread_id);
-
-            // Indicates that command has completed
-            command_buffer->number_commands.Assign(command_buffer->number_commands - 1);
         }
+        // Indicates that command has completed
+        command_buffer->number_commands.Assign(0);
     }
 
     IPC::RequestBuilder rb = rp.MakeBuilder(1, 0);
@@ -687,6 +691,22 @@ void GSP_GPU::ImportDisplayCaptureInfo(Kernel::HLERequestContext& ctx) {
     LOG_WARNING(Service_GSP, "called");
 }
 
+void GSP_GPU::SaveVramSysArea(Kernel::HLERequestContext& ctx) {
+    IPC::RequestParser rp(ctx, 0x19, 0, 0);
+    IPC::RequestBuilder rb = rp.MakeBuilder(1, 0);
+    rb.Push(RESULT_SUCCESS);
+
+    LOG_WARNING(Service_GSP, "GSP_GPU SaveVramSysArea called");
+}
+
+void GSP_GPU::RestoreVramSysArea(Kernel::HLERequestContext& ctx) {
+    IPC::RequestParser rp(ctx, 0x1A, 0, 0);
+    IPC::RequestBuilder rb = rp.MakeBuilder(1, 0);
+    rb.Push(RESULT_SUCCESS);
+
+    LOG_WARNING(Service_GSP, "GSP_GPU RestoreVramSysArea called");
+}
+
 void GSP_GPU::AcquireRight(Kernel::HLERequestContext& ctx) {
     IPC::RequestParser rp(ctx, 0x16, 1, 2);
 
@@ -729,7 +749,7 @@ void GSP_GPU::ReleaseRight(Kernel::HLERequestContext& ctx) {
     IPC::RequestBuilder rb = rp.MakeBuilder(1, 0);
     rb.Push(RESULT_SUCCESS);
 
-    LOG_WARNING(Service_GSP, "called");
+    LOG_WARNING(Service_GSP, "GSP_GPU ReleaseRight called");
 }
 
 void GSP_GPU::StoreDataCache(Kernel::HLERequestContext& ctx) {
@@ -742,7 +762,7 @@ void GSP_GPU::StoreDataCache(Kernel::HLERequestContext& ctx) {
     IPC::RequestBuilder rb = rp.MakeBuilder(1, 0);
     rb.Push(RESULT_SUCCESS);
 
-    LOG_DEBUG(Service_GSP, "(STUBBED) called address=0x{:08X}, size=0x{:08X}, process={}", address,
+    LOG_DEBUG(Service_GSP, "(STUBBED) GSP_GPU StoreDataCache called address=0x{:08X}, size=0x{:08X}, process={}", address,
               size, process->process_id);
 }
 
@@ -795,8 +815,8 @@ GSP_GPU::GSP_GPU(Core::System& system) : ServiceFramework("gsp::Gpu", 2), system
         {0x00160042, &GSP_GPU::AcquireRight, "AcquireRight"},
         {0x00170000, &GSP_GPU::ReleaseRight, "ReleaseRight"},
         {0x00180000, &GSP_GPU::ImportDisplayCaptureInfo, "ImportDisplayCaptureInfo"},
-        {0x00190000, nullptr, "SaveVramSysArea"},
-        {0x001A0000, nullptr, "RestoreVramSysArea"},
+        {0x00190000, &GSP_GPU::SaveVramSysArea, "SaveVramSysArea"},
+        {0x001A0000, &GSP_GPU::RestoreVramSysArea, "RestoreVramSysArea"},
         {0x001B0000, nullptr, "ResetGpuCore"},
         {0x001C0040, &GSP_GPU::SetLedForceOff, "SetLedForceOff"},
         {0x001D0040, nullptr, "SetTestCommand"},

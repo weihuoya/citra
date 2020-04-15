@@ -39,11 +39,8 @@ namespace OpenGL {
 
 class RasterizerOpenGL : public VideoCore::RasterizerInterface {
 public:
-    explicit RasterizerOpenGL(Frontend::EmuWindow& renderer);
+    RasterizerOpenGL();
     ~RasterizerOpenGL() override;
-
-    void LoadDiskResources(const std::atomic_bool& stop_loading,
-                           const VideoCore::DiskResourceLoadCallback& callback) override;
 
     void AddTriangle(const Pica::Shader::OutputVertex& v0, const Pica::Shader::OutputVertex& v1,
                      const Pica::Shader::OutputVertex& v2) override;
@@ -59,6 +56,7 @@ public:
     bool AccelerateDisplay(const GPU::Regs::FramebufferConfig& config, PAddr framebuffer_addr,
                            u32 pixel_stride, ScreenInfo& screen_info) override;
     bool AccelerateDrawBatch(bool is_indexed) override;
+    void CheckForConfigChanges() override;
 
 private:
     struct SamplerInfo {
@@ -164,11 +162,17 @@ private:
     /// Syncs the fog states to match the PICA register
     void SyncFogColor();
 
+    /// Syncs the fog lut data to match the PICA register
+    void SyncFogLutData() override;
+
     /// Sync the procedural texture noise configuration to match the PICA register
     void SyncProcTexNoise();
 
     /// Sync the procedural texture bias configuration to match the PICA register
     void SyncProcTexBias();
+
+    /// Sync proctex lut data
+    void SyncProcTexLutData() override;
 
     /// Syncs the alpha test states to match the PICA register
     void SyncAlphaTest();
@@ -199,6 +203,9 @@ private:
 
     /// Syncs the lighting global ambient color to match the PICA register
     void SyncGlobalAmbient();
+
+    /// sync the lighting lut data
+    void SyncLightingLutData() override;
 
     /// Syncs the specified light's specular 0 color to match the PICA register
     void SyncLightSpecular0(int light_index);
@@ -264,11 +271,8 @@ private:
     bool is_amd;
 
     OpenGLState state;
-    GLuint default_texture;
 
     RasterizerCacheOpenGL res_cache;
-
-    Frontend::EmuWindow& emu_window;
 
     std::vector<HardwareVertex> vertex_batch;
 
@@ -291,8 +295,8 @@ private:
 
     // They shall be big enough for about one frame.
     static constexpr std::size_t VERTEX_BUFFER_SIZE = 16 * 1024 * 1024;
-    static constexpr std::size_t INDEX_BUFFER_SIZE = 1 * 1024 * 1024;
-    static constexpr std::size_t UNIFORM_BUFFER_SIZE = 2 * 1024 * 1024;
+    static constexpr std::size_t INDEX_BUFFER_SIZE = 4 * 1024 * 1024;
+    static constexpr std::size_t UNIFORM_BUFFER_SIZE = 4 * 1024 * 1024;
     static constexpr std::size_t TEXTURE_BUFFER_SIZE = 1 * 1024 * 1024;
 
     OGLVertexArray sw_vao; // VAO for software shader draw
@@ -311,6 +315,7 @@ private:
 
     SamplerInfo texture_cube_sampler;
 
+    OGLTexture texture_null;
     OGLTexture texture_buffer_lut_rg;
     OGLTexture texture_buffer_lut_rgba;
 
@@ -321,8 +326,6 @@ private:
     std::array<GLvec2, 128> proctex_alpha_map_data{};
     std::array<GLvec4, 256> proctex_lut_data{};
     std::array<GLvec4, 256> proctex_diff_lut_data{};
-
-    bool allow_shadow;
 };
 
 } // namespace OpenGL

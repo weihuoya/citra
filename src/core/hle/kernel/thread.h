@@ -73,11 +73,6 @@ public:
     void Reschedule();
 
     /**
-     * Prints the thread queue for debugging purposes
-     */
-    void DebugThreadQueue();
-
-    /**
      * Returns whether there are any threads that are ready to run.
      */
     bool HaveReadyThreads();
@@ -111,12 +106,6 @@ private:
      * @param new_thread The thread to switch to
      */
     void SwitchContext(Thread* new_thread);
-
-    /**
-     * Pops and returns the next thread from the thread queue
-     * @return A pointer to the next ready thread
-     */
-    Thread* PopNextReadyThread();
 
     /**
      * Callback that will wake up the thread it was scheduled for
@@ -268,10 +257,6 @@ public:
 
     u32 nominal_priority; ///< Nominal thread priority, as set by the emulated application
     u32 current_priority; ///< Current thread priority, can be temporarily changed
-
-    u64 last_running_ticks; ///< CPU tick when thread was last running
-
-    s32 processor_id;
 
     VAddr tls_address; ///< Virtual address of the Thread Local Storage of the thread
 

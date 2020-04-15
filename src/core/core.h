@@ -51,10 +51,6 @@ namespace Cheats {
 class CheatEngine;
 }
 
-namespace VideoDumper {
-class Backend;
-}
-
 class RendererBase;
 
 namespace Core {
@@ -101,7 +97,9 @@ public:
      * @param tight_loop If false, the CPU single-steps.
      * @return Result status, indicating whethor or not the operation succeeded.
      */
-    ResultStatus RunLoop(bool tight_loop = true);
+    ResultStatus RunLoop();
+    ResultStatus RunLoopMultiCores();
+    ResultStatus RunLoopOneCore();
 
     /**
      * Step the CPU one instruction
@@ -249,14 +247,7 @@ public:
     /// Handles loading all custom textures from disk into cache.
     void PreloadCustomTextures();
 
-    /// Gets a reference to the video dumper backend
-    VideoDumper::Backend& VideoDumper();
-
-    /// Gets a const reference to the video dumper backend
-    const VideoDumper::Backend& VideoDumper() const;
-
     std::unique_ptr<PerfStats> perf_stats;
-    FrameLimiter frame_limiter;
 
     void SetStatus(ResultStatus new_status, const char* details = nullptr) {
         status = new_status;
@@ -295,6 +286,10 @@ public:
         return registered_image_interface;
     }
 
+    /// nfc amiibo
+    using ScanningCallback = void(bool);
+    std::function<ScanningCallback> nfc_scanning_callback;
+
 private:
     /**
      * Initialize the emulated system.
@@ -319,13 +314,13 @@ private:
     std::unique_ptr<AudioCore::DspInterface> dsp_core;
 
     /// When true, signals that a reschedule should happen
-    bool reschedule_pending{};
+    bool reschedule_pending = false;
 
     /// Telemetry session for this emulation session
     std::unique_ptr<Core::TelemetrySession> telemetry_session;
 
     /// Service manager
-    std::shared_ptr<Service::SM::ServiceManager> service_manager;
+    std::unique_ptr<Service::SM::ServiceManager> service_manager;
 
     /// Frontend applets
     std::shared_ptr<Frontend::MiiSelector> registered_mii_selector;
@@ -333,9 +328,6 @@ private:
 
     /// Cheats manager
     std::unique_ptr<Cheats::CheatEngine> cheat_engine;
-
-    /// Video dumper backend
-    std::unique_ptr<VideoDumper::Backend> video_dumper;
 
     /// Custom texture cache system
     std::unique_ptr<Core::CustomTexCache> custom_tex_cache;
@@ -355,10 +347,8 @@ private:
 private:
     static System s_instance;
 
-    bool initalized = false;
-
-    ResultStatus status = ResultStatus::Success;
-    std::string status_details = "";
+    ResultStatus status;
+    std::string status_details;
     /// Saved variables for reset
     Frontend::EmuWindow* m_emu_window;
     std::string m_filepath;

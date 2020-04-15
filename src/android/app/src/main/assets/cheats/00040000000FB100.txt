@@ -1,0 +1,4 @@
+* Senran Kagura 2 - Shinku
+
+[Disable FSAA v1.0]
+004B69C0 00000000

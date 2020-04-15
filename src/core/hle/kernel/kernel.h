@@ -209,6 +209,8 @@ public:
     /// Retrieves a process from the current list of processes.
     std::shared_ptr<Process> GetProcessById(u32 process_id) const;
 
+    u32 GetProcessThreadsCount(std::shared_ptr<Process> process) const;
+
     std::shared_ptr<Process> GetCurrentProcess() const;
     void SetCurrentProcess(std::shared_ptr<Process> process);
     void SetCurrentProcessForCPU(std::shared_ptr<Process> process, u32 core_id);
@@ -237,6 +239,8 @@ public:
     const IPCDebugger::Recorder& GetIPCRecorder() const;
 
     MemoryRegionInfo* GetMemoryRegion(MemoryRegion region);
+
+    u32 GetApplicationMemoryType() const;
 
     void HandleSpecialMapping(VMManager& address_space, const AddressMapping& mapping);
 

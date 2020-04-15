@@ -1,0 +1,6 @@
+* Animal Crossing: New Leaf - Welcome Amiibo
+
+[60+ FPS v1.0]
+D3000000 10000000
+268D4330 00000001
+D2000000 00000000

@@ -74,7 +74,7 @@ std::string ParamPackage::Serialize() const {
 std::string ParamPackage::Get(const std::string& key, const std::string& default_value) const {
     auto pair = data.find(key);
     if (pair == data.end()) {
-        LOG_DEBUG(Common, "key {} not found", key);
+        LOG_DEBUG(Common, "key '{}' not found", key);
         return default_value;
     }
 
@@ -84,7 +84,7 @@ std::string ParamPackage::Get(const std::string& key, const std::string& default
 int ParamPackage::Get(const std::string& key, int default_value) const {
     auto pair = data.find(key);
     if (pair == data.end()) {
-        LOG_DEBUG(Common, "key {} not found", key);
+        LOG_DEBUG(Common, "key '{}' not found", key);
         return default_value;
     }
 
@@ -133,6 +133,22 @@ void ParamPackage::Erase(const std::string& key) {
 
 void ParamPackage::Clear() {
     data.clear();
+}
+
+ParamPackage::DataType::iterator ParamPackage::begin() {
+    return data.begin();
+}
+
+ParamPackage::DataType::const_iterator ParamPackage::begin() const {
+    return data.begin();
+}
+
+ParamPackage::DataType::iterator ParamPackage::end() {
+    return data.end();
+}
+
+ParamPackage::DataType::const_iterator ParamPackage::end() const {
+    return data.end();
 }
 
 } // namespace Common

@@ -1,0 +1,13 @@
+* Resident Evil: Revelations
+
+[Brightness x2]
+184F12EA 00004000
+
+[60 FPS]
+*citra_enabled
+0931E7CC 42700000
+0931E7D0 42700000
+
+[Disable 3D]
+*citra_enabled
+084F12E4 281F052E

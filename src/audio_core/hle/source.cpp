@@ -245,7 +245,7 @@ void Source::ParseConfig(SourceConfiguration::Configuration& config,
     }
 
     if (config.dirty_raw) {
-        LOG_DEBUG(Audio_DSP, "source_id={} remaining_dirty={:x}", source_id, config.dirty_raw);
+        LOG_DEBUG(Audio_DSP, "Source::ParseConfig source_id={} remaining_dirty={:x}", source_id, config.dirty_raw);
     }
 
     config.dirty_raw = 0;
@@ -280,7 +280,8 @@ void Source::GenerateFrame() {
             break;
         case InterpolationMode::Polyphase:
             // TODO(merry): Implement polyphase interpolation
-            LOG_DEBUG(Audio_DSP, "Polyphase interpolation unimplemented; falling back to linear");
+            // LOG_DEBUG(Audio_DSP, "Polyphase interpolation unimplemented; falling back to
+            // linear");
             AudioInterp::Linear(state.interp_state, state.current_buffer, state.rate_multiplier,
                                 current_frame, frame_position);
             break;

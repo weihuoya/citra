@@ -4,7 +4,6 @@
 
 #pragma once
 
-#include <algorithm>
 #include <array>
 #include <deque>
 
@@ -16,29 +15,15 @@ struct ThreadQueueList {
     //               (dynamically resizable) circular buffers to remove their overhead when
     //               inserting and popping.
 
-    typedef unsigned int Priority;
+    using Priority = unsigned int;
 
     // Number of priority levels. (Valid levels are [0..NUM_QUEUES).)
     static const Priority NUM_QUEUES = N;
 
-    ThreadQueueList() {
-        first = nullptr;
-    }
+    ThreadQueueList() = default;
 
-    // Only for debugging, returns priority level.
-    Priority contains(const T& uid) {
-        for (Priority i = 0; i < NUM_QUEUES; ++i) {
-            Queue& cur = queues[i];
-            if (std::find(cur.data.cbegin(), cur.data.cend(), uid) != cur.data.cend()) {
-                return i;
-            }
-        }
-
-        return -1;
-    }
-
-    T get_first() {
-        Queue* cur = first;
+    T get_first() const {
+        const Queue* cur = first;
         while (cur != nullptr) {
             if (!cur->data.empty()) {
                 return cur->data.front();
@@ -100,25 +85,6 @@ struct ThreadQueueList {
         cur->data.erase(iter, cur->data.end());
     }
 
-    void rotate(Priority priority) {
-        Queue* cur = &queues[priority];
-
-        if (cur->data.size() > 1) {
-            cur->data.push_back(std::move(cur->data.front()));
-            cur->data.pop_front();
-        }
-    }
-
-    void clear() {
-        queues.fill(Queue());
-        first = nullptr;
-    }
-
-    bool empty(Priority priority) const {
-        const Queue* cur = &queues[priority];
-        return cur->data.empty();
-    }
-
     void prepare(Priority priority) {
         Queue* cur = &queues[priority];
         if (cur->next_nonempty == UnlinkedTag())
@@ -154,7 +120,7 @@ private:
     }
 
     // The first queue that's ever been used.
-    Queue* first;
+    Queue* first = nullptr;
     // The priority level queues of thread ids.
     std::array<Queue, NUM_QUEUES> queues;
 };

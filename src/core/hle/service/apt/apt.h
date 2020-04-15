@@ -4,6 +4,7 @@
 
 #pragma once
 
+#include <array>
 #include <memory>
 #include <vector>
 #include "common/common_funcs.h"
@@ -41,6 +42,8 @@ struct CaptureBufferInfo {
     u32_le bottom_screen_format;
 };
 static_assert(sizeof(CaptureBufferInfo) == 0x20, "CaptureBufferInfo struct has incorrect size");
+
+static const std::size_t SysMenuArgSize = 0x40;
 
 enum class StartupArgumentType : u32 {
     OtherApp = 0,
@@ -519,6 +522,32 @@ public:
         void CloseLibraryApplet(Kernel::HLERequestContext& ctx);
 
         /**
+         * APT::LoadSysMenuArg service function
+         *  Inputs:
+         *      0 : Command header [0x00360040]
+         *      1 : Buffer size
+         *  Outputs:
+         *      0 : Header code
+         *      1 : Result code
+         *     64 : Size << 14 | 2
+         *     65 : void* Output Buffer
+         */
+        void LoadSysMenuArg(Kernel::HLERequestContext& ctx);
+
+        /**
+         * APT::StoreSysMenuArg service function
+         *  Inputs:
+         *      0 : Command header [0x00370042]
+         *      1 : Buffer size
+         *      2 : (Size << 14) | 2
+         *      3 : Input buffer virtual address
+         *  Outputs:
+         *      0 : Header code
+         *      1 : Result code
+         */
+        void StoreSysMenuArg(Kernel::HLERequestContext& ctx);
+
+        /**
          * APT::SendCaptureBufferInfo service function
          *  Inputs:
          *      0 : Command header [0x00400042]
@@ -544,6 +573,20 @@ public:
          *      2 : Actual Size
          */
         void ReceiveCaptureBufferInfo(Kernel::HLERequestContext& ctx);
+
+        /**
+         * APT::GetCaptureInfo service function
+         *  Inputs:
+         *      0 : Command header [0x004A0040]
+         *      1 : Size
+         *      64 : Size << 14 | 2
+         *      65 : void*, CaptureBufferInfo
+         *  Outputs:
+         *      0 : Header code
+         *      1 : Result code
+         *      2 : Actual Size
+         */
+        void GetCaptureInfo(Kernel::HLERequestContext& ctx);
 
         /**
          * APT::GetStartupArgument service function
@@ -601,6 +644,22 @@ public:
          */
         void CheckNew3DS(Kernel::HLERequestContext& ctx);
 
+        /**
+         * APT::IsTitleAllowed service function
+         *  Inputs:
+         *      0 : Header Code[0x01050100]
+         *    1-2 : Program id
+         *      3 : Media type
+         *      4 : Padding
+         *  Outputs:
+         *      1: Result code, 0 on success, otherwise error code
+         *      2: u8 output: 0 = Old3DS, 1 = New3DS.
+         */
+        void IsTitleAllowed(Kernel::HLERequestContext& ctx);
+
+        void ReplySleepQuery(Kernel::HLERequestContext& ctx);
+        void IsStandardMemoryLayout(Kernel::HLERequestContext& ctx);
+
     private:
         bool application_reset_prepared{};
         std::shared_ptr<Module> apt;
@@ -625,6 +684,7 @@ private:
     u8 unknown_ns_state_field = 0;
 
     std::vector<u8> screen_capture_buffer;
+    std::array<u8, SysMenuArgSize> sys_menu_arg_buffer;
 
     ScreencapPostPermission screen_capture_post_permission =
         ScreencapPostPermission::CleanThePermission; // TODO(JamePeng): verify the initial value

@@ -37,7 +37,7 @@ public:
 
 ResultVal<std::unique_ptr<FileBackend>> SaveDataArchive::OpenFile(const Path& path,
                                                                   const Mode& mode) const {
-    LOG_DEBUG(Service_FS, "called path={} mode={:01X}", path.DebugStr(), mode.hex);
+    LOG_DEBUG(Service_FS, "SaveDataArchive OpenFile called path={} mode={:01X}", path.DebugStr(), mode.hex);
 
     const PathParser path_parser(path);
 

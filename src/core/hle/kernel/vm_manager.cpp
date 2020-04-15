@@ -8,7 +8,6 @@
 #include "core/hle/kernel/errors.h"
 #include "core/hle/kernel/vm_manager.h"
 #include "core/memory.h"
-#include "core/mmio.h"
 
 namespace Kernel {
 
@@ -37,14 +36,6 @@ bool VirtualMemoryArea::CanBeMergedWith(const VirtualMemoryArea& next) const {
 }
 
 VMManager::VMManager(Memory::MemorySystem& memory) : memory(memory) {
-    Reset();
-}
-
-VMManager::~VMManager() = default;
-
-void VMManager::Reset() {
-    vma_map.clear();
-
     // Initialize the map with a single free region covering the entire managed space.
     VirtualMemoryArea initial_vma;
     initial_vma.size = MAX_ADDRESS;
@@ -52,9 +43,9 @@ void VMManager::Reset() {
 
     page_table.pointers.fill(nullptr);
     page_table.attributes.fill(Memory::PageType::Unmapped);
-
-    UpdatePageTableForVMA(initial_vma);
 }
+
+VMManager::~VMManager() = default;
 
 VMManager::VMAHandle VMManager::FindVMA(VAddr target) const {
     if (target >= MAX_ADDRESS) {
@@ -111,24 +102,6 @@ ResultVal<VMManager::VMAHandle> VMManager::MapBackingMemory(VAddr target, u8* me
     return MakeResult<VMAHandle>(MergeAdjacent(vma_handle));
 }
 
-ResultVal<VMManager::VMAHandle> VMManager::MapMMIO(VAddr target, PAddr paddr, u32 size,
-                                                   MemoryState state,
-                                                   Memory::MMIORegionPointer mmio_handler) {
-    // This is the appropriately sized VMA that will turn into our allocation.
-    CASCADE_RESULT(VMAIter vma_handle, CarveVMA(target, size));
-    VirtualMemoryArea& final_vma = vma_handle->second;
-    ASSERT(final_vma.size == size);
-
-    final_vma.type = VMAType::MMIO;
-    final_vma.permissions = VMAPermission::ReadWrite;
-    final_vma.meminfo_state = state;
-    final_vma.paddr = paddr;
-    final_vma.mmio_handler = mmio_handler;
-    UpdatePageTableForVMA(final_vma);
-
-    return MakeResult<VMAHandle>(MergeAdjacent(vma_handle));
-}
-
 ResultCode VMManager::ChangeMemoryState(VAddr target, u32 size, MemoryState expected_state,
                                         VMAPermission expected_perms, MemoryState new_state,
                                         VMAPermission new_perms) {
@@ -151,7 +124,6 @@ ResultCode VMManager::ChangeMemoryState(VAddr target, u32 size, MemoryState expe
     }
 
     CASCADE_RESULT(auto vma, CarveVMARange(target, size));
-
     const VMAIter end = vma_map.end();
     // The comparison against the end of the range must be done using addresses since VMAs can be
     // merged during this process, causing invalidation of the iterators.
@@ -357,7 +329,7 @@ void VMManager::UpdatePageTableForVMA(const VirtualMemoryArea& vma) {
         memory.MapMemoryRegion(page_table, vma.base, vma.size, vma.backing_memory);
         break;
     case VMAType::MMIO:
-        memory.MapIoRegion(page_table, vma.base, vma.size, vma.mmio_handler);
+        ASSERT_MSG(false, "VMAType::MMIO unimplemented");
         break;
     }
 }

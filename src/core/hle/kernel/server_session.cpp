@@ -122,11 +122,13 @@ ResultCode ServerSession::HandleSyncRequest(std::shared_ptr<Thread> thread) {
 
 KernelSystem::SessionPair KernelSystem::CreateSessionPair(const std::string& name,
                                                           std::shared_ptr<ClientPort> port) {
-    auto server_session = ServerSession::Create(*this, name + "_Server").Unwrap();
+    auto server_session{std::make_shared<ServerSession>(*this)};
+    server_session->name = name + "_Server";
+
     auto client_session{std::make_shared<ClientSession>(*this)};
     client_session->name = name + "_Client";
 
-    std::shared_ptr<Session> parent(new Session);
+    auto parent{std::make_shared<Session>()};
     parent->client = client_session.get();
     parent->server = server_session.get();
     parent->port = port;

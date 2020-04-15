@@ -75,12 +75,13 @@ void Thread::Stop() {
 
 void ThreadManager::SwitchContext(Thread* new_thread) {
     Thread* previous_thread = GetCurrentThread();
+    Process* previous_process = nullptr;
 
     Core::Timing& timing = kernel.timing;
 
     // Save context for previous thread
     if (previous_thread) {
-        previous_thread->last_running_ticks = timing.GetGlobalTicks();
+        previous_process = previous_thread->owner_process;
         cpu->SaveContext(previous_thread->context);
 
         if (previous_thread->status == ThreadStatus::Running) {
@@ -99,14 +100,12 @@ void ThreadManager::SwitchContext(Thread* new_thread) {
         // Cancel any outstanding wakeup events for this thread
         timing.UnscheduleEvent(ThreadWakeupEventType, new_thread->thread_id);
 
-        auto previous_process = kernel.GetCurrentProcess();
-
         current_thread = SharedFrom(new_thread);
 
         ready_queue.remove(new_thread->current_priority, new_thread);
         new_thread->status = ThreadStatus::Running;
 
-        if (previous_process.get() != current_thread->owner_process) {
+        if (previous_process != current_thread->owner_process) {
             kernel.SetCurrentProcessForCPU(SharedFrom(current_thread->owner_process), cpu->GetID());
         }
 
@@ -117,25 +116,6 @@ void ThreadManager::SwitchContext(Thread* new_thread) {
         // Note: We do not reset the current process and current page table when idling because
         // technically we haven't changed processes, our threads are just paused.
     }
-}
-
-Thread* ThreadManager::PopNextReadyThread() {
-    Thread* next = nullptr;
-    Thread* thread = GetCurrentThread();
-
-    if (thread && thread->status == ThreadStatus::Running) {
-        // We have to do better than the current thread.
-        // This call returns null when that's not possible.
-        next = ready_queue.pop_first_better(thread->current_priority);
-        if (!next) {
-            // Otherwise just keep going with the current thread
-            next = thread;
-        }
-    } else {
-        next = ready_queue.pop_first();
-    }
-
-    return next;
 }
 
 void ThreadManager::WaitCurrentThread_Sleep() {
@@ -180,6 +160,11 @@ void Thread::WakeAfterDelay(s64 nanoseconds) {
     if (nanoseconds == -1)
         return;
 
+    if ((nanoseconds & 0x7000000000000000) == 0x7000000000000000) {
+        // fx jit bug
+        nanoseconds &= 0xFFFFFFFF;
+    }
+
     thread_manager.kernel.timing.ScheduleEvent(nsToCycles(nanoseconds),
                                                thread_manager.ThreadWakeupEventType, thread_id);
 }
@@ -220,23 +205,6 @@ void Thread::ResumeFromWait() {
     thread_manager.ready_queue.push_back(current_priority, this);
     status = ThreadStatus::Ready;
     thread_manager.kernel.PrepareReschedule();
-}
-
-void ThreadManager::DebugThreadQueue() {
-    Thread* thread = GetCurrentThread();
-    if (!thread) {
-        LOG_DEBUG(Kernel, "Current: NO CURRENT THREAD");
-    } else {
-        LOG_DEBUG(Kernel, "0x{:02X} {} (current)", thread->current_priority,
-                  GetCurrentThread()->GetObjectId());
-    }
-
-    for (auto& t : thread_list) {
-        u32 priority = ready_queue.contains(t.get());
-        if (priority != -1) {
-            LOG_DEBUG(Kernel, "0x{:02X} {}", priority, t->GetObjectId());
-        }
-    }
 }
 
 /**
@@ -305,6 +273,10 @@ ResultVal<std::shared_ptr<Thread>> KernelSystem::CreateThread(std::string name, 
                           ErrorSummary::InvalidArgument, ErrorLevel::Permanent);
     }
 
+    if (processor_id >= thread_managers.size()) {
+        processor_id = 0;
+    }
+
     auto thread{std::make_shared<Thread>(*this, processor_id)};
 
     thread_managers[processor_id]->thread_list.push_back(thread);
@@ -315,8 +287,6 @@ ResultVal<std::shared_ptr<Thread>> KernelSystem::CreateThread(std::string name, 
     thread->entry_point = entry_point;
     thread->stack_top = stack_top;
     thread->nominal_priority = thread->current_priority = priority;
-    thread->last_running_ticks = timing.GetGlobalTicks();
-    thread->processor_id = processor_id;
     thread->wait_objects.clear();
     thread->wait_address = 0;
     thread->name = std::move(name);
@@ -422,8 +392,20 @@ bool ThreadManager::HaveReadyThreads() {
 }
 
 void ThreadManager::Reschedule() {
+    Thread* next;
     Thread* cur = GetCurrentThread();
-    Thread* next = PopNextReadyThread();
+
+    if (cur && cur->status == ThreadStatus::Running) {
+        // We have to do better than the current thread.
+        // This call returns null when that's not possible.
+        next = ready_queue.pop_first_better(cur->current_priority);
+        if (!next) {
+            // Otherwise just keep going with the current thread
+            return;
+        }
+    } else {
+        next = ready_queue.pop_first();
+    }
 
     if (cur && next) {
         LOG_TRACE(Kernel, "context switch {} -> {}", cur->GetObjectId(), next->GetObjectId());
