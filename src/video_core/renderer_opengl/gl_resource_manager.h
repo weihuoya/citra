@@ -12,42 +12,17 @@
 
 namespace OpenGL {
 
-class OGLRenderbuffer : private NonCopyable {
-public:
-    OGLRenderbuffer() = default;
-
-    OGLRenderbuffer(OGLRenderbuffer&& o) noexcept : handle(std::exchange(o.handle, 0)) {}
-
-    ~OGLRenderbuffer() {
-        Release();
-    }
-
-    OGLRenderbuffer& operator=(OGLRenderbuffer&& o) noexcept {
-        Release();
-        handle = std::exchange(o.handle, 0);
-        return *this;
-    }
-
-    /// Creates a new internal OpenGL resource and stores the handle
-    void Create();
-
-    /// Deletes the internal OpenGL resource
-    void Release();
-
-    GLuint handle = 0;
-};
-
 class OGLTexture : private NonCopyable {
 public:
     OGLTexture() = default;
 
-    OGLTexture(OGLTexture&& o) noexcept : handle(std::exchange(o.handle, 0)) {}
+    OGLTexture(OGLTexture&& o) : handle(std::exchange(o.handle, 0)) {}
 
     ~OGLTexture() {
         Release();
     }
 
-    OGLTexture& operator=(OGLTexture&& o) noexcept {
+    OGLTexture& operator=(OGLTexture&& o) {
         Release();
         handle = std::exchange(o.handle, 0);
         return *this;
@@ -66,13 +41,13 @@ class OGLSampler : private NonCopyable {
 public:
     OGLSampler() = default;
 
-    OGLSampler(OGLSampler&& o) noexcept : handle(std::exchange(o.handle, 0)) {}
+    OGLSampler(OGLSampler&& o) : handle(std::exchange(o.handle, 0)) {}
 
     ~OGLSampler() {
         Release();
     }
 
-    OGLSampler& operator=(OGLSampler&& o) noexcept {
+    OGLSampler& operator=(OGLSampler&& o) {
         Release();
         handle = std::exchange(o.handle, 0);
         return *this;
@@ -91,13 +66,13 @@ class OGLShader : private NonCopyable {
 public:
     OGLShader() = default;
 
-    OGLShader(OGLShader&& o) noexcept : handle(std::exchange(o.handle, 0)) {}
+    OGLShader(OGLShader&& o) : handle(std::exchange(o.handle, 0)) {}
 
     ~OGLShader() {
         Release();
     }
 
-    OGLShader& operator=(OGLShader&& o) noexcept {
+    OGLShader& operator=(OGLShader&& o) {
         Release();
         handle = std::exchange(o.handle, 0);
         return *this;
@@ -114,13 +89,13 @@ class OGLProgram : private NonCopyable {
 public:
     OGLProgram() = default;
 
-    OGLProgram(OGLProgram&& o) noexcept : handle(std::exchange(o.handle, 0)) {}
+    OGLProgram(OGLProgram&& o) : handle(std::exchange(o.handle, 0)) {}
 
     ~OGLProgram() {
         Release();
     }
 
-    OGLProgram& operator=(OGLProgram&& o) noexcept {
+    OGLProgram& operator=(OGLProgram&& o) {
         Release();
         handle = std::exchange(o.handle, 0);
         return *this;
@@ -136,6 +111,10 @@ public:
     void Release();
 
     GLuint handle = 0;
+
+    /// binary program
+    void Create(GLenum format, const std::vector<GLbyte>& binary);
+    void GetProgramBinary(GLenum& format, std::vector<GLbyte>& binary);
 };
 
 class OGLPipeline : private NonCopyable {

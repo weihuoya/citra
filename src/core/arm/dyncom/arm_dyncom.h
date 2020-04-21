@@ -48,12 +48,12 @@ public:
     void SaveContext(const std::unique_ptr<ThreadContext>& arg) override;
     void LoadContext(const std::unique_ptr<ThreadContext>& arg) override;
 
-    void SetPageTable(const std::shared_ptr<Memory::PageTable>& page_table) override;
+    void SetPageTable(Memory::PageTable* page_table) override;
     void PrepareReschedule() override;
     void PurgeState() override;
 
 protected:
-    std::shared_ptr<Memory::PageTable> GetPageTable() const override;
+    Memory::PageTable* GetPageTable() const override;
 
 private:
     void ExecuteInstructions(u64 num_instructions);

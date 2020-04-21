@@ -256,11 +256,11 @@ struct DspLle::Impl final {
         }
     }
 
-    std::vector<u8> ReadPipe(u8 pipe_index, u16 bsize) {
+    void ReadPipe(u8 pipe_index, u16 bsize, std::vector<u8>& output) {
         PipeStatus pipe_status = GetPipeStatus(pipe_index, PipeDirection::DSPtoCPU);
         bool need_update = false;
-        std::vector<u8> data(bsize);
-        u8* buffer_ptr = data.data();
+        output.resize(bsize);
+        u8* buffer_ptr = output.data();
         while (bsize != 0) {
             ASSERT_MSG(!pipe_status.IsEmpty(), "Pipe is empty");
             u16 read_bend;
@@ -291,7 +291,6 @@ struct DspLle::Impl final {
                 RunTeakraSlice();
             teakra.SendData(2, pipe_status.slot_index);
         }
-        return data;
     }
     u16 GetPipeReadableSize(u8 pipe_index) const {
         PipeStatus pipe_status = GetPipeStatus(pipe_index, PipeDirection::DSPtoCPU);
@@ -390,8 +389,8 @@ void DspLle::SetSemaphore(u16 semaphore_value) {
     impl->teakra.SetSemaphore(semaphore_value);
 }
 
-std::vector<u8> DspLle::PipeRead(DspPipe pipe_number, u32 length) {
-    return impl->ReadPipe(static_cast<u8>(pipe_number), static_cast<u16>(length));
+void DspLle::PipeRead(DspPipe pipe_number, u32 length, std::vector<u8>& output) {
+    impl->ReadPipe(static_cast<u8>(pipe_number), static_cast<u16>(length), output);
 }
 
 std::size_t DspLle::GetPipeReadableSize(DspPipe pipe_number) const {
@@ -450,7 +449,8 @@ void DspLle::SetServiceToInterrupt(std::weak_ptr<Service::DSP::DSP_DSP> dsp) {
                 return;
             if (pipe == 0) {
                 // pipe 0 is for debug. 3DS automatically drains this pipe and discards the data
-                impl->ReadPipe(pipe, impl->GetPipeReadableSize(pipe));
+                std::vector<u8> output;
+                impl->ReadPipe(pipe, impl->GetPipeReadableSize(pipe), output);
             } else {
                 std::lock_guard lock(HLE::g_hle_lock);
                 if (auto locked = dsp.lock()) {

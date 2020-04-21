@@ -32,10 +32,6 @@
 
 namespace OpenGL {
 
-class RasterizerCacheOpenGL;
-class TextureFilterer;
-class FormatReinterpreterOpenGL;
-
 struct TextureCubeConfig {
     PAddr px;
     PAddr nx;
@@ -138,8 +134,6 @@ private:
 };
 
 struct CachedSurface : SurfaceParams, std::enable_shared_from_this<CachedSurface> {
-    CachedSurface(RasterizerCacheOpenGL& owner) : owner{owner} {}
-
     bool CanFill(const SurfaceParams& dest_surface, SurfaceInterval fill_interval) const;
     bool CanCopy(const SurfaceParams& dest_surface, SurfaceInterval copy_interval) const;
 
@@ -159,6 +153,7 @@ struct CachedSurface : SurfaceParams, std::enable_shared_from_this<CachedSurface
     std::array<u8, 4> fill_data;
 
     OGLTexture texture;
+    OGLTexture texture_copy;
 
     /// max mipmap level that has been attached to the texture
     u32 max_level = 0;
@@ -167,6 +162,7 @@ struct CachedSurface : SurfaceParams, std::enable_shared_from_this<CachedSurface
 
     bool is_custom = false;
     Core::CustomTexInfo custom_tex_info;
+    u32 last_used_frame = 0;
 
     static constexpr unsigned int GetGLBytesPerPixel(PixelFormat format) {
         // OpenGL needs 4 bpp alignment for D24 since using GL_UNSIGNED_INT as type
@@ -184,13 +180,17 @@ struct CachedSurface : SurfaceParams, std::enable_shared_from_this<CachedSurface
     void FlushGLBuffer(PAddr flush_start, PAddr flush_end);
 
     // Custom texture loading and dumping
-    bool LoadCustomTexture(u64 tex_hash, Core::CustomTexInfo& tex_info);
-    void DumpTexture(GLuint target_tex, u64 tex_hash);
+    bool LoadCustomTexture(u64 tex_hash, Core::CustomTexInfo& tex_info,
+                           Common::Rectangle<u32>& custom_rect);
 
     // Upload/Download data in gl_buffer in/to this surface's texture
-    void UploadGLTexture(Common::Rectangle<u32> rect, GLuint read_fb_handle, GLuint draw_fb_handle);
+    void UploadGLTexture(const Common::Rectangle<u32>& rect, GLuint read_fb_handle,
+                         GLuint draw_fb_handle);
     void DownloadGLTexture(const Common::Rectangle<u32>& rect, GLuint read_fb_handle,
                            GLuint draw_fb_handle);
+
+    void DumpToFile();
+    GLuint GetTextureCopyHandle();
 
     std::shared_ptr<SurfaceWatcher> CreateWatcher() {
         auto watcher = std::make_shared<SurfaceWatcher>(weak_from_this());
@@ -217,7 +217,6 @@ struct CachedSurface : SurfaceParams, std::enable_shared_from_this<CachedSurface
     }
 
 private:
-    RasterizerCacheOpenGL& owner;
     std::list<std::weak_ptr<SurfaceWatcher>> watchers;
 };
 
@@ -280,26 +279,14 @@ public:
     /// Flush all cached resources tracked by this cache manager
     void FlushAll();
 
-    /// Clear all cached resources tracked by this cache manager
-    void ClearAll(bool flush);
+    /// Handle any config changes
+    void CheckForConfigChanges();
 
 private:
     void DuplicateSurface(const Surface& src_surface, const Surface& dest_surface);
 
     /// Update surface's texture for given region when necessary
     void ValidateSurface(const Surface& surface, PAddr addr, u32 size);
-
-    // Returns false if there is a surface in the cache at the interval with the same bit-width,
-    bool NoUnimplementedReinterpretations(const OpenGL::Surface& surface,
-                                          OpenGL::SurfaceParams& params,
-                                          const OpenGL::SurfaceInterval& interval);
-
-    // Return true if a surface with an invalid pixel format exists at the interval
-    bool IntervalHasInvalidPixelFormat(SurfaceParams& params, const SurfaceInterval& interval);
-
-    // Attempt to find a reinterpretable surface in the cache and use it to copy for validation
-    bool ValidateByReinterpretation(const Surface& surface, SurfaceParams& params,
-                                    const SurfaceInterval& interval);
 
     /// Create a new surface
     Surface CreateSurface(const SurfaceParams& params);
@@ -313,21 +300,16 @@ private:
     /// Increase/decrease the number of surface in pages touching the specified region
     void UpdatePagesCachedCount(PAddr addr, u32 size, int delta);
 
+    // clean surface cache
+    constexpr static u32 CLEAN_FRAME_INTERVAL = 60 * 60;
+    u32 last_clean_frame = 0;
+
     SurfaceCache surface_cache;
     PageMap cached_pages;
     SurfaceMap dirty_regions;
     SurfaceSet remove_surfaces;
 
-    OGLFramebuffer read_framebuffer;
-    OGLFramebuffer draw_framebuffer;
-
-    u16 resolution_scale_factor;
-
     std::unordered_map<TextureCubeConfig, CachedTextureCube> texture_cube_cache;
-
-public:
-    std::unique_ptr<TextureFilterer> texture_filterer;
-    std::unique_ptr<FormatReinterpreterOpenGL> format_reinterpreter;
 };
 
 struct FormatTuple {

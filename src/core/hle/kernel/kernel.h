@@ -132,8 +132,7 @@ public:
      */
     ResultVal<std::shared_ptr<Thread>> CreateThread(std::string name, VAddr entry_point,
                                                     u32 priority, u32 arg, s32 processor_id,
-                                                    VAddr stack_top,
-                                                    std::shared_ptr<Process> owner_process);
+                                                    VAddr stack_top, Process& owner_process);
 
     /**
      * Creates a semaphore.
@@ -210,11 +209,13 @@ public:
     /// Retrieves a process from the current list of processes.
     std::shared_ptr<Process> GetProcessById(u32 process_id) const;
 
+    u32 GetProcessThreadsCount(std::shared_ptr<Process> process) const;
+
     std::shared_ptr<Process> GetCurrentProcess() const;
     void SetCurrentProcess(std::shared_ptr<Process> process);
     void SetCurrentProcessForCPU(std::shared_ptr<Process> process, u32 core_id);
 
-    void SetCurrentMemoryPageTable(std::shared_ptr<Memory::PageTable> page_table);
+    void SetCurrentMemoryPageTable(Memory::PageTable* page_table);
 
     void SetCPUs(std::vector<std::shared_ptr<ARM_Interface>> cpu);
 
@@ -237,11 +238,13 @@ public:
     IPCDebugger::Recorder& GetIPCRecorder();
     const IPCDebugger::Recorder& GetIPCRecorder() const;
 
-    std::shared_ptr<MemoryRegionInfo> GetMemoryRegion(MemoryRegion region);
+    MemoryRegionInfo* GetMemoryRegion(MemoryRegion region);
+
+    u32 GetApplicationMemoryType() const;
 
     void HandleSpecialMapping(VMManager& address_space, const AddressMapping& mapping);
 
-    std::array<std::shared_ptr<MemoryRegionInfo>, 3> memory_regions{};
+    std::array<MemoryRegionInfo, 3> memory_regions;
 
     /// Adds a port to the named port table
     void AddNamedPort(std::string name, std::shared_ptr<ClientPort> port);
@@ -292,16 +295,12 @@ private:
 
     std::vector<std::unique_ptr<ThreadManager>> thread_managers;
 
-    std::shared_ptr<ConfigMem::Handler> config_mem_handler;
-    std::shared_ptr<SharedPage::Handler> shared_page_handler;
+    std::unique_ptr<ConfigMem::Handler> config_mem_handler;
+    std::unique_ptr<SharedPage::Handler> shared_page_handler;
 
     std::unique_ptr<IPCDebugger::Recorder> ipc_recorder;
 
     u32 next_thread_id;
-
-    friend class boost::serialization::access;
-    template <class Archive>
-    void serialize(Archive& ar, const unsigned int file_version);
 };
 
 } // namespace Kernel

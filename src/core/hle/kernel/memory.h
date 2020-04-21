@@ -6,9 +6,7 @@
 
 #include <optional>
 #include <boost/icl/interval_set.hpp>
-#include <boost/serialization/set.hpp>
 #include "common/common_types.h"
-#include "common/serialization/boost_interval_set.hpp"
 
 namespace Kernel {
 
@@ -62,16 +60,6 @@ struct MemoryRegionInfo {
      * @param size the size of the region to free.
      */
     void Free(u32 offset, u32 size);
-
-private:
-    friend class boost::serialization::access;
-    template <class Archive>
-    void serialize(Archive& ar, const unsigned int file_version) {
-        ar& base;
-        ar& size;
-        ar& used;
-        ar& free_blocks;
-    }
 };
 
 } // namespace Kernel

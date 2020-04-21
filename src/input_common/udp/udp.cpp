@@ -3,7 +3,6 @@
 // Refer to the license.txt file included.
 
 #include <mutex>
-#include <optional>
 #include <tuple>
 #include "common/param_package.h"
 #include "core/frontend/input.h"
@@ -44,7 +43,7 @@ public:
     std::unique_ptr<Input::TouchDevice> Create(const Common::ParamPackage& params) override {
         {
             std::lock_guard guard(status->update_mutex);
-            status->touch_calibration = DeviceStatus::CalibrationData{};
+            status->touch_calibration.emplace();
             // These default values work well for DS4 but probably not other touch inputs
             status->touch_calibration->min_x = params.Get("min_x", 100);
             status->touch_calibration->min_y = params.Get("min_y", 50);

@@ -6,7 +6,6 @@
 
 #include <memory>
 #include <vector>
-#include <boost/serialization/access.hpp>
 #include "audio_core/audio_types.h"
 #include "audio_core/time_stretch.h"
 #include "common/common_types.h"
@@ -64,7 +63,7 @@ public:
      * @param length the number of bytes to read. The max is 65,535 (max of u16).
      * @returns a vector of bytes from the specified pipe. On error, will be empty.
      */
-    virtual std::vector<u8> PipeRead(DspPipe pipe_number, u32 length) = 0;
+    virtual void PipeRead(DspPipe pipe_number, u32 length, std::vector<u8>& output) = 0;
 
     /**
      * How much data is left in pipe
@@ -101,7 +100,7 @@ public:
     void EnableStretching(bool enable);
 
 protected:
-    void OutputFrame(StereoFrame16 frame);
+    void OutputFrame(const StereoFrame16& frame);
     void OutputSample(std::array<s16, 2> sample);
 
 private:
@@ -114,10 +113,6 @@ private:
     Common::RingBuffer<s16, 0x2000, 2> fifo;
     std::array<s16, 2> last_frame{};
     TimeStretcher time_stretcher;
-
-    template <class Archive>
-    void serialize(Archive& ar, const unsigned int) {}
-    friend class boost::serialization::access;
 };
 
 } // namespace AudioCore

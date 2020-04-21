@@ -1,0 +1,7 @@
+* Pokémon Alpha Sapphire
+
+[60FPS v1.4]
+28C70D20 00000000
+
+[30FPS v1.4]
+28C70D20 00000001

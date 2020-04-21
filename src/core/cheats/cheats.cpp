@@ -80,6 +80,14 @@ void CheatEngine::SaveCheatFile() const {
     file.flush();
 }
 
+void CheatEngine::ReloadCheatFile() {
+    {
+        std::unique_lock<std::shared_mutex> lock(cheats_list_mutex);
+        cheats_list.clear();
+    }
+    LoadCheatFile();
+}
+
 void CheatEngine::LoadCheatFile() {
     const std::string cheat_dir = FileUtil::GetUserPath(FileUtil::UserPath::CheatsDir);
     const std::string filepath = fmt::format(

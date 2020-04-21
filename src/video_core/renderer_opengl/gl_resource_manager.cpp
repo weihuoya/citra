@@ -5,6 +5,7 @@
 #include <utility>
 #include <glad/glad.h>
 #include "common/common_types.h"
+#include "common/logging/log.h"
 #include "common/microprofile.h"
 #include "video_core/renderer_opengl/gl_resource_manager.h"
 #include "video_core/renderer_opengl/gl_shader_util.h"
@@ -14,24 +15,6 @@ MICROPROFILE_DEFINE(OpenGL_ResourceCreation, "OpenGL", "Resource Creation", MP_R
 MICROPROFILE_DEFINE(OpenGL_ResourceDeletion, "OpenGL", "Resource Deletion", MP_RGB(128, 128, 192));
 
 namespace OpenGL {
-
-void OGLRenderbuffer::Create() {
-    if (handle != 0)
-        return;
-
-    MICROPROFILE_SCOPE(OpenGL_ResourceCreation);
-    glGenRenderbuffers(1, &handle);
-}
-
-void OGLRenderbuffer::Release() {
-    if (handle == 0)
-        return;
-
-    MICROPROFILE_SCOPE(OpenGL_ResourceDeletion);
-    glDeleteRenderbuffers(1, &handle);
-    OpenGLState::GetCurState().ResetRenderbuffer(handle).Apply();
-    handle = 0;
-}
 
 void OGLTexture::Create() {
     if (handle != 0)
@@ -47,7 +30,7 @@ void OGLTexture::Release() {
 
     MICROPROFILE_SCOPE(OpenGL_ResourceDeletion);
     glDeleteTextures(1, &handle);
-    OpenGLState::GetCurState().ResetTexture(handle).Apply();
+    OpenGLState::ResetTexture(handle);
     handle = 0;
 }
 
@@ -65,7 +48,7 @@ void OGLSampler::Release() {
 
     MICROPROFILE_SCOPE(OpenGL_ResourceDeletion);
     glDeleteSamplers(1, &handle);
-    OpenGLState::GetCurState().ResetSampler(handle).Apply();
+    OpenGLState::ResetSampler(handle);
     handle = 0;
 }
 
@@ -105,13 +88,50 @@ void OGLProgram::Create(const char* vert_shader, const char* frag_shader) {
     Create(false, {vert.handle, frag.handle});
 }
 
+void OGLProgram::Create(GLenum format, const std::vector<GLbyte>& binary) {
+    handle = glCreateProgram();
+    glProgramBinary(handle, format, binary.data(), binary.size());
+
+    // Check the link status. If this fails, it means the binary was invalid.
+    GLint link_status;
+    glGetProgramiv(handle, GL_LINK_STATUS, &link_status);
+    if (link_status != GL_TRUE) {
+        LOG_DEBUG(Render_OpenGL, "OGLProgram failed to create GL program from program binary!");
+        glDeleteProgram(handle);
+        handle = 0;
+    }
+}
+
+void OGLProgram::GetProgramBinary(GLenum& format, std::vector<GLbyte>& binary) {
+    if (handle == 0) {
+        LOG_DEBUG(Render_OpenGL, "OGLProgram GetProgramBinary failed: handle error!");
+        return;
+    }
+
+    GLint program_size = 0;
+    glGetProgramiv(handle, GL_PROGRAM_BINARY_LENGTH, &program_size);
+    if (program_size == 0) {
+        LOG_DEBUG(Render_OpenGL, "OGLProgram GetProgramBinary failed: program_size error!");
+        return;
+    }
+
+    binary.resize(program_size);
+    GLsizei data_size = 0;
+    glGetProgramBinary(handle, program_size, &data_size, &format, binary.data());
+    if (glGetError() != GL_NO_ERROR || data_size == 0) {
+        LOG_DEBUG(Render_OpenGL, "OGLProgram GetProgramBinary failed: opengl error!");
+        format = 0;
+        binary.clear();
+    }
+}
+
 void OGLProgram::Release() {
     if (handle == 0)
         return;
 
     MICROPROFILE_SCOPE(OpenGL_ResourceDeletion);
     glDeleteProgram(handle);
-    OpenGLState::GetCurState().ResetProgram(handle).Apply();
+    OpenGLState::ResetProgram(handle);
     handle = 0;
 }
 
@@ -129,7 +149,7 @@ void OGLPipeline::Release() {
 
     MICROPROFILE_SCOPE(OpenGL_ResourceDeletion);
     glDeleteProgramPipelines(1, &handle);
-    OpenGLState::GetCurState().ResetPipeline(handle).Apply();
+    OpenGLState::ResetPipeline(handle);
     handle = 0;
 }
 
@@ -147,7 +167,7 @@ void OGLBuffer::Release() {
 
     MICROPROFILE_SCOPE(OpenGL_ResourceDeletion);
     glDeleteBuffers(1, &handle);
-    OpenGLState::GetCurState().ResetBuffer(handle).Apply();
+    OpenGLState::ResetBuffer(handle);
     handle = 0;
 }
 
@@ -165,7 +185,7 @@ void OGLVertexArray::Release() {
 
     MICROPROFILE_SCOPE(OpenGL_ResourceDeletion);
     glDeleteVertexArrays(1, &handle);
-    OpenGLState::GetCurState().ResetVertexArray(handle).Apply();
+    OpenGLState::ResetVertexArray(handle);
     handle = 0;
 }
 
@@ -183,7 +203,7 @@ void OGLFramebuffer::Release() {
 
     MICROPROFILE_SCOPE(OpenGL_ResourceDeletion);
     glDeleteFramebuffers(1, &handle);
-    OpenGLState::GetCurState().ResetFramebuffer(handle).Apply();
+    OpenGLState::ResetFramebuffer(handle);
     handle = 0;
 }
 

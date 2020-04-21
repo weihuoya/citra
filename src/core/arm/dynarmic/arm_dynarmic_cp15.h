@@ -8,19 +8,13 @@
 #include <dynarmic/A32/coprocessor.h>
 #include "common/common_types.h"
 
-struct CP15State {
-    u32 cp15_thread_uprw = 0;
-    u32 cp15_thread_uro = 0;
-    u32 cp15_flush_prefetch_buffer = 0; ///< dummy value
-    u32 cp15_data_sync_barrier = 0;     ///< dummy value
-    u32 cp15_data_memory_barrier = 0;   ///< dummy value
-};
+struct ARMul_State;
 
 class DynarmicCP15 final : public Dynarmic::A32::Coprocessor {
 public:
     using CoprocReg = Dynarmic::A32::CoprocReg;
 
-    explicit DynarmicCP15(CP15State&);
+    explicit DynarmicCP15(const std::shared_ptr<ARMul_State>&);
     ~DynarmicCP15() override;
 
     std::optional<Callback> CompileInternalOperation(bool two, unsigned opc1, CoprocReg CRd,
@@ -38,5 +32,5 @@ public:
                                               std::optional<u8> option) override;
 
 private:
-    CP15State& state;
+    std::shared_ptr<ARMul_State> interpreter_state;
 };

@@ -2,11 +2,6 @@
 // Licensed under GPLv2 or any later version
 // Refer to the license.txt file included.
 
-#include <boost/serialization/array.hpp>
-#include <boost/serialization/base_object.hpp>
-#include <boost/serialization/shared_ptr.hpp>
-#include <boost/serialization/vector.hpp>
-#include <boost/serialization/weak_ptr.hpp>
 #include "audio_core/audio_types.h"
 #ifdef HAVE_MF
 #include "audio_core/hle/wmf_decoder.h"
@@ -14,8 +9,6 @@
 #include "audio_core/hle/ffmpeg_decoder.h"
 #elif ANDROID
 #include "audio_core/hle/mediandk_decoder.h"
-#elif HAVE_FDK
-#include "audio_core/hle/fdk_decoder.h"
 #endif
 #include "audio_core/hle/common.h"
 #include "audio_core/hle/decoder.h"
@@ -31,21 +24,10 @@
 #include "core/core.h"
 #include "core/core_timing.h"
 
-SERIALIZE_EXPORT_IMPL(AudioCore::DspHle)
-
 using InterruptType = Service::DSP::DSP_DSP::InterruptType;
 using Service::DSP::DSP_DSP;
 
 namespace AudioCore {
-
-DspHle::DspHle() : DspHle(Core::System::GetInstance().Memory()) {}
-
-template <class Archive>
-void DspHle::serialize(Archive& ar, const unsigned int) {
-    ar& boost::serialization::base_object<DspInterface>(*this);
-    ar&* impl.get();
-}
-SERIALIZE_IMPL(DspHle)
 
 static constexpr u64 audio_frame_ticks = 1310252ull; ///< Units: ARM11 cycles
 
@@ -58,7 +40,7 @@ public:
 
     u16 RecvData(u32 register_number);
     bool RecvDataIsReady(u32 register_number) const;
-    std::vector<u8> PipeRead(DspPipe pipe_number, u32 length);
+    void PipeRead(DspPipe pipe_number, u32 length, std::vector<u8>& output);
     std::size_t GetPipeReadableSize(DspPipe pipe_number) const;
     void PipeWrite(DspPipe pipe_number, const std::vector<u8>& buffer);
 
@@ -75,12 +57,12 @@ private:
     HLE::SharedMemory& ReadRegion();
     HLE::SharedMemory& WriteRegion();
 
-    StereoFrame16 GenerateCurrentFrame();
+    const StereoFrame16& GenerateCurrentFrame();
     bool Tick();
     void AudioTickCallback(s64 cycles_late);
 
     DspState dsp_state = DspState::Off;
-    std::array<std::vector<u8>, num_dsp_pipe> pipe_data{};
+    std::array<std::vector<u8>, num_dsp_pipe> pipe_data;
 
     HLE::DspMemory dsp_memory;
     std::array<HLE::Source, HLE::num_sources> sources{{
@@ -90,25 +72,14 @@ private:
         HLE::Source(15), HLE::Source(16), HLE::Source(17), HLE::Source(18), HLE::Source(19),
         HLE::Source(20), HLE::Source(21), HLE::Source(22), HLE::Source(23),
     }};
-    HLE::Mixers mixers{};
+    HLE::Mixers mixers;
 
     DspHle& parent;
-    Core::TimingEventType* tick_event{};
+    Core::TimingEventType* tick_event;
 
-    std::unique_ptr<HLE::DecoderBase> decoder{};
+    std::unique_ptr<HLE::DecoderBase> decoder;
 
-    std::weak_ptr<DSP_DSP> dsp_dsp{};
-
-    template <class Archive>
-    void serialize(Archive& ar, const unsigned int) {
-        ar& dsp_state;
-        ar& pipe_data;
-        ar& dsp_memory.raw_memory;
-        ar& sources;
-        ar& mixers;
-        ar& dsp_dsp;
-    }
-    friend class boost::serialization::access;
+    std::weak_ptr<DSP_DSP> dsp_dsp;
 };
 
 DspHle::Impl::Impl(DspHle& parent_, Memory::MemorySystem& memory) : parent(parent_) {
@@ -130,8 +101,6 @@ DspHle::Impl::Impl(DspHle& parent_, Memory::MemorySystem& memory) : parent(paren
     decoder = std::make_unique<HLE::FFMPEGDecoder>(memory);
 #elif ANDROID
     decoder = std::make_unique<HLE::MediaNDKDecoder>(memory);
-#elif defined(HAVE_FDK)
-    decoder = std::make_unique<HLE::FDKDecoder>(memory);
 #else
     LOG_WARNING(Audio_DSP, "No decoder found, this could lead to missing audio");
     decoder = std::make_unique<HLE::NullDecoder>();
@@ -183,17 +152,19 @@ bool DspHle::Impl::RecvDataIsReady(u32 register_number) const {
     return true;
 }
 
-std::vector<u8> DspHle::Impl::PipeRead(DspPipe pipe_number, u32 length) {
+void DspHle::Impl::PipeRead(DspPipe pipe_number, u32 length, std::vector<u8>& output) {
     const std::size_t pipe_index = static_cast<std::size_t>(pipe_number);
+
+    output.clear();
 
     if (pipe_index >= num_dsp_pipe) {
         LOG_ERROR(Audio_DSP, "pipe_number = {} invalid", pipe_index);
-        return {};
+        return;
     }
 
     if (length > UINT16_MAX) { // Can only read at most UINT16_MAX from the pipe
         LOG_ERROR(Audio_DSP, "length of {} greater than max of {}", length, UINT16_MAX);
-        return {};
+        return;
     }
 
     std::vector<u8>& data = pipe_data[pipe_index];
@@ -207,11 +178,10 @@ std::vector<u8> DspHle::Impl::PipeRead(DspPipe pipe_number, u32 length) {
     }
 
     if (length == 0)
-        return {};
+        return;
 
-    std::vector<u8> ret(data.begin(), data.begin() + length);
+    output.insert(output.begin(), data.begin(), data.begin() + length);
     data.erase(data.begin(), data.begin() + length);
-    return ret;
 }
 
 size_t DspHle::Impl::GetPipeReadableSize(DspPipe pipe_number) const {
@@ -393,7 +363,7 @@ HLE::SharedMemory& DspHle::Impl::WriteRegion() {
     return CurrentRegionIndex() != 0 ? dsp_memory.region_0 : dsp_memory.region_1;
 }
 
-StereoFrame16 DspHle::Impl::GenerateCurrentFrame() {
+const StereoFrame16& DspHle::Impl::GenerateCurrentFrame() {
     HLE::SharedMemory& read = ReadRegion();
     HLE::SharedMemory& write = WriteRegion();
 
@@ -412,7 +382,7 @@ StereoFrame16 DspHle::Impl::GenerateCurrentFrame() {
     write.dsp_status = mixers.Tick(read.dsp_configuration, read.intermediate_mix_samples,
                                    write.intermediate_mix_samples, intermediate_mixes);
 
-    StereoFrame16 output_frame = mixers.GetOutput();
+    const StereoFrame16& output_frame = mixers.GetOutput();
 
     // Write current output frame to the shared memory region
     for (std::size_t samplei = 0; samplei < output_frame.size(); samplei++) {
@@ -425,14 +395,9 @@ StereoFrame16 DspHle::Impl::GenerateCurrentFrame() {
 }
 
 bool DspHle::Impl::Tick() {
-    StereoFrame16 current_frame = {};
-
     // TODO: Check dsp::DSP semaphore (which indicates emulated application has finished writing to
     // shared memory region)
-    current_frame = GenerateCurrentFrame();
-
-    parent.OutputFrame(std::move(current_frame));
-
+    parent.OutputFrame(GenerateCurrentFrame());
     return true;
 }
 
@@ -466,8 +431,8 @@ void DspHle::SetSemaphore(u16 semaphore_value) {
     // Do nothing in HLE
 }
 
-std::vector<u8> DspHle::PipeRead(DspPipe pipe_number, u32 length) {
-    return impl->PipeRead(pipe_number, length);
+void DspHle::PipeRead(DspPipe pipe_number, u32 length, std::vector<u8>& output) {
+    impl->PipeRead(pipe_number, length, output);
 }
 
 size_t DspHle::GetPipeReadableSize(DspPipe pipe_number) const {

@@ -144,8 +144,6 @@ public:
 
     std::array<bool, 2> clip_distance; // GL_CLIP_DISTANCE
 
-    GLuint renderbuffer; // GL_RENDERBUFFER_BINDING
-
     OpenGLState();
 
     /// Get the currently active OpenGL state
@@ -156,15 +154,25 @@ public:
     /// Apply this state as the current OpenGL state
     void Apply() const;
 
+    /// apply directly
+    static GLuint BindVertexArray(GLuint array);
+    static GLuint BindVertexBuffer(GLuint buffer);
+    static GLuint BindUniformBuffer(GLuint buffer);
+    static GLuint BindTexture2D(int index, GLuint texture);
+    static GLuint BindSampler(int index, GLuint sampler);
+    static GLuint BindTextureCube(GLuint texture_cube);
+    static GLuint BindReadFramebuffer(GLuint framebuffer);
+    static GLuint BindDrawFramebuffer(GLuint framebuffer);
+    static GLuint BindShaderProgram(GLuint shader);
+
     /// Resets any references to the given resource
-    OpenGLState& ResetTexture(GLuint handle);
-    OpenGLState& ResetSampler(GLuint handle);
-    OpenGLState& ResetProgram(GLuint handle);
-    OpenGLState& ResetPipeline(GLuint handle);
-    OpenGLState& ResetBuffer(GLuint handle);
-    OpenGLState& ResetVertexArray(GLuint handle);
-    OpenGLState& ResetFramebuffer(GLuint handle);
-    OpenGLState& ResetRenderbuffer(GLuint handle);
+    static void ResetTexture(GLuint handle);
+    static void ResetSampler(GLuint handle);
+    static void ResetProgram(GLuint handle);
+    static void ResetPipeline(GLuint handle);
+    static void ResetBuffer(GLuint handle);
+    static void ResetVertexArray(GLuint handle);
+    static void ResetFramebuffer(GLuint handle);
 
 private:
     static OpenGLState cur_state;

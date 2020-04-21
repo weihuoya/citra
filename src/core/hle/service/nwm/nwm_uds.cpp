@@ -4,10 +4,7 @@
 
 #include <algorithm>
 #include <cstring>
-#include <boost/serialization/list.hpp>
-#include <boost/serialization/map.hpp>
 #include <cryptopp/osrng.h>
-#include "common/archives.h"
 #include "common/common_types.h"
 #include "common/logging/log.h"
 #include "core/core.h"
@@ -24,19 +21,7 @@
 #include "core/hle/service/nwm/uds_data.h"
 #include "core/memory.h"
 
-SERIALIZE_EXPORT_IMPL(Service::NWM::NWM_UDS)
-SERVICE_CONSTRUCT_IMPL(Service::NWM::NWM_UDS)
-
 namespace Service::NWM {
-
-template <class Archive>
-void NWM_UDS::serialize(Archive& ar, const unsigned int) {
-    ar& boost::serialization::base_object<Kernel::SessionRequestHandler>(*this);
-    ar& node_map;
-    ar& connection_event;
-    ar& received_beacons;
-    // wifi_packet_received set in constructor
-}
 
 namespace ErrCodes {
 enum {
@@ -1190,13 +1175,6 @@ public:
 private:
     ThreadCallback() = default;
     u16 command_id;
-
-    template <class Archive>
-    void serialize(Archive& ar, const unsigned int) {
-        ar& boost::serialization::base_object<Kernel::HLERequestContext::WakeupCallback>(*this);
-        ar& command_id;
-    }
-    friend class boost::serialization::access;
 };
 
 void NWM_UDS::ConnectToNetwork(Kernel::HLERequestContext& ctx, u16 command_id,
@@ -1440,5 +1418,3 @@ NWM_UDS::~NWM_UDS() {
 }
 
 } // namespace Service::NWM
-
-SERIALIZE_EXPORT_IMPL(Service::NWM::NWM_UDS::ThreadCallback)

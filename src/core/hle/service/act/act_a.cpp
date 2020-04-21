@@ -2,7 +2,6 @@
 // Licensed under GPLv2 or any later version
 // Refer to the license.txt file included.
 
-#include "common/archives.h"
 #include "core/hle/service/act/act_a.h"
 
 namespace Service::ACT {
@@ -10,11 +9,12 @@ namespace Service::ACT {
 ACT_A::ACT_A(std::shared_ptr<Module> act) : Module::Interface(std::move(act), "act:a") {
     const FunctionInfo functions[] = {
         // act:u shared commands
-        {0x00010084, nullptr, "Initialize"},
+        {0x00010084, &ACT_A::Initialize, "Initialize"},
         {0x00020040, nullptr, "GetErrorCode"},
         {0x000600C2, nullptr, "GetAccountDataBlock"},
         {0x000B0042, nullptr, "AcquireEulaList"},
         {0x000D0040, nullptr, "GenerateUuid"},
+        {0x000E0080, &ACT_A::UnknownMehod0x000E0080, "UnknownMehod0x000E0080"},
         // act:a
         {0x041300C2, nullptr, "UpdateMiiImage"},
         {0x041B0142, nullptr, "AgreeEula"},
@@ -25,5 +25,3 @@ ACT_A::ACT_A(std::shared_ptr<Module> act) : Module::Interface(std::move(act), "a
 }
 
 } // namespace Service::ACT
-
-SERIALIZE_EXPORT_IMPL(Service::ACT::ACT_A)
