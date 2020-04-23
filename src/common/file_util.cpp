@@ -379,6 +379,16 @@ bool CreateEmptyFile(const std::string& filename) {
     return true;
 }
 
+u64 GetFileModificationTimestamp(const std::string& filename) {
+    if (Exists(filename)) {
+        struct stat64 file_info;
+        if (stat64(filename.c_str(), &file_info) == 0) {
+            return static_cast<u64>(file_info.st_mtim.tv_sec);
+        }
+    }
+    return 0;
+}
+
 bool ForeachDirectoryEntry(u64* num_entries_out, const std::string& directory,
                            DirectoryEntryCallable callback) {
     LOG_TRACE(Common_Filesystem, "directory {}", directory);
@@ -727,33 +737,7 @@ void SetUserPath(const std::string& path) {
     g_paths.emplace(UserPath::DumpDir, user_path + DUMP_DIR DIR_SEP);
     g_paths.emplace(UserPath::LoadDir, user_path + LOAD_DIR DIR_SEP);
     g_paths.emplace(UserPath::StatesDir, user_path + STATES_DIR DIR_SEP);
-}
-
-std::string g_currentRomPath{};
-
-void SetCurrentRomPath(const std::string& path) {
-    g_currentRomPath = path;
-}
-
-bool StringReplace(std::string& haystack, const std::string& a, const std::string& b, bool swap) {
-    const auto& needle = swap ? b : a;
-    const auto& replacement = swap ? a : b;
-    if (needle.empty()) {
-        return false;
-    }
-    auto index = haystack.find(needle, 0);
-    if (index == std::string::npos) {
-        return false;
-    }
-    haystack.replace(index, needle.size(), replacement);
-    return true;
-}
-
-std::string SerializePath(const std::string& input, bool is_saving) {
-    auto result = input;
-    StringReplace(result, "%CITRA_ROM_FILE%", g_currentRomPath, is_saving);
-    StringReplace(result, "%CITRA_USER_DIR%", GetUserPath(UserPath::UserDir), is_saving);
-    return result;
+    g_paths.emplace(UserPath::AmiiboDir, user_path + AMIIBO_DIR DIR_SEP);
 }
 
 const std::string& GetUserPath(UserPath path) {
@@ -762,6 +746,7 @@ const std::string& GetUserPath(UserPath path) {
         SetUserPath();
     return g_paths[path];
 }
+
 std::size_t WriteStringToFile(bool text_file, const std::string& filename, std::string_view str) {
     return IOFile(filename, text_file ? "w" : "wb").WriteString(str);
 }

@@ -6,8 +6,6 @@
 
 #include <cstddef>
 #include <type_traits>
-#include <boost/serialization/access.hpp>
-#include <boost/serialization/binary_object.hpp>
 #include "common/assert.h"
 #include "common/bit_field.h"
 #include "common/common_funcs.h"
@@ -44,7 +42,7 @@ struct Regs {
     /**
      * Returns the number of bytes per pixel.
      */
-    static int BytesPerPixel(PixelFormat format) {
+    static u32 BytesPerPixel(PixelFormat format) {
         switch (format) {
         case PixelFormat::RGBA8:
             return 4;
@@ -272,12 +270,6 @@ private:
     static inline u32 DecodeAddressRegister(u32 register_value) {
         return register_value * 8;
     }
-
-    template <class Archive>
-    void serialize(Archive& ar, const unsigned int) {
-        ar& boost::serialization::make_binary_object(this, sizeof(Regs));
-    }
-    friend class boost::serialization::access;
 };
 static_assert(std::is_standard_layout<Regs>::value, "Structure does not use standard layout");
 

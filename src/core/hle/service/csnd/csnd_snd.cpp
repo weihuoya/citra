@@ -3,14 +3,10 @@
 // Refer to the license.txt file included.
 
 #include "common/alignment.h"
-#include "common/archives.h"
 #include "core/core.h"
 #include "core/hle/ipc_helpers.h"
 #include "core/hle/result.h"
 #include "core/hle/service/csnd/csnd_snd.h"
-
-SERVICE_CONSTRUCT_IMPL(Service::CSND::CSND_SND)
-SERIALIZE_EXPORT_IMPL(Service::CSND::CSND_SND)
 
 namespace Service::CSND {
 
@@ -467,7 +463,7 @@ void CSND_SND::FlushDataCache(Kernel::HLERequestContext& ctx) {
     IPC::RequestBuilder rb = rp.MakeBuilder(1, 0);
     rb.Push(RESULT_SUCCESS);
 
-    LOG_TRACE(Service_CSND, "(STUBBED) called address=0x{:08X}, size=0x{:08X}, process={}", address,
+    LOG_TRACE(Service_CSND, "(STUBBED) CSND_SND FlushDataCache called address=0x{:08X}, size=0x{:08X}, process={}", address,
               size, process->process_id);
 }
 
@@ -480,7 +476,7 @@ void CSND_SND::StoreDataCache(Kernel::HLERequestContext& ctx) {
     IPC::RequestBuilder rb = rp.MakeBuilder(1, 0);
     rb.Push(RESULT_SUCCESS);
 
-    LOG_TRACE(Service_CSND, "(STUBBED) called address=0x{:08X}, size=0x{:08X}, process={}", address,
+    LOG_TRACE(Service_CSND, "(STUBBED) CSND_SND StoreDataCache called address=0x{:08X}, size=0x{:08X}, process={}", address,
               size, process->process_id);
 }
 
@@ -493,7 +489,7 @@ void CSND_SND::InvalidateDataCache(Kernel::HLERequestContext& ctx) {
     IPC::RequestBuilder rb = rp.MakeBuilder(1, 0);
     rb.Push(RESULT_SUCCESS);
 
-    LOG_TRACE(Service_CSND, "(STUBBED) called address=0x{:08X}, size=0x{:08X}, process={}", address,
+    LOG_TRACE(Service_CSND, "(STUBBED) CSND_SND InvalidateDataCache called address=0x{:08X}, size=0x{:08X}, process={}", address,
               size, process->process_id);
 }
 

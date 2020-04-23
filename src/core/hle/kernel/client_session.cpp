@@ -2,7 +2,6 @@
 // Licensed under GPLv2 or any later version
 // Refer to the license.txt file included.
 
-#include "common/archives.h"
 #include "common/assert.h"
 #include "core/hle/kernel/client_session.h"
 #include "core/hle/kernel/errors.h"
@@ -10,8 +9,6 @@
 #include "core/hle/kernel/server_session.h"
 #include "core/hle/kernel/session.h"
 #include "core/hle/kernel/thread.h"
-
-SERIALIZE_EXPORT_IMPL(Kernel::ClientSession)
 
 namespace Kernel {
 

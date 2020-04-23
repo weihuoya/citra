@@ -1,0 +1,7 @@
+* Sushi Striker: The Way Of Sushido
+
+[30 FPS]
+00582578 40000000
+
+[60 FPS]
+00582578 3F800000

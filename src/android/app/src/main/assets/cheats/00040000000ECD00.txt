@@ -1,0 +1,7 @@
+* Adventure Time - Explore the Dungeon Because I Don't Know
+
+[30 FPS v1.0]
+*citra_enabled
+D3000000 14000000
+40016824 00000002
+20016824 00000002

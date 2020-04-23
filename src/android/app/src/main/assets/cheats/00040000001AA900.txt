@@ -1,0 +1,7 @@
+* Dragon Ball Fusions
+
+[30 FPS v2.2]
+206FE5A0 00000001
+
+[60 FPS v2.2]
+206FE5A0 00000000

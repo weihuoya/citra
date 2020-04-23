@@ -14,9 +14,6 @@
 #include <string_view>
 #include <type_traits>
 #include <vector>
-#include <boost/serialization/split_member.hpp>
-#include <boost/serialization/string.hpp>
-#include <boost/serialization/wrapper.hpp>
 #include "common/common_types.h"
 #ifdef _MSC_VER
 #include "common/string_util.h"
@@ -26,6 +23,7 @@ namespace FileUtil {
 
 // User paths for GetUserPath
 enum class UserPath {
+    AmiiboDir,
     CacheDir,
     CheatsDir,
     ConfigDir,
@@ -42,34 +40,6 @@ enum class UserPath {
     UserDir,
 };
 
-// Replaces install-specific paths with standard placeholders, and back again
-std::string SerializePath(const std::string& input, bool is_saving);
-
-// A serializable path string
-struct Path : public boost::serialization::wrapper_traits<const Path> {
-    std::string& str;
-
-    explicit Path(std::string& _str) : str(_str) {}
-
-    static const Path make(std::string& str) {
-        return Path(str);
-    }
-
-    template <class Archive>
-    void save(Archive& ar, const unsigned int) const {
-        auto s_path = SerializePath(str, true);
-        ar << s_path;
-    }
-    template <class Archive>
-    void load(Archive& ar, const unsigned int) const {
-        ar >> str;
-        str = SerializePath(str, false);
-    }
-
-    BOOST_SERIALIZATION_SPLIT_MEMBER();
-    friend class boost::serialization::access;
-};
-
 // FileSystem tree node/
 struct FSTEntry {
     bool isDirectory;
@@ -77,17 +47,6 @@ struct FSTEntry {
     std::string physicalName; // name on disk
     std::string virtualName;  // name in FST names table
     std::vector<FSTEntry> children;
-
-private:
-    template <class Archive>
-    void serialize(Archive& ar, const unsigned int) {
-        ar& isDirectory;
-        ar& size;
-        ar& Path::make(physicalName);
-        ar& Path::make(virtualName);
-        ar& children;
-    }
-    friend class boost::serialization::access;
 };
 
 // Returns true if file filename exists
@@ -126,6 +85,9 @@ bool Copy(const std::string& srcFilename, const std::string& destFilename);
 
 // creates an empty file filename, returns true on success
 bool CreateEmptyFile(const std::string& filename);
+
+//
+u64 GetFileModificationTimestamp(const std::string& filename);
 
 /**
  * @param num_entries_out to be assigned by the callable with the number of iterated directory
@@ -179,8 +141,6 @@ void CopyDir(const std::string& source_path, const std::string& dest_path);
 bool SetCurrentDir(const std::string& directory);
 
 void SetUserPath(const std::string& path = "");
-
-void SetCurrentRomPath(const std::string& path);
 
 // Returns a pointer to a string with a Citra data dir in the user's home
 // directory. To be used in "multi-user" mode (that is, installed).
@@ -357,23 +317,6 @@ private:
     std::string filename;
     std::string openmode;
     u32 flags;
-
-    template <class Archive>
-    void serialize(Archive& ar, const unsigned int) {
-        ar& Path::make(filename);
-        ar& openmode;
-        ar& flags;
-        u64 pos;
-        if (Archive::is_saving::value) {
-            pos = Tell();
-        }
-        ar& pos;
-        if (Archive::is_loading::value) {
-            Open();
-            Seek(pos, SEEK_SET);
-        }
-    }
-    friend class boost::serialization::access;
 };
 
 } // namespace FileUtil
