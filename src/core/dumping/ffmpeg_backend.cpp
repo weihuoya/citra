@@ -2,19 +2,15 @@
 // Licensed under GPLv2 or any later version
 // Refer to the license.txt file included.
 
-#include <unordered_set>
 #include "common/assert.h"
 #include "common/file_util.h"
 #include "common/logging/log.h"
-#include "common/param_package.h"
-#include "common/string_util.h"
 #include "core/dumping/ffmpeg_backend.h"
-#include "core/settings.h"
 #include "video_core/renderer_base.h"
 #include "video_core/video_core.h"
 
 extern "C" {
-#include <libavutil/pixdesc.h>
+#include <libavutil/opt.h>
 }
 
 namespace VideoDumper {
@@ -31,25 +27,14 @@ void InitializeFFmpegLibraries() {
     initialized = true;
 }
 
-AVDictionary* ToAVDictionary(const std::string& serialized) {
-    Common::ParamPackage param_package{serialized};
-    AVDictionary* result = nullptr;
-    for (const auto& [key, value] : param_package) {
-        av_dict_set(&result, key.c_str(), value.c_str(), 0);
-    }
-    return result;
-}
-
 FFmpegStream::~FFmpegStream() {
     Free();
 }
 
-bool FFmpegStream::Init(FFmpegMuxer& muxer) {
+bool FFmpegStream::Init(AVFormatContext* format_context_) {
     InitializeFFmpegLibraries();
 
-    format_context = muxer.format_context.get();
-    format_context_mutex = &muxer.format_context_mutex;
-
+    format_context = format_context_;
     return true;
 }
 
@@ -62,12 +47,14 @@ void FFmpegStream::Flush() {
 }
 
 void FFmpegStream::WritePacket(AVPacket& packet) {
-    av_packet_rescale_ts(&packet, codec_context->time_base, stream->time_base);
-    packet.stream_index = stream->index;
-    {
-        std::lock_guard lock{*format_context_mutex};
-        av_interleaved_write_frame(format_context, &packet);
+    if (packet.pts != static_cast<s64>(AV_NOPTS_VALUE)) {
+        packet.pts = av_rescale_q(packet.pts, codec_context->time_base, stream->time_base);
     }
+    if (packet.dts != static_cast<s64>(AV_NOPTS_VALUE)) {
+        packet.dts = av_rescale_q(packet.dts, codec_context->time_base, stream->time_base);
+    }
+    packet.stream_index = stream->index;
+    av_interleaved_write_frame(format_context, &packet);
 }
 
 void FFmpegStream::SendFrame(AVFrame* frame) {
@@ -101,18 +88,21 @@ FFmpegVideoStream::~FFmpegVideoStream() {
     Free();
 }
 
-bool FFmpegVideoStream::Init(FFmpegMuxer& muxer, const Layout::FramebufferLayout& layout_) {
+bool FFmpegVideoStream::Init(AVFormatContext* format_context, AVOutputFormat* output_format,
+                             const Layout::FramebufferLayout& layout_) {
 
     InitializeFFmpegLibraries();
 
-    if (!FFmpegStream::Init(muxer))
+    if (!FFmpegStream::Init(format_context))
         return false;
 
     layout = layout_;
     frame_count = 0;
 
     // Initialize video codec
-    const AVCodec* codec = avcodec_find_encoder_by_name(Settings::values.video_encoder.c_str());
+    // Ensure VP9 codec here, also to avoid patent issues
+    constexpr AVCodecID codec_id = AV_CODEC_ID_VP9;
+    const AVCodec* codec = avcodec_find_encoder(codec_id);
     codec_context.reset(avcodec_alloc_context3(codec));
     if (!codec || !codec_context) {
         LOG_ERROR(Render, "Could not find video encoder or allocate video codec context");
@@ -121,26 +111,21 @@ bool FFmpegVideoStream::Init(FFmpegMuxer& muxer, const Layout::FramebufferLayout
 
     // Configure video codec context
     codec_context->codec_type = AVMEDIA_TYPE_VIDEO;
-    codec_context->bit_rate = Settings::values.video_bitrate;
+    codec_context->bit_rate = 2500000;
     codec_context->width = layout.width;
     codec_context->height = layout.height;
     codec_context->time_base.num = 1;
     codec_context->time_base.den = 60;
     codec_context->gop_size = 12;
-    codec_context->pix_fmt = codec->pix_fmts ? codec->pix_fmts[0] : AV_PIX_FMT_YUV420P;
-    if (format_context->oformat->flags & AVFMT_GLOBALHEADER)
+    codec_context->pix_fmt = AV_PIX_FMT_YUV420P;
+    codec_context->thread_count = 8;
+    if (output_format->flags & AVFMT_GLOBALHEADER)
         codec_context->flags |= AV_CODEC_FLAG_GLOBAL_HEADER;
+    av_opt_set_int(codec_context.get(), "cpu-used", 5, 0);
 
-    AVDictionary* options = ToAVDictionary(Settings::values.video_encoder_options);
-    if (avcodec_open2(codec_context.get(), codec, &options) < 0) {
+    if (avcodec_open2(codec_context.get(), codec, nullptr) < 0) {
         LOG_ERROR(Render, "Could not open video codec");
         return false;
-    }
-
-    if (av_dict_count(options) != 0) { // Successfully set options are removed from the dict
-        char* buf = nullptr;
-        av_dict_get_string(options, &buf, ':', ';');
-        LOG_WARNING(Render, "Video encoder options not found: {}", buf);
     }
 
     // Create video stream
@@ -156,7 +141,7 @@ bool FFmpegVideoStream::Init(FFmpegMuxer& muxer, const Layout::FramebufferLayout
     scaled_frame->format = codec_context->pix_fmt;
     scaled_frame->width = layout.width;
     scaled_frame->height = layout.height;
-    if (av_frame_get_buffer(scaled_frame.get(), 0) < 0) {
+    if (av_frame_get_buffer(scaled_frame.get(), 1) < 0) {
         LOG_ERROR(Render, "Could not allocate frame buffer");
         return false;
     }
@@ -192,10 +177,6 @@ void FFmpegVideoStream::ProcessFrame(VideoFrame& frame) {
     current_frame->height = layout.height;
 
     // Scale the frame
-    if (av_frame_make_writable(scaled_frame.get()) < 0) {
-        LOG_ERROR(Render, "Video frame dropped: Could not prepare frame");
-        return;
-    }
     if (sws_context) {
         sws_scale(sws_context.get(), current_frame->data, current_frame->linesize, 0, layout.height,
                   scaled_frame->data, scaled_frame->linesize);
@@ -210,16 +191,17 @@ FFmpegAudioStream::~FFmpegAudioStream() {
     Free();
 }
 
-bool FFmpegAudioStream::Init(FFmpegMuxer& muxer) {
+bool FFmpegAudioStream::Init(AVFormatContext* format_context) {
     InitializeFFmpegLibraries();
 
-    if (!FFmpegStream::Init(muxer))
+    if (!FFmpegStream::Init(format_context))
         return false;
 
-    frame_count = 0;
+    sample_count = 0;
 
     // Initialize audio codec
-    const AVCodec* codec = avcodec_find_encoder_by_name(Settings::values.audio_encoder.c_str());
+    constexpr AVCodecID codec_id = AV_CODEC_ID_VORBIS;
+    const AVCodec* codec = avcodec_find_encoder(codec_id);
     codec_context.reset(avcodec_alloc_context3(codec));
     if (!codec || !codec_context) {
         LOG_ERROR(Render, "Could not find audio encoder or allocate audio codec context");
@@ -228,50 +210,15 @@ bool FFmpegAudioStream::Init(FFmpegMuxer& muxer) {
 
     // Configure audio codec context
     codec_context->codec_type = AVMEDIA_TYPE_AUDIO;
-    codec_context->bit_rate = Settings::values.audio_bitrate;
-    if (codec->sample_fmts) {
-        codec_context->sample_fmt = codec->sample_fmts[0];
-    } else {
-        codec_context->sample_fmt = AV_SAMPLE_FMT_S16P;
-    }
-
-    if (codec->supported_samplerates) {
-        codec_context->sample_rate = codec->supported_samplerates[0];
-        // Prefer native sample rate if supported
-        const int* ptr = codec->supported_samplerates;
-        while ((*ptr)) {
-            if ((*ptr) == AudioCore::native_sample_rate) {
-                codec_context->sample_rate = AudioCore::native_sample_rate;
-                break;
-            }
-            ptr++;
-        }
-    } else {
-        codec_context->sample_rate = AudioCore::native_sample_rate;
-    }
-    codec_context->time_base.num = 1;
-    codec_context->time_base.den = codec_context->sample_rate;
+    codec_context->bit_rate = 64000;
+    codec_context->sample_fmt = codec->sample_fmts[0];
+    codec_context->sample_rate = AudioCore::native_sample_rate;
     codec_context->channel_layout = AV_CH_LAYOUT_STEREO;
     codec_context->channels = 2;
-    if (format_context->oformat->flags & AVFMT_GLOBALHEADER)
-        codec_context->flags |= AV_CODEC_FLAG_GLOBAL_HEADER;
 
-    AVDictionary* options = ToAVDictionary(Settings::values.audio_encoder_options);
-    if (avcodec_open2(codec_context.get(), codec, &options) < 0) {
+    if (avcodec_open2(codec_context.get(), codec, nullptr) < 0) {
         LOG_ERROR(Render, "Could not open audio codec");
         return false;
-    }
-
-    if (av_dict_count(options) != 0) { // Successfully set options are removed from the dict
-        char* buf = nullptr;
-        av_dict_get_string(options, &buf, ':', ';');
-        LOG_WARNING(Render, "Audio encoder options not found: {}", buf);
-    }
-
-    if (codec_context->frame_size) {
-        frame_size = static_cast<u64>(codec_context->frame_size);
-    } else { // variable frame size support
-        frame_size = std::tuple_size<AudioCore::StereoFrame16>::value;
     }
 
     // Create audio stream
@@ -287,7 +234,6 @@ bool FFmpegAudioStream::Init(FFmpegMuxer& muxer) {
     audio_frame->format = codec_context->sample_fmt;
     audio_frame->channel_layout = codec_context->channel_layout;
     audio_frame->channels = codec_context->channels;
-    audio_frame->sample_rate = codec_context->sample_rate;
 
     // Allocate SWR context
     auto* context =
@@ -307,7 +253,7 @@ bool FFmpegAudioStream::Init(FFmpegMuxer& muxer) {
     // Allocate resampled data
     int error =
         av_samples_alloc_array_and_samples(&resampled_data, nullptr, codec_context->channels,
-                                           frame_size, codec_context->sample_fmt, 0);
+                                           codec_context->frame_size, codec_context->sample_fmt, 0);
     if (error < 0) {
         LOG_ERROR(Render, "Could not allocate samples storage");
         return false;
@@ -328,79 +274,39 @@ void FFmpegAudioStream::Free() {
     av_freep(&resampled_data);
 }
 
-void FFmpegAudioStream::ProcessFrame(const VariableAudioFrame& channel0,
-                                     const VariableAudioFrame& channel1) {
+void FFmpegAudioStream::ProcessFrame(VariableAudioFrame& channel0, VariableAudioFrame& channel1) {
     ASSERT_MSG(channel0.size() == channel1.size(),
                "Frames of the two channels must have the same number of samples");
+    std::array<const u8*, 2> src_data = {reinterpret_cast<u8*>(channel0.data()),
+                                         reinterpret_cast<u8*>(channel1.data())};
+    if (swr_convert(swr_context.get(), resampled_data, channel0.size(), src_data.data(),
+                    channel0.size()) < 0) {
 
-    const auto sample_size = av_get_bytes_per_sample(codec_context->sample_fmt);
-    std::array<const u8*, 2> src_data = {reinterpret_cast<const u8*>(channel0.data()),
-                                         reinterpret_cast<const u8*>(channel1.data())};
-
-    std::array<u8*, 2> dst_data;
-    if (av_sample_fmt_is_planar(codec_context->sample_fmt)) {
-        dst_data = {resampled_data[0] + sample_size * offset,
-                    resampled_data[1] + sample_size * offset};
-    } else {
-        dst_data = {resampled_data[0] + sample_size * offset * 2}; // 2 channels
-    }
-
-    auto resampled_count = swr_convert(swr_context.get(), dst_data.data(), frame_size - offset,
-                                       src_data.data(), channel0.size());
-    if (resampled_count < 0) {
         LOG_ERROR(Render, "Audio frame dropped: Could not resample data");
         return;
     }
 
-    offset += resampled_count;
-    if (offset < frame_size) { // Still not enough to form a frame
-        return;
-    }
-
-    while (true) {
-        // Prepare frame
-        audio_frame->nb_samples = frame_size;
-        audio_frame->data[0] = resampled_data[0];
-        if (av_sample_fmt_is_planar(codec_context->sample_fmt)) {
-            audio_frame->data[1] = resampled_data[1];
-        }
-        audio_frame->pts = frame_count * frame_size;
-        frame_count++;
-
-        SendFrame(audio_frame.get());
-
-        // swr_convert buffers input internally. Try to get more resampled data
-        resampled_count = swr_convert(swr_context.get(), resampled_data, frame_size, nullptr, 0);
-        if (resampled_count < 0) {
-            LOG_ERROR(Render, "Audio frame dropped: Could not resample data");
-            return;
-        }
-        if (static_cast<u64>(resampled_count) < frame_size) {
-            offset = resampled_count;
-            break;
-        }
-    }
-}
-
-void FFmpegAudioStream::Flush() {
-    // Send the last samples
-    audio_frame->nb_samples = offset;
+    // Prepare frame
+    audio_frame->nb_samples = channel0.size();
     audio_frame->data[0] = resampled_data[0];
-    if (av_sample_fmt_is_planar(codec_context->sample_fmt)) {
-        audio_frame->data[1] = resampled_data[1];
-    }
-    audio_frame->pts = frame_count * frame_size;
+    audio_frame->data[1] = resampled_data[1];
+    audio_frame->pts = sample_count;
+    sample_count += channel0.size();
 
     SendFrame(audio_frame.get());
+}
 
-    FFmpegStream::Flush();
+std::size_t FFmpegAudioStream::GetAudioFrameSize() const {
+    ASSERT_MSG(codec_context, "Codec context is not initialized yet!");
+    return codec_context->frame_size;
 }
 
 FFmpegMuxer::~FFmpegMuxer() {
     Free();
 }
 
-bool FFmpegMuxer::Init(const std::string& path, const Layout::FramebufferLayout& layout) {
+bool FFmpegMuxer::Init(const std::string& path, const std::string& format,
+                       const Layout::FramebufferLayout& layout) {
 
     InitializeFFmpegLibraries();
 
@@ -409,8 +315,9 @@ bool FFmpegMuxer::Init(const std::string& path, const Layout::FramebufferLayout&
     }
 
     // Get output format
-    const auto format = Settings::values.output_format;
-    auto* output_format = av_guess_format(format.c_str(), path.c_str(), nullptr);
+    // Ensure webm here to avoid patent issues
+    ASSERT_MSG(format == "webm", "Only webm is allowed for frame dumping");
+    auto* output_format = av_guess_format(format.c_str(), path.c_str(), "video/webm");
     if (!output_format) {
         LOG_ERROR(Render, "Could not get format {}", format);
         return false;
@@ -426,23 +333,17 @@ bool FFmpegMuxer::Init(const std::string& path, const Layout::FramebufferLayout&
     }
     format_context.reset(format_context_raw);
 
-    if (!video_stream.Init(*this, layout))
+    if (!video_stream.Init(format_context.get(), output_format, layout))
         return false;
-    if (!audio_stream.Init(*this))
+    if (!audio_stream.Init(format_context.get()))
         return false;
 
-    AVDictionary* options = ToAVDictionary(Settings::values.format_options);
     // Open video file
     if (avio_open(&format_context->pb, path.c_str(), AVIO_FLAG_WRITE) < 0 ||
-        avformat_write_header(format_context.get(), &options)) {
+        avformat_write_header(format_context.get(), nullptr)) {
 
         LOG_ERROR(Render, "Could not open {}", path);
         return false;
-    }
-    if (av_dict_count(options) != 0) { // Successfully set options are removed from the dict
-        char* buf = nullptr;
-        av_dict_get_string(options, &buf, ':', ';');
-        LOG_WARNING(Render, "Format options not found: {}", buf);
     }
 
     LOG_INFO(Render, "Dumping frames to {} ({}x{})", path, layout.width, layout.height);
@@ -459,8 +360,7 @@ void FFmpegMuxer::ProcessVideoFrame(VideoFrame& frame) {
     video_stream.ProcessFrame(frame);
 }
 
-void FFmpegMuxer::ProcessAudioFrame(const VariableAudioFrame& channel0,
-                                    const VariableAudioFrame& channel1) {
+void FFmpegMuxer::ProcessAudioFrame(VariableAudioFrame& channel0, VariableAudioFrame& channel1) {
     audio_stream.ProcessFrame(channel0, channel1);
 }
 
@@ -472,9 +372,11 @@ void FFmpegMuxer::FlushAudio() {
     audio_stream.Flush();
 }
 
+std::size_t FFmpegMuxer::GetAudioFrameSize() const {
+    return audio_stream.GetAudioFrameSize();
+}
+
 void FFmpegMuxer::WriteTrailer() {
-    std::lock_guard lock{format_context_mutex};
-    av_interleaved_write_frame(format_context.get(), nullptr);
     av_write_trailer(format_context.get());
 }
 
@@ -490,11 +392,12 @@ FFmpegBackend::~FFmpegBackend() {
     ffmpeg.Free();
 }
 
-bool FFmpegBackend::StartDumping(const std::string& path, const Layout::FramebufferLayout& layout) {
+bool FFmpegBackend::StartDumping(const std::string& path, const std::string& format,
+                                 const Layout::FramebufferLayout& layout) {
 
     InitializeFFmpegLibraries();
 
-    if (!ffmpeg.Init(path, layout)) {
+    if (!ffmpeg.Init(path, format, layout)) {
         ffmpeg.Free();
         return false;
     }
@@ -547,29 +450,31 @@ bool FFmpegBackend::StartDumping(const std::string& path, const Layout::Framebuf
     return true;
 }
 
-void FFmpegBackend::AddVideoFrame(VideoFrame frame) {
+void FFmpegBackend::AddVideoFrame(const VideoFrame& frame) {
     event1.Wait();
     video_frame_buffers[next_buffer] = std::move(frame);
     event2.Set();
 }
 
-void FFmpegBackend::AddAudioFrame(AudioCore::StereoFrame16 frame) {
-    std::array<VariableAudioFrame, 2> refactored_frame;
-    for (auto& channel : refactored_frame) {
-        channel.resize(frame.size());
-    }
+void FFmpegBackend::AddAudioFrame(const AudioCore::StereoFrame16& frame) {
+    std::array<std::array<s16, 160>, 2> refactored_frame;
     for (std::size_t i = 0; i < frame.size(); i++) {
         refactored_frame[0][i] = frame[i][0];
         refactored_frame[1][i] = frame[i][1];
     }
 
-    audio_frame_queues[0].Push(std::move(refactored_frame[0]));
-    audio_frame_queues[1].Push(std::move(refactored_frame[1]));
+    for (auto i : {0, 1}) {
+        audio_buffers[i].insert(audio_buffers[i].end(), refactored_frame[i].begin(),
+                                refactored_frame[i].end());
+    }
+    CheckAudioBuffer();
 }
 
 void FFmpegBackend::AddAudioSample(const std::array<s16, 2>& sample) {
-    audio_frame_queues[0].Push(VariableAudioFrame{sample[0]});
-    audio_frame_queues[1].Push(VariableAudioFrame{sample[1]});
+    for (auto i : {0, 1}) {
+        audio_buffers[i].push_back(sample[i]);
+    }
+    CheckAudioBuffer();
 }
 
 void FFmpegBackend::StopDumping() {
@@ -579,6 +484,12 @@ void FFmpegBackend::StopDumping() {
     // Flush the video processing queue
     AddVideoFrame(VideoFrame());
     for (auto i : {0, 1}) {
+        // Add remaining data to audio queue
+        if (audio_buffers[i].size() >= 0) {
+            VariableAudioFrame buffer(audio_buffers[i].begin(), audio_buffers[i].end());
+            audio_frame_queues[i].Push(std::move(buffer));
+            audio_buffers[i].clear();
+        }
         // Flush the audio processing queue
         audio_frame_queues[i].Push(VariableAudioFrame());
     }
@@ -602,234 +513,18 @@ void FFmpegBackend::EndDumping() {
     processing_ended.Set();
 }
 
-// To std string, but handles nullptr
-std::string ToStdString(const char* str, const std::string& fallback = "") {
-    return str ? std::string{str} : fallback;
-}
+void FFmpegBackend::CheckAudioBuffer() {
+    for (auto i : {0, 1}) {
+        const std::size_t frame_size = ffmpeg.GetAudioFrameSize();
+        // Add audio data to the queue when there is enough to form a frame
+        while (audio_buffers[i].size() >= frame_size) {
+            VariableAudioFrame buffer(audio_buffers[i].begin(),
+                                      audio_buffers[i].begin() + frame_size);
+            audio_frame_queues[i].Push(std::move(buffer));
 
-std::string FormatDuration(s64 duration) {
-    // The following is implemented according to libavutil code (opt.c)
-    std::string out;
-    if (duration < 0 && duration != std::numeric_limits<s64>::min()) {
-        out.append("-");
-        duration = -duration;
-    }
-    if (duration == std::numeric_limits<s64>::max()) {
-        return "INT64_MAX";
-    } else if (duration == std::numeric_limits<s64>::min()) {
-        return "INT64_MIN";
-    } else if (duration > 3600ll * 1000000ll) {
-        out.append(fmt::format("{}:{:02d}:{:02d}.{:06d}", duration / 3600000000ll,
-                               ((duration / 60000000ll) % 60), ((duration / 1000000ll) % 60),
-                               duration % 1000000));
-    } else if (duration > 60ll * 1000000ll) {
-        out.append(fmt::format("{}:{:02d}.{:06d}", duration / 60000000ll,
-                               ((duration / 1000000ll) % 60), duration % 1000000));
-    } else {
-        out.append(fmt::format("{}.{:06d}", duration / 1000000ll, duration % 1000000));
-    }
-    while (out.back() == '0') {
-        out.erase(out.size() - 1, 1);
-    }
-    if (out.back() == '.') {
-        out.erase(out.size() - 1, 1);
-    }
-    return out;
-}
-
-std::string FormatDefaultValue(const AVOption* option,
-                               const std::vector<OptionInfo::NamedConstant>& named_constants) {
-    // The following is taken and modified from libavutil code (opt.c)
-    switch (option->type) {
-    case AV_OPT_TYPE_BOOL: {
-        const auto value = option->default_val.i64;
-        if (value < 0) {
-            return "auto";
+            audio_buffers[i].erase(audio_buffers[i].begin(), audio_buffers[i].begin() + frame_size);
         }
-        return value ? "true" : "false";
     }
-    case AV_OPT_TYPE_FLAGS: {
-        const auto value = option->default_val.i64;
-        std::string out;
-        for (const auto& constant : named_constants) {
-            if (!(value & constant.value)) {
-                continue;
-            }
-            if (!out.empty()) {
-                out.append("+");
-            }
-            out.append(constant.name);
-        }
-        return out.empty() ? fmt::format("{}", value) : out;
-    }
-    case AV_OPT_TYPE_DURATION: {
-        return FormatDuration(option->default_val.i64);
-    }
-    case AV_OPT_TYPE_INT:
-    case AV_OPT_TYPE_UINT64:
-    case AV_OPT_TYPE_INT64: {
-        const auto value = option->default_val.i64;
-        for (const auto& constant : named_constants) {
-            if (constant.value == value) {
-                return constant.name;
-            }
-        }
-        return fmt::format("{}", value);
-    }
-    case AV_OPT_TYPE_DOUBLE:
-    case AV_OPT_TYPE_FLOAT: {
-        return fmt::format("{}", option->default_val.dbl);
-    }
-    case AV_OPT_TYPE_RATIONAL: {
-        const auto q = av_d2q(option->default_val.dbl, std::numeric_limits<int>::max());
-        return fmt::format("{}/{}", q.num, q.den);
-    }
-    case AV_OPT_TYPE_PIXEL_FMT: {
-        const char* name = av_get_pix_fmt_name(static_cast<AVPixelFormat>(option->default_val.i64));
-        return ToStdString(name, "none");
-    }
-    case AV_OPT_TYPE_SAMPLE_FMT: {
-        const char* name =
-            av_get_sample_fmt_name(static_cast<AVSampleFormat>(option->default_val.i64));
-        return ToStdString(name, "none");
-    }
-    case AV_OPT_TYPE_COLOR:
-    case AV_OPT_TYPE_IMAGE_SIZE:
-    case AV_OPT_TYPE_STRING:
-    case AV_OPT_TYPE_DICT:
-    case AV_OPT_TYPE_VIDEO_RATE: {
-        return ToStdString(option->default_val.str);
-    }
-    case AV_OPT_TYPE_CHANNEL_LAYOUT: {
-        return fmt::format("{:#x}", option->default_val.i64);
-    }
-    default:
-        return "";
-    }
-}
-
-void GetOptionListSingle(std::vector<OptionInfo>& out, const AVClass* av_class) {
-    if (av_class == nullptr) {
-        return;
-    }
-
-    const AVOption* current = nullptr;
-    std::unordered_map<std::string, std::vector<OptionInfo::NamedConstant>> named_constants_map;
-    // First iteration: find and place all named constants
-    while ((current = av_opt_next(&av_class, current))) {
-        if (current->type != AV_OPT_TYPE_CONST || !current->unit) {
-            continue;
-        }
-        named_constants_map[current->unit].push_back(
-            {current->name, ToStdString(current->help), current->default_val.i64});
-    }
-    // Second iteration: find all options
-    current = nullptr;
-    while ((current = av_opt_next(&av_class, current))) {
-        // Currently we cannot handle binary options
-        if (current->type == AV_OPT_TYPE_CONST || current->type == AV_OPT_TYPE_BINARY) {
-            continue;
-        }
-        std::vector<OptionInfo::NamedConstant> named_constants;
-        if (current->unit && named_constants_map.count(current->unit)) {
-            named_constants = named_constants_map.at(current->unit);
-        }
-        const auto default_value = FormatDefaultValue(current, named_constants);
-        out.push_back({current->name, ToStdString(current->help), current->type, default_value,
-                       std::move(named_constants), current->min, current->max});
-    }
-}
-
-void GetOptionList(std::vector<OptionInfo>& out, const AVClass* av_class, bool search_children) {
-    if (av_class == nullptr) {
-        return;
-    }
-
-    GetOptionListSingle(out, av_class);
-
-    if (!search_children) {
-        return;
-    }
-
-    const AVClass* child_class = nullptr;
-    while ((child_class = av_opt_child_class_next(av_class, child_class))) {
-        GetOptionListSingle(out, child_class);
-    }
-}
-
-std::vector<OptionInfo> GetOptionList(const AVClass* av_class, bool search_children) {
-    std::vector<OptionInfo> out;
-    GetOptionList(out, av_class, search_children);
-    return out;
-}
-
-std::vector<EncoderInfo> ListEncoders(AVMediaType type) {
-    InitializeFFmpegLibraries();
-
-    std::vector<EncoderInfo> out;
-
-    const AVCodec* current = nullptr;
-#if LIBAVCODEC_VERSION_INT < AV_VERSION_INT(58, 10, 100)
-    while ((current = av_codec_next(current))) {
-#else
-    void* data = nullptr; // For libavcodec to save the iteration state
-    while ((current = av_codec_iterate(&data))) {
-#endif
-        if (!av_codec_is_encoder(current) || current->type != type) {
-            continue;
-        }
-        out.push_back({current->name, ToStdString(current->long_name), current->id,
-                       GetOptionList(current->priv_class, true)});
-    }
-    return out;
-}
-
-std::vector<OptionInfo> GetEncoderGenericOptions() {
-    return GetOptionList(avcodec_get_class(), false);
-}
-
-std::vector<FormatInfo> ListFormats() {
-    InitializeFFmpegLibraries();
-
-    std::vector<FormatInfo> out;
-
-    const AVOutputFormat* current = nullptr;
-#if LIBAVFORMAT_VERSION_INT < AV_VERSION_INT(58, 9, 100)
-    while ((current = av_oformat_next(current))) {
-#else
-    void* data = nullptr; // For libavformat to save the iteration state
-    while ((current = av_muxer_iterate(&data))) {
-#endif
-        std::vector<std::string> extensions;
-        Common::SplitString(ToStdString(current->extensions), ',', extensions);
-
-        std::set<AVCodecID> supported_video_codecs;
-        std::set<AVCodecID> supported_audio_codecs;
-        // Go through all codecs
-        const AVCodecDescriptor* codec = nullptr;
-        while ((codec = avcodec_descriptor_next(codec))) {
-            if (avformat_query_codec(current, codec->id, FF_COMPLIANCE_NORMAL) == 1) {
-                if (codec->type == AVMEDIA_TYPE_VIDEO) {
-                    supported_video_codecs.emplace(codec->id);
-                } else if (codec->type == AVMEDIA_TYPE_AUDIO) {
-                    supported_audio_codecs.emplace(codec->id);
-                }
-            }
-        }
-
-        if (supported_video_codecs.empty() || supported_audio_codecs.empty()) {
-            continue;
-        }
-
-        out.push_back({current->name, ToStdString(current->long_name), std::move(extensions),
-                       std::move(supported_video_codecs), std::move(supported_audio_codecs),
-                       GetOptionList(current->priv_class, true)});
-    }
-    return out;
-}
-
-std::vector<OptionInfo> GetFormatGenericOptions() {
-    return GetOptionList(avformat_get_class(), false);
 }
 
 } // namespace VideoDumper

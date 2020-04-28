@@ -130,8 +130,9 @@ Common::Rectangle<u32> SurfaceParams::GetScaledSubRect(const SurfaceParams& sub_
 
 bool SurfaceParams::ExactMatch(const SurfaceParams& other_surface) const {
     return std::tie(other_surface.addr, other_surface.width, other_surface.height,
-                    other_surface.stride, other_surface.pixel_format, other_surface.is_tiled) ==
-               std::tie(addr, width, height, stride, pixel_format, is_tiled) &&
+                    other_surface.stride, other_surface.pixel_format, other_surface.is_tiled,
+                    other_surface.is_texture) ==
+               std::tie(addr, width, height, stride, pixel_format, is_tiled, is_texture) &&
            pixel_format != PixelFormat::Invalid;
 }
 

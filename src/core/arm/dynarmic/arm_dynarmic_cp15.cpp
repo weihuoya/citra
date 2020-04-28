@@ -10,7 +10,7 @@ using Callback = Dynarmic::A32::Coprocessor::Callback;
 using CallbackOrAccessOneWord = Dynarmic::A32::Coprocessor::CallbackOrAccessOneWord;
 using CallbackOrAccessTwoWords = Dynarmic::A32::Coprocessor::CallbackOrAccessTwoWords;
 
-DynarmicCP15::DynarmicCP15(CP15State& state) : state(state) {}
+DynarmicCP15::DynarmicCP15(const std::shared_ptr<ARMul_State>& state) : interpreter_state(state) {}
 
 DynarmicCP15::~DynarmicCP15() = default;
 
@@ -26,31 +26,31 @@ CallbackOrAccessOneWord DynarmicCP15::CompileSendOneWord(bool two, unsigned opc1
 
     if (!two && CRn == CoprocReg::C7 && opc1 == 0 && CRm == CoprocReg::C5 && opc2 == 4) {
         // This is a dummy write, we ignore the value written here.
-        return &state.cp15_flush_prefetch_buffer;
+        return &interpreter_state->CP15[CP15_FLUSH_PREFETCH_BUFFER];
     }
 
     if (!two && CRn == CoprocReg::C7 && opc1 == 0 && CRm == CoprocReg::C10) {
         switch (opc2) {
         case 4:
             // This is a dummy write, we ignore the value written here.
-            return &state.cp15_data_sync_barrier;
+            return &interpreter_state->CP15[CP15_DATA_SYNC_BARRIER];
         case 5:
             // This is a dummy write, we ignore the value written here.
-            return &state.cp15_data_memory_barrier;
+            return &interpreter_state->CP15[CP15_DATA_MEMORY_BARRIER];
         default:
-            return std::monostate{};
+            return {};
         }
     }
 
     if (!two && CRn == CoprocReg::C13 && opc1 == 0 && CRm == CoprocReg::C0 && opc2 == 2) {
-        return &state.cp15_thread_uprw;
+        return &interpreter_state->CP15[CP15_THREAD_UPRW];
     }
 
-    return std::monostate{};
+    return {};
 }
 
 CallbackOrAccessTwoWords DynarmicCP15::CompileSendTwoWords(bool two, unsigned opc, CoprocReg CRm) {
-    return std::monostate{};
+    return {};
 }
 
 CallbackOrAccessOneWord DynarmicCP15::CompileGetOneWord(bool two, unsigned opc1, CoprocReg CRn,
@@ -60,19 +60,19 @@ CallbackOrAccessOneWord DynarmicCP15::CompileGetOneWord(bool two, unsigned opc1,
     if (!two && CRn == CoprocReg::C13 && opc1 == 0 && CRm == CoprocReg::C0) {
         switch (opc2) {
         case 2:
-            return &state.cp15_thread_uprw;
+            return &interpreter_state->CP15[CP15_THREAD_UPRW];
         case 3:
-            return &state.cp15_thread_uro;
+            return &interpreter_state->CP15[CP15_THREAD_URO];
         default:
-            return std::monostate{};
+            return {};
         }
     }
 
-    return std::monostate{};
+    return {};
 }
 
 CallbackOrAccessTwoWords DynarmicCP15::CompileGetTwoWords(bool two, unsigned opc, CoprocReg CRm) {
-    return std::monostate{};
+    return {};
 }
 
 std::optional<Callback> DynarmicCP15::CompileLoadWords(bool two, bool long_transfer, CoprocReg CRd,

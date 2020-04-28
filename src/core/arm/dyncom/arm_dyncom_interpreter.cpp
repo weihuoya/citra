@@ -23,6 +23,7 @@
 #include "core/gdbstub/gdbstub.h"
 #include "core/hle/kernel/svc.h"
 #include "core/memory.h"
+#include "core/settings.h"
 
 #define RM BITS(sht_oper, 0, 3)
 #define RS BITS(sht_oper, 8, 11)
@@ -955,16 +956,7 @@ unsigned InterpreterMainLoop(ARMul_State* cpu) {
 
 #define GDB_BP_CHECK                                                                               \
     cpu->Cpsr &= ~(1 << 5);                                                                        \
-    cpu->Cpsr |= cpu->TFlag << 5;                                                                  \
-    if (GDBStub::IsServerEnabled()) {                                                              \
-        if (GDBStub::IsMemoryBreak()) {                                                            \
-            goto END;                                                                              \
-        } else if (breakpoint_data.type != GDBStub::BreakpointType::None &&                        \
-                   PC == breakpoint_data.address) {                                                \
-            cpu->RecordBreak(breakpoint_data);                                                     \
-            goto END;                                                                              \
-        }                                                                                          \
-    }
+    cpu->Cpsr |= cpu->TFlag << 5;
 
 // GCC and Clang have a C++ extension to support a lookup table of labels. Otherwise, fallback to a
 // clunky switch statement.
@@ -3865,7 +3857,8 @@ SWI_INST : {
     if (inst_base->cond == ConditionCode::AL || CondPassed(cpu, inst_base->cond)) {
         DEBUG_ASSERT(cpu->system != nullptr);
         swi_inst* const inst_cream = (swi_inst*)inst_base->component;
-        cpu->system->GetRunningCore().GetTimer()->AddTicks(num_instrs);
+        num_instrs = std::max(num_instrs, Settings::values.core_ticks_hack);
+        cpu->system->GetRunningCore().GetTimer().AddTicks(num_instrs);
         cpu->NumInstrsToExecute =
             num_instrs >= cpu->NumInstrsToExecute ? 0 : cpu->NumInstrsToExecute - num_instrs;
         num_instrs = 0;

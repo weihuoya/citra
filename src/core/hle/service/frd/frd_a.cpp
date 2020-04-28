@@ -2,10 +2,7 @@
 // Licensed under GPLv2 or any later version
 // Refer to the license.txt file included.
 
-#include "common/archives.h"
 #include "core/hle/service/frd/frd_a.h"
-
-SERIALIZE_EXPORT_IMPL(Service::FRD::FRD_A)
 
 namespace Service::FRD {
 
@@ -64,6 +61,9 @@ FRD_A::FRD_A(std::shared_ptr<Module> frd) : Module::Interface(std::move(frd), "f
         {0x00330000, nullptr, "GetMyApproachContext"},
         {0x00340046, nullptr, "AddFriendWithApproach"},
         {0x00350082, nullptr, "DecryptApproachContext"},
+        {0x04060042, nullptr, "AddFriendOnline"},
+        {0x04090100, nullptr, "RemoveFriend"},
+        {0x040B00C0, nullptr, "UpdatePrefrences"},
     };
     RegisterHandlers(functions);
 }

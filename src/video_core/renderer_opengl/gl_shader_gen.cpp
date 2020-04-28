@@ -30,7 +30,7 @@ using VSOutputAttributes = RasterizerRegs::VSOutputAttributes;
 
 namespace OpenGL {
 
-static const std::string UniformBlockDef = R"(
+constexpr std::string_view UniformBlockDef = R"(
 #define NUM_TEV_STAGES 6
 #define NUM_LIGHTS 8
 #define NUM_LIGHTING_SAMPLERS 24
@@ -65,6 +65,13 @@ layout (std140) uniform shader_data {
     int proctex_diff_lut_offset;
     float proctex_bias;
     int shadow_texture_bias;
+    float lut_scale_d0;
+    float lut_scale_d1;
+    float lut_scale_sp;
+    float lut_scale_fr;
+    float lut_scale_rb;
+    float lut_scale_rg;
+    float lut_scale_rr;
     ivec4 lighting_lut_offset[NUM_LIGHTING_SAMPLERS / 4];
     vec3 fog_color;
     vec2 proctex_noise_f;
@@ -110,13 +117,25 @@ out gl_PerVertex {
 }
 
 PicaFSConfig PicaFSConfig::BuildFromRegs(const Pica::Regs& regs) {
-    PicaFSConfig res;
+    PicaFSConfig res{};
 
     auto& state = res.state;
 
     state.scissor_test_mode = regs.rasterizer.scissor_test.mode;
 
+    state.depth_scale = Pica::float24::FromRaw(regs.rasterizer.viewport_depth_range).ToFloat32();
+    if (state.depth_scale != -1 && state.depth_scale != 1) {
+        state.depth_scale = 0;
+    }
+
     state.depthmap_enable = regs.rasterizer.depthmap_enable;
+
+    if (GLES && (GLAD_GL_ARM_shader_framebuffer_fetch || GLAD_GL_EXT_shader_framebuffer_fetch) &&
+        regs.framebuffer.output_merger.alphablend_enable == 0) {
+        state.logic_op = regs.framebuffer.output_merger.logic_op;
+    } else {
+        state.logic_op = FramebufferRegs::LogicOp::Copy;
+    }
 
     state.alpha_test_func = regs.framebuffer.output_merger.alpha_test.enable
                                 ? regs.framebuffer.output_merger.alpha_test.func.Value()
@@ -147,75 +166,72 @@ PicaFSConfig PicaFSConfig::BuildFromRegs(const Pica::Regs& regs) {
                                       << 4;
 
     // Fragment lighting
-
     state.lighting.enable = !regs.lighting.disable;
-    state.lighting.src_num = regs.lighting.max_light_index + 1;
+    if (state.lighting.enable) {
+        state.lighting.src_num = regs.lighting.max_light_index + 1;
 
-    for (unsigned light_index = 0; light_index < state.lighting.src_num; ++light_index) {
-        unsigned num = regs.lighting.light_enable.GetNum(light_index);
-        const auto& light = regs.lighting.light[num];
-        state.lighting.light[light_index].num = num;
-        state.lighting.light[light_index].directional = light.config.directional != 0;
-        state.lighting.light[light_index].two_sided_diffuse = light.config.two_sided_diffuse != 0;
-        state.lighting.light[light_index].geometric_factor_0 = light.config.geometric_factor_0 != 0;
-        state.lighting.light[light_index].geometric_factor_1 = light.config.geometric_factor_1 != 0;
-        state.lighting.light[light_index].dist_atten_enable =
-            !regs.lighting.IsDistAttenDisabled(num);
-        state.lighting.light[light_index].spot_atten_enable =
-            !regs.lighting.IsSpotAttenDisabled(num);
-        state.lighting.light[light_index].shadow_enable = !regs.lighting.IsShadowDisabled(num);
+        for (unsigned light_index = 0; light_index < state.lighting.src_num; ++light_index) {
+            unsigned num = regs.lighting.light_enable.GetNum(light_index);
+            const auto& light = regs.lighting.light[num];
+            state.lighting.light[light_index].num = num;
+            state.lighting.light[light_index].directional = light.config.directional != 0;
+            state.lighting.light[light_index].two_sided_diffuse =
+                light.config.two_sided_diffuse != 0;
+            state.lighting.light[light_index].geometric_factor_0 =
+                light.config.geometric_factor_0 != 0;
+            state.lighting.light[light_index].geometric_factor_1 =
+                light.config.geometric_factor_1 != 0;
+            state.lighting.light[light_index].dist_atten_enable =
+                !regs.lighting.IsDistAttenDisabled(num);
+            state.lighting.light[light_index].spot_atten_enable =
+                !regs.lighting.IsSpotAttenDisabled(num);
+            state.lighting.light[light_index].shadow_enable = !regs.lighting.IsShadowDisabled(num);
+        }
+
+        state.lighting.lut_d0.enable = regs.lighting.config1.disable_lut_d0 == 0;
+        state.lighting.lut_d0.abs_input = regs.lighting.abs_lut_input.disable_d0 == 0;
+        state.lighting.lut_d0.type = regs.lighting.lut_input.d0.Value();
+
+        state.lighting.lut_d1.enable = regs.lighting.config1.disable_lut_d1 == 0;
+        state.lighting.lut_d1.abs_input = regs.lighting.abs_lut_input.disable_d1 == 0;
+        state.lighting.lut_d1.type = regs.lighting.lut_input.d1.Value();
+
+        // this is a dummy field due to lack of the corresponding register
+        state.lighting.lut_sp.enable = true;
+        state.lighting.lut_sp.abs_input = regs.lighting.abs_lut_input.disable_sp == 0;
+        state.lighting.lut_sp.type = regs.lighting.lut_input.sp.Value();
+
+        state.lighting.lut_fr.enable = regs.lighting.config1.disable_lut_fr == 0;
+        state.lighting.lut_fr.abs_input = regs.lighting.abs_lut_input.disable_fr == 0;
+        state.lighting.lut_fr.type = regs.lighting.lut_input.fr.Value();
+
+        state.lighting.lut_rr.enable = regs.lighting.config1.disable_lut_rr == 0;
+        state.lighting.lut_rr.abs_input = regs.lighting.abs_lut_input.disable_rr == 0;
+        state.lighting.lut_rr.type = regs.lighting.lut_input.rr.Value();
+
+        state.lighting.lut_rg.enable = regs.lighting.config1.disable_lut_rg == 0;
+        state.lighting.lut_rg.abs_input = regs.lighting.abs_lut_input.disable_rg == 0;
+        state.lighting.lut_rg.type = regs.lighting.lut_input.rg.Value();
+
+        state.lighting.lut_rb.enable = regs.lighting.config1.disable_lut_rb == 0;
+        state.lighting.lut_rb.abs_input = regs.lighting.abs_lut_input.disable_rb == 0;
+        state.lighting.lut_rb.type = regs.lighting.lut_input.rb.Value();
+
+        state.lighting.config = regs.lighting.config0.config;
+        state.lighting.enable_primary_alpha = regs.lighting.config0.enable_primary_alpha;
+        state.lighting.enable_secondary_alpha = regs.lighting.config0.enable_secondary_alpha;
+        state.lighting.bump_mode = regs.lighting.config0.bump_mode;
+        state.lighting.bump_selector = regs.lighting.config0.bump_selector;
+        state.lighting.bump_renorm = regs.lighting.config0.disable_bump_renorm == 0;
+        state.lighting.clamp_highlights = regs.lighting.config0.clamp_highlights != 0;
+
+        state.lighting.enable_shadow = regs.lighting.config0.enable_shadow != 0;
+        state.lighting.shadow_primary = regs.lighting.config0.shadow_primary != 0;
+        state.lighting.shadow_secondary = regs.lighting.config0.shadow_secondary != 0;
+        state.lighting.shadow_invert = regs.lighting.config0.shadow_invert != 0;
+        state.lighting.shadow_alpha = regs.lighting.config0.shadow_alpha != 0;
+        state.lighting.shadow_selector = regs.lighting.config0.shadow_selector;
     }
-
-    state.lighting.lut_d0.enable = regs.lighting.config1.disable_lut_d0 == 0;
-    state.lighting.lut_d0.abs_input = regs.lighting.abs_lut_input.disable_d0 == 0;
-    state.lighting.lut_d0.type = regs.lighting.lut_input.d0.Value();
-    state.lighting.lut_d0.scale = regs.lighting.lut_scale.GetScale(regs.lighting.lut_scale.d0);
-
-    state.lighting.lut_d1.enable = regs.lighting.config1.disable_lut_d1 == 0;
-    state.lighting.lut_d1.abs_input = regs.lighting.abs_lut_input.disable_d1 == 0;
-    state.lighting.lut_d1.type = regs.lighting.lut_input.d1.Value();
-    state.lighting.lut_d1.scale = regs.lighting.lut_scale.GetScale(regs.lighting.lut_scale.d1);
-
-    // this is a dummy field due to lack of the corresponding register
-    state.lighting.lut_sp.enable = true;
-    state.lighting.lut_sp.abs_input = regs.lighting.abs_lut_input.disable_sp == 0;
-    state.lighting.lut_sp.type = regs.lighting.lut_input.sp.Value();
-    state.lighting.lut_sp.scale = regs.lighting.lut_scale.GetScale(regs.lighting.lut_scale.sp);
-
-    state.lighting.lut_fr.enable = regs.lighting.config1.disable_lut_fr == 0;
-    state.lighting.lut_fr.abs_input = regs.lighting.abs_lut_input.disable_fr == 0;
-    state.lighting.lut_fr.type = regs.lighting.lut_input.fr.Value();
-    state.lighting.lut_fr.scale = regs.lighting.lut_scale.GetScale(regs.lighting.lut_scale.fr);
-
-    state.lighting.lut_rr.enable = regs.lighting.config1.disable_lut_rr == 0;
-    state.lighting.lut_rr.abs_input = regs.lighting.abs_lut_input.disable_rr == 0;
-    state.lighting.lut_rr.type = regs.lighting.lut_input.rr.Value();
-    state.lighting.lut_rr.scale = regs.lighting.lut_scale.GetScale(regs.lighting.lut_scale.rr);
-
-    state.lighting.lut_rg.enable = regs.lighting.config1.disable_lut_rg == 0;
-    state.lighting.lut_rg.abs_input = regs.lighting.abs_lut_input.disable_rg == 0;
-    state.lighting.lut_rg.type = regs.lighting.lut_input.rg.Value();
-    state.lighting.lut_rg.scale = regs.lighting.lut_scale.GetScale(regs.lighting.lut_scale.rg);
-
-    state.lighting.lut_rb.enable = regs.lighting.config1.disable_lut_rb == 0;
-    state.lighting.lut_rb.abs_input = regs.lighting.abs_lut_input.disable_rb == 0;
-    state.lighting.lut_rb.type = regs.lighting.lut_input.rb.Value();
-    state.lighting.lut_rb.scale = regs.lighting.lut_scale.GetScale(regs.lighting.lut_scale.rb);
-
-    state.lighting.config = regs.lighting.config0.config;
-    state.lighting.enable_primary_alpha = regs.lighting.config0.enable_primary_alpha;
-    state.lighting.enable_secondary_alpha = regs.lighting.config0.enable_secondary_alpha;
-    state.lighting.bump_mode = regs.lighting.config0.bump_mode;
-    state.lighting.bump_selector = regs.lighting.config0.bump_selector;
-    state.lighting.bump_renorm = regs.lighting.config0.disable_bump_renorm == 0;
-    state.lighting.clamp_highlights = regs.lighting.config0.clamp_highlights != 0;
-
-    state.lighting.enable_shadow = regs.lighting.config0.enable_shadow != 0;
-    state.lighting.shadow_primary = regs.lighting.config0.shadow_primary != 0;
-    state.lighting.shadow_secondary = regs.lighting.config0.shadow_secondary != 0;
-    state.lighting.shadow_invert = regs.lighting.config0.shadow_invert != 0;
-    state.lighting.shadow_alpha = regs.lighting.config0.shadow_alpha != 0;
-    state.lighting.shadow_selector = regs.lighting.config0.shadow_selector;
 
     state.proctex.enable = regs.texturing.main_config.texture3_enable;
     if (state.proctex.enable) {
@@ -386,6 +402,7 @@ static void AppendColorModifier(std::string& out, const PicaFSConfig& config,
                                 TevStageConfig::ColorModifier modifier,
                                 TevStageConfig::Source source, const std::string& index_name) {
     using ColorModifier = TevStageConfig::ColorModifier;
+    out += "(";
     switch (modifier) {
     case ColorModifier::SourceColor:
         AppendSource(out, config, source, index_name);
@@ -437,6 +454,7 @@ static void AppendColorModifier(std::string& out, const PicaFSConfig& config,
         LOG_CRITICAL(Render_OpenGL, "Unknown color modifier op {}", static_cast<u32>(modifier));
         break;
     }
+    out += ")";
 }
 
 /// Writes the alpha component to use for the specified TEV stage alpha modifier
@@ -444,6 +462,7 @@ static void AppendAlphaModifier(std::string& out, const PicaFSConfig& config,
                                 TevStageConfig::AlphaModifier modifier,
                                 TevStageConfig::Source source, const std::string& index_name) {
     using AlphaModifier = TevStageConfig::AlphaModifier;
+    out += "(";
     switch (modifier) {
     case AlphaModifier::SourceAlpha:
         AppendSource(out, config, source, index_name);
@@ -486,44 +505,42 @@ static void AppendAlphaModifier(std::string& out, const PicaFSConfig& config,
         LOG_CRITICAL(Render_OpenGL, "Unknown alpha modifier op {}", static_cast<u32>(modifier));
         break;
     }
+    out += ")";
 }
 
 /// Writes the combiner function for the color components for the specified TEV stage operation
 static void AppendColorCombiner(std::string& out, TevStageConfig::Operation operation,
-                                const std::string& variable_name) {
+                                const std::array<std::string, 3>& results) {
     out += "clamp(";
     using Operation = TevStageConfig::Operation;
     switch (operation) {
     case Operation::Replace:
-        out += variable_name + "[0]";
+        out += results[0];
         break;
     case Operation::Modulate:
-        out += variable_name + "[0] * " + variable_name + "[1]";
+        out += results[0] + " * " + results[1];
         break;
     case Operation::Add:
-        out += variable_name + "[0] + " + variable_name + "[1]";
+        out += results[0] + " + " + results[1];
         break;
     case Operation::AddSigned:
-        out += variable_name + "[0] + " + variable_name + "[1] - vec3(0.5)";
+        out += results[0] + " + " + results[1] + " - vec3(0.5)";
         break;
     case Operation::Lerp:
-        out += variable_name + "[0] * " + variable_name + "[2] + " + variable_name +
-               "[1] * (vec3(1.0) - " + variable_name + "[2])";
+        out += results[0] + " * " + results[2] + " + " + results[1] + " * (vec3(1.0) - " + results[2] + ")";
         break;
     case Operation::Subtract:
-        out += variable_name + "[0] - " + variable_name + "[1]";
+        out += results[0] + " - " + results[1];
         break;
     case Operation::MultiplyThenAdd:
-        out += variable_name + "[0] * " + variable_name + "[1] + " + variable_name + "[2]";
+        out += results[0] + " * " + results[1] + " + " + results[2];
         break;
     case Operation::AddThenMultiply:
-        out += "min(" + variable_name + "[0] + " + variable_name + "[1], vec3(1.0)) * " +
-               variable_name + "[2]";
+        out += "min(" + results[0] + " + " + results[1] + ", vec3(1.0)) * " + results[2];
         break;
     case Operation::Dot3_RGB:
     case Operation::Dot3_RGBA:
-        out += "vec3(dot(" + variable_name + "[0] - vec3(0.5), " + variable_name +
-               "[1] - vec3(0.5)) * 4.0)";
+        out += "vec3(dot(" + results[0] + " - vec3(0.5), " + results[1] + " - vec3(0.5)) * 4.0)";
         break;
     default:
         out += "vec3(0.0)";
@@ -536,35 +553,33 @@ static void AppendColorCombiner(std::string& out, TevStageConfig::Operation oper
 
 /// Writes the combiner function for the alpha component for the specified TEV stage operation
 static void AppendAlphaCombiner(std::string& out, TevStageConfig::Operation operation,
-                                const std::string& variable_name) {
+                                const std::array<std::string, 3>& results) {
     out += "clamp(";
     using Operation = TevStageConfig::Operation;
     switch (operation) {
     case Operation::Replace:
-        out += variable_name + "[0]";
+        out += results[0];
         break;
     case Operation::Modulate:
-        out += variable_name + "[0] * " + variable_name + "[1]";
+        out += results[0] + " * " + results[1];
         break;
     case Operation::Add:
-        out += variable_name + "[0] + " + variable_name + "[1]";
+        out += results[0] + " + " + results[1];
         break;
     case Operation::AddSigned:
-        out += variable_name + "[0] + " + variable_name + "[1] - 0.5";
+        out += results[0] + " + " + results[1] + " - 0.5";
         break;
     case Operation::Lerp:
-        out += variable_name + "[0] * " + variable_name + "[2] + " + variable_name +
-               "[1] * (1.0 - " + variable_name + "[2])";
+        out += results[0] + " * " + results[2] + " + " + results[1] + " * (1.0 - " + results[2] + ")";
         break;
     case Operation::Subtract:
-        out += variable_name + "[0] - " + variable_name + "[1]";
+        out += results[0] + " - " + results[1];
         break;
     case Operation::MultiplyThenAdd:
-        out += variable_name + "[0] * " + variable_name + "[1] + " + variable_name + "[2]";
+        out += results[0] + " * " + results[1] + " + " + results[2];
         break;
     case Operation::AddThenMultiply:
-        out += "min(" + variable_name + "[0] + " + variable_name + "[1], 1.0) * " + variable_name +
-               "[2]";
+        out += "min(" + results[0] + " + " + results[1] + ", 1.0) * " + results[2];
         break;
     default:
         out += "0.0";
@@ -611,46 +626,48 @@ static void WriteTevStage(std::string& out, const PicaFSConfig& config, unsigned
     if (!IsPassThroughTevStage(stage)) {
         std::string index_name = std::to_string(index);
 
-        out += "vec3 color_results_" + index_name + "[3] = vec3[3](";
-        AppendColorModifier(out, config, stage.color_modifier1, stage.color_source1, index_name);
-        out += ", ";
-        AppendColorModifier(out, config, stage.color_modifier2, stage.color_source2, index_name);
-        out += ", ";
-        AppendColorModifier(out, config, stage.color_modifier3, stage.color_source3, index_name);
-        out += ");\n";
+        std::array<std::string, 3> color_results;
+        AppendColorModifier(color_results[0], config, stage.color_modifier1, stage.color_source1,
+                            index_name);
+        AppendColorModifier(color_results[1], config, stage.color_modifier2, stage.color_source2,
+                            index_name);
+        AppendColorModifier(color_results[2], config, stage.color_modifier3, stage.color_source3,
+                            index_name);
 
         // Round the output of each TEV stage to maintain the PICA's 8 bits of precision
         out += "vec3 color_output_" + index_name + " = byteround(";
-        AppendColorCombiner(out, stage.color_op, "color_results_" + index_name);
+        AppendColorCombiner(out, stage.color_op, color_results);
         out += ");\n";
 
         if (stage.color_op == TevStageConfig::Operation::Dot3_RGBA) {
             // result of Dot3_RGBA operation is also placed to the alpha component
             out += "float alpha_output_" + index_name + " = color_output_" + index_name + "[0];\n";
         } else {
-            out += "float alpha_results_" + index_name + "[3] = float[3](";
-            AppendAlphaModifier(out, config, stage.alpha_modifier1, stage.alpha_source1,
+            std::array<std::string, 3> alpha_results;
+            AppendAlphaModifier(alpha_results[0], config, stage.alpha_modifier1, stage.alpha_source1,
                                 index_name);
-            out += ", ";
-            AppendAlphaModifier(out, config, stage.alpha_modifier2, stage.alpha_source2,
+            AppendAlphaModifier(alpha_results[1], config, stage.alpha_modifier2, stage.alpha_source2,
                                 index_name);
-            out += ", ";
-            AppendAlphaModifier(out, config, stage.alpha_modifier3, stage.alpha_source3,
+            AppendAlphaModifier(alpha_results[2], config, stage.alpha_modifier3, stage.alpha_source3,
                                 index_name);
-            out += ");\n";
 
             out += "float alpha_output_" + index_name + " = byteround(";
-            AppendAlphaCombiner(out, stage.alpha_op, "alpha_results_" + index_name);
+            AppendAlphaCombiner(out, stage.alpha_op, alpha_results);
             out += ");\n";
         }
 
-        out += "last_tex_env_out = vec4("
-               "clamp(color_output_" +
-               index_name + " * " + std::to_string(stage.GetColorMultiplier()) +
-               ".0, vec3(0.0), vec3(1.0)),"
-               "clamp(alpha_output_" +
-               index_name + " * " + std::to_string(stage.GetAlphaMultiplier()) +
-               ".0, 0.0, 1.0));\n";
+        u32 color_scale = stage.GetColorMultiplier();
+        u32 alpha_scale = stage.GetAlphaMultiplier();
+        if (color_scale == 1 && alpha_scale == 1) {
+            out += "last_tex_env_out = clamp(vec4(color_output_" + index_name +
+                    ", alpha_output_" + index_name + "), vec4(0.0), vec4(1.0));\n";
+        } else {
+            out += "last_tex_env_out = clamp(vec4(color_output_" +
+                   index_name + " * " + std::to_string(stage.GetColorMultiplier()) +
+                   ".0, alpha_output_" +
+                   index_name + " * " + std::to_string(stage.GetAlphaMultiplier()) +
+                   ".0), vec4(0.0), vec4(1.0));\n";
+        }
     }
 
     out += "combiner_buffer = next_combiner_buffer;\n";
@@ -821,18 +838,18 @@ static void WriteLighting(std::string& out, const PicaFSConfig& config) {
             std::string value =
                 GetLutValue(LightingRegs::SpotlightAttenuationSampler(light_config.num),
                             light_config.num, lighting.lut_sp.type, lighting.lut_sp.abs_input);
-            spot_atten = "(" + std::to_string(lighting.lut_sp.scale) + " * " + value + ")";
+            spot_atten = "(lut_scale_sp * " + value + ")";
         }
 
         // If enabled, compute distance attenuation value
-        std::string dist_atten = "1.0";
+        std::string dist_atten;
         if (light_config.dist_atten_enable) {
             std::string index = "clamp(" + light_src + ".dist_atten_scale * length(-view - " +
                                 light_src + ".position) + " + light_src +
                                 ".dist_atten_bias, 0.0, 1.0)";
             auto sampler = LightingRegs::DistanceAttenuationSampler(light_config.num);
             dist_atten = "LookupLightingLUTUnsigned(" +
-                         std::to_string(static_cast<unsigned>(sampler)) + "," + index + ")";
+                         std::to_string(static_cast<unsigned>(sampler)) + "," + index + ") * ";
         }
 
         if (light_config.geometric_factor_0 || light_config.geometric_factor_1) {
@@ -842,7 +859,7 @@ static void WriteLighting(std::string& out, const PicaFSConfig& config) {
         }
 
         // Specular 0 component
-        std::string d0_lut_value = "1.0";
+        std::string d0_lut_value;
         if (lighting.lut_d0.enable &&
             LightingRegs::IsLightingSamplerSupported(
                 lighting.config, LightingRegs::LightingSampler::Distribution0)) {
@@ -850,9 +867,9 @@ static void WriteLighting(std::string& out, const PicaFSConfig& config) {
             std::string value =
                 GetLutValue(LightingRegs::LightingSampler::Distribution0, light_config.num,
                             lighting.lut_d0.type, lighting.lut_d0.abs_input);
-            d0_lut_value = "(" + std::to_string(lighting.lut_d0.scale) + " * " + value + ")";
+            d0_lut_value = "(lut_scale_d0 * " + value + ") * ";
         }
-        std::string specular_0 = "(" + d0_lut_value + " * " + light_src + ".specular_0)";
+        std::string specular_0 = "(" + d0_lut_value + light_src + ".specular_0)";
         if (light_config.geometric_factor_0) {
             specular_0 = "(" + specular_0 + " * geo_factor)";
         }
@@ -864,7 +881,7 @@ static void WriteLighting(std::string& out, const PicaFSConfig& config) {
             std::string value =
                 GetLutValue(LightingRegs::LightingSampler::ReflectRed, light_config.num,
                             lighting.lut_rr.type, lighting.lut_rr.abs_input);
-            value = "(" + std::to_string(lighting.lut_rr.scale) + " * " + value + ")";
+            value = "(lut_scale_rr * " + value + ")";
             out += "refl_value.r = " + value + ";\n";
         } else {
             out += "refl_value.r = 1.0;\n";
@@ -877,7 +894,7 @@ static void WriteLighting(std::string& out, const PicaFSConfig& config) {
             std::string value =
                 GetLutValue(LightingRegs::LightingSampler::ReflectGreen, light_config.num,
                             lighting.lut_rg.type, lighting.lut_rg.abs_input);
-            value = "(" + std::to_string(lighting.lut_rg.scale) + " * " + value + ")";
+            value = "(lut_scale_rg * " + value + ")";
             out += "refl_value.g = " + value + ";\n";
         } else {
             out += "refl_value.g = refl_value.r;\n";
@@ -890,14 +907,14 @@ static void WriteLighting(std::string& out, const PicaFSConfig& config) {
             std::string value =
                 GetLutValue(LightingRegs::LightingSampler::ReflectBlue, light_config.num,
                             lighting.lut_rb.type, lighting.lut_rb.abs_input);
-            value = "(" + std::to_string(lighting.lut_rb.scale) + " * " + value + ")";
+            value = "(lut_scale_rb * " + value + ")";
             out += "refl_value.b = " + value + ";\n";
         } else {
             out += "refl_value.b = refl_value.r;\n";
         }
 
         // Specular 1 component
-        std::string d1_lut_value = "1.0";
+        std::string d1_lut_value;
         if (lighting.lut_d1.enable &&
             LightingRegs::IsLightingSamplerSupported(
                 lighting.config, LightingRegs::LightingSampler::Distribution1)) {
@@ -905,10 +922,10 @@ static void WriteLighting(std::string& out, const PicaFSConfig& config) {
             std::string value =
                 GetLutValue(LightingRegs::LightingSampler::Distribution1, light_config.num,
                             lighting.lut_d1.type, lighting.lut_d1.abs_input);
-            d1_lut_value = "(" + std::to_string(lighting.lut_d1.scale) + " * " + value + ")";
+            d1_lut_value = "(lut_scale_d1 * " + value + ") * ";
         }
         std::string specular_1 =
-            "(" + d1_lut_value + " * refl_value * " + light_src + ".specular_1)";
+            "(" + d1_lut_value + "refl_value * " + light_src + ".specular_1)";
         if (light_config.geometric_factor_1) {
             specular_1 = "(" + specular_1 + " * geo_factor)";
         }
@@ -922,7 +939,7 @@ static void WriteLighting(std::string& out, const PicaFSConfig& config) {
             std::string value =
                 GetLutValue(LightingRegs::LightingSampler::Fresnel, light_config.num,
                             lighting.lut_fr.type, lighting.lut_fr.abs_input);
-            value = "(" + std::to_string(lighting.lut_fr.scale) + " * " + value + ")";
+            value = "(lut_scale_fr * " + value + ")";
 
             // Enabled for diffuse lighting alpha component
             if (lighting.enable_primary_alpha) {
@@ -942,11 +959,11 @@ static void WriteLighting(std::string& out, const PicaFSConfig& config) {
 
         // Compute primary fragment color (diffuse lighting) function
         out += "diffuse_sum.rgb += ((" + light_src + ".diffuse * dot_product) + " + light_src +
-               ".ambient) * " + dist_atten + " * " + spot_atten + shadow_primary + ";\n";
+               ".ambient) * " + dist_atten + spot_atten + shadow_primary + ";\n";
 
         // Compute secondary fragment color (specular lighting) function
         out += "specular_sum.rgb += (" + specular_0 + " + " + specular_1 +
-               ") * clamp_highlights * " + dist_atten + " * " + spot_atten + shadow_secondary +
+               ") * clamp_highlights * " + dist_atten + spot_atten + shadow_secondary +
                ";\n";
     }
 
@@ -971,8 +988,8 @@ using ProcTexShift = TexturingRegs::ProcTexShift;
 using ProcTexCombiner = TexturingRegs::ProcTexCombiner;
 using ProcTexFilter = TexturingRegs::ProcTexFilter;
 
-void AppendProcTexShiftOffset(std::string& out, const std::string& v, ProcTexShift mode,
-                              ProcTexClamp clamp_mode) {
+static void AppendProcTexShiftOffset(std::string& out, const std::string& v, ProcTexShift mode,
+                                     ProcTexClamp clamp_mode) {
     std::string offset = (clamp_mode == ProcTexClamp::MirroredRepeat) ? "1.0" : "0.5";
     switch (mode) {
     case ProcTexShift::None:
@@ -991,7 +1008,7 @@ void AppendProcTexShiftOffset(std::string& out, const std::string& v, ProcTexShi
     }
 }
 
-void AppendProcTexClamp(std::string& out, const std::string& var, ProcTexClamp mode) {
+static void AppendProcTexClamp(std::string& out, const std::string& var, ProcTexClamp mode) {
     switch (mode) {
     case ProcTexClamp::ToZero:
         out += var + " = " + var + " > 1.0 ? 0 : " + var + ";\n";
@@ -1017,8 +1034,8 @@ void AppendProcTexClamp(std::string& out, const std::string& var, ProcTexClamp m
     }
 }
 
-void AppendProcTexCombineAndMap(std::string& out, ProcTexCombiner combiner,
-                                const std::string& offset) {
+static void AppendProcTexCombineAndMap(std::string& out, ProcTexCombiner combiner,
+                                       const std::string& offset) {
     std::string combined;
     switch (combiner) {
     case ProcTexCombiner::U:
@@ -1059,7 +1076,7 @@ void AppendProcTexCombineAndMap(std::string& out, ProcTexCombiner combiner,
     out += "ProcTexLookupLUT(" + offset + ", " + combined + ")";
 }
 
-void AppendProcTexSampler(std::string& out, const PicaFSConfig& config) {
+static void AppendProcTexSampler(std::string& out, const PicaFSConfig& config) {
     // LUT sampling uitlity
     // For NoiseLUT/ColorMap/AlphaMap, coord=0.0 is lut[0], coord=127.0/128.0 is lut[127] and
     // coord=1.0 is lut[127]+lut_diff[127]. For other indices, the result is interpolated using
@@ -1093,7 +1110,7 @@ float ProcTexNoiseRand2D(vec2 point) {
     v2 += 10 + u2;
     v2 &= 0xF;
     v2 ^= table[u2];
-    return -1.0 + float(v2) * 2.0/ 15.0;
+    return -1.0 + float(v2) * (2.0 / 15.0);
 }
 
 float ProcTexNoiseCoef(vec2 x) {
@@ -1231,33 +1248,82 @@ float ProcTexNoiseCoef(vec2 x) {
     }
 }
 
-ShaderDecompiler::ProgramResult GenerateFragmentShader(const PicaFSConfig& config,
-                                                       bool separable_shader) {
-    const auto& state = config.state;
+static void AppendProcLogicOp(std::string& out, FramebufferRegs::LogicOp logic_op) {
+    constexpr std::array<const char*, 16> logicOps{{
+        "new_color = ivec3(0, 0, 0);\n",           // CLEAR
+        "new_color = new_color & old_color;\n",    // AND
+        "new_color = new_color & (~old_color);\n", // AND_REVERSE
+        "\n",                                      // COPY
+        "new_color = ivec3(255, 255, 255);\n",     // SET
+        "new_color = ~new_color;\n",               // COPY_INVERTED
+        "new_color = old_color;\n",                // NOOP
+        "new_color = ~old_color;\n",               // INVERT
+        "new_color = ~(new_color & old_color);\n", // NAND
+        "new_color = new_color | old_color;\n",    // OR
+        "new_color = ~(new_color | old_color);\n", // NOR
+        "new_color = new_color ^ old_color;\n",    // XOR
+        "new_color = ~(new_color ^ old_color);\n", // EQUIV
+        "new_color = (~new_color) & old_color;\n", // AND_INVERTED
+        "new_color = new_color | (~old_color);\n", // OR_REVERSE
+        "new_color = (~new_color) | old_color;\n", // OR_INVERTED
+    }};
+    out += "ivec3 old_color = ivec3(initial_color.rgb * 255.0);\n";
+    out += "ivec3 new_color = ivec3(last_tex_env_out.rgb * 255.0);\n";
+    out += logicOps[static_cast<u32>(logic_op)];
+    out += "color = vec4(vec3(new_color & 255) * (1.0 / 255.0), byteround(last_tex_env_out.a));\n";
+}
 
-    std::string out = R"(
-#extension GL_ARB_shader_image_load_store : enable
-#extension GL_ARB_shader_image_size : enable
-#define ALLOW_SHADOW (defined(GL_ARB_shader_image_load_store) && defined(GL_ARB_shader_image_size))
-)";
+std::string GenerateFragmentShader(const PicaFSConfig& config, bool separable_shader) {
+    const auto& state = config.state;
+    std::string out;
+    bool shader_logic_ops = false;
 
     if (separable_shader) {
         out += "#extension GL_ARB_separate_shader_objects : enable\n";
     }
 
     if (GLES) {
+        if (state.logic_op != FramebufferRegs::LogicOp::Copy) {
+            if (GLAD_GL_EXT_shader_framebuffer_fetch) {
+                out += "#extension GL_EXT_shader_framebuffer_fetch : enable\n"
+                       "#define FB_FETCH_VALUE color\n"
+                       "#define FRAGMENT_INOUT inout\n";
+                shader_logic_ops = true;
+            } else if (GLAD_GL_ARM_shader_framebuffer_fetch) {
+                out += "#extension GL_ARM_shader_framebuffer_fetch : enable\n"
+                       "#define FB_FETCH_VALUE gl_LastFragColorARM\n"
+                       "#define FRAGMENT_INOUT out\n";
+                shader_logic_ops = true;
+            }
+        }
+        if (AllowShadow && state.shadow_rendering) {
+            out += "#define ALLOW_SHADOW 1\n";
+        } else {
+            out += "#define ALLOW_SHADOW 0\n";
+        }
         out += fragment_shader_precision_OES;
+    } else {
+        out += R"(
+#extension GL_ARB_shader_image_load_store : enable
+#extension GL_ARB_shader_image_size : enable
+#define ALLOW_SHADOW (defined(GL_ARB_shader_image_load_store) && defined(GL_ARB_shader_image_size))
+)";
     }
 
     out += GetVertexInterfaceDeclaration(false, separable_shader);
-
     out += R"(
 #ifndef CITRA_GLES
 in vec4 gl_FragCoord;
 #endif // CITRA_GLES
+)";
 
-out vec4 color;
+    if (shader_logic_ops) {
+        out += "FRAGMENT_INOUT vec4 color;\n";
+    } else {
+        out += "out vec4 color;\n";
+    }
 
+    out += R"(
 uniform sampler2D tex0;
 uniform sampler2D tex1;
 uniform sampler2D tex2;
@@ -1480,10 +1546,14 @@ vec4 primary_fragment_color = vec4(0.0);
 vec4 secondary_fragment_color = vec4(0.0);
 )";
 
+    if (shader_logic_ops) {
+        out += "vec4 initial_color = FB_FETCH_VALUE;\n";
+    }
+
     // Do not do any sort of processing if it's obvious we're not going to pass the alpha test
     if (state.alpha_test_func == FramebufferRegs::CompareFunc::Never) {
         out += "discard; }";
-        return {out};
+        return out;
     }
 
     // Append the scissor test
@@ -1498,11 +1568,24 @@ vec4 secondary_fragment_color = vec4(0.0);
                "gl_FragCoord.y < float(scissor_y2))) discard;\n";
     }
 
-    // After perspective divide, OpenGL transform z_over_w from [-1, 1] to [near, far]. Here we use
-    // default near = 0 and far = 1, and undo the transformation to get the original z_over_w, then
-    // do our own transformation according to PICA specification.
-    out += "float z_over_w = 2.0 * gl_FragCoord.z - 1.0;\n";
-    out += "float depth = z_over_w * depth_scale + depth_offset;\n";
+    if (OpenGL::ClipControl) {
+        out += "float z_over_w = gl_FragCoord.z;\n";
+    } else {
+        // After perspective divide, OpenGL transform z_over_w from [-1, 1] to [near, far]. Here we
+        // use default near = 0 and far = 1, and undo the transformation to get the original
+        // z_over_w, then do our own transformation according to PICA specification.
+        out += "float z_over_w = 2.0 * gl_FragCoord.z - 1.0;\n";
+    }
+    if (state.depth_scale == 1.0f || state.depth_scale == -1.0f) {
+        out += "float depth = ";
+        if (state.depth_scale < 0.0f)
+            out += "-";
+        out += "z_over_w + depth_offset;\n";
+    } else {
+        // 手机上深度值的精度很低，相乘会进一步影响深度的准确性，
+        // 大部分游戏的 depth_scale 都是-1，少数游戏是很小的负数，如：The Last Ranger
+        out += "float depth = z_over_w * depth_scale + depth_offset;\n";
+    }
     if (state.depthmap_enable == RasterizerRegs::DepthBuffering::WBuffering) {
         out += "depth /= gl_FragCoord.w;\n";
     }
@@ -1547,7 +1630,7 @@ vec4 secondary_fragment_color = vec4(0.0);
                                                                 "VideoCore_Pica_UseGasMode", true);
         LOG_CRITICAL(Render_OpenGL, "Unimplemented gas mode");
         out += "discard; }";
-        return {out};
+        return out;
     }
 
     if (state.shadow_rendering) {
@@ -1579,17 +1662,22 @@ do {
 )";
     } else {
         out += "gl_FragDepth = depth;\n";
-        // Round the final fragment color to maintain the PICA's 8 bits of precision
-        out += "color = byteround(last_tex_env_out);\n";
+
+        if (shader_logic_ops) {
+            AppendProcLogicOp(out, state.logic_op);
+        } else {
+            // Round the final fragment color to maintain the PICA's 8 bits of precision
+            out += "color = byteround(last_tex_env_out);\n";
+        }
     }
 
     out += "}";
 
-    return {out};
+    return out;
 }
 
-ShaderDecompiler::ProgramResult GenerateTrivialVertexShader(bool separable_shader) {
-    std::string out = "";
+std::string GenerateTrivialVertexShader(bool separable_shader) {
+    std::string out;
     if (separable_shader) {
         out += "#extension GL_ARB_separate_shader_objects : enable\n";
     }
@@ -1631,12 +1719,12 @@ void main() {
 }
 )";
 
-    return {out};
+    return out;
 }
 
-std::optional<ShaderDecompiler::ProgramResult> GenerateVertexShader(
-    const Pica::Shader::ShaderSetup& setup, const PicaVSConfig& config, bool separable_shader) {
-    std::string out = "";
+std::string GenerateVertexShader(const Pica::Shader::ShaderSetup& setup, const PicaVSConfig& config,
+                                 bool separable_shader) {
+    std::string out;
     if (separable_shader) {
         out += "#extension GL_ARB_separate_shader_objects : enable\n";
     }
@@ -1697,7 +1785,7 @@ layout (std140) uniform vs_config {
 
     out += program_source;
 
-    return {{out}};
+    return out;
 }
 
 static std::string GetGSCommonSource(const PicaGSConfigCommonRaw& config, bool separable_shader) {
@@ -1785,9 +1873,8 @@ void EmitPrim(Vertex vtx0, Vertex vtx1, Vertex vtx2) {
     return out;
 };
 
-ShaderDecompiler::ProgramResult GenerateFixedGeometryShader(const PicaFixedGSConfig& config,
-                                                            bool separable_shader) {
-    std::string out = "";
+std::string GenerateFixedGeometryShader(const PicaFixedGSConfig& config, bool separable_shader) {
+    std::string out;
     if (separable_shader) {
         out += "#extension GL_ARB_separate_shader_objects : enable\n\n";
     }
@@ -1816,6 +1903,7 @@ void main() {
     out += "    EmitPrim(prim_buffer[0], prim_buffer[1], prim_buffer[2]);\n";
     out += "}\n";
 
-    return {out};
+    return out;
 }
+
 } // namespace OpenGL

@@ -3,7 +3,6 @@
 // Refer to the license.txt file included.
 
 #include <memory>
-#include "common/archives.h"
 #include "common/file_util.h"
 #include "core/file_sys/archive_sdmcwriteonly.h"
 #include "core/file_sys/directory_backend.h"
@@ -13,9 +12,6 @@
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // FileSys namespace
-
-SERIALIZE_EXPORT_IMPL(FileSys::SDMCWriteOnlyArchive)
-SERIALIZE_EXPORT_IMPL(FileSys::ArchiveFactory_SDMCWriteOnly)
 
 namespace FileSys {
 
@@ -39,8 +35,6 @@ public:
         static constexpr u64 IPCDelayNanoseconds(269082);
         return IPCDelayNanoseconds;
     }
-
-    SERIALIZE_DELAY_GENERATOR
 };
 
 ResultVal<std::unique_ptr<FileBackend>> SDMCWriteOnlyArchive::OpenFile(const Path& path,
@@ -102,5 +96,3 @@ ResultVal<ArchiveFormatInfo> ArchiveFactory_SDMCWriteOnly::GetFormatInfo(const P
 }
 
 } // namespace FileSys
-
-SERIALIZE_EXPORT_IMPL(FileSys::SDMCWriteOnlyDelayGenerator)

@@ -5,7 +5,6 @@
 #include <algorithm>
 #include <cstring>
 #include <vector>
-#include "common/archives.h"
 #include "common/assert.h"
 #include "common/bit_field.h"
 #include "common/common_types.h"
@@ -52,8 +51,6 @@
 #define GET_ERRNO errno
 #define closesocket(x) close(x)
 #endif
-
-SERIALIZE_EXPORT_IMPL(Service::SOC::SOC_U)
 
 namespace Service::SOC {
 
@@ -981,6 +978,56 @@ void SOC_U::GetNameInfoImpl(Kernel::HLERequestContext& ctx) {
     rb.PushStaticBuffer(std::move(serv), 1);
 }
 
+void SOC_U::GetNetworkOpt(Kernel::HLERequestContext& ctx) {
+    enum class NetworkOpt : u32 {
+        NETOPT_MAC_ADDRESS = 0x1004,
+        NETOPT_ARP_TABLE = 0x3002,
+        NETOPT_IP_ADDR_TABLE = 0x4003,
+        NETOPT_IP_MTU = 0x4004,
+        NETOPT_ROUTING_NUMBER = 0x4005,
+        NETOPT_ROUTING_TABLE = 0x4006,
+        NETOPT_UDP_NUMBER = 0x8002,
+        NETOPT_UDP_TABLE = 0x8003,
+        NETOPT_TCP_NUMBER = 0x9002,
+        NETOPT_TCP_TABLE = 0x9003,
+        NETOPT_DNS_TABLE = 0xB003,
+        NETOPT_DHCP_LEASE_TIME = 0xC001,
+    };
+
+    IPC::RequestParser rp(ctx, 0x1A, 3, 0);
+    u32 level = rp.Pop<u32>();
+    NetworkOpt optname = static_cast<NetworkOpt>(rp.Pop<u32>());
+    socklen_t optlen = static_cast<socklen_t>(rp.Pop<u32>());
+
+    s32 err = 0;
+    std::vector<u8> optval(optlen);
+
+    switch (optname) {
+    case NetworkOpt::NETOPT_ROUTING_NUMBER: {
+        u32 num = 1;
+        std::memcpy(optval.data(), &num, sizeof(num));
+    }
+        break;
+    case NetworkOpt::NETOPT_ROUTING_TABLE: {
+        u8 gateway[4] = { 1, 1, 1, 1 };
+        optlen = 4;
+        optval.resize(optlen);
+        std::memcpy(optval.data(), gateway, sizeof(gateway));
+    }
+        break;
+    default:
+        break;
+    }
+
+    IPC::RequestBuilder rb = rp.MakeBuilder(3, 2);
+    rb.Push(RESULT_SUCCESS);
+    rb.Push(err);
+    rb.Push(static_cast<u32>(optlen));
+    rb.PushStaticBuffer(std::move(optval), 0);
+
+    LOG_WARNING(Service_SOC, "(STUBBED) SOC GetNetworkOpt called, level={}, optname={:04X}, optlen={}", level, optname, optlen);
+}
+
 SOC_U::SOC_U() : ServiceFramework("soc:U") {
     static const FunctionInfo functions[] = {
         {0x00010044, &SOC_U::InitializeSockets, "InitializeSockets"},
@@ -1008,7 +1055,7 @@ SOC_U::SOC_U() : ServiceFramework("soc:U") {
         {0x00170082, &SOC_U::GetSockName, "GetSockName"},
         {0x00180082, &SOC_U::GetPeerName, "GetPeerName"},
         {0x00190000, &SOC_U::ShutdownSockets, "ShutdownSockets"},
-        {0x001A00C0, nullptr, "GetNetworkOpt"},
+        {0x001A00C0, &SOC_U::GetNetworkOpt, "GetNetworkOpt"},
         {0x001B0040, nullptr, "ICMPSocket"},
         {0x001C0104, nullptr, "ICMPPing"},
         {0x001D0040, nullptr, "ICMPCancel"},

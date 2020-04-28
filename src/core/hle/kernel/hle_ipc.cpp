@@ -47,14 +47,6 @@ private:
     ThreadCallback() = default;
     std::shared_ptr<HLERequestContext::WakeupCallback> callback{};
     std::shared_ptr<HLERequestContext> context{};
-
-    template <class Archive>
-    void serialize(Archive& ar, const unsigned int) {
-        ar& boost::serialization::base_object<Kernel::WakeupCallback>(*this);
-        ar& callback;
-        ar& context;
-    }
-    friend class boost::serialization::access;
 };
 
 SessionRequestHandler::SessionInfo::SessionInfo(std::shared_ptr<ServerSession> session,
@@ -83,7 +75,7 @@ std::shared_ptr<Event> HLERequestContext::SleepClientThread(
     auto event = kernel.CreateEvent(Kernel::ResetType::OneShot, "HLE Pause Event: " + reason);
     thread->status = ThreadStatus::WaitHleEvent;
     thread->wait_objects = {event};
-    event->AddWaitingThread(thread);
+    event->AddWaitingThread(SharedFrom(thread));
 
     if (timeout.count() > 0)
         thread->WakeAfterDelay(timeout.count());
@@ -91,10 +83,8 @@ std::shared_ptr<Event> HLERequestContext::SleepClientThread(
     return event;
 }
 
-HLERequestContext::HLERequestContext() : kernel(Core::Global<KernelSystem>()) {}
-
 HLERequestContext::HLERequestContext(KernelSystem& kernel, std::shared_ptr<ServerSession> session,
-                                     std::shared_ptr<Thread> thread)
+                                     Thread* thread)
     : kernel(kernel), session(std::move(session)), thread(thread) {
     cmd_buf[0] = 0;
 }
@@ -123,9 +113,8 @@ void HLERequestContext::AddStaticBuffer(u8 buffer_id, std::vector<u8> data) {
     static_buffers[buffer_id] = std::move(data);
 }
 
-ResultCode HLERequestContext::PopulateFromIncomingCommandBuffer(
-    const u32_le* src_cmdbuf, std::shared_ptr<Process> src_process_) {
-    auto& src_process = *src_process_;
+ResultCode HLERequestContext::PopulateFromIncomingCommandBuffer(const u32_le* src_cmdbuf,
+                                                                Process& src_process) {
     IPC::Header header{src_cmdbuf[0]};
 
     std::size_t untranslated_size = 1u + header.normal_params_size;
@@ -184,7 +173,7 @@ ResultCode HLERequestContext::PopulateFromIncomingCommandBuffer(
         }
         case IPC::DescriptorType::MappedBuffer: {
             u32 next_id = static_cast<u32>(request_mapped_buffers.size());
-            request_mapped_buffers.emplace_back(kernel.memory, src_process_, descriptor,
+            request_mapped_buffers.emplace_back(kernel.memory, src_process, descriptor,
                                                 src_cmdbuf[i], next_id);
             cmd_buf[i++] = next_id;
             break;
@@ -196,7 +185,7 @@ ResultCode HLERequestContext::PopulateFromIncomingCommandBuffer(
 
     if (should_record) {
         std::vector<u32> translated_cmdbuf{cmd_buf.begin(), cmd_buf.begin() + command_size};
-        kernel.GetIPCRecorder().SetRequestInfo(thread, std::move(untranslated_cmdbuf),
+        kernel.GetIPCRecorder().SetRequestInfo(SharedFrom(thread), std::move(untranslated_cmdbuf),
                                                std::move(translated_cmdbuf));
     }
 
@@ -274,7 +263,7 @@ ResultCode HLERequestContext::WriteToOutgoingCommandBuffer(u32_le* dst_cmdbuf,
 
     if (should_record) {
         std::vector<u32> translated_cmdbuf{dst_cmdbuf, dst_cmdbuf + command_size};
-        kernel.GetIPCRecorder().SetReplyInfo(thread, std::move(untranslated_cmdbuf),
+        kernel.GetIPCRecorder().SetReplyInfo(SharedFrom(thread), std::move(untranslated_cmdbuf),
                                              std::move(translated_cmdbuf));
     }
 
@@ -288,15 +277,13 @@ MappedBuffer& HLERequestContext::GetMappedBuffer(u32 id_from_cmdbuf) {
 
 void HLERequestContext::ReportUnimplemented() const {
     if (kernel.GetIPCRecorder().IsEnabled()) {
-        kernel.GetIPCRecorder().SetHLEUnimplemented(thread);
+        kernel.GetIPCRecorder().SetHLEUnimplemented(SharedFrom(thread));
     }
 }
 
-MappedBuffer::MappedBuffer() : memory(&Core::Global<Core::System>().Memory()) {}
-
-MappedBuffer::MappedBuffer(Memory::MemorySystem& memory, std::shared_ptr<Process> process,
-                           u32 descriptor, VAddr address, u32 id)
-    : memory(&memory), id(id), address(address), process(std::move(process)) {
+MappedBuffer::MappedBuffer(Memory::MemorySystem& memory, const Process& process, u32 descriptor,
+                           VAddr address, u32 id)
+    : memory(&memory), id(id), address(address), process(&process) {
     IPC::MappedBufferDescInfo desc{descriptor};
     size = desc.size;
     perms = desc.perms;
@@ -315,5 +302,3 @@ void MappedBuffer::Write(const void* src_buffer, std::size_t offset, std::size_t
 }
 
 } // namespace Kernel
-
-SERIALIZE_EXPORT_IMPL(Kernel::HLERequestContext::ThreadCallback)

@@ -1,0 +1,7 @@
+* Dragon Quest Monsters - Joker 3 Professional
+
+[60 FPS 3dsiso JPN ROM w/ JPN upd. v1.3]
+280F3950 00000001
+
+[60 FPS CHN-Patched ROM w/ CHN-Patched upd. v1.3]
+280F41AC 00000001

@@ -21,7 +21,9 @@ TimeStretcher::TimeStretcher()
     sound_touch->setTempo(1.0);
 }
 
-TimeStretcher::~TimeStretcher() = default;
+TimeStretcher::~TimeStretcher() {
+    sound_touch->flush();
+};
 
 void TimeStretcher::SetOutputSampleRate(unsigned int sample_rate) {
     sound_touch->setSampleRate(sample_rate);

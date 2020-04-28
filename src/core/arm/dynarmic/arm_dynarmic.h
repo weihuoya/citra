@@ -9,7 +9,7 @@
 #include <dynarmic/A32/a32.h>
 #include "common/common_types.h"
 #include "core/arm/arm_interface.h"
-#include "core/arm/dynarmic/arm_dynarmic_cp15.h"
+#include "core/arm/skyeye_common/armstate.h"
 
 namespace Memory {
 struct PageTable;
@@ -24,8 +24,8 @@ class DynarmicUserCallbacks;
 
 class ARM_Dynarmic final : public ARM_Interface {
 public:
-    ARM_Dynarmic(Core::System* system, Memory::MemorySystem& memory, u32 id,
-                 std::shared_ptr<Core::Timing::Timer> timer);
+    ARM_Dynarmic(Core::System* system, Memory::MemorySystem& memory, PrivilegeMode initial_mode,
+                 u32 id, std::shared_ptr<Core::Timing::Timer> timer);
     ~ARM_Dynarmic() override;
 
     void Run() override;
@@ -52,25 +52,21 @@ public:
 
     void ClearInstructionCache() override;
     void InvalidateCacheRange(u32 start_address, std::size_t length) override;
-    void SetPageTable(const std::shared_ptr<Memory::PageTable>& page_table) override;
+    void SetPageTable(Memory::PageTable* page_table) override;
     void PurgeState() override;
 
 protected:
-    std::shared_ptr<Memory::PageTable> GetPageTable() const override;
+    Memory::PageTable* GetPageTable() const override;
 
 private:
-    void ServeBreak();
-
     friend class DynarmicUserCallbacks;
     Core::System& system;
     Memory::MemorySystem& memory;
     std::unique_ptr<DynarmicUserCallbacks> cb;
     std::unique_ptr<Dynarmic::A32::Jit> MakeJit();
 
-    u32 fpexc = 0;
-    CP15State cp15_state;
-
     Dynarmic::A32::Jit* jit = nullptr;
-    std::shared_ptr<Memory::PageTable> current_page_table = nullptr;
-    std::map<std::shared_ptr<Memory::PageTable>, std::unique_ptr<Dynarmic::A32::Jit>> jits;
+    Memory::PageTable* current_page_table = nullptr;
+    std::map<Memory::PageTable*, std::unique_ptr<Dynarmic::A32::Jit>> jits;
+    std::shared_ptr<ARMul_State> interpreter_state;
 };
