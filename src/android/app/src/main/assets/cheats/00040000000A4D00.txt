@@ -1,0 +1,7 @@
+* Sengoku Musou Chronicle 2
+
+[30 FPS v1.0]
+280021C8 00000002
+
+[60 FPS v1.0]
+280021C8 00000001

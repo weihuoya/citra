@@ -1,0 +1,7 @@
+* Tales of the Abyss
+
+[60 FPS]
+0050B71C 00000001
+
+[30 FPS]
+0050B71C 00000002

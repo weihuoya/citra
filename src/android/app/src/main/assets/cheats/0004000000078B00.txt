@@ -1,0 +1,7 @@
+* Layton Kyouju vs Gyakuten Saiban
+
+[30 FPS v1.0]
+2036C941 00000002
+
+[60 FPS v1.0]
+2036C941 00000001

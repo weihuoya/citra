@@ -3,19 +3,11 @@
 // Refer to the license.txt file included.
 
 #include <cstring>
-#include "core/global.h"
 #include "video_core/geometry_pipeline.h"
 #include "video_core/pica.h"
 #include "video_core/pica_state.h"
 #include "video_core/renderer_base.h"
 #include "video_core/video_core.h"
-
-namespace Core {
-template <>
-Pica::State& Global() {
-    return Pica::g_state;
-}
-} // namespace Core
 
 namespace Pica {
 
@@ -37,7 +29,7 @@ void Zero(T& o) {
 State::State() : geometry_pipeline(*this) {
     auto SubmitVertex = [this](const Shader::AttributeBuffer& vertex) {
         using Pica::Shader::OutputVertex;
-        auto AddTriangle = [this](const OutputVertex& v0, const OutputVertex& v1,
+        auto AddTriangle = [](const OutputVertex& v0, const OutputVertex& v1,
                                   const OutputVertex& v2) {
             VideoCore::g_renderer->Rasterizer()->AddTriangle(v0, v1, v2);
         };
@@ -55,6 +47,9 @@ void State::Reset() {
     Zero(regs);
     Zero(vs);
     Zero(gs);
+    Zero(proctex);
+    Zero(lighting);
+    Zero(fog);
     Zero(cmd_list);
     Zero(immediate);
     primitive_assembler.Reconfigure(PipelineRegs::TriangleTopology::List);

@@ -2,11 +2,8 @@
 // Licensed under GPLv2 or any later version
 // Refer to the license.txt file included.
 
-#include "common/archives.h"
 #include "core/hle/ipc_helpers.h"
 #include "core/hle/service/mvd/mvd_std.h"
-
-SERIALIZE_EXPORT_IMPL(Service::MVD::MVD_STD)
 
 namespace Service::MVD {
 
@@ -17,10 +14,17 @@ MVD_STD::MVD_STD() : ServiceFramework("mvd:std", 1) {
         {0x00020000, nullptr, "Shutdown"},
         {0x00030300, nullptr, "CalculateWorkBufSize"},
         {0x000400C0, nullptr, "CalculateImageSize"},
+        {0x00050100, nullptr, "cmd5"},
+        {0x00070000, nullptr, "cmd7"},
         {0x00080142, nullptr, "ProcessNALUnit"},
         {0x00090042, nullptr, "ControlFrameRendering"},
         {0x000A0000, nullptr, "GetStatus"},
         {0x000B0000, nullptr, "GetStatusOther"},
+        {0x00180000, nullptr, "cmd18"},
+        {0x00190000, nullptr, "cmd19"},
+        {0x001A0000, nullptr, "cmd1a"},
+        {0x001B0040, nullptr, "cmd1b"},
+        {0x001C0000, nullptr, "cmd1c"},
         {0x001D0042, nullptr, "GetConfig"},
         {0x001E0044, nullptr, "SetConfig"},
         {0x001F0902, nullptr, "SetOutputBuffer"},

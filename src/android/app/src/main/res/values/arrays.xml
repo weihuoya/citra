@@ -1,0 +1,163 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<!-- All lists for ListPreference keys/values are placed here -->
+<resources>
+
+    <!-- Layout Options Preference -->
+    <string-array name="layoutOptionEntries" translatable="false">
+        <item>@string/default_value</item>
+        <item>@string/single_screen</item>
+        <item>@string/large_screen</item>
+        <item>@string/side_screen</item>
+    </string-array>
+    <integer-array name="layoutOptionValues" translatable="false">
+        <item>0</item>
+        <item>1</item>
+        <item>2</item>
+        <item>3</item>
+    </integer-array>
+
+    <!-- Internal Resolution Preference -->
+    <string-array name="internalResolutionEntries" translatable="false">
+        <item>1× (400×240)</item>
+        <item>2× (800×480)</item>
+        <item>3× (1200×720)</item>
+        <item>4× (1600×960)</item>
+    </string-array>
+    <integer-array name="internalResolutionValues" translatable="false">
+        <item>1</item>
+        <item>2</item>
+        <item>3</item>
+        <item>4</item>
+    </integer-array>
+
+    <!-- system region Preference -->
+    <string-array name="systemRegionEntries" translatable="false">
+        <item>@string/auto</item>
+        <item>@string/region_japan</item>
+        <item>@string/region_north_america</item>
+        <item>@string/region_europe</item>
+        <item>@string/region_australia</item>
+        <item>@string/region_china</item>
+        <item>@string/region_korea</item>
+        <item>@string/region_taiwan</item>
+    </string-array>
+    <integer-array name="systemRegionValues" translatable="false">
+        <item>-1</item>
+        <item>0</item>
+        <item>1</item>
+        <item>2</item>
+        <item>3</item>
+        <item>4</item>
+        <item>5</item>
+        <item>6</item>
+    </integer-array>
+
+    <!-- Audio Output Preference -->
+    <string-array name="audioOuputEntries">
+        <item>@string/off</item>
+        <item>@string/auto</item>
+        <item>Oboe</item>
+        <item>Cubeb</item>
+    </string-array>
+    <string-array name="audioOuputValues">
+        <item>null</item>
+        <item>auto</item>
+        <item>oboe</item>
+        <item>cubeb</item>
+    </string-array>
+
+    <!-- Camera Preference -->
+    <string-array name="cameraEntries">
+        <item>@string/camera_blank</item>
+        <item>@string/camera_still_image</item>
+    </string-array>
+    <string-array name="cameraValues">
+        <item>blank</item>
+        <item>image</item>
+    </string-array>
+
+    <!-- Mic Input Preference -->
+    <string-array name="micInputEntries">
+        <item>@string/off</item>
+        <item>@string/real_device</item>
+        <item>@string/static_noise</item>
+    </string-array>
+    <integer-array name="micInputValues">
+        <item>0</item>
+        <item>1</item>
+        <item>2</item>
+    </integer-array>
+
+    <!-- Shader Type Preference -->
+    <string-array name="shaderEntries">
+        <item>@string/shader_type_normal</item>
+        <item>@string/shader_type_normal_with_cache</item>
+        <item>@string/shader_type_separate</item>
+    </string-array>
+    <integer-array name="shaderValues">
+        <item>0</item>
+        <item>1</item>
+        <item>2</item>
+    </integer-array>
+
+    <!-- Accurate Mul Preference -->
+    <string-array name="accurateMulEntries">
+        <item>@string/accurate_mul_off</item>
+        <item>@string/accurate_mul_fast</item>
+        <item>@string/accurate_mul_accurate</item>
+    </string-array>
+    <integer-array name="accurateMulValues">
+        <item>0</item>
+        <item>1</item>
+        <item>2</item>
+    </integer-array>
+
+    <string-array name="memory_scan_type">
+        <item>@string/memory_scan_equal_to</item>
+        <item>@string/memory_scan_not_equal_to</item>
+        <item>@string/memory_scan_bigger_than</item>
+        <item>@string/memory_scan_bigger_or_equal</item>
+        <item>@string/memory_scan_smaller_than</item>
+        <item>@string/memory_scan_smaller_or_equal</item>
+    </string-array>
+
+    <string-array name="memory_search_type">
+        <item>@string/memory_search_specified_value</item>
+        <item>@string/memory_search_unknown</item>
+    </string-array>
+
+    <string-array name="memory_value_type">
+        <item>@string/memory_value_four_bytes</item>
+        <item>@string/memory_value_two_bytes</item>
+        <item>@string/memory_value_one_byte</item>
+    </string-array>
+
+    <string-array name="system_firmwares" translatable="false">
+        <item>Safe Mode Native Firmware, 0x00000003, 0x00000003, 0x00000003, 0x00000003, 0x00000003, 0x00000003</item>
+        <item>New 3DS Safe Mode Native Firmware, 0x20000003, 0x20000003, 0x20000003, 0x20000003, 0x20000003, 0x20000003</item>
+        <item>Native Firmware, 0x00000002, 0x00000002, 0x00000002, 0x00000002, 0x00000002, 0x00000002</item>
+        <item>New 3DS Native Firmware, 0x20000002, 0x20000002, 0x20000002, 0x20000002, 0x20000002, 0x20000002</item>
+    </string-array>
+
+    <string-array name="system_applications" translatable="false">
+        <item>System Settings, 0x00020000, 0x00021000, 0x00022000, 0x00026000, 0x00027000, 0x00028000</item>
+        <item>Download Play, 0x00020100, 0x00021100, 0x00022100, 0x00026100, 0x00027100, 0x00028100</item>
+        <item>Activity Log, 0x00020200, 0x00021200, 0x00022200, 0x00026200, 0x00027200, 0x00028200</item>
+        <item>Health and Safety Information, 0x00020300, 0x00021300, 0x00022300, 0x00026300, 0x00027300, 0x00028300</item>
+        <item>New 3DS Health and Safety Information, 0x20020300, 0x20021300, 0x20022300, 0x0, 0x20027300, 0x0</item>
+        <item>Nintendo 3DS Camera, 0x00020400, 0x00021400, 0x00022400, 0x00026400, 0x00027400, 0x00028400</item>
+        <item>Nintendo 3DS Sound, 0x00020500, 0x00021500, 0x00022500, 0x00026500, 0x00027500, 0x00028500</item>
+        <item>Mii Maker, 0x00020700, 0x00021700, 0x00022700, 0x00026700, 0x00027700, 0x00028700</item>
+        <item>StreetPass Mii Plaza, 0x00020800, 0x00021800, 0x00022800, 0x00026800, 0x00027800, 0x00028800</item>
+        <item>eShop, 0x00020900, 0x00021900, 0x00022900, 0x0, 0x00027900, 0x00028900</item>
+        <item>System Transfer, 0x00020A00, 0x00021A00, 0x00022A00, 0x0, 0x00027A00, 0x00028A00</item>
+        <item>Nintendo Zone, 0x00020B00, 0x00021B00, 0x00022B00, 0x0, 0x0, 0x0</item>
+        <item>Face Raiders, 0x00020D00, 0x00021D00, 0x00022D00, 0x00026D00, 0x00027D00, 0x00028D00</item>
+        <item>New 3DS Face Raiders, 0x20020D00, 0x20021D00, 0x20022D00, 0x0, 0x20027D00, 0x0</item>
+        <item>AR Games, 0x00020E00, 0x00021E00, 0x00022E00, 0x00026E00, 0x00027E00, 0x00028E00</item>
+        <item>Nintendo Network ID Settings, 0x0002BF00, 0x0002C000, 0x0002C100, 0x0, 0x0, 0x0</item>
+        <item>microSD Management, 0x20023100, 0x20024100, 0x20025100, 0x0, 0x0, 0x0</item>
+    </string-array>
+
+</resources>

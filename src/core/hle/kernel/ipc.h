@@ -6,7 +6,6 @@
 
 #include <memory>
 #include <vector>
-#include <boost/serialization/shared_ptr.hpp>
 #include "common/common_types.h"
 #include "core/hle/ipc.h"
 #include "core/hle/kernel/thread.h"
@@ -25,20 +24,8 @@ struct MappedBufferContext {
     VAddr source_address;
     VAddr target_address;
 
-    std::shared_ptr<BackingMem> buffer;
-    std::shared_ptr<BackingMem> reserve_buffer;
-
-private:
-    template <class Archive>
-    void serialize(Archive& ar, const unsigned int file_version) {
-        ar& permissions;
-        ar& size;
-        ar& source_address;
-        ar& target_address;
-        ar& buffer;
-        ar& reserve_buffer;
-    }
-    friend class boost::serialization::access;
+    std::unique_ptr<u8[]> buffer;
+    std::unique_ptr<u8[]> reserve_buffer;
 };
 
 /// Performs IPC command buffer translation from one process to another.

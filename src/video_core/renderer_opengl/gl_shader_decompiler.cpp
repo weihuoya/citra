@@ -8,6 +8,7 @@
 #include <string>
 #include <tuple>
 #include <utility>
+#include <fmt/format.h>
 #include <nihstro/shader_bytecode.h>
 #include "common/assert.h"
 #include "common/common_types.h"
@@ -216,34 +217,35 @@ private:
 };
 
 /// An adaptor for getting swizzle pattern string from nihstro interfaces.
-template <SwizzlePattern::Selector (SwizzlePattern::*getter)(int) const>
+template <int getter>
 std::string GetSelectorSrc(const SwizzlePattern& pattern) {
     std::string out;
-    for (std::size_t i = 0; i < 4; ++i) {
-        switch ((pattern.*getter)(i)) {
-        case SwizzlePattern::Selector::x:
-            out += "x";
-            break;
-        case SwizzlePattern::Selector::y:
-            out += "y";
-            break;
-        case SwizzlePattern::Selector::z:
-            out += "z";
-            break;
-        case SwizzlePattern::Selector::w:
-            out += "w";
-            break;
-        default:
-            UNREACHABLE();
-            return "";
-        }
+    SwizzlePattern::Selector selectors[4];
+    if (getter == 1) {
+        selectors[0] = pattern.src1_selector_0;
+        selectors[1] = pattern.src1_selector_1;
+        selectors[2] = pattern.src1_selector_2;
+        selectors[3] = pattern.src1_selector_3;
+    } else if (getter == 2) {
+        selectors[0] = pattern.src2_selector_0;
+        selectors[1] = pattern.src2_selector_1;
+        selectors[2] = pattern.src2_selector_2;
+        selectors[3] = pattern.src2_selector_3;
+    } else if (getter == 3) {
+        selectors[0] = pattern.src3_selector_0;
+        selectors[1] = pattern.src3_selector_1;
+        selectors[2] = pattern.src3_selector_2;
+        selectors[3] = pattern.src3_selector_3;
+    }
+    for (int i = 0; i < 4; ++i) {
+        out += "xyzw"[static_cast<int>(selectors[i])];
     }
     return out;
 }
 
-constexpr auto GetSelectorSrc1 = GetSelectorSrc<&SwizzlePattern::GetSelectorSrc1>;
-constexpr auto GetSelectorSrc2 = GetSelectorSrc<&SwizzlePattern::GetSelectorSrc2>;
-constexpr auto GetSelectorSrc3 = GetSelectorSrc<&SwizzlePattern::GetSelectorSrc3>;
+constexpr auto GetSelectorSrc1 = GetSelectorSrc<1>;
+constexpr auto GetSelectorSrc2 = GetSelectorSrc<2>;
+constexpr auto GetSelectorSrc3 = GetSelectorSrc<3>;
 
 class GLSLGenerator {
 public:
@@ -251,7 +253,7 @@ public:
                   const Pica::Shader::ProgramCode& program_code,
                   const Pica::Shader::SwizzleData& swizzle_data, u32 main_offset,
                   const RegGetter& inputreg_getter, const RegGetter& outputreg_getter,
-                  bool sanitize_mul)
+                  u8 sanitize_mul)
         : subroutines(subroutines), program_code(program_code), swizzle_data(swizzle_data),
           main_offset(main_offset), inputreg_getter(inputreg_getter),
           outputreg_getter(outputreg_getter), sanitize_mul(sanitize_mul) {
@@ -479,13 +481,15 @@ private:
                         dot = "dot(vec3(" + src1 + "), vec3(" + src2 + "))";
                     }
                 } else {
-                    std::string src1_ = (opcode == OpCode::Id::DPH || opcode == OpCode::Id::DPHI)
-                                            ? "vec4(" + src1 + ".xyz, 1.0)"
-                                            : src1;
                     if (sanitize_mul) {
-                        dot = "dot(sanitize_mul(" + src1_ + ", " + src2 + "), vec4(1.0))";
+                        const std::string src1_ =
+                            (opcode == OpCode::Id::DPH || opcode == OpCode::Id::DPHI)
+                                ? fmt::format("vec4({}.xyz, 1.0)", src1)
+                                : std::move(src1);
+
+                        dot = fmt::format("dot(sanitize_mul({}, {}), vec4(1.0))", src1_, src2);
                     } else {
-                        dot = "dot(" + src1 + ", " + src2 + ")";
+                        dot = fmt::format("dot({}, {})", src1, src2);
                     }
                 }
 
@@ -781,7 +785,13 @@ private:
     }
 
     void Generate() {
-        if (sanitize_mul) {
+        if (sanitize_mul == 1) {
+            // Use a cheaper sanitize_mul on Android, as mobile GPUs struggle here
+            // This seems to be sufficient at least for Ocarina of Time and Attack on Titan accurate
+            // multiplication bugs
+            shader.AddLine(
+                    "#define sanitize_mul(lhs, rhs) mix(lhs * rhs, vec4(0.0), isnan(lhs * rhs))");
+        } else if(sanitize_mul == 2) {
             shader.AddLine("vec4 sanitize_mul(vec4 lhs, vec4 rhs) {");
             ++shader.scope;
             shader.AddLine("vec4 product = lhs * rhs;");
@@ -872,7 +882,7 @@ private:
     const u32 main_offset;
     const RegGetter& inputreg_getter;
     const RegGetter& outputreg_getter;
-    const bool sanitize_mul;
+    const u8 sanitize_mul;
 
     ShaderWriter shader;
 };
@@ -894,7 +904,7 @@ std::optional<ProgramResult> DecompileProgram(const Pica::Shader::ProgramCode& p
                                               const Pica::Shader::SwizzleData& swizzle_data,
                                               u32 main_offset, const RegGetter& inputreg_getter,
                                               const RegGetter& outputreg_getter,
-                                              bool sanitize_mul) {
+                                              u8 sanitize_mul) {
 
     try {
         auto subroutines = ControlFlowAnalyzer(program_code, main_offset).MoveSubroutines();
