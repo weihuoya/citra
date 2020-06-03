@@ -14,6 +14,7 @@
 #include "core/gdbstub/gdbstub.h"
 #include "core/hle/kernel/svc.h"
 #include "core/memory.h"
+#include "core/settings.h"
 
 class DynarmicThreadContext final : public ARM_Interface::ThreadContext {
 public:
@@ -137,10 +138,11 @@ public:
     }
 
     void AddTicks(std::uint64_t ticks) override {
-        parent.GetTimer()->AddTicks(ticks);
+        ticks = std::max(ticks, static_cast<std::uint64_t>(Settings::values.core_ticks_hack));
+        parent.GetTimer().AddTicks(ticks);
     }
     std::uint64_t GetTicksRemaining() override {
-        s64 ticks = parent.GetTimer()->GetDowncount();
+        s64 ticks = parent.GetTimer().GetDowncount();
         return static_cast<u64>(ticks <= 0 ? 0 : ticks);
     }
 
@@ -287,11 +289,11 @@ void ARM_Dynarmic::InvalidateCacheRange(u32 start_address, std::size_t length) {
     jit->InvalidateCacheRange(start_address, length);
 }
 
-std::shared_ptr<Memory::PageTable> ARM_Dynarmic::GetPageTable() const {
+Memory::PageTable* ARM_Dynarmic::GetPageTable() const {
     return current_page_table;
 }
 
-void ARM_Dynarmic::SetPageTable(const std::shared_ptr<Memory::PageTable>& page_table) {
+void ARM_Dynarmic::SetPageTable(Memory::PageTable* page_table) {
     current_page_table = page_table;
     Dynarmic::A32::Context ctx{};
     if (jit) {
@@ -321,7 +323,7 @@ void ARM_Dynarmic::ServeBreak() {
 std::unique_ptr<Dynarmic::A32::Jit> ARM_Dynarmic::MakeJit() {
     Dynarmic::A32::UserConfig config;
     config.callbacks = cb.get();
-    config.page_table = &current_page_table->GetPointerArray();
+    config.page_table = &current_page_table->pointers;
     config.coprocessors[15] = std::make_shared<DynarmicCP15>(cp15_state);
     config.define_unpredictable_behaviour = true;
     return std::make_unique<Dynarmic::A32::Jit>(config);

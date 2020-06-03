@@ -11,12 +11,7 @@
 #include <string>
 #include <vector>
 #include <boost/container/small_vector.hpp>
-#include <boost/serialization/assume_abstract.hpp>
-#include <boost/serialization/shared_ptr.hpp>
-#include <boost/serialization/unique_ptr.hpp>
-#include <boost/serialization/vector.hpp>
 #include "common/common_types.h"
-#include "common/serialization/boost_small_vector.hpp"
 #include "common/swap.h"
 #include "core/hle/ipc.h"
 #include "core/hle/kernel/object.h"
@@ -73,11 +68,6 @@ public:
     /// in each service must inherit from this.
     struct SessionDataBase {
         virtual ~SessionDataBase() = default;
-
-    private:
-        template <class Archive>
-        void serialize(Archive& ar, const unsigned int file_version) {}
-        friend class boost::serialization::access;
     };
 
 protected:
@@ -100,33 +90,15 @@ protected:
 
         std::shared_ptr<ServerSession> session;
         std::unique_ptr<SessionDataBase> data;
-
-    private:
-        SessionInfo() = default;
-        template <class Archive>
-        void serialize(Archive& ar, const unsigned int file_version) {
-            ar& session;
-            ar& data;
-        }
-        friend class boost::serialization::access;
     };
     /// List of sessions that are connected to this handler. A ServerSession whose server endpoint
     /// is an HLE implementation is kept alive by this list for the duration of the connection.
     std::vector<SessionInfo> connected_sessions;
-
-private:
-    template <class Archive>
-    void serialize(Archive& ar, const unsigned int file_version) {
-        ar& connected_sessions;
-    }
-    friend class boost::serialization::access;
 };
-
-// NOTE: The below classes are ephemeral and don't need serialization
 
 class MappedBuffer {
 public:
-    MappedBuffer(Memory::MemorySystem& memory, std::shared_ptr<Process> process, u32 descriptor,
+    MappedBuffer(Memory::MemorySystem& memory, const Process& process, u32 descriptor,
                  VAddr address, u32 id);
 
     // interface for service
@@ -150,21 +122,9 @@ private:
     Memory::MemorySystem* memory;
     u32 id;
     VAddr address;
-    std::shared_ptr<Process> process;
+    const Process* process;
     u32 size;
     IPC::MappedBufferPermissions perms;
-
-    MappedBuffer();
-
-    template <class Archive>
-    void serialize(Archive& ar, const unsigned int) {
-        ar& id;
-        ar& address;
-        ar& process;
-        ar& size;
-        ar& perms;
-    }
-    friend class boost::serialization::access;
 };
 
 /**
@@ -198,8 +158,7 @@ private:
  */
 class HLERequestContext : public std::enable_shared_from_this<HLERequestContext> {
 public:
-    HLERequestContext(KernelSystem& kernel, std::shared_ptr<ServerSession> session,
-                      std::shared_ptr<Thread> thread);
+    HLERequestContext(KernelSystem& kernel, std::shared_ptr<ServerSession> session, Thread* thread);
     ~HLERequestContext();
 
     /// Returns a pointer to the IPC command buffer for this request.
@@ -220,11 +179,6 @@ public:
         virtual ~WakeupCallback() = default;
         virtual void WakeUp(std::shared_ptr<Thread> thread, HLERequestContext& context,
                             ThreadWakeupReason reason) = 0;
-
-    private:
-        template <class Archive>
-        void serialize(Archive& ar, const unsigned int) {}
-        friend class boost::serialization::access;
     };
 
     /**
@@ -280,8 +234,7 @@ public:
     MappedBuffer& GetMappedBuffer(u32 id_from_cmdbuf);
 
     /// Populates this context with data from the requesting process/thread.
-    ResultCode PopulateFromIncomingCommandBuffer(const u32_le* src_cmdbuf,
-                                                 std::shared_ptr<Process> src_process);
+    ResultCode PopulateFromIncomingCommandBuffer(const u32_le* src_cmdbuf, Process& src_process);
     /// Writes data from this context back to the requesting process/thread.
     ResultCode WriteToOutgoingCommandBuffer(u32_le* dst_cmdbuf, Process& dst_process) const;
 
@@ -295,27 +248,13 @@ private:
     KernelSystem& kernel;
     std::array<u32, IPC::COMMAND_BUFFER_LENGTH> cmd_buf;
     std::shared_ptr<ServerSession> session;
-    std::shared_ptr<Thread> thread;
+    Thread* thread;
     // TODO(yuriks): Check common usage of this and optimize size accordingly
     boost::container::small_vector<std::shared_ptr<Object>, 8> request_handles;
     // The static buffers will be created when the IPC request is translated.
     std::array<std::vector<u8>, IPC::MAX_STATIC_BUFFERS> static_buffers;
     // The mapped buffers will be created when the IPC request is translated
     boost::container::small_vector<MappedBuffer, 8> request_mapped_buffers;
-
-    HLERequestContext();
-    template <class Archive>
-    void serialize(Archive& ar, const unsigned int) {
-        ar& cmd_buf;
-        ar& session;
-        ar& thread;
-        ar& request_handles;
-        ar& static_buffers;
-        ar& request_mapped_buffers;
-    }
-    friend class boost::serialization::access;
 };
 
 } // namespace Kernel
-
-BOOST_CLASS_EXPORT_KEY(Kernel::HLERequestContext::ThreadCallback)

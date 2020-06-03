@@ -1,0 +1,7 @@
+* Shin Megami Tensei: Devil Survivor Overclocked
+
+[30 FPS]
+0032799C 00000001
+
+[60 FPS]
+0032799C 00000000

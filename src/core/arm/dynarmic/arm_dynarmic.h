@@ -52,11 +52,11 @@ public:
 
     void ClearInstructionCache() override;
     void InvalidateCacheRange(u32 start_address, std::size_t length) override;
-    void SetPageTable(const std::shared_ptr<Memory::PageTable>& page_table) override;
+    void SetPageTable(Memory::PageTable* page_table) override;
     void PurgeState() override;
 
 protected:
-    std::shared_ptr<Memory::PageTable> GetPageTable() const override;
+    Memory::PageTable* GetPageTable() const override;
 
 private:
     void ServeBreak();
@@ -71,6 +71,6 @@ private:
     CP15State cp15_state;
 
     Dynarmic::A32::Jit* jit = nullptr;
-    std::shared_ptr<Memory::PageTable> current_page_table = nullptr;
-    std::map<std::shared_ptr<Memory::PageTable>, std::unique_ptr<Dynarmic::A32::Jit>> jits;
+    Memory::PageTable* current_page_table = nullptr;
+    std::map<Memory::PageTable*, std::unique_ptr<Dynarmic::A32::Jit>> jits;
 };

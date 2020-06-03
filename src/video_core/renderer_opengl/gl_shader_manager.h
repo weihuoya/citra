@@ -6,16 +6,11 @@
 
 #include <memory>
 #include <glad/glad.h>
-#include "video_core/rasterizer_interface.h"
 #include "video_core/regs_lighting.h"
 #include "video_core/renderer_opengl/gl_resource_manager.h"
 #include "video_core/renderer_opengl/gl_shader_gen.h"
 #include "video_core/renderer_opengl/gl_state.h"
 #include "video_core/renderer_opengl/pica_to_gl.h"
-
-namespace Core {
-class System;
-}
 
 namespace OpenGL {
 
@@ -55,6 +50,7 @@ struct UniformData {
     GLint proctex_diff_lut_offset;
     GLfloat proctex_bias;
     GLint shadow_texture_bias;
+    GLfloat lut_scales[7];
     alignas(16) GLivec4 lighting_lut_offset[Pica::LightingRegs::NumLightingSampler / 4];
     alignas(16) GLvec3 fog_color;
     alignas(8) GLvec2 proctex_noise_f;
@@ -68,9 +64,9 @@ struct UniformData {
 };
 
 static_assert(
-    sizeof(UniformData) == 0x4F0,
+    sizeof(UniformData) == 0x510,
     "The size of the UniformData structure has changed, update the structure in the shader");
-static_assert(sizeof(UniformData) < 16384,
+static_assert(sizeof(UniformData) < 0x4000,
               "UniformData structure must be less than 16kb as per the OpenGL spec");
 
 /// Uniform struct for the Uniform Buffer Object that contains PICA vertex/geometry shader uniforms.
@@ -93,7 +89,7 @@ struct VSUniformData {
 static_assert(
     sizeof(VSUniformData) == 1856,
     "The size of the VSUniformData structure has changed, update the structure in the shader");
-static_assert(sizeof(VSUniformData) < 16384,
+static_assert(sizeof(VSUniformData) < 0x4000,
               "VSUniformData structure must be less than 16kb as per the OpenGL spec");
 
 /// A class that manage different shader stages and configures them with given config data.
@@ -102,10 +98,7 @@ public:
     ShaderProgramManager(bool separable, bool is_amd);
     ~ShaderProgramManager();
 
-    void LoadDiskCache(const std::atomic_bool& stop_loading,
-                       const VideoCore::DiskResourceLoadCallback& callback);
-
-    bool UseProgrammableVertexShader(const Pica::Regs& config, Pica::Shader::ShaderSetup& setup);
+    bool UseProgrammableVertexShader(const Pica::Regs& regs, Pica::Shader::ShaderSetup& setup);
 
     void UseTrivialVertexShader();
 
@@ -113,7 +106,7 @@ public:
 
     void UseTrivialGeometryShader();
 
-    void UseFragmentShader(const Pica::Regs& config);
+    void UseFragmentShader(const Pica::Regs& regs);
 
     void ApplyTo(OpenGLState& state);
 

@@ -29,6 +29,7 @@ struct MiiSelectorData {
 
 class MiiSelector {
 public:
+    virtual ~MiiSelector() = default;
     virtual void Setup(const MiiSelectorConfig& config) {
         this->config = MiiSelectorConfig(config);
     }
@@ -47,6 +48,8 @@ protected:
     MiiSelectorConfig config;
     MiiSelectorData data;
 };
+
+std::vector<HLE::Applets::MiiData> LoadMiis();
 
 class DefaultMiiSelector final : public MiiSelector {
 public:

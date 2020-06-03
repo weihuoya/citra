@@ -1,0 +1,16 @@
+* Phoenix Wright: Ace Attorney Dual Destinies
+
+[30 FPS]
+08B80E10 41F00000
+
+[Default 60 FPS]
+08B80E10 42700000
+
+[Default FSAA]
+080B9CE0 001F556A
+
+[Disable FSAA v1]
+180B9CE0 0000516A
+
+[Disable FSAA v2]
+280B9CE0 0000002A
