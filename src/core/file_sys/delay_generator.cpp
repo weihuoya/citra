@@ -3,10 +3,7 @@
 // Refer to the license.txt file included.
 
 #include <algorithm>
-#include "common/archives.h"
 #include "core/file_sys/delay_generator.h"
-
-SERIALIZE_EXPORT_IMPL(FileSys::DefaultDelayGenerator)
 
 namespace FileSys {
 

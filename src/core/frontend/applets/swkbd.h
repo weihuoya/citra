@@ -4,7 +4,6 @@
 
 #pragma once
 
-#include <atomic>
 #include <unordered_map>
 #include <utility>
 #include <vector>
@@ -82,6 +81,8 @@ enum class ValidationError {
 
 class SoftwareKeyboard {
 public:
+    virtual ~SoftwareKeyboard() = default;
+
     /**
      * Executes the software keyboard, configured with the given parameters.
      */
@@ -133,7 +134,7 @@ protected:
     KeyboardConfig config;
     KeyboardData data;
 
-    std::atomic_bool data_ready = false;
+    bool data_ready = false;
 };
 
 class DefaultKeyboard final : public SoftwareKeyboard {

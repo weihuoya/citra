@@ -140,6 +140,9 @@ public:
      */
     std::tuple<VAddr, u32> GetExecutablePages() const;
 
+    //
+    std::vector<std::pair<u32, u32>> invalidate_cache_ranges;
+
 private:
     const VAddr module_address; ///< the virtual address of this module
     Kernel::Process& process;   ///< the owner process of this module
@@ -685,14 +688,14 @@ private:
      * @param target the module to resolve.
      * @returns ResultCode RESULT_SUCCESS on success, otherwise error code.
      */
-    ResultCode ApplyExportNamedSymbol(CROHelper target);
+    ResultCode ApplyExportNamedSymbol(CROHelper& target);
 
     /**
      * Resets target's named symbols imported from this module to unresolved state.
      * @param target the module to reset.
      * @returns ResultCode RESULT_SUCCESS on success, otherwise error code.
      */
-    ResultCode ResetExportNamedSymbol(CROHelper target);
+    ResultCode ResetExportNamedSymbol(CROHelper& target);
 
     /**
      * Resolves imported indexed and anonymous symbols in the target module which imports this
@@ -700,14 +703,14 @@ private:
      * @param target the module to resolve.
      * @returns ResultCode RESULT_SUCCESS on success, otherwise error code.
      */
-    ResultCode ApplyModuleExport(CROHelper target);
+    ResultCode ApplyModuleExport(CROHelper& target);
 
     /**
      * Resets target's indexed and anonymous symbol imported from this module to unresolved state.
      * @param target the module to reset.
      * @returns ResultCode RESULT_SUCCESS on success, otherwise error code.
      */
-    ResultCode ResetModuleExport(CROHelper target);
+    ResultCode ResetModuleExport(CROHelper& target);
 
     /**
      * Resolves the exit function in this module

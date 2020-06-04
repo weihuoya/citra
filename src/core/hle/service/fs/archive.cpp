@@ -91,7 +91,7 @@ ArchiveManager::OpenFileFromArchive(ArchiveHandle archive_handle, const FileSys:
     if (backend.Failed())
         return std::make_tuple(backend.Code(), open_timeout_ns);
 
-    auto file = std::shared_ptr<File>(new File(system.Kernel(), std::move(backend).Unwrap(), path));
+    auto file = std::shared_ptr<File>(new File(system, std::move(backend).Unwrap(), path));
     return std::make_tuple(MakeResult<std::shared_ptr<File>>(std::move(file)), open_timeout_ns);
 }
 
@@ -365,6 +365,10 @@ void ArchiveManager::RegisterSelfNCCH(Loader::AppLoader& app_loader) {
 
     auto* factory = static_cast<FileSys::ArchiveFactory_SelfNCCH*>(itr->second.get());
     factory->Register(app_loader);
+}
+
+bool ArchiveManager::CheckArchiveHandle(ArchiveHandle handle) {
+    return handle_map.find(handle) != handle_map.end();
 }
 
 ArchiveManager::ArchiveManager(Core::System& system) : system(system) {

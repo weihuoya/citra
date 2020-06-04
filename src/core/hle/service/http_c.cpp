@@ -8,8 +8,6 @@
 #endif
 #include <cryptopp/aes.h>
 #include <cryptopp/modes.h>
-#include "common/archives.h"
-#include "common/assert.h"
 #include "core/core.h"
 #include "core/file_sys/archive_ncch.h"
 #include "core/file_sys/file_backend.h"
@@ -19,9 +17,6 @@
 #include "core/hle/service/fs/archive.h"
 #include "core/hle/service/http_c.h"
 #include "core/hw/aes/key.h"
-
-SERIALIZE_EXPORT_IMPL(Service::HTTP::HTTP_C)
-SERIALIZE_EXPORT_IMPL(Service::HTTP::SessionData)
 
 namespace Service::HTTP {
 
@@ -809,7 +804,7 @@ void HTTP_C::Finalize(Kernel::HLERequestContext& ctx) {
     IPC::RequestBuilder rb = rp.MakeBuilder(1, 0);
     rb.Push(RESULT_SUCCESS);
 
-    LOG_WARNING(Service_HTTP, "(STUBBED) called");
+    LOG_WARNING(Service_HTTP, "(STUBBED) HTTP Finalize called");
 }
 
 void HTTP_C::DecryptClCertA() {

@@ -5,9 +5,7 @@
 #pragma once
 
 #include <memory>
-#include <mutex>
 #include <string>
-#include <boost/serialization/version.hpp>
 #include "common/common_types.h"
 #include "core/custom_tex_cache.h"
 #include "core/frontend/applets/mii_selector.h"
@@ -53,11 +51,9 @@ namespace Cheats {
 class CheatEngine;
 }
 
-namespace VideoDumper {
-class Backend;
-}
-
+namespace VideoCore {
 class RendererBase;
+}
 
 namespace Core {
 
@@ -89,12 +85,9 @@ public:
                                             /// generic drivers installed
         ErrorVideoCore_ErrorBelowGL33,      ///< Error in the video core due to the user not having
                                             /// OpenGL 3.3 or higher
-        ErrorSavestate,                     ///< Error saving or loading
         ShutdownRequested,                  ///< Emulated program requested a system shutdown
         ErrorUnknown                        ///< Any other error
     };
-
-    ~System();
 
     /**
      * Run the core CPU loop
@@ -106,7 +99,9 @@ public:
      * @param tight_loop If false, the CPU single-steps.
      * @return Result status, indicating whethor or not the operation succeeded.
      */
-    ResultStatus RunLoop(bool tight_loop = true);
+    ResultStatus RunLoop();
+    ResultStatus RunLoopMultiCores();
+    ResultStatus RunLoopOneCore();
 
     /**
      * Step the CPU one instruction
@@ -115,23 +110,19 @@ public:
     ResultStatus SingleStep();
 
     /// Shutdown the emulated system.
-    void Shutdown(bool is_deserializing = false);
+    void Shutdown();
 
     /// Shutdown and then load again
     void Reset();
 
-    enum class Signal : u32 { None, Shutdown, Reset, Save, Load };
-
-    bool SendSignal(Signal signal, u32 param = 0);
-
     /// Request reset of the system
     void RequestReset() {
-        SendSignal(Signal::Reset);
+        reset_requested = true;
     }
 
     /// Request shutdown of the system
     void RequestShutdown() {
-        SendSignal(Signal::Shutdown);
+        shutdown_requested = true;
     }
 
     /**
@@ -205,7 +196,7 @@ public:
         return *dsp_core;
     }
 
-    RendererBase& Renderer();
+    VideoCore::RendererBase& Renderer();
 
     /**
      * Gets a reference to the service manager.
@@ -258,14 +249,7 @@ public:
     /// Handles loading all custom textures from disk into cache.
     void PreloadCustomTextures();
 
-    /// Gets a reference to the video dumper backend
-    VideoDumper::Backend& VideoDumper();
-
-    /// Gets a const reference to the video dumper backend
-    const VideoDumper::Backend& VideoDumper() const;
-
     std::unique_ptr<PerfStats> perf_stats;
-    FrameLimiter frame_limiter;
 
     void SetStatus(ResultStatus new_status, const char* details = nullptr) {
         status = new_status;
@@ -304,9 +288,9 @@ public:
         return registered_image_interface;
     }
 
-    void SaveState(u32 slot) const;
-
-    void LoadState(u32 slot);
+    /// nfc amiibo
+    using ScanningCallback = void(bool);
+    std::function<ScanningCallback> nfc_scanning_callback;
 
 private:
     /**
@@ -316,8 +300,7 @@ private:
      * @param system_mode The system mode.
      * @return ResultStatus code, indicating if the operation succeeded.
      */
-    ResultStatus Init(Frontend::EmuWindow& emu_window, u32 system_mode, u8 n3ds_mode,
-                      u32 num_cores);
+    ResultStatus Init(Frontend::EmuWindow& emu_window, u32 system_mode, u8 n3ds_mode);
 
     /// Reschedule the core emulation
     void Reschedule();
@@ -333,7 +316,7 @@ private:
     std::unique_ptr<AudioCore::DspInterface> dsp_core;
 
     /// When true, signals that a reschedule should happen
-    bool reschedule_pending{};
+    bool reschedule_pending = false;
 
     /// Telemetry session for this emulation session
     std::unique_ptr<Core::TelemetrySession> telemetry_session;
@@ -347,9 +330,6 @@ private:
 
     /// Cheats manager
     std::unique_ptr<Cheats::CheatEngine> cheat_engine;
-
-    /// Video dumper backend
-    std::unique_ptr<VideoDumper::Backend> video_dumper;
 
     /// Custom texture cache system
     std::unique_ptr<Core::CustomTexCache> custom_tex_cache;
@@ -369,22 +349,14 @@ private:
 private:
     static System s_instance;
 
-    bool initalized = false;
-
-    ResultStatus status = ResultStatus::Success;
-    std::string status_details = "";
+    ResultStatus status;
+    std::string status_details;
     /// Saved variables for reset
     Frontend::EmuWindow* m_emu_window;
     std::string m_filepath;
-    u64 title_id;
 
-    std::mutex signal_mutex;
-    Signal current_signal;
-    u32 signal_param;
-
-    friend class boost::serialization::access;
-    template <typename Archive>
-    void serialize(Archive& ar, const unsigned int file_version);
+    std::atomic<bool> reset_requested;
+    std::atomic<bool> shutdown_requested;
 };
 
 inline ARM_Interface& GetRunningCore() {
@@ -404,5 +376,3 @@ inline AudioCore::DspInterface& DSP() {
 }
 
 } // namespace Core
-
-BOOST_CLASS_VERSION(Core::System, 1)

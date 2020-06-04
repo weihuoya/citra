@@ -1,0 +1,7 @@
+* Super Robot Taisen BX
+
+[30 FPS v1.0]
+1062B986 000041F0
+
+[60 FPS v1.0]
+1062B986 00004270

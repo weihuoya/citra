@@ -4,7 +4,6 @@
 
 #include <algorithm>
 #include <memory>
-#include "common/archives.h"
 #include "common/file_util.h"
 #include "common/logging/log.h"
 #include "core/file_sys/archive_sdmc.h"
@@ -15,9 +14,6 @@
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // FileSys namespace
-
-SERIALIZE_EXPORT_IMPL(FileSys::SDMCArchive)
-SERIALIZE_EXPORT_IMPL(FileSys::ArchiveFactory_SDMC)
 
 namespace FileSys {
 
@@ -41,8 +37,6 @@ public:
         static constexpr u64 IPCDelayNanoseconds(269082);
         return IPCDelayNanoseconds;
     }
-
-    SERIALIZE_DELAY_GENERATOR
 };
 
 ResultVal<std::unique_ptr<FileBackend>> SDMCArchive::OpenFile(const Path& path,
@@ -58,7 +52,7 @@ ResultVal<std::unique_ptr<FileBackend>> SDMCArchive::OpenFile(const Path& path,
 
 ResultVal<std::unique_ptr<FileBackend>> SDMCArchive::OpenFileBase(const Path& path,
                                                                   const Mode& mode) const {
-    LOG_DEBUG(Service_FS, "called path={} mode={:01X}", path.DebugStr(), mode.hex);
+    LOG_DEBUG(Service_FS, "SDMCArchive OpenFileBase called path={} mode={:01X}", path.DebugStr(), mode.hex);
 
     const PathParser path_parser(path);
 
@@ -411,5 +405,3 @@ ResultVal<ArchiveFormatInfo> ArchiveFactory_SDMC::GetFormatInfo(const Path& path
     return ResultCode(-1);
 }
 } // namespace FileSys
-
-SERIALIZE_EXPORT_IMPL(FileSys::SDMCDelayGenerator)

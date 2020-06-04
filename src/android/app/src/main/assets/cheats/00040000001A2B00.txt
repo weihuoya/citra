@@ -1,0 +1,13 @@
+* Fire Emblem Echoes: Shadows of Valentia
+
+[30 FPS v1.0]
+005C84D0 00000000
+
+[60 FPS v1.0]
+005C84D0 00000001
+
+[30 FPS v1.1]
+205C94DC 00000000
+
+[60 FPS v1.1]
+205C94DC 00000001

@@ -1,0 +1,7 @@
+* Yo-Kai Watch 2 - Psychic Specters - USA
+
+[30 fps]
+0086126C 00000201
+
+[60 fps]
+0086126C 00000101

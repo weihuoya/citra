@@ -172,14 +172,12 @@ void TelemetrySession::AddInitialInfo(Loader::AppLoader& app_loader) {
              Settings::values.use_hw_renderer);
     AddField(Telemetry::FieldType::UserConfig, "Renderer_UseHwShader",
              Settings::values.use_hw_shader);
-    AddField(Telemetry::FieldType::UserConfig, "Renderer_ShadersAccurateMul",
-             Settings::values.shaders_accurate_mul);
+    AddField(Telemetry::FieldType::UserConfig, "Renderer_ShadersAccurateMul", 0);
     AddField(Telemetry::FieldType::UserConfig, "Renderer_UseShaderJit",
              Settings::values.use_shader_jit);
-    AddField(Telemetry::FieldType::UserConfig, "Renderer_UseVsync", Settings::values.use_vsync_new);
-    AddField(Telemetry::FieldType::UserConfig, "Renderer_FilterMode", Settings::values.filter_mode);
-    AddField(Telemetry::FieldType::UserConfig, "Renderer_Render3d",
-             static_cast<int>(Settings::values.render_3d));
+    AddField(Telemetry::FieldType::UserConfig, "Renderer_UseVsync", Settings::values.vsync_enabled);
+    AddField(Telemetry::FieldType::UserConfig, "Renderer_FilterMode", false);
+    AddField(Telemetry::FieldType::UserConfig, "Renderer_Render3d", static_cast<int>(0));
     AddField(Telemetry::FieldType::UserConfig, "Renderer_Factor3d",
              Settings::values.factor_3d.load());
     AddField(Telemetry::FieldType::UserConfig, "System_IsNew3ds", Settings::values.is_new_3ds);

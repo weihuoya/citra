@@ -6,7 +6,6 @@
 #include <memory>
 #include <vector>
 #include <fmt/format.h>
-#include "common/archives.h"
 #include "common/common_types.h"
 #include "common/file_util.h"
 #include "common/logging/log.h"
@@ -19,8 +18,6 @@
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // FileSys namespace
-
-SERIALIZE_EXPORT_IMPL(FileSys::ArchiveFactory_ExtSaveData)
 
 namespace FileSys {
 
@@ -80,8 +77,6 @@ public:
         static constexpr u64 IPCDelayNanoseconds(3085068);
         return IPCDelayNanoseconds;
     }
-
-    SERIALIZE_DELAY_GENERATOR
 };
 
 /**
@@ -105,7 +100,7 @@ public:
 
     ResultVal<std::unique_ptr<FileBackend>> OpenFile(const Path& path,
                                                      const Mode& mode) const override {
-        LOG_DEBUG(Service_FS, "called path={} mode={:01X}", path.DebugStr(), mode.hex);
+        LOG_DEBUG(Service_FS, "ExtSaveDataArchive OpenFile called path={} mode={:01X}", path.DebugStr(), mode.hex);
 
         const PathParser path_parser(path);
 
@@ -167,14 +162,6 @@ public:
         }
         return SaveDataArchive::CreateFile(path, size);
     }
-
-private:
-    ExtSaveDataArchive() = default;
-    template <class Archive>
-    void serialize(Archive& ar, const unsigned int) {
-        ar& boost::serialization::base_object<SaveDataArchive>(*this);
-    }
-    friend class boost::serialization::access;
 };
 
 struct ExtSaveDataArchivePath {
@@ -310,6 +297,3 @@ void ArchiveFactory_ExtSaveData::WriteIcon(const Path& path, const u8* icon_data
 }
 
 } // namespace FileSys
-
-SERIALIZE_EXPORT_IMPL(FileSys::ExtSaveDataDelayGenerator)
-SERIALIZE_EXPORT_IMPL(FileSys::ExtSaveDataArchive)

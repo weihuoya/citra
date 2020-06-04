@@ -23,12 +23,9 @@
 #include <string>
 #include <unordered_map>
 #include <vector>
-#include <boost/serialization/split_member.hpp>
-#include <boost/serialization/vector.hpp>
 #include "common/common_types.h"
 #include "common/logging/log.h"
 #include "common/threadsafe_queue.h"
-#include "core/global.h"
 
 // The timing we get from the assembly is 268,111,855.956 Hz
 // It is possible that this number isn't just an integer because the compiler could have
@@ -59,24 +56,24 @@ constexpr s64 usToCycles(int us) {
 }
 
 inline s64 usToCycles(s64 us) {
-    if (us / 1000000 > static_cast<s64>(MAX_VALUE_TO_MULTIPLY)) {
-        LOG_ERROR(Core_Timing, "Integer overflow, use max value");
-        return std::numeric_limits<s64>::max();
-    }
     if (us > static_cast<s64>(MAX_VALUE_TO_MULTIPLY)) {
-        LOG_DEBUG(Core_Timing, "Time very big, do rounding");
+        if (us / 1000000 > static_cast<s64>(MAX_VALUE_TO_MULTIPLY)) {
+            LOG_ERROR(Core_Timing, "Integer overflow, use max value");
+            return std::numeric_limits<s64>::max();
+        }
+        LOG_DEBUG(Core_Timing, "[usToCycles s64] Time very big, do rounding");
         return BASE_CLOCK_RATE_ARM11 * (us / 1000000);
     }
     return (BASE_CLOCK_RATE_ARM11 * us) / 1000000;
 }
 
 inline s64 usToCycles(u64 us) {
-    if (us / 1000000 > MAX_VALUE_TO_MULTIPLY) {
-        LOG_ERROR(Core_Timing, "Integer overflow, use max value");
-        return std::numeric_limits<s64>::max();
-    }
     if (us > MAX_VALUE_TO_MULTIPLY) {
-        LOG_DEBUG(Core_Timing, "Time very big, do rounding");
+        if (us / 1000000 > MAX_VALUE_TO_MULTIPLY) {
+            LOG_ERROR(Core_Timing, "Integer overflow, use max value");
+            return std::numeric_limits<s64>::max();
+        }
+        LOG_DEBUG(Core_Timing, "[usToCycles u64] Time very big, do rounding");
         return BASE_CLOCK_RATE_ARM11 * static_cast<s64>(us / 1000000);
     }
     return (BASE_CLOCK_RATE_ARM11 * static_cast<s64>(us)) / 1000000;
@@ -91,24 +88,16 @@ constexpr s64 nsToCycles(int ns) {
 }
 
 inline s64 nsToCycles(s64 ns) {
-    if (ns / 1000000000 > static_cast<s64>(MAX_VALUE_TO_MULTIPLY)) {
-        LOG_ERROR(Core_Timing, "Integer overflow, use max value");
-        return std::numeric_limits<s64>::max();
-    }
     if (ns > static_cast<s64>(MAX_VALUE_TO_MULTIPLY)) {
-        LOG_DEBUG(Core_Timing, "Time very big, do rounding");
+        LOG_DEBUG(Core_Timing, "[nsToCycles s64] Time very big, do rounding");
         return BASE_CLOCK_RATE_ARM11 * (ns / 1000000000);
     }
     return (BASE_CLOCK_RATE_ARM11 * ns) / 1000000000;
 }
 
 inline s64 nsToCycles(u64 ns) {
-    if (ns / 1000000000 > MAX_VALUE_TO_MULTIPLY) {
-        LOG_ERROR(Core_Timing, "Integer overflow, use max value");
-        return std::numeric_limits<s64>::max();
-    }
     if (ns > MAX_VALUE_TO_MULTIPLY) {
-        LOG_DEBUG(Core_Timing, "Time very big, do rounding");
+        LOG_DEBUG(Core_Timing, "[nsToCycles u64] Time very big, do rounding");
         return BASE_CLOCK_RATE_ARM11 * (static_cast<s64>(ns) / 1000000000);
     }
     return (BASE_CLOCK_RATE_ARM11 * static_cast<s64>(ns)) / 1000000000;
@@ -136,7 +125,6 @@ struct TimingEventType {
 };
 
 class Timing {
-
 public:
     struct Event {
         s64 time;
@@ -146,36 +134,12 @@ public:
 
         bool operator>(const Event& right) const;
         bool operator<(const Event& right) const;
-
-    private:
-        template <class Archive>
-        void save(Archive& ar, const unsigned int) const {
-            ar& time;
-            ar& fifo_order;
-            ar& userdata;
-            std::string name = *(type->name);
-            ar << name;
-        }
-
-        template <class Archive>
-        void load(Archive& ar, const unsigned int) {
-            ar& time;
-            ar& fifo_order;
-            ar& userdata;
-            std::string name;
-            ar >> name;
-            type = Global<Timing>().RegisterEvent(name, nullptr);
-        }
-        friend class boost::serialization::access;
-
-        BOOST_SERIALIZATION_SPLIT_MEMBER()
     };
 
     static constexpr int MAX_SLICE_LENGTH = 20000;
 
     class Timer {
     public:
-        Timer();
         ~Timer();
 
         s64 GetMaxSliceLength() const;
@@ -219,25 +183,9 @@ public:
         s64 downcount = MAX_SLICE_LENGTH;
         s64 executed_ticks = 0;
         u64 idled_cycles = 0;
-        // Stores a scaling for the internal clockspeed. Changing this number results in
-        // under/overclocking the guest cpu
-        double cpu_clock_scale = 1.0;
-
-        template <class Archive>
-        void serialize(Archive& ar, const unsigned int) {
-            MoveEvents();
-            // NOTE: ts_queue should be empty now
-            ar& event_queue;
-            ar& event_fifo_id;
-            ar& slice_length;
-            ar& downcount;
-            ar& executed_ticks;
-            ar& idled_cycles;
-        }
-        friend class boost::serialization::access;
     };
 
-    explicit Timing(std::size_t num_cores, u32 cpu_clock_percentage);
+    explicit Timing(std::size_t num_cores);
 
     ~Timing(){};
 
@@ -264,11 +212,6 @@ public:
         global_timer += ticks;
     }
 
-    /**
-     * Updates the value of the cpu clock scaling to the new percentage.
-     */
-    void UpdateClockSpeed(u32 cpu_clock_percentage);
-
     std::chrono::microseconds GetGlobalTimeUs() const;
 
     std::shared_ptr<Timer> GetTimer(std::size_t cpu_id);
@@ -278,23 +221,10 @@ private:
 
     // unordered_map stores each element separately as a linked list node so pointers to
     // elements remain stable regardless of rehashes/resizing.
-    std::unordered_map<std::string, TimingEventType> event_types = {};
+    std::unordered_map<std::string, TimingEventType> event_types;
 
     std::vector<std::shared_ptr<Timer>> timers;
-    std::shared_ptr<Timer> current_timer;
-
-    // Stores a scaling for the internal clockspeed. Changing this number results in
-    // under/overclocking the guest cpu
-    double cpu_clock_scale = 1.0;
-
-    template <class Archive>
-    void serialize(Archive& ar, const unsigned int) {
-        // event_types set during initialization of other things
-        ar& global_timer;
-        ar& timers;
-        ar& current_timer;
-    }
-    friend class boost::serialization::access;
+    Timer* current_timer = nullptr;
 };
 
 } // namespace Core

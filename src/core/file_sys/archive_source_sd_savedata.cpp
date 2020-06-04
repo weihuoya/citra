@@ -3,7 +3,6 @@
 // Refer to the license.txt file included.
 
 #include <fmt/format.h>
-#include "common/archives.h"
 #include "common/file_util.h"
 #include "common/logging/log.h"
 #include "core/file_sys/archive_source_sd_savedata.h"
@@ -13,8 +12,6 @@
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // FileSys namespace
-
-SERIALIZE_EXPORT_IMPL(FileSys::ArchiveSource_SDSaveData)
 
 namespace FileSys {
 

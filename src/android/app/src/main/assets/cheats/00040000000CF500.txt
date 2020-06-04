@@ -1,0 +1,7 @@
+* Dragon Quest Monsters 2: Iru to Ruka no Fushigi na Fushigi na Kagi
+
+[60 FPS v1.0]
+080D82CC 00000001
+
+[60 FPS v1.1]
+080D9900 00000001
