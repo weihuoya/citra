@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <integer name="game_grid_columns">1</integer>
+
+    <integer name="BUTTON_A_X">75</integer>
+    <integer name="BUTTON_A_Y">70</integer>
+    <integer name="BUTTON_B_X">50</integer>
+    <integer name="BUTTON_B_Y">85</integer>
+    <integer name="BUTTON_X_X">50</integer>
+    <integer name="BUTTON_X_Y">55</integer>
+    <integer name="BUTTON_Y_X">25</integer>
+    <integer name="BUTTON_Y_Y">70</integer>
+    <integer name="TRIGGER_L_X">-90</integer>
+    <integer name="TRIGGER_L_Y">40</integer>
+    <integer name="TRIGGER_R_X">90</integer>
+    <integer name="TRIGGER_R_Y">40</integer>
+    <integer name="TRIGGER_ZL_X">-90</integer>
+    <integer name="TRIGGER_ZL_Y">20</integer>
+    <integer name="TRIGGER_ZR_X">90</integer>
+    <integer name="TRIGGER_ZR_Y">20</integer>
+    <integer name="BUTTON_START_X">15</integer>
+    <integer name="BUTTON_START_Y">96</integer>
+    <integer name="BUTTON_SELECT_X">-15</integer>
+    <integer name="BUTTON_SELECT_Y">96</integer>
+    <integer name="PAD_MAIN_X">-55</integer>
+    <integer name="PAD_MAIN_Y">80</integer>
+    <integer name="STICK_MAIN_X">-20</integer>
+    <integer name="STICK_MAIN_Y">50</integer>
+</resources>

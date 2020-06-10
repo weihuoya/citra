@@ -2,14 +2,10 @@
 // Licensed under GPLv2 or any later version
 // Refer to the license.txt file included.
 
-#include "common/archives.h"
 #include "core/core.h"
 #include "core/hle/ipc_helpers.h"
 #include "core/hle/kernel/event.h"
 #include "core/hle/service/nim/nim_u.h"
-
-SERVICE_CONSTRUCT_IMPL(Service::NIM::NIM_U)
-SERIALIZE_EXPORT_IMPL(Service::NIM::NIM_U)
 
 namespace Service::NIM {
 
@@ -22,6 +18,8 @@ NIM_U::NIM_U(Core::System& system) : ServiceFramework("nim:u", 2) {
         {0x00090000, &NIM_U::CheckSysUpdateAvailable, "CheckSysUpdateAvailable"},
         {0x000A0000, nullptr, "GetState"},
         {0x000B0000, nullptr, "GetSystemTitleHash"},
+        {0x000C0082, nullptr, "UnregisterTask"},
+        {0x00290246, nullptr, "RegisterTask"},
     };
     RegisterHandlers(functions);
     nim_system_update_event =

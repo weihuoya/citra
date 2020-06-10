@@ -1,0 +1,7 @@
+* Luigi's Mansion 1
+
+[60 FPS]
+204BECC0 00000001
+
+[30 FPS]
+204BECC0 00000002

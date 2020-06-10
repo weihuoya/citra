@@ -5,9 +5,6 @@
 #pragma once
 
 #include <string>
-#include <boost/serialization/base_object.hpp>
-#include <boost/serialization/export.hpp>
-#include <boost/serialization/string.hpp>
 #include <queue>
 #include "common/common_types.h"
 #include "core/hle/kernel/object.h"
@@ -46,19 +43,6 @@ public:
      * @return The number of free slots the semaphore had before this call
      */
     ResultVal<s32> Release(s32 release_count);
-
-private:
-    friend class boost::serialization::access;
-    template <class Archive>
-    void serialize(Archive& ar, const unsigned int file_version) {
-        ar& boost::serialization::base_object<WaitObject>(*this);
-        ar& max_count;
-        ar& available_count;
-        ar& name;
-    }
 };
 
 } // namespace Kernel
-
-BOOST_CLASS_EXPORT_KEY(Kernel::Semaphore)
-CONSTRUCT_KERNEL_OBJECT(Kernel::Semaphore)

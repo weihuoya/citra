@@ -2,37 +2,24 @@
 // Licensed under GPLv2 or any later version
 // Refer to the license.txt file included.
 
-#include <boost/serialization/base_object.hpp>
-#include <boost/serialization/unique_ptr.hpp>
-#include "common/archives.h"
 #include "common/logging/log.h"
 #include "core/file_sys/directory_backend.h"
 #include "core/hle/ipc_helpers.h"
 #include "core/hle/service/fs/directory.h"
 
-SERIALIZE_EXPORT_IMPL(Service::FS::Directory)
-
 namespace Service::FS {
-
-template <class Archive>
-void Directory::serialize(Archive& ar, const unsigned int) {
-    ar& boost::serialization::base_object<Kernel::SessionRequestHandler>(*this);
-    ar& path;
-    ar& backend;
-}
 
 Directory::Directory(std::unique_ptr<FileSys::DirectoryBackend>&& backend,
                      const FileSys::Path& path)
-    : Directory() {
-    this->backend = std::move(backend);
-    this->path = path;
-}
-
-Directory::Directory() : ServiceFramework("", 1), path(""), backend(nullptr) {
+    : ServiceFramework("", 1), path(path), backend(std::move(backend)) {
     static const FunctionInfo functions[] = {
         // clang-format off
+        {0x000100C6, nullptr, "Dummy1"},
+        {0x040100C4, nullptr, "Control"},
         {0x08010042, &Directory::Read, "Read"},
         {0x08020000, &Directory::Close, "Close"},
+        {0x08030040, nullptr, "SetPriority"},
+        {0x08040000, nullptr, "GetPriority"},
         // clang-format on
     };
     RegisterHandlers(functions);

@@ -1,0 +1,7 @@
+* Yo-kai Watch Busters 2: Sword
+
+[30 FPS v1.2]
+008F2614 00000201
+
+[60 FPS v1.2]
+008F2614 00000101

@@ -1,0 +1,7 @@
+* Super Robot Taisen UX
+
+[30 FPS v1.0]
+104D1AAE 000041F0
+
+[60 FPS v1.0]
+104D1AAE 00004270

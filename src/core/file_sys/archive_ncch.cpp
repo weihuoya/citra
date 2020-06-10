@@ -8,7 +8,6 @@
 #include <utility>
 #include <vector>
 #include "bad_word_list.app.romfs.h"
-#include "common/archives.h"
 #include "common/common_types.h"
 #include "common/file_util.h"
 #include "common/logging/log.h"
@@ -28,10 +27,6 @@
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // FileSys namespace
-
-SERIALIZE_EXPORT_IMPL(FileSys::NCCHArchive)
-SERIALIZE_EXPORT_IMPL(FileSys::NCCHFile)
-SERIALIZE_EXPORT_IMPL(FileSys::ArchiveFactory_NCCH)
 
 namespace FileSys {
 

@@ -43,7 +43,11 @@ Recorder::Recorder() = default;
 Recorder::~Recorder() = default;
 
 bool Recorder::IsEnabled() const {
+#ifdef ANDROID
+    return false;
+#else
     return enabled.load(std::memory_order_relaxed);
+#endif
 }
 
 void Recorder::RegisterRequest(const std::shared_ptr<Kernel::ClientSession>& client_session,
@@ -52,7 +56,7 @@ void Recorder::RegisterRequest(const std::shared_ptr<Kernel::ClientSession>& cli
 
     RequestRecord record = {/* id */ ++record_count,
                             /* status */ RequestStatus::Sent,
-                            /* client_process */ GetObjectInfo(client_thread->owner_process.get()),
+                            /* client_process */ GetObjectInfo(client_thread->owner_process),
                             /* client_thread */ GetObjectInfo(client_thread.get()),
                             /* client_session */ GetObjectInfo(client_session.get()),
                             /* client_port */ GetObjectInfo(client_session->parent->port.get()),
@@ -82,7 +86,7 @@ void Recorder::SetRequestInfo(const std::shared_ptr<Kernel::Thread>& client_thre
     record.translated_request_cmdbuf = std::move(translated_cmdbuf);
 
     if (server_thread) {
-        record.server_process = GetObjectInfo(server_thread->owner_process.get());
+        record.server_process = GetObjectInfo(server_thread->owner_process);
         record.server_thread = GetObjectInfo(server_thread.get());
     } else {
         record.is_hle = true;
