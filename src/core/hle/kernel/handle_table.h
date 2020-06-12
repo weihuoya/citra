@@ -7,8 +7,6 @@
 #include <array>
 #include <cstddef>
 #include <memory>
-#include <boost/serialization/array.hpp>
-#include <boost/serialization/shared_ptr.hpp>
 #include "common/common_types.h"
 #include "core/hle/kernel/object.h"
 #include "core/hle/result.h"
@@ -92,6 +90,17 @@ public:
     /// Closes all handles held in this table.
     void Clear();
 
+    /// Get handle size
+    u32 Size() const {
+        u32 size = 0;
+        for (const auto& obj : objects) {
+            if (obj != nullptr) {
+                size += 1;
+            }
+        }
+        return size;
+    }
+
 private:
     /**
      * This is the maximum limit of handles allowed per process in CTR-OS. It can be further
@@ -118,15 +127,6 @@ private:
     u16 next_free_slot;
 
     KernelSystem& kernel;
-
-    friend class boost::serialization::access;
-    template <class Archive>
-    void serialize(Archive& ar, const unsigned int file_version) {
-        ar& objects;
-        ar& generations;
-        ar& next_generation;
-        ar& next_free_slot;
-    }
 };
 
 } // namespace Kernel

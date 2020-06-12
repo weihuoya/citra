@@ -6,7 +6,6 @@
 
 #include <new>
 #include <utility>
-#include <boost/serialization/access.hpp>
 #include "common/assert.h"
 #include "common/bit_field.h"
 #include "common/common_funcs.h"
@@ -226,13 +225,6 @@ union ResultCode {
     constexpr bool IsError() const {
         return is_error.ExtractValue(raw) == 1;
     }
-
-private:
-    template <class Archive>
-    void serialize(Archive& ar, const unsigned int) {
-        ar& raw;
-    }
-    friend class boost::serialization::access;
 };
 
 constexpr bool operator==(const ResultCode& a, const ResultCode& b) {

@@ -1,0 +1,7 @@
+* Justice Chronicles
+
+[30 FPS]
+20EE3668 0000001E
+
+[60 FPS]
+20EE3668 00000014
