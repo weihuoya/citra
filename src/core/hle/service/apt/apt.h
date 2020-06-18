@@ -7,11 +7,9 @@
 #include <array>
 #include <memory>
 #include <vector>
-#include "common/archives.h"
 #include "common/common_funcs.h"
 #include "common/common_types.h"
 #include "common/swap.h"
-#include "core/global.h"
 #include "core/hle/kernel/kernel.h"
 #include "core/hle/service/service.h"
 
@@ -72,6 +70,17 @@ public:
 
     protected:
         std::shared_ptr<Module> apt;
+
+        /**
+         * NS::SetWirelessRebootInfo service function. This sets the wireless reboot info.
+         * Inputs:
+         *     1 : size
+         *     2 : (Size<<14) | 2
+         *     3 : Wireless reboot info buffer ptr
+         * Outputs:
+         *     0 : Result of function, 0 on success, otherwise error code
+         */
+        void SetWirelessRebootInfo(Kernel::HLERequestContext& ctx);
     };
 
     class APTInterface : public ServiceFramework<APTInterface> {
@@ -138,6 +147,16 @@ public:
          *      5 : Output buffer address
          */
         void Unwrap(Kernel::HLERequestContext& ctx);
+
+        /**
+         * APT::GetWirelessRebootInfo service function
+         *  Inputs:
+         *      1 : size
+         *  Outputs:
+         *      1 : Result of function, 0 on success, otherwise error code
+         *      2 : Output parameter buffer ptr
+         */
+        void GetWirelessRebootInfo(Kernel::HLERequestContext& ctx);
 
         /**
          * APT::NotifyToWait service function
@@ -659,16 +678,12 @@ public:
          */
         void IsTitleAllowed(Kernel::HLERequestContext& ctx);
 
-    protected:
-        bool application_reset_prepared{};
-        std::shared_ptr<Module> apt;
+        void ReplySleepQuery(Kernel::HLERequestContext& ctx);
+        void IsStandardMemoryLayout(Kernel::HLERequestContext& ctx);
 
     private:
-        template <class Archive>
-        void serialize(Archive& ar, const unsigned int) {
-            ar& application_reset_prepared;
-        }
-        friend class boost::serialization::access;
+        bool application_reset_prepared{};
+        std::shared_ptr<Module> apt;
     };
 
 private:
@@ -697,13 +712,9 @@ private:
 
     std::shared_ptr<AppletManager> applet_manager;
 
-    template <class Archive>
-    void serialize(Archive& ar, const unsigned int);
-    friend class boost::serialization::access;
+    std::vector<u8> wireless_reboot_info;
 };
 
 void InstallInterfaces(Core::System& system);
 
 } // namespace Service::APT
-
-SERVICE_CONSTRUCT(Service::APT::Module)

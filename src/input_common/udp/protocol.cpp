@@ -9,7 +9,7 @@
 
 namespace InputCommon::CemuhookUDP {
 
-static constexpr std::size_t GetSizeOfResponseType(Type t) {
+static const std::size_t GetSizeOfResponseType(Type t) {
     switch (t) {
     case Type::Version:
         return sizeof(Response::Version);
@@ -31,21 +31,22 @@ namespace Response {
  */
 std::optional<Type> Validate(u8* data, std::size_t size) {
     if (size < sizeof(Header)) {
-        return std::nullopt;
+        LOG_DEBUG(Input, "Invalid UDP packet received");
+        return {};
     }
-    Header header{};
+    Header header;
     std::memcpy(&header, data, sizeof(Header));
     if (header.magic != SERVER_MAGIC) {
         LOG_ERROR(Input, "UDP Packet has an unexpected magic value");
-        return std::nullopt;
+        return {};
     }
     if (header.protocol_version != PROTOCOL_VERSION) {
         LOG_ERROR(Input, "UDP Packet protocol mismatch");
-        return std::nullopt;
+        return {};
     }
     if (header.type < Type::Version || header.type > Type::PadData) {
         LOG_ERROR(Input, "UDP Packet is an unknown type");
-        return std::nullopt;
+        return {};
     }
 
     // Packet size must equal sizeof(Header) + sizeof(Data)
@@ -58,7 +59,7 @@ std::optional<Type> Validate(u8* data, std::size_t size) {
             Input,
             "UDP Packet payload length doesn't match. Received: {} PayloadLength: {} Expected: {}",
             size, header.payload_length, data_len + sizeof(Type));
-        return std::nullopt;
+        return {};
     }
 
     const u32 crc32 = header.crc;
@@ -69,7 +70,7 @@ std::optional<Type> Validate(u8* data, std::size_t size) {
     result.process_bytes(data, data_len + sizeof(Header));
     if (crc32 != result.checksum()) {
         LOG_ERROR(Input, "UDP Packet CRC check failed. Offset: {}", offsetof(Header, crc));
-        return std::nullopt;
+        return {};
     }
     return header.type;
 }

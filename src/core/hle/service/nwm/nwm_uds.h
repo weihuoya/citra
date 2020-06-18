@@ -15,7 +15,6 @@
 #include <unordered_map>
 #include <vector>
 #include <boost/optional.hpp>
-#include <boost/serialization/export.hpp>
 #include "common/common_types.h"
 #include "common/swap.h"
 #include "core/hle/service/service.h"
@@ -73,9 +72,15 @@ enum class NetworkStatus {
     ConnectedAsSpectator = 10,
 };
 
+enum class DisconnectStatus {
+    Connected = 1,
+    NotConnected = 2,
+    // TODO(B3N30): Figure out the other values
+};
+
 struct ConnectionStatus {
     u32_le status;
-    INSERT_PADDING_WORDS(1);
+    u32_le disconnect_reason;
     u16_le network_node_id;
     u16_le changed_nodes;
     u16_le nodes[UDSMaxNodes];
@@ -398,6 +403,17 @@ private:
     void ConnectToNetworkDeprecated(Kernel::HLERequestContext& ctx);
 
     /**
+     * NWM_UDS::EjectClient Disconnects clients.
+     *  Inputs:
+     *      0 : Command header
+     *      1 : Network node id
+     *  Outputs:
+     *      0 : Return header
+     *      1 : Result of function, 0 on success, otherwise error code
+     */
+    void EjectClient(Kernel::HLERequestContext& ctx);
+
+    /**
      * NWM_UDS::DecryptBeaconData service function.
      * Decrypts the encrypted data tags contained in the 802.11 beacons.
      *  Inputs:
@@ -433,10 +449,10 @@ private:
     void BeaconBroadcastCallback(u64 userdata, s64 cycles_late);
 
     /**
-     * Returns a list of received 802.11 beacon frames from the specified sender since the last
-     * call.
+     * Returns a list of received 802.11 beacon frames from the specified sender and with the
+     * specified wlan_comm_id since the last call.
      */
-    std::list<Network::WifiPacket> GetReceivedBeacons(const MacAddress& sender);
+    std::list<Network::WifiPacket> GetReceivedBeacons(const MacAddress& sender, u32 wlan_comm_id);
 
     /*
      * Returns an available index in the nodes array for the
@@ -524,14 +540,6 @@ private:
     struct Node {
         bool connected;
         u16 node_id;
-
-    private:
-        template <class Archive>
-        void serialize(Archive& ar, const unsigned int) {
-            ar& connected;
-            ar& node_id;
-        }
-        friend class boost::serialization::access;
     };
 
     std::map<MacAddress, Node> node_map;
@@ -554,14 +562,6 @@ private:
 
     // List of the last <MaxBeaconFrames> beacons received from the network.
     std::list<Network::WifiPacket> received_beacons;
-
-    template <class Archive>
-    void serialize(Archive& ar, const unsigned int);
-    friend class boost::serialization::access;
 };
 
 } // namespace Service::NWM
-
-SERVICE_CONSTRUCT(Service::NWM::NWM_UDS)
-BOOST_CLASS_EXPORT_KEY(Service::NWM::NWM_UDS)
-BOOST_CLASS_EXPORT_KEY(Service::NWM::NWM_UDS::ThreadCallback)

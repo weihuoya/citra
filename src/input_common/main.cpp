@@ -26,10 +26,10 @@ void Init() {
                                                 std::make_shared<AnalogFromButton>());
     motion_emu = std::make_shared<MotionEmu>();
     Input::RegisterFactory<Input::MotionDevice>("motion_emu", motion_emu);
-
+#ifndef ANDROID
     sdl = SDL::Init();
-
     udp = CemuhookUDP::Init();
+#endif
 }
 
 void Shutdown() {
@@ -38,8 +38,10 @@ void Shutdown() {
     Input::UnregisterFactory<Input::AnalogDevice>("analog_from_button");
     Input::UnregisterFactory<Input::MotionDevice>("motion_emu");
     motion_emu.reset();
+#ifndef ANDROID
     sdl.reset();
     udp.reset();
+#endif
 }
 
 Keyboard* GetKeyboard() {

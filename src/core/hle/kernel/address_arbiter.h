@@ -6,12 +6,6 @@
 
 #include <memory>
 #include <vector>
-#include <boost/serialization/base_object.hpp>
-#include <boost/serialization/export.hpp>
-#include <boost/serialization/shared_ptr.hpp>
-#include <boost/serialization/string.hpp>
-#include <boost/serialization/vector.hpp>
-#include <boost/serialization/version.hpp>
 #include "common/common_types.h"
 #include "core/hle/kernel/object.h"
 #include "core/hle/kernel/thread.h"
@@ -77,21 +71,6 @@ private:
 
     /// Threads waiting for the address arbiter to be signaled.
     std::vector<std::shared_ptr<Thread>> waiting_threads;
-
-    friend class boost::serialization::access;
-    template <class Archive>
-    void serialize(Archive& ar, const unsigned int file_version) {
-        ar& boost::serialization::base_object<Object>(*this);
-        if (file_version > 0) {
-            ar& boost::serialization::base_object<WakeupCallback>(*this);
-        }
-        ar& name;
-        ar& waiting_threads;
-    }
 };
 
 } // namespace Kernel
-
-BOOST_CLASS_EXPORT_KEY(Kernel::AddressArbiter)
-BOOST_CLASS_VERSION(Kernel::AddressArbiter, 1)
-CONSTRUCT_KERNEL_OBJECT(Kernel::AddressArbiter)
