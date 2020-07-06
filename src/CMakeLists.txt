@@ -31,7 +31,6 @@ if (MSVC)
     # /Zc:externConstexpr - Allow extern constexpr variables to have external linkage, like the standard mandates
     # /Zc:inline          - Let codegen omit inline functions in object files
     # /Zc:throwingNew     - Let codegen assume `operator new` (without std::nothrow) will never return null
-    # /external:*         - Suppress warnings from external headers
     add_compile_options(
         /W3
         /MP
@@ -39,14 +38,11 @@ if (MSVC)
         /Zo
         /permissive-
         /EHsc
+        /std:c++latest
         /volatile:iso
         /Zc:externConstexpr
         /Zc:inline
         /Zc:throwingNew
-        /experimental:external
-        /external:I "${CMAKE_SOURCE_DIR}/externals"
-        /external:anglebrackets
-        /external:W0
     )
 
     # /GS- - No stack buffer overflow checks
@@ -101,7 +97,10 @@ add_subdirectory(video_core)
 add_subdirectory(audio_core)
 add_subdirectory(network)
 add_subdirectory(input_common)
-add_subdirectory(tests)
+
+if(NOT ANDROID)
+    add_subdirectory(tests)
+endif()
 
 if (ENABLE_SDL2)
     add_subdirectory(citra)
@@ -111,7 +110,7 @@ if (ENABLE_QT)
     add_subdirectory(citra_qt)
 endif()
 if (ANDROID)
-    add_subdirectory(android/app/src/main/cpp)
+    add_subdirectory(android/jni)
 else()
     add_subdirectory(dedicated_room)
 endif()

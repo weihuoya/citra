@@ -1,0 +1,10 @@
+* Phoenix Wright: Ace Attorney Spirit of Justice
+
+[30 FPS]
+18AFB712 000041F0
+
+[60 FPS]
+18AFB712 00004270
+
+[Half Speed]
+18AFB70E 00004170

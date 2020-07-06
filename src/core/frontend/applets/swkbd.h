@@ -4,7 +4,6 @@
 
 #pragma once
 
-#include <atomic>
 #include <unordered_map>
 #include <utility>
 #include <vector>
@@ -39,12 +38,11 @@ constexpr char SWKBD_BUTTON_FORGOT[] = "I Forgot";
 /// later learn is needed can be added here and filled in by the backend HLE applet
 struct KeyboardConfig {
     ButtonConfig button_config;
-    AcceptedInput accept_mode;   /// What kinds of input are accepted (blank/empty/fixed width)
-    bool multiline_mode;         /// True if the keyboard accepts multiple lines of input
-    u16 max_text_length;         /// Maximum number of letters allowed if its a text input
-    u16 max_digits;              /// Maximum number of numbers allowed if its a number input
-    std::string hint_text;       /// Displayed in the field as a hint before
-    bool has_custom_button_text; /// If true, use the button_text instead
+    AcceptedInput accept_mode; /// What kinds of input are accepted (blank/empty/fixed width)
+    bool multiline_mode;       /// True if the keyboard accepts multiple lines of input
+    u16 max_text_length;       /// Maximum number of letters allowed if its a text input
+    u16 max_digits;            /// Maximum number of numbers allowed if its a number input
+    std::string hint_text;     /// Displayed in the field as a hint before
     std::vector<std::string> button_text; /// Contains the button text that the caller provides
     struct Filters {
         bool prevent_digit;     /// Limit maximum digit count to max_digits
@@ -82,6 +80,8 @@ enum class ValidationError {
 
 class SoftwareKeyboard {
 public:
+    virtual ~SoftwareKeyboard() = default;
+
     /**
      * Executes the software keyboard, configured with the given parameters.
      */
@@ -133,7 +133,7 @@ protected:
     KeyboardConfig config;
     KeyboardData data;
 
-    std::atomic_bool data_ready = false;
+    bool data_ready = false;
 };
 
 class DefaultKeyboard final : public SoftwareKeyboard {

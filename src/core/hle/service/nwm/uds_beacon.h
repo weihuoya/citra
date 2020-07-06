@@ -16,6 +16,9 @@ namespace Service::NWM {
 using MacAddress = std::array<u8, 6>;
 constexpr std::array<u8, 3> NintendoOUI = {0x00, 0x1F, 0x32};
 
+// Size of the SSID broadcast by an UDS beacon frame.
+constexpr u8 UDSBeaconSSIDSize = 8;
+
 /**
  * Internal vendor-specific tag ids as stored inside
  * VendorSpecific blocks in the Beacon frames.
@@ -122,6 +125,14 @@ struct BeaconData {
 #pragma pack(pop)
 
 static_assert(sizeof(BeaconData) == 0x12, "BeaconData has incorrect size.");
+
+struct DecryptedBeacon {
+    BeaconFrameHeader header;
+    TagHeader ssid_header;
+    std::array<u8, UDSBeaconSSIDSize> ssid;
+    DummyTag dummy;
+    NetworkInfoTag network_info;
+};
 
 /**
  * Decrypts the beacon data buffer for the network described by `network_info`.

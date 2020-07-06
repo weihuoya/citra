@@ -14,7 +14,9 @@
 
 namespace Cheats {
 
-constexpr u64 run_interval_ticks = BASE_CLOCK_RATE_ARM11 / 60;
+// Luma3DS uses this interval for applying cheats, so to keep consistent behavior
+// we use the same value
+constexpr u64 run_interval_ticks = 50'000'000;
 
 CheatEngine::CheatEngine(Core::System& system_) : system(system_) {
     LoadCheatFile();
@@ -78,6 +80,14 @@ void CheatEngine::SaveCheatFile() const {
     }
 
     file.flush();
+}
+
+void CheatEngine::ReloadCheatFile() {
+    {
+        std::unique_lock<std::shared_mutex> lock(cheats_list_mutex);
+        cheats_list.clear();
+    }
+    LoadCheatFile();
 }
 
 void CheatEngine::LoadCheatFile() {

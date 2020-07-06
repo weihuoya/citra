@@ -2,10 +2,7 @@
 // Licensed under GPLv2 or any later version
 // Refer to the license.txt file included.
 
-#include "common/archives.h"
 #include "core/hle/service/cfg/cfg_i.h"
-
-SERIALIZE_EXPORT_IMPL(Service::CFG::CFG_I)
 
 namespace Service::CFG {
 
@@ -34,6 +31,7 @@ CFG_I::CFG_I(std::shared_ptr<Module> cfg) : Module::Interface(std::move(cfg), "c
         {0x04070000, nullptr, "SecureInfoGetByte101"},
         {0x04080042, nullptr, "SecureInfoGetSerialNo"},
         {0x04090000, nullptr, "UpdateConfigBlk00040003"},
+        {0x040F0000, nullptr, "ClearParentalControls"},
         {0x08010082, &CFG_I::D<&CFG_I::GetConfigInfoBlk8, 0x0801>, "GetConfigInfoBlk8"},
         {0x08020082, &CFG_I::D<&CFG_I::SetConfigInfoBlk4, 0x0802>, "SetConfigInfoBlk4"},
         {0x08030000, &CFG_I::D<&CFG_I::UpdateConfigNANDSavegame, 0x0803>,

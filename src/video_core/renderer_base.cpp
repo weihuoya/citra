@@ -9,6 +9,8 @@
 #include "video_core/swrasterizer/swrasterizer.h"
 #include "video_core/video_core.h"
 
+namespace VideoCore {
+
 RendererBase::RendererBase(Frontend::EmuWindow& window) : render_window{window} {}
 RendererBase::~RendererBase() = default;
 void RendererBase::UpdateCurrentFramebufferLayout() {
@@ -22,13 +24,12 @@ void RendererBase::RefreshRasterizerSetting() {
         opengl_rasterizer_active = hw_renderer_enabled;
 
         if (hw_renderer_enabled) {
-            rasterizer = std::make_unique<OpenGL::RasterizerOpenGL>(render_window);
+            rasterizer = std::make_unique<OpenGL::RasterizerOpenGL>();
         } else {
             rasterizer = std::make_unique<VideoCore::SWRasterizer>();
         }
     }
+    rasterizer->CheckForConfigChanges();
 }
 
-void RendererBase::Sync() {
-    rasterizer->SyncEntireState();
-}
+} // namespace VideoCore

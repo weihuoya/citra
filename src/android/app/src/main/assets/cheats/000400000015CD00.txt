@@ -1,0 +1,6 @@
+* Dragon Quest VIII: Sora to Umi to Daichi to Norowareshi Himegimi
+
+[60 fps]
+D3000000 08000000
+0026EB30 00000100
+D2000000 00000000

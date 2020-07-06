@@ -1,0 +1,7 @@
+* Fire Emblem If - Special Edition
+
+[60 FPS v1.0]
+206DBA84 00000001
+
+[60 FPS v1.1]
+206DCAAC 00000001

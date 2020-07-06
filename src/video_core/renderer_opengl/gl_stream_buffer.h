@@ -35,6 +35,7 @@ public:
 private:
     OGLBuffer gl_buffer;
     GLenum gl_target;
+    GLenum gl_target_invalidate_hack;
 
     bool coherent = false;
     bool persistent = false;

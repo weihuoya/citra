@@ -1,9 +1,5 @@
 # CMake 3.8 required for 17 to be a valid value for CXX_STANDARD
 cmake_minimum_required(VERSION 3.8)
-if (${CMAKE_VERSION} VERSION_GREATER_EQUAL 3.15)
-    # Don't override the warning flags in MSVC:
-    cmake_policy(SET CMP0092 NEW)
-endif ()
 list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/CMakeModules")
 list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/externals/cmake-modules")
 include(DownloadExternals)
@@ -38,10 +34,6 @@ option(USE_DISCORD_PRESENCE "Enables Discord Rich Presence" OFF)
 CMAKE_DEPENDENT_OPTION(ENABLE_MF "Use Media Foundation decoder (preferred over FFmpeg)" ON "WIN32" OFF)
 
 CMAKE_DEPENDENT_OPTION(COMPILE_WITH_DWARF "Add DWARF debugging information" ON "MINGW" OFF)
-
-option(USE_SYSTEM_BOOST "Use the system Boost libs (instead of the bundled ones)" OFF)
-
-CMAKE_DEPENDENT_OPTION(ENABLE_FDK "Use FDK AAC decoder" OFF "NOT ENABLE_FFMPEG_AUDIO_DECODER;NOT ENABLE_MF" OFF)
 
 if(NOT EXISTS ${PROJECT_SOURCE_DIR}/.git/hooks/pre-commit)
     message(STATUS "Copying pre-commit hook")
@@ -80,6 +72,19 @@ endif()
 
 # Detect current compilation architecture and create standard definitions
 # =======================================================================
+
+include(CheckAndAddFlag)
+check_and_add_flag(VISIBILITY_INLINES_HIDDEN -fvisibility-inlines-hidden)
+check_and_add_flag(VISIBILITY_HIDDEN -fvisibility=hidden)
+
+if(CMAKE_SYSTEM_PROCESSOR STREQUAL "aarch64")
+    set(_M_ARM 1)
+    set(_M_ARM64 1)
+    add_definitions(-D_M_ARM=1)
+    add_definitions(-D_M_ARM64=1)
+    # CRC instruction set is used in the CRC32 hash function
+    check_and_add_flag(HAVE_ARCH_ARMV8 -march=armv8-a+crc)
+endif()
 
 include(CheckSymbolExists)
 function(detect_architecture symbol arch)
@@ -132,6 +137,16 @@ set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${PROJECT_BINARY_DIR}/bin)
 # System imported libraries
 # ======================
 
+find_package(Boost 1.66.0 QUIET)
+if (NOT Boost_FOUND)
+    message(STATUS "Boost 1.66.0 or newer not found, falling back to externals")
+
+    set(BOOST_ROOT "${PROJECT_SOURCE_DIR}/externals/boost")
+    set(Boost_INCLUDE_DIR "${CMAKE_SOURCE_DIR}/externals/boost")
+    set(Boost_NO_SYSTEM_PATHS OFF)
+    find_package(Boost QUIET REQUIRED)
+endif()
+
 # Prefer the -pthread flag on Linux.
 set(THREADS_PREFER_PTHREAD_FLAG ON)
 find_package(Threads REQUIRED)
@@ -140,7 +155,7 @@ if (ENABLE_SDL2)
     if (CITRA_USE_BUNDLED_SDL2)
         # Detect toolchain and platform
         if ((MSVC_VERSION GREATER_EQUAL 1910 AND MSVC_VERSION LESS 1930) AND ARCHITECTURE_x86_64)
-            set(SDL2_VER "SDL2-2.0.10")
+            set(SDL2_VER "SDL2-2.0.8")
         else()
             message(FATAL_ERROR "No bundled SDL2 binaries for your toolchain. Disable CITRA_USE_BUNDLED_SDL2 and provide your own.")
         endif()
@@ -207,11 +222,7 @@ if (ENABLE_FFMPEG)
         endif()
     endif()
 
-    if (ENABLE_FFMPEG_VIDEO_DUMPER)
-        find_package(FFmpeg REQUIRED COMPONENTS avcodec avformat avutil swscale swresample)
-    else()
-        find_package(FFmpeg REQUIRED COMPONENTS avcodec)
-    endif()
+    find_package(FFmpeg REQUIRED COMPONENTS avcodec avformat avutil swscale swresample)
     if ("${FFmpeg_avcodec_VERSION}" VERSION_LESS "57.48.101")
         message(FATAL_ERROR "Found version for libavcodec is too low. The required version is at least 57.48.101 (included in FFmpeg 3.1 and later).")
     endif()
@@ -221,12 +232,6 @@ if (ENABLE_FFMPEG_VIDEO_DUMPER)
     add_definitions(-DENABLE_FFMPEG_VIDEO_DUMPER)
 endif()
 
-if (ENABLE_FDK)
-    find_library(FDK_AAC fdk-aac DOC "The path to fdk_aac library")
-    if(FDK_AAC STREQUAL "FDK_AAC-NOTFOUND")
-        message(FATAL_ERROR "fdk_aac library not found.")
-    endif()
-endif()
 # Platform-specific library requirements
 # ======================================
 
@@ -335,23 +340,12 @@ git_describe(GIT_DESC --always --long --dirty)
 git_branch_name(GIT_BRANCH)
 get_timestamp(BUILD_DATE)
 
-if (NOT USE_SYSTEM_BOOST)
-    add_definitions( -DBOOST_ALL_NO_LIB )
+if(NOT ANDROID)
+    enable_testing()
+    add_subdirectory(dist/installer)
 endif()
-
-enable_testing()
 add_subdirectory(externals)
-
-# Boost
-if (USE_SYSTEM_BOOST)
-    find_package(Boost 1.70.0 QUIET REQUIRED)
-else()
-    add_library(Boost::boost ALIAS boost)
-    add_library(Boost::serialization ALIAS boost_serialization)
-endif()
-
 add_subdirectory(src)
-add_subdirectory(dist/installer)
 
 
 # Set citra-qt project or citra project as default StartUp Project in Visual Studio depending on whether QT is enabled or not

@@ -95,11 +95,11 @@ void ARM_DynCom::InvalidateCacheRange(u32, std::size_t) {
     ClearInstructionCache();
 }
 
-void ARM_DynCom::SetPageTable(const std::shared_ptr<Memory::PageTable>& page_table) {
+void ARM_DynCom::SetPageTable(Memory::PageTable* page_table) {
     ClearInstructionCache();
 }
 
-std::shared_ptr<Memory::PageTable> ARM_DynCom::GetPageTable() const {
+Memory::PageTable* ARM_DynCom::GetPageTable() const {
     return nullptr;
 }
 

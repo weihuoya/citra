@@ -4,12 +4,8 @@
 
 #pragma once
 
-#include <algorithm>
 #include <array>
 #include <deque>
-#include <boost/serialization/deque.hpp>
-#include <boost/serialization/split_member.hpp>
-#include "common/common_types.h"
 
 namespace Common {
 
@@ -19,29 +15,15 @@ struct ThreadQueueList {
     //               (dynamically resizable) circular buffers to remove their overhead when
     //               inserting and popping.
 
-    typedef unsigned int Priority;
+    using Priority = unsigned int;
 
     // Number of priority levels. (Valid levels are [0..NUM_QUEUES).)
     static const Priority NUM_QUEUES = N;
 
-    ThreadQueueList() {
-        first = nullptr;
-    }
+    ThreadQueueList() = default;
 
-    // Only for debugging, returns priority level.
-    Priority contains(const T& uid) {
-        for (Priority i = 0; i < NUM_QUEUES; ++i) {
-            Queue& cur = queues[i];
-            if (std::find(cur.data.cbegin(), cur.data.cend(), uid) != cur.data.cend()) {
-                return i;
-            }
-        }
-
-        return -1;
-    }
-
-    T get_first() {
-        Queue* cur = first;
+    T get_first() const {
+        const Queue* cur = first;
         while (cur != nullptr) {
             if (!cur->data.empty()) {
                 return cur->data.front();
@@ -103,25 +85,6 @@ struct ThreadQueueList {
         cur->data.erase(iter, cur->data.end());
     }
 
-    void rotate(Priority priority) {
-        Queue* cur = &queues[priority];
-
-        if (cur->data.size() > 1) {
-            cur->data.push_back(std::move(cur->data.front()));
-            cur->data.pop_front();
-        }
-    }
-
-    void clear() {
-        queues.fill(Queue());
-        first = nullptr;
-    }
-
-    bool empty(Priority priority) const {
-        const Queue* cur = &queues[priority];
-        return cur->data.empty();
-    }
-
     void prepare(Priority priority) {
         Queue* cur = &queues[priority];
         if (cur->next_nonempty == UnlinkedTag())
@@ -157,55 +120,9 @@ private:
     }
 
     // The first queue that's ever been used.
-    Queue* first;
+    Queue* first = nullptr;
     // The priority level queues of thread ids.
     std::array<Queue, NUM_QUEUES> queues;
-
-    s64 ToIndex(const Queue* q) const {
-        if (q == nullptr) {
-            return -2;
-        } else if (q == UnlinkedTag()) {
-            return -1;
-        } else {
-            return q - queues.data();
-        }
-    }
-
-    Queue* ToPointer(s64 idx) {
-        if (idx == -1) {
-            return UnlinkedTag();
-        } else if (idx < 0) {
-            return nullptr;
-        } else {
-            return &queues[idx];
-        }
-    }
-
-    friend class boost::serialization::access;
-    template <class Archive>
-    void save(Archive& ar, const unsigned int file_version) const {
-        const s64 idx = ToIndex(first);
-        ar << idx;
-        for (std::size_t i = 0; i < NUM_QUEUES; i++) {
-            const s64 idx1 = ToIndex(queues[i].next_nonempty);
-            ar << idx1;
-            ar << queues[i].data;
-        }
-    }
-
-    template <class Archive>
-    void load(Archive& ar, const unsigned int file_version) {
-        s64 idx;
-        ar >> idx;
-        first = ToPointer(idx);
-        for (std::size_t i = 0; i < NUM_QUEUES; i++) {
-            ar >> idx;
-            queues[i].next_nonempty = ToPointer(idx);
-            ar >> queues[i].data;
-        }
-    }
-
-    BOOST_SERIALIZATION_SPLIT_MEMBER()
 };
 
 } // namespace Common
