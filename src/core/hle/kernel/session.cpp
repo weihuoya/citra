@@ -2,22 +2,11 @@
 // Licensed under GPLv2 or any later version
 // Refer to the license.txt file included.
 
-#include <boost/serialization/shared_ptr.hpp>
-#include "common/archives.h"
-#include "core/hle/kernel/client_port.h"
-#include "core/hle/kernel/client_session.h"
-#include "core/hle/kernel/server_session.h"
 #include "core/hle/kernel/session.h"
-
-SERIALIZE_IMPL(Kernel::Session)
+#include "core/hle/kernel/thread.h"
 
 namespace Kernel {
 
-template <class Archive>
-void Session::serialize(Archive& ar, const unsigned int file_version) {
-    ar& client;
-    ar& server;
-    ar& port;
-}
-
+Session::Session() {}
+Session::~Session() {}
 } // namespace Kernel

@@ -1,0 +1,232 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <android.support.v7.widget.Toolbar
+        android:id="@+id/toolbar_main"
+        android:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar"
+        app:popupTheme="@style/ThemeOverlay.AppCompat.Light"
+        android:background="?attr/colorPrimary"
+        android:layout_width="match_parent"
+        android:layout_height="?attr/actionBarSize"
+        android:layout_alignParentTop="true" />
+
+    <android.support.v7.widget.RecyclerView
+        android:id="@+id/memory_list"
+        android:layout_below="@id/toolbar_main"
+        android:layout_alignParentStart="true"
+        android:layout_width="364dp"
+        android:layout_height="match_parent"/>
+
+    <LinearLayout
+        android:id="@+id/memory_search_layout"
+        android:layout_below="@id/toolbar_main"
+        android:layout_toEndOf="@id/memory_list"
+        android:layout_alignParentEnd="true"
+        android:orientation="vertical"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <LinearLayout
+            android:orientation="horizontal"
+            android:paddingTop="6dp"
+            android:paddingBottom="4dp"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <TextView
+                android:text="@string/memory_region_text"
+                android:textColor="@android:color/black"
+                android:textSize="16sp"
+                android:layout_weight="1"
+                android:paddingStart="4dp"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"/>
+
+            <Spinner
+                android:id="@+id/spinner_mem_region"
+                android:layout_weight="1"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"/>
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:orientation="horizontal"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <TextView
+                android:text="@string/memory_region_start"
+                android:textColor="@android:color/black"
+                android:textSize="16sp"
+                android:layout_weight="4"
+                android:paddingStart="4dp"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"/>
+
+            <EditText
+                android:id="@+id/edit_region_start"
+                android:layout_weight="3"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"/>
+
+            <TextView
+                android:text="@string/memory_region_stop"
+                android:textColor="@android:color/black"
+                android:textSize="16sp"
+                android:layout_weight="4"
+                android:paddingStart="4dp"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"/>
+
+            <EditText
+                android:id="@+id/edit_region_stop"
+                android:layout_weight="3"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"/>
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:orientation="horizontal"
+            android:paddingTop="10dp"
+            android:paddingBottom="10dp"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <TextView
+                android:text="@string/memory_value_type"
+                android:textColor="@android:color/black"
+                android:textSize="16sp"
+                android:layout_weight="1"
+                android:paddingStart="4dp"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"/>
+
+            <Spinner
+                android:id="@+id/spinner_value_type"
+                android:layout_weight="1"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"/>
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:orientation="horizontal"
+            android:paddingTop="10dp"
+            android:paddingBottom="10dp"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <TextView
+                android:text="@string/memory_search_type"
+                android:textColor="@android:color/black"
+                android:textSize="16sp"
+                android:layout_weight="1"
+                android:paddingStart="4dp"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"/>
+
+            <Spinner
+                android:id="@+id/spinner_search_type"
+                android:layout_weight="1"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"/>
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:orientation="horizontal"
+            android:paddingTop="10dp"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <TextView
+                android:text="@string/memory_scan_type"
+                android:textColor="@android:color/black"
+                android:textSize="16sp"
+                android:layout_weight="1"
+                android:paddingStart="4dp"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"/>
+
+            <Spinner
+                android:id="@+id/spinner_scan_type"
+                android:layout_weight="1"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"/>
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:orientation="horizontal"
+            android:paddingTop="6dp"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <TextView
+                android:text="@string/memory_search_value"
+                android:textColor="@android:color/black"
+                android:textSize="16sp"
+                android:layout_weight="10"
+                android:paddingStart="4dp"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"/>
+
+            <CheckBox
+                android:id="@+id/checkbox_hex"
+                android:text="HEX"
+                android:layoutDirection="rtl"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"/>
+
+            <EditText
+                android:id="@+id/edit_search_value"
+                android:text="0"
+                android:layout_weight="7"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"/>
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:orientation="horizontal"
+            android:paddingTop="6dp"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <Button
+                android:id="@+id/btn_search"
+                android:text="@string/memory_btn_search"
+                android:layout_weight="1"
+                style="@style/Widget.AppCompat.Button.Colored"
+                android:stateListAnimator="@null"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"/>
+
+            <Button
+                android:id="@+id/btn_view"
+                android:text="@string/memory_btn_view"
+                android:layout_weight="1"
+                style="@style/Widget.AppCompat.Button.Colored"
+                android:stateListAnimator="@null"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"/>
+
+            <Button
+                android:id="@+id/btn_reset"
+                android:text="@string/memory_btn_reset"
+                android:layout_weight="1"
+                style="@style/Widget.AppCompat.Button.Colored"
+                android:stateListAnimator="@null"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"/>
+
+        </LinearLayout>
+
+    </LinearLayout>
+
+</RelativeLayout>

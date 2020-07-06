@@ -6,12 +6,10 @@
 
 #include <memory>
 #include <string>
-#include <boost/serialization/export.hpp>
 #include "common/assert.h"
 #include "common/common_types.h"
 #include "core/hle/kernel/ipc.h"
 #include "core/hle/kernel/object.h"
-#include "core/hle/kernel/session.h"
 #include "core/hle/kernel/wait_object.h"
 #include "core/hle/result.h"
 #include "core/memory.h"
@@ -105,13 +103,6 @@ private:
 
     friend class KernelSystem;
     KernelSystem& kernel;
-
-    friend class boost::serialization::access;
-    template <class Archive>
-    void serialize(Archive& ar, const unsigned int file_version);
 };
 
 } // namespace Kernel
-
-BOOST_CLASS_EXPORT_KEY(Kernel::ServerSession)
-CONSTRUCT_KERNEL_OBJECT(Kernel::ServerSession)

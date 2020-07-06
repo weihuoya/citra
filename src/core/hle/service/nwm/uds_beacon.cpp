@@ -24,9 +24,6 @@ constexpr u64 DefaultNetworkUptime = 900000000; // 15 minutes in microseconds.
 // broadcasting a Super Smash Bros. 4 lobby.
 constexpr u16 DefaultExtraCapabilities = 0x0431;
 
-// Size of the SSID broadcast by an UDS beacon frame.
-constexpr u8 UDSBeaconSSIDSize = 8;
-
 // The maximum size of the data stored in the EncryptedData0 tag (24).
 constexpr u32 EncryptedDataSizeCutoff = 0xFA;
 

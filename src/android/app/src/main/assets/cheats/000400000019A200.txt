@@ -1,0 +1,7 @@
+* Shin Megami Tensei IV Apocalypse
+
+[30 FPS]
+0063FF44 00000000
+
+[60 FPS]
+0063FF44 00000001

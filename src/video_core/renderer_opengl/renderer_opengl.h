@@ -10,7 +10,6 @@
 #include "common/math_util.h"
 #include "core/hw/gpu.h"
 #include "video_core/renderer_base.h"
-#include "video_core/renderer_opengl/frame_dumper_opengl.h"
 #include "video_core/renderer_opengl/gl_resource_manager.h"
 #include "video_core/renderer_opengl/gl_state.h"
 
@@ -18,21 +17,9 @@ namespace Layout {
 struct FramebufferLayout;
 }
 
-namespace Frontend {
-
-struct Frame {
-    u32 width{};                      /// Width of the frame (to detect resize)
-    u32 height{};                     /// Height of the frame
-    bool color_reloaded = false;      /// Texture attachment was recreated (ie: resized)
-    OpenGL::OGLRenderbuffer color{};  /// Buffer shared between the render/present FBO
-    OpenGL::OGLFramebuffer render{};  /// FBO created on the render thread
-    OpenGL::OGLFramebuffer present{}; /// FBO created on the present thread
-    GLsync render_fence{};            /// Fence created on the render thread
-    GLsync present_fence{};           /// Fence created on the presentation thread
-};
-} // namespace Frontend
-
 namespace OpenGL {
+
+class OGLTextureMailbox;
 
 /// Structure used for storing information about the textures for each 3DS screen
 struct TextureInfo {
@@ -51,13 +38,7 @@ struct ScreenInfo {
     TextureInfo texture;
 };
 
-struct PresentationTexture {
-    u32 width = 0;
-    u32 height = 0;
-    OGLTexture texture;
-};
-
-class RendererOpenGL : public RendererBase {
+class RendererOpenGL : public VideoCore::RendererBase {
 public:
     explicit RendererOpenGL(Frontend::EmuWindow& window);
     ~RendererOpenGL() override;
@@ -73,33 +54,18 @@ public:
 
     /// Draws the latest frame from texture mailbox to the currently bound draw framebuffer in this
     /// context
-    void TryPresent(int timeout_ms) override;
+    bool TryPresent() override;
 
-    /// Prepares for video dumping (e.g. create necessary buffers, etc)
-    void PrepareVideoDumping() override;
-
-    /// Cleans up after video dumping is ended
-    void CleanupVideoDumping() override;
+    ///
+    void ResetPresent() override;
 
 private:
     void InitOpenGLObjects();
-    void ReloadSampler();
-    void ReloadShader();
-    void PrepareRendertarget();
-    void RenderScreenshot();
-    void RenderToMailbox(const Layout::FramebufferLayout& layout,
-                         std::unique_ptr<Frontend::TextureMailbox>& mailbox, bool flipped);
     void ConfigureFramebufferTexture(TextureInfo& texture,
                                      const GPU::Regs::FramebufferConfig& framebuffer);
-    void DrawScreens(const Layout::FramebufferLayout& layout, bool flipped);
-    void DrawSingleScreenRotated(const ScreenInfo& screen_info, float x, float y, float w, float h);
-    void DrawSingleScreen(const ScreenInfo& screen_info, float x, float y, float w, float h);
-    void DrawSingleScreenStereoRotated(const ScreenInfo& screen_info_l,
-                                       const ScreenInfo& screen_info_r, float x, float y, float w,
-                                       float h);
-    void DrawSingleScreenStereo(const ScreenInfo& screen_info_l, const ScreenInfo& screen_info_r,
-                                float x, float y, float w, float h);
-    void UpdateFramerate();
+    void DrawScreens(const Layout::FramebufferLayout& layout);
+    void DrawSingleScreenRotated(u32 index);
+    void RenderToMailbox(const Layout::FramebufferLayout& layout);
 
     // Loads framebuffer from emulated memory into the display information structure
     void LoadFBToScreenInfo(const GPU::Regs::FramebufferConfig& framebuffer,
@@ -109,31 +75,24 @@ private:
 
     OpenGLState state;
 
+    std::unique_ptr<OGLTextureMailbox> mailbox;
+
     // OpenGL object IDs
     OGLVertexArray vertex_array;
     OGLBuffer vertex_buffer;
     OGLProgram shader;
-    OGLFramebuffer screenshot_framebuffer;
     OGLSampler filter_sampler;
 
     /// Display information for top and bottom screens respectively
     std::array<ScreenInfo, 3> screen_infos;
 
     // Shader uniform location indices
-    GLuint uniform_modelview_matrix;
     GLuint uniform_color_texture;
-    GLuint uniform_color_texture_r;
-
-    // Shader uniform for Dolphin compatibility
-    GLuint uniform_i_resolution;
-    GLuint uniform_o_resolution;
-    GLuint uniform_layer;
+    GLuint uniform_resolution;
 
     // Shader attribute input indices
     GLuint attrib_position;
     GLuint attrib_tex_coord;
-
-    FrameDumperOpenGL frame_dumper;
 };
 
 } // namespace OpenGL

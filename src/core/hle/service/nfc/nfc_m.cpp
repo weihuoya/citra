@@ -2,10 +2,7 @@
 // Licensed under GPLv2 or any later version
 // Refer to the license.txt file included.
 
-#include "common/archives.h"
 #include "core/hle/service/nfc/nfc_m.h"
-
-SERIALIZE_EXPORT_IMPL(Service::NFC::NFC_M)
 
 namespace Service::NFC {
 
@@ -38,6 +35,8 @@ NFC_M::NFC_M(std::shared_ptr<Module> nfc) : Module::Interface(std::move(nfc), "n
         {0x00190000, nullptr, "GetAppDataInitStruct"},
         {0x001A0000, &NFC_M::Unknown0x1A, "Unknown0x1A"},
         {0x001B0000, &NFC_M::GetIdentificationBlock, "GetIdentificationBlock"},
+        {0x001F0080, nullptr, "StartOtherTagScanning"},
+        {0x00200102, nullptr, "SendTagCommand"},
         // nfc:m
         {0x04040A40, nullptr, "SetAmiiboSettings"}
         // clang-format on

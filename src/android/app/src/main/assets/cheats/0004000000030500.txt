@@ -1,0 +1,5 @@
+* Super Street Fighter 4: 3D Edition
+
+[Disable FSAA v1.0]
+*citra_enabled
+08582D04 00000009

@@ -1,0 +1,7 @@
+* Saiki Kusuo no Psi Nan: Shijou Psi Dai no Psi Nan!?
+
+[30 FPS]
+08555044 00000002
+
+[60 FPS]
+08555044 00000001
