@@ -14,6 +14,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.view.InputDevice;
 import android.view.KeyEvent;
 import android.view.MotionEvent;
+import android.view.View;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -67,6 +68,12 @@ public final class EmulationActivity extends AppCompatActivity {
             mGameName = savedInstanceState.getString(EXTRA_GAME_NAME);
             mGamePath = savedInstanceState.getString(EXTRA_GAME_PATH);
         }
+
+        getWindow().getDecorView().setSystemUiVisibility(View.SYSTEM_UI_FLAG_FULLSCREEN
+                | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
+                | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
+                | View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
+                | View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY);
 
         // Find or create the EmulationFragment
         mEmulationFragment = (EmulationFragment)getSupportFragmentManager().findFragmentById(

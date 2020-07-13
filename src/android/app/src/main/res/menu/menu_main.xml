@@ -26,6 +26,11 @@
         app:showAsAction="never"/>
 
     <item
+        android:id="@+id/menu_combo_key"
+        android:title="@string/combo_key_settings"
+        app:showAsAction="never"/>
+
+    <item
         android:id="@+id/menu_system_files"
         android:title="@string/emulation_system_files"
         app:showAsAction="never"/>

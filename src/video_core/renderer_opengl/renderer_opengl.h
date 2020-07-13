@@ -87,6 +87,7 @@ private:
     std::array<ScreenInfo, 3> screen_infos;
 
     // Shader uniform location indices
+    GLuint uniform_modelview_matrix;
     GLuint uniform_color_texture;
     GLuint uniform_resolution;
 

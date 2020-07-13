@@ -309,6 +309,9 @@ public final class NativeLibrary {
         public static final int N3DS_TOUCH_X = 21;
         public static final int N3DS_TOUCH_Y = 22;
         public static final int N3DS_TOUCH_Z = 23;
+
+        public static final int EMU_COMBO_KEY_1 = 101;
+        public static final int EMU_COMBO_KEY_2 = 102;
     }
 
     /**

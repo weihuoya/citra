@@ -28,4 +28,8 @@
     <integer name="STICK_MAIN_Y">50</integer>
     <integer name="STICK_RIGHT_X">20</integer>
     <integer name="STICK_RIGHT_Y">50</integer>
+    <integer name="COMBO_KEY1_X">-20</integer>
+    <integer name="COMBO_KEY1_Y">20</integer>
+    <integer name="COMBO_KEY2_X">20</integer>
+    <integer name="COMBO_KEY2_Y">20</integer>
 </resources>

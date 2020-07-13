@@ -162,8 +162,8 @@ public:
             previous_frame = present_queue.front();
             present_queue.pop_front();
 
-            if (present_queue.size() > 2) {
-                // skip a frame if pendings more than 2
+            if (present_queue.size() > 1) {
+                // skip a frame if pendings more than 1
                 free_queue.push(present_queue.front());
                 present_queue.pop_front();
             }
@@ -195,8 +195,18 @@ in vec2 vert_position;
 in vec2 vert_tex_coord;
 out vec2 frag_tex_coord;
 
+// This is a truncated 3x3 matrix for 2D transformations:
+// The upper-left 2x2 submatrix performs scaling/rotation/mirroring.
+// The third column performs translation.
+// The third row could be used for projection, which we don't need in 2D. It hence is assumed to
+// implicitly be [0, 0, 1]
+uniform mat3x2 modelview_matrix;
+
 void main() {
-    gl_Position = vec4(vert_position, 0.0, 1.0);
+    // Multiply input position by the rotscale part of the matrix and then manually translate by
+    // the last column. This is equivalent to using a full 3x3 matrix and expanding the vector
+    // to `vec3(vert_position.xy, 1.0)`
+    gl_Position = vec4(mat2(modelview_matrix) * vert_position + modelview_matrix[2], 0.0, 1.0);
     frag_tex_coord = vert_tex_coord;
 }
 )";
@@ -254,6 +264,25 @@ struct ScreenRectVertex {
     GLfloat position[2];
     GLfloat tex_coord[2];
 };
+
+/**
+ * Defines a 1:1 pixel ortographic projection matrix with (0,0) on the top-left
+ * corner and (width, height) on the lower-bottom.
+ *
+ * The projection part of the matrix is trivial, hence these operations are represented
+ * by a 3x2 matrix.
+ */
+static std::array<GLfloat, 3 * 2> MakeOrthographicMatrix(float width, float height) {
+    std::array<GLfloat, 3 * 2> matrix; // Laid out in column-major order
+
+    // clang-format off
+    matrix[0] = 2.f / width; matrix[2] = 0.f;           matrix[4] = -1.f;
+    matrix[1] = 0.f;         matrix[3] = -2.f / height; matrix[5] = 1.f;
+    // Last matrix row is implicitly assumed to be [0, 0, 1].
+    // clang-format on
+
+    return matrix;
+}
 
 /**
  * option example: //! key = value
@@ -606,6 +635,7 @@ void RendererOpenGL::InitOpenGLObjects() {
     state.draw.vertex_buffer = vertex_buffer.handle;
     state.Apply();
 
+    uniform_modelview_matrix = glGetUniformLocation(shader.handle, "modelview_matrix");
     uniform_color_texture = glGetUniformLocation(shader.handle, "color_texture");
     uniform_resolution = glGetUniformLocation(shader.handle, "resolution");
     attrib_position = glGetAttribLocation(shader.handle, "vert_position");
@@ -731,6 +761,12 @@ void RendererOpenGL::DrawScreens(const Layout::FramebufferLayout& layout) {
 
     glClear(GL_COLOR_BUFFER_BIT);
 
+    OpenGLState::BindSampler(0, filter_sampler.handle);
+
+    // Set projection matrix
+    std::array<GLfloat, 3 * 2> ortho_matrix = MakeOrthographicMatrix(layout.width, layout.height);
+    glUniformMatrix3x2fv(uniform_modelview_matrix, 1, GL_FALSE, ortho_matrix.data());
+
     // Set vertices
     const auto& top_screen = layout.top_screen;
     const auto& top_texcoords = screen_infos[0].display_texcoords;
@@ -740,33 +776,28 @@ void RendererOpenGL::DrawScreens(const Layout::FramebufferLayout& layout) {
 
     const std::array<ScreenRectVertex, 8> vertices = {{
         // top screen
-        ScreenRectVertex(-1, -1, top_texcoords.top, top_texcoords.left),
-        ScreenRectVertex(1, -1, top_texcoords.top, top_texcoords.right),
-        ScreenRectVertex(-1, 1, top_texcoords.bottom, top_texcoords.left),
-        ScreenRectVertex(1, 1, top_texcoords.bottom, top_texcoords.right),
+        ScreenRectVertex(top_screen.left, top_screen.top, top_texcoords.bottom, top_texcoords.left),
+        ScreenRectVertex(top_screen.left, top_screen.top + top_screen.GetHeight(), top_texcoords.top, top_texcoords.left),
+        ScreenRectVertex(top_screen.left + top_screen.GetWidth(), top_screen.top, top_texcoords.bottom, top_texcoords.right),
+        ScreenRectVertex(top_screen.left + top_screen.GetWidth(), top_screen.top + top_screen.GetHeight(), top_texcoords.top, top_texcoords.right),
         // bottom screen
-        ScreenRectVertex(-1, -1, bottom_texcoords.top, bottom_texcoords.left),
-        ScreenRectVertex(1, -1, bottom_texcoords.top, bottom_texcoords.right),
-        ScreenRectVertex(-1, 1, bottom_texcoords.bottom, bottom_texcoords.left),
-        ScreenRectVertex(1, 1, bottom_texcoords.bottom, bottom_texcoords.right),
+        ScreenRectVertex(bottom_screen.left, bottom_screen.top, bottom_texcoords.bottom, bottom_texcoords.left),
+        ScreenRectVertex(bottom_screen.left, bottom_screen.top + bottom_screen.GetHeight(), bottom_texcoords.top, bottom_texcoords.left),
+        ScreenRectVertex(bottom_screen.left + bottom_screen.GetWidth(), bottom_screen.top, bottom_texcoords.bottom, bottom_texcoords.right),
+        ScreenRectVertex(bottom_screen.left + bottom_screen.GetWidth(), bottom_screen.top + bottom_screen.GetHeight(), bottom_texcoords.top, bottom_texcoords.right),
     }};
     // prefer `glBufferData` than `glBufferSubData` on mobile device
     glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices.data(), GL_STREAM_DRAW);
 
     if (layout.top_screen_enabled) {
-        glViewport(top_screen.left, layout.height - top_screen.bottom,
-                   top_screen.GetWidth(), top_screen.GetHeight());
         DrawSingleScreenRotated(0);
     }
 
     if (layout.bottom_screen_enabled) {
-        glViewport(bottom_screen.left, layout.height - bottom_screen.bottom,
-                   bottom_screen.GetWidth(), bottom_screen.GetHeight());
         DrawSingleScreenRotated(2);
     }
 
     // draw on screen display
-    glViewport(0, 0, layout.width, layout.height);
     OSD::DrawMessage(layout);
 }
 

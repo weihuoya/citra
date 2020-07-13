@@ -25,6 +25,8 @@
     <string name="grid_menu_input_binding">Input Binding</string>
     <string name="grid_menu_install_cia">Install CIA</string>
     <string name="preferences_settings">Settings</string>
+    <string name="combo_key_settings">Combo Key Settings</string>
+    <string name="combo_key_name">Combo Key %1$d</string>
 
     <string name="emulation_system_files">System Files</string>
     <string name="emulation_memory_viewer">Memory Viewer</string>
