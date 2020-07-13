@@ -25,6 +25,8 @@
     <string name="grid_menu_input_binding">手柄绑定</string>
     <string name="grid_menu_install_cia">安装 CIA</string>
     <string name="preferences_settings">设置</string>
+    <string name="combo_key_settings">组合键设置</string>
+    <string name="combo_key_name">组合键 %1$d</string>
 
     <string name="emulation_system_files">系统文件</string>
     <string name="emulation_memory_viewer">内存查看器</string>

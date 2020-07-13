@@ -16,6 +16,9 @@ import android.util.DisplayMetrics;
 import android.view.MotionEvent;
 import android.view.View;
 import java.util.ArrayList;
+import java.util.Arrays;
+
+import org.citra.emu.NativeLibrary;
 import org.citra.emu.NativeLibrary.ButtonType;
 import org.citra.emu.R;
 
@@ -81,6 +84,8 @@ public final class InputOverlay extends View {
             {ButtonType.N3DS_DPAD_UP, R.integer.PAD_MAIN_X, R.integer.PAD_MAIN_Y},
             {ButtonType.N3DS_CPAD_X, R.integer.STICK_MAIN_X, R.integer.STICK_MAIN_Y},
             {ButtonType.N3DS_STICK_X, R.integer.STICK_RIGHT_X, R.integer.STICK_RIGHT_Y},
+            {ButtonType.EMU_COMBO_KEY_1, R.integer.COMBO_KEY1_X, R.integer.COMBO_KEY1_Y},
+            {ButtonType.EMU_COMBO_KEY_2, R.integer.COMBO_KEY2_X, R.integer.COMBO_KEY2_Y},
         };
 
         for (int i = 0; i < buttons.length; ++i) {
@@ -374,7 +379,6 @@ public final class InputOverlay extends View {
         if (sHideInputOverlay)
             return;
 
-        int i = 0;
         int[][] buttons = new int[][] {
             {ButtonType.N3DS_BUTTON_A, R.drawable.classic_a, R.drawable.classic_a_pressed},
             {ButtonType.N3DS_BUTTON_B, R.drawable.classic_b, R.drawable.classic_b_pressed},
@@ -387,12 +391,35 @@ public final class InputOverlay extends View {
             {ButtonType.N3DS_BUTTON_ZL, R.drawable.classic_zl, R.drawable.classic_zl_pressed},
             {ButtonType.N3DS_BUTTON_ZR, R.drawable.classic_zr, R.drawable.classic_zr_pressed},
         };
-
-        for (; i < buttons.length; ++i) {
+        for (int i = 0; i < buttons.length; ++i) {
             int id = buttons[i][0];
             int normal = buttons[i][1];
             int pressed = buttons[i][2];
-            mButtons.add(initializeButton(normal, pressed, id));
+            int[] buttonIds = {id};
+            mButtons.add(initializeButton(normal, pressed, id, buttonIds));
+        }
+
+        int[][] combokeys = {
+                {ButtonType.EMU_COMBO_KEY_1, R.drawable.wiimote_one, R.drawable.wiimote_one_pressed},
+                {ButtonType.EMU_COMBO_KEY_2, R.drawable.wiimote_two, R.drawable.wiimote_two_pressed},
+        };
+        for (int i = 0; i < combokeys.length; ++i) {
+            String value = mPreferences.getString("combo_key_" + i, "");
+            String[] keyStrs = value.split(",");
+            ArrayList<Integer> keys = new ArrayList<>();
+            for (String key: keyStrs) {
+                if (!key.isEmpty()) {
+                    keys.add(Integer.parseInt(key));
+                }
+            }
+            if (keys.size() > 0) {
+                int id = combokeys[i][0];
+                int normal = combokeys[i][1];
+                int pressed = combokeys[i][2];
+                int[] buttonIds = new int[keys.size()];
+                Arrays.setAll(buttonIds, keys::get);
+                mButtons.add(initializeButton(normal, pressed, id, buttonIds));
+            }
         }
 
         // mDpads.add(initializeDpad(ButtonType.N3DS_CPAD_X));
@@ -403,12 +430,12 @@ public final class InputOverlay extends View {
         }
     }
 
-    private InputOverlayButton initializeButton(int defaultResId, int pressedResId, int buttonId) {
+    private InputOverlayButton initializeButton(int defaultResId, int pressedResId, int id, int[] buttons) {
         final Resources res = getResources();
         final DisplayMetrics dm = res.getDisplayMetrics();
         float scale = 0.14f * (sControllerScale + 50) / 100;
 
-        switch (buttonId) {
+        switch (id) {
         case ButtonType.N3DS_BUTTON_L:
         case ButtonType.N3DS_BUTTON_R:
             scale *= 1.7f;
@@ -422,17 +449,22 @@ public final class InputOverlay extends View {
         case ButtonType.N3DS_BUTTON_SELECT:
             scale *= 0.8f;
             break;
+
+        case ButtonType.EMU_COMBO_KEY_1:
+        case ButtonType.EMU_COMBO_KEY_2:
+            scale *= 0.9f;
+            break;
         }
 
         Bitmap defaultBitmap = resizeBitmap(BitmapFactory.decodeResource(res, defaultResId), scale);
         Bitmap pressedBitmap = resizeBitmap(BitmapFactory.decodeResource(res, pressedResId), scale);
         InputOverlayButton overlay =
-            new InputOverlayButton(defaultBitmap, pressedBitmap, buttonId);
+            new InputOverlayButton(defaultBitmap, pressedBitmap, id, buttons);
 
         // The X and Y coordinates of the InputOverlayDrawableButton on the InputOverlay.
         // These were set in the input overlay configuration menu.
-        float x = mPreferences.getFloat(buttonId + (mIsLandscape ? "_XX" : "_X"), 0f);
-        float y = mPreferences.getFloat(buttonId + (mIsLandscape ? "_YY" : "_Y"), 0.5f);
+        float x = mPreferences.getFloat(id + (mIsLandscape ? "_XX" : "_X"), 0f);
+        float y = mPreferences.getFloat(id + (mIsLandscape ? "_YY" : "_Y"), 0.5f);
 
         int width = defaultBitmap.getWidth();
         int height = defaultBitmap.getHeight();

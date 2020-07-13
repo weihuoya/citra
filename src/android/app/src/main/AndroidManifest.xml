@@ -61,6 +61,13 @@
             android:label="@string/preferences_settings"/>
 
         <activity
+            android:name=".ui.ComboKeyActivity"
+            android:launchMode="singleTop"
+            android:configChanges="orientation|screenSize"
+            android:theme="@style/CitraSettingsBase"
+            android:label="@string/combo_key_settings"/>
+
+        <activity
             android:name=".ui.EditorActivity"
             android:label="@string/app_name"
             android:screenOrientation="behind"

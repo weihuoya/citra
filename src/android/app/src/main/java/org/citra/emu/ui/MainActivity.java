@@ -134,6 +134,10 @@ public final class MainActivity extends AppCompatActivity {
             SettingsActivity.launch(this, MenuTag.INPUT, "");
             return true;
 
+        case R.id.menu_combo_key:
+            ComboKeyActivity.launch(this);
+            return true;
+
         case R.id.menu_system_files:
             SystemFilesActivity.launch(this);
             return true;
