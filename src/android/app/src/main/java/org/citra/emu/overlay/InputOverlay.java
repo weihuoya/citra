@@ -10,7 +10,7 @@ import android.graphics.Canvas;
 import android.graphics.Paint;
 import android.graphics.Rect;
 import android.graphics.drawable.BitmapDrawable;
-import android.preference.PreferenceManager;
+import androidx.preference.PreferenceManager;
 import android.util.AttributeSet;
 import android.util.DisplayMetrics;
 import android.view.MotionEvent;
@@ -18,7 +18,6 @@ import android.view.View;
 import java.util.ArrayList;
 import java.util.Arrays;
 
-import org.citra.emu.NativeLibrary;
 import org.citra.emu.NativeLibrary.ButtonType;
 import org.citra.emu.R;
 
@@ -86,6 +85,7 @@ public final class InputOverlay extends View {
             {ButtonType.N3DS_STICK_X, R.integer.STICK_RIGHT_X, R.integer.STICK_RIGHT_Y},
             {ButtonType.EMU_COMBO_KEY_1, R.integer.COMBO_KEY1_X, R.integer.COMBO_KEY1_Y},
             {ButtonType.EMU_COMBO_KEY_2, R.integer.COMBO_KEY2_X, R.integer.COMBO_KEY2_Y},
+            {ButtonType.EMU_COMBO_KEY_3, R.integer.COMBO_KEY3_X, R.integer.COMBO_KEY3_Y},
         };
 
         for (int i = 0; i < buttons.length; ++i) {
@@ -402,6 +402,7 @@ public final class InputOverlay extends View {
         int[][] combokeys = {
                 {ButtonType.EMU_COMBO_KEY_1, R.drawable.wiimote_one, R.drawable.wiimote_one_pressed},
                 {ButtonType.EMU_COMBO_KEY_2, R.drawable.wiimote_two, R.drawable.wiimote_two_pressed},
+                {ButtonType.EMU_COMBO_KEY_3, R.drawable.wiimote_three, R.drawable.wiimote_three_pressed},
         };
         for (int i = 0; i < combokeys.length; ++i) {
             String value = mPreferences.getString("combo_key_" + i, "");
@@ -452,6 +453,7 @@ public final class InputOverlay extends View {
 
         case ButtonType.EMU_COMBO_KEY_1:
         case ButtonType.EMU_COMBO_KEY_2:
+        case ButtonType.EMU_COMBO_KEY_3:
             scale *= 0.9f;
             break;
         }

@@ -21,4 +21,3 @@
 #-renamesourcefileattribute SourceFile
 
 -keep class org.citra.emu.NativeLibrary { *; }
--keep class android.support.v7.app.** { *; }

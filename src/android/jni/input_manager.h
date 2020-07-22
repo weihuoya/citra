@@ -37,8 +37,7 @@ public:
     void InitProfile();
 
     float GetInput(int button);
-    void InputEvent(int button, float value);
-
+    bool InputEvent(int button, float value);
     bool KeyEvent(int button, float value);
 
     void BeginTilt(int x, int y);

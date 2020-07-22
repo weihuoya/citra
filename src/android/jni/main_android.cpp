@@ -18,6 +18,7 @@
 #include "core/hle/service/cfg/cfg.h"
 #include "core/hle/service/nfc/nfc.h"
 #include "core/hle/service/ptm/ptm.h"
+#include "core/hle/service/hid/hid.h"
 #include "core/loader/smdh.h"
 #include "core/settings.h"
 #include "video_core/video_core.h"
@@ -35,6 +36,7 @@
 
 static ANativeWindow* s_surface = nullptr;
 
+static std::atomic<bool> s_update_hid;
 static std::atomic<bool> s_stop_running;
 static std::atomic<bool> s_is_running;
 static std::mutex s_running_mutex;
@@ -99,6 +101,9 @@ void BootGame(const std::string& path) {
         return;
     }
 
+    auto hid = system.ServiceManager().GetService<Service::HID::Module::Interface>("hid:USER")->GetModule();
+
+    s_update_hid = false;
     s_stop_running = false;
     s_is_running = true;
     while (!s_stop_running) {
@@ -111,6 +116,10 @@ void BootGame(const std::string& path) {
                 ShowMessageDialog(0, fmt::format("Error {}: {}", static_cast<u32>(result),
                                                  system.GetStatusDetails()));
                 break;
+            }
+            if (s_update_hid) {
+                hid->UpdatePad();
+                s_update_hid = false;
             }
         } else {
             // Ensure no audio bleeds out while game is paused
@@ -316,7 +325,9 @@ JNIEXPORT void JNICALL Java_org_citra_emu_NativeLibrary_HandleImage(JNIEnv* env,
 
 JNIEXPORT void JNICALL Java_org_citra_emu_NativeLibrary_InputEvent(JNIEnv* env, jclass obj,
                                                                    jint button, jfloat value) {
-    InputManager::GetInstance().InputEvent(button, value);
+    if (InputManager::GetInstance().InputEvent(button, value)) {
+        s_update_hid = true;
+    }
 }
 
 JNIEXPORT void JNICALL Java_org_citra_emu_NativeLibrary_TouchEvent(JNIEnv* env, jclass obj,
@@ -355,12 +366,18 @@ JNIEXPORT void JNICALL Java_org_citra_emu_NativeLibrary_KeyboardEvent(JNIEnv* en
 
 JNIEXPORT jboolean JNICALL Java_org_citra_emu_NativeLibrary_KeyEvent(JNIEnv* env, jclass obj,
                                                                      jint button, jint action) {
-    return InputManager::GetInstance().KeyEvent(button, action);
+    if (InputManager::GetInstance().KeyEvent(button, action)) {
+        s_update_hid = true;
+        return true;
+    }
+    return false;
 }
 
 JNIEXPORT void JNICALL Java_org_citra_emu_NativeLibrary_MoveEvent(JNIEnv* env, jclass obj,
                                                                   jint axis, jfloat value) {
-    InputManager::GetInstance().KeyEvent(axis, value * value * value);
+    if (InputManager::GetInstance().KeyEvent(axis, value * value * value)) {
+        s_update_hid = true;
+    }
 }
 
 JNIEXPORT void JNICALL Java_org_citra_emu_NativeLibrary_Run(JNIEnv* env, jclass obj,

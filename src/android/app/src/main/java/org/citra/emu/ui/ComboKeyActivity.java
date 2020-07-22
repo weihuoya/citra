@@ -10,17 +10,17 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
-import android.preference.PreferenceManager;
-import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.GridLayoutManager;
-import android.support.v7.widget.LinearLayoutManager;
-import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.CheckBox;
 import android.widget.TextView;
+
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.recyclerview.widget.GridLayoutManager;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
+import androidx.preference.PreferenceManager;
 
 import com.nononsenseapps.filepicker.DividerItemDecoration;
 
@@ -53,7 +53,7 @@ public final class ComboKeyActivity extends AppCompatActivity {
 
     private SettingAdapter mAdapter;
     private RecyclerView mListView;
-    private SettingModel[] mComboKeys = new SettingModel[2];
+    private SettingModel[] mComboKeys = new SettingModel[3];
 
     public static void launch(Context context) {
         Intent settings = new Intent(context, ComboKeyActivity.class);

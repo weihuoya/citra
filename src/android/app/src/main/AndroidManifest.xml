@@ -14,13 +14,13 @@
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/>
 
     <application
-        android:name="org.citra.emu.CitraApplication"
         android:label="Citra"
         android:icon="@mipmap/ic_citra"
         android:allowBackup="true"
         android:hardwareAccelerated="true"
         android:isGame="true"
         android:resizeableActivity="false"
+        android:requestLegacyExternalStorage="true"
         android:banner="@mipmap/ic_citra">
 
         <activity
@@ -89,7 +89,7 @@
             android:theme="@style/CitraBase"/>
 
         <provider
-            android:name="android.support.v4.content.FileProvider"
+            android:name="androidx.core.content.FileProvider"
             android:authorities="${applicationId}.filesprovider"
             android:exported="false"
             android:grantUriPermissions="true">

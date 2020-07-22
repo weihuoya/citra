@@ -4,22 +4,12 @@
 
 package org.citra.emu.ui;
 
-import android.content.BroadcastReceiver;
-import android.content.Context;
 import android.content.Intent;
-import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
-import android.preference.PreferenceManager;
-import android.support.v4.content.LocalBroadcastManager;
-import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.GridLayoutManager;
-import android.support.v7.widget.LinearLayoutManager;
-import android.support.v7.widget.RecyclerView;
-import android.support.v7.widget.Toolbar;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -31,6 +21,13 @@ import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.recyclerview.widget.GridLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
+import androidx.appcompat.widget.Toolbar;
+import androidx.preference.PreferenceManager;
+
 import com.nononsenseapps.filepicker.DividerItemDecoration;
 import java.io.File;
 import java.io.FileReader;
@@ -65,7 +62,6 @@ public final class MainActivity extends AppCompatActivity {
     private TextView mEmulationInfo;
     private RecyclerView mGameListView;
     private Button mBtnAddFiles;
-    private BroadcastReceiver mBroadcastReceiver;
     private boolean mIsListApp;
 
     public static MainActivity get() {
@@ -102,6 +98,7 @@ public final class MainActivity extends AppCompatActivity {
 
         loadTitleDB();
         if (PermissionsHandler.checkWritePermission(this)) {
+            DirectoryInitialization.start(this);
             showGameList();
         }
     }
@@ -187,18 +184,17 @@ public final class MainActivity extends AppCompatActivity {
 
     @Override
     protected void onDestroy() {
+        super.onDestroy();
+
         SharedPreferences.Editor editor = PreferenceManager.getDefaultSharedPreferences(this).edit();
         editor.putBoolean(PREF_LIST_TYPE, mIsListApp);
         editor.apply();
-
-        super.onDestroy();
-        if (mBroadcastReceiver != null) {
-            LocalBroadcastManager.getInstance(this).unregisterReceiver(mBroadcastReceiver);
-        }
     }
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent result) {
+        super.onActivityResult(requestCode, resultCode, result);
+
         switch (requestCode) {
         case REQUEST_ADD_DIRECTORY:
             // If the user picked a file, as opposed to just backing out.
@@ -220,17 +216,8 @@ public final class MainActivity extends AppCompatActivity {
         switch (requestCode) {
         case PermissionsHandler.REQUEST_CODE_WRITE_PERMISSION:
             if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                IntentFilter filter = new IntentFilter();
-                filter.addAction(DirectoryInitialization.BROADCAST_ACTION);
-                mBroadcastReceiver = new BroadcastReceiver() {
-                    @Override
-                    public void onReceive(Context context, Intent intent) {
-                        showGameList();
-                    }
-                };
-                LocalBroadcastManager.getInstance(this).registerReceiver(mBroadcastReceiver,
-                                                                         filter);
                 DirectoryInitialization.start(this);
+                showGameList();
             } else {
                 Toast.makeText(this, R.string.write_permission_needed, Toast.LENGTH_SHORT).show();
             }

@@ -1,7 +1,7 @@
 apply plugin: 'com.android.application'
 
 android {
-    compileSdkVersion 28
+    compileSdkVersion 29
 
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_1_8
@@ -17,7 +17,7 @@ android {
     defaultConfig {
         applicationId "org.citra.emu"
         minSdkVersion 24
-        targetSdkVersion 28
+        targetSdkVersion 29
         versionCode(getBuildVersionCode())
         versionName "${getVersion()}"
     }
@@ -57,7 +57,8 @@ android {
             version "3.10.2"
         }
     }
-    ndkVersion = '21.0.6113669'
+
+    ndkVersion = '21.3.6528147'
 
     defaultConfig {
         externalNativeBuild {
@@ -75,15 +76,11 @@ android {
     }
 }
 
-ext {
-    androidSupportVersion = '27.1.0'
-}
-
 dependencies {
-    implementation "com.android.support:support-v13:$androidSupportVersion"
-    implementation "com.android.support:cardview-v7:$androidSupportVersion"
-    implementation "com.android.support:recyclerview-v7:$androidSupportVersion"
-    implementation "com.android.support:design:$androidSupportVersion"
+    implementation "androidx.appcompat:appcompat:1.1.+"
+    implementation "androidx.recyclerview:recyclerview:1.1.+"
+    implementation "androidx.cardview:cardview:1.0.+"
+    implementation "androidx.preference:preference:1.1.+"
 }
 
 def getVersion() {

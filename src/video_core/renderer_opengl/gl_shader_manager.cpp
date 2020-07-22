@@ -166,6 +166,13 @@ public:
                 OGLShaderStage& cached_shader = iter->second;
                 if (new_shader) {
                     cached_shader.Create(vs_code, GL_VERTEX_SHADER, code_hash);
+                    // load cached shader reference
+                    auto iter = reference_cache.find(code_hash);
+                    if (iter != reference_cache.end()) {
+                        for (const auto& hash : iter->second) {
+                            shaders_ref[hash] = &cached_shader;
+                        }
+                    }
                 }
                 shaders_ref[key_hash] = &cached_shader;
                 current_shaders.vs = &cached_shader;
@@ -199,6 +206,13 @@ public:
             OGLShaderStage& cached_shader = iter->second;
             if (new_shader) {
                 cached_shader.Create(fs_code, GL_FRAGMENT_SHADER, code_hash);
+                // load cached shader reference
+                auto iter = reference_cache.find(code_hash);
+                if (iter != reference_cache.end()) {
+                    for (const auto& hash : iter->second) {
+                        shaders_ref[hash] = &cached_shader;
+                    }
+                }
             }
             shaders_ref[key_hash] = &cached_shader;
             current_shaders.fs = &cached_shader;
@@ -254,6 +268,7 @@ public:
 
     void CreateProgram(OGLProgram& program, u64 hash, GLuint vs, GLuint gs, GLuint fs) {
         auto iter = binary_cache.find(hash);
+        // load opengl program binary cache
         if (iter != binary_cache.end()) {
             program.Create(iter->second.format, iter->second.binary);
             if (program.handle == 0) {
@@ -306,9 +321,11 @@ public:
             if (!file.IsGood()) {
                 file.Close();
                 FileUtil::Delete(GetCacheFile());
-                break;
+                return;
             }
         }
+
+        SaveShadersRef(file);
     }
 
     void LoadProgramCache() {
@@ -343,7 +360,79 @@ public:
             if (!file.IsGood()) {
                 file.Close();
                 FileUtil::Delete(GetCacheFile());
-                break;
+                return;
+            }
+        }
+
+        LoadShadersRef(file);
+    }
+
+    void SaveShadersRef(FileUtil::IOFile& file) {
+        for (const auto& ref : shaders_ref) {
+            u64 key_hash = ref.first;
+            u64 code_hash = ref.second->GetHash();
+            auto iter = reference_cache.find(code_hash);
+            if (iter != reference_cache.end()) {
+                iter->second.insert(key_hash);
+            } else {
+                reference_cache[code_hash] = {key_hash};
+            }
+        }
+
+        file.WriteBytes(&PROGRAM_CACHE_VERSION, sizeof(PROGRAM_CACHE_VERSION));
+
+        s32 count = static_cast<s32>(reference_cache.size());
+        file.WriteBytes(&count, sizeof(count));
+
+        for (const auto& ref : reference_cache) {
+            s32 item_count = ref.second.size();
+            if (item_count > 9) {
+                u64 code_hash = ref.first;
+                file.WriteBytes(&code_hash, sizeof(code_hash));
+                file.WriteBytes(&item_count, sizeof(item_count));
+                for (const auto& key_hash : ref.second) {
+                    file.WriteBytes(&key_hash, sizeof(key_hash));
+                }
+                if (!file.IsGood()) {
+                    file.Close();
+                    FileUtil::Delete(GetCacheFile());
+                    return;
+                }
+            }
+        }
+    }
+
+    void LoadShadersRef(FileUtil::IOFile& file) {
+        u32 verion = 0;
+        file.ReadBytes(&verion, sizeof(verion));
+        if (verion != PROGRAM_CACHE_VERSION) {
+            file.Close();
+            FileUtil::Delete(GetCacheFile());
+            return;
+        }
+
+        s32 count = 0;
+        file.ReadBytes(&count, sizeof(count));
+
+        for (s32 i = 0; i < count; ++i) {
+            u64 code_hash = 0;
+            s32 item_count = 0;
+            file.ReadBytes(&code_hash, sizeof(code_hash));
+            file.ReadBytes(&item_count, sizeof(item_count));
+
+            std::unordered_set<u64> hash_set;
+            for (s32 j = 0; j < item_count; ++j) {
+                u64 key_hash = 0;
+                file.ReadBytes(&key_hash, sizeof(key_hash));
+                hash_set.insert(key_hash);
+            }
+
+            reference_cache[code_hash] = hash_set;
+
+            if (!file.IsGood()) {
+                file.Close();
+                FileUtil::Delete(GetCacheFile());
+                return;
             }
         }
     }
@@ -364,6 +453,7 @@ private:
         std::vector<GLbyte> binary;
     };
     std::unordered_map<u64, ProgramCacheEntity> binary_cache;
+    std::unordered_map<u64, std::unordered_set<u64>> reference_cache;
 
     OGLShaderStage trivial_vertex_shader;
     OGLShaderStage trivial_geometry_shader;

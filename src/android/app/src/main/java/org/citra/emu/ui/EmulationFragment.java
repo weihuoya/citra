@@ -2,7 +2,6 @@ package org.citra.emu.ui;
 
 import android.graphics.Rect;
 import android.os.Bundle;
-import android.support.v4.app.Fragment;
 import android.view.Choreographer;
 import android.view.LayoutInflater;
 import android.view.Surface;
@@ -11,6 +10,9 @@ import android.view.SurfaceView;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+
+import androidx.fragment.app.Fragment;
+
 import org.citra.emu.NativeLibrary;
 import org.citra.emu.R;
 import org.citra.emu.overlay.InputOverlay;

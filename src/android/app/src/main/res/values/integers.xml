@@ -32,4 +32,6 @@
     <integer name="COMBO_KEY1_Y">20</integer>
     <integer name="COMBO_KEY2_X">20</integer>
     <integer name="COMBO_KEY2_Y">20</integer>
+    <integer name="COMBO_KEY3_X">0</integer>
+    <integer name="COMBO_KEY3_Y">20</integer>
 </resources>

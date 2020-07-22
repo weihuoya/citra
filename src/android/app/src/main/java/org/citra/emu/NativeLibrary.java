@@ -19,9 +19,11 @@ import java.net.URL;
 import org.citra.emu.ui.EmulationActivity;
 import org.citra.emu.ui.MainActivity;
 
-import javax.net.ssl.HttpsURLConnection;
-
 public final class NativeLibrary {
+
+    static {
+        System.loadLibrary("main");
+    }
 
     public static Context getMainContext() {
         return MainActivity.get();
@@ -312,6 +314,7 @@ public final class NativeLibrary {
 
         public static final int EMU_COMBO_KEY_1 = 101;
         public static final int EMU_COMBO_KEY_2 = 102;
+        public static final int EMU_COMBO_KEY_3 = 103;
     }
 
     /**
