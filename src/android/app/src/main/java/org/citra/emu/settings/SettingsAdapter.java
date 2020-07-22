@@ -3,8 +3,6 @@ package org.citra.emu.settings;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.SharedPreferences;
-import android.preference.PreferenceManager;
-import android.support.v7.widget.RecyclerView;
 import android.text.Html;
 import android.text.Spanned;
 import android.util.Log;
@@ -13,6 +11,10 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.SeekBar;
 import android.widget.TextView;
+
+import androidx.recyclerview.widget.RecyclerView;
+import androidx.preference.PreferenceManager;
+
 import java.util.ArrayList;
 import org.citra.emu.R;
 import org.citra.emu.settings.model.BooleanSetting;

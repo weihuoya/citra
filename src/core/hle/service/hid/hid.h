@@ -295,6 +295,8 @@ public:
 
     const PadState& GetState() const;
 
+    void UpdatePad();
+
 private:
     void LoadInputDevices();
     void UpdatePadCallback(u64 userdata, s64 cycles_late);

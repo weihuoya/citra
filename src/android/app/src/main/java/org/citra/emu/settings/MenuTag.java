@@ -1,6 +1,6 @@
 package org.citra.emu.settings;
 
-import android.support.annotation.Nullable;
+import androidx.annotation.Nullable;
 
 public enum MenuTag {
     CONFIG("Config"),

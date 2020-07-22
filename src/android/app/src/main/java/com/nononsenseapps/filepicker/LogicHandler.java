@@ -7,11 +7,12 @@
 package com.nononsenseapps.filepicker;
 
 import android.net.Uri;
-import android.support.annotation.NonNull;
-import android.support.v4.content.Loader;
-import android.support.v7.util.SortedList;
-import android.support.v7.widget.RecyclerView;
 import android.view.ViewGroup;
+
+import androidx.annotation.NonNull;
+import androidx.loader.content.Loader;
+import androidx.recyclerview.widget.RecyclerView;
+import androidx.recyclerview.widget.SortedList;
 
 /**
  * An interface for the methods required to handle backend-specific stuff.
@@ -73,7 +74,8 @@ public interface LogicHandler<T> {
      * Get a loader that lists the files in the current path,
      * and monitors changes.
      */
-    @NonNull Loader<SortedList<T>> getLoader();
+    @NonNull
+    Loader<SortedList<T>> getLoader();
 
     /**
      * Bind the header ".." which goes to parent folder.

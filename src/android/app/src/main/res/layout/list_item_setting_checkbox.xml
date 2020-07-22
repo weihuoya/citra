@@ -19,8 +19,7 @@
         android:layout_marginStart="@dimen/spacing_large"
         android:layout_marginTop="@dimen/spacing_large"
         android:layout_toStartOf="@+id/checkbox"
-        android:textSize="16sp"
-        tools:text="@string/overclock_enable"/>
+        android:textSize="16sp"/>
 
     <TextView
         android:id="@+id/text_setting_description"
@@ -33,8 +32,7 @@
         android:layout_marginEnd="@dimen/spacing_large"
         android:layout_marginStart="@dimen/spacing_large"
         android:layout_marginTop="@dimen/spacing_small"
-        android:layout_toStartOf="@+id/checkbox"
-        tools:text="@string/overclock_enable_description"/>
+        android:layout_toStartOf="@+id/checkbox"/>
 
     <CheckBox
         android:id="@+id/checkbox"

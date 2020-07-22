@@ -140,12 +140,15 @@ float InputManager::GetInput(int button) {
     return mAnalogs[button];
 }
 
-void InputManager::InputEvent(int button, float value) {
+bool InputManager::InputEvent(int button, float value) {
+    bool handled;
     if (button >= N3DS_CPAD_X) {
         mAnalogs[button - N3DS_CPAD_X] = value;
+        handled = true;
     } else {
-        KeyEvent(mButtonKeys[button], value);
+        handled = KeyEvent(mButtonKeys[button], value);
     }
+    return handled;
 }
 
 bool InputManager::KeyEvent(int button, float value) {

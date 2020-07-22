@@ -1,36 +1,20 @@
 package org.citra.emu.utils;
 
 import android.content.Context;
-import android.content.Intent;
 import android.os.Environment;
-import android.support.v4.content.LocalBroadcastManager;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.util.concurrent.atomic.AtomicBoolean;
 import org.citra.emu.NativeLibrary;
 
 public final class DirectoryInitialization {
-    public static final String BROADCAST_ACTION = "org.citra.emu.DIRECTORY_INITIALIZATION";
-
-    public static final String EXTRA_STATE = "DirectoryState";
-    private static volatile DirectoryInitializationState sDirectoryState;
+    private static DirectoryInitializationState sDirectoryState;
     private static String mUserPath;
-    private static AtomicBoolean mIsRunning = new AtomicBoolean(false);
 
     public static void start(Context context) {
-        // Can take a few seconds to run, so don't block UI thread.
-        // noinspection TrivialFunctionalExpressionUsage
-        ((Runnable)() -> init(context)).run();
-    }
-
-    private static void init(Context context) {
-        if (!mIsRunning.compareAndSet(false, true))
-            return;
-
         if (sDirectoryState != DirectoryInitializationState.DIRECTORIES_INITIALIZED) {
             if (PermissionsHandler.hasWriteAccess(context)) {
                 if (setUserDirectory()) {
@@ -43,9 +27,6 @@ public final class DirectoryInitialization {
                 sDirectoryState = DirectoryInitializationState.EXTERNAL_STORAGE_PERMISSION_NEEDED;
             }
         }
-
-        mIsRunning.set(false);
-        sendBroadcastState(sDirectoryState, context);
     }
 
     private static boolean setUserDirectory() {
@@ -83,10 +64,6 @@ public final class DirectoryInitialization {
         file.delete();
     }
 
-    public static boolean isReady() {
-        return sDirectoryState == DirectoryInitializationState.DIRECTORIES_INITIALIZED;
-    }
-
     public static String getUserDirectory() {
         return mUserPath;
     }
@@ -121,11 +98,6 @@ public final class DirectoryInitialization {
 
     public static String getSDMCDirectory() {
         return getUserDirectory() + File.separator + "sdmc";
-    }
-
-    private static void sendBroadcastState(DirectoryInitializationState state, Context context) {
-        Intent localIntent = new Intent(BROADCAST_ACTION).putExtra(EXTRA_STATE, state);
-        LocalBroadcastManager.getInstance(context).sendBroadcast(localIntent);
     }
 
     private static void copyAsset(String asset, File output, Boolean overwrite, Context context) {

@@ -73,11 +73,8 @@ void Module::LoadInputDevices() {
         Settings::values.current_input_profile.touch_device);
 }
 
-void Module::UpdatePadCallback(u64 userdata, s64 cycles_late) {
+void Module::UpdatePad() {
     SharedMem* mem = reinterpret_cast<SharedMem*>(shared_mem->GetPointer());
-
-    if (is_device_reload_pending.exchange(false))
-        LoadInputDevices();
 
     using namespace Settings::NativeButton;
     state.a.Assign(buttons[A - BUTTON_HID_BEGIN]->GetStatus());
@@ -160,6 +157,14 @@ void Module::UpdatePadCallback(u64 userdata, s64 cycles_late) {
         mem->touch.index_reset_ticks_previous = mem->touch.index_reset_ticks;
         mem->touch.index_reset_ticks = (s64)system.CoreTiming().GetTicks();
     }
+}
+
+void Module::UpdatePadCallback(u64 userdata, s64 cycles_late) {
+    if (is_device_reload_pending.exchange(false))
+        LoadInputDevices();
+
+    // gamepad input
+    UpdatePad();
 
     // Signal both handles when there's an update to Pad or touch
     event_pad_or_touch_1->Signal();
