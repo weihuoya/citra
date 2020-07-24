@@ -75,7 +75,7 @@ void File::Read(Kernel::HLERequestContext& ctx) {
     }
     rb.PushMappedBuffer(buffer);
 
-    std::chrono::nanoseconds read_timeout_ns{backend->GetReadDelayNs(length)};
+    std::chrono::nanoseconds read_timeout_ns{20000};
     ctx.SleepClientThread("file::read", read_timeout_ns, nullptr);
 }
 

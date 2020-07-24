@@ -41,35 +41,6 @@ if(NOT EXISTS ${PROJECT_SOURCE_DIR}/.git/hooks/pre-commit)
         DESTINATION ${PROJECT_SOURCE_DIR}/.git/hooks)
 endif()
 
-# Sanity check : Check that all submodules are present
-# =======================================================================
-
-function(check_submodules_present)
-    file(READ "${PROJECT_SOURCE_DIR}/.gitmodules" gitmodules)
-    string(REGEX MATCHALL "path *= *[^ \t\r\n]*" gitmodules ${gitmodules})
-    foreach(module ${gitmodules})
-        string(REGEX REPLACE "path *= *" "" module ${module})
-        if (NOT EXISTS "${PROJECT_SOURCE_DIR}/${module}/.git")
-            message(SEND_ERROR "Git submodule ${module} not found."
-                    "Please run: git submodule update --init --recursive")
-        endif()
-    endforeach()
-endfunction()
-check_submodules_present()
-
-configure_file(${PROJECT_SOURCE_DIR}/dist/compatibility_list/compatibility_list.qrc
-               ${PROJECT_BINARY_DIR}/dist/compatibility_list/compatibility_list.qrc
-               COPYONLY)
-if (ENABLE_COMPATIBILITY_LIST_DOWNLOAD AND NOT EXISTS ${PROJECT_BINARY_DIR}/dist/compatibility_list/compatibility_list.json)
-    message(STATUS "Downloading compatibility list for citra...")
-    file(DOWNLOAD
-        https://api.citra-emu.org/gamedb/
-        "${PROJECT_BINARY_DIR}/dist/compatibility_list/compatibility_list.json" SHOW_PROGRESS)
-endif()
-if (NOT EXISTS ${PROJECT_BINARY_DIR}/dist/compatibility_list/compatibility_list.json)
-    file(WRITE ${PROJECT_BINARY_DIR}/dist/compatibility_list/compatibility_list.json "")
-endif()
-
 # Detect current compilation architecture and create standard definitions
 # =======================================================================
 

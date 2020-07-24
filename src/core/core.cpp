@@ -212,6 +212,10 @@ static void LoadOverrides(u64 title_id) {
                title_id == 0x0004000000089E00) {
         // Super Mario 3D Land
         Settings::values.shaders_accurate_mul = Settings::AccurateMul::FAST;
+    } else if (title_id == 0x0004000000134500 || title_id == 0x00040000000DF800 ||
+               title_id == 0x0004000000152000 || title_id == 0x00040000001AA200) {
+        // Attack on Titan
+        Settings::values.shaders_accurate_mul = Settings::AccurateMul::FAST;
     }
 
     const std::array<u64, 15> new3ds_game_ids = {
@@ -511,8 +515,8 @@ void System::Shutdown() {
     cheat_engine.reset();
     archive_manager.reset();
     service_manager.reset();
-    dsp_core.reset();
     cpu_cores.clear();
+    dsp_core.reset();
     kernel.reset();
     timing.reset();
     memory.reset();
