@@ -135,6 +135,7 @@ void BootGame(const std::string& path) {
 
     // Shutdown the core emulation
     s_render_window->DoneCurrent();
+    hid.reset();
     system.Shutdown();
     s_render_window.reset();
     s_is_running = false;

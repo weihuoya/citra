@@ -1723,11 +1723,10 @@ void RasterizerOpenGL::SyncProcTexNoise() {
 
 void RasterizerOpenGL::SyncProcTexBias() {
     const auto& regs = Pica::g_state.regs.texturing;
-    GLfloat proctex_bias = uniform_block_data.data.proctex_bias;
     uniform_block_data.data.proctex_bias =
         Pica::float16::FromRaw(regs.proctex.bias_low | (regs.proctex_lut.bias_high << 8))
             .ToFloat32();
-    uniform_block_data.dirty = proctex_bias != uniform_block_data.data.proctex_bias;
+    uniform_block_data.dirty = true;
     shader_dirty = true;
 }
 

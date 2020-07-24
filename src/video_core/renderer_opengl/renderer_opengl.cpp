@@ -849,6 +849,7 @@ VideoCore::ResultStatus RendererOpenGL::Init() {
 /// Shutdown the renderer
 void RendererOpenGL::ShutDown() {
     OSD::Shutdown();
+    mailbox.reset();
 }
 
 } // namespace OpenGL
