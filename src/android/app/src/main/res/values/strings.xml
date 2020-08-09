@@ -109,6 +109,7 @@
     <string name="setting_audio_stretching">Enable Audio Stretching</string>
     <string name="setting_audio_mic_type">Micophone Type</string>
 
+    <string name="running_frame_limit">Speed Limit</string>
     <string name="running_resolution">Resolution</string>
     <string name="running_custom_layout">Use Custom Layout</string>
     <string name="running_layout">Layout</string>

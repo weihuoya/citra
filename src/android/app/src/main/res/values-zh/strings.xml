@@ -109,6 +109,7 @@
     <string name="setting_audio_stretching">音频拉伸</string>
     <string name="setting_audio_mic_type">麦克风类型</string>
 
+    <string name="running_frame_limit">速度限制</string>
     <string name="running_resolution">分辨率</string>
     <string name="running_custom_layout">启用自定义布局</string>
     <string name="running_layout">布局</string>

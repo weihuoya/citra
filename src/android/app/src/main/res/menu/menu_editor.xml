@@ -8,4 +8,9 @@
         android:icon="@drawable/ic_refresh"
         app:showAsAction="ifRoom"/>
 
+    <item
+        android:id="@+id/menu_delete_sdmc"
+        android:title="@string/delete_app_sdmc"
+        app:showAsAction="never"/>
+
 </menu>

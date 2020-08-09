@@ -1,45 +1,37 @@
 package org.citra.emu.overlay;
 
+import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Paint;
 import android.graphics.Rect;
-import android.graphics.drawable.BitmapDrawable;
 import org.citra.emu.NativeLibrary;
 
 public final class InputOverlayJoystick {
     private final int[] mAxisIDs = {0, 0};
     private final float[] mAxises = {0f, 0f};
 
-    private BitmapDrawable mOuterBitmap;
-    private BitmapDrawable mDefaultInnerBitmap;
-    private BitmapDrawable mPressedInnerBitmap;
-    private BitmapDrawable mBoundsBoxBitmap;
+    private Bitmap mOuterBitmap;
+    private Bitmap mDefaultInnerBitmap;
+    private Bitmap mPressedInnerBitmap;
     private int mPreviousTouchX, mPreviousTouchY;
-    private int mControlPositionX, mControlPositionY;
-    private int mAlpha;
     private int mPointerId;
-    private Rect mVirtBounds;
-    private Rect mOrigBounds;
+    private Rect mOuterBounds;
+    private Rect mInnerBounds;
+    private Rect mBounds;
 
-    public InputOverlayJoystick(BitmapDrawable bitmapBounds, BitmapDrawable bitmapOuter,
-                                BitmapDrawable InnerDefault, BitmapDrawable InnerPressed,
+    public InputOverlayJoystick(Bitmap bitmapOuter, Bitmap innerDefault, Bitmap innerPressed,
                                 Rect rectOuter, Rect rectInner, int buttonId) {
         mPointerId = -1;
         mOuterBitmap = bitmapOuter;
-        mDefaultInnerBitmap = InnerDefault;
-        mPressedInnerBitmap = InnerPressed;
-        mBoundsBoxBitmap = bitmapBounds;
+        mDefaultInnerBitmap = innerDefault;
+        mPressedInnerBitmap = innerPressed;
 
         mAxisIDs[0] = buttonId + 0;
         mAxisIDs[1] = buttonId + 1;
 
-        setBounds(rectOuter);
-        mDefaultInnerBitmap.setBounds(rectInner);
-        mPressedInnerBitmap.setBounds(rectInner);
-        mVirtBounds = mOuterBitmap.copyBounds();
-        mOrigBounds = mOuterBitmap.copyBounds();
-        mBoundsBoxBitmap.setAlpha(0);
-        mBoundsBoxBitmap.setBounds(mVirtBounds);
+        mBounds = rectOuter;
+        mOuterBounds = new Rect(rectOuter);
+        mInnerBounds = rectInner;
         updateInnerBounds();
     }
 
@@ -49,38 +41,24 @@ public final class InputOverlayJoystick {
     }
 
     public void onConfigureMove(int x, int y) {
-        int deltaX = x - mPreviousTouchX;
-        int deltaY = y - mPreviousTouchY;
-        mControlPositionX += deltaX;
-        mControlPositionY += deltaY;
-        setBounds(new Rect(mControlPositionX, mControlPositionY,
-                           mOuterBitmap.getIntrinsicWidth() + mControlPositionX,
-                           mOuterBitmap.getIntrinsicHeight() + mControlPositionY));
-        mVirtBounds.set(mControlPositionX, mControlPositionY,
-                        mOuterBitmap.getIntrinsicWidth() + mControlPositionX,
-                        mOuterBitmap.getIntrinsicHeight() + mControlPositionY);
+        mBounds.offset(x - mPreviousTouchX, y - mPreviousTouchY);
+        mOuterBounds.offset(x - mPreviousTouchX, y - mPreviousTouchY);
+        mInnerBounds.offset(x - mPreviousTouchX, y - mPreviousTouchY);
         updateInnerBounds();
-        mOrigBounds.set(mControlPositionX, mControlPositionY,
-                        mOuterBitmap.getIntrinsicWidth() + mControlPositionX,
-                        mOuterBitmap.getIntrinsicHeight() + mControlPositionY);
         mPreviousTouchX = x;
         mPreviousTouchY = y;
     }
 
     public void onDraw(Canvas canvas, Paint paint) {
-        mOuterBitmap.draw(canvas);
-        getCurrentBitmapDrawable().draw(canvas);
-        mBoundsBoxBitmap.draw(canvas);
+        canvas.drawBitmap(mOuterBitmap, null, mOuterBounds, paint);
+        canvas.drawBitmap(getCurrentBitmap(), null, mInnerBounds, paint);
     }
 
     public void onPointerDown(int id, float x, float y) {
-        mOuterBitmap.setAlpha(0);
-        mBoundsBoxBitmap.setAlpha(mAlpha);
         if (InputOverlay.sJoystickRelative) {
             // reCenter
-            mVirtBounds.offset((int)x - mVirtBounds.centerX(), (int)y - mVirtBounds.centerY());
+            mOuterBounds.offset((int)x - mBounds.centerX(), (int)y - mBounds.centerY());
         }
-        mBoundsBoxBitmap.setBounds(mVirtBounds);
         mPointerId = id;
 
         setJoystickState(x, y);
@@ -91,10 +69,7 @@ public final class InputOverlayJoystick {
     }
 
     public void onPointerUp(int id, float x, float y) {
-        mOuterBitmap.setAlpha(mAlpha);
-        mBoundsBoxBitmap.setAlpha(0);
-        mVirtBounds = new Rect(mOrigBounds);
-        setBounds(mOrigBounds);
+        mOuterBounds.set(mBounds);
         mPointerId = -1;
 
         setJoystickState(x, y);
@@ -102,16 +77,14 @@ public final class InputOverlayJoystick {
 
     private void setJoystickState(float touchX, float touchY) {
         if (mPointerId != -1) {
-            float maxY = mVirtBounds.bottom;
-            float maxX = mVirtBounds.right;
-            touchX -= mVirtBounds.centerX();
-            maxX -= mVirtBounds.centerX();
-            touchY -= mVirtBounds.centerY();
-            maxY -= mVirtBounds.centerY();
-            final float AxisX = touchX / maxX;
-            final float AxisY = touchY / maxY;
-            mAxises[0] = AxisX;
-            mAxises[1] = -AxisY;
+            float maxY = mOuterBounds.bottom;
+            float maxX = mOuterBounds.right;
+            touchX -= mOuterBounds.centerX();
+            maxX -= mOuterBounds.centerX();
+            touchY -= mOuterBounds.centerY();
+            maxY -= mOuterBounds.centerY();
+            mAxises[0] = touchX / maxX;
+            mAxises[1] = -touchY / maxY;
         } else {
             mAxises[0] = mAxises[1] = 0.0f;
         }
@@ -120,17 +93,6 @@ public final class InputOverlayJoystick {
 
         NativeLibrary.InputEvent(mAxisIDs[0], mAxises[0]);
         NativeLibrary.InputEvent(mAxisIDs[1], mAxises[1]);
-    }
-
-    public void setPosition(int x, int y) {
-        mControlPositionX = x;
-        mControlPositionY = y;
-    }
-
-    public void setAlpha(int value) {
-        mAlpha = value;
-        mDefaultInnerBitmap.setAlpha(value);
-        mOuterBitmap.setAlpha(value);
     }
 
     public int getButtonId() {
@@ -142,33 +104,32 @@ public final class InputOverlayJoystick {
     }
 
     public Rect getBounds() {
-        return mOuterBitmap.getBounds();
+        return mBounds;
     }
 
-    public void setBounds(Rect bounds) {
-        mOuterBitmap.setBounds(bounds);
-    }
-
-    private BitmapDrawable getCurrentBitmapDrawable() {
+    private Bitmap getCurrentBitmap() {
         return mPointerId != -1 ? mPressedInnerBitmap : mDefaultInnerBitmap;
     }
 
     private void updateInnerBounds() {
-        int X = mVirtBounds.centerX() + (int)((mAxises[0]) * (mVirtBounds.width() / 2));
-        int Y = mVirtBounds.centerY() + (int)((-mAxises[1]) * (mVirtBounds.height() / 2));
+        float centerX = mOuterBounds.centerX();
+        float centerY = mOuterBounds.centerY();
+        float halfWidth = mOuterBounds.width() / 2.0f;
+        float halfHeight = mOuterBounds.height() / 2.0f;
 
-        if (X > mVirtBounds.centerX() + (mVirtBounds.width() / 2))
-            X = mVirtBounds.centerX() + (mVirtBounds.width() / 2);
-        if (X < mVirtBounds.centerX() - (mVirtBounds.width() / 2))
-            X = mVirtBounds.centerX() - (mVirtBounds.width() / 2);
-        if (Y > mVirtBounds.centerY() + (mVirtBounds.height() / 2))
-            Y = mVirtBounds.centerY() + (mVirtBounds.height() / 2);
-        if (Y < mVirtBounds.centerY() - (mVirtBounds.height() / 2))
-            Y = mVirtBounds.centerY() - (mVirtBounds.height() / 2);
+        float x = centerX + mAxises[0] * halfWidth;
+        float y = centerY + -mAxises[1] * halfHeight;
 
-        int width = mPressedInnerBitmap.getBounds().width() / 2;
-        int height = mPressedInnerBitmap.getBounds().height() / 2;
-        mDefaultInnerBitmap.setBounds(X - width, Y - height, X + width, Y + height);
-        mPressedInnerBitmap.setBounds(mDefaultInnerBitmap.getBounds());
+        if (x > centerX + halfWidth)
+            x = centerX + halfWidth;
+        if (x < centerX - halfWidth)
+            x = centerX - halfWidth;
+
+        if (y > centerY + halfHeight)
+            y = centerY + halfHeight;
+        if (y < centerY - halfHeight)
+            y = centerY - halfHeight;
+
+        mInnerBounds.offsetTo((int)(x - mInnerBounds.width() / 2.0f), (int)(y - mInnerBounds.height() / 2.0f));
     }
 }

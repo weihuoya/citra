@@ -183,6 +183,9 @@ static void LoadOverrides(u64 title_id) {
     } else if (title_id == 0x00040000000D2800 || title_id == 0x0004000000065800 || title_id == 0x0004000000766600) {
         // Rune Factory 4
         Settings::values.texture_load_hack = false;
+    } else if (title_id == 0x0004000000055D00 || title_id == 0x0004000000055E00) {
+        // Pok¨¦mon X/Y
+        Settings::values.texture_load_hack = false;
     } else if (title_id == 0x000400000004B500) {
         // Monster Hunter 4
         Settings::values.texture_load_hack = true;
@@ -216,9 +219,17 @@ static void LoadOverrides(u64 title_id) {
                title_id == 0x0004000000152000 || title_id == 0x00040000001AA200) {
         // Attack on Titan
         Settings::values.shaders_accurate_mul = Settings::AccurateMul::FAST;
+    } else if (title_id == 0x000400000008FE00) {
+        // 1001 Spikes [USA]
+        Settings::values.stream_buffer_hack = false;
+        if (Settings::values.use_cpu_jit) {
+            Settings::values.core_ticks_hack = 16000;
+        } else {
+            Settings::values.core_ticks_hack = 0xFFFF;
+        }
     }
 
-    const std::array<u64, 15> new3ds_game_ids = {
+    const std::array<u64, 17> new3ds_game_ids = {
             0x000400000f700000, // Xenoblade Chronicles 3D [JPN]
             0x000400000f700100, // Xenoblade Chronicles 3D [USA]
             0x000400000f700200, // Xenoblade Chronicles 3D [EUR]
@@ -234,6 +245,8 @@ static void LoadOverrides(u64 title_id) {
             0x0004000000127500, // Sonic Boom: Shattered Crystal [USA]
             0x0004000000161300, // Sonic Boom: Fire & Ice [USA]
             0x00040000001B8700, // Minecraft [USA]
+            0x000400000F707F00, // Hyperlight EX [USA]
+            0x000400000008FE00, // 1001 Spikes [USA]
     };
     for (auto id : new3ds_game_ids) {
         if (title_id == id) {

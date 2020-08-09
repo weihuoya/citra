@@ -32,7 +32,6 @@ public class RunningSettingDialog extends DialogFragment {
     public static final int MENU_MAIN = 0;
     public static final int MENU_SETTINGS = 1;
 
-    private int mMenu;
     private TextView mTitle;
     private SettingsAdapter mAdapter;
     private DialogInterface.OnDismissListener mDismissListener;
@@ -84,7 +83,6 @@ public class RunningSettingDialog extends DialogFragment {
             mTitle.setText(R.string.preferences_settings);
             mAdapter.loadSettingsMenu();
         }
-        mMenu = menu;
     }
 
     public class SettingsItem {
@@ -95,6 +93,7 @@ public class RunningSettingDialog extends DialogFragment {
         public static final int SETTING_SCREEN_LAYOUT = 3;
         public static final int SETTING_TEXTURE_LOAD_HACK = 4;
         public static final int SETTING_CUSTOM_LAYOUT = 5;
+        public static final int SETTING_FRAME_LIMIT = 6;
 
         // pref
         public static final int SETTING_JOYSTICK_RELATIVE = 100;
@@ -480,6 +479,9 @@ public class RunningSettingDialog extends DialogFragment {
             mSettings.add(new SettingsItem(SettingsItem.SETTING_CUSTOM_LAYOUT,
                     R.string.running_custom_layout,
                     SettingsItem.TYPE_CHECKBOX, mRunningSettings[i++]));
+            mSettings.add(new SettingsItem(SettingsItem.SETTING_FRAME_LIMIT,
+                    R.string.running_frame_limit,
+                    SettingsItem.TYPE_SEEK_BAR, mRunningSettings[i++]));
             notifyDataSetChanged();
         }
 
