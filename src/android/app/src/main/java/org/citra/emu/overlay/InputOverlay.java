@@ -9,7 +9,6 @@ import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Paint;
 import android.graphics.Rect;
-import android.graphics.drawable.BitmapDrawable;
 import androidx.preference.PreferenceManager;
 import android.util.AttributeSet;
 import android.util.DisplayMetrics;
@@ -550,13 +549,7 @@ public final class InputOverlay extends View {
 
         // Send the drawableId to the joystick so it can be referenced when saving control position.
         InputOverlayJoystick overlay = new InputOverlayJoystick(
-            new BitmapDrawable(res, bitmapOuter), new BitmapDrawable(res, bitmapOuter),
-            new BitmapDrawable(res, bitmapInnerDefault),
-            new BitmapDrawable(res, bitmapInnerPressed), outerRect, innerRect, joystick);
-
-        // Need to set the image's position
-        overlay.setPosition(drawableX, drawableY);
-        overlay.setAlpha((sControllerAlpha * 255) / 100);
+            bitmapOuter, bitmapInnerDefault, bitmapInnerPressed, outerRect, innerRect, joystick);
 
         return overlay;
     }

@@ -1516,6 +1516,21 @@ void RasterizerCacheOpenGL::ValidateSurface(const Surface& surface, PAddr addr, 
             continue;
         }
 
+        // Could not find a matching reinterpreter, check if we need to implement a
+        // reinterpreter
+        if (NoUnimplementedReinterpretations(surface, params, interval) &&
+            !IntervalHasInvalidPixelFormat(params, interval)) {
+            // No surfaces were found in the cache that had a matching bit-width.
+            // If the region was created entirely on the GPU,
+            // assume it was a developer mistake and skip flushing.
+            if (boost::icl::contains(dirty_regions, interval)) {
+                LOG_DEBUG(Render_OpenGL, "Region created fully on GPU and reinterpretation is "
+                                         "invalid. Skipping validation");
+                validate_regions.erase(interval);
+                continue;
+            }
+        }
+
         // Load data from 3DS memory
         if (surface->pixel_format < PixelFormat::D16) {
             if (surface->is_texture && !surface->gl_buffer.empty()) {
@@ -1531,6 +1546,45 @@ void RasterizerCacheOpenGL::ValidateSurface(const Surface& surface, PAddr addr, 
         }
         notify_validated(params.GetInterval());
     }
+}
+
+bool RasterizerCacheOpenGL::NoUnimplementedReinterpretations(const Surface& surface,
+                                                             SurfaceParams& params,
+                                                             const SurfaceInterval& interval) {
+    static constexpr std::array<PixelFormat, 17> all_formats{
+        PixelFormat::RGBA8, PixelFormat::RGB8,   PixelFormat::RGB5A1, PixelFormat::RGB565,
+        PixelFormat::RGBA4, PixelFormat::IA8,    PixelFormat::RG8,    PixelFormat::I8,
+        PixelFormat::A8,    PixelFormat::IA4,    PixelFormat::I4,     PixelFormat::A4,
+        PixelFormat::ETC1,  PixelFormat::ETC1A4, PixelFormat::D16,    PixelFormat::D24,
+        PixelFormat::D24S8,
+    };
+    bool implemented = true;
+    for (PixelFormat format : all_formats) {
+        if (SurfaceParams::GetFormatBpp(format) == surface->GetFormatBpp()) {
+            params.pixel_format = format;
+            // This could potentially be expensive,
+            // although experimentally it hasn't been too bad
+            Surface test_surface =
+                FindMatch<MatchFlags::Copy>(surface_cache, params, ScaleMatch::Ignore, interval);
+            if (test_surface != nullptr) {
+                LOG_WARNING(Render_OpenGL, "Missing pixel_format reinterpreter: {} -> {}", format, surface->pixel_format);
+                implemented = false;
+            }
+        }
+    }
+    return implemented;
+}
+
+bool RasterizerCacheOpenGL::IntervalHasInvalidPixelFormat(SurfaceParams& params,
+                                                          const SurfaceInterval& interval) {
+    params.pixel_format = PixelFormat::Invalid;
+    for (const auto& set : RangeFromInterval(surface_cache, interval))
+        for (const auto& surface : set.second)
+            if (surface->pixel_format == PixelFormat::Invalid) {
+                LOG_WARNING(Render_OpenGL, "Surface found with invalid pixel format");
+                return true;
+            }
+    return false;
 }
 
 bool RasterizerCacheOpenGL::ValidateByReinterpretation(const Surface& surface,
