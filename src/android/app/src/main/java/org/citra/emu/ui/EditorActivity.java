@@ -10,6 +10,8 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -167,9 +169,21 @@ public final class EditorActivity extends AppCompatActivity {
         mListView = findViewById(R.id.code_list);
 
         mReloadText = false;
-        mEditor.setOnKeyListener((View v, int keyCode, KeyEvent event) -> {
-            mReloadText = true;
-            return false;
+        mEditor.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                mReloadText = true;
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {
+
+            }
         });
 
         Drawable lineDivider = getDrawable(R.drawable.line_divider);
@@ -326,7 +340,6 @@ public final class EditorActivity extends AppCompatActivity {
                 sb.append(code);
                 sb.append(System.lineSeparator());
             }
-            sb.append(System.lineSeparator());
             sb.append(System.lineSeparator());
         }
         return sb.toString();

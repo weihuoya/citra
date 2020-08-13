@@ -7,6 +7,7 @@
     <TextView
         android:text="Setting"
         android:id="@+id/text_setting_name"
+        android:textColor="@android:color/black"
         android:layout_alignParentStart="true"
         android:layout_centerVertical="true"
         android:layout_width="wrap_content"
@@ -17,6 +18,7 @@
         android:id="@+id/text_setting_value"
         android:layout_alignParentEnd="true"
         android:layout_centerVertical="true"
+        android:textColor="@android:color/black"
         android:textAlignment="textEnd"
         android:layout_width="36dp"
         android:layout_height="wrap_content" />
