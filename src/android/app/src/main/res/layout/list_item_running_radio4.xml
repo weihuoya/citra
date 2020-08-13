@@ -8,6 +8,7 @@
         android:layout_alignParentStart="true"
         android:layout_centerVertical="true"
         android:id="@+id/text_setting_name"
+        android:textColor="@android:color/black"
         android:text="Radio Text"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"/>
@@ -23,24 +24,28 @@
         <RadioButton
             android:id="@+id/radio0"
             android:text="Radio0"
+            android:textColor="@android:color/black"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"/>
 
         <RadioButton
             android:id="@+id/radio1"
             android:text="Radio1"
+            android:textColor="@android:color/black"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"/>
 
         <RadioButton
             android:id="@+id/radio2"
             android:text="Radio2"
+            android:textColor="@android:color/black"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"/>
 
         <RadioButton
             android:id="@+id/radio3"
             android:text="Radio3"
+            android:textColor="@android:color/black"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"/>
 
