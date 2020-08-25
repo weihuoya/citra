@@ -427,7 +427,7 @@ std::shared_ptr<Process> KernelSystem::GetProcessById(u32 process_id) const {
     return *itr;
 }
 
-u32 KernelSystem::GetProcessThreadsCount(std::shared_ptr<Process> process) const {
+u32 KernelSystem::GetProcessThreadsCount(const std::shared_ptr<Process>& process) const {
     u32 count = 0;
     for (const auto& thread_manager : thread_managers) {
         for (const auto& thread : thread_manager->thread_list) {

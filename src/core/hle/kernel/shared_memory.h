@@ -6,6 +6,7 @@
 
 #include <string>
 #include <utility>
+#include <vector>
 #include "common/common_types.h"
 #include "core/hle/kernel/object.h"
 #include "core/hle/kernel/process.h"
@@ -94,13 +95,20 @@ private:
     /// Permission restrictions applied to other processes mapping the block.
     MemoryPermission other_permissions{};
     /// Process that created this shared memory block.
-    Process* owner_process;
+    Process* owner_process = nullptr;
     /// Address of shared memory block in the owner process if specified.
     VAddr base_address = 0;
     /// Name of shared memory object.
     std::string name;
 
-    MemoryRegionInfo::IntervalSet holding_memory;
+    struct MemoryBlockInfo {
+        u32 offset;
+        u32 size;
+        MemoryRegion region;
+        MemoryBlockInfo(u32 offset, u32 size, MemoryRegion region)
+            : offset(offset), size(size), region(region) {}
+    };
+    std::vector<MemoryBlockInfo> holding_memory;
 
     friend class KernelSystem;
     KernelSystem& kernel;

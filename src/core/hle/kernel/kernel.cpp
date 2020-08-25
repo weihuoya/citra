@@ -56,12 +56,12 @@ std::shared_ptr<Process> KernelSystem::GetCurrentProcess() const {
     return current_process;
 }
 
-void KernelSystem::SetCurrentProcess(std::shared_ptr<Process> process) {
+void KernelSystem::SetCurrentProcess(const std::shared_ptr<Process>& process) {
     current_process = process;
     SetCurrentMemoryPageTable(&process->vm_manager.page_table);
 }
 
-void KernelSystem::SetCurrentProcessForCPU(std::shared_ptr<Process> process, u32 core_id) {
+void KernelSystem::SetCurrentProcessForCPU(const std::shared_ptr<Process>& process, u32 core_id) {
     if (current_cpu->GetID() == core_id) {
         current_process = process;
         SetCurrentMemoryPageTable(&process->vm_manager.page_table);
@@ -78,7 +78,7 @@ void KernelSystem::SetCurrentMemoryPageTable(Memory::PageTable* page_table) {
     }
 }
 
-void KernelSystem::SetCPUs(std::vector<std::shared_ptr<ARM_Interface>> cpus) {
+void KernelSystem::SetCPUs(const std::vector<std::shared_ptr<ARM_Interface>>& cpus) {
     ASSERT(cpus.size() == thread_managers.size());
     u32 i = 0;
     for (const auto& cpu : cpus) {

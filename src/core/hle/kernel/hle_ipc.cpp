@@ -23,7 +23,7 @@ public:
                    std::shared_ptr<HLERequestContext::WakeupCallback> callback_)
         : context(std::move(context_)), callback(std::move(callback_)) {}
     void WakeUp(ThreadWakeupReason reason, std::shared_ptr<Thread> thread,
-                std::shared_ptr<WaitObject> object) {
+                std::shared_ptr<WaitObject> object) override {
         ASSERT(thread->status == ThreadStatus::WaitHleEvent);
         if (callback) {
             callback->WakeUp(thread, *context, reason);
@@ -45,8 +45,8 @@ public:
 
 private:
     ThreadCallback() = default;
-    std::shared_ptr<HLERequestContext::WakeupCallback> callback{};
-    std::shared_ptr<HLERequestContext> context{};
+    std::shared_ptr<HLERequestContext> context;
+    std::shared_ptr<HLERequestContext::WakeupCallback> callback;
 };
 
 SessionRequestHandler::SessionInfo::SessionInfo(std::shared_ptr<ServerSession> session,

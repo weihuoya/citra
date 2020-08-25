@@ -261,7 +261,6 @@ public:
     u32 thread_id;
 
     ThreadStatus status;
-    VAddr entry_point;
     VAddr stack_top;
 
     u32 nominal_priority; ///< Nominal thread priority, as set by the emulated application

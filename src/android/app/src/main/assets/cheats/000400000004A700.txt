@@ -1,0 +1,4 @@
+* Tales Of the Abyss
+
+[60 FPS]
+005066A4 00000001

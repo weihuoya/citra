@@ -46,7 +46,7 @@ public:
     bool ShouldWait(const Thread* thread) const override;
     void Acquire(Thread* thread) override;
 
-    void AddWaitingThread(std::shared_ptr<Thread> thread) override;
+    void AddWaitingThread(const std::shared_ptr<Thread>& thread) override;
     void RemoveWaitingThread(Thread* thread) override;
 
     /**

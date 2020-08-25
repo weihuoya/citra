@@ -202,7 +202,7 @@ public:
     /// We only permit one event of each type in the queue at a time.
     void RemoveEvent(const TimingEventType* event_type);
 
-    void SetCurrentTimer(std::size_t core_id);
+    void SetCurrentTimer(u32 core_id);
 
     s64 GetTicks() const;
 

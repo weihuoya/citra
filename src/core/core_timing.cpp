@@ -92,7 +92,7 @@ void Timing::RemoveEvent(const TimingEventType* event_type) {
     // TODO:remove events from ts_queue
 }
 
-void Timing::SetCurrentTimer(std::size_t core_id) {
+void Timing::SetCurrentTimer(u32 core_id) {
     current_timer = timers[core_id].get();
 }
 

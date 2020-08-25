@@ -74,7 +74,7 @@ void Module::LoadInputDevices() {
 }
 
 void Module::UpdatePad() {
-    SharedMem* mem = reinterpret_cast<SharedMem*>(shared_mem->GetPointer());
+    auto mem = reinterpret_cast<SharedMem*>(shared_mem->GetPointer());
 
     using namespace Settings::NativeButton;
     state.a.Assign(buttons[A - BUTTON_HID_BEGIN]->GetStatus());
@@ -179,7 +179,7 @@ void Module::UpdatePadCallback(u64 userdata, s64 cycles_late) {
 }
 
 void Module::UpdateAccelerometerCallback(u64 userdata, s64 cycles_late) {
-    SharedMem* mem = reinterpret_cast<SharedMem*>(shared_mem->GetPointer());
+    auto mem = reinterpret_cast<SharedMem*>(shared_mem->GetPointer());
 
     mem->accelerometer.index = next_accelerometer_index;
     next_accelerometer_index = (next_accelerometer_index + 1) % mem->accelerometer.entries.size();
@@ -224,7 +224,7 @@ void Module::UpdateAccelerometerCallback(u64 userdata, s64 cycles_late) {
 }
 
 void Module::UpdateGyroscopeCallback(u64 userdata, s64 cycles_late) {
-    SharedMem* mem = reinterpret_cast<SharedMem*>(shared_mem->GetPointer());
+    auto mem = reinterpret_cast<SharedMem*>(shared_mem->GetPointer());
 
     mem->gyroscope.index = next_gyroscope_index;
     next_gyroscope_index = (next_gyroscope_index + 1) % mem->gyroscope.entries.size();

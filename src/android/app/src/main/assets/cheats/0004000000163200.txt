@@ -1,4 +1,5 @@
 * Stretchmo
 
 [60 FPS]
+*citra_enabled
 09A35F94 00000001
