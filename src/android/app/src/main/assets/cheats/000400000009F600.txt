@@ -1,0 +1,5 @@
+* Senran Kagura Burst: Guren no Shoujotachi
+
+[60 FPS]
+*citra_enabled
+00405CC4 00000001

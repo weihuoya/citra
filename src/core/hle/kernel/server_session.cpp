@@ -132,7 +132,7 @@ KernelSystem::SessionPair KernelSystem::CreateSessionPair(const std::string& nam
     auto parent{std::make_shared<Session>()};
     parent->client = client_session.get();
     parent->server = server_session.get();
-    parent->port = port;
+    parent->port = std::move(port);
 
     client_session->parent = parent;
     server_session->parent = parent;

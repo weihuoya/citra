@@ -477,7 +477,7 @@ void GSP_GPU::SignalInterrupt(InterruptId interrupt_id) {
 MICROPROFILE_DEFINE(GPU_GSP_DMA, "GPU", "GSP DMA", MP_RGB(100, 0, 255));
 
 /// Executes the next GSP command
-static void ExecuteCommand(const Command& command, u32 thread_id) {
+static void ExecuteCommand(const Command& command) {
     // Utility function to convert register ID to address
     static auto WriteGPURegister = [](u32 id, u32 data) {
         GPU::Write<u32>(0x1EF00000 + 4 * id, data);
@@ -604,11 +604,6 @@ static void ExecuteCommand(const Command& command, u32 thread_id) {
     default:
         LOG_ERROR(Service_GSP, "unknown command 0x{:08X}", (int)command.id.Value());
     }
-#ifdef DEBUG_CONTEXT
-    if (Pica::g_debug_context)
-        Pica::g_debug_context->OnEvent(Pica::DebugContext::Event::GSPCommandProcessed,
-                                       (void*)&command);
-#endif
 }
 
 void GSP_GPU::SetLcdForceBlack(Kernel::HLERequestContext& ctx) {
@@ -631,15 +626,16 @@ void GSP_GPU::SetLcdForceBlack(Kernel::HLERequestContext& ctx) {
 void GSP_GPU::TriggerCmdReqQueue(Kernel::HLERequestContext& ctx) {
     IPC::RequestParser rp(ctx, 0xC, 0, 0);
 
-    CommandBuffer& command_buffer = GetCommandBuffer(shared_memory, active_thread_id);
-
-    // Iterate through each command...
-    for (unsigned i = 0; i < command_buffer.number_commands; ++i) {
-        // Decode and execute command
-        ExecuteCommand(command_buffer.commands[i], active_thread_id);
+    for (u32 thread_id = 0; thread_id < MaxGSPThreads; ++thread_id) {
+        CommandBuffer& command_buffer = GetCommandBuffer(shared_memory, thread_id);
+        // Iterate through each command...
+        for (u32 i = 0; i < command_buffer.number_commands; ++i) {
+            // Decode and execute command
+            ExecuteCommand(command_buffer.commands[i]);
+        }
+        // Indicates that command has completed
+        command_buffer.number_commands.Assign(0);
     }
-    // Indicates that command has completed
-    command_buffer.number_commands.Assign(0);
 
     IPC::RequestBuilder rb = rp.MakeBuilder(1, 0);
     rb.Push(RESULT_SUCCESS);

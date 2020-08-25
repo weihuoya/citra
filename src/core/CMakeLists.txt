@@ -437,7 +437,6 @@ add_library(core STATIC
     loader/smdh.h
     memory.cpp
     memory.h
-    mmio.h
     movie.cpp
     movie.h
     perf_stats.cpp

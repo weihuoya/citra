@@ -181,6 +181,52 @@ bool Module::LoadSharedFont() {
     return true;
 }
 
+bool Module::LoadSharedFontFromFile() {
+    u8 font_region_code;
+    auto cfg = Service::CFG::GetModule(system);
+    ASSERT_MSG(cfg, "CFG Module missing!");
+    switch (cfg->GetRegionValue()) {
+        case 4: // CHN
+            font_region_code = 2;
+            break;
+        case 5: // KOR
+            font_region_code = 3;
+            break;
+        case 6: // TWN
+            font_region_code = 4;
+            break;
+        default: // JPN/EUR/USA
+            font_region_code = 1;
+            break;
+    }
+
+    const char* file_name[4] = {"cbf_std.bcfnt", "cbf_zh-Hans-CN.bcfnt", "cbf_ko-Hang-KR.bcfnt", "cbf_zh-Hant-TW.bcfnt"};
+    std::string filepath = FileUtil::GetUserPath(FileUtil::UserPath::SysDataDir) + file_name[font_region_code - 1];
+
+    FileUtil::CreateFullPath(filepath); // Create path if not already created
+    FileUtil::IOFile file(filepath, "rb");
+    if (!file.IsOpen()) {
+        return false;
+    }
+
+    struct {
+        u32_le status;
+        u32_le region;
+        u32_le decompressed_size;
+        INSERT_PADDING_WORDS(0x1D);
+    } shared_font_header{};
+    static_assert(sizeof(shared_font_header) == 0x80, "shared_font_header has incorrect size");
+
+    shared_font_header.status = 2; // successfully loaded
+    shared_font_header.region = font_region_code;
+    shared_font_header.decompressed_size = file.GetSize();
+    file.ReadBytes(shared_font_mem->GetPointer(0x80), shared_font_header.decompressed_size);
+    std::memcpy(shared_font_mem->GetPointer(), &shared_font_header, sizeof(shared_font_header));
+    *shared_font_mem->GetPointer(0x83) = 'U'; // Change the magic from "CFNT" to "CFNU"
+
+    return true;
+}
+
 bool Module::LoadLegacySharedFont() {
     // This is the legacy method to load shared font.
     // The expected format is a decrypted, uncompressed BCFNT file with the 0x80 byte header
@@ -213,7 +259,8 @@ void Module::APTInterface::GetSharedFont(Kernel::HLERequestContext& ctx) {
         if (apt->LoadSharedFont()) {
             apt->shared_font_loaded = true;
         } else if (apt->LoadLegacySharedFont()) {
-            LOG_WARNING(Service_APT, "Loaded shared font by legacy method");
+            apt->shared_font_loaded = true;
+        } else if (apt->LoadSharedFontFromFile()) {
             apt->shared_font_loaded = true;
         } else {
             LOG_ERROR(Service_APT, "shared font file missing - go dump it from your 3ds");

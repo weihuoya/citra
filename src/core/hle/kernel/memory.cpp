@@ -197,7 +197,6 @@ MemoryRegionInfo::IntervalSet MemoryRegionInfo::HeapAllocate(u32 size) {
 
     // Try allocating from the higher address
     for (auto iter = free_blocks.rbegin(); iter != free_blocks.rend(); ++iter) {
-        ASSERT(iter->bounds() == boost::icl::interval_bounds::right_open());
         if (iter->upper() - iter->lower() >= rest) {
             // Requested size is fulfilled with this block
             result += Interval(iter->upper() - rest, iter->upper());
@@ -232,7 +231,6 @@ bool MemoryRegionInfo::LinearAllocate(u32 offset, u32 size) {
 std::optional<u32> MemoryRegionInfo::LinearAllocate(u32 size) {
     // Find the first sufficient continuous block from the lower address
     for (const auto& interval : free_blocks) {
-        ASSERT(interval.bounds() == boost::icl::interval_bounds::right_open());
         if (interval.upper() - interval.lower() >= size) {
             Interval allocated(interval.lower(), interval.lower() + size);
             free_blocks -= allocated;

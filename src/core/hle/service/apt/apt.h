@@ -689,6 +689,7 @@ public:
 private:
     bool LoadSharedFont();
     bool LoadLegacySharedFont();
+    bool LoadSharedFontFromFile();
 
     Core::System& system;
 

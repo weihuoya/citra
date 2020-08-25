@@ -285,7 +285,6 @@ ResultVal<std::shared_ptr<Thread>> KernelSystem::CreateThread(std::string name, 
 
     thread->thread_id = NewThreadId();
     thread->status = ThreadStatus::Dormant;
-    thread->entry_point = entry_point;
     thread->stack_top = stack_top;
     thread->nominal_priority = thread->current_priority = priority;
     thread->wait_objects.clear();

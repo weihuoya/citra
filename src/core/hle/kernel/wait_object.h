@@ -33,7 +33,7 @@ public:
      * Add a thread to wait on this object
      * @param thread Pointer to thread to add
      */
-    virtual void AddWaitingThread(std::shared_ptr<Thread> thread);
+    virtual void AddWaitingThread(const std::shared_ptr<Thread>& thread);
 
     /**
      * Removes a thread from waiting on this object (e.g. if it was resumed already)
@@ -46,9 +46,6 @@ public:
      * and set the synchronization result and output of the thread.
      */
     virtual void WakeupAllWaitingThreads();
-
-    /// Obtains the highest priority thread that is ready to run from this object's waiting list.
-    std::shared_ptr<Thread> GetHighestPriorityReadyThread() const;
 
     /// Get a const reference to the waiting threads list for debug use
     const std::vector<std::shared_ptr<Thread>>& GetWaitingThreads() const;

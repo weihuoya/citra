@@ -19,7 +19,7 @@ public:
         constexpr std::string_view vs_source = R"(
 out vec2 dst_coord;
 
-uniform mediump ivec2 dst_size;
+uniform ivec2 dst_size;
 
 const vec2 vertices[4] =
     vec2[4](vec2(-1.0, -1.0), vec2(1.0, -1.0), vec2(-1.0, 1.0), vec2(1.0, 1.0));
@@ -30,29 +30,30 @@ void main() {
 }
 )";
 
-        constexpr std::string_view fs_source = R"(
-in mediump vec2 dst_coord;
+        std::string fs_source = GLES ? fragment_shader_precision_OES : "";
+        fs_source += R"(
+in vec2 dst_coord;
 
-out lowp vec4 frag_color;
+out vec4 frag_color;
 
-uniform lowp sampler2D source;
-uniform mediump ivec2 dst_size;
-uniform mediump ivec2 src_size;
-uniform mediump ivec2 src_offset;
+uniform sampler2D source;
+uniform ivec2 dst_size;
+uniform ivec2 src_size;
+uniform ivec2 src_offset;
 
 void main() {
-    mediump ivec2 tex_coord;
+    ivec2 tex_coord;
     if (src_size == dst_size) {
         tex_coord = ivec2(dst_coord);
     } else {
-        highp int tex_index = int(dst_coord.y) * dst_size.x + int(dst_coord.x);
-        mediump int y = tex_index / src_size.x;
+        int tex_index = int(dst_coord.y) * dst_size.x + int(dst_coord.x);
+        int y = tex_index / src_size.x;
         tex_coord = ivec2(tex_index - y * src_size.x, y);
     }
     tex_coord -= src_offset;
 
-    lowp ivec4 rgba4 = ivec4(texelFetch(source, tex_coord, 0) * (exp2(4.0) - 1.0));
-    lowp ivec3 rgb5 =
+    ivec4 rgba4 = ivec4(texelFetch(source, tex_coord, 0) * (exp2(4.0) - 1.0));
+    ivec3 rgb5 =
         ((rgba4.rgb << ivec3(1, 2, 3)) | (rgba4.gba >> ivec3(3, 2, 1))) & 0x1F;
     frag_color = vec4(vec3(rgb5) / (exp2(5.0) - 1.0), rgba4.a & 0x01);
 }
@@ -225,7 +226,7 @@ public:
         constexpr std::string_view vs_source = R"(
 out vec2 dst_coord;
 
-uniform mediump ivec2 dst_size;
+uniform ivec2 dst_size;
 
 const vec2 vertices[4] =
     vec2[4](vec2(-1.0, -1.0), vec2(1.0, -1.0), vec2(-1.0, 1.0), vec2(1.0, 1.0));
@@ -236,32 +237,33 @@ void main() {
 }
 )";
 
-        constexpr std::string_view fs_source = R"(
-in mediump vec2 dst_coord;
+        std::string fs_source = GLES ? fragment_shader_precision_OES : "";
+        fs_source += R"(
+in vec2 dst_coord;
 
-out lowp vec4 frag_color;
+out vec4 frag_color;
 
-uniform highp sampler2D depth;
-uniform lowp usampler2D stencil;
-uniform mediump ivec2 dst_size;
-uniform mediump ivec2 src_size;
-uniform mediump ivec2 src_offset;
+uniform sampler2D depth;
+uniform usampler2D stencil;
+uniform ivec2 dst_size;
+uniform ivec2 src_size;
+uniform ivec2 src_offset;
 
 void main() {
-    mediump ivec2 tex_coord;
+    ivec2 tex_coord;
     if (src_size == dst_size) {
         tex_coord = ivec2(dst_coord);
     } else {
-        highp int tex_index = int(dst_coord.y) * dst_size.x + int(dst_coord.x);
-        mediump int y = tex_index / src_size.x;
+        int tex_index = int(dst_coord.y) * dst_size.x + int(dst_coord.x);
+        int y = tex_index / src_size.x;
         tex_coord = ivec2(tex_index - y * src_size.x, y);
     }
     tex_coord -= src_offset;
 
-    highp uint depth_val =
+    uint depth_val =
         uint(texelFetch(depth, tex_coord, 0).x * (exp2(32.0) - 1.0));
-    lowp uint stencil_val = texelFetch(stencil, tex_coord, 0).x;
-    highp uvec4 components =
+    uint stencil_val = texelFetch(stencil, tex_coord, 0).x;
+    uvec4 components =
         uvec4(stencil_val, (uvec3(depth_val) >> uvec3(24u, 16u, 8u)) & 0x000000FFu);
     frag_color = vec4(components) / (exp2(8.0) - 1.0);
 }

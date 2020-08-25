@@ -92,7 +92,7 @@ ResultCode Mutex::Release(Thread* thread) {
     return RESULT_SUCCESS;
 }
 
-void Mutex::AddWaitingThread(std::shared_ptr<Thread> thread) {
+void Mutex::AddWaitingThread(const std::shared_ptr<Thread>& thread) {
     WaitObject::AddWaitingThread(thread);
     thread->pending_mutexes.insert(SharedFrom(this));
     UpdatePriority();

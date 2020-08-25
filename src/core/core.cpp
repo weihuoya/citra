@@ -139,7 +139,9 @@ System::ResultStatus System::SingleStep() {
 }
 
 static void LoadOverrides(u64 title_id) {
-    if (title_id == 0x0004000000068B00 || title_id == 0x0004000000061300 || title_id == 0x000400000004A700) {
+    bool fmv_hack = false;
+    if (title_id == 0x0004000000068B00 || title_id == 0x0004000000061300 ||
+        title_id == 0x000400000004A700) {
         // hack for Tales of the Abyss / Pac Man Party 3D
         Settings::values.display_transfer_hack = true;
         // crash on `g_state.geometry_pipeline.Reconfigure();`
@@ -148,13 +150,12 @@ static void LoadOverrides(u64 title_id) {
         Settings::values.skip_slow_draw = true;
         // may cause display issues
         Settings::values.texture_load_hack = false;
+    } else if (title_id == 0x00040000001CCD00 || title_id == 0x00040000001B4500) {
+        // The Alliance Alive
+        fmv_hack = true;
     } else if (title_id == 0x0004000000120900 || title_id == 0x0004000000164300) {
         // Lord of Magna: Maiden Heaven
-        if (Settings::values.use_cpu_jit) {
-            Settings::values.core_ticks_hack = 16000;
-        } else {
-            Settings::values.core_ticks_hack = 0xFFFF;
-        }
+        fmv_hack = true;
     } else if (title_id == 0x000400000015CB00) {
         // New Atelier Rorona
         Settings::values.skip_slow_draw = true;
@@ -170,7 +171,8 @@ static void LoadOverrides(u64 title_id) {
     } else if (title_id == 0x000400000019E700 || title_id == 0x00040000001A5600) {
         // Armed Blue Gunvolt
         Settings::values.stream_buffer_hack = false;
-    } else if (title_id == 0x000400000019B200 || title_id == 0x0004000000196A00 || title_id == 0x00040000001A6E00) {
+    } else if (title_id == 0x000400000019B200 || title_id == 0x0004000000196A00 ||
+               title_id == 0x00040000001A6E00) {
         // Armed Blue Gunvolt 2
         Settings::values.stream_buffer_hack = false;
     } else if (title_id == 0x0004000000149100) {
@@ -180,11 +182,12 @@ static void LoadOverrides(u64 title_id) {
                title_id == 0x000400000017C900 || title_id == 0x000400000017E100) {
         // Shovel Knight
         Settings::values.stream_buffer_hack = false;
-    } else if (title_id == 0x00040000000D2800 || title_id == 0x0004000000065800 || title_id == 0x0004000000766600) {
+    } else if (title_id == 0x00040000000D2800 || title_id == 0x0004000000065800 ||
+               title_id == 0x0004000000766600) {
         // Rune Factory 4
         Settings::values.texture_load_hack = false;
     } else if (title_id == 0x0004000000055D00 || title_id == 0x0004000000055E00) {
-        // Pok¨¦mon X/Y
+        // Pokémon X/Y
         Settings::values.texture_load_hack = false;
     } else if (title_id == 0x000400000004B500) {
         // Monster Hunter 4
@@ -196,32 +199,13 @@ static void LoadOverrides(u64 title_id) {
     } else if (title_id == 0x0004000000155400) {
         // Monster Hunter X
         Settings::values.texture_load_hack = true;
-    } else if (title_id == 0x00040000001B8F00 || title_id == 0x00040000001B9000 || title_id == 0x0004000000194B00) {
-        // Mario & Luigi: Superstar Saga + Bowsers Minions
-        Settings::values.shaders_accurate_mul = Settings::AccurateMul::FAST;
-    } else if (title_id == 0x00040000001D1400 || title_id == 0x00040000001D1500) {
-        // Mario & Luigi: Bowsers Inside Story + Bowser Jrs Journey
-        Settings::values.shaders_accurate_mul = Settings::AccurateMul::FAST;
-    } else if (title_id == 0x0004000000132700 || title_id == 0x0004000000132600 || title_id == 0x0004000000132800) {
-        // Mario & Luigi: Paper Jam
-        Settings::values.shaders_accurate_mul = Settings::AccurateMul::FAST;
-    } else if (title_id == 0x0004000000033400 || title_id == 0x0004000000033500 ||
-               title_id == 0x0004000000033600 || title_id == 0x000400000008F800 ||
-               title_id == 0x000400000008F900) {
-        // The Legend of Zelda: Ocarina of Time 3D
-        Settings::values.shaders_accurate_mul = Settings::AccurateMul::FAST;
-    } else if (title_id == 0x0004000000054000 || title_id == 0x0004000000053F00 ||
-               title_id == 0x0004000000054100 || title_id == 0x0004000000089F00 ||
-               title_id == 0x0004000000089E00) {
-        // Super Mario 3D Land
-        Settings::values.shaders_accurate_mul = Settings::AccurateMul::FAST;
-    } else if (title_id == 0x0004000000134500 || title_id == 0x00040000000DF800 ||
-               title_id == 0x0004000000152000 || title_id == 0x00040000001AA200) {
-        // Attack on Titan
-        Settings::values.shaders_accurate_mul = Settings::AccurateMul::FAST;
     } else if (title_id == 0x000400000008FE00) {
         // 1001 Spikes [USA]
         Settings::values.stream_buffer_hack = false;
+        fmv_hack = true;
+    }
+
+    if (fmv_hack) {
         if (Settings::values.use_cpu_jit) {
             Settings::values.core_ticks_hack = 16000;
         } else {
@@ -229,24 +213,71 @@ static void LoadOverrides(u64 title_id) {
         }
     }
 
-    const std::array<u64, 17> new3ds_game_ids = {
-            0x000400000f700000, // Xenoblade Chronicles 3D [JPN]
-            0x000400000f700100, // Xenoblade Chronicles 3D [USA]
-            0x000400000f700200, // Xenoblade Chronicles 3D [EUR]
-            0x000400000F70CC00, // Fire Emblem Warriors [USA]
-            0x000400000F70CD00, // Fire Emblem Warriors [EUR]
-            0x000400000F70C100, // Fire Emblem Warriors [JPN]
-            0x000400000F700800, // The Binding of Isaac: Rebirth [USA]
-            0x000400000F701700, // The Binding of Isaac: Rebirth [JPN]
-            0x000400000F700900, // The Binding of Isaac: Rebirth [EUR]
-            0x00040000000CCE00, // Donkey Kong Country Returns 3D [USA]
-            0x00040000000CC000, // Donkey Kong Country Returns 3D [JPN]
-            0x00040000000CCF00, // Donkey Kong Country Returns 3D [EUR]
-            0x0004000000127500, // Sonic Boom: Shattered Crystal [USA]
-            0x0004000000161300, // Sonic Boom: Fire & Ice [USA]
-            0x00040000001B8700, // Minecraft [USA]
-            0x000400000F707F00, // Hyperlight EX [USA]
-            0x000400000008FE00, // 1001 Spikes [USA]
+    const std::array<u64, 33> accurate_mul_ids = {
+        0x0004000000134500, // Attack on Titan
+        0x00040000000DF800, // Attack on Titan
+        0x0004000000152000, // Attack on Titan
+        0x00040000001AA200, // Attack on Titan
+        0x0004000000054000, // Super Mario 3D Land
+        0x0004000000053F00, // Super Mario 3D Land
+        0x0004000000054100, // Super Mario 3D Land
+        0x0004000000089F00, // Super Mario 3D Land
+        0x0004000000089E00, // Super Mario 3D Land
+        0x0004000000033400, // The Legend of Zelda: Ocarina of Time 3D
+        0x0004000000033500, // The Legend of Zelda: Ocarina of Time 3D
+        0x0004000000033600, // The Legend of Zelda: Ocarina of Time 3D
+        0x000400000008F800, // The Legend of Zelda: Ocarina of Time 3D
+        0x000400000008F900, // The Legend of Zelda: Ocarina of Time 3D
+        0x0004000000132700, // Mario & Luigi: Paper Jam
+        0x0004000000132600, // Mario & Luigi: Paper Jam
+        0x0004000000132800, // Mario & Luigi: Paper Jam
+        0x00040000001D1400, // Mario & Luigi: Bowsers Inside Story + Bowser Jrs Journey
+        0x00040000001D1500, // Mario & Luigi: Bowsers Inside Story + Bowser Jrs Journey
+        0x00040000001B8F00, // Mario & Luigi: Superstar Saga + Bowsers Minions
+        0x00040000001B9000, // Mario & Luigi: Superstar Saga + Bowsers Minions
+        0x0004000000194B00, // Mario & Luigi: Superstar Saga + Bowsers Minions
+        0x00040000001CB000, // Captain Toad: Treasure Tracker
+        0x00040000001CB200, // Captain Toad: Treasure Tracker
+        0x00040000001CB100, // Captain Toad: Treasure Tracker
+        0x00040000000EC200, // The Legend of Zelda: A Link Between Worlds
+        0x00040000000EC300, // The Legend of Zelda: A Link Between Worlds
+        0x00040000000EC400, // The Legend of Zelda: A Link Between Worlds
+        0x000400000007AD00, // New Super Mario Bros. 2
+        0x00040000000B8A00, // New Super Mario Bros. 2
+        0x000400000007AE00, // New Super Mario Bros. 2
+        0x000400000007AF00, // New Super Mario Bros. 2
+        0x0004000000079600, // Jett Rocket II
+    };
+    for (auto id : accurate_mul_ids) {
+        if (title_id == id) {
+            Settings::values.shaders_accurate_mul = Settings::AccurateMul::FAST;
+        }
+    }
+
+    const std::array<u64, 23> new3ds_game_ids = {
+        0x000400000F700000, // Xenoblade Chronicles 3D [JPN]
+        0x000400000F700100, // Xenoblade Chronicles 3D [USA]
+        0x000400000F700200, // Xenoblade Chronicles 3D [EUR]
+        0x000400000F70CC00, // Fire Emblem Warriors [USA]
+        0x000400000F70CD00, // Fire Emblem Warriors [EUR]
+        0x000400000F70C100, // Fire Emblem Warriors [JPN]
+        0x000400000F700800, // The Binding of Isaac: Rebirth [USA]
+        0x000400000F701700, // The Binding of Isaac: Rebirth [JPN]
+        0x000400000F700900, // The Binding of Isaac: Rebirth [EUR]
+        0x00040000000CCE00, // Donkey Kong Country Returns 3D [USA]
+        0x00040000000CC000, // Donkey Kong Country Returns 3D [JPN]
+        0x00040000000CCF00, // Donkey Kong Country Returns 3D [EUR]
+        0x0004000000127500, // Sonic Boom: Shattered Crystal [USA]
+        0x000400000014AE00, // Sonic Boom: Shattered Crystal [JPN]
+        0x000400000012C200, // Sonic Boom: Shattered Crystal [EUR]
+        0x0004000000161300, // Sonic Boom: Fire & Ice [USA]
+        0x0004000000170700, // Sonic Boom: Fire & Ice [JPN]
+        0x0004000000164700, // Sonic Boom: Fire & Ice [EUR]
+        0x00040000000B3500, // Sonic & All-Stars Racing Transformed [USA]
+        0x000400000008FC00, // Sonic & All-Stars Racing Transformed [EUR]
+        0x00040000001B8700, // Minecraft [USA]
+        0x000400000F707F00, // Hyperlight EX [USA]
+        0x000400000008FE00, // 1001 Spikes [USA]
     };
     for (auto id : new3ds_game_ids) {
         if (title_id == id) {
@@ -318,9 +349,8 @@ System::ResultStatus System::Load(Frontend::EmuWindow& emu_window, const std::st
     custom_tex_cache = std::make_unique<Core::CustomTexCache>();
 
     if (Settings::values.custom_textures) {
-        FileUtil::CreateFullPath(fmt::format("{}textures/{:016X}/",
-                                             FileUtil::GetUserPath(FileUtil::UserPath::LoadDir),
-                                             title_id));
+        FileUtil::CreateFullPath(fmt::format(
+            "{}textures/{:016X}/", FileUtil::GetUserPath(FileUtil::UserPath::LoadDir), title_id));
         custom_tex_cache->FindCustomTextures(title_id);
     }
     if (Settings::values.preload_textures) {
@@ -508,16 +538,6 @@ void System::RegisterImageInterface(std::shared_ptr<Frontend::ImageInterface> im
 }
 
 void System::Shutdown() {
-    // Log last frame performance stats
-    const auto perf_results = GetAndResetPerfStats();
-    telemetry_session->AddField(Telemetry::FieldType::Performance, "Shutdown_EmulationSpeed",
-                                perf_results.emulation_speed * 100.0);
-    telemetry_session->AddField(Telemetry::FieldType::Performance, "Shutdown_Framerate",
-                                perf_results.game_fps);
-    telemetry_session->AddField(Telemetry::FieldType::Performance, "Shutdown_Frametime",
-                                perf_results.frametime * 1000.0);
-    telemetry_session->AddField(Telemetry::FieldType::Performance, "Mean_Frametime_MS", 20.0);
-
     // Shutdown emulation session
     GDBStub::Shutdown();
     VideoCore::Shutdown();
@@ -543,8 +563,6 @@ void System::Shutdown() {
         Network::GameInfo game_info{};
         room_member->SendGameInfo(game_info);
     }
-
-    LOG_DEBUG(Core, "Shutdown OK");
 }
 
 void System::Reset() {

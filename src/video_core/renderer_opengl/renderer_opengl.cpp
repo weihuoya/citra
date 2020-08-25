@@ -123,12 +123,12 @@ public:
             // wait for new entries in the present_queue
             free_cv.wait_for(lock, elapsed, [this] { return !free_queue.empty(); });
             if (free_queue.empty()) {
-                auto frame = present_queue.back();
-                present_queue.pop_back();
+                auto frame = present_queue.front();
+                present_queue.pop_front();
 
                 // recycle one more pending frame
-                free_queue.push(present_queue.back());
-                present_queue.pop_back();
+                free_queue.push(present_queue.front());
+                present_queue.pop_front();
 
                 return frame;
             }

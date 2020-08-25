@@ -209,15 +209,15 @@ public:
     /// Retrieves a process from the current list of processes.
     std::shared_ptr<Process> GetProcessById(u32 process_id) const;
 
-    u32 GetProcessThreadsCount(std::shared_ptr<Process> process) const;
+    u32 GetProcessThreadsCount(const std::shared_ptr<Process>& process) const;
 
     std::shared_ptr<Process> GetCurrentProcess() const;
-    void SetCurrentProcess(std::shared_ptr<Process> process);
-    void SetCurrentProcessForCPU(std::shared_ptr<Process> process, u32 core_id);
+    void SetCurrentProcess(const std::shared_ptr<Process>& process);
+    void SetCurrentProcessForCPU(const std::shared_ptr<Process>& process, u32 core_id);
 
     void SetCurrentMemoryPageTable(Memory::PageTable* page_table);
 
-    void SetCPUs(std::vector<std::shared_ptr<ARM_Interface>> cpu);
+    void SetCPUs(const std::vector<std::shared_ptr<ARM_Interface>>& cpu);
 
     void SetRunningCPU(ARM_Interface* cpu);
 

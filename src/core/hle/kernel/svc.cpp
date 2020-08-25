@@ -727,7 +727,7 @@ ResultCode SVC::ReplyAndReceive(s32* index, VAddr handles_address, s32 handle_co
         if (object->GetHandleType() != HandleType::ServerSession)
             return RESULT_SUCCESS;
 
-        auto server_session = static_cast<ServerSession*>(object);
+        auto server_session = dynamic_cast<ServerSession*>(object);
         return ReceiveIPCRequest(kernel, memory, SharedFrom(server_session), SharedFrom(thread));
     }
 
