@@ -216,15 +216,15 @@ struct LightingRegs {
         BitField<24, 8, u32> disable_dist_atten;
     } config1;
 
-    bool IsDistAttenDisabled(unsigned index) const {
+    bool IsDistAttenDisabled(u32 index) const {
         return (config1.disable_dist_atten & (1 << index)) != 0;
     }
 
-    bool IsSpotAttenDisabled(unsigned index) const {
+    bool IsSpotAttenDisabled(u32 index) const {
         return (config1.disable_spot_atten & (1 << index)) != 0;
     }
 
-    bool IsShadowDisabled(unsigned index) const {
+    bool IsShadowDisabled(u32 index) const {
         return (config1.disable_shadow & (1 << index)) != 0;
     }
 
@@ -310,9 +310,9 @@ struct LightingRegs {
         BitField<24, 3, u32> slot_6;
         BitField<28, 3, u32> slot_7;
 
-        unsigned GetNum(unsigned index) const {
-            const unsigned enable_slots[] = {slot_0, slot_1, slot_2, slot_3,
-                                             slot_4, slot_5, slot_6, slot_7};
+        u32 GetNum(unsigned index) const {
+            const u32 enable_slots[] = {slot_0, slot_1, slot_2, slot_3,
+                                        slot_4, slot_5, slot_6, slot_7};
             return enable_slots[index];
         }
     } light_enable;

@@ -16,10 +16,13 @@ import com.nononsenseapps.filepicker.DividerItemDecoration;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
+
 import org.citra.emu.R;
 import org.citra.emu.settings.model.Setting;
 import org.citra.emu.settings.model.SettingSection;
 import org.citra.emu.settings.view.CheckBoxSetting;
+import org.citra.emu.settings.view.EditorSetting;
 import org.citra.emu.settings.view.HeaderSetting;
 import org.citra.emu.settings.view.InputBindingSetting;
 import org.citra.emu.settings.view.SettingsItem;
@@ -128,6 +131,8 @@ public final class SettingsFragment extends Fragment {
         SettingSection debugSection = mSettings.getSection(Settings.SECTION_INI_DEBUG);
         Setting shaderType = debugSection.getSetting(SettingsFile.KEY_SHADER_TYPE);
         Setting presentThread = debugSection.getSetting(SettingsFile.KEY_USE_PRESENT_THREAD);
+        Setting ocrKey = debugSection.getSetting(SettingsFile.KEY_BAIDU_OCR_KEY);
+        Setting ocrSecret = debugSection.getSetting(SettingsFile.KEY_BAIDU_OCR_SECRET);
 
         sl.add(new CheckBoxSetting(SettingsFile.KEY_USE_PRESENT_THREAD, Settings.SECTION_INI_DEBUG,
                 R.string.setting_use_present_thread, R.string.setting_use_present_thread_desc, true, presentThread));
@@ -225,6 +230,13 @@ public final class SettingsFragment extends Fragment {
         sl.add(new StringSingleChoiceSetting(
                 SettingsFile.KEY_CAMERA_TYPE, Settings.SECTION_INI_CAMERA,
                 R.string.setting_camera_type, 0, stringEntries, stringValues, "blank", cameraType));
+
+        String lan = Locale.getDefault().getLanguage();
+        if (lan.equals("zh")) {
+            sl.add(new HeaderSetting(null, null, R.string.translate_settings, 0));
+            sl.add(new EditorSetting(SettingsFile.KEY_BAIDU_OCR_KEY, Settings.SECTION_INI_DEBUG, ocrKey, R.string.baidu_ocr_key, 0));
+            sl.add(new EditorSetting(SettingsFile.KEY_BAIDU_OCR_SECRET, Settings.SECTION_INI_DEBUG, ocrSecret, R.string.baidu_ocr_secret, 0));
+        }
 
         return sl;
     }

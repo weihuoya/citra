@@ -18,6 +18,7 @@ public abstract class SettingsItem {
     public static final int TYPE_INPUT_BINDING = 5;
     public static final int TYPE_STRING_SINGLE_CHOICE = 6;
     public static final int TYPE_SEEKBAR = 7;
+    public static final int TYPE_EDITOR = 8;
 
     private String mKey;
     private String mSection;

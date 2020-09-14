@@ -139,7 +139,6 @@ System::ResultStatus System::SingleStep() {
 }
 
 static void LoadOverrides(u64 title_id) {
-    bool fmv_hack = false;
     if (title_id == 0x0004000000068B00 || title_id == 0x0004000000061300 ||
         title_id == 0x000400000004A700) {
         // hack for Tales of the Abyss / Pac Man Party 3D
@@ -152,10 +151,10 @@ static void LoadOverrides(u64 title_id) {
         Settings::values.texture_load_hack = false;
     } else if (title_id == 0x00040000001CCD00 || title_id == 0x00040000001B4500) {
         // The Alliance Alive
-        fmv_hack = true;
+        Settings::SetFMVHack(true);
     } else if (title_id == 0x0004000000120900 || title_id == 0x0004000000164300) {
         // Lord of Magna: Maiden Heaven
-        fmv_hack = true;
+        Settings::SetFMVHack(true);
     } else if (title_id == 0x000400000015CB00) {
         // New Atelier Rorona
         Settings::values.skip_slow_draw = true;
@@ -202,15 +201,7 @@ static void LoadOverrides(u64 title_id) {
     } else if (title_id == 0x000400000008FE00) {
         // 1001 Spikes [USA]
         Settings::values.stream_buffer_hack = false;
-        fmv_hack = true;
-    }
-
-    if (fmv_hack) {
-        if (Settings::values.use_cpu_jit) {
-            Settings::values.core_ticks_hack = 16000;
-        } else {
-            Settings::values.core_ticks_hack = 0xFFFF;
-        }
+        Settings::SetFMVHack(true);
     }
 
     const std::array<u64, 33> accurate_mul_ids = {

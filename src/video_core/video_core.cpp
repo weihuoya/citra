@@ -22,6 +22,7 @@ std::atomic<bool> g_hw_renderer_enabled;
 std::atomic<bool> g_shader_jit_enabled;
 std::atomic<bool> g_hw_shader_enabled;
 std::atomic<bool> g_renderer_bg_color_update_requested;
+std::function<void(u32 width, u32 height, const std::vector<u32>& pixels)> g_screenshot_complete_callback;
 
 Memory::MemorySystem* g_memory;
 

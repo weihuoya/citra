@@ -49,6 +49,8 @@ const ConfigInfo<std::string> CAMERA_DEVICE{{"Camera", "camera_type"}, "blank"};
 const ConfigInfo<bool> ALLOW_SHADOW{{"Debug", "allow_shadow"}, false};
 const ConfigInfo<u8> SHADER_TYPE{{"Debug", "shader_type"}, 1};
 const ConfigInfo<bool> USE_PRESENT_THREAD{{"Debug", "use_present_thread"}, true};
+const ConfigInfo<std::string> BAIDU_OCR_KEY{{"Debug", "baidu_ocr_key"}, ""};
+const ConfigInfo<std::string> BAIDU_OCR_SECRET{{"Debug", "baidu_ocr_secret"}, ""};
 
 // controls
 const ConfigInfo<std::string> BUTTON_A{{"Controls", "button_a"}, "code:96"};

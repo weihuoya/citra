@@ -14,6 +14,7 @@
 
     <string name="setting_core_ticks_hack">FMV Hack</string>
     <string name="setting_skip_slow_draw">Skip Slow Draw</string>
+    <string name="setting_skip_cpu_write">Skip CPU Access</string>
     <string name="emulate_motion_by_touch">Emulate motion by touch</string>
     <string name="joystick_relative_center">Joystick use relative center</string>
     <string name="show_right_joystick">Show Right Joystick</string>
@@ -21,12 +22,31 @@
     <string name="controller_scale">Controller Scale</string>
     <string name="controller_alpha">Controller Opacity</string>
 
+    <string name="translate_enabled">Enable Screen Translate</string>
+    <string name="translate_high_precision">High Precision OCR</string>
+    <string name="translate_vertical_text">Vertical Text</string>
+    <string name="translate_show_ocr_results">Show OCR Results</string>
+    <string name="translate_game_language">Game Language</string>
+    <string name="translate_service">Translate Service</string>
+    <string name="baidu_ocr_key">Baidu API Key</string>
+    <string name="baidu_ocr_secret">Baidu Secret Key</string>
+
+    <string name="translate_service_google">Google</string>
+    <string name="translate_service_youdao">Youdao</string>
+    <string name="translate_service_yeekit">Yeekit</string>
+
+    <string name="translate_language_auto">Auto</string>
+    <string name="translate_language_jpn">JPN</string>
+    <string name="translate_language_eng">ENG</string>
+    <string name="translate_language_kor">KOR</string>
+
     <string name="grid_menu_refresh">Refresh Library</string>
     <string name="grid_menu_input_binding">Input Binding</string>
     <string name="grid_menu_install_cia">Install CIA</string>
     <string name="preferences_settings">Settings</string>
     <string name="combo_key_settings">Combo Key Settings</string>
     <string name="combo_key_name">Combo Key %1$d</string>
+    <string name="translate_settings">Screen Translation</string>
 
     <string name="emulation_system_files">System Files</string>
     <string name="emulation_memory_viewer">Memory Viewer</string>

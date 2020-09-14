@@ -65,8 +65,7 @@ void CustomTexCache::FindCustomTextures(u64 program_id) {
             u64 hash;
             u32 format; // unused
             // TODO: more modern way of doing this
-            if (std::sscanf(file.virtualName.c_str(), "tex1_%ux%u_%llX_%u.png", &width, &height,
-                            &hash, &format) == 4) {
+            if (std::sscanf(file.virtualName.c_str(), "tex1_%ux%u_%lX_%u.", &width, &height, &hash, &format) == 4) {
                 AddTexturePath(hash, file.physicalName);
             }
         }

@@ -56,6 +56,9 @@ public final class SettingsFile {
     public static final String KEY_MIC_INPUT_DEVICE = "mic_input_device";
     // camera
     public static final String KEY_CAMERA_TYPE = "camera_type";
+    // ocr
+    public static final String KEY_BAIDU_OCR_KEY = "baidu_ocr_key";
+    public static final String KEY_BAIDU_OCR_SECRET = "baidu_ocr_secret";
     // controls
     public static final String KEY_BUTTON_A = "button_a";
     public static final String KEY_BUTTON_B = "button_b";

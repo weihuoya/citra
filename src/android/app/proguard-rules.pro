@@ -21,3 +21,4 @@
 #-renamesourcefileattribute SourceFile
 
 -keep class org.citra.emu.NativeLibrary { *; }
+-keep interface org.citra.emu.NativeLibrary$OnScreenshotCompleteListener {*;}

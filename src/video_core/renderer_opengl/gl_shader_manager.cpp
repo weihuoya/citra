@@ -4,7 +4,6 @@
 
 #include <algorithm>
 #include <unordered_map>
-#include <boost/variant.hpp>
 #include "core/settings.h"
 #include "video_core/renderer_opengl/gl_shader_manager.h"
 
@@ -90,36 +89,28 @@ void PicaUniformsData::SetFromRegs(const Pica::ShaderRegs& regs,
  */
 class OGLShaderStage {
 public:
-    explicit OGLShaderStage(bool separable) {
-        if (separable) {
-            shader_or_program = OGLProgram();
-        } else {
-            shader_or_program = OGLShader();
-        }
-    }
+    explicit OGLShaderStage(bool separable) : separable(separable) {}
 
     void Create(const std::string& shader_code, GLenum type, u64 hash) {
         this->hash = hash;
-        if (shader_or_program.which() == 0) {
-            boost::get<OGLShader>(shader_or_program).Create(shader_code.c_str(), type);
-        } else {
+        if (separable) {
             OGLShader shader;
             shader.Create(shader_code.c_str(), type);
-            OGLProgram& program = boost::get<OGLProgram>(shader_or_program);
             program.Create(true, {shader.handle});
             SetShaderUniformBlockBindings(program.handle);
-
             if (type == GL_FRAGMENT_SHADER) {
                 SetShaderSamplerBindings(program.handle);
             }
+        } else {
+            this->shader.Create(shader_code.c_str(), type);
         }
     }
 
     GLuint GetHandle() const {
-        if (shader_or_program.which() == 0) {
-            return boost::get<OGLShader>(shader_or_program).handle;
+        if (separable) {
+            return program.handle;
         } else {
-            return boost::get<OGLProgram>(shader_or_program).handle;
+            return shader.handle;
         }
     }
 
@@ -128,7 +119,9 @@ public:
     }
 
 private:
-    boost::variant<OGLShader, OGLProgram> shader_or_program;
+    OGLShader shader;
+    OGLProgram program;
+    bool separable;
     u64 hash = 0;
 };
 
@@ -287,7 +280,7 @@ public:
         }
     }
 
-    static constexpr u32 PROGRAM_CACHE_VERSION = 0x2;
+    static constexpr u32 PROGRAM_CACHE_VERSION = 0x3;
 
     static std::string GetCacheFile() {
         u64 program_id = 0;

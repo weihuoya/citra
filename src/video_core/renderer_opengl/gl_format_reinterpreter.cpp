@@ -42,20 +42,14 @@ uniform ivec2 src_size;
 uniform ivec2 src_offset;
 
 void main() {
-    ivec2 tex_coord;
-    if (src_size == dst_size) {
-        tex_coord = ivec2(dst_coord);
-    } else {
-        int tex_index = int(dst_coord.y) * dst_size.x + int(dst_coord.x);
-        int y = tex_index / src_size.x;
-        tex_coord = ivec2(tex_index - y * src_size.x, y);
-    }
+    int tex_index = int(dst_coord.y) * dst_size.x + int(dst_coord.x);
+    int y = tex_index / src_size.x;
+    ivec2 tex_coord = ivec2(tex_index - y * src_size.x, y);
     tex_coord -= src_offset;
 
-    ivec4 rgba4 = ivec4(texelFetch(source, tex_coord, 0) * (exp2(4.0) - 1.0));
-    ivec3 rgb5 =
-        ((rgba4.rgb << ivec3(1, 2, 3)) | (rgba4.gba >> ivec3(3, 2, 1))) & 0x1F;
-    frag_color = vec4(vec3(rgb5) / (exp2(5.0) - 1.0), rgba4.a & 0x01);
+    ivec4 rgba4 = ivec4(texelFetch(source, tex_coord, 0) * 15.0f);
+    ivec3 rgb5 = ((rgba4.rgb << ivec3(1, 2, 3)) | (rgba4.gba >> ivec3(3, 2, 1))) & 31;
+    frag_color = vec4(vec3(rgb5) / 31.0, rgba4.a & 1);
 }
 )";
 
@@ -250,22 +244,15 @@ uniform ivec2 src_size;
 uniform ivec2 src_offset;
 
 void main() {
-    ivec2 tex_coord;
-    if (src_size == dst_size) {
-        tex_coord = ivec2(dst_coord);
-    } else {
-        int tex_index = int(dst_coord.y) * dst_size.x + int(dst_coord.x);
-        int y = tex_index / src_size.x;
-        tex_coord = ivec2(tex_index - y * src_size.x, y);
-    }
+    int tex_index = int(dst_coord.y) * dst_size.x + int(dst_coord.x);
+    int y = tex_index / src_size.x;
+    ivec2 tex_coord = ivec2(tex_index - y * src_size.x, y);
     tex_coord -= src_offset;
 
-    uint depth_val =
-        uint(texelFetch(depth, tex_coord, 0).x * (exp2(32.0) - 1.0));
+    uint depth_val = uint(texelFetch(depth, tex_coord, 0).x * (exp2(32.0) - 1.0));
     uint stencil_val = texelFetch(stencil, tex_coord, 0).x;
-    uvec4 components =
-        uvec4(stencil_val, (uvec3(depth_val) >> uvec3(24u, 16u, 8u)) & 0x000000FFu);
-    frag_color = vec4(components) / (exp2(8.0) - 1.0);
+    uvec4 components = uvec4(stencil_val, (uvec3(depth_val) >> uvec3(24u, 16u, 8u)) & 255u);
+    frag_color = vec4(components) / 255.0f;
 }
 )";
 

@@ -26,6 +26,7 @@ public:
         mShowMiiSelectorDialog = env->GetStaticMethodID(
             mClazz, "showMiiSelectorDialog", "(ZLjava/lang/String;[Ljava/lang/String;)V");
         mPickImage = env->GetStaticMethodID(mClazz, "pickImage", "(II)V");
+        mSetupTranslater = env->GetStaticMethodID(mClazz, "setupTranslater", "(Ljava/lang/String;Ljava/lang/String;)V");
         mHandleNFCScanning = env->GetStaticMethodID(mClazz, "handleNFCScanning", "(Z)V");
     }
 
@@ -37,7 +38,7 @@ public:
         return GetEnvForThread()->CallStaticObjectMethod(mClazz, mGetEmulationContext);
     }
 
-    void SaveImageToFile(jstring path, u32 width, u32 height, jintArray pixels) {
+    void SaveImageToFile(jstring path, jint width, jint height, jintArray pixels) {
         GetEnvForThread()->CallStaticVoidMethod(mClazz, mSaveImageToFile, path, width, height,
                                                 pixels);
     }
@@ -46,7 +47,7 @@ public:
         GetEnvForThread()->CallStaticVoidMethod(mClazz, mLoadImageFromFile, path);
     }
 
-    void UpdateProgress(jstring name, u32 written, u32 total) {
+    void UpdateProgress(jstring name, jint written, jint total) {
         GetEnvForThread()->CallStaticVoidMethod(mClazz, mUpdateProgress, name, written, total);
     }
 
@@ -71,6 +72,10 @@ public:
 
     void PickImage(jint width, jint height) {
         GetEnvForThread()->CallStaticVoidMethod(mClazz, mPickImage, width, height);
+    }
+
+    void SetupTranslater(jstring key, jstring secret) {
+        GetEnvForThread()->CallStaticVoidMethod(mClazz, mSetupTranslater, key, secret);
     }
 
     void HandleNFCScanning(jboolean isScanning) {
@@ -98,6 +103,7 @@ private:
     jmethodID mShowMiiSelectorDialog;
     jmethodID mHandleNFCScanning;
     jmethodID mPickImage;
+    jmethodID mSetupTranslater;
 };
 
 static constexpr jint JNI_VERSION = JNI_VERSION_1_6;
@@ -186,6 +192,10 @@ void NotifyGameShudown() {
 
 void PickImage(u32 width, u32 height) {
     s_native_library->PickImage(width, height);
+}
+
+void SetupTranslater(const std::string& key, const std::string& secret) {
+    s_native_library->SetupTranslater(ToJString(key), ToJString(secret));
 }
 
 void HandleNFCScanning(bool isScanning) {

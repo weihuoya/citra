@@ -200,6 +200,7 @@ struct Values {
     bool use_separable_shader;
     bool use_shader_cache;
     bool skip_slow_draw;
+    bool skip_cpu_write;
     bool texture_load_hack;
     bool display_transfer_hack;
     bool stream_buffer_hack;
@@ -219,6 +220,8 @@ static constexpr int REGION_VALUE_AUTO_SELECT = -1;
 
 void Apply();
 void LogSettings();
+
+void SetFMVHack(bool enable);
 
 // Input profiles
 void LoadProfile(int index);

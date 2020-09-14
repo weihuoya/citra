@@ -29,6 +29,7 @@ import androidx.appcompat.widget.Toolbar;
 import androidx.preference.PreferenceManager;
 
 import com.nononsenseapps.filepicker.DividerItemDecoration;
+
 import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;

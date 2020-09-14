@@ -13,7 +13,7 @@ import android.view.View;
 
 import org.citra.emu.R;
 
-public class ResizeOverlay extends View {
+public class LassoOverlay extends View {
 
     private Point[] points = new Point[4];
     // touch
@@ -21,18 +21,23 @@ public class ResizeOverlay extends View {
     private int pointId = -1;
     private int initialX = -1;
     private int initialY = -1;
+    private long initialTime = -1;
     private Point[] initials = new Point[4];
     // draw
     private Paint paint;
     private Bitmap bitmap;
-    private float desiredRatio = 1.0f;
 
+    public interface OnMoveListener {
+        void OnMove(View v);
+    }
     public interface OnResizeListener {
         void onResize(View v);
     }
-    OnResizeListener mListener;
+    private OnMoveListener mMoveListener;
+    private OnResizeListener mResizeListener;
+    private OnClickListener mClickListener;
 
-    public ResizeOverlay(Context context) {
+    public LassoOverlay(Context context) {
         super(context);
         paint = new Paint();
         // necessary for getting the touch events
@@ -42,11 +47,11 @@ public class ResizeOverlay extends View {
         bitmap = BitmapFactory.decodeResource(context.getResources(), R.drawable.dot);
     }
 
-    public ResizeOverlay(Context context, AttributeSet attrs, int defStyle) {
+    public LassoOverlay(Context context, AttributeSet attrs, int defStyle) {
         super(context, attrs, defStyle);
     }
 
-    public ResizeOverlay(Context context, AttributeSet attrs) {
+    public LassoOverlay(Context context, AttributeSet attrs) {
         super(context, attrs);
         paint = new Paint();
         // necessary for getting the touch events
@@ -56,8 +61,16 @@ public class ResizeOverlay extends View {
         bitmap = BitmapFactory.decodeResource(context.getResources(), R.drawable.dot);
     }
 
+    public void setOnMoveListener(OnMoveListener listener) {
+        mMoveListener = listener;
+    }
+
     public void setOnResizeListener(OnResizeListener listener) {
-        mListener = listener;
+        mResizeListener = listener;
+    }
+
+    public void setOnClickListener(OnClickListener listener) {
+        mClickListener = listener;
     }
 
     public void setRect(Rect rect) {
@@ -77,8 +90,8 @@ public class ResizeOverlay extends View {
         points[3].x = rect.left;
         points[3].y = rect.bottom;
 
-        if (mListener != null) {
-            mListener.onResize(this);
+        if (mResizeListener != null) {
+            mResizeListener.onResize(this);
         }
     }
 
@@ -104,37 +117,27 @@ public class ResizeOverlay extends View {
         return new Rect(left, top, right, bottom);
     }
 
-    public void setDesiredRatio(float ratio) {
-        desiredRatio = ratio;
-    }
-
     @Override
     protected void onDraw(Canvas canvas) {
+        float density = getContext().getResources().getDisplayMetrics().density;
+
         paint.setAntiAlias(true);
         paint.setDither(true);
         paint.setColor(0x55000000);
         paint.setStyle(Paint.Style.FILL);
+        paint.setTextSize(16.0f * density);
+        paint.setTextAlign(Paint.Align.CENTER);
         canvas.drawPaint(paint);
 
         float radius = bitmap.getWidth() / 2.0f;
         paint.setColor(0x55FFFFFF);
-        canvas.drawRect(points[0].x, points[0].y, points[2].x, points[2].y, paint);
 
-        Rect rect = getRect();
-        float ratio = rect.width() / (float)rect.height();
-        if (ratio - desiredRatio > 0.01) {
-            int width = (int)(rect.height() * desiredRatio);
-            rect.left = rect.left + (rect.width() - width) / 2;
-            rect.right = rect.left + width;
-            paint.setColor(0x55FF0000);
-            canvas.drawRect(rect.left, rect.top, rect.right, rect.bottom, paint);
-        } else if (ratio - desiredRatio < -0.01) {
-            int height = (int)(rect.width() / desiredRatio);
-            rect.top = rect.top + ((rect.height() - height) / 2);
-            rect.bottom = rect.top + height;
-            paint.setColor(0x55FF0000);
-            canvas.drawRect(rect.left, rect.top, rect.right, rect.bottom, paint);
-        }
+        float half = 1.0f * density;
+        canvas.drawRect(points[0].x - half, points[0].y + half, points[1].x + half, points[0].y - half, paint);
+        canvas.drawRect(points[0].x - half, points[0].y + half, points[0].x + half, points[3].y - half, paint);
+        canvas.drawRect(points[3].x - half, points[3].y + half, points[2].x + half, points[3].y - half, paint);
+        canvas.drawRect(points[1].x - half, points[1].y + half, points[1].x + half, points[2].y - half, paint);
+        //canvas.drawRect(points[0].x, points[0].y, points[2].x, points[2].y, paint);
 
         // draw the balls on the canvas
         canvas.drawBitmap(bitmap, points[0].x - radius, points[0].y - radius, paint);
@@ -169,6 +172,7 @@ public class ResizeOverlay extends View {
                     touchId = id;
                     initialX = x;
                     initialY = y;
+                    initialTime = event.getEventTime();
                     initials[0] = new Point(points[0]);
                     initials[1] = new Point(points[1]);
                     initials[2] = new Point(points[2]);
@@ -203,11 +207,17 @@ public class ResizeOverlay extends View {
                         points[i].y = Math.max(initials[i].y + moveY, 0);
                     }
                 }
+                if (mMoveListener != null) {
+                    mMoveListener.OnMove(this);
+                }
                 handled = true;
             }
             break;
         case MotionEvent.ACTION_UP:
             if (touchId == id) {
+                if (event.getEventTime() - initialTime < 250 && mClickListener != null) {
+                    mClickListener.onClick(this);
+                }
                 touchId = -1;
                 pointId = -1;
                 handled = true;
@@ -217,8 +227,8 @@ public class ResizeOverlay extends View {
         if (handled) {
             // redraw the canvas
             invalidate();
-            if (mListener != null) {
-                mListener.onResize(this);
+            if (mResizeListener != null) {
+                mResizeListener.onResize(this);
             }
         }
         return handled || super.onTouchEvent(event);

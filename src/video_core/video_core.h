@@ -6,6 +6,7 @@
 
 #include <atomic>
 #include <memory>
+#include <vector>
 #include "core/core.h"
 #include "core/frontend/emu_window.h"
 
@@ -32,6 +33,7 @@ extern std::atomic<bool> g_hw_renderer_enabled;
 extern std::atomic<bool> g_shader_jit_enabled;
 extern std::atomic<bool> g_hw_shader_enabled;
 extern std::atomic<bool> g_renderer_bg_color_update_requested;
+extern std::function<void(u32 width, u32 height, const std::vector<u32>& pixels)> g_screenshot_complete_callback;
 
 extern Memory::MemorySystem* g_memory;
 

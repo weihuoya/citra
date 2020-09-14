@@ -105,6 +105,18 @@ void LogSettings() {
     LogSetting("Debugging_GdbstubPort", Settings::values.gdbstub_port);
 }
 
+void SetFMVHack(bool enable) {
+    if (enable) {
+        if (Settings::values.use_cpu_jit) {
+            Settings::values.core_ticks_hack = 16000;
+        } else {
+            Settings::values.core_ticks_hack = 0xFFFF;
+        }
+    } else {
+        Settings::values.core_ticks_hack = 0;
+    }
+}
+
 void LoadProfile(int index) {
     Settings::values.current_input_profile = Settings::values.input_profiles[index];
     Settings::values.current_input_profile_index = index;

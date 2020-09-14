@@ -60,7 +60,7 @@ struct PicaFSConfigState {
 
     struct {
         struct {
-            unsigned num;
+            u32 num;
             bool directional;
             bool two_sided_diffuse;
             bool dist_atten_enable;
@@ -71,9 +71,9 @@ struct PicaFSConfigState {
         } light[8];
 
         bool enable;
-        unsigned src_num;
+        u32 src_num;
         Pica::LightingRegs::LightingBumpMode bump_mode;
-        unsigned bump_selector;
+        u32 bump_selector;
         bool bump_renorm;
         bool clamp_highlights;
 
@@ -86,7 +86,7 @@ struct PicaFSConfigState {
         bool shadow_secondary;
         bool shadow_invert;
         bool shadow_alpha;
-        unsigned shadow_selector;
+        u32 shadow_selector;
 
         struct {
             bool enable;
