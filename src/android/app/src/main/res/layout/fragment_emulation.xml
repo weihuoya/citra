@@ -36,6 +36,21 @@
         android:focusableInTouchMode="true"
         android:visibility="invisible" />
 
+    <org.citra.emu.overlay.LassoOverlay
+        android:id="@+id/lasso_overlay"
+        android:layout_height="match_parent"
+        android:layout_width="match_parent"
+        android:focusable="true"
+        android:focusableInTouchMode="true"
+        android:visibility="invisible" />
+
+    <TextView
+        android:id="@+id/translate_text"
+        android:gravity="center_horizontal"
+        android:textColor="@android:color/white"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content" />
+
     <Button
         android:id="@+id/done_control_config"
         android:layout_width="wrap_content"

@@ -9,20 +9,21 @@ import android.graphics.Rect;
 import android.util.Log;
 import android.view.Surface;
 
-import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.FileOutputStream;
-import java.io.InputStream;
-import java.net.HttpURLConnection;
-import java.net.URL;
 
 import org.citra.emu.ui.EmulationActivity;
 import org.citra.emu.ui.MainActivity;
+import org.citra.emu.utils.TranslateHelper;
 
 public final class NativeLibrary {
 
     static {
         System.loadLibrary("main");
+    }
+
+    public interface OnScreenshotCompleteListener {
+        void OnScreenshotComplete(int width, int height, int[] pixels);
     }
 
     public static Context getMainContext() {
@@ -121,44 +122,8 @@ public final class NativeLibrary {
         }
     }
 
-    public static byte[] requestSync(String urlStr) {
-        byte[] buffer = null;
-        URL url;
-        HttpURLConnection connection;
-
-        try {
-            url = new URL(urlStr);
-        } catch (Exception e) {
-            Log.v("citra", e.toString());
-            return buffer;
-        }
-
-        try {
-            connection = (HttpURLConnection) url.openConnection();
-        } catch (Exception e) {
-            Log.v("citra", e.toString());
-            return buffer;
-        }
-
-        int length = connection.getContentLength();
-
-        try {
-            InputStream stream = new BufferedInputStream(connection.getInputStream());
-            int offset = 0;
-            buffer = new byte[length];
-            while (offset < length) {
-                int size = stream.read(buffer, offset, buffer.length - offset);
-                if (size <= 0) {
-                    break;
-                }
-                offset += size;
-            }
-        } catch (Exception e) {
-            Log.v("citra", e.toString());
-            connection.disconnect();
-            buffer = null;
-        }
-        return buffer;
+    public static void setupTranslater(String key, String secret) {
+        TranslateHelper.Initialize(key, secret);
     }
 
     public static String Size2String(long size) {
@@ -221,6 +186,8 @@ public final class NativeLibrary {
     public static native void HandleImage(int[] pixels, int width, int height);
 
     public static native void ResetCamera();
+
+    public static native void Screenshot(OnScreenshotCompleteListener listener);
 
     // input overlay
     public static native void InputEvent(int button, float value);

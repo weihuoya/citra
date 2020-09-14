@@ -26,6 +26,7 @@ void ShowMiiSelectorDialog(bool cancel, const std::string& title,
                            const std::vector<std::string>& miis);
 void ShowMessageDialog(int type, const std::string& msg);
 void PickImage(u32 width, u32 height);
+void SetupTranslater(const std::string& key, const std::string& secret);
 void HandleNFCScanning(bool isScanning);
 int GetDisplayRotation();
 bool CheckRecordPermission();

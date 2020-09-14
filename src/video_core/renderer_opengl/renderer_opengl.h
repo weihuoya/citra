@@ -63,6 +63,7 @@ private:
     void InitOpenGLObjects();
     void ConfigureFramebufferTexture(TextureInfo& texture,
                                      const GPU::Regs::FramebufferConfig& framebuffer);
+    void RenderScreenshot();
     void DrawScreens(const Layout::FramebufferLayout& layout);
     void DrawSingleScreenRotated(u32 index);
     void RenderToMailbox(const Layout::FramebufferLayout& layout);

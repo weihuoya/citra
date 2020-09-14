@@ -17,15 +17,9 @@
 namespace Kernel {
 
 void WaitObject::AddWaitingThread(const std::shared_ptr<Thread>& thread) {
-    for (auto iter = waiting_threads.begin(); iter != waiting_threads.end(); ++iter) {
-        if (*iter == thread) {
-            return;
-        } else if ((*iter)->current_priority > thread->current_priority) {
-            waiting_threads.insert(iter, thread);
-            return;
-        }
-    }
-    waiting_threads.push_back(thread);
+    auto itr = std::find(waiting_threads.begin(), waiting_threads.end(), thread);
+    if (itr == waiting_threads.end())
+        waiting_threads.push_back(thread);
 }
 
 void WaitObject::RemoveWaitingThread(Thread* thread) {
@@ -38,17 +32,22 @@ void WaitObject::RemoveWaitingThread(Thread* thread) {
         waiting_threads.erase(itr);
 }
 
-void WaitObject::WakeupAllWaitingThreads() {
+std::shared_ptr<Thread> WaitObject::GetHighestPriorityReadyThread() const {
+    Thread* candidate = nullptr;
+    u32 candidate_priority = ThreadPrioLowest + 1;
+
     for (const auto& thread : waiting_threads) {
         // The list of waiting threads must not contain threads that are not waiting to be awakened.
         ASSERT_MSG(thread->status == ThreadStatus::WaitSynchAny ||
-                   thread->status == ThreadStatus::WaitSynchAll ||
-                   thread->status == ThreadStatus::WaitHleEvent,
+                       thread->status == ThreadStatus::WaitSynchAll ||
+                       thread->status == ThreadStatus::WaitHleEvent,
                    "Inconsistent thread statuses in waiting_threads");
 
-        if (ShouldWait(thread.get())) {
+        if (thread->current_priority >= candidate_priority)
             continue;
-        }
+
+        if (ShouldWait(thread.get()))
+            continue;
 
         // A thread is ready to run if it's either in ThreadStatus::WaitSynchAny or
         // in ThreadStatus::WaitSynchAll and the rest of the objects it is waiting on are ready.
@@ -61,25 +60,33 @@ void WaitObject::WakeupAllWaitingThreads() {
         }
 
         if (ready_to_run) {
-            if (!thread->IsSleepingOnWaitAll()) {
-                Acquire(thread.get());
-            } else {
-                for (auto& object : thread->wait_objects) {
-                    object->Acquire(thread.get());
-                }
-            }
-
-            // Invoke the wakeup callback before clearing the wait objects
-            if (thread->wakeup_callback) {
-                thread->wakeup_callback->WakeUp(ThreadWakeupReason::Signal, thread, SharedFrom(this));
-            }
-
-            for (auto& object : thread->wait_objects) {
-                object->RemoveWaitingThread(thread.get());
-            }
-            thread->wait_objects.clear();
-            thread->ResumeFromWait();
+            candidate = thread.get();
+            candidate_priority = thread->current_priority;
         }
+    }
+
+    return SharedFrom(candidate);
+}
+
+void WaitObject::WakeupAllWaitingThreads() {
+    while (auto thread = GetHighestPriorityReadyThread()) {
+        if (!thread->IsSleepingOnWaitAll()) {
+            Acquire(thread.get());
+        } else {
+            for (auto& object : thread->wait_objects) {
+                object->Acquire(thread.get());
+            }
+        }
+
+        // Invoke the wakeup callback before clearing the wait objects
+        if (thread->wakeup_callback)
+            thread->wakeup_callback->WakeUp(ThreadWakeupReason::Signal, thread, SharedFrom(this));
+
+        for (auto& object : thread->wait_objects)
+            object->RemoveWaitingThread(thread.get());
+        thread->wait_objects.clear();
+
+        thread->ResumeFromWait();
     }
 
     if (hle_notifier)

@@ -447,6 +447,7 @@ JNIEXPORT void JNICALL Java_org_citra_emu_NativeLibrary_Run(JNIEnv* env, jclass 
     Settings::values.core_ticks_hack = 0;
     Settings::values.skip_slow_draw = false;
     Settings::values.display_transfer_hack = false;
+    Settings::values.skip_cpu_write = false;
     Settings::values.stream_buffer_hack = !Settings::values.use_present_thread;
     Settings::Apply();
 
@@ -465,6 +466,8 @@ JNIEXPORT void JNICALL Java_org_citra_emu_NativeLibrary_Run(JNIEnv* env, jclass 
     std::shared_ptr<Service::CFG::Module> cfg = std::make_shared<Service::CFG::Module>();
     cfg->SetSystemLanguage(Config::Get(Config::SYSTEM_LANGUAGE));
     cfg->UpdateConfigNANDSavegame();
+
+    SetupTranslater(Config::Get(Config::BAIDU_OCR_KEY), Config::Get(Config::BAIDU_OCR_SECRET));
 
     // run
     BootGame(GetJString(jFile));
@@ -489,11 +492,12 @@ JNIEXPORT void JNICALL Java_org_citra_emu_NativeLibrary_StopEmulation(JNIEnv* en
 JNIEXPORT jintArray JNICALL Java_org_citra_emu_NativeLibrary_getRunningSettings(JNIEnv* env,
                                                                                 jclass obj) {
     int i = 0;
-    int settings[7];
+    int settings[8];
 
     // get settings
     settings[i++] = Settings::values.core_ticks_hack > 0;
     settings[i++] = Settings::values.skip_slow_draw;
+    settings[i++] = Settings::values.skip_cpu_write;
     settings[i++] = Settings::values.texture_load_hack;
     settings[i++] = std::min(std::max(Settings::values.resolution_factor - 1, 0), 3);
     settings[i++] = static_cast<int>(Settings::values.layout_option);
@@ -511,18 +515,13 @@ JNIEXPORT void JNICALL Java_org_citra_emu_NativeLibrary_setRunningSettings(JNIEn
     jint* settings = env->GetIntArrayElements(array, nullptr);
 
     // FMV Hack
-    if (settings[i++]) {
-        if (Settings::values.use_cpu_jit) {
-            Settings::values.core_ticks_hack = 16000;
-        } else {
-            Settings::values.core_ticks_hack = 0xFFFF;
-        }
-    } else {
-        Settings::values.core_ticks_hack = 0;
-    }
+    Settings::SetFMVHack(settings[i++] > 0);
 
     // Skip Slow Draw
     Settings::values.skip_slow_draw = settings[i++] > 0;
+
+    // Skip CPU Write
+    Settings::values.skip_cpu_write = settings[i++] > 0;
 
     //
     Settings::values.texture_load_hack = settings[i++] > 0;
@@ -598,6 +597,23 @@ JNIEXPORT jobject JNICALL Java_org_citra_emu_NativeLibrary_getCustomLayout(JNIEn
         bottom = Settings::values.custom_bottom_bottom;
     }
     return env->NewObject(cls, midInit, left, top, right, bottom);
+}
+
+JNIEXPORT void JNICALL Java_org_citra_emu_NativeLibrary_Screenshot(JNIEnv* env, jclass obj,
+                                                                   jobject listener) {
+    if (VideoCore::g_screenshot_complete_callback) {
+        return;
+    }
+    jobject listener_ref = env->NewGlobalRef(listener);
+    VideoCore::g_screenshot_complete_callback = [listener_ref](u32 width, u32 height, const std::vector<u32>& pixels) {
+        JNIEnv* env = GetEnvForThread();
+        jclass listenerClass = env->GetObjectClass(listener_ref);
+        jmethodID method = env->GetMethodID(listenerClass, "OnScreenshotComplete", "(II[I)V");
+        jintArray array = ToJIntArray(pixels.data(), pixels.size());
+        env->CallVoidMethod(listener_ref, method, (jint)width, (jint)height, array);
+        env->DeleteLocalRef(array);
+        env->DeleteGlobalRef(listener_ref);
+    };
 }
 
 JNIEXPORT jintArray JNICALL Java_org_citra_emu_NativeLibrary_searchMemory(JNIEnv* env, jclass obj,
@@ -700,22 +716,12 @@ JNIEXPORT void JNICALL Java_org_citra_emu_NativeLibrary_reloadCheatCode(JNIEnv* 
 
 JNIEXPORT void JNICALL Java_org_citra_emu_NativeLibrary_loadAmiibo(JNIEnv* env, jclass obj,
                                                                    jstring jPath) {
-    std::string path = GetJString(jPath);
-
     Core::System& system{Core::System::GetInstance()};
     Service::SM::ServiceManager& sm = system.ServiceManager();
     auto nfc = sm.GetService<Service::NFC::Module::Interface>("nfc:u");
-    if (nfc == nullptr) {
-        return;
+    if (nfc) {
+        nfc->LoadAmiibo(GetJString(jPath));
     }
-
-    FileUtil::IOFile amiibo_file(path, "rb");
-    Service::NFC::AmiiboData amiibo_data{};
-    std::size_t size = amiibo_file.ReadBytes(&amiibo_data, sizeof(amiibo_data));
-    if (size == sizeof(amiibo_data)) {
-        nfc->LoadAmiibo(amiibo_data);
-    }
-    amiibo_file.Close();
 }
 
 JNIEXPORT void JNICALL Java_org_citra_emu_NativeLibrary_ResetCamera(JNIEnv* env, jclass obj) {
@@ -766,6 +772,69 @@ JNIEXPORT jboolean JNICALL Java_org_citra_emu_NativeLibrary_IsAppExecutable(JNIE
         app_loader->IsExecutable(executable);
     }
     return executable;
+}
+
+JNIEXPORT jstring JNICALL
+Java_org_citra_emu_utils_TranslateHelper_GoogleTranslateToken(JNIEnv *env, jclass clazz, jstring jText) {
+    u32 ttk0 = 444129;
+    u32 ttk1 = 803085091;
+    u32 mask0[] = {'+', '-', 'a', '^', '+', 6};
+    u32 mask1[] = {'+', '-', 3, '^', '+', 'b', '+', '-', 'f'};
+    std::vector<u32> d;
+
+    jclass stringClass = env->GetObjectClass(jText);
+    jmethodID lengthID = env->GetMethodID(stringClass, "length", "()I");
+    jmethodID codePointAtID = env->GetMethodID(stringClass, "codePointAt", "(I)I");
+    int length = env->CallIntMethod(jText, lengthID);
+
+    auto GoogleTranslateRL = [] (u32 a, const u32* b, u32 size) -> u32 {
+        for (u32 c = 0; c < size - 2; c += 3) {
+            u32 d = b[c + 2];
+            if (d >= 'a') {
+                d -= 87;
+            }
+            d = '+' == b[c + 1] ? a >> d : a << d;
+            a = '+' == b[c] ? a + d : a ^ d;
+        }
+        return a;
+    };
+
+    for (u32 f = 0; f < length; f++) {
+        u32 g = env->CallIntMethod(jText, codePointAtID, (jint)f);
+        if (128 > g) {
+            d.push_back(g);
+        } else {
+            if (2048 > g) {
+                d.push_back(g >> 6 | 192);
+            } else {
+                u32 gg = 0;
+                if (f + 1 < length) {
+                    gg = env->CallIntMethod(jText, codePointAtID, (jint)f + 1);
+                }
+                if (55296 == (g & 64512) && f + 1 < length && 56320 == (gg & 64512)) {
+                    g = 65536 + ((g & 1023) << 10) + (gg & 1023);
+                    d.push_back(g >> 18 | 240);
+                    d.push_back(g >> 12 & 63 | 128);
+                } else {
+                    d.push_back(g >> 12 | 224);
+                }
+                d.push_back(g >> 6 & 63 | 128);
+            }
+            d.push_back(g & 63 | 128);
+        }
+    }
+    u32 aa = ttk0;
+    for (u32 e = 0; e < d.size(); e++) {
+        aa += d[e];
+        aa = GoogleTranslateRL(aa, mask0, 6);
+    }
+    aa = GoogleTranslateRL(aa, mask1, 9);
+    aa ^= ttk1;
+    if (0 > aa) {
+        aa = (aa & 2147483647) + 2147483648;
+    }
+    aa %= 1000000;
+    return ToJString(fmt::format("{}.{}", aa, aa ^ ttk0));
 }
 
 #ifdef __cplusplus

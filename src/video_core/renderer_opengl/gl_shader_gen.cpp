@@ -87,6 +87,11 @@ layout (std140) uniform shader_data {
 };
 )";
 
+static bool s_use_fragment_color;
+static bool s_use_texcolor0;
+static bool s_use_texcolor1;
+static bool s_use_texcolor2;
+
 static std::string GetVertexInterfaceDeclaration(bool is_output, bool separable_shader) {
     std::string out;
 
@@ -172,8 +177,8 @@ PicaFSConfig PicaFSConfig::BuildFromRegs(const Pica::Regs& regs) {
     if (state.lighting.enable) {
         state.lighting.src_num = regs.lighting.max_light_index + 1;
 
-        for (unsigned light_index = 0; light_index < state.lighting.src_num; ++light_index) {
-            unsigned num = regs.lighting.light_enable.GetNum(light_index);
+        for (u32 light_index = 0; light_index < state.lighting.src_num; ++light_index) {
+            u32 num = regs.lighting.light_enable.GetNum(light_index);
             const auto& light = regs.lighting.light[num];
             state.lighting.light[light_index].num = num;
             state.lighting.light[light_index].directional = light.config.directional != 0;
@@ -320,7 +325,8 @@ static std::string SampleTexture(const PicaFSConfig& config, unsigned texture_un
         // Only unit 0 respects the texturing type
         switch (state.texture0_type) {
         case TexturingRegs::TextureConfig::Texture2D:
-            return "textureLod(tex0, texcoord0, getLod(texcoord0 * vec2(textureSize(tex0, 0))))";
+            s_use_texcolor0 = true;
+            return "texcolor0";
         case TexturingRegs::TextureConfig::Projection2D:
             // TODO (wwylele): find the exact LOD formula for projection texture
             return "textureProj(tex0, vec3(texcoord0, texcoord0_w))";
@@ -339,12 +345,15 @@ static std::string SampleTexture(const PicaFSConfig& config, unsigned texture_un
             return "texture(tex0, texcoord0)";
         }
     case 1:
-        return "textureLod(tex1, texcoord1, getLod(texcoord1 * vec2(textureSize(tex1, 0))))";
+        s_use_texcolor1 = true;
+        return "texcolor1";
     case 2:
-        if (state.texture2_use_coord1)
+        if (state.texture2_use_coord1) {
             return "textureLod(tex2, texcoord1, getLod(texcoord1 * vec2(textureSize(tex2, 0))))";
-        else
-            return "textureLod(tex2, texcoord2, getLod(texcoord2 * vec2(textureSize(tex2, 0))))";
+        } else {
+            s_use_texcolor2 = true;
+            return "texcolor2";
+        }
     case 3:
         if (state.proctex.enable) {
             return "ProcTex()";
@@ -359,21 +368,20 @@ static std::string SampleTexture(const PicaFSConfig& config, unsigned texture_un
 }
 
 /// Writes the specified TEV stage source component(s)
-static bool AppendSource(std::string& out, const PicaFSConfig& config,
+static void AppendSource(std::string& out, const PicaFSConfig& config,
                          TevStageConfig::Source source, const std::string& index_name) {
     using Source = TevStageConfig::Source;
-    bool use_fragment_color = false;
     switch (source) {
     case Source::PrimaryColor:
         out += "rounded_primary_color";
         break;
     case Source::PrimaryFragmentColor:
         out += "primary_fragment_color";
-        use_fragment_color = true;
+        s_use_fragment_color = true;
         break;
     case Source::SecondaryFragmentColor:
         out += "secondary_fragment_color";
-        use_fragment_color = true;
+        s_use_fragment_color = true;
         break;
     case Source::Texture0:
         out += SampleTexture(config, 0);
@@ -403,51 +411,49 @@ static bool AppendSource(std::string& out, const PicaFSConfig& config,
         LOG_CRITICAL(Render_OpenGL, "Unknown source op {}", static_cast<u32>(source));
         break;
     }
-    return use_fragment_color;
 }
 
 /// Writes the color components to use for the specified TEV stage color modifier
-static bool AppendColorModifier(std::string& out, const PicaFSConfig& config,
+static void AppendColorModifier(std::string& out, const PicaFSConfig& config,
                                 TevStageConfig::ColorModifier modifier,
                                 TevStageConfig::Source source, const std::string& index_name) {
     using ColorModifier = TevStageConfig::ColorModifier;
-    bool use_fragment_color = false;
     out += "(";
     switch (modifier) {
     case ColorModifier::SourceColor:
-        use_fragment_color = AppendSource(out, config, source, index_name);
+        AppendSource(out, config, source, index_name);
         out += ".rgb";
         break;
     case ColorModifier::OneMinusSourceColor:
         out += "vec3(1.0) - ";
-            use_fragment_color = AppendSource(out, config, source, index_name);
+        AppendSource(out, config, source, index_name);
         out += ".rgb";
         break;
     case ColorModifier::SourceAlpha:
-        use_fragment_color = AppendSource(out, config, source, index_name);
+        AppendSource(out, config, source, index_name);
         out += ".aaa";
         break;
     case ColorModifier::OneMinusSourceAlpha:
         out += "vec3(1.0) - ";
-        use_fragment_color = AppendSource(out, config, source, index_name);
+        AppendSource(out, config, source, index_name);
         out += ".aaa";
         break;
     case ColorModifier::SourceRed:
-        use_fragment_color = AppendSource(out, config, source, index_name);
+        AppendSource(out, config, source, index_name);
         out += ".rrr";
         break;
     case ColorModifier::OneMinusSourceRed:
         out += "vec3(1.0) - ";
-        use_fragment_color = AppendSource(out, config, source, index_name);
+        AppendSource(out, config, source, index_name);
         out += ".rrr";
         break;
     case ColorModifier::SourceGreen:
-        use_fragment_color = AppendSource(out, config, source, index_name);
+        AppendSource(out, config, source, index_name);
         out += ".ggg";
         break;
     case ColorModifier::OneMinusSourceGreen:
         out += "vec3(1.0) - ";
-        use_fragment_color = AppendSource(out, config, source, index_name);
+        AppendSource(out, config, source, index_name);
         out += ".ggg";
         break;
     case ColorModifier::SourceBlue:
@@ -456,7 +462,7 @@ static bool AppendColorModifier(std::string& out, const PicaFSConfig& config,
         break;
     case ColorModifier::OneMinusSourceBlue:
         out += "vec3(1.0) - ";
-        use_fragment_color = AppendSource(out, config, source, index_name);
+        AppendSource(out, config, source, index_name);
         out += ".bbb";
         break;
     default:
@@ -465,51 +471,49 @@ static bool AppendColorModifier(std::string& out, const PicaFSConfig& config,
         break;
     }
     out += ")";
-    return use_fragment_color;
 }
 
 /// Writes the alpha component to use for the specified TEV stage alpha modifier
-static bool AppendAlphaModifier(std::string& out, const PicaFSConfig& config,
+static void AppendAlphaModifier(std::string& out, const PicaFSConfig& config,
                                 TevStageConfig::AlphaModifier modifier,
                                 TevStageConfig::Source source, const std::string& index_name) {
     using AlphaModifier = TevStageConfig::AlphaModifier;
-    bool use_fragment_color = false;
     out += "(";
     switch (modifier) {
     case AlphaModifier::SourceAlpha:
-        use_fragment_color = AppendSource(out, config, source, index_name);
+        AppendSource(out, config, source, index_name);
         out += ".a";
         break;
     case AlphaModifier::OneMinusSourceAlpha:
         out += "1.0 - ";
-        use_fragment_color = AppendSource(out, config, source, index_name);
+        AppendSource(out, config, source, index_name);
         out += ".a";
         break;
     case AlphaModifier::SourceRed:
-        use_fragment_color = AppendSource(out, config, source, index_name);
+        AppendSource(out, config, source, index_name);
         out += ".r";
         break;
     case AlphaModifier::OneMinusSourceRed:
         out += "1.0 - ";
-        use_fragment_color = AppendSource(out, config, source, index_name);
+        AppendSource(out, config, source, index_name);
         out += ".r";
         break;
     case AlphaModifier::SourceGreen:
-        use_fragment_color = AppendSource(out, config, source, index_name);
+        AppendSource(out, config, source, index_name);
         out += ".g";
         break;
     case AlphaModifier::OneMinusSourceGreen:
         out += "1.0 - ";
-        use_fragment_color = AppendSource(out, config, source, index_name);
+        AppendSource(out, config, source, index_name);
         out += ".g";
         break;
     case AlphaModifier::SourceBlue:
-        use_fragment_color = AppendSource(out, config, source, index_name);
+        AppendSource(out, config, source, index_name);
         out += ".b";
         break;
     case AlphaModifier::OneMinusSourceBlue:
         out += "1.0 - ";
-        use_fragment_color = AppendSource(out, config, source, index_name);
+        AppendSource(out, config, source, index_name);
         out += ".b";
         break;
     default:
@@ -518,7 +522,6 @@ static bool AppendAlphaModifier(std::string& out, const PicaFSConfig& config,
         break;
     }
     out += ")";
-    return use_fragment_color;
 }
 
 /// Writes the combiner function for the color components for the specified TEV stage operation
@@ -531,29 +534,29 @@ static void AppendColorCombiner(std::string& out, TevStageConfig::Operation oper
         out += results[0];
         break;
     case Operation::Modulate:
-        out += results[0] + " * " + results[1];
+        out += fmt::format("{} * {}", results[0], results[1]);
         break;
     case Operation::Add:
-        out += results[0] + " + " + results[1];
+        out += fmt::format("{} + {}", results[0], results[1]);
         break;
     case Operation::AddSigned:
-        out += results[0] + " + " + results[1] + " - vec3(0.5)";
+        out += fmt::format("{} + {} - vec3(0.5)", results[0], results[1]);
         break;
     case Operation::Lerp:
-        out += results[0] + " * " + results[2] + " + " + results[1] + " * (vec3(1.0) - " + results[2] + ")";
+        out += fmt::format("{0} * {2} + {1} * (vec3(1.0) - {2})", results[0], results[1], results[2]);
         break;
     case Operation::Subtract:
-        out += results[0] + " - " + results[1];
+        out += fmt::format("{} - {}", results[0], results[1]);
         break;
     case Operation::MultiplyThenAdd:
-        out += results[0] + " * " + results[1] + " + " + results[2];
+        out += fmt::format("{} * {} + {}", results[0], results[1], results[2]);
         break;
     case Operation::AddThenMultiply:
-        out += "min(" + results[0] + " + " + results[1] + ", vec3(1.0)) * " + results[2];
+        out += fmt::format("min({} + {}, vec3(1.0)) * {}", results[0], results[1], results[2]);
         break;
     case Operation::Dot3_RGB:
     case Operation::Dot3_RGBA:
-        out += "vec3(dot(" + results[0] + " - vec3(0.5), " + results[1] + " - vec3(0.5)) * 4.0)";
+        out += fmt::format("vec3(dot({} - vec3(0.5), {} - vec3(0.5)) * 4.0)", results[0], results[1]);
         break;
     default:
         out += "vec3(0.0)";
@@ -574,25 +577,25 @@ static void AppendAlphaCombiner(std::string& out, TevStageConfig::Operation oper
         out += results[0];
         break;
     case Operation::Modulate:
-        out += results[0] + " * " + results[1];
+        out += fmt::format("{} * {}", results[0], results[1]);
         break;
     case Operation::Add:
-        out += results[0] + " + " + results[1];
+        out += fmt::format("{} + {}", results[0], results[1]);
         break;
     case Operation::AddSigned:
-        out += results[0] + " + " + results[1] + " - 0.5";
+        out += fmt::format("{} + {} - 0.5", results[0], results[1]);
         break;
     case Operation::Lerp:
-        out += results[0] + " * " + results[2] + " + " + results[1] + " * (1.0 - " + results[2] + ")";
+        out += fmt::format("{0} * {2} + {1} * (1.0 - {2})", results[0], results[1], results[2]);
         break;
     case Operation::Subtract:
-        out += results[0] + " - " + results[1];
+        out += fmt::format("{} - {}", results[0], results[1]);
         break;
     case Operation::MultiplyThenAdd:
-        out += results[0] + " * " + results[1] + " + " + results[2];
+        out += fmt::format("{} * {} + {}", results[0], results[1], results[2]);
         break;
     case Operation::AddThenMultiply:
-        out += "min(" + results[0] + " + " + results[1] + ", 1.0) * " + results[2];
+        out += fmt::format("min({} + {}, 1.0) * {}", results[0], results[1], results[2]);
         break;
     default:
         out += "0.0";
@@ -633,19 +636,18 @@ static void AppendAlphaTestCondition(std::string& out, FramebufferRegs::CompareF
 }
 
 /// Writes the code to emulate the specified TEV stage
-static bool WriteTevStage(std::string& out, const PicaFSConfig& config, u32 index) {
+static void WriteTevStage(std::string& out, const PicaFSConfig& config, u32 index) {
     const auto stage =
         static_cast<const TexturingRegs::TevStageConfig>(config.state.tev_stages[index]);
-    bool use_fragment_color = false;
     if (!IsPassThroughTevStage(stage)) {
         std::string index_name = std::to_string(index);
 
         std::array<std::string, 3> color_results;
-        use_fragment_color |= AppendColorModifier(color_results[0], config, stage.color_modifier1,
+        AppendColorModifier(color_results[0], config, stage.color_modifier1,
                 stage.color_source1, index_name);
-        use_fragment_color |= AppendColorModifier(color_results[1], config, stage.color_modifier2,
+        AppendColorModifier(color_results[1], config, stage.color_modifier2,
                 stage.color_source2, index_name);
-        use_fragment_color |= AppendColorModifier(color_results[2], config, stage.color_modifier3,
+        AppendColorModifier(color_results[2], config, stage.color_modifier3,
                 stage.color_source3, index_name);
 
         // Round the output of each TEV stage to maintain the PICA's 8 bits of precision
@@ -658,11 +660,11 @@ static bool WriteTevStage(std::string& out, const PicaFSConfig& config, u32 inde
             out += "float alpha_output_" + index_name + " = color_output_" + index_name + "[0];\n";
         } else {
             std::array<std::string, 3> alpha_results;
-            use_fragment_color |= AppendAlphaModifier(alpha_results[0], config, stage.alpha_modifier1,
+            AppendAlphaModifier(alpha_results[0], config, stage.alpha_modifier1,
                     stage.alpha_source1, index_name);
-            use_fragment_color |= AppendAlphaModifier(alpha_results[1], config, stage.alpha_modifier2,
+            AppendAlphaModifier(alpha_results[1], config, stage.alpha_modifier2,
                     stage.alpha_source2, index_name);
-            use_fragment_color |= AppendAlphaModifier(alpha_results[2], config, stage.alpha_modifier3,
+            AppendAlphaModifier(alpha_results[2], config, stage.alpha_modifier3,
                     stage.alpha_source3, index_name);
 
             out += "float alpha_output_" + index_name + " = byteround(";
@@ -692,7 +694,7 @@ static bool WriteTevStage(std::string& out, const PicaFSConfig& config, u32 inde
     if (config.TevStageUpdatesCombinerBufferAlpha(index))
         out += "next_combiner_buffer.a = last_tex_env_out.a;\n";
 
-    return use_fragment_color;
+    out += "\n";
 }
 
 /// Writes the code to emulate fragment lighting
@@ -700,7 +702,7 @@ static void WriteLighting(std::string& out, const PicaFSConfig& config) {
     const auto& lighting = config.state.lighting;
 
     // Define lighting globals
-    out += "vec4 diffuse_sum = vec4(0.0, 0.0, 0.0, 1.0);\n"
+    out += "\nvec4 diffuse_sum = vec4(0.0, 0.0, 0.0, 1.0);\n"
            "vec4 specular_sum = vec4(0.0, 0.0, 0.0, 1.0);\n"
            "vec3 light_vector = vec3(0.0);\n"
            "vec3 refl_value = vec3(0.0);\n"
@@ -1001,7 +1003,7 @@ static void WriteLighting(std::string& out, const PicaFSConfig& config) {
     // Sum final lighting result
     out += "diffuse_sum.rgb += lighting_global_ambient;\n"
            "primary_fragment_color = clamp(diffuse_sum, vec4(0.0), vec4(1.0));\n"
-           "secondary_fragment_color = clamp(specular_sum, vec4(0.0), vec4(1.0));\n";
+           "secondary_fragment_color = clamp(specular_sum, vec4(0.0), vec4(1.0));\n\n";
 }
 
 using ProcTexClamp = TexturingRegs::ProcTexClamp;
@@ -1032,23 +1034,20 @@ void AppendProcTexShiftOffset(std::string& out, std::string_view v, ProcTexShift
 static void AppendProcTexClamp(std::string& out, const std::string& var, ProcTexClamp mode) {
     switch (mode) {
     case ProcTexClamp::ToZero:
-        // out += var + " = " + var + " > 1.0 ? 0 : " + var + ";\n";
-        out += var + " = (1.0 - max(sign(" + var + " - 1.0), 0.0)) * " + var + + ";\n";
+        out += fmt::format("{0} = mix({0}, 0.0, {0} > 1.0);\n", var);
         break;
     case ProcTexClamp::ToEdge:
-        out += var + " = " + "min(" + var + ", 1.0);\n";
+        out += fmt::format("{0} = min({0}, 1.0);\n", var);
         break;
     case ProcTexClamp::SymmetricalRepeat:
-        out += var + " = " + "fract(" + var + ");\n";
+        out += fmt::format("{0} = fract({0});\n", var);
         break;
     case ProcTexClamp::MirroredRepeat: {
-        out +=
-            var + " = int(" + var + ") % 2 == 0 ? fract(" + var + ") : 1.0 - fract(" + var + ");\n";
+        out += fmt::format("{0} = mix(1.0 - fract({0}), fract({0}), int({0}) % 2 == 0);\n", var);
         break;
     }
     case ProcTexClamp::Pulse:
-        // out += var + " = " + var + " > 0.5 ? 1.0 : 0.0;\n";
-        out += var + " = max(sign(" + var + " - 0.5), 0.0)";
+        out += fmt::format("{0} = mix(0.0, 1.0, {0} > 0.5);\n", var);
         break;
     default:
         LOG_CRITICAL(HW_GPU, "Unknown clamp mode {}", static_cast<u32>(mode));
@@ -1212,11 +1211,11 @@ float ProcTexNoiseCoef(vec2 x) {
 
     // Get shift offset before noise generation
     out += "float u_shift = ";
-    AppendProcTexShiftOffset(out, "uv.x", config.state.proctex.u_shift,
+    AppendProcTexShiftOffset(out, "uv.y", config.state.proctex.u_shift,
                              config.state.proctex.u_clamp);
     out += ";\n";
     out += "float v_shift = ";
-    AppendProcTexShiftOffset(out, "uv.y", config.state.proctex.v_shift,
+    AppendProcTexShiftOffset(out, "uv.x", config.state.proctex.v_shift,
                              config.state.proctex.v_clamp);
     out += ";\n";
 
@@ -1420,7 +1419,7 @@ float getLod(vec2 coord) {
 #if ALLOW_SHADOW
 
 uvec2 DecodeShadow(uint pixel) {
-    return uvec2(pixel >> 8, pixel & 0xFFu);
+    return uvec2(pixel >> 8, pixel & 255u);
 }
 
 uint EncodeShadow(uvec2 pixel) {
@@ -1448,7 +1447,7 @@ vec4 shadowTexture(vec2 uv, float w) {
     if (!config.state.shadow_texture_orthographic) {
         out += "uv /= w;";
     }
-    out += "uint z = uint(max(0, int(min(abs(w), 1.0) * float(0xFFFFFF)) - shadow_texture_bias));";
+    out += "uint z = uint(max(0, int(min(abs(w), 1.0) * (exp2(24.0) - 1.0)) - shadow_texture_bias));";
     out += R"(
     vec2 coord = vec2(imageSize(shadow_texture_px)) * uv - vec2(0.5);
     vec2 coord_floor = floor(coord);
@@ -1480,7 +1479,7 @@ vec4 shadowTextureCube(vec2 uv, float w) {
         if (c.z > 0.0) uv.x = -uv.x;
     }
 )";
-    out += "uint z = uint(max(0, int(min(w, 1.0) * float(0xFFFFFF)) - shadow_texture_bias));";
+    out += "uint z = uint(max(0, int(min(w, 1.0) * (exp2(24.0) - 1.0)) - shadow_texture_bias));";
     out += R"(
     vec2 coord = vec2(size) * (uv / w * vec2(0.5) + vec2(0.5)) - vec2(0.5);
     vec2 coord_floor = floor(coord);
@@ -1615,13 +1614,31 @@ vec4 secondary_fragment_color = vec4(0.0);
         out += "depth /= gl_FragCoord.w;\n";
     }
 
-    bool use_fragment_color = false;
+    // flags
+    s_use_fragment_color = false;
+    s_use_texcolor0 = false;
+    s_use_texcolor1 = false;
+    s_use_texcolor2 = false;
+
     std::string tev_stages;
     for (u32 index = 0; index < state.tev_stages.size(); ++index)
-        use_fragment_color |= WriteTevStage(tev_stages, config, index);
+        WriteTevStage(tev_stages, config, index);
 
-    if (state.lighting.enable && use_fragment_color)
-        WriteLighting(out, config);
+    std::string lighting_codes;
+    if (state.lighting.enable && s_use_fragment_color)
+        WriteLighting(lighting_codes, config);
+
+    if (s_use_texcolor0) {
+        out += "vec4 texcolor0 = textureLod(tex0, texcoord0, getLod(texcoord0 * vec2(textureSize(tex0, 0))));\n";
+    }
+    if (s_use_texcolor1) {
+        out += "vec4 texcolor1 = textureLod(tex1, texcoord1, getLod(texcoord1 * vec2(textureSize(tex1, 0))));\n";
+    }
+    if (s_use_texcolor2) {
+        out += "vec4 texcolor2 = textureLod(tex2, texcoord2, getLod(texcoord2 * vec2(textureSize(tex2, 0))));\n";
+    }
+
+    out += lighting_codes;
 
     out += "vec4 combiner_buffer = vec4(0.0);\n"
            "vec4 next_combiner_buffer = tev_combiner_buffer_color;\n"
@@ -1665,8 +1682,8 @@ vec4 secondary_fragment_color = vec4(0.0);
     if (state.shadow_rendering) {
         out += R"(
 #if ALLOW_SHADOW
-uint d = uint(clamp(depth, 0.0, 1.0) * float(0xFFFFFF));
-uint s = uint(last_tex_env_out.g * float(0xFF));
+uint d = uint(clamp(depth, 0.0, 1.0) * (exp2(24.0) - 1.0));
+uint s = uint(last_tex_env_out.g * 255.0);
 ivec2 image_coord = ivec2(gl_FragCoord.xy);
 
 uint old = imageLoad(shadow_buffer, image_coord).x;
@@ -1852,7 +1869,7 @@ struct Vertex {
            semantic(VSOutputAttributes::QUATERNION_W) + ");\n";
     out += "}\n\n";
 
-    out += "void EmitVtx(Vertex vtx, float quats_opposite) {\n";
+    out += "void EmitVtx(Vertex vtx, bool quats_opposite) {\n";
     out += "    vec4 vtx_pos = vec4(" + semantic(VSOutputAttributes::POSITION_X) + ", " +
            semantic(VSOutputAttributes::POSITION_Y) + ", " +
            semantic(VSOutputAttributes::POSITION_Z) + ", " +
@@ -1863,7 +1880,8 @@ struct Vertex {
     out += "    gl_ClipDistance[1] = dot(clip_coef, vtx_pos);\n";
     out += "#endif // !defined(CITRA_GLES) || defined(GL_EXT_clip_cull_distance)\n\n";
 
-    out += "    normquat = GetVertexQuaternion(vtx) * quats_opposite;\n\n";
+    out += "    vec4 vtx_quat = GetVertexQuaternion(vtx);\n";
+    out += "    normquat = mix(vtx_quat, -vtx_quat, bvec4(quats_opposite));\n\n";
 
     out += "    vec4 vtx_color = vec4(" + semantic(VSOutputAttributes::COLOR_R) + ", " +
            semantic(VSOutputAttributes::COLOR_G) + ", " + semantic(VSOutputAttributes::COLOR_B) +
@@ -1887,13 +1905,12 @@ struct Vertex {
     out += "}\n";
 
     out += R"(
-float AreQuaternionsOpposite(vec4 qa, vec4 qb) {
-    // return (dot(qa, qb) < 0.0);
-    return min(sign(dot(qa, qb)), 0.0) * 2.0 + 1.0;
+bool AreQuaternionsOpposite(vec4 qa, vec4 qb) {
+    return (dot(qa, qb) < 0.0);
 }
 
 void EmitPrim(Vertex vtx0, Vertex vtx1, Vertex vtx2) {
-    EmitVtx(vtx0, 1.0);
+    EmitVtx(vtx0, false);
     EmitVtx(vtx1, AreQuaternionsOpposite(GetVertexQuaternion(vtx0), GetVertexQuaternion(vtx1)));
     EmitVtx(vtx2, AreQuaternionsOpposite(GetVertexQuaternion(vtx0), GetVertexQuaternion(vtx2)));
     EndPrimitive();
@@ -1934,5 +1951,4 @@ void main() {
 
     return out;
 }
-
 } // namespace OpenGL

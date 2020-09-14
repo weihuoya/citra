@@ -395,6 +395,8 @@ void RendererOpenGL::SwapBuffers() {
         }
     }
 
+    RenderScreenshot();
+
     if (Settings::values.use_present_thread) {
         RenderToMailbox(layout);
     } else {
@@ -412,6 +414,37 @@ void RendererOpenGL::SwapBuffers() {
 
     prev_state.Apply();
     RefreshRasterizerSetting();
+}
+
+void RendererOpenGL::RenderScreenshot() {
+    if (VideoCore::g_screenshot_complete_callback) {
+        // Draw this frame to the screenshot framebuffer
+        OGLFramebuffer screenshot_framebuffer;
+        screenshot_framebuffer.Create();
+        GLuint old_read_fb = OpenGLState::BindReadFramebuffer(screenshot_framebuffer.handle);
+        GLuint old_draw_fb = OpenGLState::BindDrawFramebuffer(screenshot_framebuffer.handle);
+
+        const Layout::FramebufferLayout& layout = render_window.GetFramebufferLayout();
+        GLuint renderbuffer;
+        glGenRenderbuffers(1, &renderbuffer);
+        glBindRenderbuffer(GL_RENDERBUFFER, renderbuffer);
+        glRenderbufferStorage(GL_RENDERBUFFER, GL_RGBA8, layout.width, layout.height);
+        glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_RENDERBUFFER,
+                                  renderbuffer);
+
+        DrawScreens(layout);
+
+        std::vector<u32> pixels(layout.width * layout.height);
+        glReadPixels(0, 0, layout.width, layout.height, GL_RGBA, GL_UNSIGNED_BYTE, pixels.data());
+        FlipPixels(pixels.data(), layout.width, layout.height);
+
+        screenshot_framebuffer.Release();
+        OpenGLState::BindReadFramebuffer(old_read_fb);
+        OpenGLState::BindDrawFramebuffer(old_draw_fb);
+        glDeleteRenderbuffers(1, &renderbuffer);
+        VideoCore::g_screenshot_complete_callback(layout.width, layout.height, pixels);
+        VideoCore::g_screenshot_complete_callback = nullptr;
+    }
 }
 
 /// run in core thread

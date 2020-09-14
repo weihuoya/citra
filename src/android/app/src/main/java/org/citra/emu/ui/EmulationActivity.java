@@ -303,6 +303,14 @@ public final class EmulationActivity extends AppCompatActivity {
         mEmulationFragment.startConfiguringLayout();
     }
 
+    public void setLassoOverlay(boolean enabled) {
+        mEmulationFragment.setLassoOverlay(enabled);
+    }
+
+    public boolean isLassoOverlayEnabled() {
+        return mEmulationFragment.isLassoOverlayEnabled();
+    }
+
     public void launchMemoryViewer() {
         MemoryActivity.launch(this);
     }

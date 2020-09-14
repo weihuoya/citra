@@ -46,7 +46,7 @@ std::size_t TimeStretcher::Process(const s16* in, std::size_t num_in, s16* out,
     // We ideally want the backlog to be about 50% full.
     // This gives some headroom both ways to prevent underflow and overflow.
     // We tweak current_ratio to encourage this.
-    constexpr double tweak_time_scale = 0.050; // seconds
+    constexpr double tweak_time_scale = 0.1; // seconds
     const double tweak_correction = (backlog_fullness - 0.5) * (time_delta / tweak_time_scale);
     current_ratio *= std::pow(1.0 + 2.0 * tweak_correction, tweak_correction < 0 ? 3.0 : 1.0);
 

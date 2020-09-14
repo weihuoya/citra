@@ -256,17 +256,15 @@ static void AllocateTextureCube(GLuint texture, const FormatTuple& format_tuple,
     // Keep track of previous texture bindings
     GLuint old_tex = OpenGLState::BindTextureCube(texture);
 
-    for (auto faces : {
-             GL_TEXTURE_CUBE_MAP_POSITIVE_X,
-             GL_TEXTURE_CUBE_MAP_POSITIVE_Y,
-             GL_TEXTURE_CUBE_MAP_POSITIVE_Z,
-             GL_TEXTURE_CUBE_MAP_NEGATIVE_X,
-             GL_TEXTURE_CUBE_MAP_NEGATIVE_Y,
-             GL_TEXTURE_CUBE_MAP_NEGATIVE_Z,
-         }) {
-        glTexImage2D(faces, 0, format_tuple.internal_format, width, width, 0, format_tuple.format,
-                     format_tuple.type, nullptr);
-    }
+    glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+    glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+    glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
+    glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_BASE_LEVEL, 0);
+    glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAX_LEVEL, 0);
+
+    glTexStorage2D(GL_TEXTURE_CUBE_MAP, 1, format_tuple.internal_format, width, width);
 
     // Restore previous texture bindings
     OpenGLState::BindTextureCube(old_tex);
@@ -773,6 +771,10 @@ void CachedSurface::DownloadGLTexture(const Common::Rectangle<u32>& rect, GLuint
 }
 
 void CachedSurface::DumpToFile() {
+    if (gl_buffer.empty()) {
+        DownloadGLTexture(GetRect(), read_framebuffer.handle, draw_framebuffer.handle);
+    }
+
     const std::string& output = FileUtil::GetUserPath(FileUtil::UserPath::LogDir);
     const auto& image_interface = Core::System::GetInstance().GetImageInterface();
     std::string path = fmt::format("{}{:08X}_{}_{}_{}.png", output, addr, width, height, pixel_format);
@@ -998,7 +1000,6 @@ SurfaceRect_Tuple RasterizerCacheOpenGL::GetSurfaceSubRect(const SurfaceParams& 
         if (surface != nullptr) {
             SurfaceParams new_params = *surface;
             new_params.res_scale = params.res_scale;
-
             surface = CreateSurface(new_params);
             RegisterSurface(surface);
         }
@@ -1140,6 +1141,7 @@ Surface RasterizerCacheOpenGL::GetTextureSurface(const Pica::Texture::TextureInf
         if (surface->max_level < max_level) {
             GLuint old_tex = OpenGLState::BindTexture2D(0, surface->texture.handle);
             glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAX_LEVEL, max_level);
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
             u32 width;
             u32 height;
             if (surface->is_custom) {
@@ -1707,6 +1709,9 @@ void RasterizerCacheOpenGL::InvalidateRegion(PAddr addr, u32 size, const Surface
             // If cpu is invalidating this region we want to remove it
             // to (likely) mark the memory pages as uncached
             if (region_owner == nullptr && size <= 8) {
+                if (Settings::values.skip_cpu_write) {
+                    continue;
+                }
                 FlushRegion(cached_surface->addr, cached_surface->size, cached_surface);
                 remove_surfaces.emplace(cached_surface);
                 continue;
