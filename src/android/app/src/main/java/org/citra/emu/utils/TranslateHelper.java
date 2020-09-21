@@ -4,7 +4,6 @@ import android.graphics.Bitmap;
 import android.util.Base64;
 import android.util.Log;
 
-import org.citra.emu.NativeLibrary;
 import org.json.JSONArray;
 import org.json.JSONObject;
 

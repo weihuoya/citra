@@ -150,17 +150,22 @@ public final class SettingsFile {
         String key = splitLine[0].trim();
         String value = splitLine[1].trim();
 
+        if (value.length() > 12) {
+            return new StringSetting(key, current.getName(), value);
+        }
+
         try {
             int valueAsInt = Integer.valueOf(value);
-
             return new IntSetting(key, current.getName(), valueAsInt);
         } catch (NumberFormatException ex) {
+            // ignore
         }
 
         try {
             float valueAsFloat = Float.valueOf(value);
             return new FloatSetting(key, current.getName(), valueAsFloat);
         } catch (NumberFormatException ex) {
+            // ignore
         }
 
         switch (value) {
