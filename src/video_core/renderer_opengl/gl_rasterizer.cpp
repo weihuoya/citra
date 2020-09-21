@@ -1618,6 +1618,10 @@ void RasterizerOpenGL::SyncClipEnabled() {
 }
 
 void RasterizerOpenGL::SyncClipCoef() {
+    if (Settings::values.disable_clip_coef) {
+        return;
+    }
+
     const auto raw_clip_coef = Pica::g_state.regs.rasterizer.GetClipCoef();
     const GLvec4 new_clip_coef = {raw_clip_coef.x.ToFloat32(), raw_clip_coef.y.ToFloat32(),
                                   raw_clip_coef.z.ToFloat32(), raw_clip_coef.w.ToFloat32()};
@@ -1766,10 +1770,28 @@ void RasterizerOpenGL::SyncLogicOp() {
     if (GLES && (GLAD_GL_ARM_shader_framebuffer_fetch || GLAD_GL_EXT_shader_framebuffer_fetch)) {
         shader_dirty = true;
     }
+    if (GLES) {
+        if (!regs.framebuffer.output_merger.alphablend_enable) {
+            if (regs.framebuffer.output_merger.logic_op == Pica::FramebufferRegs::LogicOp::NoOp) {
+                // Color output is disabled by logic operation. We use color write mask to skip
+                // color but allow depth write.
+                state.color_mask = {};
+            }
+        }
+    }
 }
 
 void RasterizerOpenGL::SyncColorWriteMask() {
     const auto& regs = Pica::g_state.regs;
+    if (GLES) {
+        if (!regs.framebuffer.output_merger.alphablend_enable) {
+            if (regs.framebuffer.output_merger.logic_op == Pica::FramebufferRegs::LogicOp::NoOp) {
+                // Color output is disabled by logic operation. We use color write mask to skip
+                // color but allow depth write. Return early to avoid overwriting this.
+                return;
+            }
+        }
+    }
 
     auto IsColorWriteEnabled = [&](u32 value) {
         return (regs.framebuffer.framebuffer.allow_color_write != 0 && value != 0) ? GL_TRUE

@@ -202,6 +202,10 @@ static void LoadOverrides(u64 title_id) {
         // 1001 Spikes [USA]
         Settings::values.stream_buffer_hack = false;
         Settings::SetFMVHack(true);
+    } else if (title_id == 0x0004000000049100 || title_id == 0x0004000000030400 ||
+               title_id == 0x0004000000049000) {
+        // Star Fox 64
+        Settings::values.disable_clip_coef = true;
     }
 
     const std::array<u64, 33> accurate_mul_ids = {
