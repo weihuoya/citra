@@ -1,0 +1,5 @@
+* Monster Hunter 4
+
+[Disable 3D]
+*citra_enabled
+0812CB08 010F436E

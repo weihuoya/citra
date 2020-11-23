@@ -3,6 +3,10 @@
 #include <string>
 #include <vector>
 
+class ButtonFactory;
+class AnalogFactory;
+class NDKMotionFactory;
+
 class InputManager {
 public:
     enum ButtonType {
@@ -32,11 +36,13 @@ public:
     };
 
     static InputManager& GetInstance();
-    ~InputManager();
+
+    void Init();
+
+    void Shutdown();
 
     void InitProfile();
 
-    float GetInput(int button);
     bool InputEvent(int button, float value);
     bool KeyEvent(int button, float value);
 
@@ -44,10 +50,16 @@ public:
     void Tilt(int x, int y);
     void EndTilt();
 
+    void SetDisplayRotation(int rotation);
+
 private:
-    InputManager();
+    InputManager() = default;
 
     std::vector<int> mButtonKeys;
-    std::vector<int> mCirclePadKeys;
-    std::vector<float> mAnalogs;
+    std::vector<int> mAnalogKeys;
+    std::vector<float> mAnalogValues;
+
+    std::shared_ptr<ButtonFactory> mButtonFactory;
+    std::shared_ptr<AnalogFactory> mAnalogFactory;
+    std::shared_ptr<NDKMotionFactory> mMotionFactory;
 };

@@ -14,6 +14,7 @@ import java.io.FileOutputStream;
 
 import org.citra.emu.ui.EmulationActivity;
 import org.citra.emu.ui.MainActivity;
+import org.citra.emu.utils.NetPlayManager;
 import org.citra.emu.utils.TranslateHelper;
 
 public final class NativeLibrary {
@@ -167,6 +168,10 @@ public final class NativeLibrary {
         String name = filename.toLowerCase();
         return (name.endsWith(".cia") || name.endsWith(".cci") || name.endsWith(".3ds") ||
                 name.endsWith(".cxi") || name.endsWith(".app") || name.endsWith(".3dsx"));
+    }
+
+    public static void AddNetPlayMessage(int type, String message) {
+        NetPlayManager.AddNetPlayMessage(type, message);
     }
 
     public static native String GetAppId(String path);

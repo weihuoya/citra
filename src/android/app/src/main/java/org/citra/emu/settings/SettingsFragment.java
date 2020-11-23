@@ -256,15 +256,11 @@ public final class SettingsFragment extends Fragment {
         Setting buttonLeft = bindingsSection.getSetting(SettingsFile.KEY_BUTTON_LEFT);
         Setting buttonRight = bindingsSection.getSetting(SettingsFile.KEY_BUTTON_RIGHT);
 
-        Setting stickUp = bindingsSection.getSetting(SettingsFile.KEY_CIRCLE_PAD_UP);
-        Setting stickDown = bindingsSection.getSetting(SettingsFile.KEY_CIRCLE_PAD_DOWN);
-        Setting stickLeft = bindingsSection.getSetting(SettingsFile.KEY_CIRCLE_PAD_LEFT);
-        Setting stickRight = bindingsSection.getSetting(SettingsFile.KEY_CIRCLE_PAD_RIGHT);
+        Setting stickX = bindingsSection.getSetting(SettingsFile.KEY_CIRCLE_PAD_X);
+        Setting stickY = bindingsSection.getSetting(SettingsFile.KEY_CIRCLE_PAD_Y);
 
-        Setting cstickUp = bindingsSection.getSetting(SettingsFile.KEY_C_STICK_UP);
-        Setting cstickDown = bindingsSection.getSetting(SettingsFile.KEY_C_STICK_DOWN);
-        Setting cstickLeft = bindingsSection.getSetting(SettingsFile.KEY_C_STICK_LEFT);
-        Setting cstickRight = bindingsSection.getSetting(SettingsFile.KEY_C_STICK_RIGHT);
+        Setting cstickX = bindingsSection.getSetting(SettingsFile.KEY_C_STICK_X);
+        Setting cstickY = bindingsSection.getSetting(SettingsFile.KEY_C_STICK_Y);
 
         Setting buttonL = bindingsSection.getSetting(SettingsFile.KEY_BUTTON_L);
         Setting buttonR = bindingsSection.getSetting(SettingsFile.KEY_BUTTON_R);
@@ -308,24 +304,16 @@ public final class SettingsFragment extends Fragment {
                                        R.string.button_right, buttonRight));
 
         sl.add(new HeaderSetting(null, null, R.string.controller_stick, 0));
-        sl.add(new InputBindingSetting(SettingsFile.KEY_CIRCLE_PAD_UP, Settings.SECTION_INI_CONTROLS,
-                R.string.button_up, stickUp));
-        sl.add(new InputBindingSetting(SettingsFile.KEY_CIRCLE_PAD_DOWN, Settings.SECTION_INI_CONTROLS,
-                R.string.button_down, stickDown));
-        sl.add(new InputBindingSetting(SettingsFile.KEY_CIRCLE_PAD_LEFT, Settings.SECTION_INI_CONTROLS,
-                R.string.button_left, stickLeft));
-        sl.add(new InputBindingSetting(SettingsFile.KEY_CIRCLE_PAD_RIGHT, Settings.SECTION_INI_CONTROLS,
-                R.string.button_right, stickRight));
+        sl.add(new InputBindingSetting(SettingsFile.KEY_CIRCLE_PAD_Y, Settings.SECTION_INI_CONTROLS,
+                R.string.button_up_down, stickY));
+        sl.add(new InputBindingSetting(SettingsFile.KEY_CIRCLE_PAD_X, Settings.SECTION_INI_CONTROLS,
+                R.string.button_left_right, stickX));
 
         sl.add(new HeaderSetting(null, null, R.string.c_controller_stick, 0));
-        sl.add(new InputBindingSetting(SettingsFile.KEY_C_STICK_UP, Settings.SECTION_INI_CONTROLS,
-                R.string.button_up, cstickUp));
-        sl.add(new InputBindingSetting(SettingsFile.KEY_C_STICK_DOWN, Settings.SECTION_INI_CONTROLS,
-                R.string.button_down, cstickDown));
-        sl.add(new InputBindingSetting(SettingsFile.KEY_C_STICK_LEFT, Settings.SECTION_INI_CONTROLS,
-                R.string.button_left, cstickLeft));
-        sl.add(new InputBindingSetting(SettingsFile.KEY_C_STICK_RIGHT, Settings.SECTION_INI_CONTROLS,
-                R.string.button_right, cstickRight));
+        sl.add(new InputBindingSetting(SettingsFile.KEY_C_STICK_Y, Settings.SECTION_INI_CONTROLS,
+                R.string.button_up_down, cstickY));
+        sl.add(new InputBindingSetting(SettingsFile.KEY_C_STICK_X, Settings.SECTION_INI_CONTROLS,
+                R.string.button_left_right, cstickX));
 
         return sl;
     }
