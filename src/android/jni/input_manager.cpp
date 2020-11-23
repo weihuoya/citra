@@ -47,7 +47,7 @@ private:
                 : button_list(button_list), button_id(id), threshold(threshold), trigger_if_greater(trigger_if_greater) {}
 
         ~AnalogButton() override {
-            button_list->DestroyButton(GetButtonId());
+            button_list->DestroyButton(this);
         }
 
         bool GetStatus() const override {
@@ -81,10 +81,10 @@ public:
         return std::move(button);
     }
 
-    void DestroyButton(int button_id) {
+    void DestroyButton(AnalogButton* target) {
         std::lock_guard<std::mutex> guard(mutex);
-        auto iter = std::remove_if(buttons.begin(), buttons.end(), [button_id](const AnalogButton* button) {
-            return button->GetButtonId() == button_id;
+        auto iter = std::remove_if(buttons.begin(), buttons.end(), [target](const AnalogButton* button) {
+            return button == target;
         });
         buttons.erase(iter, buttons.end());
     }
@@ -115,7 +115,7 @@ private:
         explicit Joystick(AnalogList * button_list, int id) : button_list(button_list), button_id(id) {}
 
         ~Joystick() override {
-            button_list->DestroyButton(GetButtonId());
+            button_list->DestroyButton(this);
         }
 
         std::tuple<float, float> GetStatus() const override {
@@ -125,8 +125,8 @@ private:
         void SetStatus(float x, float y) {
             // Clamp joystick movement to supported minimum and maximum
             // Citra uses an inverted y axis sent by the frontend
-            x = std::clamp(x * 2.0f, -1.0F, 1.0F);
-            y = std::clamp(-y * 2.0f, -1.0F, 1.0F);
+            x = std::clamp(x, -1.0F, 1.0F);
+            y = std::clamp(-y, -1.0F, 1.0F);
 
             // Clamp the input to a circle (while touch input is already clamped in the frontend, gamepad is
             // unknown)
@@ -160,10 +160,10 @@ public:
         return std::move(analog);
     }
 
-    void DestroyButton(int button_id) {
+    void DestroyButton(Joystick* target) {
         std::lock_guard<std::mutex> guard(mutex);
-        auto iter = std::remove_if(buttons.begin(), buttons.end(), [button_id](const Joystick* button) {
-            return button->GetButtonId() == button_id;
+        auto iter = std::remove_if(buttons.begin(), buttons.end(), [target](const Joystick* button) {
+            return button == target;
         });
         buttons.erase(iter, buttons.end());
     }

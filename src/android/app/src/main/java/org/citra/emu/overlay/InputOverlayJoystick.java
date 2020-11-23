@@ -89,6 +89,15 @@ public final class InputOverlayJoystick {
             mAxises[0] = mAxises[1] = 0.0f;
         }
 
+        // Clamp the circle pad input to a circle
+        float radius = (float) Math.sqrt(mAxises[0] *  mAxises[0] + mAxises[1] * mAxises[1]);
+        if(radius > 1.0f)
+        {
+            float angle = (float) Math.atan2(mAxises[1], mAxises[0]);
+            mAxises[0] = ((float)Math.cos(angle) * 1.0f);
+            mAxises[1] = ((float)Math.sin(angle) * 1.0f);
+        }
+
         updateInnerBounds();
 
         NativeLibrary.InputEvent(mAxisIDs[0], mAxises[0]);
