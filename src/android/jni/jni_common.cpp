@@ -23,6 +23,8 @@ public:
             "(ILjava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)V");
         mShowMessageDialog =
             env->GetStaticMethodID(mClazz, "showMessageDialog", "(ILjava/lang/String;)V");
+        mAddNetPlayMessage =
+                env->GetStaticMethodID(mClazz, "AddNetPlayMessage", "(ILjava/lang/String;)V");
         mShowMiiSelectorDialog = env->GetStaticMethodID(
             mClazz, "showMiiSelectorDialog", "(ZLjava/lang/String;[Ljava/lang/String;)V");
         mPickImage = env->GetStaticMethodID(mClazz, "pickImage", "(II)V");
@@ -66,6 +68,10 @@ public:
         GetEnvForThread()->CallStaticVoidMethod(mClazz, mShowMessageDialog, type, msg);
     }
 
+    void AddNetPlayMessage(jint type, jstring msg) {
+        GetEnvForThread()->CallStaticVoidMethod(mClazz, mAddNetPlayMessage, type, msg);
+    }
+
     void NotifyGameShudown() {
         GetEnvForThread()->CallStaticVoidMethod(mClazz, mNotifyGameShudown);
     }
@@ -100,6 +106,7 @@ private:
     jmethodID mNotifyGameShudown;
     jmethodID mShowInputBoxDialog;
     jmethodID mShowMessageDialog;
+    jmethodID mAddNetPlayMessage;
     jmethodID mShowMiiSelectorDialog;
     jmethodID mHandleNFCScanning;
     jmethodID mPickImage;
@@ -215,6 +222,10 @@ void ShowMiiSelectorDialog(bool cancel, const std::string& title,
 
 void ShowMessageDialog(int type, const std::string& msg) {
     s_native_library->ShowMessageDialog(type, ToJString(msg));
+}
+
+void AddNetPlayMessage(int type, const std::string& msg) {
+    s_native_library->AddNetPlayMessage(type, ToJString(msg));
 }
 
 bool CheckRecordPermission() {

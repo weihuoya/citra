@@ -6,7 +6,6 @@
 
 #include <android/log.h>
 #include <android/native_window_jni.h>
-#include <sys/system_properties.h>
 
 #include "common/common_paths.h"
 #include "common/file_util.h"
@@ -29,10 +28,10 @@
 #include "input_manager.h"
 #include "jni_common.h"
 #include "keyboard.h"
+#include "multiplayer.h"
 #include "png_handler.h"
 #include "mem_region.h"
 #include "mic.h"
-#include "ndk_motion.h"
 
 static ANativeWindow* s_surface = nullptr;
 
@@ -201,29 +200,6 @@ static std::vector<Loader::SMDH::GameRegion> GetGameRegions(Loader::AppLoader* l
     return {};
 }
 
-static int GetPropertyInteger(const char * name, int defaultValue) {
-    int result = defaultValue;
-#ifdef __ANDROID__
-    char valueText[PROP_VALUE_MAX] = {0};
-    if (__system_property_get(name, valueText) != 0) {
-        result = atoi(valueText);
-    }
-#else
-    (void) name;
-#endif
-    return result;
-}
-
-static int GetSdkVersion() {
-    static int sCachedSdkVersion = -1;
-#ifdef __ANDROID__
-    if (sCachedSdkVersion == -1) {
-        sCachedSdkVersion = GetPropertyInteger("ro.build.version.sdk", -1);
-    }
-#endif
-    return sCachedSdkVersion;
-}
-
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -267,9 +243,7 @@ JNIEXPORT void JNICALL Java_org_citra_emu_NativeLibrary_SetUserPath(JNIEnv* env,
     Core::System::GetInstance().RegisterSoftwareKeyboard(s_keyboard);
     Core::System::GetInstance().RegisterImageInterface(std::make_shared<PNGHandler>());
     Camera::RegisterFactory("image", std::make_unique<Camera::StillImageCameraFactory>());
-    if (GetSdkVersion() >= 26) {
-        Input::RegisterFactory<Input::MotionDevice>("motion_emu", std::make_shared<NDKMotionFactory>());
-    }
+
     // Register real Mic factory
     Frontend::Mic::RegisterRealMicFactory(std::make_unique<AndroidMicFactory>());
 
@@ -292,7 +266,7 @@ JNIEXPORT void JNICALL Java_org_citra_emu_NativeLibrary_SurfaceChanged(JNIEnv* e
     }
 
     // display rotation
-    ndkmotion_display_rotation = GetDisplayRotation();
+    InputManager::GetInstance().SetDisplayRotation(GetDisplayRotation());
 }
 
 JNIEXPORT void JNICALL Java_org_citra_emu_NativeLibrary_SurfaceDestroyed(JNIEnv* env, jclass obj) {
@@ -453,7 +427,7 @@ JNIEXPORT void JNICALL Java_org_citra_emu_NativeLibrary_Run(JNIEnv* env, jclass 
     Settings::Apply();
 
     // profile
-    InputManager::GetInstance().InitProfile();
+    InputManager::GetInstance().Init();
 
     // camera
     Settings::values.camera_name[Service::CAM::OuterRightCamera] = Config::Get(Config::CAMERA_DEVICE);
@@ -472,6 +446,9 @@ JNIEXPORT void JNICALL Java_org_citra_emu_NativeLibrary_Run(JNIEnv* env, jclass 
 
     // run
     BootGame(GetJString(jFile));
+
+    // shotdown
+    InputManager::GetInstance().Shutdown();
 }
 
 JNIEXPORT void JNICALL Java_org_citra_emu_NativeLibrary_ResumeEmulation(JNIEnv* env, jclass obj) {
@@ -836,6 +813,44 @@ Java_org_citra_emu_utils_TranslateHelper_GoogleTranslateToken(JNIEnv *env, jclas
     }
     aa %= 1000000;
     return ToJString(fmt::format("{}.{}", aa, aa ^ ttk0));
+}
+
+JNIEXPORT jint JNICALL
+Java_org_citra_emu_utils_NetPlayManager_NetPlayCreateRoom(JNIEnv *env, jclass clazz,
+                                                          jstring ipaddress, jstring username) {
+    return static_cast<jint>(NetPlayCreateRoom(GetJString(ipaddress), GetJString(username)));
+}
+
+JNIEXPORT jint JNICALL
+Java_org_citra_emu_utils_NetPlayManager_NetPlayJoinRoom(JNIEnv *env, jclass clazz,
+                                                        jstring ipaddress, jstring username) {
+    return static_cast<jint>(NetPlayJoinRoom(GetJString(ipaddress), GetJString(username)));
+}
+
+JNIEXPORT jobjectArray JNICALL
+Java_org_citra_emu_utils_NetPlayManager_NetPlayRoomInfo(JNIEnv *env, jclass clazz) {
+    return ToJStringArray(NetPlayRoomInfo());
+}
+
+JNIEXPORT jboolean JNICALL
+Java_org_citra_emu_utils_NetPlayManager_NetPlayIsHostedRoom(JNIEnv *env, jclass clazz) {
+    return NetPlayIsHostedRoom();
+}
+
+JNIEXPORT void JNICALL
+Java_org_citra_emu_utils_NetPlayManager_NetPlaySendMessage(JNIEnv *env, jclass clazz, jstring msg) {
+    NetPlaySendMessage(GetJString(msg));
+}
+
+JNIEXPORT void JNICALL
+Java_org_citra_emu_utils_NetPlayManager_NetPlayKickUser(JNIEnv *env, jclass clazz,
+                                                        jstring username) {
+    NetPlayKickUser(GetJString(username));
+}
+
+JNIEXPORT void JNICALL
+Java_org_citra_emu_utils_NetPlayManager_NetPlayLeaveRoom(JNIEnv *env, jclass clazz) {
+    NetPlayLeaveRoom();
 }
 
 #ifdef __cplusplus

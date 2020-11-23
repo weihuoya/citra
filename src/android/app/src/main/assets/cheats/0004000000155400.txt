@@ -1,4 +1,9 @@
 * Monster Hunter X
 
 [60 FPS]
+*citra_enabled
 00877294 EEF01A49
+
+[Disable AA]
+*citra_enabled
+08136A70 009F072A

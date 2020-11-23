@@ -315,6 +315,10 @@ public final class EmulationActivity extends AppCompatActivity {
         MemoryActivity.launch(this);
     }
 
+    public void addNetPlayMessage(String msg) {
+        mEmulationFragment.addNetPlayMessage(msg);
+    }
+
     public void launchCheatCode() {
         Intent intent = new Intent(this, EditorActivity.class);
         intent.putExtra(EditorActivity.ARG_PROGRAM_ID, mGameId);

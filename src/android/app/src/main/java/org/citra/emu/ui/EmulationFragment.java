@@ -6,6 +6,7 @@ import android.graphics.Bitmap;
 import android.graphics.Rect;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.os.Handler;
 import android.view.Choreographer;
 import android.view.LayoutInflater;
 import android.view.Surface;
@@ -26,6 +27,11 @@ import org.citra.emu.overlay.LassoOverlay;
 import org.citra.emu.overlay.ResizeOverlay;
 import org.citra.emu.utils.TranslateHelper;
 
+import java.util.ArrayList;
+import java.util.List;
+
+import static android.os.Looper.getMainLooper;
+
 public final class EmulationFragment extends Fragment implements SurfaceHolder.Callback, Choreographer.FrameCallback {
     private static final String KEY_GAMEPATH = "gamepath";
 
@@ -42,7 +48,11 @@ public final class EmulationFragment extends Fragment implements SurfaceHolder.C
     private ResizeOverlay mResizeOverlayBottom;
     private LassoOverlay mLassoOverlay;
     private TextView mTranslateText;
+    private TextView mNetPlayMessage;
     private Button mBtnDone;
+
+    private List<String> mMessageList;
+    private Handler mTaskHandler;
 
     private static class BaiduOCRTask extends AsyncTask<Bitmap, Integer, Integer> {
         @SuppressLint("StaticFieldLeak")
@@ -119,6 +129,7 @@ public final class EmulationFragment extends Fragment implements SurfaceHolder.C
         surfaceView.getHolder().addCallback(this);
 
         mTranslateText = contents.findViewById(R.id.translate_text);
+        mNetPlayMessage = contents.findViewById(R.id.netplay_message);
         mInputOverlay = contents.findViewById(R.id.surface_input_overlay);
         mResizeOverlayTop = contents.findViewById(R.id.resize_overlay_top);
         mResizeOverlayTop.setDesiredRatio(400 / 240.0f);
@@ -355,6 +366,36 @@ public final class EmulationFragment extends Fragment implements SurfaceHolder.C
             mTranslateText.setVisibility(View.INVISIBLE);
             mTranslateText.setText("");
         }
+    }
+
+    public void addNetPlayMessage(String msg) {
+        if (msg.isEmpty()) {
+            return;
+        }
+
+        if (mMessageList == null) {
+            mMessageList = new ArrayList<>();
+            mTaskHandler = new Handler(getMainLooper());
+        }
+        mMessageList.add(msg);
+        if (mMessageList.size() > 10) {
+            mMessageList.remove(0);
+        }
+        StringBuilder sb = new StringBuilder();
+        for (int i = 0; i < mMessageList.size(); ++i) {
+            sb.append(mMessageList.get(i));
+            sb.append(System.lineSeparator());
+        }
+        mNetPlayMessage.setText(sb.toString());
+        mNetPlayMessage.setVisibility(View.VISIBLE);
+
+        mTaskHandler.removeCallbacksAndMessages(null);
+        mTaskHandler.postDelayed(() -> {
+            mNetPlayMessage.setVisibility(View.INVISIBLE);
+            if (mMessageList != null) {
+                mMessageList.clear();
+            }
+        }, 6 * 1000);
     }
 
     public boolean isLassoOverlayEnabled() {

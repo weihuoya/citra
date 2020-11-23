@@ -208,7 +208,7 @@ static void LoadOverrides(u64 title_id) {
         Settings::values.disable_clip_coef = true;
     }
 
-    const std::array<u64, 33> accurate_mul_ids = {
+    const std::array<u64, 37> accurate_mul_ids = {
         0x0004000000134500, // Attack on Titan
         0x00040000000DF800, // Attack on Titan
         0x0004000000152000, // Attack on Titan
@@ -242,6 +242,10 @@ static void LoadOverrides(u64 title_id) {
         0x000400000007AE00, // New Super Mario Bros. 2
         0x000400000007AF00, // New Super Mario Bros. 2
         0x0004000000079600, // Jett Rocket II
+        0x00040000000D0000, // Luigi's Mansion: Dark Moon
+        0x0004000000076400, // Luigi's Mansion: Dark Moon
+        0x0004000000055F00, // Luigi's Mansion: Dark Moon
+        0x0004000000076500, // Luigi's Mansion: Dark Moon
     };
     for (auto id : accurate_mul_ids) {
         if (title_id == id) {

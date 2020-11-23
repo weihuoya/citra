@@ -1030,6 +1030,10 @@ bool Room::Create(const std::string& name, const std::string& description,
     }
     room_impl->state = State::Open;
 
+    if (!verify_backend) {
+        verify_backend = std::make_unique<Network::VerifyUser::NullBackend>();
+    }
+
     room_impl->room_information.name = name;
     room_impl->room_information.description = description;
     room_impl->room_information.member_slots = max_connections;

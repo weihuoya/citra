@@ -84,7 +84,7 @@ public final class InputOverlayJoystick {
             touchY -= mOuterBounds.centerY();
             maxY -= mOuterBounds.centerY();
             mAxises[0] = touchX / maxX;
-            mAxises[1] = -touchY / maxY;
+            mAxises[1] = touchY / maxY;
         } else {
             mAxises[0] = mAxises[1] = 0.0f;
         }
@@ -118,7 +118,7 @@ public final class InputOverlayJoystick {
         float halfHeight = mOuterBounds.height() / 2.0f;
 
         float x = centerX + mAxises[0] * halfWidth;
-        float y = centerY + -mAxises[1] * halfHeight;
+        float y = centerY + mAxises[1] * halfHeight;
 
         if (x > centerX + halfWidth)
             x = centerX + halfWidth;

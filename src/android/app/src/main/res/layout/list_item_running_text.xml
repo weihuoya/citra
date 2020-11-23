@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:padding="6dp"
+    android:padding="16dp"
     android:focusable="true"
     android:clickable="true"
     android:layout_height="wrap_content">
@@ -10,23 +10,9 @@
         android:text="Setting"
         android:id="@+id/text_setting_name"
         android:textColor="@android:color/black"
-        android:paddingStart="6dp"
         android:layout_alignParentStart="true"
         android:layout_centerVertical="true"
-        android:layout_toStartOf="@id/button_setting"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content" />
-
-    <Button
-        android:text="Setting"
-        android:id="@+id/button_setting"
-        style="@style/Widget.AppCompat.Button.Colored"
-        android:stateListAnimator="@null"
-        android:minWidth="0dp"
-        android:minHeight="0dp"
-        android:layout_alignParentEnd="true"
-        android:layout_centerVertical="true"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"/>
 
 </RelativeLayout>

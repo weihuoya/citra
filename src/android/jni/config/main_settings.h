@@ -77,14 +77,10 @@ extern const ConfigInfo<std::string> BUTTON_GPIO14;
 extern const ConfigInfo<std::string> BUTTON_ZL;
 extern const ConfigInfo<std::string> BUTTON_ZR;
 extern const ConfigInfo<std::string> BUTTON_HOME;
-extern const ConfigInfo<std::string> CIRCLE_PAD_UP;
-extern const ConfigInfo<std::string> CIRCLE_PAD_DOWN;
-extern const ConfigInfo<std::string> CIRCLE_PAD_LEFT;
-extern const ConfigInfo<std::string> CIRCLE_PAD_RIGHT;
-extern const ConfigInfo<std::string> C_STICK_UP;
-extern const ConfigInfo<std::string> C_STICK_DOWN;
-extern const ConfigInfo<std::string> C_STICK_LEFT;
-extern const ConfigInfo<std::string> C_STICK_RIGHT;
+extern const ConfigInfo<std::string> CIRCLE_PAD_X;
+extern const ConfigInfo<std::string> CIRCLE_PAD_Y;
+extern const ConfigInfo<std::string> C_STICK_X;
+extern const ConfigInfo<std::string> C_STICK_Y;
 
 // custom layout
 extern const ConfigInfo<bool> USE_CUSTOM_LAYOUT;

@@ -430,6 +430,13 @@ public final class MainActivity extends AppCompatActivity {
         }
     }
 
+    public void addNetPlayMessage(String msg) {
+        if (msg.isEmpty()) {
+            return;
+        }
+        Toast.makeText(this, msg, Toast.LENGTH_SHORT).show();
+    }
+
     static class GameViewHolder extends RecyclerView.ViewHolder {
         private ImageView mImageIcon;
         private TextView mTextTitle;

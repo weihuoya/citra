@@ -70,14 +70,10 @@ const ConfigInfo<std::string> BUTTON_GPIO14{{"Controls", "button_gpio14"}, "code
 const ConfigInfo<std::string> BUTTON_ZL{{"Controls", "button_zl"}, "code:104"};
 const ConfigInfo<std::string> BUTTON_ZR{{"Controls", "button_zr"}, "code:105"};
 const ConfigInfo<std::string> BUTTON_HOME{{"Controls", "button_home"}, "code:100"};
-const ConfigInfo<std::string> CIRCLE_PAD_UP{{"Controls", "circle_pad_up"}, "code:1,dir:-"};
-const ConfigInfo<std::string> CIRCLE_PAD_DOWN{{"Controls", "circle_pad_down"}, "code:1,dir:+"};
-const ConfigInfo<std::string> CIRCLE_PAD_LEFT{{"Controls", "circle_pad_left"}, "code:0,dir:-"};
-const ConfigInfo<std::string> CIRCLE_PAD_RIGHT{{"Controls", "circle_pad_right"}, "code:0,dir:+"};
-const ConfigInfo<std::string> C_STICK_UP{{"Controls", "c_stick_up"}, "code:14,dir:-"};
-const ConfigInfo<std::string> C_STICK_DOWN{{"Controls", "c_stick_down"}, "code:14,dir:+"};
-const ConfigInfo<std::string> C_STICK_LEFT{{"Controls", "c_stick_left"}, "code:11,dir:-"};
-const ConfigInfo<std::string> C_STICK_RIGHT{{"Controls", "c_stick_right"}, "code:11,dir:+"};
+const ConfigInfo<std::string> CIRCLE_PAD_X{{"Controls", "circle_pad_x"}, "code:0"};
+const ConfigInfo<std::string> CIRCLE_PAD_Y{{"Controls", "circle_pad_y"}, "code:1"};
+const ConfigInfo<std::string> C_STICK_X{{"Controls", "c_stick_x"}, "code:11"};
+const ConfigInfo<std::string> C_STICK_Y{{"Controls", "c_stick_y"}, "code:14"};
 
 // custom layout
 const ConfigInfo<bool> USE_CUSTOM_LAYOUT{{"Layout", "custom_layout"}, false};

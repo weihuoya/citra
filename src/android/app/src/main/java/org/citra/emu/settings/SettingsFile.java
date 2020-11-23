@@ -77,14 +77,10 @@ public final class SettingsFile {
     public static final String KEY_BUTTON_ZL = "button_zl";
     public static final String KEY_BUTTON_ZR = "button_zr";
     public static final String KEY_BUTTON_HOME = "button_home";
-    public static final String KEY_CIRCLE_PAD_UP = "circle_pad_up";
-    public static final String KEY_CIRCLE_PAD_DOWN = "circle_pad_down";
-    public static final String KEY_CIRCLE_PAD_LEFT = "circle_pad_left";
-    public static final String KEY_CIRCLE_PAD_RIGHT = "circle_pad_right";
-    public static final String KEY_C_STICK_UP = "c_stick_up";
-    public static final String KEY_C_STICK_DOWN = "c_stick_down";
-    public static final String KEY_C_STICK_LEFT = "c_stick_left";
-    public static final String KEY_C_STICK_RIGHT = "c_stick_right";
+    public static final String KEY_CIRCLE_PAD_X = "circle_pad_x";
+    public static final String KEY_CIRCLE_PAD_Y = "circle_pad_y";
+    public static final String KEY_C_STICK_X = "c_stick_x";
+    public static final String KEY_C_STICK_Y = "c_stick_y";
 
     /**
      * Reads a given .ini file from disk and returns it as a HashMap of Settings, themselves

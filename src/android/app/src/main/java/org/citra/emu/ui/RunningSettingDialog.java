@@ -10,6 +10,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.RadioButton;
@@ -28,12 +29,14 @@ import java.util.ArrayList;
 import org.citra.emu.NativeLibrary;
 import org.citra.emu.R;
 import org.citra.emu.overlay.InputOverlay;
+import org.citra.emu.utils.NetPlayManager;
 import org.citra.emu.utils.TranslateHelper;
 
 public class RunningSettingDialog extends DialogFragment {
     public static final int MENU_MAIN = 0;
     public static final int MENU_SETTINGS = 1;
     public static final int MENU_TRANSLATE = 2;
+    public static final int MENU_MULTIPLAYER = 3;
 
     private int mMenu;
     private TextView mTitle;
@@ -93,6 +96,9 @@ public class RunningSettingDialog extends DialogFragment {
         } else if (menu == MENU_TRANSLATE) {
             mTitle.setText(R.string.preferences_settings);
             mAdapter.loadTranslateMenu();
+        } else if (menu == MENU_MULTIPLAYER) {
+            mTitle.setText(R.string.multiplayer);
+            mAdapter.loadMultiplayerMenu();
         }
         mMenu = menu;
     }
@@ -127,17 +133,23 @@ public class RunningSettingDialog extends DialogFragment {
         public static final int SETTING_EXIT_GAME = 208;
 
         public static final int SETTING_TRANSLATE_ENABLED = 301;
-        public static final int SETTING_TRANSLATE_HIGH_PRECISION = 302;
-        public static final int SETTING_TRANSLATE_VERTICAL = 303;
-        public static final int SETTING_TRANSLATE_OCR_RESULTS = 304;
-        public static final int SETTING_TRANSLATE_LANGUAGE = 305;
-        public static final int SETTING_TRANSLATE_SERVICE = 306;
+        public static final int SETTING_TRANSLATE_VERTICAL = 302;
+        public static final int SETTING_TRANSLATE_OCR_RESULTS = 303;
+        public static final int SETTING_TRANSLATE_LANGUAGE = 304;
+        public static final int SETTING_TRANSLATE_SERVICE = 305;
+
+        public static final int SETTING_MULTIPLAYER_ROOM_TEXT = 400;
+        public static final int SETTING_MULTIPLAYER_CREATE_ROOM = 401;
+        public static final int SETTING_MULTIPLAYER_JOIN_ROOM = 402;
+        public static final int SETTING_MULTIPLAYER_ROOM_MEMBER = 403;
+        public static final int SETTING_MULTIPLAYER_EXIT_ROOM = 404;
 
         // view type
         public static final int TYPE_CHECKBOX = 0;
         public static final int TYPE_RADIO_GROUP = 1;
         public static final int TYPE_SEEK_BAR = 2;
         public static final int TYPE_BUTTON = 3;
+        public static final int TYPE_TEXT = 4;
 
         private int mSetting;
         private String mName;
@@ -194,11 +206,11 @@ public class RunningSettingDialog extends DialogFragment {
         public abstract void onClick(View clicked);
     }
 
-    public final class ButtonSettingViewHolder extends SettingViewHolder {
+    public final class TextSettingViewHolder extends SettingViewHolder {
         SettingsItem mItem;
         private TextView mName;
 
-        public ButtonSettingViewHolder(View itemView) {
+        public TextSettingViewHolder(View itemView) {
             super(itemView);
         }
 
@@ -248,7 +260,49 @@ public class RunningSettingDialog extends DialogFragment {
                 NativeLibrary.StopEmulation();
                 activity.finish();
                 break;
+            case SettingsItem.SETTING_MULTIPLAYER_CREATE_ROOM:
+                NetPlayManager.ShowCreateRoomDialog(getActivity());
+                dismiss();
+                break;
+            case SettingsItem.SETTING_MULTIPLAYER_JOIN_ROOM:
+                NetPlayManager.ShowJoinRoomDialog(getActivity());
+                dismiss();
+                break;
+            case SettingsItem.SETTING_MULTIPLAYER_EXIT_ROOM:
+                NetPlayManager.NetPlayLeaveRoom();
+                dismiss();
+                break;
             }
+        }
+    }
+
+    public final class ButtonSettingViewHolder extends SettingViewHolder {
+        SettingsItem mItem;
+        private TextView mName;
+        private Button mButton;
+
+        public ButtonSettingViewHolder(View itemView) {
+            super(itemView);
+            itemView.setOnClickListener(null);
+        }
+
+        @Override
+        protected void findViews(View root) {
+            mName = root.findViewById(R.id.text_setting_name);
+            mButton = root.findViewById(R.id.button_setting);
+            mButton.setText(R.string.multiplayer_kick_member);
+        }
+
+        @Override
+        public void bind(SettingsItem item) {
+            mItem = item;
+            mName.setText(mItem.getName());
+            mButton.setOnClickListener(this);
+        }
+
+        @Override
+        public void onClick(View clicked) {
+            NetPlayManager.NetPlayKickUser(mItem.getName());
         }
     }
 
@@ -454,17 +508,42 @@ public class RunningSettingDialog extends DialogFragment {
 
         public void loadMainMenu() {
             mSettings = new ArrayList<>();
-            mSettings.add(new SettingsItem(SettingsItem.SETTING_LOAD_SUBMENU, R.string.preferences_settings, SettingsItem.TYPE_BUTTON, MENU_SETTINGS));
-            mSettings.add(new SettingsItem(SettingsItem.SETTING_EDIT_BUTTONS, R.string.emulation_edit_layout, SettingsItem.TYPE_BUTTON, 0));
-            mSettings.add(new SettingsItem(SettingsItem.SETTING_RESET_CAMERA, R.string.menu_emulation_camera, SettingsItem.TYPE_BUTTON, 0));
-            mSettings.add(new SettingsItem(SettingsItem.SETTING_ROTATE_SCREEN, R.string.emulation_screen_rotation, SettingsItem.TYPE_BUTTON, 0));
-            mSettings.add(new SettingsItem(SettingsItem.SETTING_CHEAT_CODE, R.string.menu_cheat_code, SettingsItem.TYPE_BUTTON, 0));
-            mSettings.add(new SettingsItem(SettingsItem.SETTING_MEMORY_VIEWER, R.string.emulation_memory_search, SettingsItem.TYPE_BUTTON, 0));
+            mSettings.add(new SettingsItem(SettingsItem.SETTING_LOAD_SUBMENU, R.string.preferences_settings, SettingsItem.TYPE_TEXT, MENU_SETTINGS));
+            mSettings.add(new SettingsItem(SettingsItem.SETTING_EDIT_BUTTONS, R.string.emulation_edit_layout, SettingsItem.TYPE_TEXT, 0));
+            mSettings.add(new SettingsItem(SettingsItem.SETTING_RESET_CAMERA, R.string.menu_emulation_camera, SettingsItem.TYPE_TEXT, 0));
+            mSettings.add(new SettingsItem(SettingsItem.SETTING_ROTATE_SCREEN, R.string.emulation_screen_rotation, SettingsItem.TYPE_TEXT, 0));
+            mSettings.add(new SettingsItem(SettingsItem.SETTING_CHEAT_CODE, R.string.menu_cheat_code, SettingsItem.TYPE_TEXT, 0));
+            mSettings.add(new SettingsItem(SettingsItem.SETTING_MEMORY_VIEWER, R.string.emulation_memory_search, SettingsItem.TYPE_TEXT, 0));
             if (TranslateHelper.BaiduOCRToken != null) {
-                mSettings.add(new SettingsItem(SettingsItem.SETTING_LOAD_SUBMENU, R.string.translate_settings, SettingsItem.TYPE_BUTTON, MENU_TRANSLATE));
+                mSettings.add(new SettingsItem(SettingsItem.SETTING_LOAD_SUBMENU, R.string.translate_settings, SettingsItem.TYPE_TEXT, MENU_TRANSLATE));
             }
-            mSettings.add(new SettingsItem(SettingsItem.SETTING_EDIT_SCREEN, R.string.emulation_screen_layout, SettingsItem.TYPE_BUTTON, 0));
-            mSettings.add(new SettingsItem(SettingsItem.SETTING_EXIT_GAME, R.string.emulation_stop_running, SettingsItem.TYPE_BUTTON, 0));
+            mSettings.add(new SettingsItem(SettingsItem.SETTING_LOAD_SUBMENU, R.string.multiplayer, SettingsItem.TYPE_TEXT, MENU_MULTIPLAYER));
+            mSettings.add(new SettingsItem(SettingsItem.SETTING_EDIT_SCREEN, R.string.emulation_screen_layout, SettingsItem.TYPE_TEXT, 0));
+            mSettings.add(new SettingsItem(SettingsItem.SETTING_EXIT_GAME, R.string.emulation_stop_running, SettingsItem.TYPE_TEXT, 0));
+            notifyDataSetChanged();
+        }
+
+        public void loadMultiplayerMenu() {
+            String[] infos = NetPlayManager.NetPlayRoomInfo();
+            mSettings = new ArrayList<>();
+
+            if (infos.length > 0) {
+                String roomTitle = getString(R.string.multiplayer_room_title, infos[0]);
+                mSettings.add(new SettingsItem(SettingsItem.SETTING_MULTIPLAYER_ROOM_TEXT, roomTitle, SettingsItem.TYPE_TEXT, 0));
+                if (false && NetPlayManager.NetPlayIsHostedRoom()) {
+                    for (int i = 1; i < infos.length; ++i) {
+                        mSettings.add(new SettingsItem(SettingsItem.SETTING_MULTIPLAYER_ROOM_MEMBER, infos[i], SettingsItem.TYPE_BUTTON, 0));
+                    }
+                } else {
+                    for (int i = 1; i < infos.length; ++i) {
+                        mSettings.add(new SettingsItem(SettingsItem.SETTING_MULTIPLAYER_ROOM_MEMBER, infos[i], SettingsItem.TYPE_TEXT, 0));
+                    }
+                }
+                mSettings.add(new SettingsItem(SettingsItem.SETTING_MULTIPLAYER_EXIT_ROOM, R.string.multiplayer_exit_room, SettingsItem.TYPE_TEXT, 0));
+            } else {
+                mSettings.add(new SettingsItem(SettingsItem.SETTING_MULTIPLAYER_CREATE_ROOM, R.string.multiplayer_create_room, SettingsItem.TYPE_TEXT, 0));
+                mSettings.add(new SettingsItem(SettingsItem.SETTING_MULTIPLAYER_JOIN_ROOM, R.string.multiplayer_join_room, SettingsItem.TYPE_TEXT, 0));
+            }
             notifyDataSetChanged();
         }
 
@@ -577,6 +656,9 @@ public class RunningSettingDialog extends DialogFragment {
             case SettingsItem.TYPE_BUTTON:
                 itemView = inflater.inflate(R.layout.list_item_running_button, parent, false);
                 return new ButtonSettingViewHolder(itemView);
+            case SettingsItem.TYPE_TEXT:
+                itemView = inflater.inflate(R.layout.list_item_running_text, parent, false);
+                return new TextSettingViewHolder(itemView);
             }
             return null;
         }
