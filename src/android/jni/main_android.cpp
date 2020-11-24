@@ -350,7 +350,7 @@ JNIEXPORT jboolean JNICALL Java_org_citra_emu_NativeLibrary_KeyEvent(JNIEnv* env
 
 JNIEXPORT void JNICALL Java_org_citra_emu_NativeLibrary_MoveEvent(JNIEnv* env, jclass obj,
                                                                   jint axis, jfloat value) {
-    if (InputManager::GetInstance().KeyEvent(axis, value * value * value)) {
+    if (InputManager::GetInstance().KeyEvent(axis, value)) {
         s_update_hid = true;
     }
 }
