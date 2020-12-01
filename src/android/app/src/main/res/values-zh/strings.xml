@@ -15,7 +15,6 @@
     <string name="setting_core_ticks_hack">FMV Hack</string>
     <string name="setting_skip_slow_draw">跳过慢渲染</string>
     <string name="setting_skip_cpu_write">跳过CPU访问</string>
-    <string name="emulate_motion_by_touch">触摸屏模拟体感</string>
     <string name="joystick_relative_center">摇杆使用相对位置</string>
     <string name="show_right_joystick">显示右摇杆</string>
     <string name="hide_input_overlay">隐藏屏幕按键</string>
@@ -59,6 +58,7 @@
     <string name="multiplayer_create_room_failed">创建房间失败！</string>
     <string name="multiplayer_join_room_failed">加入房间失败！</string>
     <string name="multiplayer_input_invalid">无效地址或名字太短！</string>
+    <string name="multiplayer_port_invalid">无效端口！</string>
     <string name="multiplayer_exit_room">退出房间</string>
     <string name="multiplayer_network_error">网络错误</string>
     <string name="multiplayer_lost_connection">联机中断</string>

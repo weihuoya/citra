@@ -123,7 +123,7 @@ bool NetworkInit() {
     return true;
 }
 
-NetPlayStatus NetPlayCreateRoom(const std::string& ipaddress, const std::string& username) {
+NetPlayStatus NetPlayCreateRoom(const std::string& ipaddress, int port, const std::string& username) {
     auto member = Network::GetRoomMember().lock();
     if (!member) {
         return NetPlayStatus::NETWORK_ERROR;
@@ -138,16 +138,16 @@ NetPlayStatus NetPlayCreateRoom(const std::string& ipaddress, const std::string&
         return NetPlayStatus::NETWORK_ERROR;
     }
 
-    if (!room->Create(ipaddress, "", "", Network::DefaultRoomPort, "", 8, username)) {
+    if (!room->Create(ipaddress, "", "", port, "", 8, username)) {
         return NetPlayStatus::CREATE_ROOM_ERROR;
     }
 
     std::string console = Service::CFG::GetConsoleIdHash(Core::System::GetInstance());
-    member->Join(username, console);
+    member->Join(username, console, "127.0.0.1", port);
     return NetPlayStatus::NO_ERROR;
 }
 
-NetPlayStatus NetPlayJoinRoom(const std::string& ipaddress, const std::string& username) {
+NetPlayStatus NetPlayJoinRoom(const std::string& ipaddress, int port, const std::string& username) {
     auto member = Network::GetRoomMember().lock();
     if (!member) {
         return NetPlayStatus::NETWORK_ERROR;
@@ -158,7 +158,7 @@ NetPlayStatus NetPlayJoinRoom(const std::string& ipaddress, const std::string& u
     }
 
     std::string console = Service::CFG::GetConsoleIdHash(Core::System::GetInstance());
-    member->Join(username, console, ipaddress.c_str());
+    member->Join(username, console, ipaddress.c_str(), port);
     return NetPlayStatus::NO_ERROR;
 }
 

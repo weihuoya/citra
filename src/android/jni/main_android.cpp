@@ -45,6 +45,8 @@ static std::shared_ptr<AndroidKeyboard> s_keyboard;
 static std::map<std::string, std::unique_ptr<Loader::AppLoader>> s_app_loaders;
 
 void BootGame(const std::string& path) {
+    UpdateProgress("BootGame", 0, 1);
+
     s_render_window = std::make_unique<EGLAndroid>(Settings::values.use_present_thread);
     s_render_window->Initialize(s_surface);
 
@@ -101,6 +103,7 @@ void BootGame(const std::string& path) {
     }
 
     auto hid = system.ServiceManager().GetService<Service::HID::Module::Interface>("hid:USER")->GetModule();
+    UpdateProgress("BootGame", 1, 1);
 
     s_update_hid = false;
     s_stop_running = false;
@@ -310,9 +313,6 @@ JNIEXPORT void JNICALL Java_org_citra_emu_NativeLibrary_TouchEvent(JNIEnv* env, 
     const int TOUCH_PRESSED = 1;
     const int TOUCH_MOVED = 2;
     const int TOUCH_RELEASED = 4;
-    const int BEGIN_TILT = 8;
-    const int TILT = 16;
-    const int END_TILT = 32;
 
     if (s_render_window) {
         if (action & TOUCH_PRESSED) {
@@ -321,14 +321,6 @@ JNIEXPORT void JNICALL Java_org_citra_emu_NativeLibrary_TouchEvent(JNIEnv* env, 
             s_render_window->TouchMoved(x, y);
         } else if (action & TOUCH_RELEASED) {
             s_render_window->TouchReleased();
-        }
-
-        if (action & BEGIN_TILT) {
-            InputManager::GetInstance().BeginTilt(-x / 3, -y / 3);
-        } else if (action & TILT) {
-            InputManager::GetInstance().Tilt(-x / 3, -y / 3);
-        } else if (action & END_TILT) {
-            InputManager::GetInstance().EndTilt();
         }
     }
 }
@@ -817,14 +809,14 @@ Java_org_citra_emu_utils_TranslateHelper_GoogleTranslateToken(JNIEnv *env, jclas
 
 JNIEXPORT jint JNICALL
 Java_org_citra_emu_utils_NetPlayManager_NetPlayCreateRoom(JNIEnv *env, jclass clazz,
-                                                          jstring ipaddress, jstring username) {
-    return static_cast<jint>(NetPlayCreateRoom(GetJString(ipaddress), GetJString(username)));
+                                                          jstring ipaddress, jint port, jstring username) {
+    return static_cast<jint>(NetPlayCreateRoom(GetJString(ipaddress), port, GetJString(username)));
 }
 
 JNIEXPORT jint JNICALL
 Java_org_citra_emu_utils_NetPlayManager_NetPlayJoinRoom(JNIEnv *env, jclass clazz,
-                                                        jstring ipaddress, jstring username) {
-    return static_cast<jint>(NetPlayJoinRoom(GetJString(ipaddress), GetJString(username)));
+                                                        jstring ipaddress, jint port, jstring username) {
+    return static_cast<jint>(NetPlayJoinRoom(GetJString(ipaddress), port, GetJString(username)));
 }
 
 JNIEXPORT jobjectArray JNICALL

@@ -387,18 +387,6 @@ bool InputManager::KeyEvent(int button, float value) {
     return false;
 }
 
-void InputManager::BeginTilt(int x, int y) {
-    InputCommon::GetMotionEmu()->BeginTilt(x, y);
-}
-
-void InputManager::Tilt(int x, int y) {
-    InputCommon::GetMotionEmu()->Tilt(x, y);
-}
-
-void InputManager::EndTilt() {
-    InputCommon::GetMotionEmu()->EndTilt();
-}
-
 void InputManager::SetDisplayRotation(int rotation) {
     ndkmotion_display_rotation = rotation;
 }

@@ -119,8 +119,7 @@ public class RunningSettingDialog extends DialogFragment {
         public static final int SETTING_HIDE_INPUT_OVERLAY = 101;
         public static final int SETTING_CONTROLLER_SCALE = 102;
         public static final int SETTING_CONTROLLER_ALPHA = 103;
-        public static final int SETTING_EMULATE_MOTION_BY_TOUCH = 104;
-        public static final int SETTING_SHOW_RIGHT_JOYSTICK = 105;
+        public static final int SETTING_SHOW_RIGHT_JOYSTICK = 104;
 
         // func
         public static final int SETTING_LOAD_SUBMENU = 201;
@@ -605,11 +604,6 @@ public class RunningSettingDialog extends DialogFragment {
                     R.string.controller_alpha, SettingsItem.TYPE_SEEK_BAR,
                     mControllerAlpha));
 
-            mEmulateMotionByTouch = InputOverlay.sEmulateMotionByTouch ? 1 : 0;
-            mSettings.add(new SettingsItem(SettingsItem.SETTING_EMULATE_MOTION_BY_TOUCH,
-                    R.string.emulate_motion_by_touch,
-                    SettingsItem.TYPE_CHECKBOX, mEmulateMotionByTouch));
-
             // native settings
             mSettings.add(new SettingsItem(SettingsItem.SETTING_CORE_TICKS_HACK,
                     R.string.setting_core_ticks_hack,
@@ -733,12 +727,6 @@ public class RunningSettingDialog extends DialogFragment {
             if (mControllerAlpha != alpha) {
                 editor.putInt(InputOverlay.PREF_CONTROLLER_ALPHA, alpha);
                 InputOverlay.sControllerAlpha = alpha;
-            }
-            mSettings.remove(0);
-
-            int motion = mSettings.get(0).getValue();
-            if (mEmulateMotionByTouch != motion) {
-                InputOverlay.sEmulateMotionByTouch = motion > 0;
             }
             mSettings.remove(0);
 

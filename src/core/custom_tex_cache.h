@@ -16,6 +16,7 @@ class ImageInterface;
 
 namespace Core {
 struct CustomTexInfo {
+    u64 hash;
     u32 width;
     u32 height;
     std::vector<u8> tex;
@@ -33,22 +34,17 @@ public:
     explicit CustomTexCache();
     ~CustomTexCache();
 
-    bool IsTextureDumped(u64 hash) const;
-    void SetTextureDumped(u64 hash);
-
     bool IsTextureCached(u64 hash) const;
     const CustomTexInfo& LookupTexture(u64 hash) const;
-    void CacheTexture(u64 hash, const std::vector<u8>& tex, u32 width, u32 height);
 
     void AddTexturePath(u64 hash, const std::string& path);
     void FindCustomTextures(u64 program_id);
-    void PreloadTextures(Frontend::ImageInterface& image_interface);
+    void PreloadTextures();
+    void LoadTexture(const CustomTexPathInfo& path_info);
     bool CustomTextureExists(u64 hash) const;
     const CustomTexPathInfo& LookupTexturePathInfo(u64 hash) const;
-    bool IsTexturePathMapEmpty() const;
 
 private:
-    std::unordered_set<u64> dumped_textures;
     std::unordered_map<u64, CustomTexInfo> custom_textures;
     std::unordered_map<u64, CustomTexPathInfo> custom_texture_paths;
 };

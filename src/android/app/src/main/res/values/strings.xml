@@ -15,7 +15,6 @@
     <string name="setting_core_ticks_hack">FMV Hack</string>
     <string name="setting_skip_slow_draw">Skip Slow Draw</string>
     <string name="setting_skip_cpu_write">Skip CPU Access</string>
-    <string name="emulate_motion_by_touch">Emulate motion by touch</string>
     <string name="joystick_relative_center">Joystick use relative center</string>
     <string name="show_right_joystick">Show Right Joystick</string>
     <string name="hide_input_overlay">Hide Input Buttons</string>
@@ -59,6 +58,7 @@
     <string name="multiplayer_create_room_failed">Failed to create room!</string>
     <string name="multiplayer_join_room_failed">Failed to join room!</string>
     <string name="multiplayer_input_invalid">Invalid address or name is too short!</string>
+    <string name="multiplayer_port_invalid">Invalid port!</string>
     <string name="multiplayer_exit_room">Exit Room</string>
     <string name="multiplayer_network_error">Network error</string>
     <string name="multiplayer_lost_connection">Lost connection</string>

@@ -22,7 +22,6 @@
 #include "common/math_util.h"
 #include "common/microprofile.h"
 #include "common/scope_exit.h"
-#include "common/texture.h"
 #include "common/vector_math.h"
 #include "core/core.h"
 #include "core/custom_tex_cache.h"
@@ -595,47 +594,30 @@ void CachedSurface::FlushGLBuffer(PAddr flush_start, PAddr flush_end) {
     }
 }
 
-bool CachedSurface::LoadCustomTexture(u64 tex_hash, Core::CustomTexInfo& tex_info,
-                                      Common::Rectangle<u32>& custom_rect) {
-    bool result = false;
+const Core::CustomTexInfo* CachedSurface::LoadCustomTexture(u64 tex_hash, Common::Rectangle<u32>& custom_rect) {
+    const Core::CustomTexInfo* tex_info = nullptr;
     auto& custom_tex_cache = Core::System::GetInstance().CustomTexCache();
-    const auto& image_interface = Core::System::GetInstance().GetImageInterface();
 
     if (custom_tex_cache.IsTextureCached(tex_hash)) {
-        tex_info = custom_tex_cache.LookupTexture(tex_hash);
-        result = true;
+        tex_info = &custom_tex_cache.LookupTexture(tex_hash);
     } else {
         if (custom_tex_cache.CustomTextureExists(tex_hash)) {
             const auto& path_info = custom_tex_cache.LookupTexturePathInfo(tex_hash);
-            if (image_interface->DecodePNG(tex_info.tex, tex_info.width, tex_info.height,
-                                           path_info.path)) {
-                // Make sure the texture size is a power of 2
-                if (!(tex_info.width & (tex_info.width - 1)) &&
-                    !(tex_info.height & (tex_info.height - 1))) {
-                    LOG_DEBUG(Render_OpenGL, "Loaded custom texture from {}", path_info.path);
-                    // Common::FlipRGBA8Texture(tex_info.tex, tex_info.width, tex_info.height);
-                    FlipPixels(reinterpret_cast<u32*>(tex_info.tex.data()), tex_info.width,
-                               tex_info.height);
-                    custom_tex_cache.CacheTexture(tex_hash, tex_info.tex, tex_info.width,
-                                                  tex_info.height);
-                    result = true;
-                } else {
-                    LOG_ERROR(Render_OpenGL, "Texture {} size is not a power of 2", path_info.path);
-                }
-            } else {
-                LOG_ERROR(Render_OpenGL, "Failed to load custom texture {}", path_info.path);
+            custom_tex_cache.LoadTexture(path_info);
+            if (custom_tex_cache.IsTextureCached(tex_hash)) {
+                tex_info = &custom_tex_cache.LookupTexture(tex_hash);
             }
         }
     }
 
-    if (result) {
-        custom_rect.left = (custom_rect.left * tex_info.width) / width;
-        custom_rect.top = (custom_rect.top * tex_info.height) / height;
-        custom_rect.right = (custom_rect.right * tex_info.width) / width;
-        custom_rect.bottom = (custom_rect.bottom * tex_info.height) / height;
+    if (tex_info) {
+        custom_rect.left = (custom_rect.left * tex_info->width) / width;
+        custom_rect.top = (custom_rect.top * tex_info->height) / height;
+        custom_rect.right = (custom_rect.right * tex_info->width) / width;
+        custom_rect.bottom = (custom_rect.bottom * tex_info->height) / height;
     }
 
-    return result;
+    return tex_info;
 }
 
 MICROPROFILE_DEFINE(OpenGL_TextureUL, "OpenGL", "Texture Upload", MP_RGB(128, 192, 64));
@@ -648,8 +630,10 @@ void CachedSurface::UploadGLTexture(const Common::Rectangle<u32>& rect, GLuint r
 
     if (Settings::values.custom_textures) {
         u64 tex_hash = Common::TextureHash64(gl_buffer.data(), gl_buffer.size());
-        is_custom = LoadCustomTexture(tex_hash, custom_tex_info, custom_rect);
-        if (is_custom) {
+        if (!custom_tex_info || custom_tex_info->hash != tex_hash) {
+            custom_tex_info = LoadCustomTexture(tex_hash, custom_rect);
+        }
+        if (custom_tex_info) {
             // always going to be using rgba8
             custom_format = PixelFormat::RGBA8;
         }
@@ -671,21 +655,21 @@ void CachedSurface::UploadGLTexture(const Common::Rectangle<u32>& rect, GLuint r
         x0 = 0;
         y0 = 0;
         unscaled_tex.Create();
-        if (is_custom) {
-            AllocateSurfaceTexture(unscaled_tex.handle, tuple, custom_tex_info.width, custom_tex_info.height);
+        if (custom_tex_info) {
+            AllocateSurfaceTexture(unscaled_tex.handle, tuple, custom_tex_info->width, custom_tex_info->height);
         } else {
             AllocateSurfaceTexture(unscaled_tex.handle, tuple, rect.GetWidth(), rect.GetHeight());
         }
         target_tex = unscaled_tex.handle;
-    } else if (is_custom) {
-        AllocateSurfaceTexture(texture.handle, tuple, custom_tex_info.width, custom_tex_info.height);
+    } else if (custom_tex_info) {
+        AllocateSurfaceTexture(texture.handle, tuple, custom_tex_info->width, custom_tex_info->height);
     }
 
     GLuint old_tex = OpenGLState::BindTexture2D(0, target_tex);
-    if (is_custom) {
-        glPixelStorei(GL_UNPACK_ROW_LENGTH, static_cast<GLint>(custom_tex_info.width));
-        glTexSubImage2D(GL_TEXTURE_2D, 0, x0, y0, custom_tex_info.width, custom_tex_info.height,
-                        GL_RGBA, GL_UNSIGNED_BYTE, custom_tex_info.tex.data());
+    if (custom_tex_info) {
+        glPixelStorei(GL_UNPACK_ROW_LENGTH, static_cast<GLint>(custom_tex_info->width));
+        glTexSubImage2D(GL_TEXTURE_2D, 0, x0, y0, custom_tex_info->width, custom_tex_info->height,
+                        GL_RGBA, GL_UNSIGNED_BYTE, custom_tex_info->tex.data());
     } else {
         glPixelStorei(GL_UNPACK_ROW_LENGTH, static_cast<GLint>(stride));
         glTexSubImage2D(GL_TEXTURE_2D, 0, x0, y0, static_cast<GLsizei>(rect.GetWidth()),
@@ -1144,9 +1128,9 @@ Surface RasterizerCacheOpenGL::GetTextureSurface(const Pica::Texture::TextureInf
             glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
             u32 width;
             u32 height;
-            if (surface->is_custom) {
-                width = surface->custom_tex_info.width;
-                height = surface->custom_tex_info.height;
+            if (surface->custom_tex_info) {
+                width = surface->custom_tex_info->width;
+                height = surface->custom_tex_info->height;
             } else {
                 width = surface->GetScaledWidth();
                 height = surface->GetScaledHeight();
@@ -1155,7 +1139,7 @@ Surface RasterizerCacheOpenGL::GetTextureSurface(const Pica::Texture::TextureInf
                 glTexImage2D(GL_TEXTURE_2D, level, format_tuple.internal_format, width >> level,
                              height >> level, 0, format_tuple.format, format_tuple.type, nullptr);
             }
-            if (surface->is_custom) {
+            if (surface->custom_tex_info) {
                 // TODO: proper mipmap support for custom textures
                 glGenerateMipmap(GL_TEXTURE_2D);
             }
@@ -1192,7 +1176,7 @@ Surface RasterizerCacheOpenGL::GetTextureSurface(const Pica::Texture::TextureInf
                     ValidateSurface(level_surface, level_surface->addr, level_surface->size);
                 }
                 state.Apply();
-                if (!surface->is_custom) {
+                if (!surface->custom_tex_info) {
                     glFramebufferTexture2D(GL_READ_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D,
                                            level_surface->texture.handle, 0);
                     glFramebufferTexture2D(GL_READ_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT,
@@ -1238,14 +1222,14 @@ const CachedTextureCube& RasterizerCacheOpenGL::GetTextureCube(const TextureCube
         {cube.nz, config.nz, GL_TEXTURE_CUBE_MAP_NEGATIVE_Z},
     }};
 
+    Pica::Texture::TextureInfo tex_info;
     for (const Face& face : faces) {
         if (!face.watcher || !face.watcher->Get()) {
-            Pica::Texture::TextureInfo info;
-            info.physical_address = face.address;
-            info.height = info.width = config.width;
-            info.format = config.format;
-            info.SetDefaultStride();
-            auto surface = GetTextureSurface(info);
+            tex_info.physical_address = face.address;
+            tex_info.height = tex_info.width = config.width;
+            tex_info.format = config.format;
+            tex_info.SetDefaultStride();
+            auto surface = GetTextureSurface(tex_info);
             if (surface) {
                 face.watcher = surface->CreateWatcher();
             } else {

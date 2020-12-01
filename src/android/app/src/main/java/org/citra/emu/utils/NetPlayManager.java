@@ -33,6 +33,9 @@ public class NetPlayManager {
         final EditText ipaddressView = dialog.findViewById(R.id.ip_address);
         ipaddressView.setText(GetIpAddressByWifi(activity));
 
+        final EditText ipportView = dialog.findViewById(R.id.ip_port);
+        ipportView.setText(GetRoomPort(activity));
+
         final EditText usernameView = dialog.findViewById(R.id.username);
         usernameView.setText(GetUsername(activity));
 
@@ -40,10 +43,19 @@ public class NetPlayManager {
         btnConfirm.setOnClickListener(v -> {
             String ipaddress = ipaddressView.getText().toString();
             String username = usernameView.getText().toString();
+            String portStr = ipportView.getText().toString();
+            int port;
+            try {
+                port = Integer.parseInt(portStr);
+            } catch (Exception e) {
+                Toast.makeText(activity, R.string.multiplayer_port_invalid, Toast.LENGTH_LONG).show();
+                return;
+            }
             if (ipaddress.length() < 7 || username.length() < 5) {
                 Toast.makeText(activity, R.string.multiplayer_input_invalid, Toast.LENGTH_LONG).show();
-            } else if (NetPlayCreateRoom(ipaddress, username) == 0) {
+            } else if (NetPlayCreateRoom(ipaddress, port, username) == 0) {
                 SetUsername(activity, username);
+                SetRoomPort(activity, portStr);
                 Toast.makeText(activity, R.string.multiplayer_create_room_success, Toast.LENGTH_LONG).show();
                 dialog.dismiss();
             } else {
@@ -64,6 +76,9 @@ public class NetPlayManager {
         final EditText ipaddressView = dialog.findViewById(R.id.ip_address);
         ipaddressView.setText(GetRoomAddress(activity));
 
+        final EditText ipportView = dialog.findViewById(R.id.ip_port);
+        ipportView.setText(GetRoomPort(activity));
+
         final EditText usernameView = dialog.findViewById(R.id.username);
         usernameView.setText(GetUsername(activity));
 
@@ -71,11 +86,20 @@ public class NetPlayManager {
         btnConfirm.setOnClickListener(v -> {
             String ipaddress = ipaddressView.getText().toString();
             String username = usernameView.getText().toString();
+            String portStr = ipportView.getText().toString();
+            int port;
+            try {
+                port = Integer.parseInt(portStr);
+            } catch (Exception e) {
+                Toast.makeText(activity, R.string.multiplayer_port_invalid, Toast.LENGTH_LONG).show();
+                return;
+            }
             if (ipaddress.length() < 7 || username.length() < 5) {
                 Toast.makeText(activity, R.string.multiplayer_input_invalid, Toast.LENGTH_LONG).show();
-            } else if (NetPlayJoinRoom(ipaddress, username) == 0) {
+            } else if (NetPlayJoinRoom(ipaddress, port, username) == 0) {
                 SetRoomAddress(activity, ipaddress);
                 SetUsername(activity, username);
+                SetRoomPort(activity, portStr);
                 Toast.makeText(activity, R.string.multiplayer_join_room_success, Toast.LENGTH_LONG).show();
                 dialog.dismiss();
             } else {
@@ -106,9 +130,19 @@ public class NetPlayManager {
         prefs.edit().putString("NetPlayRoomAddress", address).apply();
     }
 
-    private static native int NetPlayCreateRoom(String ipaddress, String username);
+    private static String GetRoomPort(final Activity activity) {
+        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(activity);
+        return prefs.getString("NetPlayRoomPort", "24872");
+    }
 
-    private static native int NetPlayJoinRoom(String ipaddress, String username);
+    private static void SetRoomPort(final Activity activity, final String port) {
+        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(activity);
+        prefs.edit().putString("NetPlayRoomPort", port).apply();
+    }
+
+    private static native int NetPlayCreateRoom(String ipaddress, int port, String username);
+
+    private static native int NetPlayJoinRoom(String ipaddress, int port, String username);
 
     public static native String[] NetPlayRoomInfo();
 

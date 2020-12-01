@@ -4,33 +4,50 @@
 
 #include <fmt/format.h>
 #include "common/file_util.h"
-#include "common/texture.h"
 #include "core.h"
 #include "core/custom_tex_cache.h"
 
 namespace Core {
+
+inline u32 BGRA8888ToRGBA8888(u32 src) {
+    u32 b = src & 0xFF;
+    u32 g = (src >> 8) & 0xFF;
+    u32 r = (src >> 16) & 0xFF;
+    u32 a = (src >> 24) & 0xFF;
+    return (a << 24) | (b << 16) | (g << 8) | r;
+}
+
+static void FlipCustomTexture(u32* pixels, u32 width, u32 height) {
+    for (u32 y = 0; y < height / 2; ++y) {
+        for (u32 x = 0; x < width; ++x) {
+            u32 from = width * y + x;
+            u32 to = width * (height - y - 1) + x;
+            if (from == to) {
+                u32 from_value = BGRA8888ToRGBA8888(pixels[from]);
+                pixels[from] = from_value;
+                return;
+            } else if (from < to) {
+                u32 from_value = BGRA8888ToRGBA8888(pixels[from]);
+                u32 to_value = BGRA8888ToRGBA8888(pixels[to]);
+                pixels[from] = to_value;
+                pixels[to] = from_value;
+            } else {
+                return;
+            }
+        }
+    }
+}
+
 CustomTexCache::CustomTexCache() = default;
 
 CustomTexCache::~CustomTexCache() = default;
 
-bool CustomTexCache::IsTextureDumped(u64 hash) const {
-    return dumped_textures.count(hash);
-}
-
-void CustomTexCache::SetTextureDumped(const u64 hash) {
-    dumped_textures.insert(hash);
-}
-
 bool CustomTexCache::IsTextureCached(u64 hash) const {
-    return custom_textures.count(hash);
+    return custom_textures.find(hash) != custom_textures.end();
 }
 
 const CustomTexInfo& CustomTexCache::LookupTexture(u64 hash) const {
     return custom_textures.at(hash);
-}
-
-void CustomTexCache::CacheTexture(u64 hash, const std::vector<u8>& tex, u32 width, u32 height) {
-    custom_textures[hash] = {width, height, tex};
 }
 
 void CustomTexCache::AddTexturePath(u64 hash, const std::string& path) {
@@ -72,24 +89,28 @@ void CustomTexCache::FindCustomTextures(u64 program_id) {
     }
 }
 
-void CustomTexCache::PreloadTextures(Frontend::ImageInterface& image_interface) {
+void CustomTexCache::PreloadTextures() {
     for (const auto& path : custom_texture_paths) {
-        const auto& path_info = path.second;
-        Core::CustomTexInfo tex_info;
-        if (image_interface.DecodePNG(tex_info.tex, tex_info.width, tex_info.height,
-                                      path_info.path)) {
-            // Make sure the texture size is a power of 2
-            if (!(tex_info.width & (tex_info.width - 1)) &&
-                !(tex_info.height & (tex_info.height - 1))) {
-                LOG_DEBUG(Render_OpenGL, "Loaded custom texture from {}", path_info.path);
-                Common::FlipRGBA8Texture(tex_info.tex, tex_info.width, tex_info.height);
-                CacheTexture(path_info.hash, tex_info.tex, tex_info.width, tex_info.height);
-            } else {
-                LOG_ERROR(Render_OpenGL, "Texture {} size is not a power of 2", path_info.path);
-            }
+        LoadTexture(path.second);
+    }
+}
+
+void CustomTexCache::LoadTexture(const CustomTexPathInfo& path_info) {
+    const auto& image_interface = Core::System::GetInstance().GetImageInterface();
+    auto& tex_info = custom_textures[path_info.hash];
+    if (image_interface->DecodePNG(tex_info.tex, tex_info.width, tex_info.height, path_info.path)) {
+        // Make sure the texture size is a power of 2
+        if (!(tex_info.width & (tex_info.width - 1)) &&
+            !(tex_info.height & (tex_info.height - 1))) {
+            LOG_DEBUG(Render_OpenGL, "Loaded custom texture from {}", path_info.path);
+            FlipCustomTexture(reinterpret_cast<u32*>(tex_info.tex.data()), tex_info.width, tex_info.height);
+            tex_info.hash = path_info.hash;
         } else {
-            LOG_ERROR(Render_OpenGL, "Failed to load custom texture {}", path_info.path);
+            LOG_ERROR(Render_OpenGL, "Texture {} size is not a power of 2", path_info.path);
+            custom_textures.erase(path_info.hash);
         }
+    } else {
+        LOG_ERROR(Render_OpenGL, "Failed to load custom texture {}", path_info.path);
     }
 }
 
@@ -101,7 +122,4 @@ const CustomTexPathInfo& CustomTexCache::LookupTexturePathInfo(u64 hash) const {
     return custom_texture_paths.at(hash);
 }
 
-bool CustomTexCache::IsTexturePathMapEmpty() const {
-    return custom_texture_paths.size() == 0;
-}
 } // namespace Core
