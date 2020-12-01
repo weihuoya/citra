@@ -110,9 +110,14 @@ public final class NativeLibrary {
     }
 
     public static void updateProgress(String name, int written, int total) {
-        MainActivity activity = MainActivity.get();
-        if (activity != null) {
-            activity.runOnUiThread(() -> activity.updateProgress(name, written, total));
+        EmulationActivity activity1 = EmulationActivity.get();
+        if (activity1 != null) {
+            activity1.runOnUiThread(() -> activity1.updateProgress(name, written, total));
+        } else {
+            MainActivity activity2 = MainActivity.get();
+            if (activity2 != null) {
+                activity2.runOnUiThread(() -> activity2.updateProgress(name, written, total));
+            }
         }
     }
 
@@ -301,9 +306,6 @@ public final class NativeLibrary {
         public static final int TOUCH_PRESSED = 1;
         public static final int TOUCH_MOVED = 2;
         public static final int TOUCH_RELEASED = 4;
-        public static final int BEGIN_TILT = 8;
-        public static final int TILT = 16;
-        public static final int END_TILT = 32;
     }
 
     /**

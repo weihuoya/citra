@@ -98,6 +98,7 @@ public final class EmulationActivity extends AppCompatActivity {
         if (mMenuVisible) {
             mEmulationFragment.stopEmulation();
             finish();
+            sInstance = new WeakReference<>(null);
         } else {
             mMenuVisible = true;
             RunningSettingDialog dialog = RunningSettingDialog.newInstance();
@@ -332,5 +333,9 @@ public final class EmulationActivity extends AppCompatActivity {
         } else {
             setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
         }
+    }
+
+    public void updateProgress(String name, int written, int total) {
+        mEmulationFragment.updateProgress(name, written, total);
     }
 }

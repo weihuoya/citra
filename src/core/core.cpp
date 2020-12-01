@@ -8,7 +8,6 @@
 #include "audio_core/hle/hle.h"
 #include "audio_core/lle/lle.h"
 #include "common/logging/log.h"
-#include "common/texture.h"
 #include "core/arm/arm_interface.h"
 #if defined(ARCHITECTURE_x86_64) || defined(ARCHITECTURE_ARM64)
 #include "core/arm/dynarmic/arm_dynarmic.h"
@@ -353,7 +352,7 @@ System::ResultStatus System::Load(Frontend::EmuWindow& emu_window, const std::st
         custom_tex_cache->FindCustomTextures(title_id);
     }
     if (Settings::values.preload_textures) {
-        custom_tex_cache->PreloadTextures(*GetImageInterface());
+        custom_tex_cache->PreloadTextures();
     }
 
     status = ResultStatus::Success;

@@ -190,6 +190,8 @@ public final class MainActivity extends AppCompatActivity {
         SharedPreferences.Editor editor = PreferenceManager.getDefaultSharedPreferences(this).edit();
         editor.putBoolean(PREF_LIST_TYPE, mIsListApp);
         editor.apply();
+
+        sInstance = new WeakReference<>(null);
     }
 
     @Override

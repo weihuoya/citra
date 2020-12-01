@@ -46,10 +46,6 @@ public:
     bool InputEvent(int button, float value);
     bool KeyEvent(int button, float value);
 
-    void BeginTilt(int x, int y);
-    void Tilt(int x, int y);
-    void EndTilt();
-
     void SetDisplayRotation(int rotation);
 
 private:

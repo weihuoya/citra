@@ -65,6 +65,13 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content" />
 
+    <ProgressBar
+        android:id="@+id/running_progress"
+        android:layout_gravity="center"
+        android:visibility="invisible"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"/>
+
     <Button
         android:id="@+id/done_control_config"
         android:layout_width="wrap_content"

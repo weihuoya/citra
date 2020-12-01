@@ -31,7 +31,6 @@ public final class InputOverlay extends View {
     public static int sControllerScale = 50;
     public static int sControllerAlpha = 100;
     public static boolean sJoystickRelative = true;
-    public static boolean sEmulateMotionByTouch = false;
     public static boolean sHideInputOverlay = false;
     public static boolean sShowRightJoystick = false;
 

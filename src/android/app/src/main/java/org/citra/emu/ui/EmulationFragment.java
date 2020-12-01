@@ -16,6 +16,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.FrameLayout;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import androidx.fragment.app.Fragment;
@@ -49,6 +50,7 @@ public final class EmulationFragment extends Fragment implements SurfaceHolder.C
     private LassoOverlay mLassoOverlay;
     private TextView mTranslateText;
     private TextView mNetPlayMessage;
+    private ProgressBar mProgressBar;
     private Button mBtnDone;
 
     private List<String> mMessageList;
@@ -128,6 +130,7 @@ public final class EmulationFragment extends Fragment implements SurfaceHolder.C
         SurfaceView surfaceView = contents.findViewById(R.id.surface_emulation);
         surfaceView.getHolder().addCallback(this);
 
+        mProgressBar = contents.findViewById(R.id.running_progress);
         mTranslateText = contents.findViewById(R.id.translate_text);
         mNetPlayMessage = contents.findViewById(R.id.netplay_message);
         mInputOverlay = contents.findViewById(R.id.surface_input_overlay);
@@ -396,6 +399,10 @@ public final class EmulationFragment extends Fragment implements SurfaceHolder.C
                 mMessageList.clear();
             }
         }, 6 * 1000);
+    }
+
+    public void updateProgress(String name, int written, int total) {
+        mProgressBar.setVisibility(written < total ? View.VISIBLE : View.INVISIBLE);
     }
 
     public boolean isLassoOverlayEnabled() {
