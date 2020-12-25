@@ -10,7 +10,6 @@
 namespace OpenGL {
 extern bool GLES;
 extern bool AllowShadow;
-extern bool ClipControl;
 
 // #define DEBUG_OPENGL
 #if defined(DEBUG_OPENGL)

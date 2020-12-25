@@ -79,31 +79,27 @@ static void MemoryFill(const Regs::MemoryFillConfig& config) {
     const PAddr start_addr = config.GetStartAddress();
     const PAddr end_addr = config.GetEndAddress();
 
-    // TODO: do hwtest with these cases
-    if (!g_memory->IsValidPhysicalAddress(start_addr)) {
-        LOG_CRITICAL(HW_GPU, "invalid start address {:#010X}", start_addr);
-        return;
-    }
-
-    if (!g_memory->IsValidPhysicalAddress(end_addr)) {
-        LOG_CRITICAL(HW_GPU, "invalid end address {:#010X}", end_addr);
-        return;
-    }
-
     if (end_addr <= start_addr) {
-        LOG_CRITICAL(HW_GPU, "invalid memory range from {:#010X} to {:#010X}", start_addr,
-                     end_addr);
+        LOG_CRITICAL(HW_GPU, "invalid memory range from {:#010X} to {:#010X}", start_addr, end_addr);
         return;
     }
 
     u8* start = g_memory->GetPhysicalPointer(start_addr);
+    if (!start) {
+        LOG_CRITICAL(HW_GPU, "invalid start address {:#010X}", start_addr);
+        return;
+    }
+
     u8* end = g_memory->GetPhysicalPointer(end_addr);
+    if (!end) {
+        LOG_CRITICAL(HW_GPU, "invalid end address {:#010X}", end_addr);
+        return;
+    }
 
     if (VideoCore::g_renderer->Rasterizer()->AccelerateFill(config))
         return;
 
-    Memory::RasterizerInvalidateRegion(config.GetStartAddress(),
-                                       config.GetEndAddress() - config.GetStartAddress());
+    Memory::RasterizerInvalidateRegion(start_addr,end_addr - start_addr);
 
     if (config.fill_24bit) {
         // fill with 24-bit values
@@ -132,13 +128,14 @@ static void DisplayTransfer(const Regs::DisplayTransferConfig& config) {
     const PAddr src_addr = config.GetPhysicalInputAddress();
     const PAddr dst_addr = config.GetPhysicalOutputAddress();
 
-    // TODO: do hwtest with these cases
-    if (!g_memory->IsValidPhysicalAddress(src_addr)) {
+    u8* src_pointer = g_memory->GetPhysicalPointer(src_addr);
+    if (!src_pointer) {
         LOG_CRITICAL(HW_GPU, "invalid input address {:#010X}", src_addr);
         return;
     }
 
-    if (!g_memory->IsValidPhysicalAddress(dst_addr)) {
+    u8* dst_pointer = g_memory->GetPhysicalPointer(dst_addr);
+    if (!dst_pointer) {
         LOG_CRITICAL(HW_GPU, "invalid output address {:#010X}", dst_addr);
         return;
     }
@@ -165,9 +162,6 @@ static void DisplayTransfer(const Regs::DisplayTransferConfig& config) {
 
     if (VideoCore::g_renderer->Rasterizer()->AccelerateDisplayTransfer(config))
         return;
-
-    u8* src_pointer = g_memory->GetPhysicalPointer(src_addr);
-    u8* dst_pointer = g_memory->GetPhysicalPointer(dst_addr);
 
     if (config.scaling > config.ScaleXY) {
         LOG_CRITICAL(HW_GPU, "Unimplemented display transfer scaling mode {}",
@@ -308,13 +302,14 @@ static void TextureCopy(const Regs::DisplayTransferConfig& config) {
     const PAddr src_addr = config.GetPhysicalInputAddress();
     const PAddr dst_addr = config.GetPhysicalOutputAddress();
 
-    // TODO: do hwtest with invalid addresses
-    if (!g_memory->IsValidPhysicalAddress(src_addr)) {
+    u8* src_pointer = g_memory->GetPhysicalPointer(src_addr);
+    if (!src_pointer) {
         LOG_CRITICAL(HW_GPU, "invalid input address {:#010X}", src_addr);
         return;
     }
 
-    if (!g_memory->IsValidPhysicalAddress(dst_addr)) {
+    u8* dst_pointer = g_memory->GetPhysicalPointer(dst_addr);
+    if (!dst_pointer) {
         LOG_CRITICAL(HW_GPU, "invalid output address {:#010X}", dst_addr);
         return;
     }
@@ -322,11 +317,7 @@ static void TextureCopy(const Regs::DisplayTransferConfig& config) {
     if (VideoCore::g_renderer->Rasterizer()->AccelerateTextureCopy(config))
         return;
 
-    u8* src_pointer = g_memory->GetPhysicalPointer(src_addr);
-    u8* dst_pointer = g_memory->GetPhysicalPointer(dst_addr);
-
     u32 remaining_size = Common::AlignDown(config.texture_copy.size, 16);
-
     if (remaining_size == 0) {
         LOG_CRITICAL(HW_GPU, "zero size. Real hardware freezes on this.");
         return;

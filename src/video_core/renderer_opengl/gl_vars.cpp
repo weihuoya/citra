@@ -11,7 +11,6 @@
 namespace OpenGL {
 bool GLES;
 bool AllowShadow;
-bool ClipControl;
 
 void CheckGLError(const char* file, int line) {
     GLenum err = glGetError();

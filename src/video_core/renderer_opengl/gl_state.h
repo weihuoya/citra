@@ -22,10 +22,11 @@ constexpr TextureUnit PicaTexture(int unit) {
     return TextureUnit{unit};
 }
 
-constexpr TextureUnit TextureCube{6};
-constexpr TextureUnit TextureBufferLUT_LF{3};
-constexpr TextureUnit TextureBufferLUT_RG{4};
-constexpr TextureUnit TextureBufferLUT_RGBA{5};
+constexpr TextureUnit TextureCube{7};
+constexpr TextureUnit TextureBufferLUT_LIGHT{3};
+constexpr TextureUnit TextureBufferLUT_FOG{4};
+constexpr TextureUnit TextureBufferLUT_RG{5};
+constexpr TextureUnit TextureBufferLUT_RGBA{6};
 
 } // namespace TextureUnits
 
@@ -103,7 +104,11 @@ public:
 
     struct {
         GLuint texture_buffer; // GL_TEXTURE_BINDING_BUFFER
-    } texture_buffer_lut_lf;
+    } texture_buffer_lut_light;
+
+    struct {
+        GLuint texture_buffer; // GL_TEXTURE_BINDING_BUFFER
+    } texture_buffer_lut_fog;
 
     struct {
         GLuint texture_buffer; // GL_TEXTURE_BINDING_BUFFER

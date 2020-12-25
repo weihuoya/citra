@@ -37,14 +37,14 @@ namespace OpenGL {
 constexpr std::size_t SWAP_CHAIN_SIZE = 6;
 
 struct OGLFrame {
-    u32 width{};                      /// Width of the frame (to detect resize)
-    u32 height{};                     /// Height of the frame
-    bool color_reloaded = false;      /// Texture attachment was recreated (ie: resized)
-    OGLRenderbuffer color{};  /// Buffer shared between the render/present FBO
-    OGLFramebuffer render{};  /// FBO created on the render thread
-    OGLFramebuffer present{}; /// FBO created on the present thread
-    GLsync render_fence{};            /// Fence created on the render thread
-    GLsync present_fence{};           /// Fence created on the presentation thread
+    u32 width{};                 /// Width of the frame (to detect resize)
+    u32 height{};                /// Height of the frame
+    bool color_reloaded = false; /// Texture attachment was recreated (ie: resized)
+    OGLRenderbuffer color{};     /// Buffer shared between the render/present FBO
+    OGLFramebuffer render{};     /// FBO created on the render thread
+    OGLFramebuffer present{};    /// FBO created on the present thread
+    GLsync render_fence{};       /// Fence created on the render thread
+    GLsync present_fence{};      /// Fence created on the presentation thread
 };
 
 class OGLTextureMailbox {
@@ -148,7 +148,7 @@ public:
     /// called in present thread
     OGLFrame* TryGetPresentFrame() {
         if (present_queue.empty()) {
-                return nullptr;
+            return nullptr;
         } else {
             std::unique_lock<std::mutex> lock(swap_chain_lock);
 
@@ -289,7 +289,8 @@ static std::array<GLfloat, 3 * 2> MakeOrthographicMatrix(float width, float heig
  * @param shader
  * @param options
  */
-static void ParsePostShaderOptions(const std::string& shader, std::unordered_map<std::string, std::string>& options) {
+static void ParsePostShaderOptions(const std::string& shader,
+                                   std::unordered_map<std::string, std::string>& options) {
     std::size_t i = 0;
     std::size_t size = shader.size();
 
@@ -656,8 +657,10 @@ void RendererOpenGL::InitOpenGLObjects() {
     shader.Create(vertex_shader, frag_source.data());
 
     // sampler
-    glSamplerParameteri(filter_sampler.handle, GL_TEXTURE_MAG_FILTER, linear_mag_filter ? GL_LINEAR : GL_NEAREST);
-    glSamplerParameteri(filter_sampler.handle, GL_TEXTURE_MIN_FILTER, linear_min_filter ? GL_LINEAR : GL_NEAREST);
+    glSamplerParameteri(filter_sampler.handle, GL_TEXTURE_MAG_FILTER,
+                        linear_mag_filter ? GL_LINEAR : GL_NEAREST);
+    glSamplerParameteri(filter_sampler.handle, GL_TEXTURE_MIN_FILTER,
+                        linear_min_filter ? GL_LINEAR : GL_NEAREST);
     glSamplerParameteri(filter_sampler.handle, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER);
     glSamplerParameteri(filter_sampler.handle, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER);
     state.texture_units[0].sampler = filter_sampler.handle;
@@ -810,14 +813,23 @@ void RendererOpenGL::DrawScreens(const Layout::FramebufferLayout& layout) {
     const std::array<ScreenRectVertex, 8> vertices = {{
         // top screen
         ScreenRectVertex(top_screen.left, top_screen.top, top_texcoords.bottom, top_texcoords.left),
-        ScreenRectVertex(top_screen.left, top_screen.top + top_screen.GetHeight(), top_texcoords.top, top_texcoords.left),
-        ScreenRectVertex(top_screen.left + top_screen.GetWidth(), top_screen.top, top_texcoords.bottom, top_texcoords.right),
-        ScreenRectVertex(top_screen.left + top_screen.GetWidth(), top_screen.top + top_screen.GetHeight(), top_texcoords.top, top_texcoords.right),
+        ScreenRectVertex(top_screen.left, top_screen.top + top_screen.GetHeight(),
+                         top_texcoords.top, top_texcoords.left),
+        ScreenRectVertex(top_screen.left + top_screen.GetWidth(), top_screen.top,
+                         top_texcoords.bottom, top_texcoords.right),
+        ScreenRectVertex(top_screen.left + top_screen.GetWidth(),
+                         top_screen.top + top_screen.GetHeight(), top_texcoords.top,
+                         top_texcoords.right),
         // bottom screen
-        ScreenRectVertex(bottom_screen.left, bottom_screen.top, bottom_texcoords.bottom, bottom_texcoords.left),
-        ScreenRectVertex(bottom_screen.left, bottom_screen.top + bottom_screen.GetHeight(), bottom_texcoords.top, bottom_texcoords.left),
-        ScreenRectVertex(bottom_screen.left + bottom_screen.GetWidth(), bottom_screen.top, bottom_texcoords.bottom, bottom_texcoords.right),
-        ScreenRectVertex(bottom_screen.left + bottom_screen.GetWidth(), bottom_screen.top + bottom_screen.GetHeight(), bottom_texcoords.top, bottom_texcoords.right),
+        ScreenRectVertex(bottom_screen.left, bottom_screen.top, bottom_texcoords.bottom,
+                         bottom_texcoords.left),
+        ScreenRectVertex(bottom_screen.left, bottom_screen.top + bottom_screen.GetHeight(),
+                         bottom_texcoords.top, bottom_texcoords.left),
+        ScreenRectVertex(bottom_screen.left + bottom_screen.GetWidth(), bottom_screen.top,
+                         bottom_texcoords.bottom, bottom_texcoords.right),
+        ScreenRectVertex(bottom_screen.left + bottom_screen.GetWidth(),
+                         bottom_screen.top + bottom_screen.GetHeight(), bottom_texcoords.top,
+                         bottom_texcoords.right),
     }};
     // prefer `glBufferData` than `glBufferSubData` on mobile device
     glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices.data(), GL_STREAM_DRAW);
@@ -858,19 +870,6 @@ VideoCore::ResultStatus RendererOpenGL::Init() {
     }
 
     OpenGL::GLES = Settings::values.use_gles;
-
-    if (strcmp("Qualcomm", gpu_vendor) == 0 && (strstr(gpu_model, "620") || strstr(gpu_model, "650"))) {
-        // Snapdragon 765(Adreno 620), Snapdragon 865(Adreno 650)
-        OpenGL::ClipControl = false;
-    } else if (GLAD_GL_ARB_clip_control) {
-        glClipControl(GL_LOWER_LEFT, GL_ZERO_TO_ONE);
-        OpenGL::ClipControl = true;
-    } else if (GLAD_GL_EXT_clip_control) {
-        glClipControlEXT(GL_LOWER_LEFT, GL_ZERO_TO_ONE);
-        OpenGL::ClipControl = true;
-    } else {
-        OpenGL::ClipControl = false;
-    }
 
     InitOpenGLObjects();
 

@@ -5,7 +5,9 @@
 #include <algorithm>
 #include <unordered_map>
 #include "core/settings.h"
+#include "core/cache_file.h"
 #include "video_core/renderer_opengl/gl_shader_manager.h"
+#include "video_core/renderer_opengl/on_screen_display.h"
 
 namespace OpenGL {
 
@@ -53,7 +55,8 @@ static void SetShaderSamplerBindings(GLuint shader) {
     SetShaderSamplerBinding(shader, "tex_cube", TextureUnits::TextureCube);
 
     // Set the texture samplers to correspond to different lookup table texture units
-    SetShaderSamplerBinding(shader, "texture_buffer_lut_lf", TextureUnits::TextureBufferLUT_LF);
+    SetShaderSamplerBinding(shader, "texture_buffer_lut_light", TextureUnits::TextureBufferLUT_LIGHT);
+    SetShaderSamplerBinding(shader, "texture_buffer_lut_fog", TextureUnits::TextureBufferLUT_FOG);
     SetShaderSamplerBinding(shader, "texture_buffer_lut_rg", TextureUnits::TextureBufferLUT_RG);
     SetShaderSamplerBinding(shader, "texture_buffer_lut_rgba", TextureUnits::TextureBufferLUT_RGBA);
 
@@ -133,7 +136,13 @@ public:
         if (separable) {
             pipeline.Create();
         } else if(Settings::values.use_shader_cache) {
-            LoadProgramCache();
+            if (LoadProgramCache()) {
+                OSD::AddMessage("Shader Cache Loaded!",
+                                OSD::MessageType::LOAD_SHADER_CACHE, OSD::Duration::NORMAL, OSD::Color::YELLOW);
+            } else {
+                OSD::AddMessage("Invalid Shader Cache!",
+                                OSD::MessageType::LOAD_SHADER_CACHE, OSD::Duration::NORMAL, OSD::Color::RED);
+            }
         }
         trivial_vertex_shader.Create(GenerateTrivialVertexShader(separable), GL_VERTEX_SHADER, 0);
     }
@@ -149,7 +158,13 @@ public:
         u64 key_hash = Common::ComputeHash64(&key, sizeof(key));
         auto iter_ref = shaders_ref.find(key_hash);
         if (iter_ref == shaders_ref.end()) {
-            std::string vs_code = GenerateVertexShader(setup, key, separable);
+            u64 vkey = key_hash + separable;
+            auto viter = vertex_cache.find(vkey);
+            if (viter == vertex_cache.end()) {
+                vertex_cache[vkey] = GenerateVertexShader(setup, key, separable);
+            }
+            const std::string& vs_code = vertex_cache[vkey];
+            //std::string vs_code = GenerateVertexShader(setup, key, separable);
             if (vs_code.empty()) {
                 shaders_ref[key_hash] = nullptr;
                 current_shaders.vs = nullptr;
@@ -276,11 +291,13 @@ public:
             program.GetProgramBinary(format, binary);
             if (!binary.empty()) {
                 binary_cache.emplace(hash, ProgramCacheEntity{format, std::move(binary)});
+            } else {
+                LOG_DEBUG(Render_OpenGL, "failed to get program binary!");
             }
         }
     }
 
-    static constexpr u32 PROGRAM_CACHE_VERSION = 0x3;
+    static constexpr u32 PROGRAM_CACHE_VERSION = 0x4;
 
     static std::string GetCacheFile() {
         u64 program_id = 0;
@@ -290,14 +307,13 @@ public:
     }
 
     void SaveProgramCache() {
-        FileUtil::IOFile file(GetCacheFile(), "wb");
-        if (!file.IsGood()) {
-            return;
-        }
-        file.WriteBytes(&PROGRAM_CACHE_VERSION, sizeof(PROGRAM_CACHE_VERSION));
+        Core::CacheFile file(GetCacheFile(), Core::CacheFile::MODE_SAVE);
+
+        u32 verion = PROGRAM_CACHE_VERSION;
+        file.DoHeader(verion);
 
         s32 count = static_cast<s32>(binary_cache.size());
-        file.WriteBytes(&count, sizeof(count));
+        file.Do(count);
 
         u64 hash;
         u32 length;
@@ -307,60 +323,74 @@ public:
             hash = pair.first;
             format = pair.second.format;
             length = static_cast<u32>(pair.second.binary.size());
-            file.WriteBytes(&hash, sizeof(hash));
-            file.WriteBytes(&format, sizeof(format));
-            file.WriteBytes(&length, sizeof(length));
-            file.WriteBytes(pair.second.binary.data(), length);
-            if (!file.IsGood()) {
-                file.Close();
-                FileUtil::Delete(GetCacheFile());
-                return;
-            }
+            file.Do(hash);
+            file.Do(format);
+            file.Do(length);
+            file.Do(pair.second.binary);
         }
 
-        SaveShadersRef(file);
-    }
-
-    void LoadProgramCache() {
-        FileUtil::IOFile file(GetCacheFile(), "rb");
         if (!file.IsGood()) {
             return;
         }
 
-        u32 verion = 0;
-        file.ReadBytes(&verion, sizeof(verion));
-        if (verion != PROGRAM_CACHE_VERSION) {
-            file.Close();
-            FileUtil::Delete(GetCacheFile());
+        file.DoMarker("ShadersRef");
+        SaveShadersRef(file);
+        if (!file.IsGood()) {
             return;
         }
 
+        file.DoMarker("VertexCache");
+        file.Do(vertex_cache);
+    }
+
+    bool LoadProgramCache() {
+        Core::CacheFile file(GetCacheFile(), Core::CacheFile::MODE_LOAD);
+
+        u32 verion = 0;
+        file.DoHeader(verion);
+        if (verion != PROGRAM_CACHE_VERSION) {
+            FileUtil::Delete(GetCacheFile());
+            return false;
+        }
+
         s32 count = 0;
-        file.ReadBytes(&count, sizeof(count));
+        file.Do(count);
 
         u64 hash;
         u32 length;
         GLenum format;
         std::vector<GLbyte> binary;
-        while (count > 0) {
-            file.ReadBytes(&hash, sizeof(hash));
-            file.ReadBytes(&format, sizeof(format));
-            file.ReadBytes(&length, sizeof(length));
-            binary.resize(length);
-            file.ReadBytes(binary.data(), length);
+        for (s32 i = 0; i < count; ++i) {
+            file.Do(hash);
+            file.Do(format);
+            file.Do(length);
+            file.Do(binary);
             binary_cache.emplace(hash, ProgramCacheEntity{format, std::move(binary)});
-            count -= 1;
-            if (!file.IsGood()) {
-                file.Close();
-                FileUtil::Delete(GetCacheFile());
-                return;
-            }
         }
 
+        if (!file.IsGood()) {
+            binary_cache.clear();
+            return false;
+        }
+
+        file.DoMarker("ShadersRef");
         LoadShadersRef(file);
+        if (!file.IsGood()) {
+            reference_cache.clear();
+            return false;
+        }
+
+        file.DoMarker("VertexCache");
+        file.Do(vertex_cache);
+        if (!file.IsGood()) {
+            vertex_cache.clear();
+            return false;
+        }
+
+        return true;
     }
 
-    void SaveShadersRef(FileUtil::IOFile& file) {
+    void SaveShadersRef(Core::CacheFile& file) {
         for (const auto& ref : shaders_ref) {
             u64 key_hash = ref.first;
             u64 code_hash = ref.second->GetHash();
@@ -372,61 +402,25 @@ public:
             }
         }
 
-        file.WriteBytes(&PROGRAM_CACHE_VERSION, sizeof(PROGRAM_CACHE_VERSION));
+        u32 count = reference_cache.size();
+        file.Do(count);
 
-        s32 count = static_cast<s32>(reference_cache.size());
-        file.WriteBytes(&count, sizeof(count));
-
-        for (const auto& ref : reference_cache) {
-            s32 item_count = ref.second.size();
-            if (item_count > 9) {
-                u64 code_hash = ref.first;
-                file.WriteBytes(&code_hash, sizeof(code_hash));
-                file.WriteBytes(&item_count, sizeof(item_count));
-                for (const auto& key_hash : ref.second) {
-                    file.WriteBytes(&key_hash, sizeof(key_hash));
-                }
-                if (!file.IsGood()) {
-                    file.Close();
-                    FileUtil::Delete(GetCacheFile());
-                    return;
-                }
-            }
+        for (auto& ref : reference_cache) {
+            file.Do(ref.first);
+            file.Do(ref.second);
         }
     }
 
-    void LoadShadersRef(FileUtil::IOFile& file) {
-        u32 verion = 0;
-        file.ReadBytes(&verion, sizeof(verion));
-        if (verion != PROGRAM_CACHE_VERSION) {
-            file.Close();
-            FileUtil::Delete(GetCacheFile());
-            return;
-        }
-
+    void LoadShadersRef(Core::CacheFile& file) {
         s32 count = 0;
-        file.ReadBytes(&count, sizeof(count));
+        file.Do(count);
 
         for (s32 i = 0; i < count; ++i) {
             u64 code_hash = 0;
-            s32 item_count = 0;
-            file.ReadBytes(&code_hash, sizeof(code_hash));
-            file.ReadBytes(&item_count, sizeof(item_count));
-
             std::unordered_set<u64> hash_set;
-            for (s32 j = 0; j < item_count; ++j) {
-                u64 key_hash = 0;
-                file.ReadBytes(&key_hash, sizeof(key_hash));
-                hash_set.insert(key_hash);
-            }
-
-            reference_cache[code_hash] = hash_set;
-
-            if (!file.IsGood()) {
-                file.Close();
-                FileUtil::Delete(GetCacheFile());
-                return;
-            }
+            file.Do(code_hash);
+            file.Do(hash_set);
+            reference_cache[code_hash] = std::move(hash_set);
         }
     }
 
@@ -447,6 +441,7 @@ private:
     };
     std::unordered_map<u64, ProgramCacheEntity> binary_cache;
     std::unordered_map<u64, std::unordered_set<u64>> reference_cache;
+    std::unordered_map<u64, std::string> vertex_cache;
 
     OGLShaderStage trivial_vertex_shader;
     OGLShaderStage trivial_geometry_shader;

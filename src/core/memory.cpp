@@ -249,16 +249,16 @@ std::string MemorySystem::ReadCString(VAddr vaddr, u32 max_length) {
 }
 
 u8* MemorySystem::GetPhysicalPointer(PAddr address) {
-    if (address >= VRAM_PADDR && address < VRAM_PADDR + VRAM_SIZE) {
+    if (address >= VRAM_PADDR && address <= VRAM_PADDR_END) {
         return impl->vram.get() + (address - VRAM_PADDR);
     }
-    if (address >= DSP_RAM_PADDR && address < DSP_RAM_PADDR + DSP_RAM_SIZE) {
+    if (address >= DSP_RAM_PADDR && address <= DSP_RAM_PADDR_END) {
         return impl->dsp->GetDspMemory().data() + (address - DSP_RAM_PADDR);
     }
-    if (address >= FCRAM_PADDR && address < FCRAM_PADDR + FCRAM_N3DS_SIZE) {
+    if (address >= FCRAM_PADDR && address <= FCRAM_N3DS_PADDR_END) {
         return impl->fcram.get() + (address - FCRAM_PADDR);
     }
-    if (address >= N3DS_EXTRA_RAM_PADDR && address < N3DS_EXTRA_RAM_PADDR + N3DS_EXTRA_RAM_SIZE) {
+    if (address >= N3DS_EXTRA_RAM_PADDR && address <= N3DS_EXTRA_RAM_PADDR_END) {
         return impl->n3ds_extra_ram.get() + (address - N3DS_EXTRA_RAM_PADDR);
     }
     LOG_ERROR(HW_Memory, "unknown GetPhysicalPointer @ 0x{:08X}", address);

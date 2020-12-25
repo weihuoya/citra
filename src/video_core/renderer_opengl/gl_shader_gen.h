@@ -53,7 +53,6 @@ struct PicaFSConfigState {
     std::array<TevStageConfigRaw, 6> tev_stages;
     u8 combiner_buffer_input;
 
-    float depth_scale;
     Pica::RasterizerRegs::DepthBuffering depthmap_enable;
     Pica::TexturingRegs::FogMode fog_mode;
     bool fog_flip;
