@@ -415,6 +415,8 @@ JNIEXPORT void JNICALL Java_org_citra_emu_NativeLibrary_Run(JNIEnv* env, jclass 
     Settings::values.display_transfer_hack = false;
     Settings::values.skip_cpu_write = false;
     Settings::values.disable_clip_coef = false;
+    Settings::values.y2r_perform_hack = false;
+    Settings::values.y2r_event_delay = false;
     Settings::values.stream_buffer_hack = !Settings::values.use_present_thread;
     Settings::Apply();
 

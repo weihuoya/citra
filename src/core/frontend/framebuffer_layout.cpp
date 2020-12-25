@@ -128,9 +128,8 @@ FramebufferLayout LargeFrameLayout(u32 width, u32 height, bool swapped) {
         large_screen = large_screen.TranslateY((height - total_rect.GetHeight()) / 2);
     }
     // Shift the small screen to the bottom right corner
-    small_screen =
-        small_screen.TranslateX(large_screen.right)
-            .TranslateY(large_screen.top + small_screen.GetHeight() / 2);
+    small_screen = small_screen.TranslateX(large_screen.right)
+                       .TranslateY(large_screen.top + small_screen.GetHeight() / 2);
     res.top_screen = swapped ? small_screen : large_screen;
     res.bottom_screen = swapped ? large_screen : small_screen;
     return res;
@@ -145,9 +144,11 @@ FramebufferLayout SideFrameLayout(u32 width, u32 height, bool swapped) {
 
     if (height > width + width / 2) {
         Common::Rectangle<u32> screen_window_area{0, 0, width, height};
-        Common::Rectangle<u32> top_screen = maxRectangle(screen_window_area, TOP_SCREEN_ASPECT_RATIO);
-        Common::Rectangle<u32> bot_screen = Common::Rectangle<u32>{top_screen.left, top_screen.top, top_screen.right,
-                                                                   static_cast<u32>(top_screen.GetHeight() / BOT_SCREEN_ASPECT_RATIO)};
+        Common::Rectangle<u32> top_screen =
+            maxRectangle(screen_window_area, TOP_SCREEN_ASPECT_RATIO);
+        Common::Rectangle<u32> bot_screen = Common::Rectangle<u32>{
+            top_screen.left, top_screen.top, top_screen.right,
+            static_cast<u32>(top_screen.GetHeight() / BOT_SCREEN_ASPECT_RATIO)};
         res.top_screen = top_screen;
         res.bottom_screen = bot_screen.TranslateY(top_screen.GetHeight());
     } else {
@@ -156,7 +157,8 @@ FramebufferLayout SideFrameLayout(u32 width, u32 height, bool swapped) {
                                              (Core::kScreenTopWidth + Core::kScreenBottomWidth);
         Common::Rectangle<u32> screen_window_area{0, 0, width, height};
         // Find largest Rectangle that can fit in the window size with the given aspect ratio
-        Common::Rectangle<u32> screen_rect = maxRectangle(screen_window_area, emulation_aspect_ratio);
+        Common::Rectangle<u32> screen_rect =
+            maxRectangle(screen_window_area, emulation_aspect_ratio);
         // Find sizes of top and bottom screen
         Common::Rectangle<u32> top_screen = maxRectangle(screen_rect, TOP_SCREEN_ASPECT_RATIO);
         Common::Rectangle<u32> bot_screen = maxRectangle(screen_rect, BOT_SCREEN_ASPECT_RATIO);

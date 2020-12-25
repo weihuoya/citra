@@ -205,6 +205,29 @@ static void LoadOverrides(u64 title_id) {
                title_id == 0x0004000000049000) {
         // Star Fox 64
         Settings::values.disable_clip_coef = true;
+    } else if (title_id == 0x00040000000DCA00) {
+        // Danball Senki W Chou Custom
+        Settings::values.y2r_perform_hack = true;
+    }
+
+    const std::array<u64, 12> fifa_ids = {
+        0x0004000000044700, // FIFA 12
+        0x0004000000047A00, // FIFA 12
+        0x0004000000044800, // FIFA 12
+        0x00040000000A2B00, // FIFA 13
+        0x00040000000A2900, // FIFA 13
+        0x00040000000A3000, // FIFA 13
+        0x00040000000E7900, // FIFA 14
+        0x00040000000DEA00, // FIFA 14
+        0x00040000000E7A00, // FIFA 14
+        0x000400000013C700, // FIFA 15
+        0x000400000013CA00, // FIFA 15
+        0x000400000013CB00, // FIFA 15
+    };
+    for (auto id : fifa_ids) {
+        if (title_id == id) {
+            Settings::values.y2r_event_delay = true;
+        }
     }
 
     const std::array<u64, 37> accurate_mul_ids = {

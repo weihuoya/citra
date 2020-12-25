@@ -15,6 +15,7 @@ enum class MessageType {
     FPS,
     LOGIC_OP,
     D24S8,
+    LOAD_SHADER_CACHE,
     Typeless,
 };
 

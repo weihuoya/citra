@@ -11,6 +11,7 @@
 #include "core/hle/kernel/process.h"
 #include "core/hle/service/y2r_u.h"
 #include "core/hw/y2r.h"
+#include "core/settings.h"
 
 namespace Service::Y2R {
 
@@ -195,7 +196,8 @@ void Y2R_U::SetTransferEndInterrupt(Kernel::HLERequestContext& ctx) {
     IPC::RequestBuilder rb = rp.MakeBuilder(1, 0);
     rb.Push(RESULT_SUCCESS);
 
-    LOG_WARNING(Service_Y2R, "(STUBBED) Y2R_U::SetTransferEndInterrupt enabled: {}", transfer_end_interrupt_enabled);
+    LOG_WARNING(Service_Y2R, "(STUBBED) Y2R_U::SetTransferEndInterrupt enabled: {}",
+                transfer_end_interrupt_enabled);
 }
 
 void Y2R_U::GetTransferEndInterrupt(Kernel::HLERequestContext& ctx) {
@@ -383,7 +385,8 @@ void Y2R_U::GetInputLineWidth(Kernel::HLERequestContext& ctx) {
     rb.Push(RESULT_SUCCESS);
     rb.Push(conversion.input_line_width);
 
-    LOG_DEBUG(Service_Y2R, "Y2R_U::GetInputLineWidth called input_line_width={}", conversion.input_line_width);
+    LOG_DEBUG(Service_Y2R, "Y2R_U::GetInputLineWidth called input_line_width={}",
+              conversion.input_line_width);
 }
 
 void Y2R_U::SetInputLines(Kernel::HLERequestContext& ctx) {
@@ -506,11 +509,16 @@ void Y2R_U::StartConversion(Kernel::HLERequestContext& ctx) {
         conversion.input_lines * (conversion.dst.transfer_unit + conversion.dst.gap);
     Memory::RasterizerFlushVirtualRegion(conversion.dst.address, total_output_size,
                                          Memory::FlushMode::FlushAndInvalidate);
-    if (completion_event->ShouldWait(nullptr)) {
+
+    if (!Settings::values.y2r_perform_hack || completion_event->ShouldWait(nullptr)) {
         HW::Y2R::PerformConversion(system.Memory(), conversion);
     }
 
-    completion_event->Signal();
+    if (Settings::values.y2r_event_delay) {
+        Core::System::GetInstance().CoreTiming().ScheduleEvent(40000, conversion_delay_event);
+    } else {
+        completion_event->Signal();
+    }
 
     IPC::RequestBuilder rb = rp.MakeBuilder(1, 0);
     rb.Push(RESULT_SUCCESS);
@@ -684,6 +692,8 @@ Y2R_U::Y2R_U(Core::System& system) : ServiceFramework("y2r:u", 1), system(system
     RegisterHandlers(functions);
 
     completion_event = system.Kernel().CreateEvent(Kernel::ResetType::OneShot, "Y2R:Completed");
+    conversion_delay_event = Core::System::GetInstance().CoreTiming().RegisterEvent(
+        "Y2R delay", [this](u64, int late) { completion_event->Signal(); });
 }
 
 Y2R_U::~Y2R_U() = default;

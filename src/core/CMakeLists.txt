@@ -32,6 +32,8 @@ add_library(core STATIC
     cheats/cheats.h
     cheats/gateway_cheat.cpp
     cheats/gateway_cheat.h
+    cache_file.cpp
+    cache_file.h
     core.cpp
     core.h
     core_timing.cpp
@@ -461,7 +463,7 @@ add_library(core STATIC
 create_target_directory_groups(core)
 
 target_link_libraries(core PUBLIC common PRIVATE audio_core network video_core)
-target_link_libraries(core PUBLIC Boost::boost PRIVATE cryptopp fmt open_source_archives)
+target_link_libraries(core PUBLIC Boost::boost PRIVATE cryptopp fmt open_source_archives lzo)
 if (ENABLE_WEB_SERVICE)
     target_compile_definitions(core PRIVATE -DENABLE_WEB_SERVICE)
     target_link_libraries(core PRIVATE web_service)

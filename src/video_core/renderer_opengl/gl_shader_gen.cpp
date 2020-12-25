@@ -130,11 +130,6 @@ PicaFSConfig PicaFSConfig::BuildFromRegs(const Pica::Regs& regs) {
 
     state.scissor_test_mode = regs.rasterizer.scissor_test.mode;
 
-    state.depth_scale = Pica::float24::FromRaw(regs.rasterizer.viewport_depth_range).ToFloat32();
-    if (state.depth_scale != -1 && state.depth_scale != 1) {
-        state.depth_scale = 0;
-    }
-
     state.depthmap_enable = regs.rasterizer.depthmap_enable;
 
     if (GLES && (GLAD_GL_ARM_shader_framebuffer_fetch || GLAD_GL_EXT_shader_framebuffer_fetch) &&
@@ -645,10 +640,12 @@ static void WriteTevStage(std::string& out, const PicaFSConfig& config, u32 inde
         std::array<std::string, 3> color_results;
         AppendColorModifier(color_results[0], config, stage.color_modifier1,
                 stage.color_source1, index_name);
-        AppendColorModifier(color_results[1], config, stage.color_modifier2,
-                stage.color_source2, index_name);
-        AppendColorModifier(color_results[2], config, stage.color_modifier3,
-                stage.color_source3, index_name);
+        if (stage.color_op != TevStageConfig::Operation::Replace) {
+            AppendColorModifier(color_results[1], config, stage.color_modifier2,
+                                stage.color_source2, index_name);
+            AppendColorModifier(color_results[2], config, stage.color_modifier3,
+                                stage.color_source3, index_name);
+        }
 
         // Round the output of each TEV stage to maintain the PICA's 8 bits of precision
         out += "vec3 color_output_" + index_name + " = byteround(";
@@ -662,10 +659,12 @@ static void WriteTevStage(std::string& out, const PicaFSConfig& config, u32 inde
             std::array<std::string, 3> alpha_results;
             AppendAlphaModifier(alpha_results[0], config, stage.alpha_modifier1,
                     stage.alpha_source1, index_name);
-            AppendAlphaModifier(alpha_results[1], config, stage.alpha_modifier2,
-                    stage.alpha_source2, index_name);
-            AppendAlphaModifier(alpha_results[2], config, stage.alpha_modifier3,
-                    stage.alpha_source3, index_name);
+            if (stage.alpha_op != TevStageConfig::Operation::Replace) {
+                AppendAlphaModifier(alpha_results[1], config, stage.alpha_modifier2,
+                                    stage.alpha_source2, index_name);
+                AppendAlphaModifier(alpha_results[2], config, stage.alpha_modifier3,
+                                    stage.alpha_source3, index_name);
+            }
 
             out += "float alpha_output_" + index_name + " = byteround(";
             AppendAlphaCombiner(out, stage.alpha_op, alpha_results);
@@ -1350,7 +1349,8 @@ uniform sampler2D tex0;
 uniform sampler2D tex1;
 uniform sampler2D tex2;
 uniform samplerCube tex_cube;
-uniform samplerBuffer texture_buffer_lut_lf;
+uniform samplerBuffer texture_buffer_lut_light;
+uniform samplerBuffer texture_buffer_lut_fog;
 uniform samplerBuffer texture_buffer_lut_rg;
 uniform samplerBuffer texture_buffer_lut_rgba;
 
@@ -1374,7 +1374,7 @@ vec3 quaternion_rotate(vec4 q, vec3 v) {
 }
 
 float LookupLightingLUT(int lut_index, int index, float delta) {
-    vec2 entry = texelFetch(texture_buffer_lut_lf, lighting_lut_offset[lut_index >> 2][lut_index & 3] + index).rg;
+    vec2 entry = texelFetch(texture_buffer_lut_light, lighting_lut_offset[lut_index >> 2][lut_index & 3] + index).rg;
     return entry.r + entry.g * delta;
 }
 
@@ -1592,24 +1592,11 @@ vec4 secondary_fragment_color = vec4(0.0);
                "gl_FragCoord.y < float(scissor_y2))) discard;\n";
     }
 
-    if (OpenGL::ClipControl) {
-        out += "float z_over_w = gl_FragCoord.z;\n";
-    } else {
-        // After perspective divide, OpenGL transform z_over_w from [-1, 1] to [near, far]. Here we
-        // use default near = 0 and far = 1, and undo the transformation to get the original
-        // z_over_w, then do our own transformation according to PICA specification.
-        out += "float z_over_w = 2.0 * gl_FragCoord.z - 1.0;\n";
-    }
-    if (state.depth_scale == 1.0f || state.depth_scale == -1.0f) {
-        out += "float depth = ";
-        if (state.depth_scale < 0.0f)
-            out += "-";
-        out += "z_over_w + depth_offset;\n";
-    } else {
-        // 手机上深度值的精度很低，相乘会进一步影响深度的准确性，
-        // 大部分游戏的 depth_scale 都是-1，少数游戏是很小的负数，如：The Last Ranger
-        out += "float depth = z_over_w * depth_scale + depth_offset;\n";
-    }
+    // After perspective divide, OpenGL transform z_over_w from [-1, 1] to [near, far]. Here we use
+    // default near = 0 and far = 1, and undo the transformation to get the original z_over_w, then
+    // do our own transformation according to PICA specification.
+    out += "float z_over_w = 2.0 * gl_FragCoord.z - 1.0;\n"
+           "float depth = z_over_w * depth_scale + depth_offset;\n";
     if (state.depthmap_enable == RasterizerRegs::DepthBuffering::WBuffering) {
         out += "depth /= gl_FragCoord.w;\n";
     }
@@ -1664,7 +1651,7 @@ vec4 secondary_fragment_color = vec4(0.0);
         // Generate clamped fog factor from LUT for given fog index
         out += "float fog_i = clamp(floor(fog_index), 0.0, 127.0);\n"
                "float fog_f = fog_index - fog_i;\n"
-               "vec2 fog_lut_entry = texelFetch(texture_buffer_lut_lf, int(fog_i) + "
+               "vec2 fog_lut_entry = texelFetch(texture_buffer_lut_fog, int(fog_i) + "
                "fog_lut_offset).rg;\n"
                "float fog_factor = fog_lut_entry.r + fog_lut_entry.g * fog_f;\n"
                "fog_factor = clamp(fog_factor, 0.0, 1.0);\n";

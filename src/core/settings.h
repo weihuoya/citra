@@ -205,6 +205,8 @@ struct Values {
     bool texture_load_hack;
     bool display_transfer_hack;
     bool stream_buffer_hack;
+    bool y2r_perform_hack;
+    bool y2r_event_delay;
     bool use_present_thread;
     AccurateMul shaders_accurate_mul;
 

@@ -57,7 +57,8 @@ RasterizerOpenGL::RasterizerOpenGL()
       uniform_buffer(GL_UNIFORM_BUFFER, UNIFORM_BUFFER_SIZE, false),
       index_buffer(GL_ELEMENT_ARRAY_BUFFER, INDEX_BUFFER_SIZE, false),
       texture_buffer(GL_TEXTURE_BUFFER, TEXTURE_BUFFER_SIZE, false),
-      texture_lf_buffer(GL_TEXTURE_BUFFER, TEXTURE_BUFFER_SIZE, false) {
+      texture_light_buffer(GL_TEXTURE_BUFFER, TEXTURE_BUFFER_SIZE, false),
+      texture_fog_buffer(GL_TEXTURE_BUFFER, TEXTURE_BUFFER_SIZE, false) {
 
     AllowShadow = (GLAD_GL_ARB_shader_image_load_store && GLAD_GL_ARB_shader_image_size &&
                    GLAD_GL_ARB_framebuffer_no_attachments) ||
@@ -97,10 +98,12 @@ RasterizerOpenGL::RasterizerOpenGL()
     state.texture_units[0].texture_2d = texture_null.handle;
 
     // Allocate and bind texture buffer lut textures
-    texture_buffer_lut_lf.Create();
+    texture_buffer_lut_light.Create();
+    texture_buffer_lut_fog.Create();
     texture_buffer_lut_rg.Create();
     texture_buffer_lut_rgba.Create();
-    state.texture_buffer_lut_lf.texture_buffer = texture_buffer_lut_lf.handle;
+    state.texture_buffer_lut_light.texture_buffer = texture_buffer_lut_light.handle;
+    state.texture_buffer_lut_fog.texture_buffer = texture_buffer_lut_fog.handle;
     state.texture_buffer_lut_rg.texture_buffer = texture_buffer_lut_rg.handle;
     state.texture_buffer_lut_rgba.texture_buffer = texture_buffer_lut_rgba.handle;
 
@@ -165,8 +168,10 @@ RasterizerOpenGL::RasterizerOpenGL()
     glActiveTexture(TextureUnits::PicaTexture(0).Enum());
     glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, 1, 1, 0, GL_RGBA, GL_UNSIGNED_BYTE, null_data);
 
-    glActiveTexture(TextureUnits::TextureBufferLUT_LF.Enum());
-    glTexBuffer(GL_TEXTURE_BUFFER, GL_RG32F, texture_lf_buffer.GetHandle());
+    glActiveTexture(TextureUnits::TextureBufferLUT_LIGHT.Enum());
+    glTexBuffer(GL_TEXTURE_BUFFER, GL_RG32F, texture_light_buffer.GetHandle());
+    glActiveTexture(TextureUnits::TextureBufferLUT_FOG.Enum());
+    glTexBuffer(GL_TEXTURE_BUFFER, GL_RG32F, texture_fog_buffer.GetHandle());
     glActiveTexture(TextureUnits::TextureBufferLUT_RG.Enum());
     glTexBuffer(GL_TEXTURE_BUFFER, GL_RG32F, texture_buffer.GetHandle());
     glActiveTexture(TextureUnits::TextureBufferLUT_RGBA.Enum());
@@ -768,7 +773,8 @@ bool RasterizerOpenGL::Draw(bool accelerate, bool is_indexed) {
 
     // Sync the LUTs within the texture buffer
     SyncAndUploadLUTs();
-    SyncAndUploadLUTsLF();
+    SyncAndUploadLUTLight();
+    SyncAndUploadLUTFog();
 
     // Sync the uniform data
     UploadUniforms(accelerate);
@@ -1558,15 +1564,10 @@ void RasterizerOpenGL::SamplerInfo::SyncWithConfig(
         glSamplerParameteri(s, GL_TEXTURE_MAG_FILTER, PicaToGL::TextureMagFilterMode(mag_filter));
     }
 
-    // TODO(wwylele): remove new_supress_mipmap_for_cube logic once mipmap for cube is implemented
-    bool new_supress_mipmap_for_cube =
-        config.type == Pica::TexturingRegs::TextureConfig::TextureCube;
-    if (min_filter != config.min_filter || mip_filter != config.mip_filter ||
-        supress_mipmap_for_cube != new_supress_mipmap_for_cube) {
+    if (min_filter != config.min_filter || mip_filter != config.mip_filter) {
         min_filter = config.min_filter;
         mip_filter = config.mip_filter;
-        supress_mipmap_for_cube = new_supress_mipmap_for_cube;
-        if (new_supress_mipmap_for_cube) {
+        if (config.type == Pica::TexturingRegs::TextureConfig::TextureCube) {
             // HACK: use mag filter converter for min filter because they are the same anyway
             glSamplerParameteri(s, GL_TEXTURE_MIN_FILTER,
                                 PicaToGL::TextureMagFilterMode(min_filter));
@@ -1603,9 +1604,13 @@ void RasterizerOpenGL::SamplerInfo::SyncWithConfig(
         glSamplerParameterf(s, GL_TEXTURE_MAX_LOD, static_cast<float>(lod_max));
     }
 
-    if (!GLES && lod_bias != config.lod.bias) {
+    if (lod_bias != config.lod.bias) {
         lod_bias = config.lod.bias;
-        glSamplerParameterf(s, GL_TEXTURE_LOD_BIAS, lod_bias / 256.0f);
+        if (GLES) {
+            LOG_DEBUG(Render_OpenGL, "sync sampler lod bias: {}", lod_bias);
+        } else {
+            glSamplerParameterf(s, GL_TEXTURE_LOD_BIAS, lod_bias / 256.0f);
+        }
     }
 }
 
@@ -1643,8 +1648,7 @@ void RasterizerOpenGL::SyncDepthScale() {
         Pica::float24::FromRaw(Pica::g_state.regs.rasterizer.viewport_depth_range).ToFloat32();
     if (depth_scale != uniform_block_data.data.depth_scale) {
         uniform_block_data.data.depth_scale = depth_scale;
-        uniform_block_data.dirty = depth_scale != -1 && depth_scale != 1;
-        shader_dirty = true;
+        uniform_block_data.dirty = true;
     }
 }
 
@@ -1998,11 +2002,9 @@ void RasterizerOpenGL::SyncShadowTextureBias() {
     }
 }
 
-void RasterizerOpenGL::SyncAndUploadLUTsLF() {
-    constexpr std::size_t max_size = sizeof(GLvec2) * 256 * Pica::LightingRegs::NumLightingSampler +
-                                     sizeof(GLvec2) * 128;     // fog
-
-    if (!uniform_block_data.lighting_lut_dirty_any && !uniform_block_data.fog_lut_dirty) {
+void RasterizerOpenGL::SyncAndUploadLUTLight() {
+    constexpr std::size_t max_size = sizeof(GLvec2) * 256 * Pica::LightingRegs::NumLightingSampler;
+    if (!uniform_block_data.lighting_lut_dirty_any) {
         return;
     }
 
@@ -2010,8 +2012,8 @@ void RasterizerOpenGL::SyncAndUploadLUTsLF() {
     GLintptr offset;
     bool invalidate;
     std::size_t bytes_used = 0;
-    glBindBuffer(GL_TEXTURE_BUFFER, texture_lf_buffer.GetHandle());
-    std::tie(buffer, offset, invalidate) = texture_lf_buffer.Map(max_size, sizeof(GLvec4));
+    glBindBuffer(GL_TEXTURE_BUFFER, texture_light_buffer.GetHandle());
+    std::tie(buffer, offset, invalidate) = texture_light_buffer.Map(max_size, sizeof(GLvec4));
 
     // Sync the lighting luts
     if (uniform_block_data.lighting_lut_dirty_any || invalidate) {
@@ -2041,6 +2043,23 @@ void RasterizerOpenGL::SyncAndUploadLUTsLF() {
         uniform_block_data.lighting_lut_dirty_any = false;
     }
 
+    texture_light_buffer.Unmap(bytes_used);
+}
+
+void RasterizerOpenGL::SyncAndUploadLUTFog() {
+    constexpr std::size_t max_size = sizeof(GLvec2) * 128;
+
+    if (!uniform_block_data.fog_lut_dirty) {
+        return;
+    }
+
+    u8* buffer;
+    GLintptr offset;
+    bool invalidate;
+    std::size_t bytes_used = 0;
+    glBindBuffer(GL_TEXTURE_BUFFER, texture_fog_buffer.GetHandle());
+    std::tie(buffer, offset, invalidate) = texture_fog_buffer.Map(max_size, sizeof(GLvec4));
+
     // Sync the fog lut
     if (uniform_block_data.fog_lut_dirty || invalidate) {
         bool is_changed = false;
@@ -2062,7 +2081,7 @@ void RasterizerOpenGL::SyncAndUploadLUTsLF() {
         uniform_block_data.fog_lut_dirty = false;
     }
 
-    texture_lf_buffer.Unmap(bytes_used);
+    texture_fog_buffer.Unmap(bytes_used);
 }
 
 void RasterizerOpenGL::SyncAndUploadLUTs() {
