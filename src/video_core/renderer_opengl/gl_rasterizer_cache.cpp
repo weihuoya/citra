@@ -267,7 +267,7 @@ static bool BlitTextures(GLuint src_tex, const Common::Rectangle<u32>& src_rect,
     OpenGLState state;
     state.draw.read_framebuffer = read_fb_handle;
     state.draw.draw_framebuffer = draw_fb_handle;
-    state.Apply();
+    state.SubApply();
 
     u32 buffers = 0;
 
@@ -313,7 +313,7 @@ static bool BlitTextures(GLuint src_tex, const Common::Rectangle<u32>& src_rect,
     glBlitFramebuffer(src_rect.left, src_rect.bottom, src_rect.right, src_rect.top, dst_rect.left,
                       dst_rect.bottom, dst_rect.right, dst_rect.top, buffers,
                       buffers == GL_COLOR_BUFFER_BIT ? GL_LINEAR : GL_NEAREST);
-    prev_state.Apply();
+    prev_state.SubApply();
     return true;
 }
 
@@ -327,7 +327,7 @@ static bool FillSurface(const Surface& surface, const u8* fill_data,
     state.scissor.width = static_cast<GLsizei>(fill_rect.GetWidth());
     state.scissor.height = static_cast<GLsizei>(fill_rect.GetHeight());
     state.draw.draw_framebuffer = draw_fb_handle;
-    state.Apply();
+    state.SubApply();
 
     surface->InvalidateAllWatcher();
 
@@ -348,7 +348,7 @@ static bool FillSurface(const Surface& surface, const u8* fill_data,
         state.color_mask.green_enabled = GL_TRUE;
         state.color_mask.blue_enabled = GL_TRUE;
         state.color_mask.alpha_enabled = GL_TRUE;
-        state.Apply();
+        state.SubApply();
         glClearBufferfv(GL_COLOR, 0, &color_values[0]);
     } else if (surface->type == SurfaceType::Depth) {
         glFramebufferTexture2D(GL_DRAW_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, 0, 0);
@@ -368,7 +368,7 @@ static bool FillSurface(const Surface& surface, const u8* fill_data,
         }
 
         state.depth.write_mask = GL_TRUE;
-        state.Apply();
+        state.SubApply();
         glClearBufferfv(GL_DEPTH, 0, &value_float);
     } else if (surface->type == SurfaceType::DepthStencil) {
         glFramebufferTexture2D(GL_DRAW_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, 0, 0);
@@ -383,10 +383,10 @@ static bool FillSurface(const Surface& surface, const u8* fill_data,
 
         state.depth.write_mask = GL_TRUE;
         state.stencil.write_mask = -1;
-        state.Apply();
+        state.SubApply();
         glClearBufferfi(GL_DEPTH_STENCIL, 0, value_float, value_int);
     }
-    prev_state.Apply();
+    prev_state.SubApply();
     return true;
 }
 
@@ -1098,10 +1098,27 @@ Surface RasterizerCacheOpenGL::GetTextureSurface(const Pica::Texture::TextureInf
     // Update mipmap if necessary
     if (max_level != 0) {
         if (info.width != (min_width << max_level) || info.height != (min_height << max_level)) {
-            LOG_CRITICAL(Render_OpenGL,
-                         "Texture size ({}x{}) does not support required mipmap level ({})",
-                         params.width, params.height, max_level);
-            return nullptr;
+            for (u32 i = 1; i < max_level; ++i) {
+                if ((info.width >> i) == 8) {
+                    if (max_level > i) {
+                        max_level = i;
+
+                    }
+                }
+                if ((info.height >> i) == 8) {
+                    if (max_level > i) {
+                        max_level = i;
+                    }
+                }
+            }
+            min_width = info.width >> max_level;
+            min_height = info.height >> max_level;
+            if (info.width != (min_width << max_level) || info.height != (min_height << max_level)) {
+                LOG_CRITICAL(Render_OpenGL,
+                             "Texture size ({}x{}) does not support required mipmap level ({})",
+                             params.width, params.height, max_level);
+                return nullptr;
+            }
         }
 
         if (max_level >= 8) {
@@ -1166,7 +1183,7 @@ Surface RasterizerCacheOpenGL::GetTextureSurface(const Pica::Texture::TextureInf
                 if (!level_surface->invalid_regions.empty()) {
                     ValidateSurface(level_surface, level_surface->addr, level_surface->size);
                 }
-                state.Apply();
+                state.SubApply();
                 if (!surface->custom_tex_info) {
                     glFramebufferTexture2D(GL_READ_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D,
                                            level_surface->texture.handle, 0);
@@ -1187,7 +1204,7 @@ Surface RasterizerCacheOpenGL::GetTextureSurface(const Pica::Texture::TextureInf
                 watcher->Validate();
             }
         }
-        prev_state.Apply();
+        prev_state.SubApply();
     }
 
     return surface;
@@ -1260,7 +1277,7 @@ const CachedTextureCube& RasterizerCacheOpenGL::GetTextureCube(const TextureCube
             if (!surface->invalid_regions.empty()) {
                 ValidateSurface(surface, surface->addr, surface->size);
             }
-            state.Apply();
+            state.SubApply();
             glFramebufferTexture2D(GL_READ_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D,
                                    surface->texture.handle, 0);
             glFramebufferTexture2D(GL_READ_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_TEXTURE_2D,
@@ -1277,7 +1294,7 @@ const CachedTextureCube& RasterizerCacheOpenGL::GetTextureCube(const TextureCube
             face.watcher->Validate();
         }
     }
-    prev_state.Apply();
+    prev_state.SubApply();
     return cube;
 }
 
