@@ -264,6 +264,7 @@ static void LoadOverrides(u64 title_id) {
         0x000400000007AE00, // New Super Mario Bros. 2
         0x000400000007AF00, // New Super Mario Bros. 2
         0x0004000000079600, // Jett Rocket II
+        0x0004000000112600, // Cut the Rope
         0x00040000000D0000, // Luigi's Mansion: Dark Moon
         0x0004000000076400, // Luigi's Mansion: Dark Moon
         0x0004000000055F00, // Luigi's Mansion: Dark Moon

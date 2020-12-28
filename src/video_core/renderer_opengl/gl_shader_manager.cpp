@@ -55,8 +55,7 @@ static void SetShaderSamplerBindings(GLuint shader) {
     SetShaderSamplerBinding(shader, "tex_cube", TextureUnits::TextureCube);
 
     // Set the texture samplers to correspond to different lookup table texture units
-    SetShaderSamplerBinding(shader, "texture_buffer_lut_light", TextureUnits::TextureBufferLUT_LIGHT);
-    SetShaderSamplerBinding(shader, "texture_buffer_lut_fog", TextureUnits::TextureBufferLUT_FOG);
+    SetShaderSamplerBinding(shader, "texture_buffer_lut_lf", TextureUnits::TextureBufferLUT_LF);
     SetShaderSamplerBinding(shader, "texture_buffer_lut_rg", TextureUnits::TextureBufferLUT_RG);
     SetShaderSamplerBinding(shader, "texture_buffer_lut_rgba", TextureUnits::TextureBufferLUT_RGBA);
 
@@ -139,9 +138,6 @@ public:
             if (LoadProgramCache()) {
                 OSD::AddMessage("Shader Cache Loaded!",
                                 OSD::MessageType::LOAD_SHADER_CACHE, OSD::Duration::NORMAL, OSD::Color::YELLOW);
-            } else {
-                OSD::AddMessage("Invalid Shader Cache!",
-                                OSD::MessageType::LOAD_SHADER_CACHE, OSD::Duration::NORMAL, OSD::Color::RED);
             }
         }
         trivial_vertex_shader.Create(GenerateTrivialVertexShader(separable), GL_VERTEX_SHADER, 0);
