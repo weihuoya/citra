@@ -233,8 +233,7 @@ private:
 
     /// Syncs and uploads the lighting, fog and proctex LUTs
     void SyncAndUploadLUTs();
-    void SyncAndUploadLUTLight();
-    void SyncAndUploadLUTFog();
+    void SyncAndUploadLUTsLF();
 
     /// Upload the uniform blocks to the uniform buffer object
     void UploadUniforms(bool accelerate_draw);
@@ -304,8 +303,7 @@ private:
     OGLStreamBuffer uniform_buffer;
     OGLStreamBuffer index_buffer;
     OGLStreamBuffer texture_buffer;
-    OGLStreamBuffer texture_light_buffer;
-    OGLStreamBuffer texture_fog_buffer;
+    OGLStreamBuffer texture_lf_buffer;
     OGLFramebuffer framebuffer;
     GLint uniform_buffer_alignment;
     std::size_t uniform_size_aligned_vs;
@@ -314,8 +312,7 @@ private:
     SamplerInfo texture_cube_sampler;
 
     OGLTexture texture_null;
-    OGLTexture texture_buffer_lut_light;
-    OGLTexture texture_buffer_lut_fog;
+    OGLTexture texture_buffer_lut_lf;
     OGLTexture texture_buffer_lut_rg;
     OGLTexture texture_buffer_lut_rgba;
 
