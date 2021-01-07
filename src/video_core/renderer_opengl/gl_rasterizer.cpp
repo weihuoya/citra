@@ -9,8 +9,8 @@
 #include <utility>
 #include <glad/glad.h>
 #ifdef ARCHITECTURE_ARM64
-#include <arm_neon.h>
 #include <android/log.h>
+#include <arm_neon.h>
 
 #endif
 #include "common/alignment.h"
@@ -39,25 +39,18 @@ namespace OpenGL {
 using PixelFormat = SurfaceParams::PixelFormat;
 using SurfaceType = SurfaceParams::SurfaceType;
 
-MICROPROFILE_DEFINE(OpenGL_VAO, "OpenGL", "Vertex Array Setup", MP_RGB(255, 128, 0));
-MICROPROFILE_DEFINE(OpenGL_VS, "OpenGL", "Vertex Shader Setup", MP_RGB(192, 128, 128));
-MICROPROFILE_DEFINE(OpenGL_GS, "OpenGL", "Geometry Shader Setup", MP_RGB(128, 192, 128));
-MICROPROFILE_DEFINE(OpenGL_Drawing, "OpenGL", "Drawing", MP_RGB(128, 128, 192));
-MICROPROFILE_DEFINE(OpenGL_Blits, "OpenGL", "Blits", MP_RGB(100, 100, 255));
-MICROPROFILE_DEFINE(OpenGL_CacheManagement, "OpenGL", "Cache Mgmt", MP_RGB(100, 255, 100));
-
-static bool IsVendorAmd() {
+static bool IsVendorMali() {
     std::string gpu_vendor{reinterpret_cast<char const*>(glGetString(GL_VENDOR))};
-    return gpu_vendor == "ATI Technologies Inc." || gpu_vendor == "Advanced Micro Devices, Inc.";
+    return gpu_vendor.find("ARM") != std::string::npos;
 }
 
 RasterizerOpenGL::RasterizerOpenGL()
-    : is_amd(IsVendorAmd()), shader_dirty(true),
-      vertex_buffer(GL_ARRAY_BUFFER, VERTEX_BUFFER_SIZE, is_amd),
-      uniform_buffer(GL_UNIFORM_BUFFER, UNIFORM_BUFFER_SIZE, false),
-      index_buffer(GL_ELEMENT_ARRAY_BUFFER, INDEX_BUFFER_SIZE, false),
-      texture_buffer(GL_TEXTURE_BUFFER, TEXTURE_BUFFER_SIZE, false),
-      texture_lf_buffer(GL_TEXTURE_BUFFER, TEXTURE_BUFFER_SIZE, false) {
+    : shader_dirty(true),
+      vertex_buffer(GL_ARRAY_BUFFER, VERTEX_BUFFER_SIZE),
+      uniform_buffer(GL_UNIFORM_BUFFER, UNIFORM_BUFFER_SIZE),
+      index_buffer(GL_ELEMENT_ARRAY_BUFFER, INDEX_BUFFER_SIZE),
+      texture_buffer(GL_TEXTURE_BUFFER, IsVendorMali() ? 11264 : TEXTURE_BUFFER_SIZE),
+      texture_lf_buffer(GL_TEXTURE_BUFFER, IsVendorMali() ? 525312 : TEXTURE_BUFFER_SIZE) {
 
     AllowShadow = (GLAD_GL_ARB_shader_image_load_store && GLAD_GL_ARB_shader_image_size &&
                    GLAD_GL_ARB_framebuffer_no_attachments) ||
@@ -182,7 +175,7 @@ RasterizerOpenGL::RasterizerOpenGL()
 
     // 845需要开启分离着色器，但开启后Mali GPU会挂掉，究极日也有显示问题！
     const bool use_separable_shader = Settings::values.use_separable_shader;
-    shader_program_manager = std::make_unique<ShaderProgramManager>(use_separable_shader, is_amd);
+    shader_program_manager = std::make_unique<ShaderProgramManager>(use_separable_shader);
 
     // init opengl state
     glEnable(GL_CULL_FACE);
@@ -220,7 +213,8 @@ void RasterizerOpenGL::SyncEntireState() {
         SyncTevConstColor(index, tev_stages[index]);
 
     SyncGlobalAmbient();
-    for (unsigned light_index = 0; light_index < 8; light_index++) {
+    SyncLightingLutData();
+    for (u32 light_index = 0; light_index < 8; light_index++) {
         SyncLightSpecular0(light_index);
         SyncLightSpecular1(light_index);
         SyncLightDiffuse(light_index);
@@ -231,10 +225,12 @@ void RasterizerOpenGL::SyncEntireState() {
     }
 
     SyncFogColor();
+    SyncFogLutData();
     SyncProcTexNoise();
     SyncProcTexBias();
     SyncShadowBias();
     SyncShadowTextureBias();
+    SyncLightingLutScale();
 }
 
 /**
@@ -814,7 +810,7 @@ bool RasterizerOpenGL::Draw(bool accelerate, bool is_indexed) {
     vertex_batch.clear();
 
     // Reset textures in rasterizer state context because the rasterizer cache might delete them
-    for (auto & texture_unit : state.texture_units) {
+    for (auto& texture_unit : state.texture_units) {
         texture_unit.texture_2d = 0;
     }
     state.texture_cube_unit.texture_cube = 0;
@@ -1066,177 +1062,102 @@ void RasterizerOpenGL::NotifyPicaRegisterChanged(u32 id) {
     case PICA_REG_INDEX(lighting.lut_scale):
     case PICA_REG_INDEX(lighting.light_enable):
         break;*/
+    case PICA_REG_INDEX(lighting.lut_scale):
+        SyncLightingLutScale();
+        break;
 
     // Fragment lighting specular 0 color
     case PICA_REG_INDEX(lighting.light[0].specular_0):
-        SyncLightSpecular0(0);
-        break;
     case PICA_REG_INDEX(lighting.light[1].specular_0):
-        SyncLightSpecular0(1);
-        break;
     case PICA_REG_INDEX(lighting.light[2].specular_0):
-        SyncLightSpecular0(2);
-        break;
     case PICA_REG_INDEX(lighting.light[3].specular_0):
-        SyncLightSpecular0(3);
-        break;
     case PICA_REG_INDEX(lighting.light[4].specular_0):
-        SyncLightSpecular0(4);
-        break;
     case PICA_REG_INDEX(lighting.light[5].specular_0):
-        SyncLightSpecular0(5);
-        break;
     case PICA_REG_INDEX(lighting.light[6].specular_0):
-        SyncLightSpecular0(6);
-        break;
     case PICA_REG_INDEX(lighting.light[7].specular_0):
-        SyncLightSpecular0(7);
+        id -= PICA_REG_INDEX(lighting.light[0].specular_0);
+        SyncLightSpecular0(id / 16);
         break;
 
     // Fragment lighting specular 1 color
     case PICA_REG_INDEX(lighting.light[0].specular_1):
-        SyncLightSpecular1(0);
-        break;
     case PICA_REG_INDEX(lighting.light[1].specular_1):
-        SyncLightSpecular1(1);
-        break;
     case PICA_REG_INDEX(lighting.light[2].specular_1):
-        SyncLightSpecular1(2);
-        break;
     case PICA_REG_INDEX(lighting.light[3].specular_1):
-        SyncLightSpecular1(3);
-        break;
     case PICA_REG_INDEX(lighting.light[4].specular_1):
-        SyncLightSpecular1(4);
-        break;
     case PICA_REG_INDEX(lighting.light[5].specular_1):
-        SyncLightSpecular1(5);
-        break;
     case PICA_REG_INDEX(lighting.light[6].specular_1):
-        SyncLightSpecular1(6);
-        break;
     case PICA_REG_INDEX(lighting.light[7].specular_1):
-        SyncLightSpecular1(7);
+        id -= PICA_REG_INDEX(lighting.light[0].specular_1);
+        SyncLightSpecular1(id / 16);
         break;
 
     // Fragment lighting diffuse color
     case PICA_REG_INDEX(lighting.light[0].diffuse):
-        SyncLightDiffuse(0);
-        break;
     case PICA_REG_INDEX(lighting.light[1].diffuse):
-        SyncLightDiffuse(1);
-        break;
     case PICA_REG_INDEX(lighting.light[2].diffuse):
-        SyncLightDiffuse(2);
-        break;
     case PICA_REG_INDEX(lighting.light[3].diffuse):
-        SyncLightDiffuse(3);
-        break;
     case PICA_REG_INDEX(lighting.light[4].diffuse):
-        SyncLightDiffuse(4);
-        break;
     case PICA_REG_INDEX(lighting.light[5].diffuse):
-        SyncLightDiffuse(5);
-        break;
     case PICA_REG_INDEX(lighting.light[6].diffuse):
-        SyncLightDiffuse(6);
-        break;
     case PICA_REG_INDEX(lighting.light[7].diffuse):
-        SyncLightDiffuse(7);
+        id -= PICA_REG_INDEX(lighting.light[0].diffuse);
+        SyncLightDiffuse(id / 16);
         break;
 
     // Fragment lighting ambient color
     case PICA_REG_INDEX(lighting.light[0].ambient):
-        SyncLightAmbient(0);
-        break;
     case PICA_REG_INDEX(lighting.light[1].ambient):
-        SyncLightAmbient(1);
-        break;
     case PICA_REG_INDEX(lighting.light[2].ambient):
-        SyncLightAmbient(2);
-        break;
     case PICA_REG_INDEX(lighting.light[3].ambient):
-        SyncLightAmbient(3);
-        break;
     case PICA_REG_INDEX(lighting.light[4].ambient):
-        SyncLightAmbient(4);
-        break;
     case PICA_REG_INDEX(lighting.light[5].ambient):
-        SyncLightAmbient(5);
-        break;
     case PICA_REG_INDEX(lighting.light[6].ambient):
-        SyncLightAmbient(6);
-        break;
     case PICA_REG_INDEX(lighting.light[7].ambient):
-        SyncLightAmbient(7);
+        id -= PICA_REG_INDEX(lighting.light[0].ambient);
+        SyncLightAmbient(id / 16);
         break;
 
     // Fragment lighting position
     case PICA_REG_INDEX(lighting.light[0].x):
     case PICA_REG_INDEX(lighting.light[0].z):
-        SyncLightPosition(0);
-        break;
     case PICA_REG_INDEX(lighting.light[1].x):
     case PICA_REG_INDEX(lighting.light[1].z):
-        SyncLightPosition(1);
-        break;
     case PICA_REG_INDEX(lighting.light[2].x):
     case PICA_REG_INDEX(lighting.light[2].z):
-        SyncLightPosition(2);
-        break;
     case PICA_REG_INDEX(lighting.light[3].x):
     case PICA_REG_INDEX(lighting.light[3].z):
-        SyncLightPosition(3);
-        break;
     case PICA_REG_INDEX(lighting.light[4].x):
     case PICA_REG_INDEX(lighting.light[4].z):
-        SyncLightPosition(4);
-        break;
     case PICA_REG_INDEX(lighting.light[5].x):
     case PICA_REG_INDEX(lighting.light[5].z):
-        SyncLightPosition(5);
-        break;
     case PICA_REG_INDEX(lighting.light[6].x):
     case PICA_REG_INDEX(lighting.light[6].z):
-        SyncLightPosition(6);
-        break;
     case PICA_REG_INDEX(lighting.light[7].x):
     case PICA_REG_INDEX(lighting.light[7].z):
-        SyncLightPosition(7);
+        id -= PICA_REG_INDEX(lighting.light[0].x);
+        SyncLightPosition(id / 16);
         break;
 
     // Fragment spot lighting direction
     case PICA_REG_INDEX(lighting.light[0].spot_x):
     case PICA_REG_INDEX(lighting.light[0].spot_z):
-        SyncLightSpotDirection(0);
-        break;
     case PICA_REG_INDEX(lighting.light[1].spot_x):
     case PICA_REG_INDEX(lighting.light[1].spot_z):
-        SyncLightSpotDirection(1);
-        break;
     case PICA_REG_INDEX(lighting.light[2].spot_x):
     case PICA_REG_INDEX(lighting.light[2].spot_z):
-        SyncLightSpotDirection(2);
-        break;
     case PICA_REG_INDEX(lighting.light[3].spot_x):
     case PICA_REG_INDEX(lighting.light[3].spot_z):
-        SyncLightSpotDirection(3);
-        break;
     case PICA_REG_INDEX(lighting.light[4].spot_x):
     case PICA_REG_INDEX(lighting.light[4].spot_z):
-        SyncLightSpotDirection(4);
-        break;
     case PICA_REG_INDEX(lighting.light[5].spot_x):
     case PICA_REG_INDEX(lighting.light[5].spot_z):
-        SyncLightSpotDirection(5);
-        break;
     case PICA_REG_INDEX(lighting.light[6].spot_x):
     case PICA_REG_INDEX(lighting.light[6].spot_z):
-        SyncLightSpotDirection(6);
-        break;
     case PICA_REG_INDEX(lighting.light[7].spot_x):
     case PICA_REG_INDEX(lighting.light[7].spot_z):
-        SyncLightSpotDirection(7);
+        id -= PICA_REG_INDEX(lighting.light[0].spot_x);
+        SyncLightSpotDirection(id / 16);
         break;
 
     // Fragment lighting light source config
@@ -1253,54 +1174,28 @@ void RasterizerOpenGL::NotifyPicaRegisterChanged(u32 id) {
 
     // Fragment lighting distance attenuation bias
     case PICA_REG_INDEX(lighting.light[0].dist_atten_bias):
-        SyncLightDistanceAttenuationBias(0);
-        break;
     case PICA_REG_INDEX(lighting.light[1].dist_atten_bias):
-        SyncLightDistanceAttenuationBias(1);
-        break;
     case PICA_REG_INDEX(lighting.light[2].dist_atten_bias):
-        SyncLightDistanceAttenuationBias(2);
-        break;
     case PICA_REG_INDEX(lighting.light[3].dist_atten_bias):
-        SyncLightDistanceAttenuationBias(3);
-        break;
     case PICA_REG_INDEX(lighting.light[4].dist_atten_bias):
-        SyncLightDistanceAttenuationBias(4);
-        break;
     case PICA_REG_INDEX(lighting.light[5].dist_atten_bias):
-        SyncLightDistanceAttenuationBias(5);
-        break;
     case PICA_REG_INDEX(lighting.light[6].dist_atten_bias):
-        SyncLightDistanceAttenuationBias(6);
-        break;
     case PICA_REG_INDEX(lighting.light[7].dist_atten_bias):
-        SyncLightDistanceAttenuationBias(7);
+        id -= PICA_REG_INDEX(lighting.light[0].dist_atten_bias);
+        SyncLightDistanceAttenuationBias(id / 16);
         break;
 
     // Fragment lighting distance attenuation scale
     case PICA_REG_INDEX(lighting.light[0].dist_atten_scale):
-        SyncLightDistanceAttenuationScale(0);
-        break;
     case PICA_REG_INDEX(lighting.light[1].dist_atten_scale):
-        SyncLightDistanceAttenuationScale(1);
-        break;
     case PICA_REG_INDEX(lighting.light[2].dist_atten_scale):
-        SyncLightDistanceAttenuationScale(2);
-        break;
     case PICA_REG_INDEX(lighting.light[3].dist_atten_scale):
-        SyncLightDistanceAttenuationScale(3);
-        break;
     case PICA_REG_INDEX(lighting.light[4].dist_atten_scale):
-        SyncLightDistanceAttenuationScale(4);
-        break;
     case PICA_REG_INDEX(lighting.light[5].dist_atten_scale):
-        SyncLightDistanceAttenuationScale(5);
-        break;
     case PICA_REG_INDEX(lighting.light[6].dist_atten_scale):
-        SyncLightDistanceAttenuationScale(6);
-        break;
     case PICA_REG_INDEX(lighting.light[7].dist_atten_scale):
-        SyncLightDistanceAttenuationScale(7);
+        id -= PICA_REG_INDEX(lighting.light[0].dist_atten_scale);
+        SyncLightDistanceAttenuationScale(id / 16);
         break;
 
     // Fragment lighting global ambient color (emission + ambient * ambient)
@@ -1736,21 +1631,21 @@ void RasterizerOpenGL::SyncProcTexLutData() {
     using Pica::TexturingRegs;
     const auto& regs = Pica::g_state.regs;
     switch (regs.texturing.proctex_lut_config.ref_table.Value()) {
-        case TexturingRegs::ProcTexLutTable::Noise:
-            uniform_block_data.proctex_noise_lut_dirty = true;
-            break;
-        case TexturingRegs::ProcTexLutTable::ColorMap:
-            uniform_block_data.proctex_color_map_dirty = true;
-            break;
-        case TexturingRegs::ProcTexLutTable::AlphaMap:
-            uniform_block_data.proctex_alpha_map_dirty = true;
-            break;
-        case TexturingRegs::ProcTexLutTable::Color:
-            uniform_block_data.proctex_lut_dirty = true;
-            break;
-        case TexturingRegs::ProcTexLutTable::ColorDiff:
-            uniform_block_data.proctex_diff_lut_dirty = true;
-            break;
+    case TexturingRegs::ProcTexLutTable::Noise:
+        uniform_block_data.proctex_noise_lut_dirty = true;
+        break;
+    case TexturingRegs::ProcTexLutTable::ColorMap:
+        uniform_block_data.proctex_color_map_dirty = true;
+        break;
+    case TexturingRegs::ProcTexLutTable::AlphaMap:
+        uniform_block_data.proctex_alpha_map_dirty = true;
+        break;
+    case TexturingRegs::ProcTexLutTable::Color:
+        uniform_block_data.proctex_lut_dirty = true;
+        break;
+    case TexturingRegs::ProcTexLutTable::ColorDiff:
+        uniform_block_data.proctex_diff_lut_dirty = true;
+        break;
     }
 }
 
@@ -1997,8 +1892,8 @@ void RasterizerOpenGL::SyncShadowTextureBias() {
 }
 
 void RasterizerOpenGL::SyncAndUploadLUTsLF() {
-    constexpr std::size_t max_size = sizeof(GLvec2) * 256 * Pica::LightingRegs::NumLightingSampler +
-                                     sizeof(GLvec2) * 128;     // fog
+    constexpr std::size_t max_size =
+        sizeof(GLvec2) * 256 * Pica::LightingRegs::NumLightingSampler + sizeof(GLvec2) * 128; // fog
 
     if (!uniform_block_data.lighting_lut_dirty_any && !uniform_block_data.fog_lut_dirty) {
         return;
@@ -2052,7 +1947,8 @@ void RasterizerOpenGL::SyncAndUploadLUTsLF() {
             }
         }
         if (is_changed || invalidate) {
-            std::memcpy(buffer + bytes_used, fog_lut_data.data(), fog_lut_data.size() * sizeof(GLvec2));
+            std::memcpy(buffer + bytes_used, fog_lut_data.data(),
+                        fog_lut_data.size() * sizeof(GLvec2));
             uniform_block_data.data.fog_lut_offset = (offset + bytes_used) / sizeof(GLvec2);
             uniform_block_data.dirty = true;
             bytes_used += fog_lut_data.size() * sizeof(GLvec2);
@@ -2139,7 +2035,8 @@ void RasterizerOpenGL::SyncAndUploadLUTs() {
             }
         }
         if (is_changed || invalidate) {
-            std::memcpy(buffer + bytes_used, proctex_lut_data.data(), proctex_lut_data.size() * sizeof(GLvec4));
+            std::memcpy(buffer + bytes_used, proctex_lut_data.data(),
+                        proctex_lut_data.size() * sizeof(GLvec4));
             uniform_block_data.data.proctex_lut_offset = (offset + bytes_used) / sizeof(GLvec4);
             uniform_block_data.dirty = true;
             bytes_used += proctex_lut_data.size() * sizeof(GLvec4);
@@ -2161,8 +2058,10 @@ void RasterizerOpenGL::SyncAndUploadLUTs() {
             }
         }
         if (is_changed || invalidate) {
-            std::memcpy(buffer + bytes_used, proctex_diff_lut_data.data(), proctex_diff_lut_data.size() * sizeof(GLvec4));
-            uniform_block_data.data.proctex_diff_lut_offset = (offset + bytes_used) / sizeof(GLvec4);
+            std::memcpy(buffer + bytes_used, proctex_diff_lut_data.data(),
+                        proctex_diff_lut_data.size() * sizeof(GLvec4));
+            uniform_block_data.data.proctex_diff_lut_offset =
+                (offset + bytes_used) / sizeof(GLvec4);
             uniform_block_data.dirty = true;
             bytes_used += proctex_diff_lut_data.size() * sizeof(GLvec4);
         }

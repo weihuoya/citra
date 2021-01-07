@@ -12,9 +12,9 @@
 #include <unordered_set>
 #include <utility>
 #include <vector>
+#include <android/log.h>
 #include <boost/range/iterator_range.hpp>
 #include <glad/glad.h>
-#include <android/log.h>
 #include "common/alignment.h"
 #include "common/bit_field.h"
 #include "common/color.h"
@@ -1102,18 +1102,20 @@ Surface RasterizerCacheOpenGL::GetTextureSurface(const Pica::Texture::TextureInf
                 if ((info.width >> i) == 8) {
                     if (max_level > i) {
                         max_level = i;
-
+                        break;
                     }
                 }
                 if ((info.height >> i) == 8) {
                     if (max_level > i) {
                         max_level = i;
+                        break;
                     }
                 }
             }
             min_width = info.width >> max_level;
             min_height = info.height >> max_level;
-            if (info.width != (min_width << max_level) || info.height != (min_height << max_level)) {
+            if (info.width != (min_width << max_level) ||
+                info.height != (min_height << max_level)) {
                 LOG_CRITICAL(Render_OpenGL,
                              "Texture size ({}x{}) does not support required mipmap level ({})",
                              params.width, params.height, max_level);
@@ -1561,7 +1563,8 @@ bool RasterizerCacheOpenGL::NoUnimplementedReinterpretations(const Surface& surf
             Surface test_surface =
                 FindMatch<MatchFlags::Copy>(surface_cache, params, ScaleMatch::Ignore, interval);
             if (test_surface != nullptr) {
-                LOG_WARNING(Render_OpenGL, "Missing pixel_format reinterpreter: {} -> {}", format, surface->pixel_format);
+                LOG_WARNING(Render_OpenGL, "Missing pixel_format reinterpreter: {} -> {}", format,
+                            surface->pixel_format);
                 implemented = false;
             }
         }
@@ -1584,29 +1587,28 @@ bool RasterizerCacheOpenGL::IntervalHasInvalidPixelFormat(SurfaceParams& params,
 bool RasterizerCacheOpenGL::ValidateByReinterpretation(const Surface& surface,
                                                        SurfaceParams& params,
                                                        const SurfaceInterval& interval) {
-    auto [cvt_begin, cvt_end] =
-        format_reinterpreter->GetPossibleReinterpretations(surface->pixel_format);
-    for (auto reinterpreter = cvt_begin; reinterpreter != cvt_end; ++reinterpreter) {
-        PixelFormat format = reinterpreter->first.src_format;
-        params.pixel_format = format;
+    for (const auto& entity : format_reinterpreter->GetReinterpreters()) {
+        if (entity.dst_format != surface->pixel_format) {
+            continue;
+        }
+        params.pixel_format = entity.src_format;
         Surface reinterpret_surface =
             FindMatch<MatchFlags::Copy>(surface_cache, params, ScaleMatch::Ignore, interval);
-
         if (reinterpret_surface != nullptr) {
             SurfaceInterval reinterpret_interval = params.GetCopyableInterval(reinterpret_surface);
             SurfaceParams reinterpret_params = surface->FromInterval(reinterpret_interval);
             auto src_rect = reinterpret_surface->GetScaledSubRect(reinterpret_params);
             auto dest_rect = surface->GetScaledSubRect(reinterpret_params);
-            reinterpreter->second->Reinterpret(reinterpret_surface->texture.handle, src_rect,
-                                               read_framebuffer.handle, surface->texture.handle,
-                                               dest_rect, draw_framebuffer.handle);
+            entity.reinterpreter->Reinterpret(reinterpret_surface->texture.handle, src_rect,
+                                              read_framebuffer.handle, surface->texture.handle,
+                                              dest_rect, draw_framebuffer.handle);
             return true;
         }
     }
     return false;
 }
 
-void RasterizerCacheOpenGL::FlushRegion(PAddr addr, u32 size, Surface flush_surface) {
+void RasterizerCacheOpenGL::FlushRegion(PAddr addr, u32 size, const Surface& flush_surface) {
     if (size == 0 || surface_cache.rbegin()->first.upper() < addr) {
         return;
     }
@@ -1646,7 +1648,8 @@ void RasterizerCacheOpenGL::FlushAll() {
 
 void RasterizerCacheOpenGL::CheckForConfigChanges() {
     u16 scale_factor = VideoCore::GetResolutionScaleFactor();
-    if (g_resolution_scale_factor != scale_factor || g_texture_load_hack != Settings::values.texture_load_hack) {
+    if (g_resolution_scale_factor != scale_factor ||
+        g_texture_load_hack != Settings::values.texture_load_hack) {
         g_resolution_scale_factor = scale_factor;
         g_texture_load_hack = Settings::values.texture_load_hack;
         FlushAll();

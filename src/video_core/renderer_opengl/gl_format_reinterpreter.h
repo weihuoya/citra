@@ -4,8 +4,8 @@
 
 #pragma once
 
-#include <map>
 #include <type_traits>
+#include <vector>
 #include <glad/glad.h>
 #include "common/common_types.h"
 #include "common/math_util.h"
@@ -45,18 +45,25 @@ public:
 };
 
 class FormatReinterpreterOpenGL : NonCopyable {
-    using ReinterpreterMap =
-        std::map<PixelFormatPair, std::unique_ptr<FormatReinterpreterBase>, PixelFormatPair::less>;
-
 public:
     explicit FormatReinterpreterOpenGL();
     ~FormatReinterpreterOpenGL();
 
-    std::pair<ReinterpreterMap::iterator, ReinterpreterMap::iterator> GetPossibleReinterpretations(
-        SurfaceParams::PixelFormat dst_format);
+    struct Reinterpreter {
+        Reinterpreter(const SurfaceParams::PixelFormat dst_format,
+                      const SurfaceParams::PixelFormat src_format,
+                      std::unique_ptr<FormatReinterpreterBase> reinterpreter)
+            : dst_format(dst_format), src_format(src_format),
+              reinterpreter(std::move(reinterpreter)) {}
+        const SurfaceParams::PixelFormat dst_format;
+        const SurfaceParams::PixelFormat src_format;
+        std::unique_ptr<FormatReinterpreterBase> reinterpreter;
+    };
+
+    const std::vector<Reinterpreter>& GetReinterpreters();
 
 private:
-    ReinterpreterMap reinterpreters;
+    std::vector<Reinterpreter> reinterpreters;
 };
 
 } // namespace OpenGL

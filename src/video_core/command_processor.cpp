@@ -44,7 +44,7 @@ static const char* GetShaderSetupTypeName(Shader::ShaderSetup& setup) {
 }
 
 static void WriteUniformBoolReg(Shader::ShaderSetup& setup, u32 value) {
-    for (unsigned i = 0; i < setup.uniforms.b.size(); ++i)
+    for (u32 i = 0; i < setup.uniforms.b.size(); ++i)
         setup.uniforms.b[i] = (value & (1 << i)) != 0;
 }
 
@@ -114,7 +114,16 @@ static void WritePicaReg(u32 id, u32 value, u32 mask) {
         return;
     }
 
-    regs.Write(id, value, mask);
+    // Expand a 4-bit mask to 4-byte mask, e.g. 0b0101 -> 0x00FF00FF
+    static const u32 expand_bits_to_bytes[] = {
+            0x00000000, 0x000000ff, 0x0000ff00, 0x0000ffff, 0x00ff0000, 0x00ff00ff,
+            0x00ffff00, 0x00ffffff, 0xff000000, 0xff0000ff, 0xff00ff00, 0xff00ffff,
+            0xffff0000, 0xffff00ff, 0xffffff00, 0xffffffff,
+    };
+    // TODO: Figure out how register masking acts on e.g. vs.uniform_setup.set_value
+    const u32 old_value = regs.reg_array[id];
+    const u32 write_mask = expand_bits_to_bytes[mask];
+    regs.reg_array[id] = (old_value & ~write_mask) | (value & write_mask);
 
     switch (id) {
     // Trigger IRQ
@@ -259,12 +268,12 @@ static void WritePicaReg(u32 id, u32 value, u32 mask) {
                     topology == PipelineRegs::TriangleTopology::List) {
                     accelerate_draw = (regs.pipeline.num_vertices % 3) == 0;
                 }
-                // TODO (wwylele): for Strip/Fan topology, if the primitive assember is not restarted
-                // after this draw call, the buffered vertex from this draw should "leak" to the next
-                // draw, in which case we should buffer the vertex into the software primitive assember,
-                // or disable accelerate draw completely. However, there is not game found yet that does
-                // this, so this is left unimplemented for now. Revisit this when an issue is found in
-                // games.
+                // TODO (wwylele): for Strip/Fan topology, if the primitive assember is not
+                // restarted after this draw call, the buffered vertex from this draw should "leak"
+                // to the next draw, in which case we should buffer the vertex into the software
+                // primitive assember, or disable accelerate draw completely. However, there is not
+                // game found yet that does this, so this is left unimplemented for now. Revisit
+                // this when an issue is found in games.
             } else {
                 accelerate_draw = false;
             }
@@ -445,7 +454,7 @@ static void WritePicaReg(u32 id, u32 value, u32 mask) {
     case PICA_REG_INDEX(vs.int_uniforms[2]):
     case PICA_REG_INDEX(vs.int_uniforms[3]): {
         // TODO (wwylele): does regs.pipeline.gs_unit_exclusive_configuration affect this?
-        unsigned index = (id - PICA_REG_INDEX(vs.int_uniforms[0]));
+        u32 index = (id - PICA_REG_INDEX(vs.int_uniforms[0]));
         auto values = regs.vs.int_uniforms[index];
         WriteUniformIntReg(g_state.vs, index,
                            Common::Vec4<u8>(values.x, values.y, values.z, values.w));
@@ -512,10 +521,6 @@ static void WritePicaReg(u32 id, u32 value, u32 mask) {
         break;
     }
 
-    case PICA_REG_INDEX(lighting.lut_scale):
-        VideoCore::g_renderer->Rasterizer()->SyncLightingLutScale();
-        break;
-
     case PICA_REG_INDEX(lighting.lut_data[0]):
     case PICA_REG_INDEX(lighting.lut_data[1]):
     case PICA_REG_INDEX(lighting.lut_data[2]):
@@ -525,9 +530,7 @@ static void WritePicaReg(u32 id, u32 value, u32 mask) {
     case PICA_REG_INDEX(lighting.lut_data[6]):
     case PICA_REG_INDEX(lighting.lut_data[7]): {
         auto& lut_config = regs.lighting.lut_config;
-
         ASSERT_MSG(lut_config.index < 256, "lut_config.index exceeded maximum value of 255!");
-
         g_state.lighting.luts[lut_config.type][lut_config.index].raw = value;
         lut_config.index.Assign(lut_config.index + 1);
         VideoCore::g_renderer->Rasterizer()->SyncLightingLutData();
@@ -558,7 +561,6 @@ static void WritePicaReg(u32 id, u32 value, u32 mask) {
     case PICA_REG_INDEX(texturing.proctex_lut_data[7]): {
         auto& index = regs.texturing.proctex_lut_config.index;
         auto& pt = g_state.proctex;
-
         switch (regs.texturing.proctex_lut_config.ref_table.Value()) {
         case TexturingRegs::ProcTexLutTable::Noise:
             pt.noise_table[index % pt.noise_table.size()].raw = value;
@@ -593,19 +595,18 @@ void ProcessCommandList(PAddr list, u32 size) {
     g_state.cmd_list.length = size / sizeof(u32);
 
     while (g_state.cmd_list.current_ptr < g_state.cmd_list.head_ptr + g_state.cmd_list.length) {
-
         // Align read pointer to 8 bytes
-        if ((g_state.cmd_list.head_ptr - g_state.cmd_list.current_ptr) % 2 != 0)
-            ++g_state.cmd_list.current_ptr;
+        g_state.cmd_list.current_ptr += (g_state.cmd_list.head_ptr - g_state.cmd_list.current_ptr) & 1;
 
         u32 value = *g_state.cmd_list.current_ptr++;
         const CommandHeader header = {*g_state.cmd_list.current_ptr++};
+        const u32 group_factor = header.group_commands;
+        u32 cmd_id = header.cmd_id;
 
-        WritePicaReg(header.cmd_id, value, header.parameter_mask);
-
-        for (unsigned i = 0; i < header.extra_data_length; ++i) {
-            u32 cmd = header.cmd_id + (header.group_commands ? i + 1 : 0);
-            WritePicaReg(cmd, *g_state.cmd_list.current_ptr++, header.parameter_mask);
+        WritePicaReg(cmd_id, value, header.parameter_mask);
+        for (u32 i = 0; i < header.extra_data_length; ++i) {
+            cmd_id += group_factor;
+            WritePicaReg(cmd_id, *g_state.cmd_list.current_ptr++, header.parameter_mask);
         }
     }
 }

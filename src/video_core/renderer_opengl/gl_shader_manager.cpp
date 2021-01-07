@@ -4,8 +4,8 @@
 
 #include <algorithm>
 #include <unordered_map>
-#include "core/settings.h"
 #include "core/cache_file.h"
+#include "core/settings.h"
 #include "video_core/renderer_opengl/gl_shader_manager.h"
 #include "video_core/renderer_opengl/on_screen_display.h"
 
@@ -129,15 +129,15 @@ private:
 
 class ShaderProgramManager::Impl {
 public:
-    Impl(bool separable, bool is_amd) : separable(separable), is_amd(is_amd),
-            trivial_vertex_shader(separable),
-            trivial_geometry_shader(separable) {
+    Impl(bool separable)
+        : separable(separable), trivial_vertex_shader(separable),
+          trivial_geometry_shader(separable) {
         if (separable) {
             pipeline.Create();
-        } else if(Settings::values.use_shader_cache) {
+        } else if (Settings::values.use_shader_cache) {
             if (LoadProgramCache()) {
-                OSD::AddMessage("Shader Cache Loaded!",
-                                OSD::MessageType::LOAD_SHADER_CACHE, OSD::Duration::NORMAL, OSD::Color::YELLOW);
+                OSD::AddMessage("Shader Cache Loaded!", OSD::MessageType::LOAD_SHADER_CACHE,
+                                OSD::Duration::NORMAL, OSD::Color::YELLOW);
             }
         }
         trivial_vertex_shader.Create(GenerateTrivialVertexShader(separable), GL_VERTEX_SHADER, 0);
@@ -160,7 +160,7 @@ public:
                 vertex_cache[vkey] = GenerateVertexShader(setup, key, separable);
             }
             const std::string& vs_code = vertex_cache[vkey];
-            //std::string vs_code = GenerateVertexShader(setup, key, separable);
+            // std::string vs_code = GenerateVertexShader(setup, key, separable);
             if (vs_code.empty()) {
                 shaders_ref[key_hash] = nullptr;
                 current_shaders.vs = nullptr;
@@ -239,14 +239,6 @@ public:
         GLuint fs = current_shaders.fs->GetHandle();
 
         if (separable) {
-            if (is_amd) {
-                // Without this reseting, AMD sometimes freezes when one stage is changed but not
-                // for the others. On the other hand, including this reset seems to introduce memory
-                // leak in Intel Graphics.
-                glUseProgramStages(
-                    pipeline.handle,
-                    GL_VERTEX_SHADER_BIT | GL_GEOMETRY_SHADER_BIT | GL_FRAGMENT_SHADER_BIT, 0);
-            }
             glUseProgramStages(pipeline.handle, GL_VERTEX_SHADER_BIT, vs);
             glUseProgramStages(pipeline.handle, GL_GEOMETRY_SHADER_BIT, gs);
             glUseProgramStages(pipeline.handle, GL_FRAGMENT_SHADER_BIT, fs);
@@ -254,9 +246,9 @@ public:
             state.draw.program_pipeline = pipeline.handle;
         } else {
             const std::array<u64, 3> shaders{
-                    current_shaders.vs->GetHash(),
-                    current_shaders.gs->GetHash(),
-                    current_shaders.fs->GetHash(),
+                current_shaders.vs->GetHash(),
+                current_shaders.gs->GetHash(),
+                current_shaders.fs->GetHash(),
             };
             u64 hash = Common::ComputeHash64(shaders.data(), shaders.size() * sizeof(u64));
             OGLProgram& cached_program = program_cache[hash];
@@ -315,7 +307,7 @@ public:
         u32 length;
         GLenum format;
         std::vector<GLbyte> binary;
-        for(auto& pair : binary_cache) {
+        for (auto& pair : binary_cache) {
             hash = pair.first;
             format = pair.second.format;
             length = static_cast<u32>(pair.second.binary.size());
@@ -422,7 +414,6 @@ public:
 
 private:
     bool separable;
-    bool is_amd;
 
     struct {
         OGLShaderStage* vs;
@@ -431,7 +422,8 @@ private:
     } current_shaders;
 
     struct ProgramCacheEntity {
-        explicit ProgramCacheEntity(GLenum format, std::vector<GLbyte>&& binary) : format(format), binary(binary) {}
+        explicit ProgramCacheEntity(GLenum format, std::vector<GLbyte>&& binary)
+            : format(format), binary(binary) {}
         GLenum format;
         std::vector<GLbyte> binary;
     };
@@ -448,8 +440,8 @@ private:
     std::unordered_map<u64, OGLProgram> program_cache;
 };
 
-ShaderProgramManager::ShaderProgramManager(bool separable, bool is_amd)
-    : impl(std::make_unique<Impl>(separable, is_amd)) {}
+ShaderProgramManager::ShaderProgramManager(bool separable)
+    : impl(std::make_unique<Impl>(separable)) {}
 
 ShaderProgramManager::~ShaderProgramManager() = default;
 

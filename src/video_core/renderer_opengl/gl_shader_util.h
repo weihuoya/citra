@@ -14,6 +14,7 @@ static constexpr char fragment_shader_precision_OES[] = R"(
 precision highp int;
 precision highp float;
 precision highp samplerBuffer;
+precision highp usampler2D;
 precision highp uimage2D;
 )";
 

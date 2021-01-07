@@ -196,7 +196,7 @@ private:
     void SyncGlobalAmbient();
 
     /// sync the lighting lut scale
-    void SyncLightingLutScale() override;
+    void SyncLightingLutScale();
 
     /// sync the lighting lut data
     void SyncLightingLutData() override;
@@ -262,8 +262,6 @@ private:
 
     /// Setup geometry shader for AccelerateDrawBatch
     bool SetupGeometryShader();
-
-    bool is_amd;
 
     OpenGLState state;
 

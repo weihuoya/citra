@@ -115,8 +115,8 @@ uniform ivec2 src_offset;
 
 void main() {
     ivec2 coord = ivec2(tex_coord * vec2(src_size)) + src_offset;
-    vec4 rgba = ivec4(texelFetch(source, coord, 0) * 15.0f);
-    gl_FragDepth = 0;
+    vec4 rgba = texelFetch(source, coord, 0);
+    gl_FragDepth = 0.0f;
 }
 )";
 
@@ -146,7 +146,8 @@ void main() {
         state.Apply();
 
         glFramebufferTexture2D(GL_DRAW_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, 0, 0);
-        glFramebufferTexture2D(GL_DRAW_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_TEXTURE_2D, dst_tex, 0);
+        glFramebufferTexture2D(GL_DRAW_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_TEXTURE_2D,
+                               dst_tex, 0);
 
         glUniform2i(src_size_loc, src_rect.GetWidth(), src_rect.GetHeight());
         glUniform2i(src_offset_loc, src_rect.left, src_rect.bottom);
@@ -186,7 +187,7 @@ uniform ivec2 src_offset;
 
 void main() {
     ivec2 coord = ivec2(tex_coord * vec2(src_size)) + src_offset;
-    uint depth_val = uint(texelFetch(depth, coord, 0).x * (exp2(16.0) - 1.0));
+    uint depth_val = texelFetch(depth, coord, 0).x;
     uvec2 components = (uvec2(depth_val) >> uvec2(8u, 0u)) & 255u;
     frag_color = vec4(vec2(components) / 255.0f, 0.0f, 0.0f);
 }
@@ -217,8 +218,10 @@ void main() {
                           static_cast<GLsizei>(dst_rect.GetHeight())};
         state.Apply();
 
-        glFramebufferTexture2D(GL_DRAW_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, dst_tex, 0);
-        glFramebufferTexture2D(GL_DRAW_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_TEXTURE_2D, 0, 0);
+        glFramebufferTexture2D(GL_DRAW_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, dst_tex,
+                               0);
+        glFramebufferTexture2D(GL_DRAW_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_TEXTURE_2D, 0,
+                               0);
 
         glUniform2i(src_size_loc, src_rect.GetWidth(), src_rect.GetHeight());
         glUniform2i(src_offset_loc, src_rect.left, src_rect.bottom);
@@ -477,34 +480,33 @@ class CopyImageSubData final : public FormatReinterpreterBase {
 FormatReinterpreterOpenGL::FormatReinterpreterOpenGL() {
     std::string_view vendor{reinterpret_cast<const char*>(glGetString(GL_VENDOR))};
     if (vendor.find("NVIDIA") != vendor.npos) {
-        reinterpreters.emplace(PixelFormatPair{PixelFormat::RGBA8, PixelFormat::D24S8},
-                               std::make_unique<CopyImageSubData>());
+        reinterpreters.emplace_back(PixelFormat::RGBA8, PixelFormat::D24S8,
+                                    std::make_unique<CopyImageSubData>());
         // Nvidia bends the spec and allows direct copies between color and depth formats
         // might as well take advantage of it
         LOG_INFO(Render_OpenGL, "Using glCopyImageSubData for D24S8 to RGBA8 reinterpretation");
     } else if ((GLAD_GL_ARB_stencil_texturing && GLAD_GL_ARB_texture_storage) || GLES) {
-        reinterpreters.emplace(PixelFormatPair{PixelFormat::RGBA8, PixelFormat::D24S8},
-                               std::make_unique<ShaderD24S8toRGBA8>());
+        reinterpreters.emplace_back(PixelFormat::RGBA8, PixelFormat::D24S8,
+                                    std::make_unique<ShaderD24S8toRGBA8>());
         LOG_INFO(Render_OpenGL, "Using shader for D24S8 to RGBA8 reinterpretation");
     } else {
-        reinterpreters.emplace(PixelFormatPair{PixelFormat::RGBA8, PixelFormat::D24S8},
-                               std::make_unique<PixelBufferD24S8toABGR>());
+        reinterpreters.emplace_back(PixelFormat::RGBA8, PixelFormat::D24S8,
+                                    std::make_unique<PixelBufferD24S8toABGR>());
         LOG_INFO(Render_OpenGL, "Using pbo for D24S8 to RGBA8 reinterpretation");
     }
-    reinterpreters.emplace(PixelFormatPair{PixelFormat::D24S8, PixelFormat::RGBA8},
-                           std::make_unique<ShaderRGBA8toD24S8>());
-    reinterpreters.emplace(PixelFormatPair{PixelFormat::RG8, PixelFormat::D16},
-                           std::make_unique<ShaderD16toRG8>());
-    reinterpreters.emplace(PixelFormatPair{PixelFormat::RGB5A1, PixelFormat::RGBA4},
-                           std::make_unique<RGBA4toRGB5A1>());
+    reinterpreters.emplace_back(PixelFormat::D24S8, PixelFormat::RGBA8,
+                                std::make_unique<ShaderRGBA8toD24S8>());
+    reinterpreters.emplace_back(PixelFormat::RG8, PixelFormat::D16,
+                                std::make_unique<ShaderD16toRG8>());
+    reinterpreters.emplace_back(PixelFormat::RGB5A1, PixelFormat::RGBA4,
+                                std::make_unique<RGBA4toRGB5A1>());
 }
 
 FormatReinterpreterOpenGL::~FormatReinterpreterOpenGL() = default;
 
-std::pair<FormatReinterpreterOpenGL::ReinterpreterMap::iterator,
-          FormatReinterpreterOpenGL::ReinterpreterMap::iterator>
-FormatReinterpreterOpenGL::GetPossibleReinterpretations(PixelFormat dst_format) {
-    return reinterpreters.equal_range(dst_format);
+const std::vector<FormatReinterpreterOpenGL::Reinterpreter>&
+FormatReinterpreterOpenGL::GetReinterpreters() {
+    return reinterpreters;
 }
 
 } // namespace OpenGL
