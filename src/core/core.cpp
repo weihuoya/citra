@@ -230,7 +230,7 @@ static void LoadOverrides(u64 title_id) {
         }
     }
 
-    const std::array<u64, 38> accurate_mul_ids = {
+    const std::array<u64, 39> accurate_mul_ids = {
         0x0004000000134500, // Attack on Titan
         0x00040000000DF800, // Attack on Titan
         0x0004000000152000, // Attack on Titan
@@ -265,6 +265,7 @@ static void LoadOverrides(u64 title_id) {
         0x000400000007AF00, // New Super Mario Bros. 2
         0x0004000000079600, // Jett Rocket II
         0x0004000000112600, // Cut the Rope
+        0x0004000000116700, // Cut the Rope
         0x00040000000D0000, // Luigi's Mansion: Dark Moon
         0x0004000000076400, // Luigi's Mansion: Dark Moon
         0x0004000000055F00, // Luigi's Mansion: Dark Moon

@@ -13,8 +13,7 @@ namespace OpenGL {
 
 class OGLStreamBuffer : private NonCopyable {
 public:
-    explicit OGLStreamBuffer(GLenum target, GLsizeiptr size, bool array_buffer_for_amd,
-                             bool prefer_coherent = false);
+    explicit OGLStreamBuffer(GLenum target, GLsizeiptr size);
     ~OGLStreamBuffer();
 
     GLuint GetHandle() const;
@@ -28,7 +27,7 @@ public:
      * and the invalidation flag for previous chunks.
      * The actual used size must be specified on unmapping the chunk.
      */
-    std::tuple<u8*, GLintptr, bool> Map(GLsizeiptr size, GLintptr alignment = 0);
+    std::tuple<u8*, GLintptr, bool> Map(GLsizeiptr size, GLintptr alignment);
 
     void Unmap(GLsizeiptr size);
 
@@ -37,14 +36,8 @@ private:
     GLenum gl_target;
     GLenum gl_target_invalidate_hack;
 
-    bool coherent = false;
-    bool persistent = false;
-
     GLintptr buffer_pos = 0;
     GLsizeiptr buffer_size = 0;
-    GLintptr mapped_offset = 0;
-    GLsizeiptr mapped_size = 0;
-    u8* mapped_ptr = nullptr;
 };
 
 } // namespace OpenGL

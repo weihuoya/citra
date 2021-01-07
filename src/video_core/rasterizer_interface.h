@@ -74,7 +74,6 @@ public:
 
     /// sync
     virtual void SyncFogLutData() {}
-    virtual void SyncLightingLutScale() {}
     virtual void SyncLightingLutData() {}
     virtual void SyncProcTexLutData() {}
 
