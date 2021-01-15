@@ -63,7 +63,6 @@ static constexpr std::array<FormatTuple, 5> fb_format_tuples_oes = {{
 }};
 
 static u16 g_resolution_scale_factor;
-static bool g_texture_load_hack;
 static OGLFramebuffer read_framebuffer;
 static OGLFramebuffer draw_framebuffer;
 
@@ -875,7 +874,6 @@ static Surface FindMatch(const SurfaceCache& surface_cache, const SurfaceParams&
 RasterizerCacheOpenGL::RasterizerCacheOpenGL() {
     g_resolution_scale_factor = VideoCore::GetResolutionScaleFactor();
     format_reinterpreter = std::make_unique<FormatReinterpreterOpenGL>();
-    g_texture_load_hack = Settings::values.texture_load_hack;
 
     read_framebuffer.Create();
     draw_framebuffer.Create();
@@ -1053,31 +1051,14 @@ Surface RasterizerCacheOpenGL::GetTextureSurface(const Pica::Texture::TextureInf
     params.height = info.height;
     params.is_tiled = true;
     params.pixel_format = SurfaceParams::PixelFormatFromTextureFormat(info.format);
-    params.is_texture = g_texture_load_hack &&
-            (params.addr < 0x181FFFFF || params.pixel_format > PixelFormat::RGBA4);
     params.UpdateParams();
-
-    if (params.is_texture) {
-        // hack for texture load hack
-        // issues: 7th Dragon, Blazblue2, RuneFactory4, Legend of Legacy
-        if (params.addr == 0x180FD200) {
-            // Yokai Watch
-            params.is_texture = false;
-        } else if (params.addr == 0x180C6280) {
-            // Fire Emblem - IF
-            params.is_texture = false;
-        } else if (params.addr == 0x18113080) {
-            // Bravely Second
-            params.is_texture = false;
-        }
-    }
 
     u32 min_width = info.width >> max_level;
     u32 min_height = info.height >> max_level;
     if (min_width % 8 != 0 || min_height % 8 != 0) {
-        //LOG_CRITICAL(Render_OpenGL, "Texture size ({}x{}) is not multiple of 8", min_width,
+        // LOG_CRITICAL(Render_OpenGL, "Texture size ({}x{}) is not multiple of 8", min_width,
         //             min_height);
-        //return nullptr;
+        // return nullptr;
         Surface src_surface;
         Common::Rectangle<u32> rect;
         std::tie(src_surface, rect) = GetSurfaceSubRect(params, ScaleMatch::Ignore, true);
@@ -1302,8 +1283,7 @@ const CachedTextureCube& RasterizerCacheOpenGL::GetTextureCube(const TextureCube
 
 SurfaceSurfaceRect_Tuple RasterizerCacheOpenGL::GetFramebufferSurfaces(
     bool using_color_fb, bool using_depth_fb, const Common::Rectangle<s32>& viewport_rect) {
-    const auto& regs = Pica::g_state.regs;
-    const auto& config = regs.framebuffer.framebuffer;
+    const auto& config = Pica::g_state.regs.framebuffer.framebuffer;
 
     Common::Rectangle<u32> viewport_clamped{
         static_cast<u32>(std::clamp(viewport_rect.left, 0, static_cast<s32>(config.GetWidth()))),
@@ -1332,30 +1312,25 @@ SurfaceSurfaceRect_Tuple RasterizerCacheOpenGL::GetFramebufferSurfaces(
     auto color_vp_interval = color_params.GetSubRectInterval(viewport_clamped);
     auto depth_vp_interval = depth_params.GetSubRectInterval(viewport_clamped);
 
-    // Make sure that framebuffers don't overlap if both color and depth are being used
-    if (using_color_fb && using_depth_fb &&
-        boost::icl::length(color_vp_interval & depth_vp_interval)) {
-        LOG_CRITICAL(Render_OpenGL, "Color and depth framebuffer memory regions overlap; "
-                                    "overlapping framebuffers not supported!");
-        using_depth_fb = false;
-    }
-
-    if (!using_depth_fb && g_texture_load_hack &&
-        color_params.addr > 0x18000000 && color_params.addr < 0x181FFFFF) {
-        color_params.is_texture = true;
-    }
-
     Common::Rectangle<u32> color_rect{};
     Surface color_surface = nullptr;
-    if (using_color_fb)
+    if (using_color_fb) {
         std::tie(color_surface, color_rect) =
             GetSurfaceSubRect(color_params, ScaleMatch::Exact, false);
 
+        // Make sure that framebuffers don't overlap if both color and depth are being used
+        if (using_depth_fb && boost::icl::length(color_vp_interval & depth_vp_interval)) {
+            LOG_CRITICAL(Render_OpenGL, "Color and depth framebuffer memory regions overlap; overlapping framebuffers not supported!");
+            using_depth_fb = false;
+        }
+    }
+
     Common::Rectangle<u32> depth_rect{};
     Surface depth_surface = nullptr;
-    if (using_depth_fb)
+    if (using_depth_fb) {
         std::tie(depth_surface, depth_rect) =
             GetSurfaceSubRect(depth_params, ScaleMatch::Exact, false);
+    }
 
     Common::Rectangle<u32> fb_rect{};
     if (color_surface != nullptr && depth_surface != nullptr) {
@@ -1492,15 +1467,7 @@ void RasterizerCacheOpenGL::ValidateSurface(const Surface& surface, PAddr addr, 
             FindMatch<MatchFlags::Copy>(surface_cache, params, ScaleMatch::Ignore, interval);
         if (copy_surface != nullptr) {
             SurfaceInterval copy_interval = params.GetCopyableInterval(copy_surface);
-            if (copy_surface->type == SurfaceType::Fill && surface->is_texture && !surface->gl_buffer.empty()) {
-                // don't clear texture
-                if (surface->addr == 0x180A6280 || surface->addr == 0x18108D00) {
-                    // Fire Emblem - IF and Fire Emblem - ECHO
-                    CopySurface(copy_surface, surface, copy_interval);
-                }
-            } else {
-                CopySurface(copy_surface, surface, copy_interval);
-            }
+            CopySurface(copy_surface, surface, copy_interval);
             notify_validated(copy_interval);
             continue;
         }
@@ -1529,14 +1496,10 @@ void RasterizerCacheOpenGL::ValidateSurface(const Surface& surface, PAddr addr, 
 
         // Load data from 3DS memory
         if (surface->pixel_format < PixelFormat::D16) {
-            if (surface->is_texture && !surface->gl_buffer.empty()) {
-                // skip
-            } else {
-                FlushRegion(params.addr, params.size);
-                surface->LoadGLBuffer(params.addr, params.end);
-                surface->UploadGLTexture(surface->GetSubRect(params), read_framebuffer.handle,
-                                         draw_framebuffer.handle);
-            }
+            FlushRegion(params.addr, params.size);
+            surface->LoadGLBuffer(params.addr, params.end);
+            surface->UploadGLTexture(surface->GetSubRect(params), read_framebuffer.handle,
+                                     draw_framebuffer.handle);
         } else {
             LOG_INFO(Render_OpenGL, "ValidateSurface load depth: {}", surface->pixel_format);
         }
@@ -1626,9 +1589,7 @@ void RasterizerCacheOpenGL::FlushRegion(PAddr addr, u32 size, const Surface& flu
         if (flush_surface != nullptr && surface != flush_surface)
             continue;
 
-        if (surface->is_texture && !surface->gl_buffer.empty()) {
-            // skip texture
-        } else if (!GLES || surface->pixel_format < PixelFormat::D16) {
+        if (!GLES || surface->pixel_format < PixelFormat::D16) {
             if (surface->type != SurfaceType::Fill) {
                 SurfaceParams params = surface->FromInterval(interval);
                 surface->DownloadGLTexture(surface->GetSubRect(params), read_framebuffer.handle,
@@ -1648,10 +1609,8 @@ void RasterizerCacheOpenGL::FlushAll() {
 
 void RasterizerCacheOpenGL::CheckForConfigChanges() {
     u16 scale_factor = VideoCore::GetResolutionScaleFactor();
-    if (g_resolution_scale_factor != scale_factor ||
-        g_texture_load_hack != Settings::values.texture_load_hack) {
+    if (g_resolution_scale_factor != scale_factor) {
         g_resolution_scale_factor = scale_factor;
-        g_texture_load_hack = Settings::values.texture_load_hack;
         FlushAll();
         while (!surface_cache.empty())
             UnregisterSurface(*surface_cache.begin()->second.begin());

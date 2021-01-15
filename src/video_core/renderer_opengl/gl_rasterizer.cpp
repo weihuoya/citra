@@ -621,11 +621,6 @@ bool RasterizerOpenGL::Draw(bool accelerate, bool is_indexed) {
         }
     }
 
-    if (uniform_block_data.data.framebuffer_scale != res_scale) {
-        uniform_block_data.data.framebuffer_scale = res_scale;
-        uniform_block_data.dirty = true;
-    }
-
     // Scissor checks are window-, not viewport-relative, which means that if the cached texture
     // sub-rect changes, the scissor bounds also need to be updated.
     GLint scissor_x1 =
@@ -1660,9 +1655,9 @@ void RasterizerOpenGL::SyncAlphaTest() {
 void RasterizerOpenGL::SyncLogicOp() {
     const auto& regs = Pica::g_state.regs;
     state.logic_op = PicaToGL::LogicOp(regs.framebuffer.output_merger.logic_op);
-    if (GLES && (GLAD_GL_ARM_shader_framebuffer_fetch || GLAD_GL_EXT_shader_framebuffer_fetch)) {
+    /*if (GLES && (GLAD_GL_ARM_shader_framebuffer_fetch || GLAD_GL_EXT_shader_framebuffer_fetch)) {
         shader_dirty = true;
-    }
+    }*/
     if (GLES) {
         if (!regs.framebuffer.output_merger.alphablend_enable) {
             if (regs.framebuffer.output_merger.logic_op == Pica::FramebufferRegs::LogicOp::NoOp) {

@@ -121,7 +121,6 @@ public final class SettingsFragment extends Fragment {
         Setting hwShader = rendererSection.getSetting(SettingsFile.KEY_USE_HW_SHADER);
         Setting accurateMul = rendererSection.getSetting(SettingsFile.KEY_SHADERS_ACCURATE_MUL);
         Setting shader = rendererSection.getSetting(SettingsFile.KEY_POST_PROCESSING_SHADER);
-        Setting texLoadHack = rendererSection.getSetting(SettingsFile.KEY_TEXTURE_LOAD_HACK);
         Setting useFrameLimit = rendererSection.getSetting(SettingsFile.KEY_USE_FRAME_LIMIT);
         Setting frameLimit = rendererSection.getSetting(SettingsFile.KEY_FRAME_LIMIT);
         Setting customTex = rendererSection.getSetting(SettingsFile.KEY_CUSTOM_TEXTURES);
@@ -162,9 +161,6 @@ public final class SettingsFragment extends Fragment {
             R.string.post_processing_shader, 0, stringEntries, stringValues, "", shader));
 
         // custom textures
-        sl.add(new CheckBoxSetting(SettingsFile.KEY_TEXTURE_LOAD_HACK,
-                                   Settings.SECTION_INI_RENDERER,
-                                   R.string.setting_texture_load_hack, R.string.setting_texture_load_hack_desc, false, texLoadHack));
         sl.add(new CheckBoxSetting(SettingsFile.KEY_CUSTOM_TEXTURES, Settings.SECTION_INI_RENDERER,
                                    R.string.setting_custom_textures, 0, false, customTex));
         sl.add(new CheckBoxSetting(SettingsFile.KEY_PRELOAD_TEXTURES, Settings.SECTION_INI_RENDERER,

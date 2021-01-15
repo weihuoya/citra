@@ -31,7 +31,6 @@ extern const ConfigInfo<u16> RESOLUTION_FACTOR;
 extern const ConfigInfo<bool> USE_FRAME_LIMIT;
 extern const ConfigInfo<u16> FRAME_LIMIT;
 extern const ConfigInfo<u8> FACTOR_3D;
-extern const ConfigInfo<bool> TEXTURE_LOAD_HACK;
 extern const ConfigInfo<bool> CUSTOM_TEXTURES;
 extern const ConfigInfo<bool> PRELOAD_TEXTURES;
 extern const ConfigInfo<Settings::LayoutOption> LAYOUT_OPTION;
