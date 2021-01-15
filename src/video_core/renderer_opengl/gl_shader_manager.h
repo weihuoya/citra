@@ -32,7 +32,6 @@ struct LightSrc {
 //       the end of a uniform block is included in UNIFORM_BLOCK_DATA_SIZE or not.
 //       Not following that rule will cause problems on some AMD drivers.
 struct UniformData {
-    GLint framebuffer_scale;
     GLint alphatest_ref;
     GLfloat depth_scale;
     GLfloat depth_offset;
@@ -64,7 +63,7 @@ struct UniformData {
 };
 
 static_assert(
-    sizeof(UniformData) == 0x510,
+    sizeof(UniformData) == 0x500,
     "The size of the UniformData structure has changed, update the structure in the shader");
 static_assert(sizeof(UniformData) < 0x4000,
               "UniformData structure must be less than 16kb as per the OpenGL spec");

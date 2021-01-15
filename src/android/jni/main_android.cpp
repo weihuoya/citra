@@ -368,7 +368,6 @@ JNIEXPORT void JNICALL Java_org_citra_emu_NativeLibrary_Run(JNIEnv* env, jclass 
     Settings::values.frame_limit = Config::Get(Config::FRAME_LIMIT);
     Settings::values.resolution_factor = Config::Get(Config::RESOLUTION_FACTOR);
     Settings::values.factor_3d = Config::Get(Config::FACTOR_3D);
-    Settings::values.texture_load_hack = Config::Get(Config::TEXTURE_LOAD_HACK);
     Settings::values.custom_textures = Config::Get(Config::CUSTOM_TEXTURES);
     Settings::values.preload_textures = Config::Get(Config::PRELOAD_TEXTURES);
     Settings::values.layout_option = Config::Get(Config::LAYOUT_OPTION);
@@ -464,13 +463,12 @@ JNIEXPORT void JNICALL Java_org_citra_emu_NativeLibrary_StopEmulation(JNIEnv* en
 JNIEXPORT jintArray JNICALL Java_org_citra_emu_NativeLibrary_getRunningSettings(JNIEnv* env,
                                                                                 jclass obj) {
     int i = 0;
-    int settings[8];
+    int settings[7];
 
     // get settings
     settings[i++] = Settings::values.core_ticks_hack > 0;
     settings[i++] = Settings::values.skip_slow_draw;
     settings[i++] = Settings::values.skip_cpu_write;
-    settings[i++] = Settings::values.texture_load_hack;
     settings[i++] = std::min(std::max(Settings::values.resolution_factor - 1, 0), 3);
     settings[i++] = static_cast<int>(Settings::values.layout_option);
     settings[i++] = Settings::values.custom_layout;
@@ -494,10 +492,6 @@ JNIEXPORT void JNICALL Java_org_citra_emu_NativeLibrary_setRunningSettings(JNIEn
 
     // Skip CPU Write
     Settings::values.skip_cpu_write = settings[i++] > 0;
-
-    //
-    Settings::values.texture_load_hack = settings[i++] > 0;
-    Config::Set(Config::TEXTURE_LOAD_HACK, Settings::values.texture_load_hack);
 
     // Scale Factor
     Settings::values.resolution_factor = settings[i++] + 1;

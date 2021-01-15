@@ -202,7 +202,6 @@ struct Values {
     bool skip_slow_draw;
     bool skip_cpu_write;
     bool disable_clip_coef;
-    bool texture_load_hack;
     bool display_transfer_hack;
     bool stream_buffer_hack;
     bool y2r_perform_hack;

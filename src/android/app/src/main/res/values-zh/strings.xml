@@ -152,8 +152,6 @@
     <string name="setting_shaders_accurate_mul">精确乘法运算</string>
     <string name="setting_shaders_accurate_mul_desc">开启可以修复部分游戏的显示问题，但会降低模拟速度。</string>
     <string name="post_processing_shader">后处理效果</string>
-    <string name="setting_texture_load_hack">快速纹理加载</string>
-    <string name="setting_texture_load_hack_desc">开启可以提升性能，但很多游戏会有贴图错误。</string>
     <string name="setting_use_present_thread">启用多核心</string>
     <string name="setting_use_present_thread_desc">大部分游戏启用多核心可以提升性能。</string>
     <string name="frame_limit_enable">启用速度限制</string>

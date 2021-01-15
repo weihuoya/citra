@@ -110,9 +110,8 @@ public class RunningSettingDialog extends DialogFragment {
         public static final int SETTING_SKIP_CPU_WRITE = 2;
         public static final int SETTING_SCALE_FACTOR = 3;
         public static final int SETTING_SCREEN_LAYOUT = 4;
-        public static final int SETTING_TEXTURE_LOAD_HACK = 5;
-        public static final int SETTING_CUSTOM_LAYOUT = 6;
-        public static final int SETTING_FRAME_LIMIT = 7;
+        public static final int SETTING_CUSTOM_LAYOUT = 5;
+        public static final int SETTING_FRAME_LIMIT = 6;
 
         // pref
         public static final int SETTING_JOYSTICK_RELATIVE = 100;
@@ -613,9 +612,6 @@ public class RunningSettingDialog extends DialogFragment {
                     SettingsItem.TYPE_CHECKBOX, mRunningSettings[i++]));
             mSettings.add(new SettingsItem(SettingsItem.SETTING_SKIP_CPU_WRITE,
                     R.string.setting_skip_cpu_write,
-                    SettingsItem.TYPE_CHECKBOX, mRunningSettings[i++]));
-            mSettings.add(new SettingsItem(SettingsItem.SETTING_TEXTURE_LOAD_HACK,
-                    R.string.setting_texture_load_hack,
                     SettingsItem.TYPE_CHECKBOX, mRunningSettings[i++]));
             mSettings.add(new SettingsItem(SettingsItem.SETTING_SCALE_FACTOR,
                     R.string.running_resolution, SettingsItem.TYPE_RADIO_GROUP,

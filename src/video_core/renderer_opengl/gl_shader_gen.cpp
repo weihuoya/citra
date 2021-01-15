@@ -49,7 +49,6 @@ struct LightSrc {
 };
 
 layout (std140) uniform shader_data {
-    int framebuffer_scale;
     int alphatest_ref;
     float depth_scale;
     float depth_offset;
@@ -132,8 +131,9 @@ PicaFSConfig PicaFSConfig::BuildFromRegs(const Pica::Regs& regs) {
 
     state.depthmap_enable = regs.rasterizer.depthmap_enable;
 
-    if (GLES && (GLAD_GL_ARM_shader_framebuffer_fetch || GLAD_GL_EXT_shader_framebuffer_fetch) &&
-        regs.framebuffer.output_merger.alphablend_enable == 0) {
+    /*if (GLES && (GLAD_GL_ARM_shader_framebuffer_fetch || GLAD_GL_EXT_shader_framebuffer_fetch) &&
+        regs.framebuffer.output_merger.alphablend_enable == 0) {*/
+    if (GLES && regs.framebuffer.output_merger.alphablend_enable == 0) {
         state.logic_op = regs.framebuffer.output_merger.logic_op;
     } else {
         state.logic_op = FramebufferRegs::LogicOp::Copy;
@@ -1304,7 +1304,7 @@ std::string GenerateFragmentShader(const PicaFSConfig& config, bool separable_sh
     }
 
     if (GLES) {
-        if (state.logic_op != FramebufferRegs::LogicOp::Copy) {
+        /*if (state.logic_op != FramebufferRegs::LogicOp::Copy) {
             if (GLAD_GL_EXT_shader_framebuffer_fetch) {
                 out += "#extension GL_EXT_shader_framebuffer_fetch : enable\n"
                        "#define FB_FETCH_VALUE color\n"
@@ -1316,7 +1316,7 @@ std::string GenerateFragmentShader(const PicaFSConfig& config, bool separable_sh
                        "#define FRAGMENT_INOUT out\n";
                 shader_logic_ops = true;
             }
-        }
+        }*/
         if (AllowShadow && state.shadow_rendering) {
             out += "#define ALLOW_SHADOW 1\n";
         } else {
@@ -1698,6 +1698,25 @@ do {
         } else {
             // Round the final fragment color to maintain the PICA's 8 bits of precision
             out += "color = byteround(last_tex_env_out);\n";
+        }
+
+        switch (state.logic_op) {
+        case FramebufferRegs::LogicOp::Clear:
+            out += "color = vec4(0);\n";
+            break;
+        case FramebufferRegs::LogicOp::Set:
+            out += "color = vec4(1);\n";
+            break;
+        case FramebufferRegs::LogicOp::Copy:
+            // Take the color output as-is
+            break;
+        case FramebufferRegs::LogicOp::CopyInverted:
+            out += "color = ~color;\n";
+            break;
+        case FramebufferRegs::LogicOp::NoOp:
+            // We need to discard the color, but not necessarily the depth. This is not possible
+            // with fragment shader alone, so we emulate this behavior on GLES with glColorMask.
+            break;
         }
     }
 

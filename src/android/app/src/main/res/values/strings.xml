@@ -152,8 +152,6 @@
     <string name="setting_shaders_accurate_mul">Accurate Multiplication</string>
     <string name="setting_shaders_accurate_mul_desc">Turn it on to fixes some of the game\'s display issues, but slows down the simulation.</string>
     <string name="post_processing_shader">Post-Processing Effect</string>
-    <string name="setting_texture_load_hack">Texture Load Hack</string>
-    <string name="setting_texture_load_hack_desc">Turn it on to improves performance, but many games have texture errors</string>
     <string name="setting_use_present_thread">Use Dual Core</string>
     <string name="setting_use_present_thread_desc">Most games can improve performance by using dual core.</string>
     <string name="frame_limit_enable">Enable Speed Limit</string>

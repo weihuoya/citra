@@ -22,7 +22,6 @@ const ConfigInfo<u16> RESOLUTION_FACTOR{{"Renderer", "resolution_factor"}, 1};
 const ConfigInfo<bool> USE_FRAME_LIMIT{{"Renderer", "use_frame_limit"}, true};
 const ConfigInfo<u16> FRAME_LIMIT{{"Renderer", "frame_limit"}, 100};
 const ConfigInfo<u8> FACTOR_3D{{"Renderer", "factor_3d"}, 0};
-const ConfigInfo<bool> TEXTURE_LOAD_HACK{{"Renderer", "texture_load_hack"}, false};
 const ConfigInfo<bool> CUSTOM_TEXTURES{{"Renderer", "custom_textures"}, false};
 const ConfigInfo<bool> PRELOAD_TEXTURES{{"Renderer", "preload_textures"}, false};
 const ConfigInfo<Settings::LayoutOption> LAYOUT_OPTION{{"Renderer", "layout_option"},

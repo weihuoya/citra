@@ -146,8 +146,6 @@ static void LoadOverrides(u64 title_id) {
         // state.regs.pipeline.gs_unit_exclusive_configuration = 0
         // state.regs.gs.max_input_attribute_index = 0
         Settings::values.skip_slow_draw = true;
-        // may cause display issues
-        Settings::values.texture_load_hack = false;
     } else if (title_id == 0x00040000001CCD00 || title_id == 0x00040000001B4500) {
         // The Alliance Alive
         Settings::SetFMVHack(true);
@@ -180,23 +178,6 @@ static void LoadOverrides(u64 title_id) {
                title_id == 0x000400000017C900 || title_id == 0x000400000017E100) {
         // Shovel Knight
         Settings::values.stream_buffer_hack = false;
-    } else if (title_id == 0x00040000000D2800 || title_id == 0x0004000000065800 ||
-               title_id == 0x0004000000766600) {
-        // Rune Factory 4
-        Settings::values.texture_load_hack = false;
-    } else if (title_id == 0x0004000000055D00 || title_id == 0x0004000000055E00) {
-        // Pokémon X/Y
-        Settings::values.texture_load_hack = false;
-    } else if (title_id == 0x000400000004B500) {
-        // Monster Hunter 4
-        Settings::values.texture_load_hack = true;
-    } else if (title_id == 0x0004000000126300 || title_id == 0x000400000011D700 ||
-               title_id == 0x0004000000126100 || title_id == 0x0004000000153200) {
-        // Monster Hunter 4 Ultimate
-        Settings::values.texture_load_hack = true;
-    } else if (title_id == 0x0004000000155400) {
-        // Monster Hunter X
-        Settings::values.texture_load_hack = true;
     } else if (title_id == 0x000400000008FE00) {
         // 1001 Spikes [USA]
         Settings::values.stream_buffer_hack = false;
@@ -230,7 +211,7 @@ static void LoadOverrides(u64 title_id) {
         }
     }
 
-    const std::array<u64, 39> accurate_mul_ids = {
+    const std::array<u64, 40> accurate_mul_ids = {
         0x0004000000134500, // Attack on Titan
         0x00040000000DF800, // Attack on Titan
         0x0004000000152000, // Attack on Titan
@@ -270,6 +251,7 @@ static void LoadOverrides(u64 title_id) {
         0x0004000000076400, // Luigi's Mansion: Dark Moon
         0x0004000000055F00, // Luigi's Mansion: Dark Moon
         0x0004000000076500, // Luigi's Mansion: Dark Moon
+        0x00040000000AFC00, // Digimon World Re:Digitize Decode
     };
     for (auto id : accurate_mul_ids) {
         if (title_id == id) {

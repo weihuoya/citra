@@ -285,7 +285,7 @@ public:
         }
     }
 
-    static constexpr u32 PROGRAM_CACHE_VERSION = 0x4;
+    static constexpr u32 PROGRAM_CACHE_VERSION = 0x5;
 
     static std::string GetCacheFile() {
         u64 program_id = 0;
