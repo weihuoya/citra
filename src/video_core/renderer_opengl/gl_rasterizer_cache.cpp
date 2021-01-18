@@ -515,7 +515,7 @@ void CachedSurface::LoadGLBuffer(PAddr load_start, PAddr load_end) {
         }
     } else {
         if (type == SurfaceType::Texture) {
-            Pica::Texture::TextureInfo tex_info{};
+            Pica::Texture::TextureInfo tex_info;
             tex_info.width = width;
             tex_info.height = height;
             tex_info.format = static_cast<Pica::TexturingRegs::TextureFormat>(pixel_format);

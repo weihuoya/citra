@@ -206,6 +206,7 @@ struct Values {
     bool stream_buffer_hack;
     bool y2r_perform_hack;
     bool y2r_event_delay;
+    bool use_linear_filter;
     bool use_present_thread;
     AccurateMul shaders_accurate_mul;
 
