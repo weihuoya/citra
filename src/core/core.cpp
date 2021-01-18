@@ -191,6 +191,19 @@ static void LoadOverrides(u64 title_id) {
         Settings::values.y2r_perform_hack = true;
     }
 
+    const std::array<u64, 10> linear_ids = {
+        0x00040000001AA200, // Attack On Titan 2
+        0x0004000000134500, // Attack On Titan 1 CHAIN
+        0x0004000000152000, // Attack On Titan 1 CHAIN
+        0x0004000000134500, // Attack On Titan 1 CHAIN
+        0x00040000000DF800, // Attack On Titan 1
+    };
+    for (auto id : linear_ids) {
+        if (title_id == id) {
+            Settings::values.use_linear_filter = true;
+        }
+    }
+
     const std::array<u64, 12> fifa_ids = {
         0x0004000000044700, // FIFA 12
         0x0004000000047A00, // FIFA 12

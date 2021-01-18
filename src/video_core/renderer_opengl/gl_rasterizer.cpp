@@ -45,8 +45,7 @@ static bool IsVendorMali() {
 }
 
 RasterizerOpenGL::RasterizerOpenGL()
-    : shader_dirty(true),
-      vertex_buffer(GL_ARRAY_BUFFER, VERTEX_BUFFER_SIZE),
+    : shader_dirty(true), vertex_buffer(GL_ARRAY_BUFFER, VERTEX_BUFFER_SIZE),
       uniform_buffer(GL_UNIFORM_BUFFER, UNIFORM_BUFFER_SIZE),
       index_buffer(GL_ELEMENT_ARRAY_BUFFER, INDEX_BUFFER_SIZE),
       texture_buffer(GL_TEXTURE_BUFFER, IsVendorMali() ? 11264 : TEXTURE_BUFFER_SIZE),
@@ -830,7 +829,7 @@ bool RasterizerOpenGL::Draw(bool accelerate, bool is_indexed) {
                                               draw_rect.right / res_scale,
                                               draw_rect.bottom / res_scale};
 
-    if (color_surface != nullptr && write_color_fb) {
+    if (color_surface != nullptr) {
         auto interval = color_surface->GetSubRectInterval(draw_rect_unscaled);
         res_cache.InvalidateRegion(boost::icl::first(interval), boost::icl::length(interval),
                                    color_surface);
@@ -1438,26 +1437,31 @@ void RasterizerOpenGL::SamplerInfo::Create() {
     glSamplerParameterf(sampler.handle, GL_TEXTURE_MIN_LOD, static_cast<float>(lod_min));
 }
 
-void RasterizerOpenGL::SamplerInfo::SyncWithConfig(
-    const Pica::TexturingRegs::TextureConfig& config) {
-
+void RasterizerOpenGL::SamplerInfo::SyncWithConfig(const TextureConfig& config) {
     GLuint s = sampler.handle;
 
-    if (mag_filter != config.mag_filter) {
-        mag_filter = config.mag_filter;
-        glSamplerParameteri(s, GL_TEXTURE_MAG_FILTER, PicaToGL::TextureMagFilterMode(mag_filter));
-    }
+    using TextureFilter = Pica::TexturingRegs::TextureConfig::TextureFilter;
+    bool use_linear_filter = Settings::values.use_linear_filter &&
+            config.mag_filter == TextureFilter::Nearest;
 
-    if (min_filter != config.min_filter || mip_filter != config.mip_filter) {
-        min_filter = config.min_filter;
-        mip_filter = config.mip_filter;
-        if (config.type == Pica::TexturingRegs::TextureConfig::TextureCube) {
-            // HACK: use mag filter converter for min filter because they are the same anyway
-            glSamplerParameteri(s, GL_TEXTURE_MIN_FILTER,
-                                PicaToGL::TextureMagFilterMode(min_filter));
-        } else {
-            glSamplerParameteri(s, GL_TEXTURE_MIN_FILTER,
-                                PicaToGL::TextureMinFilterMode(min_filter, mip_filter));
+    if (!use_linear_filter) {
+        if (mag_filter != config.mag_filter) {
+            mag_filter = config.mag_filter;
+            glSamplerParameteri(s, GL_TEXTURE_MAG_FILTER,
+                                PicaToGL::TextureMagFilterMode(mag_filter));
+        }
+
+        if (min_filter != config.min_filter || mip_filter != config.mip_filter) {
+            min_filter = config.min_filter;
+            mip_filter = config.mip_filter;
+            if (config.type == Pica::TexturingRegs::TextureConfig::TextureCube) {
+                // HACK: use mag filter converter for min filter because they are the same anyway
+                glSamplerParameteri(s, GL_TEXTURE_MIN_FILTER,
+                                    PicaToGL::TextureMagFilterMode(min_filter));
+            } else {
+                glSamplerParameteri(s, GL_TEXTURE_MIN_FILTER,
+                                    PicaToGL::TextureMinFilterMode(min_filter, mip_filter));
+            }
         }
     }
 
