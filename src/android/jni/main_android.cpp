@@ -464,7 +464,7 @@ JNIEXPORT void JNICALL Java_org_citra_emu_NativeLibrary_StopEmulation(JNIEnv* en
 JNIEXPORT jintArray JNICALL Java_org_citra_emu_NativeLibrary_getRunningSettings(JNIEnv* env,
                                                                                 jclass obj) {
     int i = 0;
-    int settings[8];
+    int settings[9];
 
     // get settings
     settings[i++] = Settings::values.core_ticks_hack > 0;
@@ -473,6 +473,7 @@ JNIEXPORT jintArray JNICALL Java_org_citra_emu_NativeLibrary_getRunningSettings(
     settings[i++] = Settings::values.use_linear_filter;
     settings[i++] = std::min(std::max(Settings::values.resolution_factor - 1, 0), 3);
     settings[i++] = static_cast<int>(Settings::values.layout_option);
+    settings[i++] = static_cast<int>(Settings::values.shaders_accurate_mul);
     settings[i++] = Settings::values.custom_layout;
     settings[i++] = Settings::values.frame_limit / 2;
 
@@ -507,10 +508,14 @@ JNIEXPORT void JNICALL Java_org_citra_emu_NativeLibrary_setRunningSettings(JNIEn
     Settings::values.layout_option = screen_layout;
     Config::Set(Config::LAYOUT_OPTION, Settings::values.layout_option);
 
-    //
+    // Accurate Mul
+    Settings::values.shaders_accurate_mul = static_cast<Settings::AccurateMul>(settings[i++]);
+
+    // Custom Layout
     Settings::values.custom_layout = settings[i++] > 0;
     Config::Set(Config::USE_CUSTOM_LAYOUT, Settings::values.custom_layout);
 
+    // Frame Limit
     Settings::values.frame_limit = settings[i++] * 2;
 
     s_render_window->UpdateLayout();

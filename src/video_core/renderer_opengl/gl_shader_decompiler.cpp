@@ -219,7 +219,7 @@ private:
 /// An adaptor for getting swizzle pattern string from nihstro interfaces.
 template <int getter>
 std::string GetSelectorSrc(const SwizzlePattern& pattern) {
-    std::string out;
+    std::string out{"."};
     SwizzlePattern::Selector selectors[4];
     if (getter == 1) {
         selectors[0] = pattern.src1_selector_0;
@@ -237,8 +237,15 @@ std::string GetSelectorSrc(const SwizzlePattern& pattern) {
         selectors[2] = pattern.src3_selector_2;
         selectors[3] = pattern.src3_selector_3;
     }
+    bool  clear = true;
     for (int i = 0; i < 4; ++i) {
         out += "xyzw"[static_cast<int>(selectors[i])];
+        if (i != static_cast<int>(selectors[i])) {
+            clear = false;
+        }
+    }
+    if (clear) {
+        out.clear();
     }
     return out;
 }
@@ -387,9 +394,11 @@ private:
         if (reg.empty() || dest_mask_num_components == 0) {
             return;
         }
-        DEBUG_ASSERT(value_num_components >= dest_num_components || value_num_components == 1);
 
-        std::string dest = reg + (dest_num_components != 1 ? dest_mask_swizzle : "");
+        std::string dest = reg;
+        if (dest_num_components > 1 && dest_mask_num_components < 4) {
+            dest += dest_mask_swizzle;
+        }
 
         std::string src = value;
         if (value_num_components == 1) {
@@ -429,12 +438,12 @@ private:
             std::string src1 = swizzle.negate_src1 ? "-" : "";
             src1 += GetSourceRegister(instr.common.GetSrc1(is_inverted),
                                       !is_inverted * instr.common.address_register_index);
-            src1 += "." + GetSelectorSrc1(swizzle);
+            src1 += GetSelectorSrc1(swizzle);
 
             std::string src2 = swizzle.negate_src2 ? "-" : "";
             src2 += GetSourceRegister(instr.common.GetSrc2(is_inverted),
                                       is_inverted * instr.common.address_register_index);
-            src2 += "." + GetSelectorSrc2(swizzle);
+            src2 += GetSelectorSrc2(swizzle);
 
             std::string dest_reg = GetDestRegister(instr.common.dest.Value());
 
@@ -446,7 +455,7 @@ private:
 
             case OpCode::Id::MUL: {
                 if (sanitize_mul) {
-                    SetDest(swizzle, dest_reg, "sanitize_mul(" + src1 + ", " + src2 + ")", 4, 4);
+                    SetDest(swizzle, dest_reg, "mul_safe(" + src1 + ", " + src2 + ")", 4, 4);
                 } else {
                     SetDest(swizzle, dest_reg, src1 + " * " + src2, 4, 4);
                 }
@@ -476,7 +485,7 @@ private:
                 std::string dot;
                 if (opcode == OpCode::Id::DP3) {
                     if (sanitize_mul) {
-                        dot = "dot(vec3(sanitize_mul(" + src1 + ", " + src2 + ")), vec3(1.0))";
+                        dot = "dot(vec3(mul_safe(" + src1 + ", " + src2 + ")), vec3(1.0))";
                     } else {
                         dot = "dot(vec3(" + src1 + "), vec3(" + src2 + "))";
                     }
@@ -487,7 +496,7 @@ private:
                                 ? fmt::format("vec4({}.xyz, 1.0)", src1)
                                 : std::move(src1);
 
-                        dot = fmt::format("dot(sanitize_mul({}, {}), vec4(1.0))", src1_, src2);
+                        dot = fmt::format("dot(mul_safe({}, {}), vec4(1.0))", src1_, src2);
                     } else {
                         dot = fmt::format("dot({}, {})", src1, src2);
                     }
@@ -498,12 +507,12 @@ private:
             }
 
             case OpCode::Id::RCP: {
-                SetDest(swizzle, dest_reg, "(1.0 / " + src1 + ".x)", 4, 1);
+                SetDest(swizzle, dest_reg, "rcp_safe(" + src1 + ".x)", 4, 1);
                 break;
             }
 
             case OpCode::Id::RSQ: {
-                SetDest(swizzle, dest_reg, "inversesqrt(" + src1 + ".x)", 4, 1);
+                SetDest(swizzle, dest_reg, "rsq_safe(" + src1 + ".x)", 4, 1);
                 break;
             }
 
@@ -588,17 +597,17 @@ private:
 
                 std::string src1 = swizzle.negate_src1 ? "-" : "";
                 src1 += GetSourceRegister(instr.mad.GetSrc1(is_inverted), 0);
-                src1 += "." + GetSelectorSrc1(swizzle);
+                src1 += GetSelectorSrc1(swizzle);
 
                 std::string src2 = swizzle.negate_src2 ? "-" : "";
                 src2 += GetSourceRegister(instr.mad.GetSrc2(is_inverted),
                                           !is_inverted * instr.mad.address_register_index);
-                src2 += "." + GetSelectorSrc2(swizzle);
+                src2 += GetSelectorSrc2(swizzle);
 
                 std::string src3 = swizzle.negate_src3 ? "-" : "";
                 src3 += GetSourceRegister(instr.mad.GetSrc3(is_inverted),
                                           is_inverted * instr.mad.address_register_index);
-                src3 += "." + GetSelectorSrc3(swizzle);
+                src3 += GetSelectorSrc3(swizzle);
 
                 std::string dest_reg =
                     (instr.mad.dest.Value() < 0x10)
@@ -608,7 +617,7 @@ private:
                               : "";
 
                 if (sanitize_mul) {
-                    SetDest(swizzle, dest_reg, "sanitize_mul(" + src1 + ", " + src2 + ") + " + src3,
+                    SetDest(swizzle, dest_reg, "mul_safe(" + src1 + ", " + src2 + ") + " + src3,
                             4, 4);
                 } else {
                     SetDest(swizzle, dest_reg, src1 + " * " + src2 + " + " + src3, 4, 4);
@@ -785,21 +794,36 @@ private:
     }
 
     void Generate() {
+        std::string mul_safe{"#define mul_safe(x, y) (x * y)"};
+        std::string rcp_safe{"#define rcp_safe(x) (1.0f / x)"};
+        std::string rsq_safe{"#define rsq_safe(x) inversesqrt(x)"};
         if (sanitize_mul == 1) {
             // Use a cheaper sanitize_mul on Android, as mobile GPUs struggle here
             // This seems to be sufficient at least for Ocarina of Time and Attack on Titan accurate
             // multiplication bugs
-            shader.AddLine(
-                    "#define sanitize_mul(lhs, rhs) mix(lhs * rhs, vec4(0.0), isnan(lhs * rhs))");
-        } else if(sanitize_mul == 2) {
-            shader.AddLine("vec4 sanitize_mul(vec4 lhs, vec4 rhs) {");
-            ++shader.scope;
-            shader.AddLine("vec4 product = lhs * rhs;");
-            shader.AddLine("return mix(product, mix(mix(vec4(0.0), product, isnan(rhs)), product, "
-                           "isnan(lhs)), isnan(product));");
-            --shader.scope;
-            shader.AddLine("}\n");
+            mul_safe = "#define mul_safe(x, y) mix(x * y, vec4(0.0), isnan(x * y))";
+        } if (sanitize_mul == 2) {
+            // On the PICA200, "infinity * 0 = 0" but in OpenGL "infinity * 0 = NaN"
+            // infinity = 1.0 / 0.0;
+            mul_safe = "#define mul_safe(x, y) mix(x * y, vec4(0.0), isnan(x * y))";
+            // rcp_safe = "#define rcp_safe(x) mix(1.0f / x, 0.0f, x == 0.0f)";
+            // rsq_safe = "#define rsq_safe(x) mix(inversesqrt(x), 0.0f, x == 0.0f)";
+            rcp_safe = R"(
+float rcp_safe(float x) {
+    if (x == 0.0f) return x;
+    return 1.0f / x;
+}
+)";
+            rsq_safe = R"(
+float rsq_safe(float x) {
+    if (x == 0.0f) return x;
+    return inversesqrt(x);
+}
+)";
         }
+        shader.AddLine(mul_safe);
+        shader.AddLine(rcp_safe);
+        shader.AddLine(rsq_safe);
 
         // Add declarations for registers
         shader.AddLine("bvec2 conditional_code = bvec2(false);");
@@ -903,8 +927,7 @@ bool exec_shader();
 std::optional<ProgramResult> DecompileProgram(const Pica::Shader::ProgramCode& program_code,
                                               const Pica::Shader::SwizzleData& swizzle_data,
                                               u32 main_offset, const RegGetter& inputreg_getter,
-                                              const RegGetter& outputreg_getter,
-                                              u8 sanitize_mul) {
+                                              const RegGetter& outputreg_getter, u8 sanitize_mul) {
 
     try {
         auto subroutines = ControlFlowAnalyzer(program_code, main_offset).MoveSubroutines();

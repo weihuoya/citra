@@ -111,8 +111,9 @@ public class RunningSettingDialog extends DialogFragment {
         public static final int SETTING_USE_LINEAR_FILTER = 3;
         public static final int SETTING_SCALE_FACTOR = 4;
         public static final int SETTING_SCREEN_LAYOUT = 5;
-        public static final int SETTING_CUSTOM_LAYOUT = 6;
-        public static final int SETTING_FRAME_LIMIT = 7;
+        public static final int SETTING_ACCURATE_MUL = 6;
+        public static final int SETTING_CUSTOM_LAYOUT = 7;
+        public static final int SETTING_FRAME_LIMIT = 8;
 
         // pref
         public static final int SETTING_JOYSTICK_RELATIVE = 100;
@@ -382,6 +383,7 @@ public class RunningSettingDialog extends DialogFragment {
                 radio2.setText(R.string.large_screen_option);
 
                 RadioButton radio3 = mRadioGroup.findViewById(R.id.radio3);
+                radio3.setVisibility(View.VISIBLE);
                 radio3.setText(R.string.side_screen_option);
             } else if (item.getSetting() == SettingsItem.SETTING_SCALE_FACTOR) {
                 RadioButton radio0 = mRadioGroup.findViewById(R.id.radio0);
@@ -394,6 +396,7 @@ public class RunningSettingDialog extends DialogFragment {
                 radio2.setText("×3");
 
                 RadioButton radio3 = mRadioGroup.findViewById(R.id.radio3);
+                radio3.setVisibility(View.VISIBLE);
                 radio3.setText("×4");
             } else if (item.getSetting() == SettingsItem.SETTING_TRANSLATE_LANGUAGE) {
                 RadioButton radio0 = mRadioGroup.findViewById(R.id.radio0);
@@ -406,6 +409,7 @@ public class RunningSettingDialog extends DialogFragment {
                 radio2.setText(R.string.translate_language_eng);
 
                 RadioButton radio3 = mRadioGroup.findViewById(R.id.radio3);
+                radio3.setVisibility(View.VISIBLE);
                 radio3.setText(R.string.translate_language_kor);
             } else if (item.getSetting() == SettingsItem.SETTING_TRANSLATE_SERVICE) {
                 RadioButton radio0 = mRadioGroup.findViewById(R.id.radio0);
@@ -418,7 +422,20 @@ public class RunningSettingDialog extends DialogFragment {
                 radio2.setText(R.string.translate_service_youdao);
 
                 RadioButton radio3 = mRadioGroup.findViewById(R.id.radio3);
+                radio3.setVisibility(View.VISIBLE);
                 radio3.setText(R.string.translate_service_yeekit);
+            } else if (item.getSetting() == SettingsItem.SETTING_ACCURATE_MUL) {
+                RadioButton radio0 = mRadioGroup.findViewById(R.id.radio0);
+                radio0.setText(R.string.accurate_mul_off);
+
+                RadioButton radio1 = mRadioGroup.findViewById(R.id.radio1);
+                radio1.setText(R.string.accurate_mul_fast);
+
+                RadioButton radio2 = mRadioGroup.findViewById(R.id.radio2);
+                radio2.setText(R.string.accurate_mul_accurate);
+
+                RadioButton radio3 = mRadioGroup.findViewById(R.id.radio3);
+                radio3.setVisibility(View.INVISIBLE);
             }
         }
 
@@ -622,6 +639,9 @@ public class RunningSettingDialog extends DialogFragment {
                     mRunningSettings[i++]));
             mSettings.add(new SettingsItem(SettingsItem.SETTING_SCREEN_LAYOUT,
                     R.string.running_layout, SettingsItem.TYPE_RADIO_GROUP,
+                    mRunningSettings[i++]));
+            mSettings.add(new SettingsItem(SettingsItem.SETTING_ACCURATE_MUL,
+                    R.string.running_accurate_mul, SettingsItem.TYPE_RADIO_GROUP,
                     mRunningSettings[i++]));
             mSettings.add(new SettingsItem(SettingsItem.SETTING_CUSTOM_LAYOUT,
                     R.string.running_custom_layout,

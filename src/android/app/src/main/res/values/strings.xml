@@ -172,6 +172,7 @@
     <string name="running_frame_limit">Speed Limit</string>
     <string name="running_resolution">Resolution</string>
     <string name="running_custom_layout">Use Custom Layout</string>
+    <string name="running_accurate_mul">Accurate Mul</string>
     <string name="running_layout">Layout</string>
     <string name="single_screen_option">Single</string>
     <string name="large_screen_option">Large</string>
@@ -211,7 +212,8 @@
     <string name="region_korea">Korea</string>
     <string name="region_taiwan">Taiwan</string>
 
-    <string name="emulation_info">File Support: .CCI, .CXI, .3DS, .3DSX</string>
+    <string name="game_emulation_info">File Support: .CCI, .CXI, .3DS, .3DSX</string>
+    <string name="application_emulation_info">Application will be installed in "citra-emu/sdmc"</string>
     <string name="toggle_list">Toggle List</string>
     <string name="installed_app">(Installed: %1$s)</string>
     <string name="delete_app_sdmc">Delete Archive Directory</string>

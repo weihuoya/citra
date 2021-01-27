@@ -14,8 +14,17 @@
         android:layout_alignParentTop="true" />
 
     <TextView
-        android:id="@+id/emulation_info"
-        android:text="@string/emulation_info"
+        android:id="@+id/game_emulation_info"
+        android:text="@string/game_emulation_info"
+        android:visibility="invisible"
+        android:textAlignment="center"
+        android:layout_centerInParent="true"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"/>
+
+    <TextView
+        android:id="@+id/app_emulation_info"
+        android:text="@string/application_emulation_info"
         android:visibility="invisible"
         android:textAlignment="center"
         android:layout_centerInParent="true"
@@ -27,7 +36,20 @@
         android:text="@string/add_directory_title"
         android:visibility="invisible"
         android:layout_centerHorizontal="true"
-        android:layout_below="@id/emulation_info"
+        android:layout_below="@id/game_emulation_info"
+        android:textAllCaps="false"
+        android:padding="18dp"
+        style="@style/Widget.AppCompat.Button.Colored"
+        android:stateListAnimator="@null"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"/>
+
+    <Button
+        android:id="@+id/btn_install_file"
+        android:text="@string/grid_menu_install_cia"
+        android:visibility="invisible"
+        android:layout_centerHorizontal="true"
+        android:layout_below="@id/app_emulation_info"
         android:textAllCaps="false"
         android:padding="18dp"
         style="@style/Widget.AppCompat.Button.Colored"

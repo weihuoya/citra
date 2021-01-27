@@ -224,7 +224,7 @@ static void LoadOverrides(u64 title_id) {
         }
     }
 
-    const std::array<u64, 40> accurate_mul_ids = {
+    const std::array<u64, 43> accurate_mul_ids = {
         0x0004000000134500, // Attack on Titan
         0x00040000000DF800, // Attack on Titan
         0x0004000000152000, // Attack on Titan
@@ -265,6 +265,9 @@ static void LoadOverrides(u64 title_id) {
         0x0004000000055F00, // Luigi's Mansion: Dark Moon
         0x0004000000076500, // Luigi's Mansion: Dark Moon
         0x00040000000AFC00, // Digimon World Re:Digitize Decode
+        0x0004000000125600, // The Legend of Zelda: Majoras Mask 3D
+        0x0004000000125500, // The Legend of Zelda: Majoras Mask 3D
+        0x00040000000D6E00, // The Legend of Zelda: Majoras Mask 3D
     };
     for (auto id : accurate_mul_ids) {
         if (title_id == id) {

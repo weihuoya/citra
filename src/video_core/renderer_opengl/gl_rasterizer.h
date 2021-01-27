@@ -269,6 +269,8 @@ private:
 
     std::vector<HardwareVertex> vertex_batch;
 
+    bool is_mali_gpu;
+
     bool shader_dirty;
 
     struct {

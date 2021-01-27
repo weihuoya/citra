@@ -172,6 +172,7 @@
     <string name="running_frame_limit">速度限制</string>
     <string name="running_resolution">分辨率</string>
     <string name="running_custom_layout">启用自定义布局</string>
+    <string name="running_accurate_mul">精确乘法</string>
     <string name="running_layout">布局</string>
     <string name="single_screen_option">单屏</string>
     <string name="large_screen_option">大屏</string>
@@ -211,7 +212,8 @@
     <string name="region_korea">韩国</string>
     <string name="region_taiwan">台湾</string>
 
-    <string name="emulation_info">文件支持：.CCI，.CXI，.3DS，.3DSX</string>
+    <string name="game_emulation_info">文件支持：.CCI，.CXI，.3DS，.3DSX</string>
+    <string name="application_emulation_info">应用将被安装到“citra-emu/sdmc”目录</string>
     <string name="toggle_list">切换列表</string>
     <string name="installed_app">(已安装：%1$s)</string>
     <string name="delete_app_sdmc">删除存档目录</string>
