@@ -86,14 +86,10 @@
     <!-- Audio Output Preference -->
     <string-array name="audioOuputEntries">
         <item>@string/off</item>
-        <item>@string/auto</item>
-        <item>Oboe</item>
         <item>Cubeb</item>
     </string-array>
     <string-array name="audioOuputValues">
         <item>null</item>
-        <item>auto</item>
-        <item>oboe</item>
         <item>cubeb</item>
     </string-array>
 

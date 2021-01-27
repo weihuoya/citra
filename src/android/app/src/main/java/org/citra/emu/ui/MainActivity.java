@@ -9,6 +9,7 @@ import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.graphics.drawable.Drawable;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -54,16 +55,98 @@ public final class MainActivity extends AppCompatActivity {
 
     public static final String PREF_LIST_TYPE = "list_type";
 
+    private class RefreshTask extends AsyncTask<String, GameFile, Void> {
+        @Override
+        protected Void doInBackground(String... args) {
+            String root = args[0];
+            final String SDMC = "citra-emu/sdmc/Nintendo 3DS";
+            List<File> dirs = new ArrayList<>();
+            dirs.add(new File(root));
+            while (dirs.size() > 0) {
+                File dir = dirs.get(0);
+                File[] files = dir.listFiles();
+                dirs.remove(0);
+                if (files != null) {
+                    for (File f : files) {
+                        if (f.isDirectory()) {
+                            dirs.add(f);
+                        } else if (NativeLibrary.isValidFile(f.getName())) {
+                            String path = f.getPath();
+                            if (NativeLibrary.IsAppExecutable(path)) {
+                                GameFile game = new GameFile(path, path.contains(SDMC));
+                                publishProgress(game);
+                            }
+                        }
+                    }
+                }
+            }
+            return null;
+        }
+
+        @Override
+        protected void onPreExecute() {
+            super.onPreExecute();
+            ShowEmulationInfo(false);
+            mProgressBar.setVisibility(View.VISIBLE);
+        }
+
+        @Override
+        protected void onProgressUpdate(GameFile... args) {
+            super.onProgressUpdate(args);
+
+            GameFile game = args[0];
+            String path = game.getPath();
+            for (int i = 0; i < mInstalledGames.size(); ++i) {
+                if (mInstalledGames.get(i).getPath().equals(path)) {
+                    return;
+                }
+            }
+
+            mInstalledGames.add(game);
+            mInstalledGames.sort((GameFile x, GameFile y) -> {
+                if (x.isInstalledApp()) {
+                    if (y.isInstalledApp()) {
+                        return x.getName().compareTo(y.getName());
+                    } else {
+                        return -1;
+                    }
+                } else if (y.isInstalledApp()) {
+                    return 1;
+                } else {
+                    return x.getName().compareTo(y.getName());
+                }
+            });
+
+            if (mIsListApp) {
+                mAdapter.setGameList(mInstalledGames);
+                mProgressBar.setVisibility(View.INVISIBLE);
+            }
+        }
+
+        @Override
+        protected void onPostExecute(Void args) {
+            super.onPostExecute(args);
+            if (mInstalledGames.size() == 0) {
+                ShowEmulationInfo(true);
+            }
+            mProgressBar.setVisibility(View.INVISIBLE);
+        }
+    }
+
     private static WeakReference<MainActivity> sInstance = new WeakReference<>(null);
-    private List<GameFile> mGames;
     private String mDirToAdd;
     private String[] mFilesToAdd;
     private GameAdapter mAdapter;
     private ProgressBar mProgressBar;
-    private TextView mEmulationInfo;
+    private TextView mGameEmulationInfo;
+    private TextView mAppEmulationInfo;
     private RecyclerView mGameListView;
     private Button mBtnAddFiles;
+    private Button mBtnInstallFile;
     private boolean mIsListApp;
+
+    private List<GameFile> mGames;
+    private List<GameFile> mInstalledGames;
 
     public static MainActivity get() {
         return sInstance.get();
@@ -79,12 +162,15 @@ public final class MainActivity extends AppCompatActivity {
         setSupportActionBar(toolbar);
 
         mProgressBar = findViewById(R.id.progress_bar);
-        mEmulationInfo = findViewById(R.id.emulation_info);
+        mGameEmulationInfo = findViewById(R.id.game_emulation_info);
+        mAppEmulationInfo = findViewById(R.id.app_emulation_info);
         mBtnAddFiles = findViewById(R.id.btn_add_files);
         mBtnAddFiles.setClickable(true);
         mBtnAddFiles.setOnClickListener(view -> FileBrowserHelper.openDirectoryPicker(this));
+        mBtnInstallFile = findViewById(R.id.btn_install_file);
+        mBtnInstallFile.setClickable(true);
+        mBtnInstallFile.setOnClickListener(view -> FileBrowserHelper.openFilePicker(this, REQUEST_OPEN_FILE));
 
-        mGames = new ArrayList<>();
         mAdapter = new GameAdapter();
         mGameListView = findViewById(R.id.grid_games);
         mGameListView.setAdapter(mAdapter);
@@ -156,10 +242,7 @@ public final class MainActivity extends AppCompatActivity {
     protected void onResume() {
         super.onResume();
         if (mDirToAdd != null) {
-            if (mIsListApp) {
-                mIsListApp = false;
-                loadGameList();
-            }
+            mIsListApp = false;
             addGamesInDirectory(mDirToAdd);
             mDirToAdd = null;
             saveGameList();
@@ -177,10 +260,6 @@ public final class MainActivity extends AppCompatActivity {
             final String[] files = filelist.toArray(new String[0]);
             new Thread(() -> NativeLibrary.InstallCIA(files)).start();
         }
-
-        if (mIsListApp) {
-            refreshLibrary();
-        }
     }
 
     @Override
@@ -189,7 +268,7 @@ public final class MainActivity extends AppCompatActivity {
 
         SharedPreferences.Editor editor = PreferenceManager.getDefaultSharedPreferences(this).edit();
         editor.putBoolean(PREF_LIST_TYPE, mIsListApp);
-        editor.apply();
+        editor.commit();
 
         sInstance = new WeakReference<>(null);
     }
@@ -246,18 +325,35 @@ public final class MainActivity extends AppCompatActivity {
 
     public void showGameList() {
         if (mIsListApp) {
-            mGames.clear();
-            addGamesInDirectoryRecursively(DirectoryInitialization.getSDMCDirectory());
+            if (mInstalledGames == null) {
+                mInstalledGames = new ArrayList<>();
+                mAdapter.setGameList(mInstalledGames);
+                new RefreshTask().execute(DirectoryInitialization.getSDMCDirectory());
+            } else {
+                if (mInstalledGames.size() > 0) {
+                    mAdapter.setGameList(mInstalledGames);
+                    ShowEmulationInfo(false);
+                } else {
+                    ShowEmulationInfo(true);
+                }
+            }
         } else {
-            loadGameList();
+            if (mGames == null) {
+                mGames = new ArrayList<>();
+                loadGameList();
+            }
+            if (mGames.size() > 0) {
+                mAdapter.setGameList(mGames);
+                ShowEmulationInfo(false);
+            } else {
+                ShowEmulationInfo(true);
+            }
         }
-        showGames();
     }
 
     public void refreshLibrary() {
         if (mIsListApp) {
-            mGames.clear();
-            addGamesInDirectoryRecursively(DirectoryInitialization.getSDMCDirectory());
+            new RefreshTask().execute(DirectoryInitialization.getSDMCDirectory());
         } else {
             List<String> dirs = new ArrayList<>();
             for (int i = mGames.size(); i > 0; --i) {
@@ -280,8 +376,8 @@ public final class MainActivity extends AppCompatActivity {
                 addGamesInDirectory(dir);
             }
             saveGameList();
+            showGames();
         }
-        showGames();
     }
 
     public void addGamesInDirectory(String directory) {
@@ -309,28 +405,6 @@ public final class MainActivity extends AppCompatActivity {
         }
     }
 
-    public void addGamesInDirectoryRecursively(String root) {
-        List<File> dirs = new ArrayList<>();
-        dirs.add(new File(root));
-        while (dirs.size() > 0) {
-            File dir = dirs.get(0);
-            File[] files = dir.listFiles();
-            dirs.remove(0);
-            if (files != null) {
-                for (File f : files) {
-                    if (f.isDirectory()) {
-                        dirs.add(f);
-                    } else if (NativeLibrary.isValidFile(f.getName())) {
-                        String path = f.getPath();
-                        if (NativeLibrary.IsAppExecutable(path)) {
-                            mGames.add(new GameFile(path, path.contains("citra-emu/sdmc/Nintendo 3DS")));
-                        }
-                    }
-                }
-            }
-        }
-    }
-
     public void loadGameList() {
         String content = "";
         File cache = getGameListCache();
@@ -354,11 +428,9 @@ public final class MainActivity extends AppCompatActivity {
     }
 
     public void saveGameList() {
-        if (mIsListApp) {
-            return;
-        }
-
         StringBuilder sb = new StringBuilder();
+
+        mGames.sort((GameFile x, GameFile y) -> x.getName().compareTo(y.getName()));
         for (GameFile game : mGames) {
             sb.append(game.getPath());
             sb.append(";");
@@ -388,12 +460,8 @@ public final class MainActivity extends AppCompatActivity {
             if (total == 0) {
                 if (written == 0) {
                     Toast.makeText(this, "Install Success!", Toast.LENGTH_LONG).show();
-                    if (mIsListApp) {
-                        refreshLibrary();
-                    } else if (mGames.size() == 0) {
-                        mIsListApp = true;
-                        showGameList();
-                    }
+                    mIsListApp = true;
+                    refreshLibrary();
                 } else {
                     Toast.makeText(this, "Error: " + name, Toast.LENGTH_LONG).show();
                 }
@@ -403,32 +471,35 @@ public final class MainActivity extends AppCompatActivity {
 
     public void showGames() {
         if (mIsListApp) {
-            mGames.sort((GameFile x, GameFile y) -> {
-                if (x.isInstalledApp()) {
-                    if (y.isInstalledApp()) {
-                        return x.getName().compareTo(y.getName());
-                    } else {
-                        return -1;
-                    }
-                } else if (y.isInstalledApp()) {
-                    return 1;
-                } else {
-                    return x.getName().compareTo(y.getName());
-                }
-            });
+            if (mInstalledGames.size() > 0) {
+                mAdapter.setGameList(mInstalledGames);
+                ShowEmulationInfo(false);
+            } else {
+                ShowEmulationInfo(true);
+            }
         } else {
-            mGames.sort((GameFile x, GameFile y) -> x.getName().compareTo(y.getName()));
+            if (mGames.size() > 0) {
+                mAdapter.setGameList(mGames);
+                ShowEmulationInfo(false);
+            } else {
+                ShowEmulationInfo(true);
+            }
         }
+    }
 
-        if (mGames.size() > 0) {
-            mEmulationInfo.setVisibility(View.INVISIBLE);
+    public void ShowEmulationInfo(boolean visible) {
+        if (visible) {
+            mAppEmulationInfo.setVisibility(mIsListApp ? View.VISIBLE : View.INVISIBLE);
+            mBtnInstallFile.setVisibility(mIsListApp ? View.VISIBLE : View.INVISIBLE);
+            mGameEmulationInfo.setVisibility(mIsListApp ? View.INVISIBLE : View.VISIBLE);
+            mBtnAddFiles.setVisibility(mIsListApp ? View.INVISIBLE : View.VISIBLE);
+            mGameListView.setVisibility(View.INVISIBLE);
+        } else {
+            mAppEmulationInfo.setVisibility(View.INVISIBLE);
+            mBtnInstallFile.setVisibility(View.INVISIBLE);
+            mGameEmulationInfo.setVisibility(View.INVISIBLE);
             mBtnAddFiles.setVisibility(View.INVISIBLE);
             mGameListView.setVisibility(View.VISIBLE);
-            mAdapter.setGameList(mGames);
-        } else {
-            mEmulationInfo.setVisibility(View.VISIBLE);
-            mBtnAddFiles.setVisibility(View.VISIBLE);
-            mGameListView.setVisibility(View.INVISIBLE);
         }
     }
 

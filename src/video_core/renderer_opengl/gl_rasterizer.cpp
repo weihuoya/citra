@@ -45,11 +45,12 @@ static bool IsVendorMali() {
 }
 
 RasterizerOpenGL::RasterizerOpenGL()
-    : shader_dirty(true), vertex_buffer(GL_ARRAY_BUFFER, VERTEX_BUFFER_SIZE),
+    : is_mali_gpu(IsVendorMali()), shader_dirty(true),
+      vertex_buffer(GL_ARRAY_BUFFER, VERTEX_BUFFER_SIZE),
       uniform_buffer(GL_UNIFORM_BUFFER, UNIFORM_BUFFER_SIZE),
       index_buffer(GL_ELEMENT_ARRAY_BUFFER, INDEX_BUFFER_SIZE),
-      texture_buffer(GL_TEXTURE_BUFFER, IsVendorMali() ? 11264 : TEXTURE_BUFFER_SIZE),
-      texture_lf_buffer(GL_TEXTURE_BUFFER, IsVendorMali() ? 525312 : TEXTURE_BUFFER_SIZE) {
+      texture_buffer(GL_TEXTURE_BUFFER, is_mali_gpu ? 11264 : TEXTURE_BUFFER_SIZE),
+      texture_lf_buffer(GL_TEXTURE_BUFFER, is_mali_gpu ? 525312 : TEXTURE_BUFFER_SIZE) {
 
     AllowShadow = (GLAD_GL_ARB_shader_image_load_store && GLAD_GL_ARB_shader_image_size &&
                    GLAD_GL_ARB_framebuffer_no_attachments) ||
@@ -614,9 +615,14 @@ bool RasterizerOpenGL::Draw(bool accelerate, bool is_indexed) {
                                        0);
             }
         } else {
-            // clear both depth and stencil attachment
-            glFramebufferTexture2D(GL_DRAW_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_TEXTURE_2D,
-                                   0, 0);
+            if (is_mali_gpu) {
+                state.depth.test_enabled = false;
+                state.depth.write_mask = GL_FALSE;
+            } else {
+                // clear both depth and stencil attachment
+                glFramebufferTexture2D(GL_DRAW_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT,
+                                       GL_TEXTURE_2D, 0, 0);
+            }
         }
     }
 
@@ -645,7 +651,8 @@ bool RasterizerOpenGL::Draw(bool accelerate, bool is_indexed) {
         uniform_block_data.dirty = true;
     }
 
-    auto CheckTextureBarrier = [&color_surface](GLuint& texture, const Surface& surface, GLuint nop) {
+    auto CheckTextureBarrier = [&color_surface](GLuint& texture, const Surface& surface,
+                                                GLuint nop) {
         if (surface != nullptr) {
             if (color_surface && color_surface->texture.handle == surface->texture.handle) {
                 texture = surface->GetTextureCopyHandle();
@@ -670,7 +677,8 @@ bool RasterizerOpenGL::Draw(bool accelerate, bool is_indexed) {
                     if (!AllowShadow)
                         continue;
                     Surface surface = res_cache.GetTextureSurface(texture);
-                    state.image_shadow_texture_px = surface != nullptr ? surface->texture.handle : 0;
+                    state.image_shadow_texture_px =
+                        surface != nullptr ? surface->texture.handle : 0;
                     continue;
                 }
                 case TextureType::ShadowCube: {
@@ -684,33 +692,38 @@ bool RasterizerOpenGL::Draw(bool accelerate, bool is_indexed) {
                     info.physical_address =
                         regs.texturing.GetCubePhysicalAddress(CubeFace::PositiveX);
                     surface = res_cache.GetTextureSurface(info);
-                    state.image_shadow_texture_px = surface != nullptr ? surface->texture.handle : 0;
+                    state.image_shadow_texture_px =
+                        surface != nullptr ? surface->texture.handle : 0;
 
                     info.physical_address =
                         regs.texturing.GetCubePhysicalAddress(CubeFace::NegativeX);
                     surface = res_cache.GetTextureSurface(info);
-                    state.image_shadow_texture_nx = surface != nullptr ? surface->texture.handle : 0;
+                    state.image_shadow_texture_nx =
+                        surface != nullptr ? surface->texture.handle : 0;
 
                     info.physical_address =
                         regs.texturing.GetCubePhysicalAddress(CubeFace::PositiveY);
                     surface = res_cache.GetTextureSurface(info);
-                    state.image_shadow_texture_py = surface != nullptr ? surface->texture.handle : 0;
+                    state.image_shadow_texture_py =
+                        surface != nullptr ? surface->texture.handle : 0;
 
                     info.physical_address =
                         regs.texturing.GetCubePhysicalAddress(CubeFace::NegativeY);
                     surface = res_cache.GetTextureSurface(info);
-                    state.image_shadow_texture_ny = surface != nullptr ? surface->texture.handle : 0;
+                    state.image_shadow_texture_ny =
+                        surface != nullptr ? surface->texture.handle : 0;
 
                     info.physical_address =
                         regs.texturing.GetCubePhysicalAddress(CubeFace::PositiveZ);
                     surface = res_cache.GetTextureSurface(info);
-                    state.image_shadow_texture_pz = surface != nullptr ? surface->texture.handle : 0;
+                    state.image_shadow_texture_pz =
+                        surface != nullptr ? surface->texture.handle : 0;
 
                     info.physical_address =
                         regs.texturing.GetCubePhysicalAddress(CubeFace::NegativeZ);
                     surface = res_cache.GetTextureSurface(info);
-                    state.image_shadow_texture_nz = surface != nullptr ? surface->texture.handle : 0;
-
+                    state.image_shadow_texture_nz =
+                        surface != nullptr ? surface->texture.handle : 0;
                     continue;
                 }
                 case TextureType::TextureCube:
@@ -744,7 +757,8 @@ bool RasterizerOpenGL::Draw(bool accelerate, bool is_indexed) {
             // the geometry in question.
             // For example: a bug in Pokemon X/Y causes NULL-texture squares to be drawn
             // on the male character's face, which in the OpenGL default appear black.
-            CheckTextureBarrier(state.texture_units[texture_index].texture_2d, surface, texture_null.handle);
+            CheckTextureBarrier(state.texture_units[texture_index].texture_2d, surface,
+                                texture_null.handle);
         } else {
             state.texture_units[texture_index].texture_2d = 0;
         }
@@ -1441,8 +1455,8 @@ void RasterizerOpenGL::SamplerInfo::SyncWithConfig(const TextureConfig& config) 
     GLuint s = sampler.handle;
 
     using TextureFilter = Pica::TexturingRegs::TextureConfig::TextureFilter;
-    bool use_linear_filter = Settings::values.use_linear_filter &&
-            config.mag_filter == TextureFilter::Nearest;
+    bool use_linear_filter =
+        Settings::values.use_linear_filter && config.mag_filter == TextureFilter::Nearest;
 
     if (!use_linear_filter) {
         if (mag_filter != config.mag_filter) {

@@ -51,7 +51,11 @@ public final class GameFile {
 
     public String getName() {
         if (mName == null) {
-            mName = sTitleDB.get(getId());
+            String id = getId();
+            mName = sTitleDB.get(id);
+            if (mName == null) {
+                mName = sTitleDB.get("00040000" + id.substring(8));
+            }
             if (mName == null) {
                 mName = NativeLibrary.GetAppTitle(mPath);
             }
