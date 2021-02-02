@@ -1841,7 +1841,6 @@ layout (std140) uniform vs_config {
 static std::string GetGSCommonSource(const PicaGSConfigCommonRaw& config, bool separable_shader) {
     std::string out = GetVertexInterfaceDeclaration(true, separable_shader);
     out += UniformBlockDef;
-    out += ShaderDecompiler::GetCommonDeclarations();
 
     out += '\n';
     for (u32 i = 0; i < config.vs_output_attributes; ++i) {

@@ -19,6 +19,7 @@
 #include "common/bit_field.h"
 #include "common/color.h"
 #include "common/logging/log.h"
+#include "common/hash.h"
 #include "common/math_util.h"
 #include "common/microprofile.h"
 #include "common/scope_exit.h"
@@ -43,6 +44,12 @@ namespace OpenGL {
 using SurfaceType = SurfaceParams::SurfaceType;
 using PixelFormat = SurfaceParams::PixelFormat;
 
+struct FormatTuple {
+    GLint internal_format;
+    GLenum format;
+    GLenum type;
+};
+
 static constexpr std::array<FormatTuple, 5> fb_format_tuples = {{
     {GL_RGBA8, GL_RGBA, GL_UNSIGNED_INT_8_8_8_8},     // RGBA8
     {GL_RGB8, GL_BGR, GL_UNSIGNED_BYTE},              // RGB8
@@ -61,6 +68,15 @@ static constexpr std::array<FormatTuple, 5> fb_format_tuples_oes = {{
     {GL_RGB565, GL_RGB, GL_UNSIGNED_SHORT_5_6_5},     // RGB565
     {GL_RGBA4, GL_RGBA, GL_UNSIGNED_SHORT_4_4_4_4},   // RGBA4
 }};
+
+static constexpr std::array<FormatTuple, 4> depth_format_tuples = {{
+   {GL_DEPTH_COMPONENT16, GL_DEPTH_COMPONENT, GL_UNSIGNED_SHORT}, // D16
+   {},
+   {GL_DEPTH24_STENCIL8, GL_DEPTH_STENCIL, GL_UNSIGNED_INT_24_8},   // D24
+   {GL_DEPTH24_STENCIL8, GL_DEPTH_STENCIL, GL_UNSIGNED_INT_24_8}, // D24S8
+}};
+
+constexpr FormatTuple tex_tuple = {GL_RGBA8, GL_RGBA, GL_UNSIGNED_BYTE};
 
 static u16 g_resolution_scale_factor;
 static OGLFramebuffer read_framebuffer;
@@ -584,7 +600,8 @@ void CachedSurface::FlushGLBuffer(PAddr flush_start, PAddr flush_end) {
     }
 }
 
-const Core::CustomTexInfo* CachedSurface::LoadCustomTexture(u64 tex_hash, Common::Rectangle<u32>& custom_rect) {
+const Core::CustomTexInfo* CachedSurface::LoadCustomTexture(u64 tex_hash,
+                                                            Common::Rectangle<u32>& custom_rect) {
     const Core::CustomTexInfo* tex_info = nullptr;
     auto& custom_tex_cache = Core::System::GetInstance().CustomTexCache();
 
@@ -1194,7 +1211,8 @@ Surface RasterizerCacheOpenGL::GetTextureSurface(const Pica::Texture::TextureInf
 }
 
 const CachedTextureCube& RasterizerCacheOpenGL::GetTextureCube(const TextureCubeConfig& config) {
-    auto& cube = texture_cube_cache[config];
+    auto hash_key = Common::ComputeHash64(&config, sizeof(config));
+    auto& cube = texture_cube_cache[hash_key];
 
     struct Face {
         Face(std::shared_ptr<SurfaceWatcher>& watcher, PAddr address, GLenum gl_face)
@@ -1301,43 +1319,46 @@ SurfaceSurfaceRect_Tuple RasterizerCacheOpenGL::GetFramebufferSurfaces(
 
     SurfaceParams depth_params = color_params;
 
-    color_params.addr = config.GetColorBufferPhysicalAddress();
-    color_params.pixel_format = SurfaceParams::PixelFormatFromColorFormat(config.color_format);
-    color_params.UpdateParams();
-
-    depth_params.addr = config.GetDepthBufferPhysicalAddress();
-    depth_params.pixel_format = SurfaceParams::PixelFormatFromDepthFormat(config.depth_format);
-    depth_params.UpdateParams();
-
-    auto color_vp_interval = color_params.GetSubRectInterval(viewport_clamped);
-    auto depth_vp_interval = depth_params.GetSubRectInterval(viewport_clamped);
-
-    Common::Rectangle<u32> color_rect{};
-    Surface color_surface = nullptr;
-    if (using_color_fb) {
-        std::tie(color_surface, color_rect) =
-            GetSurfaceSubRect(color_params, ScaleMatch::Exact, false);
-
-        // Make sure that framebuffers don't overlap if both color and depth are being used
-        if (using_depth_fb && boost::icl::length(color_vp_interval & depth_vp_interval)) {
-            LOG_CRITICAL(Render_OpenGL, "Color and depth framebuffer memory regions overlap; overlapping framebuffers not supported!");
-            using_depth_fb = false;
-        }
-    }
+    SurfaceInterval color_vp_interval;
+    SurfaceInterval depth_vp_interval;
 
     Common::Rectangle<u32> depth_rect{};
     Surface depth_surface = nullptr;
     if (using_depth_fb) {
+        depth_params.addr = config.GetDepthBufferPhysicalAddress();
+        depth_params.pixel_format = SurfaceParams::PixelFormatFromDepthFormat(config.depth_format);
+        depth_params.UpdateParams();
+        depth_vp_interval = depth_params.GetSubRectInterval(viewport_clamped);
+
         std::tie(depth_surface, depth_rect) =
-            GetSurfaceSubRect(depth_params, ScaleMatch::Exact, false);
+                GetSurfaceSubRect(depth_params, ScaleMatch::Exact, false);
+    }
+
+    Common::Rectangle<u32> color_rect{};
+    Surface color_surface = nullptr;
+    if (using_color_fb) {
+        color_params.addr = config.GetColorBufferPhysicalAddress();
+        color_params.pixel_format = SurfaceParams::PixelFormatFromColorFormat(config.color_format);
+        color_params.UpdateParams();
+        color_vp_interval = color_params.GetSubRectInterval(viewport_clamped);
+        if (depth_surface && depth_rect.bottom > 0) {
+            SurfaceParams new_params = color_params;
+            new_params.height = depth_rect.top;
+            new_params.UpdateParams();
+            std::tie(color_surface, color_rect) =
+                    GetSurfaceSubRect(new_params, ScaleMatch::Exact, false);
+            color_rect.bottom += depth_rect.bottom;
+        } else {
+            std::tie(color_surface, color_rect) =
+                    GetSurfaceSubRect(color_params, ScaleMatch::Exact, false);
+        }
     }
 
     Common::Rectangle<u32> fb_rect{};
     if (color_surface != nullptr && depth_surface != nullptr) {
         fb_rect = color_rect;
         // Color and Depth surfaces must have the same dimensions and offsets
-        if (color_rect.bottom != depth_rect.bottom || color_rect.top != depth_rect.top ||
-            color_rect.left != depth_rect.left || color_rect.right != depth_rect.right) {
+        if (color_rect != depth_rect) {
             color_surface = GetSurface(color_params, ScaleMatch::Exact, false);
             depth_surface = GetSurface(depth_params, ScaleMatch::Exact, false);
             fb_rect = color_surface->GetScaledRect();

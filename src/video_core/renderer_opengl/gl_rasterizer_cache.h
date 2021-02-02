@@ -33,47 +33,6 @@
 namespace OpenGL {
 
 class FormatReinterpreterOpenGL;
-struct TextureCubeConfig {
-    PAddr px;
-    PAddr nx;
-    PAddr py;
-    PAddr ny;
-    PAddr pz;
-    PAddr nz;
-    u32 width;
-    Pica::TexturingRegs::TextureFormat format;
-
-    bool operator==(const TextureCubeConfig& rhs) const {
-        return std::tie(px, nx, py, ny, pz, nz, width, format) ==
-               std::tie(rhs.px, rhs.nx, rhs.py, rhs.ny, rhs.pz, rhs.nz, rhs.width, rhs.format);
-    }
-
-    bool operator!=(const TextureCubeConfig& rhs) const {
-        return !(*this == rhs);
-    }
-};
-
-} // namespace OpenGL
-
-namespace std {
-template <>
-struct hash<OpenGL::TextureCubeConfig> {
-    std::size_t operator()(const OpenGL::TextureCubeConfig& config) const {
-        std::size_t hash = 0;
-        boost::hash_combine(hash, config.px);
-        boost::hash_combine(hash, config.nx);
-        boost::hash_combine(hash, config.py);
-        boost::hash_combine(hash, config.ny);
-        boost::hash_combine(hash, config.pz);
-        boost::hash_combine(hash, config.nz);
-        boost::hash_combine(hash, config.width);
-        boost::hash_combine(hash, static_cast<u32>(config.format));
-        return hash;
-    }
-};
-} // namespace std
-
-namespace OpenGL {
 
 using SurfaceSet = std::set<Surface>;
 
@@ -92,12 +51,21 @@ static_assert(std::is_same<SurfaceRegions::interval_type, SurfaceCache::interval
 using SurfaceRect_Tuple = std::tuple<Surface, Common::Rectangle<u32>>;
 using SurfaceSurfaceRect_Tuple = std::tuple<Surface, Surface, Common::Rectangle<u32>>;
 
-using PageMap = boost::icl::interval_map<u32, int>;
-
 enum class ScaleMatch {
     Exact,   // only accept same res scale
     Upscale, // only allow higher scale than params
     Ignore   // accept every scaled res
+};
+
+struct TextureCubeConfig {
+    PAddr px;
+    PAddr nx;
+    PAddr py;
+    PAddr ny;
+    PAddr pz;
+    PAddr nz;
+    u32 width;
+    Pica::TexturingRegs::TextureFormat format;
 };
 
 /**
@@ -230,23 +198,6 @@ struct CachedTextureCube {
     std::shared_ptr<SurfaceWatcher> nz;
 };
 
-struct FormatTuple {
-    GLint internal_format;
-    GLenum format;
-    GLenum type;
-};
-
-constexpr FormatTuple tex_tuple = {GL_RGBA8, GL_RGBA, GL_UNSIGNED_BYTE};
-
-const FormatTuple& GetFormatTuple(SurfaceParams::PixelFormat pixel_format);
-
-static constexpr std::array<FormatTuple, 4> depth_format_tuples = {{
-    {GL_DEPTH_COMPONENT16, GL_DEPTH_COMPONENT, GL_UNSIGNED_SHORT}, // D16
-    {},
-    {GL_DEPTH_COMPONENT24, GL_DEPTH_COMPONENT, GL_UNSIGNED_INT},   // D24
-    {GL_DEPTH24_STENCIL8, GL_DEPTH_STENCIL, GL_UNSIGNED_INT_24_8}, // D24S8
-}};
-
 class RasterizerCacheOpenGL : NonCopyable {
 public:
     RasterizerCacheOpenGL();
@@ -332,12 +283,14 @@ private:
     constexpr static u32 CLEAN_FRAME_INTERVAL = 60 * 60;
     u32 last_clean_frame = 0;
 
+    using PageMap = boost::icl::interval_map<u32, int>;
+
     SurfaceCache surface_cache;
     PageMap cached_pages;
     SurfaceMap dirty_regions;
     SurfaceSet remove_surfaces;
 
-    std::unordered_map<TextureCubeConfig, CachedTextureCube> texture_cube_cache;
+    std::unordered_map<u64, CachedTextureCube> texture_cube_cache;
     std::unique_ptr<FormatReinterpreterOpenGL> format_reinterpreter;
 };
 } // namespace OpenGL
