@@ -39,6 +39,12 @@ struct Rectangle {
         return Rectangle{left, top, static_cast<T>(left + GetWidth() * s),
                          static_cast<T>(top + GetHeight() * s)};
     }
+    bool operator==(const Rectangle<T>& other) const {
+        return left == other.left && top == other.top && right == other.right && bottom == other.bottom;
+    }
+    bool operator!=(const Rectangle<T>& other) const {
+        return left != other.left || top != other.top || right != other.right || bottom != other.bottom;
+    }
 };
 
 template <typename T>

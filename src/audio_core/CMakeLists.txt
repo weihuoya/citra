@@ -66,12 +66,10 @@ endif()
 
 if(ANDROID)
     target_sources(audio_core PRIVATE
-        oboe_sink.cpp
-        oboe_sink.h
         hle/mediandk_decoder.cpp
         hle/mediandk_decoder.h
     )
-    target_link_libraries(audio_core PRIVATE mediandk oboe)
+    target_link_libraries(audio_core PRIVATE mediandk)
 endif()
 
 if(SDL2_FOUND)

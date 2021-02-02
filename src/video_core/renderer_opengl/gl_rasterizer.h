@@ -298,6 +298,13 @@ private:
     OGLVertexArray hw_vao; // VAO for hardware shader / accelerate draw
     std::array<bool, 16> hw_vao_enabled_attributes{};
 
+    struct {
+        GLuint color_attachment;
+        GLuint depth_attachment;
+        u32 width;
+        u32 height;
+    } framebuffer_info{};
+
     std::array<SamplerInfo, 3> texture_samplers;
     OGLStreamBuffer vertex_buffer;
     OGLStreamBuffer uniform_buffer;
