@@ -802,7 +802,7 @@ private:
             // This seems to be sufficient at least for Ocarina of Time and Attack on Titan accurate
             // multiplication bugs
             mul_safe = "#define mul_safe(x, y) mix(x * y, vec4(0.0), isnan(x * y))";
-        } if (sanitize_mul == 2) {
+        } else if (sanitize_mul == 2) {
             // On the PICA200, "infinity * 0 = 0" but in OpenGL "infinity * 0 = NaN"
             // infinity = 1.0 / 0.0;
             mul_safe = "#define mul_safe(x, y) mix(x * y, vec4(0.0), isnan(x * y))";

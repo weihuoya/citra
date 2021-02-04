@@ -99,16 +99,14 @@ public:
         // Recreate the FBO for the render target
         frame->render.Release();
         frame->render.Create();
-        GLuint prev_read_buffer = OpenGLState::BindReadFramebuffer(frame->render.handle);
-        GLuint prev_draw_buffer = OpenGLState::BindDrawFramebuffer(frame->render.handle);
+        OpenGLState::BindReadFramebuffer(frame->render.handle);
+        OpenGLState::BindDrawFramebuffer(frame->render.handle);
         glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_RENDERBUFFER,
                                   frame->color.handle);
         if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE) {
             LOG_CRITICAL(Render_OpenGL, "Failed to recreate render FBO!");
         }
         OpenGLState::BindRenderbuffer(prev_render_buffer);
-        OpenGLState::BindReadFramebuffer(prev_read_buffer);
-        OpenGLState::BindDrawFramebuffer(prev_draw_buffer);
         frame->width = width;
         frame->height = height;
         frame->color_reloaded = true;
@@ -422,8 +420,8 @@ void RendererOpenGL::RenderScreenshot() {
         // Draw this frame to the screenshot framebuffer
         OGLFramebuffer screenshot_framebuffer;
         screenshot_framebuffer.Create();
-        GLuint old_read_fb = OpenGLState::BindReadFramebuffer(screenshot_framebuffer.handle);
-        GLuint old_draw_fb = OpenGLState::BindDrawFramebuffer(screenshot_framebuffer.handle);
+        OpenGLState::BindReadFramebuffer(screenshot_framebuffer.handle);
+        OpenGLState::BindDrawFramebuffer(screenshot_framebuffer.handle);
 
         const Layout::FramebufferLayout& layout = render_window.GetFramebufferLayout();
         GLuint renderbuffer;
@@ -440,8 +438,6 @@ void RendererOpenGL::RenderScreenshot() {
         FlipPixels(pixels.data(), layout.width, layout.height);
 
         screenshot_framebuffer.Release();
-        OpenGLState::BindReadFramebuffer(old_read_fb);
-        OpenGLState::BindDrawFramebuffer(old_draw_fb);
         glDeleteRenderbuffers(1, &renderbuffer);
         VideoCore::g_screenshot_complete_callback(layout.width, layout.height, pixels);
         VideoCore::g_screenshot_complete_callback = nullptr;
@@ -708,6 +704,14 @@ void RendererOpenGL::InitOpenGLObjects() {
 
     // init
     OSD::Initialize();
+    if (!Settings::values.use_hw_shader) {
+        OSD::AddMessage("HW Shader Off", OSD::MessageType::HWShader, OSD::Duration::NORMAL,
+                        OSD::Color::YELLOW);
+    }
+    if (!Settings::values.use_cpu_jit) {
+        OSD::AddMessage("CPU JIT Off", OSD::MessageType::CPUJit, OSD::Duration::NORMAL,
+                        OSD::Color::YELLOW);
+    }
 
     OpenGLState::BindTexture2D(0, 0);
 }

@@ -42,10 +42,6 @@ public:
     // Getter/setter functions:
     // ------------------------
 
-    f32 GetCurrentFPS() const {
-        return m_current_fps;
-    }
-
     u32 GetCurrentFrame() const {
         return m_current_frame;
     }
@@ -67,8 +63,7 @@ public:
 protected:
     Frontend::EmuWindow& render_window; ///< Reference to the render window handle.
     std::unique_ptr<VideoCore::RasterizerInterface> rasterizer;
-    f32 m_current_fps = 0.0f; ///< Current framerate, should be set by the renderer
-    u32 m_current_frame = 0;  ///< Current frame, should be set by the renderer
+    u32 m_current_frame = 0; ///< Current frame, should be set by the renderer
 
 private:
     bool opengl_rasterizer_active = false;

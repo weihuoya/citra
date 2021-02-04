@@ -151,10 +151,8 @@ struct CachedSurface : SurfaceParams, std::enable_shared_from_this<CachedSurface
     const Core::CustomTexInfo* LoadCustomTexture(u64 tex_hash, Common::Rectangle<u32>& custom_rect);
 
     // Upload/Download data in gl_buffer in/to this surface's texture
-    void UploadGLTexture(const Common::Rectangle<u32>& rect, GLuint read_fb_handle,
-                         GLuint draw_fb_handle);
-    void DownloadGLTexture(const Common::Rectangle<u32>& rect, GLuint read_fb_handle,
-                           GLuint draw_fb_handle);
+    void UploadGLTexture(const Common::Rectangle<u32>& rect);
+    void DownloadGLTexture(const Common::Rectangle<u32>& rect);
 
     void DumpToFile();
     GLuint GetTextureCopyHandle();
@@ -247,7 +245,11 @@ public:
     void FlushAll();
 
     /// Handle any config changes
-    void CheckForConfigChanges();
+    void RecycleSurfaceUpdate();
+
+    u16 GetScaleFactor() const;
+
+    void SetScaleFactor(u16 scale);
 
 private:
     void DuplicateSurface(const Surface& src_surface, const Surface& dest_surface);
@@ -282,6 +284,8 @@ private:
     // clean surface cache
     constexpr static u32 CLEAN_FRAME_INTERVAL = 60 * 60;
     u32 last_clean_frame = 0;
+
+    u16 resolution_scale_factor = 1;
 
     using PageMap = boost::icl::interval_map<u32, int>;
 
