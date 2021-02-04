@@ -231,6 +231,9 @@ public final class MainActivity extends AppCompatActivity {
             return true;
 
         case R.id.menu_refresh:
+            if (mIsListApp) {
+                mInstalledGames.clear();
+            }
             refreshLibrary();
             return true;
         }
@@ -459,9 +462,7 @@ public final class MainActivity extends AppCompatActivity {
             mProgressBar.setVisibility(View.INVISIBLE);
             if (total == 0) {
                 if (written == 0) {
-                    Toast.makeText(this, "Install Success!", Toast.LENGTH_LONG).show();
-                    mIsListApp = true;
-                    refreshLibrary();
+                    Toast.makeText(this, getString(R.string.cia_install_success), Toast.LENGTH_LONG).show();
                 } else {
                     Toast.makeText(this, "Error: " + name, Toast.LENGTH_LONG).show();
                 }

@@ -136,7 +136,7 @@ public:
             pipeline.Create();
         } else if (Settings::values.use_shader_cache) {
             if (LoadProgramCache()) {
-                OSD::AddMessage("Shader Cache Loaded!", OSD::MessageType::LOAD_SHADER_CACHE,
+                OSD::AddMessage("Load Shader Cache", OSD::MessageType::ShaderCache,
                                 OSD::Duration::NORMAL, OSD::Color::YELLOW);
             }
         }

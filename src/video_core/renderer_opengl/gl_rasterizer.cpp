@@ -447,7 +447,13 @@ bool RasterizerOpenGL::AccelerateDrawBatch(bool is_indexed) {
 }
 
 void RasterizerOpenGL::CheckForConfigChanges() {
-    res_cache.CheckForConfigChanges();
+    u16 scale_factor = VideoCore::GetResolutionScaleFactor();
+    if (res_cache.GetScaleFactor() != scale_factor) {
+        framebuffer_info = {};
+        res_cache.SetScaleFactor(scale_factor);
+    } else {
+        res_cache.RecycleSurfaceUpdate();
+    }
 }
 
 static GLenum GetCurrentPrimitiveMode() {
@@ -691,14 +697,18 @@ bool RasterizerOpenGL::Draw(bool accelerate, bool is_indexed) {
         framebuffer_info.depth_attachment = 0;
         framebuffer_info.width = 0;
         framebuffer_info.height = 0;
-        glFramebufferParameteri(GL_DRAW_FRAMEBUFFER, GL_FRAMEBUFFER_DEFAULT_WIDTH, framebuffer_info.width);
-        glFramebufferParameteri(GL_DRAW_FRAMEBUFFER, GL_FRAMEBUFFER_DEFAULT_HEIGHT, framebuffer_info.height);
+        glFramebufferParameteri(GL_DRAW_FRAMEBUFFER, GL_FRAMEBUFFER_DEFAULT_WIDTH,
+                                color_surface->GetScaledWidth());
+        glFramebufferParameteri(GL_DRAW_FRAMEBUFFER, GL_FRAMEBUFFER_DEFAULT_HEIGHT,
+                                color_surface->GetScaledHeight());
         glFramebufferTexture2D(GL_DRAW_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, 0, 0);
-        glFramebufferTexture2D(GL_DRAW_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_TEXTURE_2D, 0, 0);
+        glFramebufferTexture2D(GL_DRAW_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_TEXTURE_2D, 0,
+                               0);
         state.image_shadow_buffer = color_surface->texture.handle;
     } else {
         if (framebuffer_info.color_attachment != color_attachment) {
-            glFramebufferTexture2D(GL_DRAW_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, color_attachment, 0);
+            glFramebufferTexture2D(GL_DRAW_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D,
+                                   color_attachment, 0);
             framebuffer_info.color_attachment = color_attachment;
         }
         if (depth_surface != nullptr) {
@@ -713,17 +723,21 @@ bool RasterizerOpenGL::Draw(bool accelerate, bool is_indexed) {
                 }
             } else if (framebuffer_info.depth_attachment != depth_surface->texture.handle) {
                 // attach depth
-                glFramebufferTexture2D(GL_DRAW_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, depth_surface->texture.handle, 0);
+                glFramebufferTexture2D(GL_DRAW_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D,
+                                       depth_surface->texture.handle, 0);
                 // clear stencil attachment
-                glFramebufferTexture2D(GL_DRAW_FRAMEBUFFER, GL_STENCIL_ATTACHMENT, GL_TEXTURE_2D, 0, 0);
+                glFramebufferTexture2D(GL_DRAW_FRAMEBUFFER, GL_STENCIL_ATTACHMENT, GL_TEXTURE_2D, 0,
+                                       0);
                 framebuffer_info.depth_attachment = depth_surface->texture.handle;
                 framebuffer_info.width = depth_surface->width;
                 framebuffer_info.height = depth_surface->height;
             }
         } else if (framebuffer_info.depth_attachment != 0) {
-            if (framebuffer_info.width < surfaces_rect.right || framebuffer_info.height < surfaces_rect.top) {
+            if (framebuffer_info.width < surfaces_rect.right ||
+                framebuffer_info.height < surfaces_rect.top) {
                 // clear both depth and stencil attachment
-                glFramebufferTexture2D(GL_DRAW_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_TEXTURE_2D, 0, 0);
+                glFramebufferTexture2D(GL_DRAW_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT,
+                                       GL_TEXTURE_2D, 0, 0);
                 framebuffer_info.depth_attachment = 0;
                 framebuffer_info.width = 0;
                 framebuffer_info.height = 0;
