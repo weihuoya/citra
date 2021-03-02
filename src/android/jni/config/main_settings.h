@@ -55,6 +55,8 @@ extern const ConfigInfo<std::string> CAMERA_DEVICE;
 extern const ConfigInfo<bool> ALLOW_SHADOW;
 extern const ConfigInfo<u8> SHADER_TYPE;
 extern const ConfigInfo<bool> USE_PRESENT_THREAD;
+extern const ConfigInfo<bool> CPU_USAGE_LIMIT;
+extern const ConfigInfo<std::string> LLE_MODULES;
 extern const ConfigInfo<std::string> BAIDU_OCR_KEY;
 extern const ConfigInfo<std::string> BAIDU_OCR_SECRET;
 

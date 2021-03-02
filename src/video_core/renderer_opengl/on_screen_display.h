@@ -18,6 +18,7 @@ enum class MessageType {
     Typeless,
     HWShader,
     CPUJit,
+    New3DS,
 };
 
 namespace Color {

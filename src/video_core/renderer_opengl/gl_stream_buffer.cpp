@@ -51,7 +51,12 @@ std::tuple<u8*, GLintptr, bool> OGLStreamBuffer::Map(GLsizeiptr size, GLintptr a
 
 void OGLStreamBuffer::Unmap(GLsizeiptr size) {
     if (size > 0) {
-        glFlushMappedBufferRange(gl_target, buffer_pos, size);
+        // flush is relative to the start of the currently mapped range of buffer
+        glFlushMappedBufferRange(gl_target, 0, size);
+        GLenum error = glGetError();
+        if (error != GL_NO_ERROR) {
+            LOG_DEBUG(Render_OpenGL, "flush mapped buffer range error: {:04X}, target: {:04X}, offset: {}, size: {}, total: {}", error, gl_target, buffer_pos, size, buffer_size);
+        }
     }
     glUnmapBuffer(gl_target);
     buffer_pos += size;

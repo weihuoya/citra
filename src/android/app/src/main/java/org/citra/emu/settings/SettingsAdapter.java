@@ -285,6 +285,10 @@ public final class SettingsAdapter extends RecyclerView.Adapter<SettingViewHolde
                 mActivity.setSettingChanged();
 
             StringSetting setting = scSetting.setSelectedValue(value);
+            if (scSetting.getSetting().getKey().equals(SettingsFile.KEY_CAMERA_TYPE) &&
+                    "camera".equals(value)) {
+                PermissionsHandler.checkCameraPermission(mActivity);
+            }
             if (setting != null) {
                 mActivity.putSetting(setting);
             }

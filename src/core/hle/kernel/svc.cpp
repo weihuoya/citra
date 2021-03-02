@@ -183,7 +183,6 @@ private:
     };
 
     static const FunctionDef SVC_Table[];
-    static const FunctionDef* GetSVCInfo(u32 func_num);
 };
 
 /// Map application or GSP heap memory
@@ -298,8 +297,7 @@ void SVC::ExitProcess() {
 
     // Kill the current thread
     kernel.GetCurrentThreadManager().GetCurrentThread()->Stop();
-
-    system.PrepareReschedule();
+    kernel.PrepareReschedule();
 }
 
 /// Maps a memory block to specified address
@@ -386,7 +384,7 @@ ResultCode SVC::SendSyncRequest(Handle handle) {
 
     LOG_TRACE(Kernel_SVC, "called handle=0x{:08X}({})", handle, session->GetName());
 
-    system.PrepareReschedule();
+    kernel.PrepareReschedule();
 
     auto thread = SharedFrom(kernel.GetCurrentThreadManager().GetCurrentThread());
 
@@ -482,7 +480,7 @@ ResultCode SVC::WaitSynchronization1(Handle handle, s64 nano_seconds) {
 
         thread->wakeup_callback = std::make_shared<SVC_SyncCallback>(false);
 
-        system.PrepareReschedule();
+        kernel.PrepareReschedule();
 
         // Note: The output of this SVC will be set to RESULT_SUCCESS if the thread
         // resumes due to a signal in its wait objects.
@@ -557,7 +555,7 @@ ResultCode SVC::WaitSynchronizationN(s32* out, VAddr handles_address, s32 handle
 
         thread->wakeup_callback = std::make_shared<SVC_SyncCallback>(false);
 
-        system.PrepareReschedule();
+        kernel.PrepareReschedule();
 
         // This value gets set to -1 by default in this case, it is not modified after this.
         *out = -1;
@@ -604,7 +602,7 @@ ResultCode SVC::WaitSynchronizationN(s32* out, VAddr handles_address, s32 handle
 
         thread->wakeup_callback = std::make_shared<SVC_SyncCallback>(true);
 
-        system.PrepareReschedule();
+        kernel.PrepareReschedule();
 
         // Note: The output of this SVC will be set to RESULT_SUCCESS if the thread resumes due to a
         // signal in one of its wait objects.
@@ -746,7 +744,7 @@ ResultCode SVC::ReplyAndReceive(s32* index, VAddr handles_address, s32 handle_co
 
     thread->wakeup_callback = std::make_shared<SVC_IPCCallback>(system);
 
-    system.PrepareReschedule();
+    kernel.PrepareReschedule();
 
     // Note: The output of this SVC will be set to RESULT_SUCCESS if the thread resumes due to a
     // signal in one of its wait objects, or to 0xC8A01836 if there was a translation error.
@@ -922,7 +920,7 @@ ResultCode SVC::CreateThread(Handle* out_handle, u32 entry_point, u32 arg, VAddr
 
     CASCADE_RESULT(*out_handle, current_process->handle_table.Create(std::move(thread)));
 
-    system.PrepareReschedule();
+    kernel.PrepareReschedule();
 
     LOG_TRACE(Kernel_SVC,
               "called entrypoint=0x{:08X} ({}), arg=0x{:08X}, stacktop=0x{:08X}, "
@@ -934,10 +932,10 @@ ResultCode SVC::CreateThread(Handle* out_handle, u32 entry_point, u32 arg, VAddr
 
 /// Called when a thread exits
 void SVC::ExitThread() {
-    LOG_TRACE(Kernel_SVC, "called, pc=0x{:08X}", system.GetRunningCore().GetPC());
+    LOG_TRACE(Kernel_SVC, "called, pc=0x{:08X}", kernel.GetRunningCore().GetPC());
 
     kernel.GetCurrentThreadManager().ExitCurrentThread();
-    system.PrepareReschedule();
+    kernel.PrepareReschedule();
 }
 
 /// Gets the priority for the specified thread
@@ -975,14 +973,14 @@ ResultCode SVC::SetThreadPriority(Handle handle, u32 priority) {
     for (auto& mutex : thread->pending_mutexes)
         mutex->UpdatePriority();
 
-    system.PrepareReschedule();
+    kernel.PrepareReschedule();
     return RESULT_SUCCESS;
 }
 
 /// Create a mutex
 ResultCode SVC::CreateMutex(Handle* out_handle, u32 initial_locked) {
     std::shared_ptr<Mutex> mutex = kernel.CreateMutex(initial_locked != 0);
-    mutex->name = fmt::format("mutex-{:08x}", system.GetRunningCore().GetReg(14));
+    mutex->name = fmt::format("mutex-{:08x}", kernel.GetRunningCore().GetReg(14));
     CASCADE_RESULT(*out_handle, kernel.GetCurrentProcess()->handle_table.Create(std::move(mutex)));
 
     LOG_TRACE(Kernel_SVC, "called initial_locked={} : created handle=0x{:08X}",
@@ -1049,7 +1047,7 @@ ResultCode SVC::GetThreadId(u32* thread_id, Handle handle) {
 ResultCode SVC::CreateSemaphore(Handle* out_handle, s32 initial_count, s32 max_count) {
     CASCADE_RESULT(std::shared_ptr<Semaphore> semaphore,
                    kernel.CreateSemaphore(initial_count, max_count));
-    semaphore->name = fmt::format("semaphore-{:08x}", system.GetRunningCore().GetReg(14));
+    semaphore->name = fmt::format("semaphore-{:08x}", kernel.GetRunningCore().GetReg(14));
     CASCADE_RESULT(*out_handle,
                    kernel.GetCurrentProcess()->handle_table.Create(std::move(semaphore)));
 
@@ -1121,7 +1119,7 @@ ResultCode SVC::QueryMemory(MemoryInfo* memory_info, PageInfo* page_info, u32 ad
 ResultCode SVC::CreateEvent(Handle* out_handle, u32 reset_type) {
     std::shared_ptr<Event> evt =
         kernel.CreateEvent(static_cast<ResetType>(reset_type),
-                           fmt::format("event-{:08x}", system.GetRunningCore().GetReg(14)));
+                           fmt::format("event-{:08x}", kernel.GetRunningCore().GetReg(14)));
     CASCADE_RESULT(*out_handle, kernel.GetCurrentProcess()->handle_table.Create(std::move(evt)));
 
     LOG_TRACE(Kernel_SVC, "called reset_type=0x{:08X} : created handle=0x{:08X}", reset_type,
@@ -1165,7 +1163,7 @@ ResultCode SVC::ClearEvent(Handle handle) {
 ResultCode SVC::CreateTimer(Handle* out_handle, u32 reset_type) {
     std::shared_ptr<Timer> timer =
         kernel.CreateTimer(static_cast<ResetType>(reset_type),
-                           fmt ::format("timer-{:08x}", system.GetRunningCore().GetReg(14)));
+                           fmt ::format("timer-{:08x}", kernel.GetRunningCore().GetReg(14)));
     CASCADE_RESULT(*out_handle, kernel.GetCurrentProcess()->handle_table.Create(std::move(timer)));
 
     LOG_TRACE(Kernel_SVC, "called reset_type=0x{:08X} : created handle=0x{:08X}", reset_type,
@@ -1232,16 +1230,16 @@ void SVC::SleepThread(s64 nanoseconds) {
     // Create an event to wake the thread up after the specified nanosecond delay has passed
     thread_manager.GetCurrentThread()->WakeAfterDelay(nanoseconds);
 
-    system.PrepareReschedule();
+    kernel.PrepareReschedule();
 }
 
 /// This returns the total CPU ticks elapsed since the CPU was powered-on
 s64 SVC::GetSystemTick() {
     // TODO: Use globalTicks here?
-    s64 result = system.GetRunningCore().GetTimer().GetTicks();
+    s64 result = kernel.GetRunningCore().GetTimer().GetTicks();
     // Advance time to defeat dumb games (like Cubic Ninja) that busy-wait for the frame to end.
     // Measured time between two calls on a 9.2 o3DS with Ninjhax 1.1b
-    system.GetRunningCore().GetTimer().AddTicks(150);
+    kernel.GetRunningCore().GetTimer().AddTicks(150);
     return result;
 }
 
@@ -1295,7 +1293,7 @@ ResultCode SVC::CreateMemoryBlock(Handle* out_handle, u32 addr, u32 size, u32 my
                        static_cast<MemoryPermission>(other_permission), addr, region));
     CASCADE_RESULT(*out_handle, current_process->handle_table.Create(std::move(shared_memory)));
 
-    LOG_WARNING(Kernel_SVC, "called addr=0x{:08X}", addr);
+    LOG_WARNING(Kernel_SVC, "SVC::CreateMemoryBlock called addr=0x{:08X}, size={}", addr, size);
     return RESULT_SUCCESS;
 }
 
@@ -1600,43 +1598,35 @@ const SVC::FunctionDef SVC::SVC_Table[] = {
     {0x7D, &SVC::Wrap<&SVC::QueryProcessMemory>, "QueryProcessMemory"},
 };
 
-const SVC::FunctionDef* SVC::GetSVCInfo(u32 func_num) {
-    if (func_num >= ARRAY_SIZE(SVC_Table)) {
-        LOG_ERROR(Kernel_SVC, "unknown svc=0x{:02X}", func_num);
-        return nullptr;
-    }
-    return &SVC_Table[func_num];
-}
-
 MICROPROFILE_DEFINE(Kernel_SVC, "Kernel", "SVC", MP_RGB(70, 200, 70));
 
 void SVC::CallSVC(u32 immediate) {
-    MICROPROFILE_SCOPE(Kernel_SVC);
-
     // Lock the global kernel mutex when we enter the kernel HLE.
     std::lock_guard lock{HLE::g_hle_lock};
 
     DEBUG_ASSERT_MSG(kernel.GetCurrentProcess()->status == ProcessStatus::Running,
                      "Running threads from exiting processes is unimplemented");
 
-    const FunctionDef* info = GetSVCInfo(immediate);
-    if (info) {
-        if (info->func) {
-            (this->*(info->func))();
+    if (immediate < ARRAY_SIZE(SVC_Table)) {
+        const auto& info = SVC_Table[immediate];
+        if (info.func) {
+            (this->*(info.func))();
         } else {
-            LOG_ERROR(Kernel_SVC, "unimplemented SVC function {}(..)", info->name);
+            LOG_ERROR(Kernel_SVC, "unimplemented SVC function {}(..)", info.name);
         }
+    } else {
+        LOG_ERROR(Kernel_SVC, "unknown svc=0x{:02X}", immediate);
     }
 }
 
 SVC::SVC(Core::System& system) : system(system), kernel(system.Kernel()), memory(system.Memory()) {}
 
 u32 SVC::GetReg(std::size_t n) {
-    return system.GetRunningCore().GetReg(static_cast<int>(n));
+    return kernel.GetRunningCore().GetReg(static_cast<int>(n));
 }
 
 void SVC::SetReg(std::size_t n, u32 value) {
-    system.GetRunningCore().SetReg(static_cast<int>(n), value);
+    kernel.GetRunningCore().SetReg(static_cast<int>(n), value);
 }
 
 SVCContext::SVCContext(Core::System& system) : impl(std::make_unique<SVC>(system)) {}

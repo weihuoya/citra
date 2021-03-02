@@ -345,4 +345,9 @@ ResultStatus AppLoader_THREEDSX::ReadIcon(std::vector<u8>& buffer) {
     return ResultStatus::ErrorNotUsed;
 }
 
+ResultStatus AppLoader_THREEDSX::ReadTitle(std::string& title) {
+    title = filename;
+    return ResultStatus::Success;
+}
+
 } // namespace Loader

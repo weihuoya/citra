@@ -117,6 +117,55 @@ void SetFMVHack(bool enable) {
     }
 }
 
+void SetLLEModules(const std::string& modules) {
+    std::size_t first = 0;
+    std::size_t last = 0;
+    std::size_t iter;
+    Settings::values.lle_modules.clear();
+    while (true) {
+        iter = modules.find(',', first);
+        if (iter != std::string::npos) {
+            last = iter - 1;
+        } else if (first < modules.size()) {
+            last = modules.size() - 1;
+        } else {
+            break;
+        }
+
+        // trim spaces
+        while (std::isspace(modules[first])) {
+            if (first < last) {
+                ++first;
+            } else {
+                break;
+            }
+        }
+        while (std::isspace(modules[last])) {
+            if (last > first) {
+                --last;
+            } else {
+                break;
+            }
+        }
+
+        // set module
+        if (last > first) {
+            std::string module_name;
+            for (u32 i = first; i <= last; ++i) {
+                module_name += std::toupper(modules[i]);
+            }
+            Settings::values.lle_modules[module_name] = true;
+        }
+
+        // continue
+        if (iter != std::string::npos) {
+            first = iter + 1;
+        } else {
+            break;
+        }
+    }
+}
+
 void LoadProfile(int index) {
     Settings::values.current_input_profile = Settings::values.input_profiles[index];
     Settings::values.current_input_profile_index = index;

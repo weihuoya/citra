@@ -38,6 +38,8 @@ public:
 
     ResultStatus ReadRomFS(std::shared_ptr<FileSys::RomFSReader>& romfs_file) override;
 
+    ResultStatus ReadTitle(std::string& title) override;
+
 private:
     std::string filename;
     std::string filepath;

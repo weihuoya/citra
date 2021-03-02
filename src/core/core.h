@@ -51,10 +51,6 @@ namespace Cheats {
 class CheatEngine;
 }
 
-namespace VideoCore {
-class RendererBase;
-}
-
 namespace Core {
 
 class Timing;
@@ -101,7 +97,7 @@ public:
      */
     ResultStatus RunLoop();
     ResultStatus RunLoopMultiCores();
-    ResultStatus RunLoopOneCore();
+    ResultStatus RunLoopSingleCore();
 
     /**
      * Step the CPU one instruction
@@ -140,10 +136,8 @@ public:
      * @returns True if the emulated system is powered on, otherwise false.
      */
     bool IsPoweredOn() const {
-        return cpu_cores.size() > 0 &&
-               std::all_of(cpu_cores.begin(), cpu_cores.end(),
+        return std::all_of(cpu_cores.begin(), cpu_cores.end(),
                            [](std::shared_ptr<ARM_Interface> ptr) { return ptr != nullptr; });
-        ;
     }
 
     /**
@@ -154,19 +148,7 @@ public:
         return *telemetry_session;
     }
 
-    /// Prepare the core emulation for a reschedule
-    void PrepareReschedule();
-
     PerfStats::Results GetAndResetPerfStats();
-
-    /**
-     * Gets a reference to the emulated CPU.
-     * @returns A reference to the emulated CPU.
-     */
-
-    ARM_Interface& GetRunningCore() {
-        return *running_core;
-    };
 
     /**
      * Gets a reference to the emulated CPU.
@@ -195,8 +177,6 @@ public:
     AudioCore::DspInterface& DSP() {
         return *dsp_core;
     }
-
-    VideoCore::RendererBase& Renderer();
 
     /**
      * Gets a reference to the service manager.
@@ -246,9 +226,6 @@ public:
     /// Gets a const reference to the custom texture cache system
     const Core::CustomTexCache& CustomTexCache() const;
 
-    /// Handles loading all custom textures from disk into cache.
-    void PreloadCustomTextures();
-
     std::unique_ptr<PerfStats> perf_stats;
 
     void SetStatus(ResultStatus new_status, const char* details = nullptr) {
@@ -292,6 +269,9 @@ public:
     using ScanningCallback = void(bool);
     std::function<ScanningCallback> nfc_scanning_callback;
 
+    ///
+    void SetCpuUsageLimit(bool enabled);
+
 private:
     /**
      * Initialize the emulated system.
@@ -302,21 +282,14 @@ private:
      */
     ResultStatus Init(Frontend::EmuWindow& emu_window, u32 system_mode, u8 n3ds_mode);
 
-    /// Reschedule the core emulation
-    void Reschedule();
-
     /// AppLoader used to load the current executing application
     std::unique_ptr<Loader::AppLoader> app_loader;
 
     /// ARM11 CPU core
-    std::vector<std::shared_ptr<ARM_Interface>> cpu_cores;
-    ARM_Interface* running_core = nullptr;
+    std::array<std::shared_ptr<ARM_Interface>, 4> cpu_cores;
 
     /// DSP core
     std::unique_ptr<AudioCore::DspInterface> dsp_core;
-
-    /// When true, signals that a reschedule should happen
-    bool reschedule_pending = false;
 
     /// Telemetry session for this emulation session
     std::unique_ptr<Core::TelemetrySession> telemetry_session;
@@ -360,7 +333,7 @@ private:
 };
 
 inline ARM_Interface& GetRunningCore() {
-    return System::GetInstance().GetRunningCore();
+    return System::GetInstance().Kernel().GetRunningCore();
 }
 
 inline ARM_Interface& GetCore(u32 core_id) {

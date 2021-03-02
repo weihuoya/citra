@@ -40,7 +40,7 @@ namespace Core {
 System System::s_instance;
 
 System::ResultStatus System::RunLoop() {
-    return cpu_cores.size() > 1 ? RunLoopMultiCores() : RunLoopOneCore();
+    return Settings::values.is_new_3ds ? RunLoopMultiCores() : RunLoopSingleCore();
 }
 
 System::ResultStatus System::RunLoopMultiCores() {
@@ -61,12 +61,11 @@ System::ResultStatus System::RunLoopMultiCores() {
     }
 
     if (max_delay > 0) {
-        running_core = current_core_to_execute;
-        kernel->SetRunningCPU(running_core);
+        kernel->SetRunningCPU(current_core_to_execute);
         if (kernel->GetCurrentThreadManager().GetCurrentThread() == nullptr) {
             LOG_TRACE(Core_ARM11, "Core {} idling", current_core_to_execute->GetID());
             current_core_to_execute->GetTimer().Idle();
-            PrepareReschedule();
+            kernel->PrepareReschedule();
         } else {
             current_core_to_execute->Run();
         }
@@ -82,14 +81,13 @@ System::ResultStatus System::RunLoopMultiCores() {
             cpu_core->GetTimer().Advance(max_slice);
         }
         for (auto& cpu_core : cpu_cores) {
-            running_core = cpu_core.get();
-            kernel->SetRunningCPU(running_core);
+            kernel->SetRunningCPU(cpu_core.get());
             // If we don't have a currently active thread then don't execute instructions,
             // instead advance to the next event and try to yield to the next thread
             if (kernel->GetCurrentThreadManager().GetCurrentThread() == nullptr) {
                 LOG_TRACE(Core_ARM11, "Core {} idling", cpu_core->GetID());
                 cpu_core->GetTimer().Idle();
-                PrepareReschedule();
+                kernel->PrepareReschedule();
             } else {
                 cpu_core->Run();
             }
@@ -98,7 +96,7 @@ System::ResultStatus System::RunLoopMultiCores() {
     }
 
     HW::Update();
-    Reschedule();
+    kernel->RescheduleMultiCores();
 
     if (reset_requested.exchange(false)) {
         Reset();
@@ -109,20 +107,20 @@ System::ResultStatus System::RunLoopMultiCores() {
     return status;
 }
 
-System::ResultStatus System::RunLoopOneCore() {
+System::ResultStatus System::RunLoopSingleCore() {
     // If we don't have a currently active thread then don't execute instructions,
     // instead advance to the next event and try to yield to the next thread
     if (kernel->GetCurrentThreadManager().GetCurrentThread() == nullptr) {
-        running_core->GetTimer().Idle();
-        running_core->GetTimer().Advance();
-        PrepareReschedule();
+        cpu_cores[0]->GetTimer().Idle();
+        cpu_cores[0]->GetTimer().Advance();
+        kernel->PrepareReschedule();
     } else {
-        running_core->GetTimer().Advance();
-        running_core->Run();
+        cpu_cores[0]->GetTimer().Advance();
+        cpu_cores[0]->Run();
     }
 
     HW::Update();
-    Reschedule();
+    kernel->RescheduleSingleCore();
 
     if (reset_requested.exchange(false)) {
         Reset();
@@ -148,10 +146,10 @@ static void LoadOverrides(u64 title_id) {
         Settings::values.skip_slow_draw = true;
     } else if (title_id == 0x00040000001CCD00 || title_id == 0x00040000001B4500) {
         // The Alliance Alive
-        Settings::SetFMVHack(true);
+        Settings::SetFMVHack(!Settings::values.core_downcount_hack);
     } else if (title_id == 0x0004000000120900 || title_id == 0x0004000000164300) {
         // Lord of Magna: Maiden Heaven
-        Settings::SetFMVHack(true);
+        Settings::SetFMVHack(!Settings::values.core_downcount_hack);
     } else if (title_id == 0x000400000015CB00) {
         // New Atelier Rorona
         Settings::values.skip_slow_draw = true;
@@ -181,7 +179,7 @@ static void LoadOverrides(u64 title_id) {
     } else if (title_id == 0x000400000008FE00) {
         // 1001 Spikes [USA]
         Settings::values.stream_buffer_hack = false;
-        Settings::SetFMVHack(true);
+        Settings::SetFMVHack(!Settings::values.core_downcount_hack);
     } else if (title_id == 0x0004000000049100 || title_id == 0x0004000000030400 ||
                title_id == 0x0004000000049000) {
         // Star Fox 64
@@ -189,6 +187,22 @@ static void LoadOverrides(u64 title_id) {
     } else if (title_id == 0x00040000000DCA00) {
         // Danball Senki W Chou Custom
         Settings::values.y2r_perform_hack = true;
+    }
+
+    const std::array<u64, 7> cpu_limit_ids = {
+            0x000400000007C700, // Mario Tennis Open
+            0x000400000007C800, // Mario Tennis Open
+            0x0004000000064D00, // Mario Tennis Open
+            0x00040000000B9100, // Mario Tennis Open
+            0x00040000000DCD00, // Mario Golf: World Tour
+            0x00040000000A5300, // Mario Golf: World Tour
+            0x00040000000DCE00, // Mario Golf: World Tour
+    };
+    for (auto id : cpu_limit_ids) {
+        if (title_id == id) {
+            Settings::values.core_downcount_hack = true;
+            break;
+        }
     }
 
     const std::array<u64, 10> linear_ids = {
@@ -201,6 +215,7 @@ static void LoadOverrides(u64 title_id) {
     for (auto id : linear_ids) {
         if (title_id == id) {
             Settings::values.use_linear_filter = true;
+            break;
         }
     }
 
@@ -221,10 +236,11 @@ static void LoadOverrides(u64 title_id) {
     for (auto id : fifa_ids) {
         if (title_id == id) {
             Settings::values.y2r_event_delay = true;
+            break;
         }
     }
 
-    const std::array<u64, 43> accurate_mul_ids = {
+    const std::array<u64, 49> accurate_mul_ids = {
         0x0004000000134500, // Attack on Titan
         0x00040000000DF800, // Attack on Titan
         0x0004000000152000, // Attack on Titan
@@ -268,14 +284,21 @@ static void LoadOverrides(u64 title_id) {
         0x0004000000125600, // The Legend of Zelda: Majoras Mask 3D
         0x0004000000125500, // The Legend of Zelda: Majoras Mask 3D
         0x00040000000D6E00, // The Legend of Zelda: Majoras Mask 3D
+        0x0004000000154700, // Lego City Undercover
+        0x00040000000AD600, // Lego City Undercover
+        0x00040000000AD500, // Lego City Undercover
+        0x00040000001D1800, // Luigi's Mansion
+        0x00040000001D1A00, // Luigi's Mansion
+        0x00040000001D1900, // Luigi's Mansion
     };
     for (auto id : accurate_mul_ids) {
         if (title_id == id) {
             Settings::values.shaders_accurate_mul = Settings::AccurateMul::FAST;
+            break;
         }
     }
 
-    const std::array<u64, 23> new3ds_game_ids = {
+    const std::array<u64, 30> new3ds_game_ids = {
         0x000400000F700000, // Xenoblade Chronicles 3D [JPN]
         0x000400000F700100, // Xenoblade Chronicles 3D [USA]
         0x000400000F700200, // Xenoblade Chronicles 3D [EUR]
@@ -299,10 +322,18 @@ static void LoadOverrides(u64 title_id) {
         0x00040000001B8700, // Minecraft [USA]
         0x000400000F707F00, // Hyperlight EX [USA]
         0x000400000008FE00, // 1001 Spikes [USA]
+        0x000400000007C700, // Mario Tennis Open
+        0x000400000007C800, // Mario Tennis Open
+        0x0004000000064D00, // Mario Tennis Open
+        0x00040000000B9100, // Mario Tennis Open
+        0x00040000000DCD00, // Mario Golf: World Tour
+        0x00040000000A5300, // Mario Golf: World Tour
+        0x00040000000DCE00, // Mario Golf: World Tour
     };
     for (auto id : new3ds_game_ids) {
         if (title_id == id) {
             Settings::values.is_new_3ds = true;
+            break;
         }
     }
 }
@@ -388,65 +419,41 @@ System::ResultStatus System::Load(Frontend::EmuWindow& emu_window, const std::st
     return status;
 }
 
-void System::PrepareReschedule() {
-    running_core->PrepareReschedule();
-    reschedule_pending = true;
-}
-
 PerfStats::Results System::GetAndResetPerfStats() {
     return perf_stats->GetAndResetStats(timing->GetGlobalTimeUs());
-}
-
-void System::Reschedule() {
-    if (!reschedule_pending) {
-        return;
-    }
-
-    reschedule_pending = false;
-    for (const auto& core : cpu_cores) {
-        LOG_TRACE(Core_ARM11, "Reschedule core {}", core->GetID());
-        kernel->GetThreadManager(core->GetID()).Reschedule();
-    }
 }
 
 System::ResultStatus System::Init(Frontend::EmuWindow& emu_window, u32 system_mode, u8 n3ds_mode) {
     LOG_DEBUG(HW_Memory, "initialized OK");
 
-    u32 num_cores = 1;
-    if (Settings::values.is_new_3ds) {
-        num_cores = 4;
-    }
-
     memory = std::make_unique<Memory::MemorySystem>();
-
-    timing = std::make_unique<Timing>(num_cores);
-
-    kernel = std::make_unique<Kernel::KernelSystem>(
-        *memory, *timing, [this] { PrepareReschedule(); }, system_mode, num_cores, n3ds_mode);
+    timing = std::make_unique<Timing>();
+    kernel = std::make_unique<Kernel::KernelSystem>(*memory, *timing, system_mode, n3ds_mode);
 
     if (Settings::values.use_cpu_jit) {
 #if defined(ARCHITECTURE_x86_64) || defined(ARCHITECTURE_ARM64)
-        for (u32 i = 0; i < num_cores; ++i) {
-            cpu_cores.push_back(
-                std::make_shared<ARM_Dynarmic>(this, *memory, i, timing->GetTimer(i)));
+        for (u32 i = 0; i < 4; ++i) {
+            cpu_cores[i] = std::make_shared<ARM_Dynarmic>(this, i, timing->GetTimer(i));
+            kernel->GetThreadManager(i).SetCPU(cpu_cores[i].get());
         }
 #else
-        for (u32 i = 0; i < num_cores; ++i) {
-            cpu_cores.push_back(
-                std::make_shared<ARM_DynCom>(this, *memory, USER32MODE, i, timing->GetTimer(i)));
+        for (u32 i = 0; i < 4; ++i) {
+            cpu_cores[i] = std::make_shared<ARM_DynCom>(this, i, timing->GetTimer(i));
+            kernel->GetThreadManager(i).SetCPU(cpu_cores[i].get());
         }
         LOG_WARNING(Core, "CPU JIT requested, but Dynarmic not available");
 #endif
     } else {
-        for (u32 i = 0; i < num_cores; ++i) {
-            cpu_cores.push_back(
-                std::make_shared<ARM_DynCom>(this, *memory, USER32MODE, i, timing->GetTimer(i)));
+        for (u32 i = 0; i < 4; ++i) {
+            cpu_cores[i] = std::make_shared<ARM_DynCom>(this, i, timing->GetTimer(i));
+            kernel->GetThreadManager(i).SetCPU(cpu_cores[i].get());
         }
     }
-    running_core = cpu_cores[0].get();
 
-    kernel->SetCPUs(cpu_cores);
     kernel->SetRunningCPU(cpu_cores[0].get());
+    if (Settings::values.core_downcount_hack) {
+        SetCpuUsageLimit(true);
+    }
 
     if (Settings::values.enable_dsp_lle) {
         dsp_core = std::make_unique<AudioCore::DspLle>(*memory,
@@ -484,10 +491,6 @@ System::ResultStatus System::Init(Frontend::EmuWindow& emu_window, u32 system_mo
     }
 
     return ResultStatus::Success;
-}
-
-VideoCore::RendererBase& System::Renderer() {
-    return *VideoCore::g_renderer;
 }
 
 Service::SM::ServiceManager& System::ServiceManager() {
@@ -558,6 +561,19 @@ void System::RegisterImageInterface(std::shared_ptr<Frontend::ImageInterface> im
     registered_image_interface = std::move(image_interface);
 }
 
+void System::SetCpuUsageLimit(bool enabled) {
+    if (enabled) {
+        u32 hacks[4] = {1, 4, 2, 2};
+        for (u32 i = 0; i < 4; ++i) {
+            timing->GetTimer(i)->SetDowncountHack(hacks[i]);
+        }
+    } else {
+        for (u32 i = 0; i < 4; ++i) {
+            timing->GetTimer(i)->SetDowncountHack(0);
+        }
+    }
+}
+
 void System::Shutdown() {
     // Shutdown emulation session
     GDBStub::Shutdown();
@@ -569,16 +585,13 @@ void System::Shutdown() {
     cheat_engine.reset();
     archive_manager.reset();
     service_manager.reset();
-    cpu_cores.clear();
+    cpu_cores = {};
     dsp_core.reset();
     kernel.reset();
     timing.reset();
     memory.reset();
     app_loader.reset();
     custom_tex_cache.reset();
-
-    running_core = nullptr;
-    reschedule_pending = false;
 
     if (auto room_member = Network::GetRoomMember().lock()) {
         Network::GameInfo game_info{};

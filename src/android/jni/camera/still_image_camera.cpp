@@ -6,10 +6,9 @@
 #include "jni_common.h"
 #include "camera/still_image_camera.h"
 
-namespace Camera {
-
-StillImageCamera::StillImageCamera(const std::string& config, const Service::CAM::Flip& flip)
-    : CameraBase(flip) {}
+StillImageCamera::StillImageCamera(const std::string& config, const Service::CAM::Flip& flip) {
+    SetFlip(flip);
+}
 
 StillImageCamera::~StillImageCamera() = default;
 
@@ -31,19 +30,41 @@ void StillImageCamera::StartCapture() {
 }
 
 void StillImageCamera::StopCapture() {
+    // ignore
 }
 
-std::vector<u32>& StillImageCamera::DoReceiveFrame() {
-    return pixels;
+void StillImageCamera::SetFormat(Service::CAM::OutputFormat output_format) {
+    output_rgb = output_format == Service::CAM::OutputFormat::RGB565;
+}
+
+void StillImageCamera::SetResolution(const Service::CAM::Resolution& resolution) {
+    width = resolution.width;
+    height = resolution.height;
+}
+
+void StillImageCamera::SetFlip(Service::CAM::Flip flip) {
+    using namespace Service::CAM;
+    flip_horizontal = basic_flip_horizontal ^ (flip == Flip::Horizontal || flip == Flip::Reverse);
+    flip_vertical = basic_flip_vertical ^ (flip == Flip::Vertical || flip == Flip::Reverse);
+}
+
+void StillImageCamera::SetEffect(Service::CAM::Effect effect) {
+    // ignore
+}
+
+void StillImageCamera::SetFrameRate(Service::CAM::FrameRate frame_rate) {
+    // ignore
+}
+
+std::vector<u16> StillImageCamera::ReceiveFrame() {
+    return CameraUtil::ProcessImage(pixels, width, height, output_rgb, flip_horizontal, flip_vertical);
 }
 
 bool StillImageCamera::IsPreviewAvailable() {
-    return !pixels.empty();
+    return true;
 }
 
-std::unique_ptr<CameraInterface> StillImageCameraFactory::Create(const std::string& config,
+std::unique_ptr<Camera::CameraInterface> StillImageCameraFactory::Create(const std::string& config,
                                                                  const Service::CAM::Flip& flip) {
     return std::make_unique<StillImageCamera>(config, flip);
 }
-
-} // namespace Camera

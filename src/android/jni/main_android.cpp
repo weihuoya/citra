@@ -23,6 +23,7 @@
 #include "video_core/video_core.h"
 
 #include "camera/still_image_camera.h"
+#include "camera/ndk_camera.h"
 #include "config/main_settings.h"
 #include "egl_android.h"
 #include "input_manager.h"
@@ -245,7 +246,8 @@ JNIEXPORT void JNICALL Java_org_citra_emu_NativeLibrary_SetUserPath(JNIEnv* env,
     s_keyboard = std::make_shared<AndroidKeyboard>();
     Core::System::GetInstance().RegisterSoftwareKeyboard(s_keyboard);
     Core::System::GetInstance().RegisterImageInterface(std::make_shared<PNGHandler>());
-    Camera::RegisterFactory("image", std::make_unique<Camera::StillImageCameraFactory>());
+    Camera::RegisterFactory("image", std::make_unique<StillImageCameraFactory>());
+    Camera::RegisterFactory("camera", std::make_unique<NDKCameraFactory>());
 
     // Register real Mic factory
     Frontend::Mic::RegisterRealMicFactory(std::make_unique<AndroidMicFactory>());
@@ -385,6 +387,7 @@ JNIEXPORT void JNICALL Java_org_citra_emu_NativeLibrary_Run(JNIEnv* env, jclass 
     // debug
     Settings::values.allow_shadow = Config::Get(Config::ALLOW_SHADOW);
     Settings::values.use_present_thread = Config::Get(Config::USE_PRESENT_THREAD);
+    Settings::values.core_downcount_hack = Config::Get(Config::CPU_USAGE_LIMIT);
     u8 shaderType = Config::Get(Config::SHADER_TYPE);
     if (shaderType == 0) {
         Settings::values.use_separable_shader = false;
@@ -396,6 +399,7 @@ JNIEXPORT void JNICALL Java_org_citra_emu_NativeLibrary_Run(JNIEnv* env, jclass 
         Settings::values.use_separable_shader = true;
         Settings::values.use_shader_cache = false;
     }
+    Settings::SetLLEModules(Config::Get(Config::LLE_MODULES));
     // custom layout
     Settings::values.custom_layout = Config::Get(Config::USE_CUSTOM_LAYOUT);
     Settings::values.custom_top_left = Config::Get(Config::CUSTOM_TOP_LEFT);

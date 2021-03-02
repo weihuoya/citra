@@ -20,9 +20,8 @@ bool Timing::Event::operator<(const Timing::Event& right) const {
     return std::tie(time, fifo_order) < std::tie(right.time, right.fifo_order);
 }
 
-Timing::Timing(std::size_t num_cores) {
-    timers.resize(num_cores);
-    for (std::size_t i = 0; i < num_cores; ++i) {
+Timing::Timing() {
+    for (u32 i = 0; i < timers.size(); ++i) {
         timers[i] = std::make_shared<Timer>();
     }
     current_timer = timers[0].get();
@@ -128,10 +127,6 @@ void Timing::Timer::AddTicks(u64 ticks) {
     downcount -= ticks;
 }
 
-u64 Timing::Timer::GetIdleTicks() const {
-    return static_cast<u64>(idled_cycles);
-}
-
 void Timing::Timer::ForceExceptionCheck(s64 cycles) {
     cycles = std::max<s64>(0, cycles);
     if (downcount > cycles) {
@@ -181,7 +176,7 @@ void Timing::Timer::Advance(s64 max_slice_length) {
             std::min<s64>(event_queue.front().time - executed_ticks, max_slice_length));
     }
 
-    downcount = slice_length;
+    downcount = slice_length >> downcount_hack;
 }
 
 void Timing::Timer::Idle() {

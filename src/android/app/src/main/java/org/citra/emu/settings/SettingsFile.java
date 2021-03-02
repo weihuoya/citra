@@ -28,6 +28,7 @@ public final class SettingsFile {
     public static final String KEY_SYSTEM_REGION = "region_value";
     public static final String KEY_SYSTEM_LANGUAGE = "language";
     public static final String KEY_USE_PRESENT_THREAD = "use_present_thread";
+    public static final String KEY_CPU_USAGE_LIMIT = "cpu_usage_limit";
     // Renderer
     public static final String KEY_USE_GLES = "use_gles";
     public static final String KEY_SHOW_FPS = "show_fps";

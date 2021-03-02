@@ -156,6 +156,8 @@
     <string name="post_processing_shader">Post-Processing Effect</string>
     <string name="setting_use_present_thread">Use Dual Core</string>
     <string name="setting_use_present_thread_desc">Most games can improve performance by using dual core.</string>
+    <string name="cpu_usage_limit">Enable CPU Usage Limit</string>
+    <string name="cpu_usage_limit_description">When enabled, emulation cpu usage will be limited to a smaller time slice.</string>
     <string name="frame_limit_enable">Enable Speed Limit</string>
     <string name="frame_limit_enable_description">When enabled, emulation speed will be limited to a specified percentage of normal speed.</string>
     <string name="frame_limit_slider">Speed Limit Percent</string>
@@ -197,6 +199,7 @@
 
     <string name="camera_blank">Blank</string>
     <string name="camera_still_image">Still Image</string>
+    <string name="camera_from_device">Use Camera</string>
     <string name="shader_type_normal">Normal Shader</string>
     <string name="shader_type_normal_with_cache">Normal Shader with Cache</string>
     <string name="shader_type_separate">Separate Shader (Unstable)</string>

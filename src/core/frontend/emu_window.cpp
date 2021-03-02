@@ -43,10 +43,6 @@ private:
 };
 
 EmuWindow::EmuWindow() {
-    // TODO: Find a better place to set this.
-    config.min_client_area_size =
-        std::make_pair(Core::kScreenTopWidth, Core::kScreenTopHeight + Core::kScreenBottomHeight);
-    active_config = config;
     touch_state = std::make_shared<TouchState>();
     Input::RegisterFactory<Input::TouchDevice>("emu_window", touch_state);
 }

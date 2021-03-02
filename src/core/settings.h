@@ -196,6 +196,7 @@ struct Values {
     std::unordered_map<std::string, bool> lle_modules;
 
     u32 core_ticks_hack;
+    bool core_downcount_hack;
     bool allow_shadow;
     bool use_separable_shader;
     bool use_shader_cache;
@@ -225,6 +226,7 @@ void Apply();
 void LogSettings();
 
 void SetFMVHack(bool enable);
+void SetLLEModules(const std::string& modules);
 
 // Input profiles
 void LoadProfile(int index);

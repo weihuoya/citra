@@ -267,7 +267,7 @@ void Module::APTInterface::GetSharedFont(Kernel::HLERequestContext& ctx) {
             rb.Push<u32>(-1); // TODO: Find the right error code
             rb.Push<u32>(0);
             rb.PushCopyObjects<Kernel::Object>(nullptr);
-            apt->system.SetStatus(Core::System::ResultStatus::ErrorSystemFiles, "Shared fonts");
+            apt->system.SetStatus(Core::System::ResultStatus::ErrorSystemFiles, "Shared fonts missing");
             return;
         }
     }
