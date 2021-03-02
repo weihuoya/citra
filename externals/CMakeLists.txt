@@ -34,9 +34,11 @@ endif()
 # Glad
 add_subdirectory(glad)
 
-if (ANDROID)
-    add_subdirectory(oboe)
-else()
+# libyuv
+add_subdirectory(libyuv)
+target_include_directories(yuv INTERFACE ./libyuv/include)
+
+if (NOT ANDROID)
     # inih
     add_subdirectory(inih)
 endif()
@@ -51,6 +53,9 @@ target_include_directories(nihstro-headers INTERFACE ./nihstro/include)
 
 # Open Source Archives
 add_subdirectory(open_source_archives)
+
+# lzo compress library
+add_subdirectory(minilzo)
 
 # SoundTouch
 add_subdirectory(soundtouch)

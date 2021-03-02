@@ -20,9 +20,7 @@ class MemorySystem;
 
 class ARM_DynCom final : public ARM_Interface {
 public:
-    explicit ARM_DynCom(Core::System* system, Memory::MemorySystem& memory,
-                        PrivilegeMode initial_mode, u32 id,
-                        std::shared_ptr<Core::Timing::Timer> timer);
+    explicit ARM_DynCom(Core::System* system, u32 id, std::shared_ptr<Core::Timing::Timer> timer);
     ~ARM_DynCom() override;
 
     void Run() override;
@@ -58,6 +56,5 @@ protected:
 private:
     void ExecuteInstructions(u64 num_instructions);
 
-    Core::System* system;
     std::unique_ptr<ARMul_State> state;
 };

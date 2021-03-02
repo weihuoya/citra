@@ -22,10 +22,10 @@ add_library(main SHARED
             ndk_motion.h
             png_handler.h
             png_handler.cpp
-            camera/camera_base.cpp
-            camera/camera_base.h
             camera/camera_util.cpp
             camera/camera_util.h
+            camera/ndk_camera.cpp
+            camera/ndk_camera.h
             camera/still_image_camera.cpp
             camera/still_image_camera.h
             config/config.cpp
@@ -44,5 +44,5 @@ add_library(main SHARED
             config/config_loader.h
             )
 
-target_link_libraries(main android EGL log core input_common network)
+target_link_libraries(main android camera2ndk EGL log core input_common network yuv)
 target_include_directories(main PRIVATE "./" "../../../externals/glad/include/")

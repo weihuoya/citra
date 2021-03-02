@@ -151,9 +151,8 @@ public:
     Memory::MemorySystem& memory;
 };
 
-ARM_Dynarmic::ARM_Dynarmic(Core::System* system, Memory::MemorySystem& memory, u32 id,
-                           std::shared_ptr<Core::Timing::Timer> timer)
-    : ARM_Interface(id, timer), system(*system), memory(memory),
+ARM_Dynarmic::ARM_Dynarmic(Core::System* system, u32 id, std::shared_ptr<Core::Timing::Timer> timer)
+    : ARM_Interface(id, timer), system(*system), memory(system->Memory()),
       cb(std::make_unique<DynarmicUserCallbacks>(*this)) {
     SetPageTable(memory.GetCurrentPageTable());
 }
@@ -287,6 +286,7 @@ void ARM_Dynarmic::ClearInstructionCache() {
 
 void ARM_Dynarmic::InvalidateCacheRange(u32 start_address, std::size_t length) {
     jit->InvalidateCacheRange(start_address, length);
+    LOG_DEBUG(Core_ARM11, "arm jit invalidate cache range");
 }
 
 Memory::PageTable* ARM_Dynarmic::GetPageTable() const {

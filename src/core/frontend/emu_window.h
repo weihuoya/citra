@@ -32,14 +32,6 @@ namespace Frontend {
  */
 class EmuWindow {
 public:
-    /// Data structure to store emuwindow configuration
-    struct WindowConfig {
-        bool fullscreen = false;
-        int res_width = 0;
-        int res_height = 0;
-        std::pair<unsigned, unsigned> min_client_area_size;
-    };
-
     /// Polls window events
     virtual void PollEvents() = 0;
 
@@ -70,25 +62,6 @@ public:
     void TouchMoved(unsigned framebuffer_x, unsigned framebuffer_y);
 
     /**
-     * Returns currently active configuration.
-     * @note Accesses to the returned object need not be consistent because it may be modified in
-     * another thread
-     */
-    const WindowConfig& GetActiveConfig() const {
-        return active_config;
-    }
-
-    /**
-     * Requests the internal configuration to be replaced by the specified argument at some point in
-     * the future.
-     * @note This method is thread-safe, because it delays configuration changes to the GUI event
-     * loop. Hence there is no guarantee on when the requested configuration will be active.
-     */
-    void SetConfig(const WindowConfig& val) {
-        config = val;
-    }
-
-    /**
      * Gets the framebuffer layout (width, height, and screen regions)
      * @note This method is thread-safe
      */
@@ -107,23 +80,6 @@ protected:
     virtual ~EmuWindow();
 
     /**
-     * Processes any pending configuration changes from the last SetConfig call.
-     * This method invokes OnMinimalClientAreaChangeRequest if the corresponding configuration
-     * field changed.
-     * @note Implementations will usually want to call this from the GUI thread.
-     * @todo Actually call this in existing implementations.
-     */
-    void ProcessConfigurationChanges() {
-        // TODO: For proper thread safety, we should eventually implement a proper
-        // multiple-writer/single-reader queue...
-
-        if (config.min_client_area_size != active_config.min_client_area_size) {
-            OnMinimalClientAreaChangeRequest(config.min_client_area_size);
-            active_config.min_client_area_size = config.min_client_area_size;
-        }
-    }
-
-    /**
      * Update framebuffer layout with the given parameter.
      * @note EmuWindow implementations will usually use this in window resize event handlers.
      */
@@ -132,20 +88,8 @@ protected:
     }
 
 private:
-    /**
-     * Handler called when the minimal client area was requested to be changed via SetConfig.
-     * For the request to be honored, EmuWindow implementations will usually reimplement this
-     * function.
-     */
-    virtual void OnMinimalClientAreaChangeRequest(std::pair<u32, u32> minimal_size) {
-        // By default, ignore this request and do nothing.
-    }
 
     Layout::FramebufferLayout framebuffer_layout; ///< Current framebuffer layout
-
-    WindowConfig config;        ///< Internal configuration (changes pending for being applied in
-                                /// ProcessConfigurationChanges)
-    WindowConfig active_config; ///< Internal active configuration
 
     class TouchState;
     std::shared_ptr<TouchState> touch_state;

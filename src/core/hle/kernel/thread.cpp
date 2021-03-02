@@ -13,6 +13,7 @@
 #include "core/arm/arm_interface.h"
 #include "core/arm/skyeye_common/armstate.h"
 #include "core/core.h"
+#include "core/settings.h"
 #include "core/hle/kernel/errors.h"
 #include "core/hle/kernel/handle_table.h"
 #include "core/hle/kernel/kernel.h"
@@ -268,13 +269,13 @@ ResultVal<std::shared_ptr<Thread>> KernelSystem::CreateThread(std::string name, 
     // TODO(yuriks): Other checks, returning 0xD9001BEA
 
     if (!Memory::IsValidVirtualAddress(owner_process, entry_point)) {
-        LOG_ERROR(Kernel_SVC, "(name={}): invalid entry {:08x}", name, entry_point);
+        LOG_ERROR(Kernel_SVC, "(name={}): create thread invalid entry {:08x}", name, entry_point);
         // TODO: Verify error
         return ResultCode(ErrorDescription::InvalidAddress, ErrorModule::Kernel,
                           ErrorSummary::InvalidArgument, ErrorLevel::Permanent);
     }
 
-    if (processor_id >= thread_managers.size()) {
+    if (!Settings::values.is_new_3ds || processor_id >= thread_managers.size()) {
         processor_id = 0;
     }
 
@@ -371,20 +372,19 @@ void Thread::BoostPriority(u32 priority) {
     current_priority = priority;
 }
 
-std::shared_ptr<Thread> SetupMainThread(KernelSystem& kernel, u32 entry_point, u32 priority,
-                                        std::shared_ptr<Process> owner_process) {
+void SetupMainThread(KernelSystem& kernel, u32 entry_point, u32 priority, Process& owner_process) {
     // Initialize new "main" thread
     auto thread_res =
-        kernel.CreateThread("main", entry_point, priority, 0, owner_process->ideal_processor,
-                            Memory::HEAP_VADDR_END, *owner_process);
+        kernel.CreateThread("main", entry_point, priority, 0, owner_process.ideal_processor,
+                            Memory::HEAP_VADDR_END, owner_process);
+    if (thread_res.Failed()) {
+        ASSERT(false);
+        return;
+    }
 
     std::shared_ptr<Thread> thread = std::move(thread_res).Unwrap();
-
     thread->context->SetFpscr(FPSCR_DEFAULT_NAN | FPSCR_FLUSH_TO_ZERO | FPSCR_ROUND_TOZERO |
                               FPSCR_IXC); // 0x03C00010
-
-    // Note: The newly created thread will be run when the scheduler fires.
-    return thread;
 }
 
 bool ThreadManager::HaveReadyThreads() {

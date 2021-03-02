@@ -33,6 +33,8 @@ public:
 
     ResultStatus Load(std::shared_ptr<Kernel::Process>& process) override;
 
+    ResultStatus ReadTitle(std::string& title) override;
+
 private:
     std::string filename;
 };

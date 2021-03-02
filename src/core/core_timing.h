@@ -22,6 +22,7 @@
 #include <limits>
 #include <string>
 #include <unordered_map>
+#include <array>
 #include <vector>
 #include "common/common_types.h"
 #include "common/logging/log.h"
@@ -149,7 +150,6 @@ public:
         void Idle();
 
         u64 GetTicks() const;
-        u64 GetIdleTicks() const;
 
         void AddTicks(u64 ticks);
 
@@ -158,6 +158,10 @@ public:
         void ForceExceptionCheck(s64 cycles);
 
         void MoveEvents();
+
+        void SetDowncountHack(u32 hack) {
+            downcount_hack = hack;
+        }
 
     private:
         friend class Timing;
@@ -183,9 +187,10 @@ public:
         s64 downcount = MAX_SLICE_LENGTH;
         s64 executed_ticks = 0;
         u64 idled_cycles = 0;
+        u32 downcount_hack = 0;
     };
 
-    explicit Timing(std::size_t num_cores);
+    explicit Timing();
 
     ~Timing(){};
 
@@ -223,7 +228,7 @@ private:
     // elements remain stable regardless of rehashes/resizing.
     std::unordered_map<std::string, TimingEventType> event_types;
 
-    std::vector<std::shared_ptr<Timer>> timers;
+    std::array<std::shared_ptr<Timer>, 4> timers;
     Timer* current_timer = nullptr;
 };
 

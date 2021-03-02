@@ -57,6 +57,8 @@ void SaveDefault() {
     s_layer.Set(ALLOW_SHADOW, ALLOW_SHADOW.default_value);
     s_layer.Set(SHADER_TYPE, SHADER_TYPE.default_value);
     s_layer.Set(USE_PRESENT_THREAD, USE_PRESENT_THREAD.default_value);
+    s_layer.Set(CPU_USAGE_LIMIT, CPU_USAGE_LIMIT.default_value);
+    s_layer.Set(LLE_MODULES, LLE_MODULES.default_value);
 
     // custom layout
     s_layer.Set(USE_CUSTOM_LAYOUT, USE_CUSTOM_LAYOUT.default_value);

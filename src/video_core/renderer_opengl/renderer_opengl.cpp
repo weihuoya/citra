@@ -516,8 +516,6 @@ bool RendererOpenGL::TryPresent() {
     frame->present_fence = glFenceSync(GL_SYNC_GPU_COMMANDS_COMPLETE, 0);
     glFlush();
 
-    glBindFramebuffer(GL_READ_FRAMEBUFFER, 0);
-
     return true;
 }
 
@@ -704,6 +702,10 @@ void RendererOpenGL::InitOpenGLObjects() {
 
     // init
     OSD::Initialize();
+    if (Settings::values.is_new_3ds) {
+        OSD::AddMessage("New 3DS Model", OSD::MessageType::New3DS, OSD::Duration::NORMAL,
+                        OSD::Color::YELLOW);
+    }
     if (!Settings::values.use_hw_shader) {
         OSD::AddMessage("HW Shader Off", OSD::MessageType::HWShader, OSD::Duration::NORMAL,
                         OSD::Color::YELLOW);

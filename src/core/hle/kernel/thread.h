@@ -101,8 +101,8 @@ public:
      */
     const std::vector<std::shared_ptr<Thread>>& GetThreadList();
 
-    void SetCPU(ARM_Interface& cpu) {
-        this->cpu = &cpu;
+    void SetCPU(ARM_Interface* cpu) {
+        this->cpu = cpu;
     }
 
     std::unique_ptr<ARM_Interface::ThreadContext> NewContext() {
@@ -299,9 +299,7 @@ private:
  * @param entry_point The address at which the thread should start execution
  * @param priority The priority to give the main thread
  * @param owner_process The parent process for the main thread
- * @return A shared pointer to the main thread
  */
-std::shared_ptr<Thread> SetupMainThread(KernelSystem& kernel, u32 entry_point, u32 priority,
-                                        std::shared_ptr<Process> owner_process);
+void SetupMainThread(KernelSystem& kernel, u32 entry_point, u32 priority, Process& owner_process);
 
 } // namespace Kernel

@@ -156,6 +156,8 @@
     <string name="post_processing_shader">后处理效果</string>
     <string name="setting_use_present_thread">启用多核心</string>
     <string name="setting_use_present_thread_desc">大部分游戏启用多核心可以提升性能。</string>
+    <string name="cpu_usage_limit">CPU占用率限制</string>
+    <string name="cpu_usage_limit_description">启用后模拟CPU使用将被限制在较小的时间片内。</string>
     <string name="frame_limit_enable">启用速度限制</string>
     <string name="frame_limit_enable_description">启用时速度将被限制为正常速度的指定百分比。</string>
     <string name="frame_limit_slider">限制百分比</string>
@@ -197,6 +199,7 @@
 
     <string name="camera_blank">空白</string>
     <string name="camera_still_image">静止图片</string>
+    <string name="camera_from_device">使用相机</string>
     <string name="shader_type_normal">普通着色器</string>
     <string name="shader_type_normal_with_cache">普通着色器+缓存</string>
     <string name="shader_type_separate">分离着色器(不稳定)</string>

@@ -97,10 +97,12 @@
     <string-array name="cameraEntries">
         <item>@string/camera_blank</item>
         <item>@string/camera_still_image</item>
+        <item>@string/camera_from_device</item>
     </string-array>
     <string-array name="cameraValues">
         <item>blank</item>
         <item>image</item>
+        <item>camera</item>
     </string-array>
 
     <!-- Mic Input Preference -->

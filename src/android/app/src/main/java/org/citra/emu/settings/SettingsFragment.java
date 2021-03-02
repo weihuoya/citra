@@ -130,6 +130,7 @@ public final class SettingsFragment extends Fragment {
         SettingSection debugSection = mSettings.getSection(Settings.SECTION_INI_DEBUG);
         Setting shaderType = debugSection.getSetting(SettingsFile.KEY_SHADER_TYPE);
         Setting presentThread = debugSection.getSetting(SettingsFile.KEY_USE_PRESENT_THREAD);
+        Setting cpuLimit = debugSection.getSetting(SettingsFile.KEY_CPU_USAGE_LIMIT);
         Setting ocrKey = debugSection.getSetting(SettingsFile.KEY_BAIDU_OCR_KEY);
         Setting ocrSecret = debugSection.getSetting(SettingsFile.KEY_BAIDU_OCR_SECRET);
 
@@ -165,8 +166,8 @@ public final class SettingsFragment extends Fragment {
                                    R.string.setting_custom_textures, 0, false, customTex));
         sl.add(new CheckBoxSetting(SettingsFile.KEY_PRELOAD_TEXTURES, Settings.SECTION_INI_RENDERER,
                                    R.string.setting_preload_textures, 0, false, preloadTex));
-        sl.add(new CheckBoxSetting(SettingsFile.KEY_USE_FRAME_LIMIT, Settings.SECTION_INI_RENDERER,
-                R.string.frame_limit_enable, R.string.frame_limit_enable_description, true, useFrameLimit));
+        sl.add(new CheckBoxSetting(SettingsFile.KEY_CPU_USAGE_LIMIT, Settings.SECTION_INI_DEBUG,
+                R.string.cpu_usage_limit, R.string.cpu_usage_limit_description, false, cpuLimit));
         sl.add(new SliderSetting(SettingsFile.KEY_FRAME_LIMIT, Settings.SECTION_INI_RENDERER,
                 R.string.frame_limit_slider, R.string.frame_limit_slider_description, 200, "",
                 100, frameLimit));

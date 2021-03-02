@@ -409,4 +409,9 @@ ResultStatus AppLoader_ELF::Load(std::shared_ptr<Kernel::Process>& process) {
     return ResultStatus::Success;
 }
 
+ResultStatus AppLoader_ELF::ReadTitle(std::string& title) {
+    title = filename;
+    return ResultStatus::Success;
+}
+
 } // namespace Loader
