@@ -46,9 +46,6 @@ template void Write<u32>(u32 addr, const u32 data);
 template void Write<u16>(u32 addr, const u16 data);
 template void Write<u8>(u32 addr, const u8 data);
 
-/// Update hardware
-void Update() {}
-
 /// Initialize hardware
 void Init(Memory::MemorySystem& memory) {
     AES::InitKeys();

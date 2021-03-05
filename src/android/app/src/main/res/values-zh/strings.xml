@@ -164,12 +164,14 @@
     <string name="frame_limit_slider_description">默认情况下 100% 将限制为正常运行速度，较高或较低的值将增加或降低运行速度。</string>
     <string name="setting_custom_textures">使用自定义纹理</string>
     <string name="setting_preload_textures">预加载自定义纹理</string>
+    <string name="setting_preload_textures_description">启用后游戏的启动时间会变长，占用更多内存空间。</string>
     <string name="setting_shader_type">着色器类型</string>
     <string name="setting_factor_3d">Factor 3D (3D Depth Slider)</string>
     <string name="setting_camera_type">摄像头类型</string>
 
     <string name="setting_audio_output">音频输出</string>
     <string name="setting_audio_stretching">音频拉伸</string>
+    <string name="setting_audio_stretching_description">拉伸音频以减少声音不流畅的问题，但会增加延迟。</string>
     <string name="setting_audio_mic_type">麦克风类型</string>
 
     <string name="running_frame_limit">速度限制</string>
@@ -219,6 +221,7 @@
     <string name="game_emulation_info">文件支持：.CCI，.CXI，.3DS，.3DSX</string>
     <string name="application_emulation_info">应用将被安装到“citra-emu/sdmc”目录</string>
     <string name="toggle_list">切换列表</string>
+    <string name="reset_setting">重置设置</string>
     <string name="installed_app">(已安装：%1$s)</string>
     <string name="delete_app_sdmc">删除存档目录</string>
     <string name="delete_confirm_notice">确定删除游戏存档目录？</string>

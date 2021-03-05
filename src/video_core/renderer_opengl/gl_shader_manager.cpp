@@ -129,15 +129,21 @@ private:
 
 class ShaderProgramManager::Impl {
 public:
-    Impl(bool separable)
+    explicit Impl(bool separable)
         : separable(separable), trivial_vertex_shader(separable),
           trivial_geometry_shader(separable) {
         if (separable) {
             pipeline.Create();
         } else if (Settings::values.use_shader_cache) {
-            if (LoadProgramCache()) {
-                OSD::AddMessage("Load Shader Cache", OSD::MessageType::ShaderCache,
-                                OSD::Duration::NORMAL, OSD::Color::YELLOW);
+            u64 size = LoadProgramCache();
+            if (size > 0) {
+                std::string log{"Load Shader Cache"};
+                size >>= 20;
+                if (size > 0) {
+                    log = fmt::format("{} ({}MB)", log, size);
+                }
+                OSD::AddMessage(log, OSD::MessageType::ShaderCache, OSD::Duration::NORMAL,
+                                OSD::Color::YELLOW);
             }
         }
         trivial_vertex_shader.Create(GenerateTrivialVertexShader(separable), GL_VERTEX_SHADER, 0);
@@ -149,37 +155,40 @@ public:
         }
     }
 
+    OGLShaderStage* GetShaderStageRef(const std::string& shader_code, GLenum shader_type) {
+        u64 code_hash = Common::ComputeHash64(shader_code.data(), shader_code.size());
+        auto [iter, new_shader] = shaders.emplace(code_hash, OGLShaderStage{separable});
+        OGLShaderStage& cached_shader = iter->second;
+        if (new_shader) {
+            cached_shader.Create(shader_code, shader_type, code_hash);
+            // load cached shader reference
+            auto iter = reference_cache.find(code_hash);
+            if (iter != reference_cache.end()) {
+                for (const auto& hash : iter->second) {
+                    shaders_ref[hash] = &cached_shader;
+                }
+            }
+        }
+        return &cached_shader;
+    }
+
     bool UseProgrammableVertexShader(const Pica::Regs& regs, Pica::Shader::ShaderSetup& setup) {
         PicaVSConfig key(regs, setup);
         u64 key_hash = Common::ComputeHash64(&key, sizeof(key));
         auto iter_ref = shaders_ref.find(key_hash);
         if (iter_ref == shaders_ref.end()) {
-            u64 vkey = key_hash + separable;
-            auto viter = vertex_cache.find(vkey);
-            if (viter == vertex_cache.end()) {
-                vertex_cache[vkey] = GenerateVertexShader(setup, key, separable);
+            auto [code_iter, new_code] = vertex_cache.emplace(key_hash, std::string{});
+            if (new_code) {
+                // always new code
+                code_iter->second = GenerateVertexShader(setup, key, separable);
             }
-            const std::string& vs_code = vertex_cache[vkey];
-            // std::string vs_code = GenerateVertexShader(setup, key, separable);
+            const std::string& vs_code = code_iter->second;
             if (vs_code.empty()) {
                 shaders_ref[key_hash] = nullptr;
                 current_shaders.vs = nullptr;
             } else {
-                u64 code_hash = Common::ComputeHash64(vs_code.data(), vs_code.size());
-                auto [iter, new_shader] = shaders.emplace(code_hash, OGLShaderStage{separable});
-                OGLShaderStage& cached_shader = iter->second;
-                if (new_shader) {
-                    cached_shader.Create(vs_code, GL_VERTEX_SHADER, code_hash);
-                    // load cached shader reference
-                    auto iter = reference_cache.find(code_hash);
-                    if (iter != reference_cache.end()) {
-                        for (const auto& hash : iter->second) {
-                            shaders_ref[hash] = &cached_shader;
-                        }
-                    }
-                }
-                shaders_ref[key_hash] = &cached_shader;
-                current_shaders.vs = &cached_shader;
+                current_shaders.vs = GetShaderStageRef(vs_code, GL_VERTEX_SHADER);
+                shaders_ref[key_hash] = current_shaders.vs;
             }
         } else {
             current_shaders.vs = iter_ref->second;
@@ -204,22 +213,13 @@ public:
         u64 key_hash = Common::ComputeHash64(&key, sizeof(key));
         auto iter_ref = shaders_ref.find(key_hash);
         if (iter_ref == shaders_ref.end()) {
-            std::string fs_code = GenerateFragmentShader(key, separable);
-            u64 code_hash = Common::ComputeHash64(fs_code.data(), fs_code.size());
-            auto [iter, new_shader] = shaders.emplace(code_hash, OGLShaderStage{separable});
-            OGLShaderStage& cached_shader = iter->second;
-            if (new_shader) {
-                cached_shader.Create(fs_code, GL_FRAGMENT_SHADER, code_hash);
-                // load cached shader reference
-                auto iter = reference_cache.find(code_hash);
-                if (iter != reference_cache.end()) {
-                    for (const auto& hash : iter->second) {
-                        shaders_ref[hash] = &cached_shader;
-                    }
-                }
+            auto [code_iter, new_code] = fragment_cache.emplace(key_hash, std::string{});
+            if (new_code) {
+                // always new code
+                code_iter->second = GenerateFragmentShader(key, separable);
             }
-            shaders_ref[key_hash] = &cached_shader;
-            current_shaders.fs = &cached_shader;
+            current_shaders.fs = GetShaderStageRef(code_iter->second, GL_FRAGMENT_SHADER);
+            shaders_ref[key_hash] = current_shaders.fs;
         } else {
             current_shaders.fs = iter_ref->second;
         }
@@ -245,12 +245,12 @@ public:
             state.draw.shader_program = 0;
             state.draw.program_pipeline = pipeline.handle;
         } else {
-            const std::array<u64, 3> shaders{
+            const std::array<u64, 3> bundle{
                 current_shaders.vs->GetHash(),
                 current_shaders.gs->GetHash(),
                 current_shaders.fs->GetHash(),
             };
-            u64 hash = Common::ComputeHash64(shaders.data(), shaders.size() * sizeof(u64));
+            u64 hash = Common::ComputeHash64(bundle.data(), bundle.size() * sizeof(u64));
             OGLProgram& cached_program = program_cache[hash];
             if (cached_program.handle == 0) {
                 CreateProgram(cached_program, hash, vs, gs, fs);
@@ -285,7 +285,7 @@ public:
         }
     }
 
-    static constexpr u32 PROGRAM_CACHE_VERSION = 0x5;
+    static constexpr u32 PROGRAM_CACHE_VERSION = 0x6;
 
     static std::string GetCacheFile() {
         u64 program_id = 0;
@@ -329,16 +329,19 @@ public:
 
         file.DoMarker("VertexCache");
         file.Do(vertex_cache);
+
+        file.DoMarker("FragmentCache");
+        file.Do(fragment_cache);
     }
 
-    bool LoadProgramCache() {
+    u64 LoadProgramCache() {
         Core::CacheFile file(GetCacheFile(), Core::CacheFile::MODE_LOAD);
 
         u32 verion = 0;
         file.DoHeader(verion);
         if (verion != PROGRAM_CACHE_VERSION) {
             FileUtil::Delete(GetCacheFile());
-            return false;
+            return 0;
         }
 
         s32 count = 0;
@@ -358,24 +361,39 @@ public:
 
         if (!file.IsGood()) {
             binary_cache.clear();
-            return false;
+            return 0;
         }
 
         file.DoMarker("ShadersRef");
         LoadShadersRef(file);
         if (!file.IsGood()) {
             reference_cache.clear();
-            return false;
+            return 0;
         }
 
         file.DoMarker("VertexCache");
         file.Do(vertex_cache);
         if (!file.IsGood()) {
             vertex_cache.clear();
-            return false;
+            return 0;
         }
 
-        return true;
+        file.DoMarker("FragmentCache");
+        file.Do(fragment_cache);
+        if (!file.IsGood()) {
+            fragment_cache.clear();
+            return 0;
+        }
+
+        for (const auto& entity : vertex_cache) {
+            GetShaderStageRef(entity.second, GL_VERTEX_SHADER);
+        }
+
+        for (const auto& entity : fragment_cache) {
+            GetShaderStageRef(entity.second, GL_FRAGMENT_SHADER);
+        }
+
+        return file.GetSize();
     }
 
     void SaveShadersRef(Core::CacheFile& file) {
@@ -419,7 +437,7 @@ private:
         OGLShaderStage* vs;
         OGLShaderStage* gs;
         OGLShaderStage* fs;
-    } current_shaders;
+    } current_shaders{};
 
     struct ProgramCacheEntity {
         explicit ProgramCacheEntity(GLenum format, std::vector<GLbyte>&& binary)
@@ -430,6 +448,7 @@ private:
     std::unordered_map<u64, ProgramCacheEntity> binary_cache;
     std::unordered_map<u64, std::unordered_set<u64>> reference_cache;
     std::unordered_map<u64, std::string> vertex_cache;
+    std::unordered_map<u64, std::string> fragment_cache;
 
     OGLShaderStage trivial_vertex_shader;
     OGLShaderStage trivial_geometry_shader;

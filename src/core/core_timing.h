@@ -149,7 +149,7 @@ public:
 
         void Idle();
 
-        u64 GetTicks() const;
+        s64 GetTicks() const;
 
         void AddTicks(u64 ticks);
 
@@ -213,13 +213,17 @@ public:
 
     s64 GetGlobalTicks() const;
 
+    s64 GetDelayTicks(u32 core_id) const;
+
+    s64 GetMaxSliceLength() const;
+
     void AddToGlobalTicks(s64 ticks) {
         global_timer += ticks;
     }
 
     std::chrono::microseconds GetGlobalTimeUs() const;
 
-    std::shared_ptr<Timer> GetTimer(std::size_t cpu_id);
+    std::shared_ptr<Timer> GetTimer(u32 core_id);
 
 private:
     s64 global_timer = 0;

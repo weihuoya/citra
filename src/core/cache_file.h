@@ -267,6 +267,10 @@ public:
         return mode != MODE_SKIP && file.IsGood();
     }
 
+    u64 GetSize() const {
+        return file.GetSize();
+    }
+
 private:
     template <typename T>
     void DoContiguousContainer(T& container) {

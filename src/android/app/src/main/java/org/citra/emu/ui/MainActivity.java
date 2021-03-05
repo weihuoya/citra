@@ -451,8 +451,18 @@ public final class MainActivity extends AppCompatActivity {
     }
 
     public File getGameListCache() {
-        return new File(DirectoryInitialization.getUserDirectory() + File.separator +
-                        "gamelist.cache");
+        String path = DirectoryInitialization.getUserDirectory() + File.separator;
+        File list = new File(path + "gamelist.bin");
+        File cache = new File(path + "gamelist.cache");
+        if (cache.exists()) {
+            try {
+                cache.renameTo(list);
+                cache.delete();
+            } catch (Exception e) {
+                // ignore
+            }
+        }
+        return list;
     }
 
     public void updateProgress(String name, int written, int total) {

@@ -6,7 +6,8 @@ import android.content.DialogInterface;
 import android.content.SharedPreferences;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
-import android.util.Log;
+import android.os.Debug;
+import android.os.Handler;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -40,6 +41,8 @@ public class RunningSettingDialog extends DialogFragment {
 
     private int mMenu;
     private TextView mTitle;
+    private TextView mInfo;
+    private Handler mHandler;
     private SettingsAdapter mAdapter;
     private DialogInterface.OnDismissListener mDismissListener;
 
@@ -55,6 +58,9 @@ public class RunningSettingDialog extends DialogFragment {
             R.layout.dialog_running_settings, null);
 
         mTitle = contents.findViewById(R.id.text_title);
+        mInfo = contents.findViewById(R.id.text_info);
+        mHandler = new Handler(getActivity().getMainLooper());
+        setHeapInfo();
 
         Drawable lineDivider = getContext().getDrawable(R.drawable.line_divider);
         RecyclerView recyclerView = contents.findViewById(R.id.list_settings);
@@ -79,6 +85,13 @@ public class RunningSettingDialog extends DialogFragment {
         if (mDismissListener != null) {
             mDismissListener.onDismiss(dialog);
         }
+        mHandler.removeCallbacksAndMessages(null);
+    }
+
+    public void setHeapInfo() {
+        long heapsize = Debug.getNativeHeapAllocatedSize() >> 20;
+        mInfo.setText(String.format("%dMB", heapsize));
+        mHandler.postDelayed(this::setHeapInfo, 1000);
     }
 
     public void setOnDismissListener(DialogInterface.OnDismissListener listener) {

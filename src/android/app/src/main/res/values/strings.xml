@@ -164,12 +164,14 @@
     <string name="frame_limit_slider_description">With the default of 100% emulation will be limited to normal speed. Values higher or lower will increase or decrease the speed limit.</string>
     <string name="setting_custom_textures">Use Custom Textures</string>
     <string name="setting_preload_textures">Preload Custom Textures</string>
+    <string name="setting_preload_textures_description">The start up time is getting longer if enabled.</string>
     <string name="setting_shader_type">Shader Type</string>
     <string name="setting_factor_3d">Factor 3D (3D Depth Slider)</string>
     <string name="setting_camera_type">Camera Type</string>
 
     <string name="setting_audio_output">Audio Output</string>
     <string name="setting_audio_stretching">Enable Audio Stretching</string>
+    <string name="setting_audio_stretching_description">Stretches audio to reduce stuttering, but increases latency.</string>
     <string name="setting_audio_mic_type">Micophone Type</string>
 
     <string name="running_frame_limit">Speed Limit</string>
@@ -219,6 +221,7 @@
     <string name="game_emulation_info">File Support: .CCI, .CXI, .3DS, .3DSX</string>
     <string name="application_emulation_info">Application will be installed in "citra-emu/sdmc"</string>
     <string name="toggle_list">Toggle List</string>
+    <string name="reset_setting">Reset Setting</string>
     <string name="installed_app">(Installed: %1$s)</string>
     <string name="delete_app_sdmc">Delete Archive Directory</string>
     <string name="delete_confirm_notice">Are you sure to delete the game archive directory?</string>

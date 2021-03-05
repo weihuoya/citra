@@ -103,20 +103,34 @@ s64 Timing::GetGlobalTicks() const {
     return global_timer;
 }
 
+s64 Timing::GetDelayTicks(u32 core_id) const {
+    const auto& timer = *timers[core_id];
+    s64 ticks = timer.executed_ticks + timer.slice_length - timer.downcount;
+    return global_timer - ticks;
+}
+
+s64 Timing::GetMaxSliceLength() const {
+    s64 max_slice = Timing::MAX_SLICE_LENGTH;
+    for (const auto& timer : timers) {
+        max_slice = std::min(max_slice, timer->GetMaxSliceLength());
+    }
+    return max_slice;
+}
+
 std::chrono::microseconds Timing::GetGlobalTimeUs() const {
     return std::chrono::microseconds{GetTicks() * 1000000 / BASE_CLOCK_RATE_ARM11};
 }
 
-std::shared_ptr<Timing::Timer> Timing::GetTimer(std::size_t cpu_id) {
-    return timers[cpu_id];
+std::shared_ptr<Timing::Timer> Timing::GetTimer(u32 core_id) {
+    return timers[core_id];
 }
 
 Timing::Timer::~Timer() {
     MoveEvents();
 }
 
-u64 Timing::Timer::GetTicks() const {
-    u64 ticks = static_cast<u64>(executed_ticks);
+s64 Timing::Timer::GetTicks() const {
+    s64 ticks = executed_ticks;
     if (!is_timer_sane) {
         ticks += slice_length - downcount;
     }
