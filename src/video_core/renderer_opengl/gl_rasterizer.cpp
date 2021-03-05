@@ -1765,7 +1765,7 @@ void RasterizerOpenGL::SyncDepthTest() {
 }
 
 void RasterizerOpenGL::SyncCombinerColor() {
-    auto combiner_color =
+    const auto combiner_color =
         PicaToGL::ColorRGBA8(Pica::g_state.regs.texturing.tev_combiner_buffer_color.raw);
     if (combiner_color != uniform_block_data.data.tev_combiner_buffer_color) {
         uniform_block_data.data.tev_combiner_buffer_color = combiner_color;
@@ -1783,9 +1783,9 @@ void RasterizerOpenGL::SyncTevConstColor(int stage_index,
 }
 
 void RasterizerOpenGL::SyncGlobalAmbient() {
-    auto color = PicaToGL::LightColor(Pica::g_state.regs.lighting.global_ambient);
-    if (color != uniform_block_data.data.lighting_global_ambient) {
-        uniform_block_data.data.lighting_global_ambient = color;
+    const auto ambient_color = PicaToGL::LightColor(Pica::g_state.regs.lighting.global_ambient);
+    if (ambient_color != uniform_block_data.data.lighting_global_ambient) {
+        uniform_block_data.data.lighting_global_ambient = ambient_color;
         uniform_block_data.dirty = true;
     }
 }
@@ -1801,8 +1801,8 @@ void RasterizerOpenGL::SyncLightingLutScale() {
     scales[5] = regs.lighting.lut_scale.GetScale(regs.lighting.lut_scale.rg);
     scales[6] = regs.lighting.lut_scale.GetScale(regs.lighting.lut_scale.rr);
     for (int i = 0; i < 7; ++i) {
-        if (scales[i] != uniform_block_data.data.lut_scales[i]) {
-            uniform_block_data.data.lut_scales[i] = scales[i];
+        if (scales[i] != uniform_block_data.data.lighting_lut_scales[i]) {
+            uniform_block_data.data.lighting_lut_scales[i] = scales[i];
             uniform_block_data.dirty = true;
         }
     }

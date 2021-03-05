@@ -99,7 +99,9 @@ public:
     /**
      * Get a const reference to the thread list for debug use
      */
-    const std::vector<std::shared_ptr<Thread>>& GetThreadList();
+    const std::vector<std::shared_ptr<Thread>>& GetThreadList() const;
+
+    void PrepareReschedule();
 
     void SetCPU(ARM_Interface* cpu) {
         this->cpu = cpu;
@@ -124,7 +126,10 @@ private:
     void ThreadWakeupCallback(u64 thread_id, s64 cycles_late);
 
     Kernel::KernelSystem& kernel;
-    ARM_Interface* cpu;
+    ARM_Interface* cpu = nullptr;
+
+    /// When true, signals that a reschedule should happen
+    bool reschedule_pending = false;
 
     std::shared_ptr<Thread> current_thread;
     Common::ThreadQueueList<Thread*, ThreadPrioLowest + 1> ready_queue;

@@ -237,7 +237,7 @@ std::string GetSelectorSrc(const SwizzlePattern& pattern) {
         selectors[2] = pattern.src3_selector_2;
         selectors[3] = pattern.src3_selector_3;
     }
-    bool  clear = true;
+    bool clear = true;
     for (int i = 0; i < 4; ++i) {
         out += "xyzw"[static_cast<int>(selectors[i])];
         if (i != static_cast<int>(selectors[i])) {

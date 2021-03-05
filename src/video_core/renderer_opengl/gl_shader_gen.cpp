@@ -538,7 +538,8 @@ static void AppendColorCombiner(std::string& out, TevStageConfig::Operation oper
         out += fmt::format("{} + {} - vec3(0.5)", results[0], results[1]);
         break;
     case Operation::Lerp:
-        out += fmt::format("{0} * {2} + {1} * (vec3(1.0) - {2})", results[0], results[1], results[2]);
+        out +=
+            fmt::format("{0} * {2} + {1} * (vec3(1.0) - {2})", results[0], results[1], results[2]);
         break;
     case Operation::Subtract:
         out += fmt::format("{} - {}", results[0], results[1]);
@@ -551,7 +552,8 @@ static void AppendColorCombiner(std::string& out, TevStageConfig::Operation oper
         break;
     case Operation::Dot3_RGB:
     case Operation::Dot3_RGBA:
-        out += fmt::format("vec3(dot({} - vec3(0.5), {} - vec3(0.5)) * 4.0)", results[0], results[1]);
+        out +=
+            fmt::format("vec3(dot({} - vec3(0.5), {} - vec3(0.5)) * 4.0)", results[0], results[1]);
         break;
     default:
         out += "vec3(0.0)";
@@ -638,8 +640,8 @@ static void WriteTevStage(std::string& out, const PicaFSConfig& config, u32 inde
         std::string index_name = std::to_string(index);
 
         std::array<std::string, 3> color_results;
-        AppendColorModifier(color_results[0], config, stage.color_modifier1,
-                stage.color_source1, index_name);
+        AppendColorModifier(color_results[0], config, stage.color_modifier1, stage.color_source1,
+                            index_name);
         if (stage.color_op != TevStageConfig::Operation::Replace) {
             AppendColorModifier(color_results[1], config, stage.color_modifier2,
                                 stage.color_source2, index_name);
@@ -658,7 +660,7 @@ static void WriteTevStage(std::string& out, const PicaFSConfig& config, u32 inde
         } else {
             std::array<std::string, 3> alpha_results;
             AppendAlphaModifier(alpha_results[0], config, stage.alpha_modifier1,
-                    stage.alpha_source1, index_name);
+                                stage.alpha_source1, index_name);
             if (stage.alpha_op != TevStageConfig::Operation::Replace) {
                 AppendAlphaModifier(alpha_results[1], config, stage.alpha_modifier2,
                                     stage.alpha_source2, index_name);
@@ -674,13 +676,12 @@ static void WriteTevStage(std::string& out, const PicaFSConfig& config, u32 inde
         u32 color_scale = stage.GetColorMultiplier();
         u32 alpha_scale = stage.GetAlphaMultiplier();
         if (color_scale == 1 && alpha_scale == 1) {
-            out += "last_tex_env_out = clamp(vec4(color_output_" + index_name +
-                    ", alpha_output_" + index_name + "), vec4(0.0), vec4(1.0));\n";
+            out += "last_tex_env_out = clamp(vec4(color_output_" + index_name + ", alpha_output_" +
+                   index_name + "), vec4(0.0), vec4(1.0));\n";
         } else {
-            out += "last_tex_env_out = clamp(vec4(color_output_" +
-                   index_name + " * " + std::to_string(stage.GetColorMultiplier()) +
-                   ".0, alpha_output_" +
-                   index_name + " * " + std::to_string(stage.GetAlphaMultiplier()) +
+            out += "last_tex_env_out = clamp(vec4(color_output_" + index_name + " * " +
+                   std::to_string(stage.GetColorMultiplier()) + ".0, alpha_output_" + index_name +
+                   " * " + std::to_string(stage.GetAlphaMultiplier()) +
                    ".0), vec4(0.0), vec4(1.0));\n";
         }
     }
@@ -946,8 +947,7 @@ static void WriteLighting(std::string& out, const PicaFSConfig& config) {
             d1_lut_value = "(lut_scale_d1 * " + value + ") * ";
         }
         std::string refl_value = use_refl_value ? "refl_value * " : "";
-        std::string specular_1 =
-            "(" + d1_lut_value + refl_value + light_src + ".specular_1)";
+        std::string specular_1 = "(" + d1_lut_value + refl_value + light_src + ".specular_1)";
         if (light_config.geometric_factor_1) {
             specular_1 = "(" + specular_1 + " * geo_factor)";
         }
@@ -985,8 +985,7 @@ static void WriteLighting(std::string& out, const PicaFSConfig& config) {
 
         // Compute secondary fragment color (specular lighting) function
         out += "specular_sum.rgb += (" + specular_0 + " + " + specular_1 +
-               ") * clamp_highlights * " + dist_atten + spot_atten + shadow_secondary +
-               ";\n";
+               ") * clamp_highlights * " + dist_atten + spot_atten + shadow_secondary + ";\n";
     }
 
     // Apply shadow attenuation to alpha components if enabled
@@ -1294,129 +1293,8 @@ static void AppendProcLogicOp(std::string& out, FramebufferRegs::LogicOp logic_o
     out += "color = vec4(vec3(new_color & 255) * (1.0 / 255.0), byteround(last_tex_env_out.a));\n";
 }
 
-std::string GenerateFragmentShader(const PicaFSConfig& config, bool separable_shader) {
-    const auto& state = config.state;
-    std::string out;
-    bool shader_logic_ops = false;
-
-    if (separable_shader) {
-        out += "#extension GL_ARB_separate_shader_objects : enable\n";
-    }
-
-    if (GLES) {
-        /*if (state.logic_op != FramebufferRegs::LogicOp::Copy) {
-            if (GLAD_GL_EXT_shader_framebuffer_fetch) {
-                out += "#extension GL_EXT_shader_framebuffer_fetch : enable\n"
-                       "#define FB_FETCH_VALUE color\n"
-                       "#define FRAGMENT_INOUT inout\n";
-                shader_logic_ops = true;
-            } else if (GLAD_GL_ARM_shader_framebuffer_fetch) {
-                out += "#extension GL_ARM_shader_framebuffer_fetch : enable\n"
-                       "#define FB_FETCH_VALUE gl_LastFragColorARM\n"
-                       "#define FRAGMENT_INOUT out\n";
-                shader_logic_ops = true;
-            }
-        }*/
-        if (AllowShadow && state.shadow_rendering) {
-            out += "#define ALLOW_SHADOW 1\n";
-        } else {
-            out += "#define ALLOW_SHADOW 0\n";
-        }
-        out += fragment_shader_precision_OES;
-    } else {
-        out += R"(
-#extension GL_ARB_shader_image_load_store : enable
-#extension GL_ARB_shader_image_size : enable
-#define ALLOW_SHADOW (defined(GL_ARB_shader_image_load_store) && defined(GL_ARB_shader_image_size))
-)";
-    }
-
-    out += GetVertexInterfaceDeclaration(false, separable_shader);
+static void AppendShadowRendering(std::string& out, const PicaFSConfig& config) {
     out += R"(
-#ifndef CITRA_GLES
-in vec4 gl_FragCoord;
-#endif // CITRA_GLES
-)";
-
-    if (shader_logic_ops) {
-        out += "FRAGMENT_INOUT vec4 color;\n";
-    } else {
-        out += "out vec4 color;\n";
-    }
-
-    out += R"(
-uniform sampler2D tex0;
-uniform sampler2D tex1;
-uniform sampler2D tex2;
-uniform samplerCube tex_cube;
-uniform samplerBuffer texture_buffer_lut_lf;
-uniform samplerBuffer texture_buffer_lut_rg;
-uniform samplerBuffer texture_buffer_lut_rgba;
-
-#if ALLOW_SHADOW
-layout(r32ui) uniform readonly uimage2D shadow_texture_px;
-layout(r32ui) uniform readonly uimage2D shadow_texture_nx;
-layout(r32ui) uniform readonly uimage2D shadow_texture_py;
-layout(r32ui) uniform readonly uimage2D shadow_texture_ny;
-layout(r32ui) uniform readonly uimage2D shadow_texture_pz;
-layout(r32ui) uniform readonly uimage2D shadow_texture_nz;
-layout(r32ui) uniform uimage2D shadow_buffer;
-#endif
-)";
-
-    out += UniformBlockDef;
-
-    out += R"(
-// Rotate the vector v by the quaternion q
-vec3 quaternion_rotate(vec4 q, vec3 v) {
-    return v + 2.0 * cross(q.xyz, cross(q.xyz, v) + q.w * v);
-}
-
-float LookupLightingLUT(int lut_index, int index, float delta) {
-    vec2 entry = texelFetch(texture_buffer_lut_lf, lighting_lut_offset[lut_index >> 2][lut_index & 3] + index).rg;
-    return entry.r + entry.g * delta;
-}
-
-float LookupLightingLUTUnsigned(int lut_index, float pos) {
-    int index = clamp(int(pos * 256.0), 0, 255);
-    float delta = pos * 256.0 - float(index);
-    return LookupLightingLUT(lut_index, index, delta);
-}
-
-float LookupLightingLUTSigned(int lut_index, float pos) {
-    int index = clamp(int(pos * 128.0), -128, 127);
-    float delta = pos * 128.0 - float(index);
-    if (index < 0) index += 256;
-    return LookupLightingLUT(lut_index, index, delta);
-}
-
-float byteround(float x) {
-    return round(x * 255.0) * (1.0 / 255.0);
-}
-
-vec2 byteround(vec2 x) {
-    return round(x * 255.0) * (1.0 / 255.0);
-}
-
-vec3 byteround(vec3 x) {
-    return round(x * 255.0) * (1.0 / 255.0);
-}
-
-vec4 byteround(vec4 x) {
-    return round(x * 255.0) * (1.0 / 255.0);
-}
-
-// PICA's LOD formula for 2D textures.
-// This LOD formula is the same as the LOD lower limit defined in OpenGL.
-// f(x, y) >= max{m_u, m_v, m_w}
-// (See OpenGL 4.6 spec, 8.14.1 - Scale Factor and Level-of-Detail)
-float getLod(vec2 coord) {
-    vec2 d = max(abs(dFdx(coord)), abs(dFdy(coord)));
-    return log2(max(d.x, d.y));
-}
-
-#if ALLOW_SHADOW
-
 uvec2 DecodeShadow(uint pixel) {
     return uvec2(pixel >> 8, pixel & 255u);
 }
@@ -1446,7 +1324,8 @@ vec4 shadowTexture(vec2 uv, float w) {
     if (!config.state.shadow_texture_orthographic) {
         out += "uv /= w;";
     }
-    out += "uint z = uint(max(0, int(min(abs(w), 1.0) * (exp2(24.0) - 1.0)) - shadow_texture_bias));";
+    out +=
+            "uint z = uint(max(0, int(min(abs(w), 1.0) * (exp2(24.0) - 1.0)) - shadow_texture_bias));";
     out += R"(
     vec2 coord = vec2(imageSize(shadow_texture_px)) * uv - vec2(0.5);
     vec2 coord_floor = floor(coord);
@@ -1542,9 +1421,135 @@ vec4 shadowTextureCube(vec2 uv, float w) {
         CompareShadow(pixels.w, z));
     return vec4(mix2(s, f));
 }
+)";
+}
 
-#else
+std::string GenerateFragmentShader(const PicaFSConfig& config, bool separable_shader) {
+    const auto& state = config.state;
+    std::string out;
+    bool shadow_rendering = false;
+    bool shader_logic_ops = false;
 
+    if (separable_shader) {
+        out += "#extension GL_ARB_separate_shader_objects : enable\n";
+    }
+
+    if (GLES) {
+        /*if (state.logic_op != FramebufferRegs::LogicOp::Copy) {
+            if (GLAD_GL_EXT_shader_framebuffer_fetch) {
+                out += "#extension GL_EXT_shader_framebuffer_fetch : enable\n"
+                       "#define FB_FETCH_VALUE color\n"
+                       "#define FRAGMENT_INOUT inout\n";
+                shader_logic_ops = true;
+            } else if (GLAD_GL_ARM_shader_framebuffer_fetch) {
+                out += "#extension GL_ARM_shader_framebuffer_fetch : enable\n"
+                       "#define FB_FETCH_VALUE gl_LastFragColorARM\n"
+                       "#define FRAGMENT_INOUT out\n";
+                shader_logic_ops = true;
+            }
+        }*/
+        if (AllowShadow && state.shadow_rendering) {
+            shadow_rendering = true;
+        }
+        out += fragment_shader_precision_OES;
+    } else {
+        out += R"(
+#extension GL_ARB_shader_image_load_store : enable
+#extension GL_ARB_shader_image_size : enable
+)";
+    }
+
+    out += GetVertexInterfaceDeclaration(false, separable_shader);
+    out += R"(
+#ifndef CITRA_GLES
+in vec4 gl_FragCoord;
+#endif // CITRA_GLES
+)";
+
+    if (shader_logic_ops) {
+        out += "FRAGMENT_INOUT vec4 color;\n";
+    } else {
+        out += "out vec4 color;\n";
+    }
+
+    out += R"(
+uniform sampler2D tex0;
+uniform sampler2D tex1;
+uniform sampler2D tex2;
+uniform samplerCube tex_cube;
+uniform samplerBuffer texture_buffer_lut_lf;
+uniform samplerBuffer texture_buffer_lut_rg;
+uniform samplerBuffer texture_buffer_lut_rgba;
+)";
+
+    if (shadow_rendering) {
+        out += R"(
+layout(r32ui) uniform readonly uimage2D shadow_texture_px;
+layout(r32ui) uniform readonly uimage2D shadow_texture_nx;
+layout(r32ui) uniform readonly uimage2D shadow_texture_py;
+layout(r32ui) uniform readonly uimage2D shadow_texture_ny;
+layout(r32ui) uniform readonly uimage2D shadow_texture_pz;
+layout(r32ui) uniform readonly uimage2D shadow_texture_nz;
+layout(r32ui) uniform uimage2D shadow_buffer;
+)";
+    }
+
+    out += UniformBlockDef;
+
+    out += R"(
+// Rotate the vector v by the quaternion q
+vec3 quaternion_rotate(vec4 q, vec3 v) {
+    return v + 2.0 * cross(q.xyz, cross(q.xyz, v) + q.w * v);
+}
+
+float LookupLightingLUT(int lut_index, int index, float delta) {
+    vec2 entry = texelFetch(texture_buffer_lut_lf, lighting_lut_offset[lut_index >> 2][lut_index & 3] + index).rg;
+    return entry.r + entry.g * delta;
+}
+
+float LookupLightingLUTUnsigned(int lut_index, float pos) {
+    int index = clamp(int(pos * 256.0), 0, 255);
+    float delta = pos * 256.0 - float(index);
+    return LookupLightingLUT(lut_index, index, delta);
+}
+
+float LookupLightingLUTSigned(int lut_index, float pos) {
+    int index = clamp(int(pos * 128.0), -128, 127);
+    float delta = pos * 128.0 - float(index);
+    if (index < 0) index += 256;
+    return LookupLightingLUT(lut_index, index, delta);
+}
+
+float byteround(float x) {
+    return round(x * 255.0) * (1.0 / 255.0);
+}
+
+vec2 byteround(vec2 x) {
+    return round(x * 255.0) * (1.0 / 255.0);
+}
+
+vec3 byteround(vec3 x) {
+    return round(x * 255.0) * (1.0 / 255.0);
+}
+
+vec4 byteround(vec4 x) {
+    return round(x * 255.0) * (1.0 / 255.0);
+}
+
+// PICA's LOD formula for 2D textures.
+// This LOD formula is the same as the LOD lower limit defined in OpenGL.
+// f(x, y) >= max{m_u, m_v, m_w}
+// (See OpenGL 4.6 spec, 8.14.1 - Scale Factor and Level-of-Detail)
+float getLod(vec2 coord) {
+    vec2 d = max(abs(dFdx(coord)), abs(dFdy(coord)));
+    return log2(max(d.x, d.y));
+}
+)";
+
+    if (shadow_rendering) {
+        AppendShadowRendering(out, config);
+    } else {
+        out += R"(
 vec4 shadowTexture(vec2 uv, float w) {
     return vec4(1.0);
 }
@@ -1552,9 +1557,8 @@ vec4 shadowTexture(vec2 uv, float w) {
 vec4 shadowTextureCube(vec2 uv, float w) {
     return vec4(1.0);
 }
-
-#endif
 )";
+    }
 
     if (config.state.proctex.enable)
         AppendProcTexSampler(out, config);
@@ -1615,13 +1619,16 @@ vec4 secondary_fragment_color = vec4(0.0);
         WriteLighting(lighting_codes, config);
 
     if (s_use_texcolor0) {
-        out += "vec4 texcolor0 = textureLod(tex0, texcoord0, getLod(texcoord0 * vec2(textureSize(tex0, 0))));\n";
+        out += "vec4 texcolor0 = textureLod(tex0, texcoord0, getLod(texcoord0 * "
+               "vec2(textureSize(tex0, 0))));\n";
     }
     if (s_use_texcolor1) {
-        out += "vec4 texcolor1 = textureLod(tex1, texcoord1, getLod(texcoord1 * vec2(textureSize(tex1, 0))));\n";
+        out += "vec4 texcolor1 = textureLod(tex1, texcoord1, getLod(texcoord1 * "
+               "vec2(textureSize(tex1, 0))));\n";
     }
     if (s_use_texcolor2) {
-        out += "vec4 texcolor2 = textureLod(tex2, texcoord2, getLod(texcoord2 * vec2(textureSize(tex2, 0))));\n";
+        out += "vec4 texcolor2 = textureLod(tex2, texcoord2, getLod(texcoord2 * "
+               "vec2(textureSize(tex2, 0))));\n";
     }
 
     out += lighting_codes;
@@ -1663,9 +1670,8 @@ vec4 secondary_fragment_color = vec4(0.0);
         return out;
     }
 
-    if (state.shadow_rendering) {
+    if (shadow_rendering) {
         out += R"(
-#if ALLOW_SHADOW
 uint d = uint(clamp(depth, 0.0, 1.0) * (exp2(24.0) - 1.0));
 uint s = uint(last_tex_env_out.g * 255.0);
 ivec2 image_coord = ivec2(gl_FragCoord.xy);
@@ -1688,7 +1694,6 @@ do {
     new = EncodeShadow(ref);
 
 } while ((old = imageAtomicCompSwap(shadow_buffer, image_coord, old, new)) != old2);
-#endif // ALLOW_SHADOW
 )";
     } else {
         out += "gl_FragDepth = depth;\n";

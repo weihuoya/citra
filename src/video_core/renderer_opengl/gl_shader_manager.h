@@ -49,7 +49,7 @@ struct UniformData {
     GLint proctex_diff_lut_offset;
     GLfloat proctex_bias;
     GLint shadow_texture_bias;
-    GLfloat lut_scales[7];
+    GLfloat lighting_lut_scales[7];
     alignas(16) GLivec4 lighting_lut_offset[Pica::LightingRegs::NumLightingSampler / 4];
     alignas(16) GLvec3 fog_color;
     alignas(8) GLvec2 proctex_noise_f;

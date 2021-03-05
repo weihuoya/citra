@@ -47,55 +47,35 @@ System::ResultStatus System::RunLoopMultiCores() {
     // All cores should have executed the same amount of ticks. If this is not the case an event was
     // scheduled with a cycles_into_future smaller then the current downcount.
     // So we have to get those cores to the same global time first
-    s64 max_delay = 0;
+    s64 max_delay = 100;
     ARM_Interface* current_core_to_execute = nullptr;
     for (auto& cpu_core : cpu_cores) {
-        s64 delay = timing->GetGlobalTicks() - cpu_core->GetTimer().GetTicks();
+        s64 delay = timing->GetDelayTicks(cpu_core->GetID());
         if (delay > 0) {
-            cpu_core->GetTimer().Advance(delay);
-            if (max_delay < delay) {
+            kernel->Advance(cpu_core.get(), max_delay);
+            if (delay > max_delay) {
                 max_delay = delay;
                 current_core_to_execute = cpu_core.get();
             }
         }
     }
 
-    if (max_delay > 0) {
-        kernel->SetRunningCPU(current_core_to_execute);
-        if (kernel->GetCurrentThreadManager().GetCurrentThread() == nullptr) {
-            LOG_TRACE(Core_ARM11, "Core {} idling", current_core_to_execute->GetID());
-            current_core_to_execute->GetTimer().Idle();
-            kernel->PrepareReschedule();
-        } else {
-            current_core_to_execute->Run();
-        }
+    if (max_delay > 100) {
+        kernel->Run(current_core_to_execute);
     } else {
         // Now all cores are at the same global time. So we will run them one after the other
         // with a max slice that is the minimum of all max slices of all cores
         // TODO: Make special check for idle since we can easily revert the time of idle cores
-        s64 max_slice = Timing::MAX_SLICE_LENGTH;
-        for (const auto& cpu_core : cpu_cores) {
-            max_slice = std::min(max_slice, cpu_core->GetTimer().GetMaxSliceLength());
-        }
+        s64 max_slice = timing->GetMaxSliceLength();
         for (auto& cpu_core : cpu_cores) {
-            cpu_core->GetTimer().Advance(max_slice);
-        }
-        for (auto& cpu_core : cpu_cores) {
-            kernel->SetRunningCPU(cpu_core.get());
-            // If we don't have a currently active thread then don't execute instructions,
-            // instead advance to the next event and try to yield to the next thread
-            if (kernel->GetCurrentThreadManager().GetCurrentThread() == nullptr) {
-                LOG_TRACE(Core_ARM11, "Core {} idling", cpu_core->GetID());
-                cpu_core->GetTimer().Idle();
-                kernel->PrepareReschedule();
-            } else {
-                cpu_core->Run();
-            }
+            kernel->Advance(cpu_core.get(), max_slice);
         }
         timing->AddToGlobalTicks(max_slice);
+        for (auto& cpu_core : cpu_cores) {
+            kernel->Run(cpu_core.get());
+        }
     }
 
-    HW::Update();
     kernel->RescheduleMultiCores();
 
     if (reset_requested.exchange(false)) {
@@ -108,18 +88,8 @@ System::ResultStatus System::RunLoopMultiCores() {
 }
 
 System::ResultStatus System::RunLoopSingleCore() {
-    // If we don't have a currently active thread then don't execute instructions,
-    // instead advance to the next event and try to yield to the next thread
-    if (kernel->GetCurrentThreadManager().GetCurrentThread() == nullptr) {
-        cpu_cores[0]->GetTimer().Idle();
-        cpu_cores[0]->GetTimer().Advance();
-        kernel->PrepareReschedule();
-    } else {
-        cpu_cores[0]->GetTimer().Advance();
-        cpu_cores[0]->Run();
-    }
-
-    HW::Update();
+    kernel->Advance(cpu_cores[0].get(), Timing::MAX_SLICE_LENGTH);
+    kernel->Run(cpu_cores[0].get());
     kernel->RescheduleSingleCore();
 
     if (reset_requested.exchange(false)) {
@@ -370,7 +340,7 @@ System::ResultStatus System::Load(Frontend::EmuWindow& emu_window, const std::st
     ASSERT(system_mode.first);
     auto n3ds_mode = app_loader->LoadKernelN3dsMode();
     ASSERT(n3ds_mode.first);
-    ResultStatus init_result{Init(emu_window, *system_mode.first, *n3ds_mode.first)};
+    ResultStatus init_result = Init(emu_window, *system_mode.first, *n3ds_mode.first);
     if (init_result != ResultStatus::Success) {
         LOG_CRITICAL(Core, "Failed to initialize system (Error {})!",
                      static_cast<u32>(init_result));
@@ -380,8 +350,8 @@ System::ResultStatus System::Load(Frontend::EmuWindow& emu_window, const std::st
 
     telemetry_session->AddInitialInfo(*app_loader);
     std::shared_ptr<Kernel::Process> process;
-    const Loader::ResultStatus load_result{app_loader->Load(process)};
-    kernel->SetCurrentProcess(process);
+    const Loader::ResultStatus load_result = app_loader->Load(process);
+    kernel->Initialize(process, cpu_cores[0].get());
     if (Loader::ResultStatus::Success != load_result) {
         LOG_CRITICAL(Core, "Failed to load ROM (Error {})!", static_cast<u32>(load_result));
         System::Shutdown();
@@ -450,7 +420,6 @@ System::ResultStatus System::Init(Frontend::EmuWindow& emu_window, u32 system_mo
         }
     }
 
-    kernel->SetRunningCPU(cpu_cores[0].get());
     if (Settings::values.core_downcount_hack) {
         SetCpuUsageLimit(true);
     }

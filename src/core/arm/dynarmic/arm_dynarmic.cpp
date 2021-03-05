@@ -153,9 +153,7 @@ public:
 
 ARM_Dynarmic::ARM_Dynarmic(Core::System* system, u32 id, std::shared_ptr<Core::Timing::Timer> timer)
     : ARM_Interface(id, timer), system(*system), memory(system->Memory()),
-      cb(std::make_unique<DynarmicUserCallbacks>(*this)) {
-    SetPageTable(memory.GetCurrentPageTable());
-}
+      cb(std::make_unique<DynarmicUserCallbacks>(*this)) {}
 
 ARM_Dynarmic::~ARM_Dynarmic() = default;
 

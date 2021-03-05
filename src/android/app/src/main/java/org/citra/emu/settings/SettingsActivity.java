@@ -3,12 +3,18 @@ package org.citra.emu.settings;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.FragmentTransaction;
 
 import org.citra.emu.R;
 import org.citra.emu.settings.model.Setting;
+import org.citra.emu.utils.DirectoryInitialization;
+
+import java.io.File;
 
 public final class SettingsActivity extends AppCompatActivity {
 
@@ -77,6 +83,33 @@ public final class SettingsActivity extends AppCompatActivity {
         if (mSettings != null && isFinishing() && mShouldSave) {
             mSettings.saveSettings();
         }
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        MenuInflater inflater = getMenuInflater();
+        inflater.inflate(R.menu.menu_setting, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        if (item.getItemId() == R.id.menu_reset_setting) {
+            File ini = new File(DirectoryInitialization.getConfigFile());
+            try {
+                ini.delete();
+            } catch (Exception e) {
+                // ignore
+            }
+            mSettings.loadSettings(mGameId);
+            // show settings
+            SettingsFragment fragment = getSettingsFragment();
+            if (fragment != null) {
+                fragment.showSettingsList(mSettings);
+            }
+            return true;
+        }
+        return false;
     }
 
     public void showSettingsFragment(MenuTag menuTag, Bundle extras, boolean addToStack,

@@ -121,7 +121,6 @@ public final class SettingsFragment extends Fragment {
         Setting hwShader = rendererSection.getSetting(SettingsFile.KEY_USE_HW_SHADER);
         Setting accurateMul = rendererSection.getSetting(SettingsFile.KEY_SHADERS_ACCURATE_MUL);
         Setting shader = rendererSection.getSetting(SettingsFile.KEY_POST_PROCESSING_SHADER);
-        Setting useFrameLimit = rendererSection.getSetting(SettingsFile.KEY_USE_FRAME_LIMIT);
         Setting frameLimit = rendererSection.getSetting(SettingsFile.KEY_FRAME_LIMIT);
         Setting customTex = rendererSection.getSetting(SettingsFile.KEY_CUSTOM_TEXTURES);
         Setting preloadTex = rendererSection.getSetting(SettingsFile.KEY_PRELOAD_TEXTURES);
@@ -165,7 +164,7 @@ public final class SettingsFragment extends Fragment {
         sl.add(new CheckBoxSetting(SettingsFile.KEY_CUSTOM_TEXTURES, Settings.SECTION_INI_RENDERER,
                                    R.string.setting_custom_textures, 0, false, customTex));
         sl.add(new CheckBoxSetting(SettingsFile.KEY_PRELOAD_TEXTURES, Settings.SECTION_INI_RENDERER,
-                                   R.string.setting_preload_textures, 0, false, preloadTex));
+                                   R.string.setting_preload_textures, R.string.setting_preload_textures_description, false, preloadTex));
         sl.add(new CheckBoxSetting(SettingsFile.KEY_CPU_USAGE_LIMIT, Settings.SECTION_INI_DEBUG,
                 R.string.cpu_usage_limit, R.string.cpu_usage_limit_description, false, cpuLimit));
         sl.add(new SliderSetting(SettingsFile.KEY_FRAME_LIMIT, Settings.SECTION_INI_RENDERER,
@@ -179,15 +178,12 @@ public final class SettingsFragment extends Fragment {
         sl.add(new HeaderSetting(null, null, R.string.setting_header_core, 0));
         SettingSection coreSection = mSettings.getSection(Settings.SECTION_INI_CORE);
         Setting isNew3DS = coreSection.getSetting(SettingsFile.KEY_IS_NEW_3DS);
-        Setting useVirtualSD = coreSection.getSetting(SettingsFile.KEY_USE_VIRTUAL_SD);
         Setting systemRegion = coreSection.getSetting(SettingsFile.KEY_SYSTEM_REGION);
         Setting cpuJIT = coreSection.getSetting(SettingsFile.KEY_USE_CPU_JIT);
         Setting language = coreSection.getSetting(SettingsFile.KEY_SYSTEM_LANGUAGE);
 
         sl.add(new CheckBoxSetting(SettingsFile.KEY_IS_NEW_3DS, Settings.SECTION_INI_CORE,
                 R.string.setting_is_new_3ds, R.string.setting_is_new_3ds_desc, false, isNew3DS));
-        sl.add(new CheckBoxSetting(SettingsFile.KEY_USE_VIRTUAL_SD, Settings.SECTION_INI_CORE,
-                R.string.setting_use_virtual_sd, 0, true, useVirtualSD));
         sl.add(new CheckBoxSetting(SettingsFile.KEY_USE_CPU_JIT, Settings.SECTION_INI_CORE,
                 R.string.setting_enable_cpu_jit, 0, true, cpuJIT));
         sl.add(new SingleChoiceSetting(SettingsFile.KEY_SYSTEM_REGION, Settings.SECTION_INI_CORE,
@@ -211,7 +207,7 @@ public final class SettingsFragment extends Fragment {
             SettingsFile.KEY_AUDIO_ENGINE, Settings.SECTION_INI_AUDIO,
             R.string.setting_audio_output, 0, stringEntries, stringValues, "auto", audioOutput));
         sl.add(new CheckBoxSetting(SettingsFile.KEY_AUDIO_STRETCHING, Settings.SECTION_INI_AUDIO,
-                                   R.string.setting_audio_stretching, 0, false, audioStretching));
+                                   R.string.setting_audio_stretching, R.string.setting_audio_stretching_description, false, audioStretching));
 
         // mic
         Setting micType = audioSection.getSetting(SettingsFile.KEY_MIC_INPUT_TYPE);

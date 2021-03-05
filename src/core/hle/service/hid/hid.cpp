@@ -95,9 +95,9 @@ void Module::UpdatePad() {
     // Get current circle pad position and update circle pad direction
     float circle_pad_x_f, circle_pad_y_f;
     std::tie(circle_pad_x_f, circle_pad_y_f) = circle_pad->GetStatus();
-    constexpr int MAX_CIRCLEPAD_POS = 0x90; // Max value for a circle pad position
-    s16 circle_pad_x = static_cast<s16>(circle_pad_x_f * MAX_CIRCLEPAD_POS);
-    s16 circle_pad_y = static_cast<s16>(circle_pad_y_f * MAX_CIRCLEPAD_POS);
+    constexpr int MAX_CIRCLEPAD_POS = 0x9A; // Max value for a circle pad position
+    s16 circle_pad_x = static_cast<s16>(std::roundf(circle_pad_x_f * MAX_CIRCLEPAD_POS));
+    s16 circle_pad_y = static_cast<s16>(std::roundf(circle_pad_y_f * MAX_CIRCLEPAD_POS));
 
     Core::Movie::GetInstance().HandlePadAndCircleStatus(state, circle_pad_x, circle_pad_y);
 

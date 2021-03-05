@@ -78,8 +78,6 @@ void ThreadManager::SwitchContext(Thread* new_thread) {
     Thread* previous_thread = GetCurrentThread();
     Process* previous_process = nullptr;
 
-    Core::Timing& timing = kernel.timing;
-
     // Save context for previous thread
     if (previous_thread) {
         previous_process = previous_thread->owner_process;
@@ -99,7 +97,7 @@ void ThreadManager::SwitchContext(Thread* new_thread) {
                    "Thread must be ready to become running.");
 
         // Cancel any outstanding wakeup events for this thread
-        timing.UnscheduleEvent(ThreadWakeupEventType, new_thread->thread_id);
+        kernel.timing.UnscheduleEvent(ThreadWakeupEventType, new_thread->thread_id);
 
         current_thread = SharedFrom(new_thread);
 
@@ -275,7 +273,7 @@ ResultVal<std::shared_ptr<Thread>> KernelSystem::CreateThread(std::string name, 
                           ErrorSummary::InvalidArgument, ErrorLevel::Permanent);
     }
 
-    if (!Settings::values.is_new_3ds || processor_id >= thread_managers.size()) {
+    if (!Settings::values.is_new_3ds) {
         processor_id = 0;
     }
 
@@ -391,7 +389,16 @@ bool ThreadManager::HaveReadyThreads() {
     return ready_queue.get_first() != nullptr;
 }
 
+void ThreadManager::PrepareReschedule() {
+    reschedule_pending = true;
+}
+
 void ThreadManager::Reschedule() {
+    if (!reschedule_pending) {
+        return;
+    }
+    reschedule_pending = false;
+
     Thread* next;
     Thread* cur = GetCurrentThread();
 
@@ -454,7 +461,7 @@ ThreadManager::~ThreadManager() {
     }
 }
 
-const std::vector<std::shared_ptr<Thread>>& ThreadManager::GetThreadList() {
+const std::vector<std::shared_ptr<Thread>>& ThreadManager::GetThreadList() const {
     return thread_list;
 }
 

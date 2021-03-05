@@ -210,13 +210,12 @@ public:
 
     u32 GetProcessThreadsCount(const std::shared_ptr<Process>& process) const;
 
+    void Initialize(const std::shared_ptr<Process>& process, ARM_Interface* cpu);
     std::shared_ptr<Process> GetCurrentProcess() const;
-    void SetCurrentProcess(const std::shared_ptr<Process>& process);
     void SetCurrentProcessForCPU(const std::shared_ptr<Process>& process, u32 core_id);
 
-    void SetCurrentMemoryPageTable(Memory::PageTable* page_table);
-
-    void SetRunningCPU(ARM_Interface* cpu);
+    void Advance(ARM_Interface* cpu, s64 max_slice_length);
+    void Run(ARM_Interface* cpu);
 
     ThreadManager& GetThreadManager(u32 core_id);
     const ThreadManager& GetThreadManager(u32 core_id) const;
@@ -264,17 +263,18 @@ public:
     /// Map of named ports managed by the kernel, which can be retrieved using the ConnectToPort
     std::unordered_map<std::string, std::shared_ptr<ClientPort>> named_ports;
 
-    ARM_Interface* current_cpu = nullptr;
-
     Memory::MemorySystem& memory;
 
     Core::Timing& timing;
 
 private:
     void MemoryInit(u32 mem_type, u8 n3ds_mode);
+    void SetCurrentProcess(const std::shared_ptr<Process>& process);
 
     std::unique_ptr<ResourceLimitList> resource_limits;
     std::atomic<u32> next_object_id{0};
+
+    ARM_Interface* current_cpu = nullptr;
 
     // Note: keep the member order below in order to perform correct destruction.
     // Thread manager is destructed before process list in order to Stop threads and clear thread
@@ -284,9 +284,6 @@ private:
     // TODO (wwylele): refactor the cleanup sequence to make this less complicated and sensitive.
 
     std::unique_ptr<TimerManager> timer_manager;
-
-    /// When true, signals that a reschedule should happen
-    bool reschedule_pending = false;
 
     // TODO(Subv): Start the process ids from 10 for now, as lower PIDs are
     // reserved for low-level services

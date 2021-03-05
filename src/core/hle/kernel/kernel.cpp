@@ -49,40 +49,65 @@ u32 KernelSystem::GenerateObjectID() {
     return next_object_id++;
 }
 
+void KernelSystem::Initialize(const std::shared_ptr<Process>& process, ARM_Interface* cpu) {
+    current_cpu = cpu;
+    current_process = process;
+    memory.SetCurrentPageTable(&process->vm_manager.page_table);
+    for (int i = 0; i < thread_managers.size(); ++i) {
+        stored_processes[i] = process;
+        thread_managers[i]->cpu->SetPageTable(&process->vm_manager.page_table);
+    }
+}
+
 std::shared_ptr<Process> KernelSystem::GetCurrentProcess() const {
     return current_process;
 }
 
 void KernelSystem::SetCurrentProcess(const std::shared_ptr<Process>& process) {
     current_process = process;
-    SetCurrentMemoryPageTable(&process->vm_manager.page_table);
+    memory.SetCurrentPageTable(&process->vm_manager.page_table);
+    stored_processes[current_cpu->GetID()] = process;
+    current_cpu->SetPageTable(&process->vm_manager.page_table);
 }
 
 void KernelSystem::SetCurrentProcessForCPU(const std::shared_ptr<Process>& process, u32 core_id) {
     if (current_cpu->GetID() == core_id) {
-        current_process = process;
-        SetCurrentMemoryPageTable(&process->vm_manager.page_table);
+        SetCurrentProcess(process);
     } else {
         stored_processes[core_id] = process;
         thread_managers[core_id]->cpu->SetPageTable(&process->vm_manager.page_table);
     }
 }
 
-void KernelSystem::SetCurrentMemoryPageTable(Memory::PageTable* page_table) {
-    memory.SetCurrentPageTable(page_table);
-    if (current_cpu != nullptr) {
-        current_cpu->SetPageTable(page_table);
-    }
+void KernelSystem::Advance(ARM_Interface* cpu, s64 max_slice_length) {
+    ARM_Interface* previous_cpu = current_cpu;
+    current_cpu = cpu;
+    cpu->GetTimer().Advance(max_slice_length);
+    current_cpu = previous_cpu;
 }
 
-void KernelSystem::SetRunningCPU(ARM_Interface* cpu) {
-    if (current_process) {
-        stored_processes[current_cpu->GetID()] = current_process;
-    }
+void KernelSystem::Run(ARM_Interface* cpu) {
+    const u32 new_cpu_id = cpu->GetID();
+    const u32 old_cpu_id = current_cpu->GetID();
     current_cpu = cpu;
-    timing.SetCurrentTimer(cpu->GetID());
-    if (stored_processes[current_cpu->GetID()]) {
-        SetCurrentProcess(stored_processes[current_cpu->GetID()]);
+
+    // try switch process context
+    auto& new_process = stored_processes[new_cpu_id];
+    if (new_process != current_process) {
+        stored_processes[old_cpu_id] = current_process;
+        SetCurrentProcess(new_process);
+    }
+
+    timing.SetCurrentTimer(new_cpu_id);
+
+    // If we don't have a currently active thread then don't execute instructions,
+    // instead advance to the next event and try to yield to the next thread
+    if (thread_managers[new_cpu_id]->GetCurrentThread() == nullptr) {
+        LOG_TRACE(Core_ARM11, "Core {} idling", current_cpu_id);
+        current_cpu->GetTimer().Idle();
+        thread_managers[new_cpu_id]->PrepareReschedule();
+    } else {
+        current_cpu->Run();
     }
 }
 
@@ -132,27 +157,19 @@ void KernelSystem::AddNamedPort(std::string name, std::shared_ptr<ClientPort> po
 
 void KernelSystem::PrepareReschedule() {
     current_cpu->PrepareReschedule();
-    reschedule_pending = true;
+    for (auto& manager : thread_managers) {
+        manager->PrepareReschedule();
+    }
 }
 
 /// Reschedule the core emulation
 void KernelSystem::RescheduleMultiCores() {
-    if (!reschedule_pending) {
-        return;
-    }
-
-    reschedule_pending = false;
-    for (const auto& manager : thread_managers) {
+    for (auto& manager : thread_managers) {
         manager->Reschedule();
     }
 }
 
 void KernelSystem::RescheduleSingleCore() {
-    if (!reschedule_pending) {
-        return;
-    }
-
-    reschedule_pending = false;
     thread_managers[0]->Reschedule();
 }
 
