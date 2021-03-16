@@ -100,6 +100,7 @@ void BootGame(const std::string& path) {
             ShowMessageDialog(0, "Error while loading ROM! An unknown error occured.");
             break;
         }
+        NotifyGameShudown();
         return;
     }
 
@@ -853,6 +854,11 @@ Java_org_citra_emu_utils_NetPlayManager_NetPlayKickUser(JNIEnv *env, jclass claz
 JNIEXPORT void JNICALL
 Java_org_citra_emu_utils_NetPlayManager_NetPlayLeaveRoom(JNIEnv *env, jclass clazz) {
     NetPlayLeaveRoom();
+}
+
+JNIEXPORT jstring JNICALL
+Java_org_citra_emu_utils_NetPlayManager_NetPlayGetConsoleId(JNIEnv *env, jclass clazz) {
+    return ToJString(NetPlayGetConsoleId());
 }
 
 #ifdef __cplusplus

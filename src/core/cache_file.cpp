@@ -114,8 +114,7 @@ public:
         file.ReadBytes(out, cur_len);
         const int res = lzo1x_decompress(out, cur_len, buffer.data(), &new_len, wrkmem);
         if (res != LZO_E_OK) {
-            ASSERT_MSG(false, "Internal LZO Error - decompression failed ({}) ({}, {})", res, i,
-                       new_len);
+            ASSERT_MSG(false, "Internal LZO Error - decompression failed ({}) ({})", res, new_len);
             buffer.clear();
             return false;
         }

@@ -8,6 +8,13 @@
 #include "core/settings.h"
 #include "core/hle/service/cfg/cfg.h"
 
+void NetPlayGenerateConsoleId() {
+    auto cfg = Service::CFG::GetModule(Core::System::GetInstance());
+    auto[random_number, console_id] = cfg->GenerateConsoleUniqueId();
+    cfg->SetConsoleUniqueId(random_number, console_id);
+    cfg->UpdateConfigNANDSavegame();
+}
+
 bool NetworkInit() {
     bool result = Network::Init();
 
@@ -62,6 +69,7 @@ bool NetworkInit() {
                         break;
                     case Network::RoomMember::Error::ConsoleIdCollision:
                         status = NetPlayStatus::CONSOLE_ID_COLLISION;
+                        NetPlayGenerateConsoleId();
                         break;
                     case Network::RoomMember::Error::WrongVersion:
                         status = NetPlayStatus::WRONG_VERSION;
@@ -138,7 +146,7 @@ NetPlayStatus NetPlayCreateRoom(const std::string& ipaddress, int port, const st
         return NetPlayStatus::NETWORK_ERROR;
     }
 
-    if (!room->Create(ipaddress, "", "", port, "", 8, username)) {
+    if (!room->Create(ipaddress, "", "", port, "", 31, username)) {
         return NetPlayStatus::CREATE_ROOM_ERROR;
     }
 
@@ -221,6 +229,12 @@ void NetPlayLeaveRoom() {
             room->Destroy();
         }
     }
+}
+
+std::string NetPlayGetConsoleId() {
+    auto cfg = Service::CFG::GetModule(Core::System::GetInstance());
+    u64 console_id = cfg->GetConsoleUniqueId();
+    return fmt::format("{:016X}", console_id);
 }
 
 void NetworkShutdown() {

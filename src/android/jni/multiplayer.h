@@ -46,4 +46,5 @@ bool NetPlayIsHostedRoom();
 void NetPlaySendMessage(const std::string& msg);
 void NetPlayKickUser(const std::string& username);
 void NetPlayLeaveRoom();
+std::string NetPlayGetConsoleId();
 void NetworkShutdown();
