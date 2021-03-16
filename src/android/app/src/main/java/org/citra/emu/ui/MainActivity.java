@@ -4,6 +4,7 @@
 
 package org.citra.emu.ui;
 
+import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
@@ -55,13 +56,15 @@ public final class MainActivity extends AppCompatActivity {
 
     public static final String PREF_LIST_TYPE = "list_type";
 
-    private class RefreshTask extends AsyncTask<String, GameFile, Void> {
+    @SuppressLint("StaticFieldLeak")
+    private class RefreshTask extends AsyncTask<Void, GameFile, Void> {
         @Override
-        protected Void doInBackground(String... args) {
-            String root = args[0];
+        protected Void doInBackground(Void... args) {
             final String SDMC = "citra-emu/sdmc/Nintendo 3DS";
             List<File> dirs = new ArrayList<>();
-            dirs.add(new File(root));
+            dirs.add(new File(DirectoryInitialization.getSystemApplicationDirectory()));
+            dirs.add(new File(DirectoryInitialization.getSystemAppletDirectory()));
+            dirs.add(new File(DirectoryInitialization.getSDMCDirectory()));
             while (dirs.size() > 0) {
                 File dir = dirs.get(0);
                 File[] files = dir.listFiles();
@@ -331,7 +334,7 @@ public final class MainActivity extends AppCompatActivity {
             if (mInstalledGames == null) {
                 mInstalledGames = new ArrayList<>();
                 mAdapter.setGameList(mInstalledGames);
-                new RefreshTask().execute(DirectoryInitialization.getSDMCDirectory());
+                new RefreshTask().execute();
             } else {
                 if (mInstalledGames.size() > 0) {
                     mAdapter.setGameList(mInstalledGames);
@@ -356,7 +359,7 @@ public final class MainActivity extends AppCompatActivity {
 
     public void refreshLibrary() {
         if (mIsListApp) {
-            new RefreshTask().execute(DirectoryInitialization.getSDMCDirectory());
+            new RefreshTask().execute();
         } else {
             List<String> dirs = new ArrayList<>();
             for (int i = mGames.size(); i > 0; --i) {
@@ -610,7 +613,7 @@ public final class MainActivity extends AppCompatActivity {
         public void onClick(View view) {
             GameViewHolder holder = (GameViewHolder)view.getTag();
             GameFile model = holder.getModel();
-            if (!model.isInstalledDLC()) {
+            if (DirectoryInitialization.isInitialized() && !model.isInstalledDLC()) {
                 EmulationActivity.launch(view.getContext(), model);
             }
         }

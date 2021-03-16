@@ -9,6 +9,7 @@
 
     <string name="error">错误</string>
     <string name="cia_install_success">安装成功！</string>
+    <string name="delete_success">删除成功！</string>
     <string name="keyboard_please_input">请输入：</string>
     <string name="input_text_max_length">输入长度限制：%1$d.</string>
     <string name="text_amiibo_hint">Amiibo 目录是空的！</string>
@@ -50,6 +51,7 @@
     <string name="translate_settings">屏幕翻译</string>
     <string name="multiplayer">多人游戏</string>
     <string name="multiplayer_room_title">房间：%1$s</string>
+    <string name="multiplayer_console_id">设备 ID：%1$s</string>
     <string name="multiplayer_create_room">创建房间</string>
     <string name="multiplayer_join_room">加入房间</string>
     <string name="multiplayer_username">用户名</string>
@@ -89,7 +91,6 @@
     <string name="multiplayer_member_banned">%1$s 被禁</string>
     <string name="multiplayer_address_unbanned">已解封</string>
     <string name="multiplayer_kick_member">踢出</string>
-    <string name="multiplayer_network_delay">网络延时：%1$s，%2$s 毫秒</string>
 
     <string name="emulation_system_files">系统文件</string>
     <string name="emulation_memory_viewer">内存查看器</string>
@@ -224,6 +225,7 @@
     <string name="reset_setting">重置设置</string>
     <string name="installed_app">(已安装：%1$s)</string>
     <string name="delete_app_sdmc">删除存档目录</string>
+    <string name="delete_shader_cache">删除着色器缓存</string>
     <string name="delete_confirm_notice">确定删除游戏存档目录？</string>
 
     <string name="controller_stick">主摇杆</string>

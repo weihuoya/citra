@@ -161,31 +161,4 @@
         <item>@string/memory_value_one_byte</item>
     </string-array>
 
-    <string-array name="system_firmwares" translatable="false">
-        <item>Safe Mode Native Firmware, 0x00000003, 0x00000003, 0x00000003, 0x00000003, 0x00000003, 0x00000003</item>
-        <item>New 3DS Safe Mode Native Firmware, 0x20000003, 0x20000003, 0x20000003, 0x20000003, 0x20000003, 0x20000003</item>
-        <item>Native Firmware, 0x00000002, 0x00000002, 0x00000002, 0x00000002, 0x00000002, 0x00000002</item>
-        <item>New 3DS Native Firmware, 0x20000002, 0x20000002, 0x20000002, 0x20000002, 0x20000002, 0x20000002</item>
-    </string-array>
-
-    <string-array name="system_applications" translatable="false">
-        <item>System Settings, 0x00020000, 0x00021000, 0x00022000, 0x00026000, 0x00027000, 0x00028000</item>
-        <item>Download Play, 0x00020100, 0x00021100, 0x00022100, 0x00026100, 0x00027100, 0x00028100</item>
-        <item>Activity Log, 0x00020200, 0x00021200, 0x00022200, 0x00026200, 0x00027200, 0x00028200</item>
-        <item>Health and Safety Information, 0x00020300, 0x00021300, 0x00022300, 0x00026300, 0x00027300, 0x00028300</item>
-        <item>New 3DS Health and Safety Information, 0x20020300, 0x20021300, 0x20022300, 0x0, 0x20027300, 0x0</item>
-        <item>Nintendo 3DS Camera, 0x00020400, 0x00021400, 0x00022400, 0x00026400, 0x00027400, 0x00028400</item>
-        <item>Nintendo 3DS Sound, 0x00020500, 0x00021500, 0x00022500, 0x00026500, 0x00027500, 0x00028500</item>
-        <item>Mii Maker, 0x00020700, 0x00021700, 0x00022700, 0x00026700, 0x00027700, 0x00028700</item>
-        <item>StreetPass Mii Plaza, 0x00020800, 0x00021800, 0x00022800, 0x00026800, 0x00027800, 0x00028800</item>
-        <item>eShop, 0x00020900, 0x00021900, 0x00022900, 0x0, 0x00027900, 0x00028900</item>
-        <item>System Transfer, 0x00020A00, 0x00021A00, 0x00022A00, 0x0, 0x00027A00, 0x00028A00</item>
-        <item>Nintendo Zone, 0x00020B00, 0x00021B00, 0x00022B00, 0x0, 0x0, 0x0</item>
-        <item>Face Raiders, 0x00020D00, 0x00021D00, 0x00022D00, 0x00026D00, 0x00027D00, 0x00028D00</item>
-        <item>New 3DS Face Raiders, 0x20020D00, 0x20021D00, 0x20022D00, 0x0, 0x20027D00, 0x0</item>
-        <item>AR Games, 0x00020E00, 0x00021E00, 0x00022E00, 0x00026E00, 0x00027E00, 0x00028E00</item>
-        <item>Nintendo Network ID Settings, 0x0002BF00, 0x0002C000, 0x0002C100, 0x0, 0x0, 0x0</item>
-        <item>microSD Management, 0x20023100, 0x20024100, 0x20025100, 0x0, 0x0, 0x0</item>
-    </string-array>
-
 </resources>

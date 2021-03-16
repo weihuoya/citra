@@ -9,6 +9,7 @@
 
     <string name="error">Error</string>
     <string name="cia_install_success">Install Success!</string>
+    <string name="delete_success">Delete Success!</string>
     <string name="keyboard_please_input">Please Input:</string>
     <string name="input_text_max_length">Max input length: %1$d.</string>
     <string name="text_amiibo_hint">The amiibo directory is empty!</string>
@@ -50,6 +51,7 @@
     <string name="translate_settings">Screen Translation</string>
     <string name="multiplayer">Multiplayer</string>
     <string name="multiplayer_room_title">Room: %1$s</string>
+    <string name="multiplayer_console_id">Console ID：%1$s</string>
     <string name="multiplayer_create_room">Create Room</string>
     <string name="multiplayer_join_room">Join Room</string>
     <string name="multiplayer_username">Username</string>
@@ -89,7 +91,6 @@
     <string name="multiplayer_member_banned">%1$s banned</string>
     <string name="multiplayer_address_unbanned">address unbanned</string>
     <string name="multiplayer_kick_member">Kick Out</string>
-    <string name="multiplayer_network_delay">Network Delay: %1$s, %2$s ms</string>
 
     <string name="emulation_system_files">System Files</string>
     <string name="emulation_memory_viewer">Memory Viewer</string>
@@ -224,6 +225,7 @@
     <string name="reset_setting">Reset Setting</string>
     <string name="installed_app">(Installed: %1$s)</string>
     <string name="delete_app_sdmc">Delete Archive Directory</string>
+    <string name="delete_shader_cache">Delete Shader Cache</string>
     <string name="delete_confirm_notice">Are you sure to delete the game archive directory?</string>
 
     <string name="controller_stick">Main Stick</string>

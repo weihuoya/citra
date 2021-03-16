@@ -141,23 +141,23 @@ public final class NativeLibrary {
 
         if (size > GB) {
             sb.append(size / GB);
-            sb.append(" GiB ");
+            sb.append(" GB ");
             size %= GB;
         }
 
         if (size > MB) {
             sb.append(size / MB);
-            sb.append(" MiB ");
+            sb.append(" MB ");
             size %= MB;
         }
 
         if (size > KB) {
             sb.append(size / KB);
-            sb.append(" KiB ");
+            sb.append(" KB ");
             size %= KB;
         }
 
-        if (size > 0) {
+        if (sb.length() == 0 && size > 0) {
             sb.append(size);
             sb.append(" B ");
         }

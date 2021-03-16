@@ -570,6 +570,8 @@ public class RunningSettingDialog extends DialogFragment {
                 }
                 mSettings.add(new SettingsItem(SettingsItem.SETTING_MULTIPLAYER_EXIT_ROOM, R.string.multiplayer_exit_room, SettingsItem.TYPE_TEXT, 0));
             } else {
+                String consoleTitle = getString(R.string.multiplayer_console_id, NetPlayManager.NetPlayGetConsoleId());
+                mSettings.add(new SettingsItem(SettingsItem.SETTING_MULTIPLAYER_ROOM_TEXT, consoleTitle, SettingsItem.TYPE_TEXT, 0));
                 mSettings.add(new SettingsItem(SettingsItem.SETTING_MULTIPLAYER_CREATE_ROOM, R.string.multiplayer_create_room, SettingsItem.TYPE_TEXT, 0));
                 mSettings.add(new SettingsItem(SettingsItem.SETTING_MULTIPLAYER_JOIN_ROOM, R.string.multiplayer_join_room, SettingsItem.TYPE_TEXT, 0));
             }

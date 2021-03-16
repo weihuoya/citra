@@ -154,6 +154,8 @@ public class NetPlayManager {
 
     public static native void NetPlayLeaveRoom();
 
+    public static native String NetPlayGetConsoleId();
+
     public static void AddNetPlayMessage(int type, String msg) {
         EmulationActivity activity1 = EmulationActivity.get();
         MainActivity activity2 = MainActivity.get();

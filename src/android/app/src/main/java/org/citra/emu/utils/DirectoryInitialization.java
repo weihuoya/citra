@@ -1,25 +1,50 @@
 package org.citra.emu.utils;
 
 import android.content.Context;
+import android.content.res.Resources;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.os.AsyncTask;
 import android.os.Environment;
+
+import java.io.BufferedInputStream;
+import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.Collection;
+import java.util.Dictionary;
+import java.util.Enumeration;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipInputStream;
+import java.util.zip.ZipOutputStream;
+
 import org.citra.emu.NativeLibrary;
+import org.citra.emu.R;
+import org.citra.emu.overlay.InputOverlay;
 
 public final class DirectoryInitialization {
     private static DirectoryInitializationState sDirectoryState;
     private static String mUserPath;
 
+    private static class InitTask extends AsyncTask<Context, Void, Void> {
+        @Override
+        protected Void doInBackground(Context... contexts) {
+            initializeExternalStorage(contexts[0]);
+            return null;
+        }
+    }
+
     public static void start(Context context) {
         if (sDirectoryState != DirectoryInitializationState.DIRECTORIES_INITIALIZED) {
             if (PermissionsHandler.hasWriteAccess(context)) {
                 if (setUserDirectory()) {
-                    initializeExternalStorage(context);
-                    sDirectoryState = DirectoryInitializationState.DIRECTORIES_INITIALIZED;
+                    new InitTask().execute(context);
                 } else {
                     sDirectoryState = DirectoryInitializationState.CANT_FIND_EXTERNAL_STORAGE;
                 }
@@ -27,6 +52,10 @@ public final class DirectoryInitialization {
                 sDirectoryState = DirectoryInitializationState.EXTERNAL_STORAGE_PERMISSION_NEEDED;
             }
         }
+    }
+
+    public static boolean isInitialized() {
+        return sDirectoryState == DirectoryInitializationState.DIRECTORIES_INITIALIZED;
     }
 
     private static boolean setUserDirectory() {
@@ -50,10 +79,15 @@ public final class DirectoryInitialization {
         File sysdata = new File(getSysDataDirectory());
         File cheats = new File(getCheatsDirectory());
         File sdmc = new File(getSDMCDirectory());
+        File theme = new File(getThemeDirectory());
         copyAssetFolder("shaders", shaders, false, context);
         copyAssetFolder("sysdata", sysdata, false, context);
-        copyAssetFolder("cheats", cheats, false, context);
+        // copyAssetFolder("cheats", cheats, false, context);
         copyAssetFolder("sdmc", sdmc, false, context);
+        if (theme.exists() || theme.mkdir()) {
+            saveInputOverlay(context);
+        }
+        sDirectoryState = DirectoryInitializationState.DIRECTORIES_INITIALIZED;
     }
 
     private static void deleteDirectoryRecursively(File file) {
@@ -96,8 +130,93 @@ public final class DirectoryInitialization {
         return getUserDirectory() + File.separator + "amiibo";
     }
 
+    public static String getThemeDirectory() {
+        return getUserDirectory() + File.separator + "theme";
+    }
+
     public static String getSDMCDirectory() {
         return getUserDirectory() + File.separator + "sdmc";
+    }
+
+    public static String getSystemTitleDirectory() {
+        return getUserDirectory() + "/nand/00000000000000000000000000000000/title";
+    }
+
+    public static String getSystemApplicationDirectory() {
+        return getUserDirectory() + "/nand/00000000000000000000000000000000/title/00040010";
+    }
+
+    public static String getSystemAppletDirectory() {
+        return getUserDirectory() + "/nand/00000000000000000000000000000000/title/00040030";
+    }
+
+    public static String getApplicationDirectory() {
+        return getSDMCDirectory() + "/Nintendo 3DS/00000000000000000000000000000000/00000000000000000000000000000000/title";
+    }
+
+    public static File getShaderCacheFile(String programId) {
+        return new File(getUserDirectory() + "/Cache/" + programId + ".cache");
+    }
+
+    public static void saveInputOverlay(Context context) {
+        final int[] inputIds = InputOverlay.ResIds;
+        final String[] inputNames = InputOverlay.ResNames;
+        String path = getThemeDirectory() + "/default.zip";
+        File file = new File(path);
+        if (file.exists()) {
+            return;
+        }
+        try {
+            FileOutputStream outputStream = new FileOutputStream(file);
+            ZipOutputStream zipOut = new ZipOutputStream(new BufferedOutputStream(outputStream));
+            for (int i = 0; i < inputIds.length; ++i) {
+                ZipEntry entry = new ZipEntry(inputNames[i]);
+                zipOut.putNextEntry(entry);
+                Bitmap bitmap = BitmapFactory.decodeResource(context.getResources(), inputIds[i]);
+                bitmap.compress(Bitmap.CompressFormat.PNG, 90, zipOut);
+            }
+            zipOut.close();
+        } catch (IOException e) {
+            // ignore
+        }
+    }
+
+    public static Map<Integer, Bitmap> loadInputOverlay(Context context) {
+        final int[] inputIds = InputOverlay.ResIds;
+        final String[] inputNames = InputOverlay.ResNames;
+        Map<Integer, Bitmap> inputs = new HashMap<>();
+        String path = getThemeDirectory() + "/default.zip";
+        File file = new File(path);
+
+        // default bitmaps
+        for (int id : inputIds) {
+            Bitmap bitmap = BitmapFactory.decodeResource(context.getResources(), id);
+            inputs.put(id, bitmap);
+        }
+
+        if (!file.exists()) {
+            return inputs;
+        }
+
+        try {
+            FileInputStream inputStream = new FileInputStream(file);
+            ZipInputStream zipIn = new ZipInputStream(new BufferedInputStream(inputStream));
+
+            ZipEntry entry;
+            while ((entry = zipIn.getNextEntry()) != null) {
+                for (int i = 0; i < inputNames.length; ++i) {
+                    if (!entry.isDirectory() && inputNames[i].equals(entry.getName())) {
+                        Bitmap bitmap = BitmapFactory.decodeStream(zipIn);
+                        inputs.put(inputIds[i], bitmap);
+                    }
+                }
+            }
+            zipIn.close();
+        } catch (IOException e) {
+            // ignore
+        }
+
+        return inputs;
     }
 
     private static void copyAsset(String asset, File output, Boolean overwrite, Context context) {

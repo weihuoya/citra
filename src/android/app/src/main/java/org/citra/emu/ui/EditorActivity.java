@@ -12,7 +12,6 @@ import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
-import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -34,11 +33,13 @@ import androidx.appcompat.widget.Toolbar;
 
 import com.nononsenseapps.filepicker.DividerItemDecoration;
 
+import java.io.BufferedInputStream;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -226,6 +227,10 @@ public final class EditorActivity extends AppCompatActivity {
             case R.id.menu_delete_sdmc:
                 deleteAppSdmc();
                 return true;
+
+            case R.id.menu_delete_shader_cache:
+                deleteShaderCache();
+                return true;
         }
 
         return false;
@@ -253,18 +258,41 @@ public final class EditorActivity extends AppCompatActivity {
         }
     }
 
+    private void deleteShaderCache() {
+        File cache = DirectoryInitialization.getShaderCacheFile(mProgramId);
+        if (cache.exists()) {
+            if (cache.delete()) {
+                Toast.makeText(this, R.string.delete_success, Toast.LENGTH_SHORT).show();
+            }
+        }
+    }
+
     private void deleteAppSdmc() {
         AlertDialog.Builder builder = new AlertDialog.Builder(EditorActivity.this);
         builder.setMessage(R.string.delete_confirm_notice);
         builder.setPositiveButton(android.R.string.ok, (DialogInterface dialog, int which) -> {
-            String sdmc = DirectoryInitialization.getSDMCDirectory();
-            String subdir = "Nintendo 3DS/00000000000000000000000000000000/00000000000000000000000000000000/title";
             String pid = mProgramId.substring(0, 8).toLowerCase();
             String subid = mProgramId.substring(8).toLowerCase();
-            String path = sdmc + "/" + subdir + "/0004000e/" + subid;
-            deleteContents(new File(path));
-            if (!pid.equals("0004000e")) {
-                path = sdmc + "/" + subdir + "/" + pid + "/" + subid;
+            if (pid.equals("00040010") || pid.equals("00040030")) {
+                String system = DirectoryInitialization.getSystemTitleDirectory();
+                String path = system + "/" + pid + "/" + subid;
+                deleteContents(new File(path));
+            } else if (pid.equals("00040000")) {
+                String root = DirectoryInitialization.getApplicationDirectory();
+                String path = root + "/" + pid + "/" + subid;
+                deleteContents(new File(path));
+
+                // DLC
+                path = root + "/0004000e/" + subid;
+                deleteContents(new File(path));
+
+                // DLC
+                path = root + "/0004008c/" + subid;
+                deleteContents(new File(path));
+            } else if (pid.equals("0004000e")) {
+                // DLC
+                String root = DirectoryInitialization.getApplicationDirectory();
+                String path = root + "/" + pid + "/" + subid;
                 deleteContents(new File(path));
             }
             Toast.makeText(this, "Delete Success!", Toast.LENGTH_LONG).show();
@@ -277,6 +305,11 @@ public final class EditorActivity extends AppCompatActivity {
         File cheatFile = DirectoryInitialization.getCheatFile(programId);
         mCheats.clear();
         if (cheatFile == null || !cheatFile.exists()) {
+            String code = getBuiltinCheat(programId);
+            loadCheatCode(code);
+            if (code.contains("*citra_enabled")) {
+                saveCheatCode(programId);
+            }
             return;
         }
 
@@ -295,6 +328,21 @@ public final class EditorActivity extends AppCompatActivity {
         }
 
         loadCheatCode(sb.toString());
+    }
+
+    private String getBuiltinCheat(String programId) {
+        StringBuilder sb = new StringBuilder();
+        try {
+            byte[] buffer = new byte[4096];
+            InputStream inputStream = getAssets().open("cheats/" + programId + ".txt");
+            int length = inputStream.read(buffer);
+            if (length > 0) {
+                sb.append(new String(buffer, 0, length));
+            }
+        } catch (IOException e) {
+            // ignore;
+        }
+        return sb.toString();
     }
 
     private void loadCheatCode(String data) {

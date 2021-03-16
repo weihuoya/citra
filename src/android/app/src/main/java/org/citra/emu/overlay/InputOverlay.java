@@ -1,24 +1,28 @@
 package org.citra.emu.overlay;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.res.Configuration;
 import android.content.res.Resources;
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Paint;
 import android.graphics.Rect;
 import androidx.preference.PreferenceManager;
+
+import android.os.AsyncTask;
 import android.util.AttributeSet;
 import android.util.DisplayMetrics;
 import android.view.MotionEvent;
 import android.view.View;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Map;
 
 import org.citra.emu.NativeLibrary.ButtonType;
 import org.citra.emu.R;
+import org.citra.emu.utils.DirectoryInitialization;
 
 public final class InputOverlay extends View {
     public static final String PREF_CONTROLLER_INIT = "InitOverlay";
@@ -34,6 +38,22 @@ public final class InputOverlay extends View {
     public static boolean sHideInputOverlay = false;
     public static boolean sShowRightJoystick = false;
 
+    @SuppressLint("StaticFieldLeak")
+    private class InitTask extends AsyncTask<Context, Void, Map<Integer, Bitmap>> {
+        @Override
+        protected Map<Integer, Bitmap> doInBackground(Context... contexts) {
+            return DirectoryInitialization.loadInputOverlay(contexts[0]);
+        }
+
+        @Override
+        protected void onPostExecute(Map<Integer, Bitmap> result) {
+            mBitmaps = result;
+            refreshControls();
+            invalidate();
+        }
+    }
+
+    private Map<Integer, Bitmap> mBitmaps;
     private final ArrayList<InputOverlayButton> mButtons = new ArrayList<>();
     private final ArrayList<InputOverlayDpad> mDpads = new ArrayList<>();
     private final ArrayList<InputOverlayJoystick> mJoysticks = new ArrayList<>();
@@ -60,8 +80,7 @@ public final class InputOverlay extends View {
         sHideInputOverlay = mPreferences.getBoolean(InputOverlay.PREF_CONTROLLER_HIDE, false);
         sShowRightJoystick = mPreferences.getBoolean(InputOverlay.PREF_SHOW_RIGHT_JOYSTICK, false);
 
-        // Load the controls.
-        refreshControls();
+        new InitTask().execute(context);
     }
 
     private void defaultOverlay() {
@@ -86,10 +105,10 @@ public final class InputOverlay extends View {
             {ButtonType.EMU_COMBO_KEY_3, R.integer.COMBO_KEY3_X, R.integer.COMBO_KEY3_Y},
         };
 
-        for (int i = 0; i < buttons.length; ++i) {
-            int id = buttons[i][0];
-            int x = buttons[i][1];
-            int y = buttons[i][2];
+        for (int[] button : buttons) {
+            int id = button[0];
+            int x = button[1];
+            int y = button[2];
             float posX = res.getInteger(x) / 100.0f;
             float posY = res.getInteger(y) / 100.0f;
             sPrefsEditor.putFloat(id + "_X", posX);
@@ -125,6 +144,7 @@ public final class InputOverlay extends View {
         }
     }
 
+    @SuppressLint("ClickableViewAccessibility")
     @Override
     public boolean onTouchEvent(MotionEvent event) {
         if (isInEditMode()) {
@@ -366,6 +386,10 @@ public final class InputOverlay extends View {
     }
 
     public void refreshControls() {
+        if (mBitmaps == null) {
+            return;
+        }
+
         // Remove all the overlay buttons
         mIsLandscape =
             getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE;
@@ -378,16 +402,16 @@ public final class InputOverlay extends View {
             return;
 
         int[][] buttons = new int[][] {
-            {ButtonType.N3DS_BUTTON_A, R.drawable.classic_a, R.drawable.classic_a_pressed},
-            {ButtonType.N3DS_BUTTON_B, R.drawable.classic_b, R.drawable.classic_b_pressed},
-            {ButtonType.N3DS_BUTTON_X, R.drawable.classic_x, R.drawable.classic_x_pressed},
-            {ButtonType.N3DS_BUTTON_Y, R.drawable.classic_y, R.drawable.classic_y_pressed},
-            {ButtonType.N3DS_BUTTON_START, R.drawable.gcpad_start, R.drawable.gcpad_start_pressed},
-            {ButtonType.N3DS_BUTTON_SELECT, R.drawable.n3ds_select, R.drawable.n3ds_select_pressed},
-            {ButtonType.N3DS_BUTTON_L, R.drawable.classic_l, R.drawable.classic_l_pressed},
-            {ButtonType.N3DS_BUTTON_R, R.drawable.classic_r, R.drawable.classic_r_pressed},
-            {ButtonType.N3DS_BUTTON_ZL, R.drawable.classic_zl, R.drawable.classic_zl_pressed},
-            {ButtonType.N3DS_BUTTON_ZR, R.drawable.classic_zr, R.drawable.classic_zr_pressed},
+            {ButtonType.N3DS_BUTTON_A, R.drawable.a, R.drawable.a_pressed},
+            {ButtonType.N3DS_BUTTON_B, R.drawable.b, R.drawable.b_pressed},
+            {ButtonType.N3DS_BUTTON_X, R.drawable.x, R.drawable.x_pressed},
+            {ButtonType.N3DS_BUTTON_Y, R.drawable.y, R.drawable.y_pressed},
+            {ButtonType.N3DS_BUTTON_START, R.drawable.start, R.drawable.start_pressed},
+            {ButtonType.N3DS_BUTTON_SELECT, R.drawable.select, R.drawable.select_pressed},
+            {ButtonType.N3DS_BUTTON_L, R.drawable.l, R.drawable.l_pressed},
+            {ButtonType.N3DS_BUTTON_R, R.drawable.r, R.drawable.r_pressed},
+            {ButtonType.N3DS_BUTTON_ZL, R.drawable.zl, R.drawable.zl_pressed},
+            {ButtonType.N3DS_BUTTON_ZR, R.drawable.zr, R.drawable.zr_pressed},
         };
         for (int i = 0; i < buttons.length; ++i) {
             int id = buttons[i][0];
@@ -398,9 +422,9 @@ public final class InputOverlay extends View {
         }
 
         int[][] combokeys = {
-                {ButtonType.EMU_COMBO_KEY_1, R.drawable.wiimote_one, R.drawable.wiimote_one_pressed},
-                {ButtonType.EMU_COMBO_KEY_2, R.drawable.wiimote_two, R.drawable.wiimote_two_pressed},
-                {ButtonType.EMU_COMBO_KEY_3, R.drawable.wiimote_three, R.drawable.wiimote_three_pressed},
+                {ButtonType.EMU_COMBO_KEY_1, R.drawable.one, R.drawable.one_pressed},
+                {ButtonType.EMU_COMBO_KEY_2, R.drawable.two, R.drawable.two_pressed},
+                {ButtonType.EMU_COMBO_KEY_3, R.drawable.three, R.drawable.three_pressed},
         };
         for (int i = 0; i < combokeys.length; ++i) {
             String value = mPreferences.getString("combo_key_" + i, "");
@@ -456,8 +480,8 @@ public final class InputOverlay extends View {
             break;
         }
 
-        Bitmap defaultBitmap = resizeBitmap(BitmapFactory.decodeResource(res, defaultResId), scale);
-        Bitmap pressedBitmap = resizeBitmap(BitmapFactory.decodeResource(res, pressedResId), scale);
+        Bitmap defaultBitmap = getInputBitmap(defaultResId, scale);
+        Bitmap pressedBitmap = getInputBitmap(pressedResId, scale);
         InputOverlayButton overlay =
             new InputOverlayButton(defaultBitmap, pressedBitmap, id, buttons);
 
@@ -481,16 +505,14 @@ public final class InputOverlay extends View {
     private InputOverlayDpad initializeDpad(int dpadId) {
         final Resources res = getResources();
         final DisplayMetrics dm = res.getDisplayMetrics();
-        final int defaultResId = R.drawable.gcwii_dpad;
-        final int pressedOneDirectionResId = R.drawable.gcwii_dpad_pressed_one_direction;
-        final int pressedTwoDirectionsResId = R.drawable.gcwii_dpad_pressed_two_directions;
+        final int defaultResId = R.drawable.dpad;
+        final int pressedOneDirectionResId = R.drawable.dpad_pressed_one;
+        final int pressedTwoDirectionsResId = R.drawable.dpad_pressed_two;
         float scale = 0.3f * (sControllerScale + 50) / 100;
 
-        Bitmap defaultBitmap = resizeBitmap(BitmapFactory.decodeResource(res, defaultResId), scale);
-        Bitmap onePressedBitmap =
-            resizeBitmap(BitmapFactory.decodeResource(res, pressedOneDirectionResId), scale);
-        Bitmap twoPressedBitmap =
-            resizeBitmap(BitmapFactory.decodeResource(res, pressedTwoDirectionsResId), scale);
+        Bitmap defaultBitmap = getInputBitmap(defaultResId, scale);
+        Bitmap onePressedBitmap = getInputBitmap(pressedOneDirectionResId, scale);
+        Bitmap twoPressedBitmap = getInputBitmap(pressedTwoDirectionsResId, scale);
         InputOverlayDpad overlay =
                 new InputOverlayDpad(defaultBitmap, onePressedBitmap, twoPressedBitmap, dpadId);
 
@@ -514,20 +536,21 @@ public final class InputOverlay extends View {
     private InputOverlayJoystick initializeJoystick(int joystick) {
         final Resources res = getResources();
         final DisplayMetrics dm = res.getDisplayMetrics();
-        final int resOuter = R.drawable.gcwii_joystick_range;
-        int defaultResInner = R.drawable.gcwii_joystick;
-        int pressedResInner = R.drawable.gcwii_joystick_pressed;
+        int resOuter = R.drawable.joystick_range;
+        int defaultResInner = R.drawable.joystick;
+        int pressedResInner = R.drawable.joystick_pressed;
         float scale = 0.275f * (sControllerScale + 50) / 100;
 
         if (joystick == ButtonType.N3DS_STICK_X) {
-            defaultResInner = R.drawable.gcpad_c;
-            pressedResInner = R.drawable.gcpad_c_pressed;
+            resOuter = R.drawable.c_stick_range;
+            defaultResInner = R.drawable.c_stick;
+            pressedResInner = R.drawable.c_stick_pressed;
         }
 
         // Initialize the InputOverlayDrawableJoystick.
-        final Bitmap bitmapOuter = resizeBitmap(BitmapFactory.decodeResource(res, resOuter), scale);
-        final Bitmap bitmapInnerDefault = BitmapFactory.decodeResource(res, defaultResInner);
-        final Bitmap bitmapInnerPressed = BitmapFactory.decodeResource(res, pressedResInner);
+        final Bitmap bitmapOuter = getInputBitmap(resOuter, scale);
+        final Bitmap bitmapInnerDefault = getInputBitmap(defaultResInner, 1.0f);
+        final Bitmap bitmapInnerPressed = getInputBitmap(pressedResInner, 1.0f);
 
         // The X and Y coordinates of the InputOverlayDrawableButton on the InputOverlay.
         // These were set in the input overlay configuration menu.
@@ -553,12 +576,22 @@ public final class InputOverlay extends View {
         return overlay;
     }
 
-    public Bitmap resizeBitmap(Bitmap bitmap, float scale) {
+    public Bitmap getInputBitmap(int id, float scale) {
         // Determine the button size based on the smaller screen dimension.
         // This makes sure the buttons are the same size in both portrait and landscape.
         DisplayMetrics dm = getResources().getDisplayMetrics();
         int dimension = (int)(Math.min(dm.widthPixels, dm.heightPixels) * scale);
-        return Bitmap.createScaledBitmap(bitmap, dimension, dimension, true);
+        Bitmap bitmap = mBitmaps.get(id);
+        int dstWidth = bitmap.getWidth();
+        int dstHeight = bitmap.getHeight();
+        if (dstWidth > dstHeight) {
+            dstWidth = dstWidth * dimension / dstHeight;
+            dstHeight = dimension;
+        } else {
+            dstHeight = dstHeight * dimension / dstWidth;
+            dstWidth = dimension;
+        }
+        return Bitmap.createScaledBitmap(mBitmaps.get(id), dstWidth, dstHeight, true);
     }
 
     public boolean isInEditMode() {
@@ -568,4 +601,41 @@ public final class InputOverlay extends View {
     public void setInEditMode(boolean mode) {
         mInEditMode = mode;
     }
+
+    public static final int[] ResIds = {
+            R.drawable.a, R.drawable.a_pressed,
+            R.drawable.b, R.drawable.b_pressed,
+            R.drawable.x, R.drawable.x_pressed,
+            R.drawable.y, R.drawable.y_pressed,
+            R.drawable.l, R.drawable.l_pressed,
+            R.drawable.r, R.drawable.r_pressed,
+            R.drawable.zl, R.drawable.zl_pressed,
+            R.drawable.zr, R.drawable.zr_pressed,
+            R.drawable.start, R.drawable.start_pressed,
+            R.drawable.select, R.drawable.select_pressed,
+            R.drawable.one, R.drawable.one_pressed,
+            R.drawable.two, R.drawable.two_pressed,
+            R.drawable.three, R.drawable.three_pressed,
+            R.drawable.dpad, R.drawable.dpad_pressed_one, R.drawable.dpad_pressed_two,
+            R.drawable.joystick, R.drawable.joystick_pressed, R.drawable.joystick_range,
+            R.drawable.c_stick, R.drawable.c_stick_pressed, R.drawable.c_stick_range,
+    };
+    public static final String[] ResNames = {
+            "a.png", "a_pressed.png",
+            "b.png", "b_pressed.png",
+            "x.png", "x_pressed.png",
+            "y.png", "y_pressed.png",
+            "l.png", "l_pressed.png",
+            "r.png", "r_pressed.png",
+            "zl.png", "zl_pressed.png",
+            "zr.png", "zr_pressed.png",
+            "start.png", "start_pressed.png",
+            "select.png", "select_pressed.png",
+            "one.png", "one_pressed.png",
+            "two.png", "two_pressed.png",
+            "three.png", "three_pressed.png",
+            "dpad.png", "dpad_pressed_one.png", "dpad_pressed_two.png",
+            "joystick.png", "joystick_pressed.png", "joystick_range.png",
+            "c_stick.png", "c_stick_pressed.png", "c_stick_range.png"
+    };
 }

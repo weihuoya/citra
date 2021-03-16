@@ -120,6 +120,10 @@ ResultStatus AppLoader_NCCH::LoadExec(std::shared_ptr<Kernel::Process>& process)
 
         codeset->entrypoint = codeset->CodeSegment().addr;
         codeset->memory = std::move(code);
+        if (codeset->entrypoint == 0) {
+            // Virtual Console
+            return ResultStatus::ErrorNoEntryPoint;
+        }
 
         process = Core::System::GetInstance().Kernel().CreateProcess(std::move(codeset));
 
