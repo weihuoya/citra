@@ -59,6 +59,8 @@ public final class SettingsFile {
     // ocr
     public static final String KEY_BAIDU_OCR_KEY = "baidu_ocr_key";
     public static final String KEY_BAIDU_OCR_SECRET = "baidu_ocr_secret";
+    // theme
+    public static final String KEY_THEME_PACKAGE = "theme_package";
     // controls
     public static final String KEY_BUTTON_A = "button_a";
     public static final String KEY_BUTTON_B = "button_b";

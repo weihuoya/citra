@@ -335,15 +335,15 @@ void MemorySystem::RasterizerMarkRegionCached(PAddr start, u32 size, bool cached
 }
 
 void RasterizerFlushRegion(PAddr start, u32 size) {
-    VideoCore::g_renderer->Rasterizer()->FlushRegion(start, size);
+    VideoCore::Rasterizer()->FlushRegion(start, size);
 }
 
 void RasterizerInvalidateRegion(PAddr start, u32 size) {
-    VideoCore::g_renderer->Rasterizer()->InvalidateRegion(start, size);
+    VideoCore::Rasterizer()->InvalidateRegion(start, size);
 }
 
 void RasterizerFlushAndInvalidateRegion(PAddr start, u32 size) {
-    VideoCore::g_renderer->Rasterizer()->FlushAndInvalidateRegion(start, size);
+    VideoCore::Rasterizer()->FlushAndInvalidateRegion(start, size);
 }
 
 void RasterizerFlushVirtualRegion(VAddr start, u32 size, FlushMode mode) {
@@ -360,7 +360,7 @@ void RasterizerFlushVirtualRegion(VAddr start, u32 size, FlushMode mode) {
         PAddr physical_start = paddr_region_start + (overlap_start - region_start);
         u32 overlap_size = overlap_end - overlap_start;
 
-        auto* rasterizer = VideoCore::g_renderer->Rasterizer();
+        auto* rasterizer = VideoCore::Rasterizer();
         switch (mode) {
         case FlushMode::Flush:
             rasterizer->FlushRegion(physical_start, overlap_size);

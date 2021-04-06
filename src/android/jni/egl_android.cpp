@@ -2,7 +2,9 @@
 
 #include <android/native_window_jni.h>
 #include <glad/glad.h>
+#include <array>
 
+#include "jni_common.h"
 #include "video_core/renderer_base.h"
 #include "video_core/video_core.h"
 
@@ -26,11 +28,12 @@ static constexpr std::array<EGLint, 4> egl_context_attribs{EGL_CONTEXT_CLIENT_VE
 
 class SharedContext_Android {
 public:
-    SharedContext_Android(EGLDisplay egl_display, EGLConfig egl_config, EGLContext egl_share_context)
-            : egl_display{egl_display},
-              egl_surface{eglCreatePbufferSurface(egl_display, egl_config, egl_empty_attribs.data())},
-              egl_context{eglCreateContext(egl_display, egl_config, egl_share_context, egl_context_attribs.data())} {
-    }
+    SharedContext_Android(EGLDisplay egl_display, EGLConfig egl_config,
+                          EGLContext egl_share_context)
+        : egl_display{egl_display}, egl_surface{eglCreatePbufferSurface(egl_display, egl_config,
+                                                                        egl_empty_attribs.data())},
+          egl_context{eglCreateContext(egl_display, egl_config, egl_share_context,
+                                       egl_context_attribs.data())} {}
 
     ~SharedContext_Android() {
         if (!eglDestroySurface(egl_display, egl_surface)) {
@@ -84,7 +87,8 @@ bool EGLAndroid::Initialize(ANativeWindow* surface) {
     }
 
     if (use_shared_context) {
-        core_context = std::make_unique<SharedContext_Android>(egl_display, egl_config, egl_context);
+        core_context =
+            std::make_unique<SharedContext_Android>(egl_display, egl_config, egl_context);
     } else {
         presenting_state = PresentingState::Stopped;
     }
@@ -100,7 +104,7 @@ void EGLAndroid::UpdateSurface(ANativeWindow* surface) {
 }
 
 void EGLAndroid::UpdateLayout() {
-    UpdateCurrentFramebufferLayout(window_width, window_height);
+    UpdateFramebufferLayout(window_width, window_height);
 }
 
 void EGLAndroid::CreateWindowSurface() {
@@ -114,6 +118,14 @@ void EGLAndroid::CreateWindowSurface() {
     eglQuerySurface(egl_display, egl_surface, EGL_WIDTH, &window_width);
     eglQuerySurface(egl_display, egl_surface, EGL_HEIGHT, &window_height);
     eglSurfaceAttrib(egl_display, egl_surface, EGL_SWAP_BEHAVIOR, EGL_BUFFER_DESTROYED);
+
+    // screen
+    safe_inset_left = static_cast<u32>(NativeLibrary::GetSafeInsetLeft());
+    safe_inset_top = static_cast<u32>(NativeLibrary::GetSafeInsetTop());
+    safe_inset_right = static_cast<u32>(NativeLibrary::GetSafeInsetRight());
+    safe_inset_bottom = static_cast<u32>(NativeLibrary::GetSafeInsetBottom());
+    scale_density = static_cast<float>(NativeLibrary::GetScaleDensity());
+
     MakeCurrent();
     UpdateLayout();
 }
@@ -163,7 +175,7 @@ void EGLAndroid::TryPresenting() {
             return;
         }
     }
-    if (VideoCore::g_renderer->TryPresent()) {
+    if (VideoCore::Renderer()->TryPresent()) {
         eglSwapBuffers(egl_display, egl_surface);
     }
 }
@@ -188,7 +200,7 @@ void EGLAndroid::PollEvents() {
     new_window = nullptr;
     DestroyWindowSurface();
     CreateWindowSurface();
-    VideoCore::g_renderer->ResetPresent();
+    VideoCore::Renderer()->ResetPresent();
     if (use_shared_context) {
         presenting_state = PresentingState::Initial;
     }

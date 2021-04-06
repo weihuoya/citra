@@ -346,11 +346,14 @@ static void ParsePostShaderOptions(const std::string& shader,
     }
 }
 
-RendererOpenGL::RendererOpenGL(Frontend::EmuWindow& window) : RendererBase{window} {
+RendererOpenGL::RendererOpenGL(Frontend::EmuWindow& window, bool use_gles) : RendererBase{window} {
+    OpenGL::GLES = use_gles;
     mailbox = std::make_unique<OGLTextureMailbox>();
 }
 
-RendererOpenGL::~RendererOpenGL() = default;
+RendererOpenGL::~RendererOpenGL() {
+    OSD::Shutdown();
+}
 
 /// Swap buffers (render frame)
 void RendererOpenGL::SwapBuffers() {
@@ -402,17 +405,9 @@ void RendererOpenGL::SwapBuffers() {
         DrawScreens(layout);
         render_window.SwapBuffers();
     }
-    m_current_frame++;
-
-    Core::System::GetInstance().perf_stats->EndSystemFrame();
-
-    // processing thread events
-    render_window.PollEvents();
-
-    Core::System::GetInstance().perf_stats->BeginSystemFrame();
-
     prev_state.Apply();
-    RefreshRasterizerSetting();
+
+    VideoCore::FrameUpdate();
 }
 
 void RendererOpenGL::RenderScreenshot() {
@@ -524,6 +519,54 @@ void RendererOpenGL::ResetPresent() {
     mailbox->ResetPresent();
 }
 
+void RendererOpenGL::LoadBackgroundImage(u32* pixels, u32 width, u32 height) {
+    auto old_tex = OpenGLState::BindTexture2D(0, bg_texture.handle);
+    FlipPixels(pixels, width, height);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, pixels);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAX_LEVEL, 0);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+    OpenGLState::BindTexture2D(0, old_tex);
+    LoadBackgroundShader();
+}
+
+void RendererOpenGL::LoadBackgroundShader() {
+    if (!bg_shader.handle) {
+        std::string frag_source;
+        if (GLES) {
+            frag_source = fragment_shader_precision_OES;
+            frag_source += fragment_shader;
+        } else {
+            frag_source = fragment_shader;
+        }
+        bg_shader.Create(vertex_shader, frag_source.c_str());
+    }
+
+    OpenGLState::BindShaderProgram(bg_shader.handle);
+    GLuint modelview_matrix = glGetUniformLocation(shader.handle, "modelview_matrix");
+    GLuint color_texture = glGetUniformLocation(shader.handle, "color_texture");
+    GLuint attrib_position = glGetAttribLocation(shader.handle, "vert_position");
+    GLuint attrib_tex_coord = glGetAttribLocation(shader.handle, "vert_tex_coord");
+
+    // Set projection matrix
+    auto layout = render_window.GetFramebufferLayout();
+    std::array<GLfloat, 3 * 2> ortho_matrix = MakeOrthographicMatrix(layout.width, layout.height);
+    glUniformMatrix3x2fv(modelview_matrix, 1, GL_FALSE, ortho_matrix.data());
+
+    // Bind texture in Texture Unit 0
+    glUniform1i(color_texture, 0);
+
+    // Attach vertex data to VAO
+    glVertexAttribPointer(attrib_position, 2, GL_FLOAT, GL_FALSE, sizeof(ScreenRectVertex),
+                          (GLvoid*)offsetof(ScreenRectVertex, position));
+    glVertexAttribPointer(attrib_tex_coord, 2, GL_FLOAT, GL_FALSE, sizeof(ScreenRectVertex),
+                          (GLvoid*)offsetof(ScreenRectVertex, tex_coord));
+    glEnableVertexAttribArray(attrib_position);
+    glEnableVertexAttribArray(attrib_tex_coord);
+}
+
 /**
  * Loads framebuffer from emulated memory into the active OpenGL texture.
  */
@@ -552,15 +595,15 @@ void RendererOpenGL::LoadFBToScreenInfo(const GPU::Regs::FramebufferConfig& fram
     // only allows rows to have a memory alignement of 4.
     ASSERT(pixel_stride % 4 == 0);
 
-    if (!Rasterizer()->AccelerateDisplay(framebuffer, framebuffer_addr,
-                                         static_cast<u32>(pixel_stride), screen_info)) {
+    if (!VideoCore::Rasterizer()->AccelerateDisplay(framebuffer, framebuffer_addr,
+                                                    static_cast<u32>(pixel_stride), screen_info)) {
         // Reset the screen info's display texture to its own permanent texture
         screen_info.display_texture = screen_info.texture.resource.handle;
         screen_info.display_texcoords = Common::Rectangle<float>(0.f, 0.f, 1.f, 1.f);
 
         Memory::RasterizerFlushRegion(framebuffer_addr, framebuffer.stride * framebuffer.height);
 
-        const u8* framebuffer_data = VideoCore::g_memory->GetPhysicalPointer(framebuffer_addr);
+        const u8* framebuffer_data = VideoCore::Memory()->GetPhysicalPointer(framebuffer_addr);
 
         GLuint old_tex = OpenGLState::BindTexture2D(0, screen_info.texture.resource.handle);
 
@@ -612,9 +655,6 @@ void RendererOpenGL::LoadColorToActiveGLTexture(u8 color_r, u8 color_g, u8 color
  * Initializes the OpenGL state and creates persistent objects.
  */
 void RendererOpenGL::InitOpenGLObjects() {
-    glClearColor(Settings::values.bg_red, Settings::values.bg_green, Settings::values.bg_blue,
-                 0.0f);
-
     // Generate VBO handle for drawing
     vertex_buffer.Create();
 
@@ -623,6 +663,9 @@ void RendererOpenGL::InitOpenGLObjects() {
 
     // sampler for post shader
     filter_sampler.Create();
+
+    // bg shader
+    LoadBackgroundShader();
 
     // Link shaders and get variable locations
     std::string frag_source;
@@ -666,10 +709,10 @@ void RendererOpenGL::InitOpenGLObjects() {
     state.Apply();
 
     uniform_modelview_matrix = glGetUniformLocation(shader.handle, "modelview_matrix");
-    uniform_color_texture = glGetUniformLocation(shader.handle, "color_texture");
     uniform_resolution = glGetUniformLocation(shader.handle, "resolution");
-    attrib_position = glGetAttribLocation(shader.handle, "vert_position");
-    attrib_tex_coord = glGetAttribLocation(shader.handle, "vert_tex_coord");
+    GLuint uniform_color_texture = glGetUniformLocation(shader.handle, "color_texture");
+    GLuint attrib_position = glGetAttribLocation(shader.handle, "vert_position");
+    GLuint attrib_tex_coord = glGetAttribLocation(shader.handle, "vert_tex_coord");
 
     // Bind texture in Texture Unit 0
     glUniform1i(uniform_color_texture, 0);
@@ -699,6 +742,12 @@ void RendererOpenGL::InitOpenGLObjects() {
 
         screen_info.display_texture = screen_info.texture.resource.handle;
     }
+
+    // bg
+    u8 null_data[4] = {0, 0, 0, 1};
+    bg_texture.Create();
+    OpenGLState::BindTexture2D(0, bg_texture.handle);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, 1, 1, 0, GL_RGBA, GL_UNSIGNED_BYTE, null_data);
 
     // init
     OSD::Initialize();
@@ -795,14 +844,6 @@ void RendererOpenGL::DrawSingleScreenRotated(u32 index) {
  * Draws the emulated screens to the emulator window.
  */
 void RendererOpenGL::DrawScreens(const Layout::FramebufferLayout& layout) {
-    if (VideoCore::g_renderer_bg_color_update_requested.exchange(false)) {
-        // Update background color before drawing
-        glClearColor(Settings::values.bg_red, Settings::values.bg_green, Settings::values.bg_blue,
-                     0.0f);
-    }
-
-    glClear(GL_COLOR_BUFFER_BIT);
-
     OpenGLState::BindSampler(0, filter_sampler.handle);
 
     // Set projection matrix
@@ -816,7 +857,7 @@ void RendererOpenGL::DrawScreens(const Layout::FramebufferLayout& layout) {
     const auto& bottom_screen = layout.bottom_screen;
     const auto& bottom_texcoords = screen_infos[2].display_texcoords;
 
-    const std::array<ScreenRectVertex, 8> vertices = {{
+    const std::array<ScreenRectVertex, 12> vertices = {{
         // top screen
         ScreenRectVertex(top_screen.left, top_screen.top, top_texcoords.bottom, top_texcoords.left),
         ScreenRectVertex(top_screen.left, top_screen.top + top_screen.GetHeight(),
@@ -836,9 +877,20 @@ void RendererOpenGL::DrawScreens(const Layout::FramebufferLayout& layout) {
         ScreenRectVertex(bottom_screen.left + bottom_screen.GetWidth(),
                          bottom_screen.top + bottom_screen.GetHeight(), bottom_texcoords.top,
                          bottom_texcoords.right),
+        // background
+        ScreenRectVertex(0, 0, 1, 1),
+        ScreenRectVertex(0, layout.height, 0, 1),
+        ScreenRectVertex(layout.width, 0, 1, 0),
+        ScreenRectVertex(layout.width, layout.height, 0, 0),
     }};
     // prefer `glBufferData` than `glBufferSubData` on mobile device
     glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices.data(), GL_STREAM_DRAW);
+
+    // background
+    GLuint handle = OpenGLState::BindShaderProgram(bg_shader.handle);
+    OpenGLState::BindTexture2D(0, bg_texture.handle);
+    glDrawArrays(GL_TRIANGLE_STRIP, 8, 4);
+    OpenGLState::BindShaderProgram(handle);
 
     if (layout.top_screen_enabled) {
         DrawSingleScreenRotated(0);
@@ -849,7 +901,7 @@ void RendererOpenGL::DrawScreens(const Layout::FramebufferLayout& layout) {
     }
 
     // draw on screen display
-    OSD::DrawMessage(layout);
+    OSD::DrawMessage(render_window, layout);
 }
 
 /// Initialize the renderer
@@ -875,19 +927,9 @@ VideoCore::ResultStatus RendererOpenGL::Init() {
         return VideoCore::ResultStatus::ErrorBelowGL33;
     }
 
-    OpenGL::GLES = Settings::values.use_gles;
-
     InitOpenGLObjects();
 
-    RefreshRasterizerSetting();
-
     return VideoCore::ResultStatus::Success;
-}
-
-/// Shutdown the renderer
-void RendererOpenGL::ShutDown() {
-    OSD::Shutdown();
-    mailbox.reset();
 }
 
 } // namespace OpenGL

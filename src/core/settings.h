@@ -164,10 +164,6 @@ struct Values {
     u16 custom_bottom_right;
     u16 custom_bottom_bottom;
 
-    float bg_red;
-    float bg_green;
-    float bg_blue;
-
     std::atomic<u8> factor_3d;
     std::string pp_shader_name;
 

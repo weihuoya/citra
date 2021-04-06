@@ -1,9 +1,9 @@
 #include "mem_region.h"
 
-#include "jni_common.h"
 #include "common/common_types.h"
 #include "core/core.h"
 #include "core/memory.h"
+#include "jni_common.h"
 
 // search type
 static const u32 SEARCH_TYPE_SPECIFIED_VALUE = 0;
@@ -46,9 +46,9 @@ static bool SmallerOrEqual(u32 lhs, u32 rhs) {
     return lhs <= rhs;
 }
 
-using ScanHandler = bool(*)(u32, u32);
-static ScanHandler scan_handlers[6] = {
-        &EqualTo, &NotEqualTo, &BiggerThan, &BiggerOrEqual, &SmallerThan, &SmallerOrEqual};
+using ScanHandler = bool (*)(u32, u32);
+static ScanHandler scan_handlers[6] = {&EqualTo,       &NotEqualTo,  &BiggerThan,
+                                       &BiggerOrEqual, &SmallerThan, &SmallerOrEqual};
 
 struct SearchSession {
     bool initialized = false;
@@ -81,7 +81,7 @@ struct SearchSession {
 
 static SearchSession g_search_session{};
 
-template<typename T>
+template <typename T>
 void searchInResults(const SearchSession& session, std::vector<u32>& results) {
     Core::System& system{Core::System::GetInstance()};
     auto pagetable = system.Memory().GetCurrentPageTable();
@@ -105,7 +105,7 @@ void searchInResults(const SearchSession& session, std::vector<u32>& results) {
     }
 }
 
-template<typename T>
+template <typename T>
 void searchMemory(SearchSession& session) {
     u32 start = static_cast<u32>(session.start_addr);
     u32 startPage = start >> Memory::PAGE_BITS;
@@ -122,7 +122,8 @@ void searchMemory(SearchSession& session) {
         auto base_ptr = pagetable->pointers[i];
         if (base_ptr != nullptr) {
             const u8* startp = base_ptr + startOffset;
-            const u8* stopp = (stopPage == i) ? base_ptr + stopOffset : base_ptr + Memory::PAGE_SIZE;
+            const u8* stopp =
+                (stopPage == i) ? base_ptr + stopOffset : base_ptr + Memory::PAGE_SIZE;
             const T* p = reinterpret_cast<const T*>(startp);
             const T* stoppT = reinterpret_cast<const T*>(stopp);
             while (p < stoppT) {
@@ -139,7 +140,7 @@ void searchMemory(SearchSession& session) {
     }
 }
 
-template<typename T>
+template <typename T>
 void compareInResults(const SearchSession& session, std::vector<u32>& results) {
     Core::System& system{Core::System::GetInstance()};
     auto pagetable = system.Memory().GetCurrentPageTable();
@@ -163,12 +164,12 @@ void compareInResults(const SearchSession& session, std::vector<u32>& results) {
     }
 }
 
-template<typename T>
+template <typename T>
 void compareMemory(SearchSession& session) {
     Core::System& system{Core::System::GetInstance()};
     auto pagetable = system.Memory().GetCurrentPageTable();
 
-    for (u32 i = 0 ; i < pagetable->pointers.size(); ++i) {
+    for (u32 i = 0; i < pagetable->pointers.size(); ++i) {
         auto p = pagetable->pointers[i];
         auto q = session.pointers[i];
         if (p != nullptr) {
@@ -194,11 +195,10 @@ void compareMemory(SearchSession& session) {
     }
 }
 
-jintArray searchMemoryRegion(u32 start_addr, u32 stop_addr, u32 value_type, u32 search_type, u32 scan_type, u32 value) {
-    if (g_search_session.search_type != search_type ||
-        g_search_session.value_type != value_type ||
-        g_search_session.start_addr > start_addr ||
-        g_search_session.stop_addr < stop_addr) {
+jintArray searchMemoryRegion(u32 start_addr, u32 stop_addr, u32 value_type, u32 search_type,
+                             u32 scan_type, u32 value) {
+    if (g_search_session.search_type != search_type || g_search_session.value_type != value_type ||
+        g_search_session.start_addr > start_addr || g_search_session.stop_addr < stop_addr) {
         g_search_session.reset();
     }
 
@@ -253,11 +253,11 @@ jintArray searchMemoryRegion(u32 start_addr, u32 stop_addr, u32 value_type, u32 
         }
     }
 
-    return ToJIntArray(g_search_session.results.data(), g_search_session.results.size());
+    return JniHelper::Wrap(g_search_session.results);
 }
 
 jintArray getSearchResults() {
-    return ToJIntArray(g_search_session.results.data(), g_search_session.results.size());
+    return JniHelper::Wrap(g_search_session.results);
 }
 
 void resetSearchResults() {

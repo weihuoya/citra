@@ -1,313 +1,124 @@
-#include <android/log.h>
-#include <unistd.h>
 #include "jni_common.h"
-#include "multiplayer.h"
 
-class NativeLibrary {
-public:
-    NativeLibrary() {
-        JNIEnv* env = GetEnvForThread();
-        jclass clazz = env->FindClass("org/citra/emu/NativeLibrary");
-        mClazz = reinterpret_cast<jclass>(env->NewGlobalRef(clazz));
-        mGetEmulationContext =
-            env->GetStaticMethodID(mClazz, "getEmulationContext", "()Landroid/content/Context;");
-        mSaveImageToFile =
-            env->GetStaticMethodID(mClazz, "saveImageToFile", "(Ljava/lang/String;II[I)V");
-        mLoadImageFromFile =
-            env->GetStaticMethodID(mClazz, "loadImageFromFile", "(Ljava/lang/String;)V");
-        mUpdateProgress =
-            env->GetStaticMethodID(mClazz, "updateProgress", "(Ljava/lang/String;II)V");
-        mNotifyGameShudown = env->GetStaticMethodID(mClazz, "notifyGameShudown", "()V");
-        mShowInputBoxDialog = env->GetStaticMethodID(
-            mClazz, "showInputBoxDialog",
-            "(ILjava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)V");
-        mShowMessageDialog =
-            env->GetStaticMethodID(mClazz, "showMessageDialog", "(ILjava/lang/String;)V");
-        mAddNetPlayMessage =
-                env->GetStaticMethodID(mClazz, "AddNetPlayMessage", "(ILjava/lang/String;)V");
-        mShowMiiSelectorDialog = env->GetStaticMethodID(
-            mClazz, "showMiiSelectorDialog", "(ZLjava/lang/String;[Ljava/lang/String;)V");
-        mPickImage = env->GetStaticMethodID(mClazz, "pickImage", "(II)V");
-        mSetupTranslater = env->GetStaticMethodID(mClazz, "setupTranslater", "(Ljava/lang/String;Ljava/lang/String;)V");
-        mHandleNFCScanning = env->GetStaticMethodID(mClazz, "handleNFCScanning", "(Z)V");
-    }
+std::atomic<int> NativeLibrary::current_display_rotation = 0;
+std::atomic<bool> NativeLibrary::using_front_camera = false;
 
-    ~NativeLibrary() {
-        GetEnvForThread()->DeleteGlobalRef(mClazz);
-    }
+static constexpr char* CLASS = "org/citra/emu/NativeLibrary";
+static NativeLibrary::ImageLoadedHandler s_image_loaded_callback;
 
-    jobject GetEmulationContext() {
-        return GetEnvForThread()->CallStaticObjectMethod(mClazz, mGetEmulationContext);
-    }
-
-    void SaveImageToFile(jstring path, jint width, jint height, jintArray pixels) {
-        GetEnvForThread()->CallStaticVoidMethod(mClazz, mSaveImageToFile, path, width, height,
-                                                pixels);
-    }
-
-    void LoadImageFromFile(jstring path) {
-        GetEnvForThread()->CallStaticVoidMethod(mClazz, mLoadImageFromFile, path);
-    }
-
-    void UpdateProgress(jstring name, jint written, jint total) {
-        GetEnvForThread()->CallStaticVoidMethod(mClazz, mUpdateProgress, name, written, total);
-    }
-
-    void ShowInputBoxDialog(jint maxLength, jstring error, jstring hint, jstring button0, jstring button1,
-                            jstring button2) {
-        GetEnvForThread()->CallStaticVoidMethod(mClazz, mShowInputBoxDialog, maxLength, error, hint,
-                                                button0, button1, button2);
-    }
-
-    void ShowMiiSelectorDialog(jboolean cancel, jstring title, jobjectArray miis) {
-        GetEnvForThread()->CallStaticVoidMethod(mClazz, mShowMiiSelectorDialog, cancel, title,
-                                                miis);
-    }
-
-    void ShowMessageDialog(jint type, jstring msg) {
-        GetEnvForThread()->CallStaticVoidMethod(mClazz, mShowMessageDialog, type, msg);
-    }
-
-    void AddNetPlayMessage(jint type, jstring msg) {
-        GetEnvForThread()->CallStaticVoidMethod(mClazz, mAddNetPlayMessage, type, msg);
-    }
-
-    void NotifyGameShudown() {
-        GetEnvForThread()->CallStaticVoidMethod(mClazz, mNotifyGameShudown);
-    }
-
-    void PickImage(jint width, jint height) {
-        GetEnvForThread()->CallStaticVoidMethod(mClazz, mPickImage, width, height);
-    }
-
-    void SetupTranslater(jstring key, jstring secret) {
-        GetEnvForThread()->CallStaticVoidMethod(mClazz, mSetupTranslater, key, secret);
-    }
-
-    void HandleNFCScanning(jboolean isScanning) {
-        GetEnvForThread()->CallStaticVoidMethod(mClazz, mHandleNFCScanning, isScanning);
-    }
-
-    bool CheckRecordPermission() {
-        JNIEnv* env = GetEnvForThread();
-        const std::string permission{"android.permission.RECORD_AUDIO"};
-        jclass clazz = env->FindClass("android/content/Context");
-        jmethodID method = env->GetMethodID(clazz, "checkPermission", "(Ljava/lang/String;II)I");
-        jint granted = env->CallIntMethod(GetEmulationContext(), method, ToJString(permission), (jint)getpid(), (jint)getuid());
-        return granted == 0;
-    }
-
-private:
-    jclass mClazz;
-    jmethodID mGetEmulationContext;
-    jmethodID mSaveImageToFile;
-    jmethodID mLoadImageFromFile;
-    jmethodID mUpdateProgress;
-    jmethodID mNotifyGameShudown;
-    jmethodID mShowInputBoxDialog;
-    jmethodID mShowMessageDialog;
-    jmethodID mAddNetPlayMessage;
-    jmethodID mShowMiiSelectorDialog;
-    jmethodID mHandleNFCScanning;
-    jmethodID mPickImage;
-    jmethodID mSetupTranslater;
-};
-
-static constexpr jint JNI_VERSION = JNI_VERSION_1_6;
-static JavaVM* s_java_vm = nullptr;
-static std::unique_ptr<NativeLibrary> s_native_library;
-std::function<void(u32* pixels, u32 width, u32 height)> g_image_loading_callback;
-
-std::string GetJString(jstring jstr) {
-    std::string result;
-    if (!jstr)
-        return result;
-
-    JNIEnv* env = GetEnvForThread();
-    const char* s = env->GetStringUTFChars(jstr, nullptr);
-    result = s;
-    env->ReleaseStringUTFChars(jstr, s);
-    env->DeleteLocalRef(jstr);
-    return result;
+// jni for cubeb
+JNIEnv* cubeb_get_jni_env_for_thread() {
+    return JniHelper::GetEnvForThread();
 }
 
-jstring ToJString(const std::string& str) {
-    jstring jstr = GetEnvForThread()->NewStringUTF(str.c_str());
-    return jstr;
+jobject cubeb_jni_get_context_instance() {
+    return NativeLibrary::GetEmulationContext();
 }
 
-jintArray ToJIntArray(const u32* buffer, size_t size) {
-    JNIEnv* env = GetEnvForThread();
-    jintArray array = env->NewIntArray(size);
-    if (!array) {
-        __android_log_print(ANDROID_LOG_INFO, "citra", "ToJIntArray error");
-        return nullptr;
-    }
-    env->SetIntArrayRegion(array, 0, size, reinterpret_cast<const jint*>(buffer));
-    return array;
+void NativeLibrary::Initialize(JNIEnv* env) {
+    // todo
 }
 
-jobjectArray ToJStringArray(const std::vector<std::string>& strs) {
-    JNIEnv* env = GetEnvForThread();
-    jobjectArray array =
-        env->NewObjectArray(strs.size(), env->FindClass("java/lang/String"), env->NewStringUTF(""));
-    for (int i = 0; i < strs.size(); ++i) {
-        env->SetObjectArrayElement(array, i, ToJString(strs[i]));
-    }
-    return array;
+void NativeLibrary::Shutdown(JNIEnv* env) {
+    JniHelper::CallStaticMethod<void>(CLASS, "notifyGameShudown");
 }
 
-std::vector<std::string> JStringArrayToVector(jobjectArray array) {
-    JNIEnv* env = GetEnvForThread();
-    const jsize size = env->GetArrayLength(array);
-    std::vector<std::string> result;
-    for (jsize i = 0; i < size; ++i)
-        result.push_back(GetJString((jstring)env->GetObjectArrayElement(array, i)));
-    return result;
+// NativeLibrary
+jobject NativeLibrary::GetEmulationContext() {
+    return JniHelper::CallStaticObjectMethod(CLASS, "getEmulationContext", "()Landroid/content/Context;");
 }
 
-jobject GetEmulationContext() {
-    jobject context = s_native_library->GetEmulationContext();
-    return context;
+int NativeLibrary::GetDisplayRotation() {
+    return JniHelper::CallStaticMethod<int>(CLASS, "getDisplayRotation");
 }
 
-void SaveImageToFile(const std::string& path, const std::vector<u8>& pixels, u32 width,
-                     u32 height) {
-    jintArray array = ToJIntArray(reinterpret_cast<const u32*>(pixels.data()), width * height);
-    s_native_library->SaveImageToFile(ToJString(path), width, height, array);
-    GetEnvForThread()->DeleteLocalRef(array);
+bool NativeLibrary::IsPortrait() {
+    return current_display_rotation == 0 || current_display_rotation == 3;
 }
 
-void LoadImageFromFile(const std::string& path, std::vector<u8>& pixels, u32& width, u32& height) {
-    g_image_loading_callback = [&pixels, &width, &height](u32* data32, u32 w, u32 h) -> void {
+bool NativeLibrary::CheckRecordPermission() {
+    const std::string permission{"android.permission.RECORD_AUDIO"};
+    return JniHelper::CallStaticMethod<bool>(CLASS, "checkPermission", permission);
+}
+
+void NativeLibrary::SaveImageToFile(const std::string& path, const std::vector<u8>& pixels,
+                                    u32 width, u32 height) {
+    jintArray array = JniHelper::Wrap(reinterpret_cast<const u32*>(pixels.data()), width * height);
+    JniHelper::CallStaticMethod<void>(CLASS, "saveImageToFile", path, array, width, height);
+    JniHelper::GetEnvForThread()->DeleteLocalRef(array);
+}
+
+void NativeLibrary::LoadImageFromFile(std::vector<u8>& pixels, u32& width, u32& height,
+                                      const std::string& path) {
+    s_image_loaded_callback = [&pixels, &width, &height](u32* data32, u32 w, u32 h) -> void {
         u32 size = w * h * 4;
         u8* data8 = reinterpret_cast<u8*>(data32);
+        pixels.clear();
         pixels.insert(pixels.begin(), data8, data8 + size);
         width = w;
         height = h;
     };
-    s_native_library->LoadImageFromFile(ToJString(path));
+    JniHelper::CallStaticMethod<void>(CLASS, "loadImageFromFile", path);
 }
 
-void UpdateProgress(const std::string& name, u32 written, u32 total) {
-    s_native_library->UpdateProgress(ToJString(name), written, total);
+void NativeLibrary::UpdateProgress(const std::string& name, u32 progress, u32 total) {
+    JniHelper::CallStaticMethod<void>(CLASS, "updateProgress", name, progress, total);
 }
 
-void NotifyGameShudown() {
-    s_native_library->NotifyGameShudown();
+void NativeLibrary::ShowInputBoxDialog(int maxLength, const std::string& error,
+                                       const std::string& hint, const std::string& button0,
+                                       const std::string& button1, const std::string& button2) {
+    JniHelper::CallStaticMethod<void>(CLASS, "showInputBoxDialog", maxLength, error, hint,
+                                      button0, button1, button2);
 }
 
-void PickImage(u32 width, u32 height) {
-    s_native_library->PickImage(width, height);
+void NativeLibrary::ShowMiiSelectorDialog(bool cancel, const std::string& title,
+                                          const std::vector<std::string>& miis) {
+    JniHelper::CallStaticMethod<void>(CLASS, "showInputBoxDialog", cancel, title, miis);
 }
 
-void SetupTranslater(const std::string& key, const std::string& secret) {
-    s_native_library->SetupTranslater(ToJString(key), ToJString(secret));
+void NativeLibrary::ShowMessageDialog(int type, const std::string& msg) {
+    JniHelper::CallStaticMethod<void>(CLASS, "showMessageDialog", type, msg);
 }
 
-void HandleNFCScanning(bool isScanning) {
-    s_native_library->HandleNFCScanning(isScanning);
+void NativeLibrary::AddNetPlayMessage(int type, const std::string& msg) {
+    JniHelper::CallStaticMethod<void>(CLASS, "addNetPlayMessage", type, msg);
 }
 
-void ShowInputBoxDialog(int maxLength, const std::string& error, const std::string& hint, const std::string& button0,
-                        const std::string& button1, const std::string& button2) {
-    s_native_library->ShowInputBoxDialog(maxLength, ToJString(error), ToJString(hint), ToJString(button0),
-                                         ToJString(button1), ToJString(button2));
+void NativeLibrary::PickImage(u32 width, u32 height, ImageLoadedHandler handler) {
+    s_image_loaded_callback = handler;
+    JniHelper::CallStaticMethod<void>(CLASS, "pickImage", width, height);
 }
 
-void ShowMiiSelectorDialog(bool cancel, const std::string& title,
-                           const std::vector<std::string>& miis) {
-    s_native_library->ShowMiiSelectorDialog(cancel, ToJString(title), ToJStringArray(miis));
+int NativeLibrary::GetSafeInsetLeft() {
+    return JniHelper::CallStaticMethod<int>(CLASS, "getSafeInsetLeft");
 }
 
-void ShowMessageDialog(int type, const std::string& msg) {
-    s_native_library->ShowMessageDialog(type, ToJString(msg));
+int NativeLibrary::GetSafeInsetTop() {
+    return JniHelper::CallStaticMethod<int>(CLASS, "getSafeInsetTop");
 }
 
-void AddNetPlayMessage(int type, const std::string& msg) {
-    s_native_library->AddNetPlayMessage(type, ToJString(msg));
+int NativeLibrary::GetSafeInsetRight() {
+    return JniHelper::CallStaticMethod<int>(CLASS, "getSafeInsetRight");
 }
 
-bool CheckRecordPermission() {
-    return s_native_library->CheckRecordPermission();
+int NativeLibrary::GetSafeInsetBottom() {
+    return JniHelper::CallStaticMethod<int>(CLASS, "getSafeInsetBottom");
 }
 
-int GetDisplayRotation() {
-    JNIEnv* env = GetEnvForThread();
-    jobject context = s_native_library->GetEmulationContext();
-    jclass activity_class = env->FindClass("android/app/Activity");
-
-    jmethodID method_id = env->GetMethodID(activity_class, "getWindowManager", "()Landroid/view/WindowManager;");
-    jobject window_manager = env->CallObjectMethod(context, method_id);
-    jclass window_manager_class = env->GetObjectClass(window_manager);
-
-    method_id = env->GetMethodID(window_manager_class, "getDefaultDisplay", "()Landroid/view/Display;");
-    jobject display = env->CallObjectMethod(window_manager, method_id);
-    jclass display_class = env->GetObjectClass(display);
-
-    method_id = env->GetMethodID(display_class, "getRotation", "()I");
-    jint rotation = env->CallIntMethod(display, method_id);
-
-    env->DeleteLocalRef(window_manager_class);
-    env->DeleteLocalRef(display_class);
-
-    return rotation;
+float NativeLibrary::GetScaleDensity() {
+    return JniHelper::CallStaticMethod<float>(CLASS, "getScaleDensity");
 }
 
-JNIEnv* GetEnvForThread() {
-    thread_local static struct OwnedEnv {
-        OwnedEnv() {
-            status = s_java_vm->GetEnv(reinterpret_cast<void**>(&env), JNI_VERSION);
-            if (status == JNI_EDETACHED)
-                s_java_vm->AttachCurrentThread(&env, nullptr);
-        }
-
-        ~OwnedEnv() {
-            if (status == JNI_EDETACHED)
-                s_java_vm->DetachCurrentThread();
-        }
-
-        int status;
-        JNIEnv* env = nullptr;
-    } owned;
-    return owned.env;
+void NativeLibrary::SetupTranslater(const std::string& key, const std::string& secret) {
+    JniHelper::CallStaticMethod<void>(CLASS, "setupTranslater", key, secret);
 }
 
-// jni for cubeb
-JNIEnv* cubeb_get_jni_env_for_thread() {
-    return GetEnvForThread();
+void NativeLibrary::HandleNFCScanning(bool isScanning) {
+    JniHelper::CallStaticMethod<void>(CLASS, "handleNFCScanning", isScanning);
 }
 
-jobject cubeb_jni_get_context_instance() {
-    return GetEmulationContext();
+void NativeLibrary::ImageLoadedCallback(u32* pixels, u32 width, u32 height) {
+    s_image_loaded_callback(pixels, width, height);
+    s_image_loaded_callback = nullptr;
 }
-
-#ifdef __cplusplus
-extern "C" {
-#endif
-
-JNIEXPORT jint JNI_OnLoad(JavaVM* vm, void* reserved) {
-    s_java_vm = vm;
-
-    JNIEnv* env;
-    if (vm->GetEnv(reinterpret_cast<void**>(&env), JNI_VERSION) != JNI_OK)
-        return JNI_ERR;
-
-    s_native_library = std::make_unique<NativeLibrary>();
-    NetworkInit();
-
-    return JNI_VERSION;
-}
-
-JNIEXPORT void JNI_OnUnload(JavaVM* vm, void* reserved) {
-    JNIEnv* env;
-    if (vm->GetEnv(reinterpret_cast<void**>(&env), JNI_VERSION) != JNI_OK)
-        return;
-
-    NetworkShutdown();
-    s_native_library.reset();
-}
-
-#ifdef __cplusplus
-}
-#endif

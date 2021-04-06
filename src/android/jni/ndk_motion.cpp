@@ -7,6 +7,7 @@
 #include "common/assert.h"
 #include "common/logging/log.h"
 #include "common/vector_math.h"
+#include "jni_common.h"
 #include "ndk_motion.h"
 
 namespace {
@@ -15,11 +16,12 @@ using Common::Vec3;
 
 class NDKMotion final : public Input::MotionDevice {
     using GETINSTANCEFORPACKAGE = ASensorManager* (*)(const char*);
-    using REGISTERSENSOR = int (*)(ASensorEventQueue* queue, ASensor const* sensor, int32_t samplingPeriodUs, int64_t maxBatchReportLatencyUs);
+    using REGISTERSENSOR = int (*)(ASensorEventQueue* queue, ASensor const* sensor,
+                                   int32_t samplingPeriodUs, int64_t maxBatchReportLatencyUs);
 
     GETINSTANCEFORPACKAGE GetInstanceForPackage = nullptr;
     REGISTERSENSOR RegisterSensor = nullptr;
-    void * lib_android = nullptr;
+    void* lib_android = nullptr;
 
     ASensorManager* sensor_manager = nullptr;
     ALooper* looper = nullptr;
@@ -42,7 +44,7 @@ class NDKMotion final : public Input::MotionDevice {
         Vec3<float> out;
         out.y = in.z;
         // rotations are 90 degrees counter-clockwise from portrait
-        switch (ndkmotion_display_rotation) {
+        switch (NativeLibrary::current_display_rotation) {
         case 0:
             out.x = -in.x;
             out.z = in.y;
@@ -123,9 +125,11 @@ class NDKMotion final : public Input::MotionDevice {
 
 public:
     NDKMotion(std::chrono::microseconds update_period, bool asynchronous = false) {
-        void * lib_android = dlopen("android", RTLD_NOW);
-        GetInstanceForPackage = reinterpret_cast<GETINSTANCEFORPACKAGE>(dlsym(lib_android, "ASensorManager_getInstanceForPackage"));
-        RegisterSensor = reinterpret_cast<REGISTERSENSOR>(dlsym(lib_android, "ASensorEventQueue_registerSensor"));
+        void* lib_android = dlopen("android", RTLD_NOW);
+        GetInstanceForPackage = reinterpret_cast<GETINSTANCEFORPACKAGE>(
+            dlsym(lib_android, "ASensorManager_getInstanceForPackage"));
+        RegisterSensor = reinterpret_cast<REGISTERSENSOR>(
+            dlsym(lib_android, "ASensorEventQueue_registerSensor"));
 
         if (asynchronous) {
             poll_thread = std::thread([this, update_period] {

@@ -62,14 +62,24 @@ void SaveDefault() {
 
     // custom layout
     s_layer.Set(USE_CUSTOM_LAYOUT, USE_CUSTOM_LAYOUT.default_value);
-    s_layer.Set(CUSTOM_TOP_LEFT, CUSTOM_TOP_LEFT.default_value);
-    s_layer.Set(CUSTOM_TOP_TOP, CUSTOM_TOP_TOP.default_value);
-    s_layer.Set(CUSTOM_TOP_RIGHT, CUSTOM_TOP_RIGHT.default_value);
-    s_layer.Set(CUSTOM_TOP_BOTTOM, CUSTOM_TOP_BOTTOM.default_value);
-    s_layer.Set(CUSTOM_BOTTOM_LEFT, CUSTOM_BOTTOM_LEFT.default_value);
-    s_layer.Set(CUSTOM_BOTTOM_TOP, CUSTOM_BOTTOM_TOP.default_value);
-    s_layer.Set(CUSTOM_BOTTOM_RIGHT, CUSTOM_BOTTOM_RIGHT.default_value);
-    s_layer.Set(CUSTOM_BOTTOM_BOTTOM, CUSTOM_BOTTOM_BOTTOM.default_value);
+    // portrait
+    s_layer.Set(PORTRAIT_TOP_LEFT, PORTRAIT_TOP_LEFT.default_value);
+    s_layer.Set(PORTRAIT_TOP_TOP, PORTRAIT_TOP_TOP.default_value);
+    s_layer.Set(PORTRAIT_TOP_RIGHT, PORTRAIT_TOP_RIGHT.default_value);
+    s_layer.Set(PORTRAIT_TOP_BOTTOM, PORTRAIT_TOP_BOTTOM.default_value);
+    s_layer.Set(PORTRAIT_BOTTOM_LEFT, PORTRAIT_BOTTOM_LEFT.default_value);
+    s_layer.Set(PORTRAIT_BOTTOM_TOP, PORTRAIT_BOTTOM_TOP.default_value);
+    s_layer.Set(PORTRAIT_BOTTOM_RIGHT, PORTRAIT_BOTTOM_RIGHT.default_value);
+    s_layer.Set(PORTRAIT_BOTTOM_BOTTOM, PORTRAIT_BOTTOM_BOTTOM.default_value);
+    // landscape
+    s_layer.Set(LANDSCAPE_TOP_LEFT, LANDSCAPE_TOP_LEFT.default_value);
+    s_layer.Set(LANDSCAPE_TOP_TOP, LANDSCAPE_TOP_TOP.default_value);
+    s_layer.Set(LANDSCAPE_TOP_RIGHT, LANDSCAPE_TOP_RIGHT.default_value);
+    s_layer.Set(LANDSCAPE_TOP_BOTTOM, LANDSCAPE_TOP_BOTTOM.default_value);
+    s_layer.Set(LANDSCAPE_BOTTOM_LEFT, LANDSCAPE_BOTTOM_LEFT.default_value);
+    s_layer.Set(LANDSCAPE_BOTTOM_TOP, LANDSCAPE_BOTTOM_TOP.default_value);
+    s_layer.Set(LANDSCAPE_BOTTOM_RIGHT, LANDSCAPE_BOTTOM_RIGHT.default_value);
+    s_layer.Set(LANDSCAPE_BOTTOM_BOTTOM, LANDSCAPE_BOTTOM_BOTTOM.default_value);
 
     s_layer.Save();
 }

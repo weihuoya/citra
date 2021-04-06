@@ -19,24 +19,12 @@ namespace Settings {
 Values values = {};
 
 void Apply() {
-
-    GDBStub::SetServerPort(values.gdbstub_port);
-    GDBStub::ToggleServer(values.use_gdbstub);
-
-    VideoCore::g_hw_renderer_enabled = values.use_hw_renderer;
-    VideoCore::g_shader_jit_enabled = values.use_shader_jit;
-    VideoCore::g_hw_shader_enabled = values.use_hw_shader;
-
-    if (VideoCore::g_renderer) {
-        VideoCore::g_renderer->UpdateCurrentFramebufferLayout();
-    }
-
-    VideoCore::g_renderer_bg_color_update_requested = true;
-
     auto& system = Core::System::GetInstance();
     if (system.IsPoweredOn()) {
-        Core::DSP().SetSink(values.sink_id, values.audio_device_id);
-        Core::DSP().EnableStretching(values.enable_audio_stretching);
+        VideoCore::SettingUpdate();
+
+        system.DSP().SetSink(values.sink_id, values.audio_device_id);
+        system.DSP().EnableStretching(values.enable_audio_stretching);
 
         auto hid = Service::HID::GetModule(system);
         if (hid) {

@@ -31,7 +31,7 @@ void DrawPixel(int x, int y, const Common::Vec4<u8>& color) {
         GPU::Regs::BytesPerPixel(GPU::Regs::PixelFormat(framebuffer.color_format.Value()));
     u32 dst_offset = VideoCore::GetMortonOffset(x, y, bytes_per_pixel) +
                      coarse_y * framebuffer.width * bytes_per_pixel;
-    u8* dst_pixel = VideoCore::g_memory->GetPhysicalPointer(addr) + dst_offset;
+    u8* dst_pixel = VideoCore::Memory()->GetPhysicalPointer(addr) + dst_offset;
 
     switch (framebuffer.color_format) {
     case FramebufferRegs::ColorFormat::RGBA8:
@@ -72,7 +72,7 @@ const Common::Vec4<u8> GetPixel(int x, int y) {
         GPU::Regs::BytesPerPixel(GPU::Regs::PixelFormat(framebuffer.color_format.Value()));
     u32 src_offset = VideoCore::GetMortonOffset(x, y, bytes_per_pixel) +
                      coarse_y * framebuffer.width * bytes_per_pixel;
-    u8* src_pixel = VideoCore::g_memory->GetPhysicalPointer(addr) + src_offset;
+    u8* src_pixel = VideoCore::Memory()->GetPhysicalPointer(addr) + src_offset;
 
     switch (framebuffer.color_format) {
     case FramebufferRegs::ColorFormat::RGBA8:
@@ -102,7 +102,7 @@ const Common::Vec4<u8> GetPixel(int x, int y) {
 u32 GetDepth(int x, int y) {
     const auto& framebuffer = g_state.regs.framebuffer.framebuffer;
     const PAddr addr = framebuffer.GetDepthBufferPhysicalAddress();
-    u8* depth_buffer = VideoCore::g_memory->GetPhysicalPointer(addr);
+    u8* depth_buffer = VideoCore::Memory()->GetPhysicalPointer(addr);
 
     y = framebuffer.height - y;
 
@@ -131,7 +131,7 @@ u32 GetDepth(int x, int y) {
 u8 GetStencil(int x, int y) {
     const auto& framebuffer = g_state.regs.framebuffer.framebuffer;
     const PAddr addr = framebuffer.GetDepthBufferPhysicalAddress();
-    u8* depth_buffer = VideoCore::g_memory->GetPhysicalPointer(addr);
+    u8* depth_buffer = VideoCore::Memory()->GetPhysicalPointer(addr);
 
     y = framebuffer.height - y;
 
@@ -158,7 +158,7 @@ u8 GetStencil(int x, int y) {
 void SetDepth(int x, int y, u32 value) {
     const auto& framebuffer = g_state.regs.framebuffer.framebuffer;
     const PAddr addr = framebuffer.GetDepthBufferPhysicalAddress();
-    u8* depth_buffer = VideoCore::g_memory->GetPhysicalPointer(addr);
+    u8* depth_buffer = VideoCore::Memory()->GetPhysicalPointer(addr);
 
     y = framebuffer.height - y;
 
@@ -193,7 +193,7 @@ void SetDepth(int x, int y, u32 value) {
 void SetStencil(int x, int y, u8 value) {
     const auto& framebuffer = g_state.regs.framebuffer.framebuffer;
     const PAddr addr = framebuffer.GetDepthBufferPhysicalAddress();
-    u8* depth_buffer = VideoCore::g_memory->GetPhysicalPointer(addr);
+    u8* depth_buffer = VideoCore::Memory()->GetPhysicalPointer(addr);
 
     y = framebuffer.height - y;
 
@@ -386,7 +386,7 @@ void DrawShadowMapPixel(int x, int y, u32 depth, u8 stencil) {
     u32 bytes_per_pixel = 4;
     u32 dst_offset = VideoCore::GetMortonOffset(x, y, bytes_per_pixel) +
                      coarse_y * framebuffer.width * bytes_per_pixel;
-    u8* dst_pixel = VideoCore::g_memory->GetPhysicalPointer(addr) + dst_offset;
+    u8* dst_pixel = VideoCore::Memory()->GetPhysicalPointer(addr) + dst_offset;
 
     auto ref = DecodeD24S8Shadow(dst_pixel);
     u32 ref_z = ref.x;

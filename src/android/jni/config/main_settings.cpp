@@ -9,7 +9,8 @@ const ConfigInfo<bool> USE_CPU_JIT{{"Core", "use_cpu_jit"}, true};
 const ConfigInfo<bool> IS_NEW_3DS{{"Core", "is_new_3ds"}, false};
 const ConfigInfo<bool> USE_VIRTUAL_SD{{"Core", "use_virtual_sd"}, true};
 const ConfigInfo<int> SYSTEM_REGION{{"Core", "region_value"}, Settings::REGION_VALUE_AUTO_SELECT};
-const ConfigInfo<Service::CFG::SystemLanguage> SYSTEM_LANGUAGE{{"Core", "language"}, Service::CFG::SystemLanguage::LANGUAGE_EN};
+const ConfigInfo<Service::CFG::SystemLanguage> SYSTEM_LANGUAGE{
+    {"Core", "language"}, Service::CFG::SystemLanguage::LANGUAGE_EN};
 
 // renderer
 const ConfigInfo<bool> USE_GLES{{"Renderer", "use_gles"}, true};
@@ -17,7 +18,8 @@ const ConfigInfo<bool> SHOW_FPS{{"Renderer", "show_fps"}, true};
 const ConfigInfo<bool> USE_HW_RENDERER{{"Renderer", "use_hw_renderer"}, true};
 const ConfigInfo<bool> USE_HW_SHADER{{"Renderer", "use_hw_shader"}, true};
 const ConfigInfo<bool> USE_SHADER_JIT{{"Renderer", "use_shader_jit"}, false};
-const ConfigInfo<Settings::AccurateMul> SHADERS_ACCURATE_MUL{{"Renderer", "accurate_mul_type"}, Settings::AccurateMul::OFF};
+const ConfigInfo<Settings::AccurateMul> SHADERS_ACCURATE_MUL{{"Renderer", "accurate_mul_type"},
+                                                             Settings::AccurateMul::OFF};
 const ConfigInfo<u16> RESOLUTION_FACTOR{{"Renderer", "resolution_factor"}, 1};
 const ConfigInfo<bool> USE_FRAME_LIMIT{{"Renderer", "use_frame_limit"}, true};
 const ConfigInfo<u16> FRAME_LIMIT{{"Renderer", "frame_limit"}, 100};
@@ -78,13 +80,23 @@ const ConfigInfo<std::string> C_STICK_Y{{"Controls", "c_stick_y"}, "code:14"};
 
 // custom layout
 const ConfigInfo<bool> USE_CUSTOM_LAYOUT{{"Layout", "custom_layout"}, false};
-const ConfigInfo<u16> CUSTOM_TOP_LEFT{{"Layout", "custom_top_left"}, 0};
-const ConfigInfo<u16> CUSTOM_TOP_TOP{{"Layout", "custom_top_top"}, 0};
-const ConfigInfo<u16> CUSTOM_TOP_RIGHT{{"Layout", "custom_top_right"}, 800};
-const ConfigInfo<u16> CUSTOM_TOP_BOTTOM{{"Layout", "custom_top_bottom"}, 480};
-const ConfigInfo<u16> CUSTOM_BOTTOM_LEFT{{"Layout", "custom_bottom_left"}, 80};
-const ConfigInfo<u16> CUSTOM_BOTTOM_TOP{{"Layout", "custom_bottom_top"}, 480};
-const ConfigInfo<u16> CUSTOM_BOTTOM_RIGHT{{"Layout", "custom_bottom_right"}, 720};
-const ConfigInfo<u16> CUSTOM_BOTTOM_BOTTOM{{"Layout", "custom_bottom_bottom"}, 960};
+
+const ConfigInfo<u16> PORTRAIT_TOP_LEFT{{"Layout", "portrait_top_left"}, 0};
+const ConfigInfo<u16> PORTRAIT_TOP_TOP{{"Layout", "portrait_top_top"}, 0};
+const ConfigInfo<u16> PORTRAIT_TOP_RIGHT{{"Layout", "portrait_top_right"}, 800};
+const ConfigInfo<u16> PORTRAIT_TOP_BOTTOM{{"Layout", "portrait_top_bottom"}, 480};
+const ConfigInfo<u16> PORTRAIT_BOTTOM_LEFT{{"Layout", "portrait_bottom_left"}, 80};
+const ConfigInfo<u16> PORTRAIT_BOTTOM_TOP{{"Layout", "portrait_bottom_top"}, 480};
+const ConfigInfo<u16> PORTRAIT_BOTTOM_RIGHT{{"Layout", "portrait_bottom_right"}, 720};
+const ConfigInfo<u16> PORTRAIT_BOTTOM_BOTTOM{{"Layout", "portrait_bottom_bottom"}, 960};
+
+const ConfigInfo<u16> LANDSCAPE_TOP_LEFT{{"Layout", "landscape_top_left"}, 0};
+const ConfigInfo<u16> LANDSCAPE_TOP_TOP{{"Layout", "landscape_top_top"}, 0};
+const ConfigInfo<u16> LANDSCAPE_TOP_RIGHT{{"Layout", "landscape_top_right"}, 800};
+const ConfigInfo<u16> LANDSCAPE_TOP_BOTTOM{{"Layout", "landscape_top_bottom"}, 480};
+const ConfigInfo<u16> LANDSCAPE_BOTTOM_LEFT{{"Layout", "landscape_bottom_left"}, 80};
+const ConfigInfo<u16> LANDSCAPE_BOTTOM_TOP{{"Layout", "landscape_bottom_top"}, 480};
+const ConfigInfo<u16> LANDSCAPE_BOTTOM_RIGHT{{"Layout", "landscape_bottom_right"}, 720};
+const ConfigInfo<u16> LANDSCAPE_BOTTOM_BOTTOM{{"Layout", "landscape_bottom_bottom"}, 960};
 
 } // namespace Config

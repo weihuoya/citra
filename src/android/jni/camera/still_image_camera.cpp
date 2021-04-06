@@ -3,8 +3,8 @@
 // Refer to the license.txt file included.
 
 #include <android/log.h>
-#include "jni_common.h"
 #include "camera/still_image_camera.h"
+#include "jni_common.h"
 
 StillImageCamera::StillImageCamera(const std::string& config, const Service::CAM::Flip& flip) {
     SetFlip(flip);
@@ -16,7 +16,7 @@ void StillImageCamera::StartCapture() {
     std::mutex mtx;
     std::condition_variable cv;
     std::unique_lock lck(mtx);
-    g_image_loading_callback = [this, &cv](u32* data32, u32 w, u32 h) -> void {
+    NativeLibrary::PickImage(width, height, [this, &cv](u32* data32, u32 w, u32 h) -> void {
         if (w > 0 && h > 0) {
             width = w;
             height = h;
@@ -24,8 +24,7 @@ void StillImageCamera::StartCapture() {
             pixels.insert(pixels.begin(), data32, data32 + w * h);
         }
         cv.notify_one();
-    };
-    PickImage(width, height);
+    });
     cv.wait(lck);
 }
 
@@ -57,14 +56,15 @@ void StillImageCamera::SetFrameRate(Service::CAM::FrameRate frame_rate) {
 }
 
 std::vector<u16> StillImageCamera::ReceiveFrame() {
-    return CameraUtil::ProcessImage(pixels, width, height, output_rgb, flip_horizontal, flip_vertical);
+    return CameraUtil::ProcessImage(pixels, width, height, output_rgb, flip_horizontal,
+                                    flip_vertical);
 }
 
 bool StillImageCamera::IsPreviewAvailable() {
     return true;
 }
 
-std::unique_ptr<Camera::CameraInterface> StillImageCameraFactory::Create(const std::string& config,
-                                                                 const Service::CAM::Flip& flip) {
+std::unique_ptr<Camera::CameraInterface> StillImageCameraFactory::Create(
+    const std::string& config, const Service::CAM::Flip& flip) {
     return std::make_unique<StillImageCamera>(config, flip);
 }

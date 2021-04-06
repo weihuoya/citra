@@ -11,18 +11,16 @@ import android.graphics.Paint;
 import android.graphics.Rect;
 import androidx.preference.PreferenceManager;
 
-import android.os.AsyncTask;
 import android.util.AttributeSet;
 import android.util.DisplayMetrics;
 import android.view.MotionEvent;
 import android.view.View;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Map;
 
 import org.citra.emu.NativeLibrary.ButtonType;
 import org.citra.emu.R;
-import org.citra.emu.utils.DirectoryInitialization;
+import org.citra.emu.ui.EmulationActivity;
 
 public final class InputOverlay extends View {
     public static final String PREF_CONTROLLER_INIT = "InitOverlay";
@@ -38,22 +36,6 @@ public final class InputOverlay extends View {
     public static boolean sHideInputOverlay = false;
     public static boolean sShowRightJoystick = false;
 
-    @SuppressLint("StaticFieldLeak")
-    private class InitTask extends AsyncTask<Context, Void, Map<Integer, Bitmap>> {
-        @Override
-        protected Map<Integer, Bitmap> doInBackground(Context... contexts) {
-            return DirectoryInitialization.loadInputOverlay(contexts[0]);
-        }
-
-        @Override
-        protected void onPostExecute(Map<Integer, Bitmap> result) {
-            mBitmaps = result;
-            refreshControls();
-            invalidate();
-        }
-    }
-
-    private Map<Integer, Bitmap> mBitmaps;
     private final ArrayList<InputOverlayButton> mButtons = new ArrayList<>();
     private final ArrayList<InputOverlayDpad> mDpads = new ArrayList<>();
     private final ArrayList<InputOverlayJoystick> mJoysticks = new ArrayList<>();
@@ -79,8 +61,6 @@ public final class InputOverlay extends View {
         sControllerAlpha = mPreferences.getInt(InputOverlay.PREF_CONTROLLER_ALPHA, 100);
         sHideInputOverlay = mPreferences.getBoolean(InputOverlay.PREF_CONTROLLER_HIDE, false);
         sShowRightJoystick = mPreferences.getBoolean(InputOverlay.PREF_SHOW_RIGHT_JOYSTICK, false);
-
-        new InitTask().execute(context);
     }
 
     private void defaultOverlay() {
@@ -386,10 +366,6 @@ public final class InputOverlay extends View {
     }
 
     public void refreshControls() {
-        if (mBitmaps == null) {
-            return;
-        }
-
         // Remove all the overlay buttons
         mIsLandscape =
             getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE;
@@ -577,21 +553,7 @@ public final class InputOverlay extends View {
     }
 
     public Bitmap getInputBitmap(int id, float scale) {
-        // Determine the button size based on the smaller screen dimension.
-        // This makes sure the buttons are the same size in both portrait and landscape.
-        DisplayMetrics dm = getResources().getDisplayMetrics();
-        int dimension = (int)(Math.min(dm.widthPixels, dm.heightPixels) * scale);
-        Bitmap bitmap = mBitmaps.get(id);
-        int dstWidth = bitmap.getWidth();
-        int dstHeight = bitmap.getHeight();
-        if (dstWidth > dstHeight) {
-            dstWidth = dstWidth * dimension / dstHeight;
-            dstHeight = dimension;
-        } else {
-            dstHeight = dstHeight * dimension / dstWidth;
-            dstWidth = dimension;
-        }
-        return Bitmap.createScaledBitmap(mBitmaps.get(id), dstWidth, dstHeight, true);
+        return ((EmulationActivity)getContext()).getInputBitmap(id, scale);
     }
 
     public boolean isInEditMode() {
@@ -619,6 +581,7 @@ public final class InputOverlay extends View {
             R.drawable.dpad, R.drawable.dpad_pressed_one, R.drawable.dpad_pressed_two,
             R.drawable.joystick, R.drawable.joystick_pressed, R.drawable.joystick_range,
             R.drawable.c_stick, R.drawable.c_stick_pressed, R.drawable.c_stick_range,
+            R.drawable.bg_landscape, R.drawable.bg_portrait
     };
     public static final String[] ResNames = {
             "a.png", "a_pressed.png",
@@ -636,6 +599,7 @@ public final class InputOverlay extends View {
             "three.png", "three_pressed.png",
             "dpad.png", "dpad_pressed_one.png", "dpad_pressed_two.png",
             "joystick.png", "joystick_pressed.png", "joystick_range.png",
-            "c_stick.png", "c_stick_pressed.png", "c_stick_range.png"
+            "c_stick.png", "c_stick_pressed.png", "c_stick_range.png",
+            "bg_landscape.jpg", "bg_portrait.jpg"
     };
 }

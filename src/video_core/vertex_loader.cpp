@@ -75,7 +75,7 @@ using CopyHandler = void (*)(int, int, Shader::AttributeBuffer&, u32);
 
 static void CopyBYTE(int i, int size, Shader::AttributeBuffer& input, u32 source_addr) {
     const s8* srcdata =
-        reinterpret_cast<const s8*>(VideoCore::g_memory->GetPhysicalPointer(source_addr));
+        reinterpret_cast<const s8*>(VideoCore::Memory()->GetPhysicalPointer(source_addr));
     for (unsigned int comp = 0; comp < size; ++comp) {
         input.attr[i][comp] = float24::FromFloat32(srcdata[comp]);
     }
@@ -83,7 +83,7 @@ static void CopyBYTE(int i, int size, Shader::AttributeBuffer& input, u32 source
 
 static void CopyUBYTE(int i, int size, Shader::AttributeBuffer& input, u32 source_addr) {
     const u8* srcdata =
-        reinterpret_cast<const u8*>(VideoCore::g_memory->GetPhysicalPointer(source_addr));
+        reinterpret_cast<const u8*>(VideoCore::Memory()->GetPhysicalPointer(source_addr));
     for (unsigned int comp = 0; comp < size; ++comp) {
         input.attr[i][comp] = float24::FromFloat32(srcdata[comp]);
     }
@@ -91,7 +91,7 @@ static void CopyUBYTE(int i, int size, Shader::AttributeBuffer& input, u32 sourc
 
 static void CopySHORT(int i, int size, Shader::AttributeBuffer& input, u32 source_addr) {
     const s16* srcdata =
-        reinterpret_cast<const s16*>(VideoCore::g_memory->GetPhysicalPointer(source_addr));
+        reinterpret_cast<const s16*>(VideoCore::Memory()->GetPhysicalPointer(source_addr));
     for (unsigned int comp = 0; comp < size; ++comp) {
         input.attr[i][comp] = float24::FromFloat32(srcdata[comp]);
     }
@@ -99,7 +99,7 @@ static void CopySHORT(int i, int size, Shader::AttributeBuffer& input, u32 sourc
 
 static void CopyFLOAT(int i, int size, Shader::AttributeBuffer& input, u32 source_addr) {
     const float* srcdata =
-        reinterpret_cast<const float*>(VideoCore::g_memory->GetPhysicalPointer(source_addr));
+        reinterpret_cast<const float*>(VideoCore::Memory()->GetPhysicalPointer(source_addr));
     for (unsigned int comp = 0; comp < size; ++comp) {
         input.attr[i][comp] = float24::FromFloat32(srcdata[comp]);
     }

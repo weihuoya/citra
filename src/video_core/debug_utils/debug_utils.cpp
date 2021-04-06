@@ -47,7 +47,7 @@ void DebugContext::DoOnEvent(Event event, void* data) {
 
         // Commit the rasterizer's caches so framebuffers, render targets, etc. will show on debug
         // widgets
-        VideoCore::g_renderer->Rasterizer()->FlushAll();
+        VideoCore::Rasterizer()->FlushAll();
 
         // TODO: Should stop the CPU thread here once we multithread emulation.
 

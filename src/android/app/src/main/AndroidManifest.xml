@@ -15,6 +15,12 @@
     <uses-permission android:name="android.permission.RECORD_AUDIO"/>
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/>
 
+    <supports-screens
+        android:largeScreens="true"
+        android:normalScreens="true"
+        android:smallScreens="true"
+        android:xlargeScreens="true" />
+
     <application
         android:label="Citra"
         android:icon="@mipmap/ic_citra"
@@ -24,6 +30,8 @@
         android:resizeableActivity="false"
         android:requestLegacyExternalStorage="true"
         android:banner="@mipmap/ic_citra">
+
+        <meta-data android:name="android.max_aspect" android:value="2.4" />
 
         <activity
             android:name=".ui.MainActivity"
@@ -51,6 +59,7 @@
 
         <activity
             android:name=".ui.EmulationActivity"
+            android:configChanges="orientation|screenSize"
             android:resizeableActivity="false"
             android:launchMode="singleTop"
             android:theme="@style/CitraEmulationBase"/>

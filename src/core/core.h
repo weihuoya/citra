@@ -344,8 +344,4 @@ inline u32 GetNumCores() {
     return System::GetInstance().GetNumCores();
 }
 
-inline AudioCore::DspInterface& DSP() {
-    return System::GetInstance().DSP();
-}
-
 } // namespace Core

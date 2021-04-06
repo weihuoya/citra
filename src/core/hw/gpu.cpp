@@ -96,7 +96,7 @@ static void MemoryFill(const Regs::MemoryFillConfig& config) {
         return;
     }
 
-    if (VideoCore::g_renderer->Rasterizer()->AccelerateFill(config))
+    if (VideoCore::Rasterizer()->AccelerateFill(config))
         return;
 
     Memory::RasterizerInvalidateRegion(start_addr,end_addr - start_addr);
@@ -160,7 +160,7 @@ static void DisplayTransfer(const Regs::DisplayTransferConfig& config) {
         return;
     }
 
-    if (VideoCore::g_renderer->Rasterizer()->AccelerateDisplayTransfer(config))
+    if (VideoCore::Rasterizer()->AccelerateDisplayTransfer(config))
         return;
 
     if (config.scaling > config.ScaleXY) {
@@ -314,7 +314,7 @@ static void TextureCopy(const Regs::DisplayTransferConfig& config) {
         return;
     }
 
-    if (VideoCore::g_renderer->Rasterizer()->AccelerateTextureCopy(config))
+    if (VideoCore::Rasterizer()->AccelerateTextureCopy(config))
         return;
 
     u32 remaining_size = Common::AlignDown(config.texture_copy.size, 16);
@@ -484,7 +484,7 @@ template void Write<u8>(u32 addr, const u8 data);
 
 /// Update hardware
 static void VBlankCallback(u64 userdata, s64 cycles_late) {
-    VideoCore::g_renderer->SwapBuffers();
+    VideoCore::Renderer()->SwapBuffers();
 
     // Signal to GSP that GPU interrupt has occurred
     // TODO(yuriks): hwtest to determine if PDC0 is for the Top screen and PDC1 for the Sub

@@ -292,7 +292,7 @@ RasterizerOpenGL::VertexArrayInfo RasterizerOpenGL::AnalyzeVertexArray(bool is_i
     if (is_indexed) {
         const auto& index_info = regs.pipeline.index_array;
         const PAddr address = vertex_attributes.GetPhysicalBaseAddress() + index_info.offset;
-        const u8* index_address_8 = VideoCore::g_memory->GetPhysicalPointer(address);
+        const u8* index_address_8 = VideoCore::Memory()->GetPhysicalPointer(address);
         const u16* index_address_16 = reinterpret_cast<const u16*>(index_address_8);
         const bool index_u16 = index_info.format != 0;
 
@@ -381,7 +381,7 @@ void RasterizerOpenGL::SetupVertexArray(u8* array_ptr, GLintptr buffer_offset,
         u32 data_size = loader.byte_count * vertex_num;
 
         // res_cache.FlushRegion(data_addr, data_size, nullptr);
-        std::memcpy(array_ptr, VideoCore::g_memory->GetPhysicalPointer(data_addr), data_size);
+        std::memcpy(array_ptr, VideoCore::Memory()->GetPhysicalPointer(data_addr), data_size);
 
         array_ptr += data_size;
         buffer_offset += data_size;
@@ -492,7 +492,7 @@ bool RasterizerOpenGL::AccelerateDrawBatchInternal(bool is_indexed) {
             return false;
         }
 
-        const u8* index_data = VideoCore::g_memory->GetPhysicalPointer(
+        const u8* index_data = VideoCore::Memory()->GetPhysicalPointer(
             regs.pipeline.vertex_attributes.GetPhysicalBaseAddress() +
             regs.pipeline.index_array.offset);
         std::tie(buffer_ptr, buffer_offset, std::ignore) = index_buffer.Map(index_buffer_size, 4);
@@ -665,24 +665,24 @@ bool RasterizerOpenGL::Draw(bool accelerate, bool is_indexed) {
     }
 
     Common::Rectangle<u32> draw_rect{
-            static_cast<u32>(std::clamp<s32>(static_cast<s32>(surfaces_rect.left) +
+        static_cast<u32>(std::clamp<s32>(static_cast<s32>(surfaces_rect.left) +
                                              viewport_rect_unscaled.left * res_scale,
-                                             surfaces_rect.left, surfaces_rect.right)), // Left
-            static_cast<u32>(std::clamp<s32>(static_cast<s32>(surfaces_rect.bottom) +
+                                         surfaces_rect.left, surfaces_rect.right)), // Left
+        static_cast<u32>(std::clamp<s32>(static_cast<s32>(surfaces_rect.bottom) +
                                              viewport_rect_unscaled.top * res_scale,
-                                             surfaces_rect.bottom, surfaces_rect.top)), // Top
-            static_cast<u32>(std::clamp<s32>(static_cast<s32>(surfaces_rect.left) +
+                                         surfaces_rect.bottom, surfaces_rect.top)), // Top
+        static_cast<u32>(std::clamp<s32>(static_cast<s32>(surfaces_rect.left) +
                                              viewport_rect_unscaled.right * res_scale,
-                                             surfaces_rect.left, surfaces_rect.right)), // Right
-            static_cast<u32>(std::clamp<s32>(static_cast<s32>(surfaces_rect.bottom) +
+                                         surfaces_rect.left, surfaces_rect.right)), // Right
+        static_cast<u32>(std::clamp<s32>(static_cast<s32>(surfaces_rect.bottom) +
                                              viewport_rect_unscaled.bottom * res_scale,
-                                             surfaces_rect.bottom, surfaces_rect.top))}; // Bottom
+                                         surfaces_rect.bottom, surfaces_rect.top))}; // Bottom
 
     // Sync the viewport
     state.viewport.x =
-            static_cast<GLint>(surfaces_rect.left) + viewport_rect_unscaled.left * res_scale;
+        static_cast<GLint>(surfaces_rect.left) + viewport_rect_unscaled.left * res_scale;
     state.viewport.y =
-            static_cast<GLint>(surfaces_rect.bottom) + viewport_rect_unscaled.bottom * res_scale;
+        static_cast<GLint>(surfaces_rect.bottom) + viewport_rect_unscaled.bottom * res_scale;
     state.viewport.width = static_cast<GLsizei>(viewport_rect_unscaled.GetWidth() * res_scale);
     state.viewport.height = static_cast<GLsizei>(viewport_rect_unscaled.GetHeight() * res_scale);
 
@@ -751,13 +751,13 @@ bool RasterizerOpenGL::Draw(bool accelerate, bool is_indexed) {
     // Scissor checks are window-, not viewport-relative, which means that if the cached texture
     // sub-rect changes, the scissor bounds also need to be updated.
     GLint scissor_x1 =
-            static_cast<GLint>(surfaces_rect.left + regs.rasterizer.scissor_test.x1 * res_scale);
+        static_cast<GLint>(surfaces_rect.left + regs.rasterizer.scissor_test.x1 * res_scale);
     GLint scissor_y1 =
-            static_cast<GLint>(surfaces_rect.bottom + regs.rasterizer.scissor_test.y1 * res_scale);
+        static_cast<GLint>(surfaces_rect.bottom + regs.rasterizer.scissor_test.y1 * res_scale);
     // x2, y2 have +1 added to cover the entire pixel area, otherwise you might get cracks when
     // scaling or doing multisampling.
     GLint scissor_x2 =
-            static_cast<GLint>(surfaces_rect.left + (regs.rasterizer.scissor_test.x2 + 1) * res_scale);
+        static_cast<GLint>(surfaces_rect.left + (regs.rasterizer.scissor_test.x2 + 1) * res_scale);
     GLint scissor_y2 = static_cast<GLint>(surfaces_rect.bottom +
                                           (regs.rasterizer.scissor_test.y2 + 1) * res_scale);
 
@@ -1281,10 +1281,13 @@ bool RasterizerOpenGL::AccelerateDisplayTransfer(const GPU::Regs::DisplayTransfe
     // hack for Tales of the Abyss / Pac Man Party 3D
     if (Settings::values.display_transfer_hack) {
         src_params.addr += 0x6000;
+        src_params.end += 0x6000;
         if (dst_params.height == 400) {
             dst_params.addr += 0x1B0;
+            dst_params.end += 0x1B0;
         } else {
             dst_params.addr += 0xC0;
+            dst_params.end += 0xC0;
         }
     }
 
