@@ -181,12 +181,15 @@ public final class DirectoryInitialization {
         }
     }
 
-    public static Map<Integer, Bitmap> loadInputOverlay(Context context) {
+    public static Map<Integer, Bitmap> loadInputOverlay(Context context, String theme) {
         final int[] inputIds = InputOverlay.ResIds;
         final String[] inputNames = InputOverlay.ResNames;
+        final String themePath = getThemeDirectory();
         Map<Integer, Bitmap> inputs = new HashMap<>();
-        String path = getThemeDirectory() + "/default.zip";
-        File file = new File(path);
+        File file = new File(themePath + "/" + theme + ".zip");
+        if (!file.exists()) {
+            file = new File(themePath + "/default.zip");
+        }
 
         // default bitmaps
         for (int id : inputIds) {

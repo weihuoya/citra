@@ -86,11 +86,4 @@ FramebufferLayout SideFrameLayout(u32 width, u32 height, bool is_swapped);
  */
 FramebufferLayout CustomFrameLayout(u32 width, u32 height);
 
-/**
- * Convenience method to get frame layout by resolution scale
- * Read from the current settings to determine which layout to use.
- * @param res_scale resolution scale factor
- */
-FramebufferLayout FrameLayoutFromResolutionScale(u32 res_scale);
-
 } // namespace Layout

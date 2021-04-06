@@ -14,8 +14,13 @@ namespace AudioCore {
 DspInterface::DspInterface() = default;
 DspInterface::~DspInterface() = default;
 
-void DspInterface::SetSink(const std::string& sink_id, const std::string& audio_device) {
-    sink = CreateSinkFromID(Settings::values.sink_id, Settings::values.audio_device_id);
+void DspInterface::SetSink(const std::string& sink_id, const std::string& audio_device_id) {
+    if (current_sink_id == sink_id && current_audio_device_id == audio_device_id) {
+        return;
+    }
+    current_sink_id = sink_id;
+    current_audio_device_id = audio_device_id;
+    sink = CreateSinkFromID(sink_id, audio_device_id);
     sink->SetCallback(
         [this](s16* buffer, std::size_t num_frames) { OutputCallback(buffer, num_frames); });
     time_stretcher.SetOutputSampleRate(sink->GetNativeSampleRate());

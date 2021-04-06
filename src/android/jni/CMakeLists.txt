@@ -3,6 +3,8 @@ cmake_minimum_required(VERSION 3.8)
 add_library(main SHARED
             jni_common.cpp
             jni_common.h
+            jni_helper.cpp
+            jni_helper.h
             input_manager.cpp
             input_manager.h
             egl_android.cpp

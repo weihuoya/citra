@@ -8,18 +8,22 @@ void AndroidKeyboard::Execute(const Frontend::KeyboardConfig& config) {
     std::string button0, button1, button2;
     switch (config.button_config) {
     case Frontend::ButtonConfig::Triple:
-        button1 = config.button_text[1].empty() ? Frontend::SWKBD_BUTTON_FORGOT : config.button_text[1];
+        button1 =
+            config.button_text[1].empty() ? Frontend::SWKBD_BUTTON_FORGOT : config.button_text[1];
     case Frontend::ButtonConfig::Dual:
-        button1 = config.button_text[0].empty() ? Frontend::SWKBD_BUTTON_CANCEL : config.button_text[0];
+        button1 =
+            config.button_text[0].empty() ? Frontend::SWKBD_BUTTON_CANCEL : config.button_text[0];
     case Frontend::ButtonConfig::Single:
-        button1 = config.button_text[2].empty() ? Frontend::SWKBD_BUTTON_OKAY : config.button_text[2];
+        button1 =
+            config.button_text[2].empty() ? Frontend::SWKBD_BUTTON_OKAY : config.button_text[2];
     case Frontend::ButtonConfig::None:
         break;
     }
     if (config.button_config != Frontend::ButtonConfig::None) {
         mButtonOk = static_cast<u8>(config.button_config);
     }
-    ShowInputBoxDialog(config.max_text_length, mError, config.hint_text, button0, button1, button2);
+    NativeLibrary::ShowInputBoxDialog(config.max_text_length, mError, config.hint_text, button0,
+                                      button1, button2);
     mError.clear();
 }
 

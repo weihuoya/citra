@@ -4,6 +4,7 @@
 
 #include "common/timer.h"
 #include "core/core.h"
+#include "core/frontend/emu_window.h"
 #include "core/frontend/framebuffer_layout.h"
 #include "core/settings.h"
 #include "video_core/renderer_opengl/gl_resource_manager.h"
@@ -14,9 +15,9 @@ namespace OSD {
 
 class RasterFont {
 public:
-    bool Initialize(float scale);
+    bool Initialize();
     void AddMessage(const std::string& message, MessageType type, u32 duration, u32 color);
-    void Draw(const Layout::FramebufferLayout& layout);
+    void Draw(const Frontend::EmuWindow& window, const Layout::FramebufferLayout& layout);
 
 private:
     void UpdateDebugInfo();
@@ -40,7 +41,6 @@ private:
     std::vector<Message> messages;
 
     struct DrawInfo {
-        float scaled_density;
         float font_width;
         float font_height;
         float border_x;
@@ -176,11 +176,8 @@ void main() {
     ocol0 = texture(samp0, uv0) * color;
 })";
 
-bool RasterFont::Initialize(float scale) {
+bool RasterFont::Initialize() {
     debug_timestamp = 0;
-
-    // A scaling factor for fonts displayed on the display.
-    draw_info.scaled_density = scale;
 
     // Generate the texture
     texture.Create();
@@ -224,6 +221,7 @@ bool RasterFont::Initialize(float scale) {
     glActiveTexture(GL_TEXTURE0);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAX_LEVEL, 0);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
     glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, CHARACTER_WIDTH * CHARACTER_COUNT, CHARACTER_HEIGHT, 0,
                  GL_RGBA, GL_UNSIGNED_BYTE, texture_data.data());
 
@@ -352,19 +350,30 @@ void RasterFont::UpdateDebugInfo() {
     AddMessage(text, MessageType::FPS, Duration::FOREVER, Color::BLUE);
 }
 
-void RasterFont::Draw(const Layout::FramebufferLayout& layout) {
+void RasterFont::Draw(const Frontend::EmuWindow& window, const Layout::FramebufferLayout& layout) {
+    const float scaled_density = window.GetScaleDensity();
+    const int safe_left = window.GetSafeInsetLeft();
+    const int safe_top = window.GetSafeInsetTop();
     draw_info.screen_width = static_cast<float>(layout.width);
     draw_info.screen_height = static_cast<float>(layout.height);
-    draw_info.font_width =
-        draw_info.scaled_density * CHARACTER_WIDTH / draw_info.screen_width * 2.0f;
-    draw_info.font_height =
-        draw_info.scaled_density * CHARACTER_HEIGHT / draw_info.screen_height * 2.0f;
+    draw_info.font_width = CHARACTER_WIDTH / draw_info.screen_width * scaled_density * 1.25f;
+    draw_info.font_height = CHARACTER_HEIGHT / draw_info.screen_height * scaled_density * 1.25f;
     draw_info.border_x = draw_info.font_width / 2.0f;
     draw_info.border_y = draw_info.font_height / 2.0f;
-    draw_info.shadow_x = draw_info.font_width / 4.0f;
-    draw_info.shadow_y = -draw_info.font_height / 6.0f;
-    draw_info.start_x = draw_info.font_width - 1.0f;
-    draw_info.start_y = 1.0f - draw_info.font_height * 1.1f;
+    draw_info.shadow_x = draw_info.font_width * 0.1f;
+    draw_info.shadow_y = draw_info.font_height * -0.1f;
+
+    if (safe_left > 0) {
+        draw_info.start_x = safe_left / draw_info.screen_width * scaled_density - 1.0f;
+    } else {
+        draw_info.start_x = draw_info.font_width - 1.0f;
+    }
+
+    if (safe_top > 0) {
+        draw_info.start_y = 1.0f - safe_top / draw_info.screen_height * scaled_density;
+    } else {
+        draw_info.start_y = 1.0f - draw_info.font_height * 1.5f;
+    }
 
     OpenGL::OpenGLState state = OpenGL::OpenGLState::GetCurState();
     state.draw.shader_program = shader.handle;
@@ -402,7 +411,7 @@ static std::unique_ptr<RasterFont> s_raster_font;
 
 void Initialize() {
     s_raster_font = std::make_unique<RasterFont>();
-    s_raster_font->Initialize(1.8f);
+    s_raster_font->Initialize();
     // fps placeholder
     AddMessage("", MessageType::FPS, Duration::FOREVER, Color::BLUE);
 }
@@ -413,9 +422,9 @@ void AddMessage(const std::string& message, MessageType type, u32 duration, u32 
     }
 }
 
-void DrawMessage(const Layout::FramebufferLayout& layout) {
+void DrawMessage(const Frontend::EmuWindow& window, const Layout::FramebufferLayout& layout) {
     if (Settings::values.show_fps) {
-        s_raster_font->Draw(layout);
+        s_raster_font->Draw(window, layout);
     }
 }
 

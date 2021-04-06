@@ -3,9 +3,9 @@
 #include <tuple>
 #include <vector>
 
-#include <sys/system_properties.h>
 #include <android/log.h>
 #include <fmt/format.h>
+#include <sys/system_properties.h>
 
 #include "core/frontend/input.h"
 #include "core/settings.h"
@@ -15,7 +15,7 @@
 #include "config/main_settings.h"
 #include "ndk_motion.h"
 
-static int GetPropertyInteger(const char * name, int defaultValue) {
+static int GetPropertyInteger(const char* name, int defaultValue) {
     int result = defaultValue;
 #ifdef __ANDROID__
     char valueText[PROP_VALUE_MAX] = {0};
@@ -23,7 +23,7 @@ static int GetPropertyInteger(const char * name, int defaultValue) {
         result = atoi(valueText);
     }
 #else
-    (void) name;
+    (void)name;
 #endif
     return result;
 }
@@ -43,8 +43,10 @@ private:
     // Analog Button
     class AnalogButton final : public Input::ButtonDevice {
     public:
-        explicit AnalogButton(ButtonList* button_list, int id, float threshold, bool trigger_if_greater)
-                : button_list(button_list), button_id(id), threshold(threshold), trigger_if_greater(trigger_if_greater) {}
+        explicit AnalogButton(ButtonList* button_list, int id, float threshold,
+                              bool trigger_if_greater)
+            : button_list(button_list), button_id(id), threshold(threshold),
+              trigger_if_greater(trigger_if_greater) {}
 
         ~AnalogButton() override {
             button_list->DestroyButton(this);
@@ -73,19 +75,20 @@ private:
     };
 
 public:
-    std::unique_ptr<Input::ButtonDevice> CreateButton(int button_id, float threshold, bool trigger_if_greater) {
+    std::unique_ptr<Input::ButtonDevice> CreateButton(int button_id, float threshold,
+                                                      bool trigger_if_greater) {
         std::lock_guard<std::mutex> guard(mutex);
         std::unique_ptr<AnalogButton> button =
-                std::make_unique<AnalogButton>(this, button_id, threshold, trigger_if_greater);
+            std::make_unique<AnalogButton>(this, button_id, threshold, trigger_if_greater);
         buttons.push_back(button.get());
         return std::move(button);
     }
 
     void DestroyButton(AnalogButton* target) {
         std::lock_guard<std::mutex> guard(mutex);
-        auto iter = std::remove_if(buttons.begin(), buttons.end(), [target](const AnalogButton* button) {
-            return button == target;
-        });
+        auto iter =
+            std::remove_if(buttons.begin(), buttons.end(),
+                           [target](const AnalogButton* button) { return button == target; });
         buttons.erase(iter, buttons.end());
     }
 
@@ -112,7 +115,8 @@ private:
     // Joystick Handler
     class Joystick final : public Input::AnalogDevice {
     public:
-        explicit Joystick(AnalogList * button_list, int id) : button_list(button_list), button_id(id) {}
+        explicit Joystick(AnalogList* button_list, int id)
+            : button_list(button_list), button_id(id) {}
 
         ~Joystick() override {
             button_list->DestroyButton(this);
@@ -128,8 +132,8 @@ private:
             x = std::clamp(x, -1.0F, 1.0F);
             y = std::clamp(-y, -1.0F, 1.0F);
 
-            // Clamp the input to a circle (while touch input is already clamped in the frontend, gamepad is
-            // unknown)
+            // Clamp the input to a circle (while touch input is already clamped in the frontend,
+            // gamepad is unknown)
             float r = x * x + y * y;
             if (r > 1.0f) {
                 r = std::sqrt(r);
@@ -146,7 +150,7 @@ private:
         }
 
     private:
-        AnalogList * button_list;
+        AnalogList* button_list;
         int button_id;
         std::atomic<float> x_axis{0.0f};
         std::atomic<float> y_axis{0.0f};
@@ -162,9 +166,8 @@ public:
 
     void DestroyButton(Joystick* target) {
         std::lock_guard<std::mutex> guard(mutex);
-        auto iter = std::remove_if(buttons.begin(), buttons.end(), [target](const Joystick* button) {
-            return button == target;
-        });
+        auto iter = std::remove_if(buttons.begin(), buttons.end(),
+                                   [target](const Joystick* button) { return button == target; });
         buttons.erase(iter, buttons.end());
     }
 
@@ -317,8 +320,10 @@ void InputManager::InitProfile() {
     }
 
     std::array<std::string, 4> AnalogConfigs = {
-        Config::Get(Config::CIRCLE_PAD_X),   Config::Get(Config::CIRCLE_PAD_Y),
-        Config::Get(Config::C_STICK_X), Config::Get(Config::C_STICK_Y),
+        Config::Get(Config::CIRCLE_PAD_X),
+        Config::Get(Config::CIRCLE_PAD_Y),
+        Config::Get(Config::C_STICK_X),
+        Config::Get(Config::C_STICK_Y),
     };
 
     mAnalogKeys.clear();
@@ -385,8 +390,4 @@ bool InputManager::KeyEvent(int button, float value) {
     }
 
     return false;
-}
-
-void InputManager::SetDisplayRotation(int rotation) {
-    ndkmotion_display_rotation = rotation;
 }

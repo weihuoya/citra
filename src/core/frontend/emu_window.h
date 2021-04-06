@@ -73,7 +73,30 @@ public:
      * Convenience method to update the current frame layout
      * Read from the current settings to determine which layout to use.
      */
-    void UpdateCurrentFramebufferLayout(unsigned width, unsigned height);
+    void UpdateFramebufferLayout(u32 width, u32 height);
+
+    /**
+     * Android
+     */
+    u32 GetSafeInsetLeft() const {
+        return safe_inset_left;
+    }
+
+    u32 GetSafeInsetTop() const {
+        return safe_inset_top;
+    }
+
+    u32 GetSafeInsetRight() const {
+        return safe_inset_right;
+    }
+
+    u32 GetSafeInsetBottom() const {
+        return safe_inset_bottom;
+    }
+
+    float GetScaleDensity() const {
+        return scale_density;
+    }
 
 protected:
     EmuWindow();
@@ -87,8 +110,16 @@ protected:
         framebuffer_layout = layout;
     }
 
-private:
+    /**
+     * Android
+     */
+    float scale_density = 1.0f;
+    u32 safe_inset_left = 0;
+    u32 safe_inset_top = 0;
+    u32 safe_inset_right = 0;
+    u32 safe_inset_bottom = 0;
 
+private:
     Layout::FramebufferLayout framebuffer_layout; ///< Current framebuffer layout
 
     class TouchState;

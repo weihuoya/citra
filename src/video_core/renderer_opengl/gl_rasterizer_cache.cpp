@@ -170,7 +170,7 @@ static void MortonCopy(u32 stride, u32 height, u8* gl_buffer, PAddr base, PAddr 
         }
     };
 
-    u8* tile_buffer = VideoCore::g_memory->GetPhysicalPointer(start);
+    u8* tile_buffer = VideoCore::Memory()->GetPhysicalPointer(start);
 
     if (start < aligned_start && !morton_to_gl) {
         std::array<u8, tile_size> tmp_buf;
@@ -481,7 +481,7 @@ MICROPROFILE_DEFINE(OpenGL_SurfaceLoad, "OpenGL", "Surface Load", MP_RGB(128, 19
 void CachedSurface::LoadGLBuffer(PAddr load_start, PAddr load_end) {
     ASSERT(type != SurfaceType::Fill);
 
-    const u8* const texture_src_data = VideoCore::g_memory->GetPhysicalPointer(addr);
+    const u8* const texture_src_data = VideoCore::Memory()->GetPhysicalPointer(addr);
     if (texture_src_data == nullptr)
         return;
 
@@ -556,7 +556,7 @@ void CachedSurface::LoadGLBuffer(PAddr load_start, PAddr load_end) {
 
 MICROPROFILE_DEFINE(OpenGL_SurfaceFlush, "OpenGL", "Surface Flush", MP_RGB(128, 192, 64));
 void CachedSurface::FlushGLBuffer(PAddr flush_start, PAddr flush_end) {
-    u8* const dst_buffer = VideoCore::g_memory->GetPhysicalPointer(addr);
+    u8* const dst_buffer = VideoCore::Memory()->GetPhysicalPointer(addr);
     if (dst_buffer == nullptr)
         return;
 
@@ -688,7 +688,6 @@ void CachedSurface::UploadGLTexture(const Common::Rectangle<u32>& rect) {
         scaled_rect.top *= res_scale;
         scaled_rect.right *= res_scale;
         scaled_rect.bottom *= res_scale;
-
         BlitTextures(unscaled_tex.handle, {0, custom_rect.GetHeight(), custom_rect.GetWidth(), 0},
                      texture.handle, scaled_rect, type);
     }
@@ -957,7 +956,7 @@ Surface RasterizerCacheOpenGL::GetSurface(const SurfaceParams& params, ScaleMatc
         ValidateSurface(surface, params.addr, params.size);
     }
 
-    surface->last_used_frame = VideoCore::g_renderer->GetCurrentFrame();
+    surface->last_used_frame = VideoCore::GetCurrentFrame();
 
     return surface;
 }
@@ -1041,7 +1040,7 @@ SurfaceRect_Tuple RasterizerCacheOpenGL::GetSurfaceSubRect(const SurfaceParams& 
         ValidateSurface(surface, aligned_params.addr, aligned_params.size);
     }
 
-    surface->last_used_frame = VideoCore::g_renderer->GetCurrentFrame();
+    surface->last_used_frame = VideoCore::GetCurrentFrame();
 
     return std::make_tuple(surface, surface->GetScaledSubRect(params));
 }
@@ -1369,13 +1368,13 @@ SurfaceSurfaceRect_Tuple RasterizerCacheOpenGL::GetFramebufferSurfaces(
         ValidateSurface(color_surface, boost::icl::first(color_vp_interval),
                         boost::icl::length(color_vp_interval));
         color_surface->InvalidateAllWatcher();
-        color_surface->last_used_frame = VideoCore::g_renderer->GetCurrentFrame();
+        color_surface->last_used_frame = VideoCore::GetCurrentFrame();
     }
     if (depth_surface != nullptr) {
         ValidateSurface(depth_surface, boost::icl::first(depth_vp_interval),
                         boost::icl::length(depth_vp_interval));
         depth_surface->InvalidateAllWatcher();
-        depth_surface->last_used_frame = VideoCore::g_renderer->GetCurrentFrame();
+        depth_surface->last_used_frame = VideoCore::GetCurrentFrame();
     }
 
     return std::make_tuple(color_surface, depth_surface, fb_rect);
@@ -1400,7 +1399,7 @@ Surface RasterizerCacheOpenGL::GetFillSurface(const GPU::Regs::MemoryFillConfig&
     }
 
     RegisterSurface(new_surface);
-    new_surface->last_used_frame = VideoCore::g_renderer->GetCurrentFrame();
+    new_surface->last_used_frame = VideoCore::GetCurrentFrame();
     return new_surface;
 }
 
@@ -1426,7 +1425,7 @@ SurfaceRect_Tuple RasterizerCacheOpenGL::GetTexCopySurface(const SurfaceParams& 
         }
 
         rect = match_surface->GetScaledSubRect(match_subrect);
-        match_surface->last_used_frame = VideoCore::g_renderer->GetCurrentFrame();
+        match_surface->last_used_frame = VideoCore::GetCurrentFrame();
     }
 
     return std::make_tuple(match_surface, rect);
@@ -1623,7 +1622,7 @@ void RasterizerCacheOpenGL::FlushAll() {
 }
 
 void RasterizerCacheOpenGL::RecycleSurfaceUpdate() {
-    u32 current_frame = VideoCore::g_renderer->GetCurrentFrame();
+    u32 current_frame = VideoCore::GetCurrentFrame();
     if (current_frame > last_clean_frame + CLEAN_FRAME_INTERVAL) {
         const u32 frame_lower_bound = current_frame - CLEAN_FRAME_INTERVAL;
         const SurfaceInterval interval(0, 0xFFFFFFFF);
@@ -1720,10 +1719,8 @@ void RasterizerCacheOpenGL::InvalidateRegion(PAddr addr, u32 size, const Surface
                 continue;
             }
         }
-
         UnregisterSurface(remove_surface);
     }
-
     remove_surfaces.clear();
 }
 
@@ -1778,10 +1775,10 @@ void RasterizerCacheOpenGL::UpdatePagesCachedCount(PAddr addr, u32 size, int del
         const u32 interval_size = interval_end_addr - interval_start_addr;
 
         if (delta > 0 && count == delta)
-            VideoCore::g_memory->RasterizerMarkRegionCached(interval_start_addr, interval_size,
+            VideoCore::Memory()->RasterizerMarkRegionCached(interval_start_addr, interval_size,
                                                             true);
         else if (delta < 0 && count == -delta)
-            VideoCore::g_memory->RasterizerMarkRegionCached(interval_start_addr, interval_size,
+            VideoCore::Memory()->RasterizerMarkRegionCached(interval_start_addr, interval_size,
                                                             false);
         else
             ASSERT(count >= 0);

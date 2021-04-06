@@ -85,13 +85,23 @@ extern const ConfigInfo<std::string> C_STICK_Y;
 
 // custom layout
 extern const ConfigInfo<bool> USE_CUSTOM_LAYOUT;
-extern const ConfigInfo<u16> CUSTOM_TOP_LEFT;
-extern const ConfigInfo<u16> CUSTOM_TOP_TOP;
-extern const ConfigInfo<u16> CUSTOM_TOP_RIGHT;
-extern const ConfigInfo<u16> CUSTOM_TOP_BOTTOM;
-extern const ConfigInfo<u16> CUSTOM_BOTTOM_LEFT;
-extern const ConfigInfo<u16> CUSTOM_BOTTOM_TOP;
-extern const ConfigInfo<u16> CUSTOM_BOTTOM_RIGHT;
-extern const ConfigInfo<u16> CUSTOM_BOTTOM_BOTTOM;
+
+extern const ConfigInfo<u16> PORTRAIT_TOP_LEFT;
+extern const ConfigInfo<u16> PORTRAIT_TOP_TOP;
+extern const ConfigInfo<u16> PORTRAIT_TOP_RIGHT;
+extern const ConfigInfo<u16> PORTRAIT_TOP_BOTTOM;
+extern const ConfigInfo<u16> PORTRAIT_BOTTOM_LEFT;
+extern const ConfigInfo<u16> PORTRAIT_BOTTOM_TOP;
+extern const ConfigInfo<u16> PORTRAIT_BOTTOM_RIGHT;
+extern const ConfigInfo<u16> PORTRAIT_BOTTOM_BOTTOM;
+
+extern const ConfigInfo<u16> LANDSCAPE_TOP_LEFT;
+extern const ConfigInfo<u16> LANDSCAPE_TOP_TOP;
+extern const ConfigInfo<u16> LANDSCAPE_TOP_RIGHT;
+extern const ConfigInfo<u16> LANDSCAPE_TOP_BOTTOM;
+extern const ConfigInfo<u16> LANDSCAPE_BOTTOM_LEFT;
+extern const ConfigInfo<u16> LANDSCAPE_BOTTOM_TOP;
+extern const ConfigInfo<u16> LANDSCAPE_BOTTOM_RIGHT;
+extern const ConfigInfo<u16> LANDSCAPE_BOTTOM_BOTTOM;
 
 } // namespace Config

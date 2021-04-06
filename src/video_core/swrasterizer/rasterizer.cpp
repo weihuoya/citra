@@ -405,7 +405,7 @@ static void ProcessTriangleInternal(const Vertex& v0, const Vertex& v1, const Ve
                         GetWrappedTexCoord(texture.config.wrap_t, t, texture.config.height);
 
                     const u8* texture_data =
-                        VideoCore::g_memory->GetPhysicalPointer(texture_address);
+                        VideoCore::Memory()->GetPhysicalPointer(texture_address);
                     auto info =
                         Texture::TextureInfo::FromPicaRegister(texture.config, texture.format);
 

@@ -4,7 +4,6 @@ import java.util.HashMap;
 import org.citra.emu.settings.model.SettingSection;
 
 public final class Settings {
-
     public static final String SECTION_INI_CORE = "Core";
     public static final String SECTION_INI_RENDERER = "Renderer";
     public static final String SECTION_INI_AUDIO = "Audio";

@@ -7,8 +7,6 @@
 #include <atomic>
 #include <memory>
 #include <vector>
-#include "core/core.h"
-#include "core/frontend/emu_window.h"
 
 namespace Frontend {
 class EmuWindow;
@@ -24,18 +22,13 @@ class MemorySystem;
 namespace VideoCore {
 
 class RendererBase;
-
-extern std::unique_ptr<RendererBase> g_renderer; ///< Renderer plugin
+class RasterizerInterface;
 
 // TODO: Wrap these in a user settings struct along with any other graphics settings (often set from
 // qt ui)
-extern std::atomic<bool> g_hw_renderer_enabled;
-extern std::atomic<bool> g_shader_jit_enabled;
 extern std::atomic<bool> g_hw_shader_enabled;
-extern std::atomic<bool> g_renderer_bg_color_update_requested;
-extern std::function<void(u32 width, u32 height, const std::vector<u32>& pixels)> g_screenshot_complete_callback;
-
-extern Memory::MemorySystem* g_memory;
+extern std::function<void(u32 width, u32 height, const std::vector<u32>& pixels)>
+    g_screenshot_complete_callback;
 
 enum class ResultStatus {
     Success,
@@ -44,11 +37,19 @@ enum class ResultStatus {
 };
 
 /// Initialize the video core
-ResultStatus Init(Frontend::EmuWindow& emu_window, Memory::MemorySystem& memory);
+ResultStatus Init(Frontend::EmuWindow& window, Memory::MemorySystem& memory);
+
+RendererBase* Renderer();
+Memory::MemorySystem* Memory();
+RasterizerInterface* Rasterizer();
+u16 GetResolutionScaleFactor();
+u32 GetCurrentFrame();
+void SetBackgroundImage(u32* pixels, u32 width, u32 height);
+
+void FrameUpdate();
+void SettingUpdate();
 
 /// Shutdown the video core
 void Shutdown();
-
-u16 GetResolutionScaleFactor();
 
 } // namespace VideoCore

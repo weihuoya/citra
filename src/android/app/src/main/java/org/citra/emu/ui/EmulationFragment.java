@@ -2,6 +2,7 @@ package org.citra.emu.ui;
 
 import android.annotation.SuppressLint;
 import android.app.Activity;
+import android.content.res.Configuration;
 import android.graphics.Bitmap;
 import android.graphics.Rect;
 import android.os.AsyncTask;
@@ -14,11 +15,13 @@ import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.ViewTreeObserver;
 import android.widget.Button;
 import android.widget.FrameLayout;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
+import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 
 import org.citra.emu.NativeLibrary;
@@ -221,6 +224,26 @@ public final class EmulationFragment extends Fragment implements SurfaceHolder.C
         }
         Choreographer.getInstance().removeFrameCallback(this);
         super.onPause();
+    }
+
+    @Override
+    public void onConfigurationChanged(@NonNull Configuration newConfig) {
+        super.onConfigurationChanged(newConfig);
+        mInputOverlay.refreshControls();
+
+        final ViewTreeObserver observer = getView().getViewTreeObserver();
+        observer.addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
+            @Override
+            public void onGlobalLayout() {
+                EmulationActivity activity = (EmulationActivity)getActivity();
+                activity.updateDisplayConfig();
+                activity.updateBackgroundImage();
+                NativeLibrary.SurfaceChanged(mSurface);
+                mResizeOverlayTop.setRect(NativeLibrary.getCustomLayout(true));
+                mResizeOverlayBottom.setRect(NativeLibrary.getCustomLayout(false));
+                observer.removeOnGlobalLayoutListener(this);
+            }
+        });
     }
 
     public void setTranslateProgress(int progress) {

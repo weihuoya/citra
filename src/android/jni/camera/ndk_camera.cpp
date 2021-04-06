@@ -2,22 +2,22 @@
 // Licensed under GPLv2 or any later version
 // Refer to the license.txt file included.
 
-#include <vector>
 #include <array>
 #include <mutex>
+#include <vector>
 
 #include <android/log.h>
-#include <media/NdkImageReader.h>
 #include <camera/NdkCameraCaptureSession.h>
 #include <camera/NdkCameraDevice.h>
 #include <camera/NdkCameraManager.h>
 #include <camera/NdkCameraMetadata.h>
 #include <camera/NdkCaptureRequest.h>
+#include <media/NdkImageReader.h>
 
 #include <libyuv.h>
 
-#include "jni_common.h"
 #include "camera/ndk_camera.h"
+#include "jni_common.h"
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 /// YUVImage
@@ -35,7 +35,7 @@ struct YUVImage {
     void SetDimension(int w, int h) {
         width = w;
         height = h;
-        y.resize(w *h);
+        y.resize(w * h);
         u.resize(w * h / 4);
         v.resize(w * h / 4);
     }
@@ -56,7 +56,8 @@ struct YUVImage {
     }
 };
 
-#define YUV(image) image.y.data(), image.width, image.u.data(), image.width / 2, image.v.data(), image.width / 2
+#define YUV(image)                                                                                 \
+    image.y.data(), image.width, image.u.data(), image.width / 2, image.v.data(), image.width / 2
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 /// CaptureSession
@@ -67,128 +68,119 @@ struct CaptureSession {
         yuv_image.SetDimension(width, height);
         out_image.SetDimension(width, height);
 
-        ACameraDevice_StateCallbacks callback{
-                this,
-                &CaptureSession::OnCameraDisconnected,
-                &CaptureSession::OnCameraError
-        };
-        camera_status_t camera_status = ACameraManager_openCamera(manager, camera_id.c_str(), &callback, &camera_device);
+        ACameraDevice_StateCallbacks callback{this, &CaptureSession::OnCameraDisconnected,
+                                              &CaptureSession::OnCameraError};
+        camera_status_t camera_status =
+            ACameraManager_openCamera(manager, camera_id.c_str(), &callback, &camera_device);
         if (camera_status != ACAMERA_OK) {
-            __android_log_print(ANDROID_LOG_INFO, "citra", "failed to create camera: %d", camera_status);
+            __android_log_print(ANDROID_LOG_INFO, "citra", "failed to create camera: %d",
+                                camera_status);
             return false;
         }
 
         media_status_t media_status = AImageReader_new(width, height, format, 4, &image_reader);
         if (media_status != AMEDIA_OK) {
-            __android_log_print(ANDROID_LOG_INFO, "citra", "failed to create image reader: %d", media_status);
+            __android_log_print(ANDROID_LOG_INFO, "citra", "failed to create image reader: %d",
+                                media_status);
             Release();
             return false;
         }
 
-        AImageReader_ImageListener image_listener{
-                this,
-                &CaptureSession::OnImageAvailable
-        };
+        AImageReader_ImageListener image_listener{this, &CaptureSession::OnImageAvailable};
         media_status = AImageReader_setImageListener(image_reader, &image_listener);
         if (media_status != AMEDIA_OK) {
-            __android_log_print(ANDROID_LOG_INFO, "citra", "failed to set image listener: %d", media_status);
+            __android_log_print(ANDROID_LOG_INFO, "citra", "failed to set image listener: %d",
+                                media_status);
             Release();
             return false;
         }
 
         media_status = AImageReader_getWindow(image_reader, &native_window);
         if (media_status != AMEDIA_OK) {
-            __android_log_print(ANDROID_LOG_INFO, "citra", "failed to get window: %d", media_status);
+            __android_log_print(ANDROID_LOG_INFO, "citra", "failed to get window: %d",
+                                media_status);
             Release();
             return false;
         }
 
         camera_status = ACaptureSessionOutput_create(native_window, &session_output);
         if (camera_status != ACAMERA_OK) {
-            __android_log_print(ANDROID_LOG_INFO, "citra", "failed to create output session: %d", camera_status);
+            __android_log_print(ANDROID_LOG_INFO, "citra", "failed to create output session: %d",
+                                camera_status);
             Release();
             return false;
         }
 
         camera_status = ACaptureSessionOutputContainer_create(&output_container);
         if (camera_status != ACAMERA_OK) {
-            __android_log_print(ANDROID_LOG_INFO, "citra", "failed to create output container: %d", camera_status);
+            __android_log_print(ANDROID_LOG_INFO, "citra", "failed to create output container: %d",
+                                camera_status);
             Release();
             return false;
         }
 
         camera_status = ACaptureSessionOutputContainer_add(output_container, session_output);
         if (camera_status != ACAMERA_OK) {
-            __android_log_print(ANDROID_LOG_INFO, "citra", "failed to create output container: %d", camera_status);
+            __android_log_print(ANDROID_LOG_INFO, "citra", "failed to create output container: %d",
+                                camera_status);
             Release();
             return false;
         }
 
         ACameraCaptureSession_stateCallbacks state_callbacks{
-                nullptr,
-                &CaptureSession::OnSessionClosed,
-                &CaptureSession::OnSessionReady,
-                &CaptureSession::OnSessionActive
-        };
-        camera_status = ACameraDevice_createCaptureSession(camera_device, output_container, &state_callbacks, &capture_session);
+            nullptr, &CaptureSession::OnSessionClosed, &CaptureSession::OnSessionReady,
+            &CaptureSession::OnSessionActive};
+        camera_status = ACameraDevice_createCaptureSession(camera_device, output_container,
+                                                           &state_callbacks, &capture_session);
         if (camera_status != ACAMERA_OK) {
-            __android_log_print(ANDROID_LOG_INFO, "citra", "failed to create capture session: %d", camera_status);
+            __android_log_print(ANDROID_LOG_INFO, "citra", "failed to create capture session: %d",
+                                camera_status);
             Release();
             return false;
         }
 
-        camera_status = ACameraDevice_createCaptureRequest(camera_device, TEMPLATE_PREVIEW, &capture_request);
+        camera_status =
+            ACameraDevice_createCaptureRequest(camera_device, TEMPLATE_PREVIEW, &capture_request);
         if (camera_status != ACAMERA_OK) {
-            __android_log_print(ANDROID_LOG_INFO, "citra", "failed to create capture request: %d", camera_status);
+            __android_log_print(ANDROID_LOG_INFO, "citra", "failed to create capture request: %d",
+                                camera_status);
             Release();
             return false;
         }
 
         camera_status = ACameraOutputTarget_create(native_window, &output_target);
         if (camera_status != ACAMERA_OK) {
-            __android_log_print(ANDROID_LOG_INFO, "citra", "failed to create output target: %d", camera_status);
+            __android_log_print(ANDROID_LOG_INFO, "citra", "failed to create output target: %d",
+                                camera_status);
             Release();
             return false;
         }
 
         camera_status = ACaptureRequest_addTarget(capture_request, output_target);
         if (camera_status != ACAMERA_OK) {
-            __android_log_print(ANDROID_LOG_INFO, "citra", "failed to add output target: %d", camera_status);
+            __android_log_print(ANDROID_LOG_INFO, "citra", "failed to add output target: %d",
+                                camera_status);
             Release();
             return false;
         }
 
         std::array<ACaptureRequest*, 1> requests = {capture_request};
         ACameraCaptureSession_captureCallbacks capture_callbacks{
-                this,
-                &CaptureSession::OnCaptureStarted,
-                &CaptureSession::OnCaptureProgressed,
-                &CaptureSession::OnCaptureCompleted,
-                &CaptureSession::OnCaptureFailed,
-                &CaptureSession::OnCaptureSequenceCompleted,
-                &CaptureSession::OnCaptureSequenceAborted,
-                &CaptureSession::OnCaptureBufferLost
-        };
-        camera_status = ACameraCaptureSession_setRepeatingRequest(capture_session, &capture_callbacks, requests.size(), requests.data(), nullptr);
+            this,
+            &CaptureSession::OnCaptureStarted,
+            &CaptureSession::OnCaptureProgressed,
+            &CaptureSession::OnCaptureCompleted,
+            &CaptureSession::OnCaptureFailed,
+            &CaptureSession::OnCaptureSequenceCompleted,
+            &CaptureSession::OnCaptureSequenceAborted,
+            &CaptureSession::OnCaptureBufferLost};
+        camera_status = ACameraCaptureSession_setRepeatingRequest(
+            capture_session, &capture_callbacks, requests.size(), requests.data(), nullptr);
         if (camera_status != ACAMERA_OK) {
-            __android_log_print(ANDROID_LOG_INFO, "citra", "failed to set repeating request: %d", camera_status);
+            __android_log_print(ANDROID_LOG_INFO, "citra", "failed to set repeating request: %d",
+                                camera_status);
             Release();
             return false;
-        }
-
-        switch (GetDisplayRotation()) {
-        case 0:
-            rotation_mode = libyuv::RotationMode::kRotate90;
-            break;
-        case 1:
-            rotation_mode = libyuv::RotationMode::kRotate0;
-            break;
-        case 2:
-            rotation_mode = libyuv::RotationMode::kRotate270;
-            break;
-        case 3:
-            rotation_mode = libyuv::RotationMode::kRotate180;
-            break;
         }
 
         is_session_start = true;
@@ -230,20 +222,57 @@ struct CaptureSession {
         }
     }
 
-    std::vector<u16> GetOutput(const Service::CAM::Resolution& resolution, bool mirror, bool invert, bool rgb565) {
+    std::vector<u16> GetOutput(const Service::CAM::Resolution& resolution, bool mirror, bool invert,
+                               bool rgb565) {
         {
             std::lock_guard lock{image_mutex};
             out_image.Swap(yuv_image);
         }
 
+        libyuv::RotationMode rotation_mode{};
+        if (NativeLibrary::using_front_camera) {
+            switch (NativeLibrary::current_display_rotation) {
+            case 0:
+                rotation_mode = libyuv::RotationMode::kRotate270;
+                break;
+            case 1:
+                rotation_mode = libyuv::RotationMode::kRotate0;
+                break;
+            case 2:
+                rotation_mode = libyuv::RotationMode::kRotate90;
+                break;
+            case 3:
+                rotation_mode = libyuv::RotationMode::kRotate180;
+                break;
+            }
+            mirror = !mirror;
+        } else {
+            switch (NativeLibrary::current_display_rotation) {
+            case 0:
+                rotation_mode = libyuv::RotationMode::kRotate90;
+                break;
+            case 1:
+                rotation_mode = libyuv::RotationMode::kRotate0;
+                break;
+            case 2:
+                rotation_mode = libyuv::RotationMode::kRotate270;
+                break;
+            case 3:
+                rotation_mode = libyuv::RotationMode::kRotate180;
+                break;
+            }
+        }
+
         int rotated_width = width;
         int rotated_height = height;
-        if (rotation_mode == libyuv::RotationMode::kRotate90 || rotation_mode == libyuv::RotationMode::kRotate270) {
+        if (rotation_mode == libyuv::RotationMode::kRotate90 ||
+            rotation_mode == libyuv::RotationMode::kRotate270) {
             std::swap(rotated_width, rotated_height);
         }
         // Rotate the image to get it in upright position
         YUVImage rotated(rotated_width, rotated_height);
-        libyuv::I420Rotate(YUV(out_image), YUV(rotated), out_image.width, out_image.height, rotation_mode);
+        libyuv::I420Rotate(YUV(out_image), YUV(rotated), out_image.width, out_image.height,
+                           rotation_mode);
 
         // Calculate crop coordinates
         int crop_width, crop_height;
@@ -262,9 +291,10 @@ struct CaptureSession {
 
         YUVImage scaled(resolution.width, resolution.height);
         // Crop and scale
-        libyuv::I420Scale(rotated.y.data() + y_offset, rotated.width, rotated.u.data() + uv_offset, rotated.width / 2,
-                          rotated.v.data() + uv_offset, rotated.width / 2, crop_width, crop_height, YUV(scaled),
-                          resolution.width, resolution.height, libyuv::kFilterBilinear);
+        libyuv::I420Scale(rotated.y.data() + y_offset, rotated.width, rotated.u.data() + uv_offset,
+                          rotated.width / 2, rotated.v.data() + uv_offset, rotated.width / 2,
+                          crop_width, crop_height, YUV(scaled), resolution.width, resolution.height,
+                          libyuv::kFilterBilinear);
 
         if (mirror) {
             YUVImage mirrored(scaled.width, scaled.height);
@@ -278,8 +308,9 @@ struct CaptureSession {
                                  resolution.width * 2, resolution.width,
                                  invert ? -resolution.height : resolution.height);
         } else {
-            libyuv::I420ToYUY2(YUV(scaled), reinterpret_cast<u8*>(output.data()), resolution.width * 2,
-                               resolution.width, invert ? -resolution.height : resolution.height);
+            libyuv::I420ToYUY2(YUV(scaled), reinterpret_cast<u8*>(output.data()),
+                               resolution.width * 2, resolution.width,
+                               invert ? -resolution.height : resolution.height);
         }
         return output;
     }
@@ -331,13 +362,14 @@ struct CaptureSession {
             int height = that->height;
             auto& yuv_image = that->yuv_image;
             std::lock_guard lock{that->image_mutex};
-            libyuv::Android420ToI420(src_y, src_stride_y, src_u, src_stride_u, src_v, src_stride_v, src_pixel_stride_uv, YUV(yuv_image), width, height);
+            libyuv::Android420ToI420(src_y, src_stride_y, src_u, src_stride_u, src_v, src_stride_v,
+                                     src_pixel_stride_uv, YUV(yuv_image), width, height);
         }
 
         AImage_delete(image);
     }
 
-    static void OnSessionClosed(void* context, ACameraCaptureSession *session) {
+    static void OnSessionClosed(void* context, ACameraCaptureSession* session) {
         auto* that = reinterpret_cast<CaptureSession*>(context);
         __android_log_print(ANDROID_LOG_INFO, "citra", "OnSessionClosed");
     }
@@ -352,34 +384,42 @@ struct CaptureSession {
         __android_log_print(ANDROID_LOG_INFO, "citra", "OnSessionActive");
     }
 
-    static void OnCaptureStarted(void* context, ACameraCaptureSession* session, const ACaptureRequest* request, int64_t timestamp) {
+    static void OnCaptureStarted(void* context, ACameraCaptureSession* session,
+                                 const ACaptureRequest* request, int64_t timestamp) {
         // ignore
     }
 
-    static void OnCaptureProgressed(void* context, ACameraCaptureSession* session, ACaptureRequest* request, const ACameraMetadata* result) {
+    static void OnCaptureProgressed(void* context, ACameraCaptureSession* session,
+                                    ACaptureRequest* request, const ACameraMetadata* result) {
         // ignore
     }
 
-    static void OnCaptureCompleted(void* context, ACameraCaptureSession* session, ACaptureRequest* request, const ACameraMetadata* result) {
+    static void OnCaptureCompleted(void* context, ACameraCaptureSession* session,
+                                   ACaptureRequest* request, const ACameraMetadata* result) {
         // ignore
     }
 
-    static void OnCaptureFailed(void* context, ACameraCaptureSession* session, ACaptureRequest* request, ACameraCaptureFailure* failure) {
+    static void OnCaptureFailed(void* context, ACameraCaptureSession* session,
+                                ACaptureRequest* request, ACameraCaptureFailure* failure) {
         auto* that = reinterpret_cast<CaptureSession*>(context);
         __android_log_print(ANDROID_LOG_INFO, "citra", "OnCaptureFailed");
     }
 
-    static void OnCaptureSequenceCompleted(void* context, ACameraCaptureSession* session, int sequenceId, int64_t frameNumber) {
+    static void OnCaptureSequenceCompleted(void* context, ACameraCaptureSession* session,
+                                           int sequenceId, int64_t frameNumber) {
         auto* that = reinterpret_cast<CaptureSession*>(context);
         __android_log_print(ANDROID_LOG_INFO, "citra", "OnCaptureSequenceCompleted");
     }
 
-    static void OnCaptureSequenceAborted(void* context, ACameraCaptureSession* session, int sequenceId) {
+    static void OnCaptureSequenceAborted(void* context, ACameraCaptureSession* session,
+                                         int sequenceId) {
         auto* that = reinterpret_cast<CaptureSession*>(context);
         __android_log_print(ANDROID_LOG_INFO, "citra", "OnCaptureSequenceAborted");
     }
 
-    static void OnCaptureBufferLost(void* context, ACameraCaptureSession* session, ACaptureRequest* request, ACameraWindowType* window, int64_t frameNumber) {
+    static void OnCaptureBufferLost(void* context, ACameraCaptureSession* session,
+                                    ACaptureRequest* request, ACameraWindowType* window,
+                                    int64_t frameNumber) {
         auto* that = reinterpret_cast<CaptureSession*>(context);
         __android_log_print(ANDROID_LOG_INFO, "citra", "OnCaptureBufferLost");
     }
@@ -394,7 +434,6 @@ struct CaptureSession {
     int width = 0;
     int height = 0;
     bool is_session_start = false;
-    libyuv::RotationMode rotation_mode;
 
     //
     ACameraDevice* camera_device = nullptr;
@@ -414,12 +453,12 @@ struct CaptureSession {
 /// NDKCameraInterface Impl
 class NDKCameraInterface::Impl {
 public:
-    Impl(const std::string &config, const Service::CAM::Flip& flip) {
+    Impl(const std::string& config, const Service::CAM::Flip& flip) {
         manager = ACameraManager_create();
         mirror = base_mirror =
-                flip == Service::CAM::Flip::Horizontal || flip == Service::CAM::Flip::Reverse;
+            flip == Service::CAM::Flip::Horizontal || flip == Service::CAM::Flip::Reverse;
         invert = base_invert =
-                flip == Service::CAM::Flip::Vertical || flip == Service::CAM::Flip::Reverse;
+            flip == Service::CAM::Flip::Vertical || flip == Service::CAM::Flip::Reverse;
     }
 
     ~Impl() {
@@ -449,9 +488,11 @@ public:
 
         for (int i = 0; i < id_list->numCameras; ++i) {
             ACameraMetadata* metadata = nullptr;
-            ret = ACameraManager_getCameraCharacteristics(manager, id_list->cameraIds[i], &metadata);
+            ret =
+                ACameraManager_getCameraCharacteristics(manager, id_list->cameraIds[i], &metadata);
             if (ret != ACAMERA_OK) {
-                __android_log_print(ANDROID_LOG_INFO, "citra", "failed to get camera characteristics: %d", ret);
+                __android_log_print(ANDROID_LOG_INFO, "citra",
+                                    "failed to get camera characteristics: %d", ret);
                 continue;
             }
 
@@ -466,7 +507,8 @@ public:
 
             auto& session = capture_sessions[is_front_camera];
             session.camera_id = id_list->cameraIds[i];
-            ACameraMetadata_getConstEntry(metadata, ACAMERA_SCALER_AVAILABLE_STREAM_CONFIGURATIONS, &entry);
+            ACameraMetadata_getConstEntry(metadata, ACAMERA_SCALER_AVAILABLE_STREAM_CONFIGURATIONS,
+                                          &entry);
             session.format = 0;
             session.width = std::numeric_limits<int>::max();
             session.height = std::numeric_limits<int>::max();
@@ -497,7 +539,7 @@ public:
     }
 
     CaptureSession& GetCurrentSession() {
-        return capture_sessions[current];
+        return capture_sessions[NativeLibrary::using_front_camera];
     }
 
     void StartCapture() {
@@ -515,8 +557,8 @@ public:
     void SetFlip(Service::CAM::Flip flip) {
         mirror = base_mirror ^
                  (flip == Service::CAM::Flip::Horizontal || flip == Service::CAM::Flip::Reverse);
-        invert =
-                base_invert ^ (flip == Service::CAM::Flip::Vertical || flip == Service::CAM::Flip::Reverse);
+        invert = base_invert ^
+                 (flip == Service::CAM::Flip::Vertical || flip == Service::CAM::Flip::Reverse);
     }
 
     void SetFormat(Service::CAM::OutputFormat f) {
@@ -533,7 +575,6 @@ public:
 
 private:
     ACameraManager* manager = nullptr;
-    u32 current = 0;
     // 0 - back camera, 1 - front camera
     std::array<CaptureSession, 2> capture_sessions;
 
@@ -548,7 +589,7 @@ private:
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 /// NDKCameraInterface
-NDKCameraInterface::NDKCameraInterface(const std::string &config, const Service::CAM::Flip& flip)
+NDKCameraInterface::NDKCameraInterface(const std::string& config, const Service::CAM::Flip& flip)
     : impl(std::make_shared<Impl>(config, flip)) {
     impl->Initialize();
 }
@@ -593,6 +634,7 @@ bool NDKCameraInterface::IsPreviewAvailable() {
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 /// NDKCameraFactory
-std::unique_ptr<Camera::CameraInterface> NDKCameraFactory::Create(const std::string &config, const Service::CAM::Flip &flip) {
-    return std::make_unique<NDKCameraInterface>(config, flip);;
+std::unique_ptr<Camera::CameraInterface> NDKCameraFactory::Create(const std::string& config,
+                                                                  const Service::CAM::Flip& flip) {
+    return std::make_unique<NDKCameraInterface>(config, flip);
 }

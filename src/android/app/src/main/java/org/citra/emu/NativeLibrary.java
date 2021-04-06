@@ -83,7 +83,7 @@ public final class NativeLibrary {
         }
     }
 
-    public static void saveImageToFile(String path, int width, int height, int[] pixels) {
+    public static void saveImageToFile(String path, int[] pixels, int width, int height) {
         if (pixels.length > 0 && width > 0 && height > 0) {
             File file = new File(path);
             Bitmap bitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888);
@@ -125,6 +125,69 @@ public final class NativeLibrary {
         EmulationActivity activity = EmulationActivity.get();
         if (activity != null) {
             activity.runOnUiThread(() -> activity.pickImage(width, height));
+        }
+    }
+
+    public static boolean checkPermission(String permission) {
+        EmulationActivity activity = EmulationActivity.get();
+        if (activity != null) {
+            return activity.checkPermission(permission);
+        } else {
+            return false;
+        }
+    }
+
+    public static int getDisplayRotation() {
+        EmulationActivity activity = EmulationActivity.get();
+        if (activity != null) {
+            return activity.getDisplayRotation();
+        } else {
+            return 0;
+        }
+    }
+
+    public static int getSafeInsetLeft() {
+        EmulationActivity activity = EmulationActivity.get();
+        if (activity != null) {
+            return activity.getSafeInsetLeft();
+        } else {
+            return 0;
+        }
+    }
+
+    public static int getSafeInsetTop() {
+        EmulationActivity activity = EmulationActivity.get();
+        if (activity != null) {
+            return activity.getSafeInsetTop();
+        } else {
+            return 0;
+        }
+    }
+
+    public static int getSafeInsetRight() {
+        EmulationActivity activity = EmulationActivity.get();
+        if (activity != null) {
+            return activity.getSafeInsetRight();
+        } else {
+            return 0;
+        }
+    }
+
+    public static int getSafeInsetBottom() {
+        EmulationActivity activity = EmulationActivity.get();
+        if (activity != null) {
+            return activity.getSafeInsetBottom();
+        } else {
+            return 0;
+        }
+    }
+
+    public static float getScaleDensity() {
+        EmulationActivity activity = EmulationActivity.get();
+        if (activity != null) {
+            return activity.getScaleDensity();
+        } else {
+            return 1;
         }
     }
 
@@ -175,7 +238,7 @@ public final class NativeLibrary {
                 name.endsWith(".cxi") || name.endsWith(".app") || name.endsWith(".3dsx"));
     }
 
-    public static void AddNetPlayMessage(int type, String message) {
+    public static void addNetPlayMessage(int type, String message) {
         NetPlayManager.AddNetPlayMessage(type, message);
     }
 
@@ -194,6 +257,8 @@ public final class NativeLibrary {
     public static native void SetUserPath(String path);
 
     public static native void HandleImage(int[] pixels, int width, int height);
+
+    public static native void SetBackgroundImage(int[] pixels, int width, int height);
 
     public static native void ResetCamera();
 

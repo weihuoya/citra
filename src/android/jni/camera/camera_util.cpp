@@ -189,10 +189,8 @@ void Rgb2Yuv(std::vector<u16>& buffer, const std::vector<u32>& image) {
         if (write) {
             pu = (pu + u) / 2;
             pv = (pv + v) / 2;
-            *(dst++) =
-                    static_cast<u16>(std::clamp(py, 0, 0xFF) | (std::clamp(pu, 0, 0xFF) << 8));
-            *(dst++) =
-                    static_cast<u16>(std::clamp(y, 0, 0xFF) | (std::clamp(pv, 0, 0xFF) << 8));
+            *(dst++) = static_cast<u16>(std::clamp(py, 0, 0xFF) | (std::clamp(pu, 0, 0xFF) << 8));
+            *(dst++) = static_cast<u16>(std::clamp(y, 0, 0xFF) | (std::clamp(pv, 0, 0xFF) << 8));
         } else {
             py = y;
             pu = u;
@@ -223,7 +221,8 @@ std::vector<u16> ProcessImage(const std::vector<u32>& image, int width, int heig
     std::vector<u32> data(width * height);
     for (u32 y = 0; y < height; ++y) {
         for (u32 x = 0; x < width; ++x) {
-            u32 idx = (flip_vertical ? (height - y) : y) * width + (flip_horizontal ? width - x : x);
+            u32 idx =
+                (flip_vertical ? (height - y) : y) * width + (flip_horizontal ? width - x : x);
             data[y * width + x] = image[idx];
         }
     }

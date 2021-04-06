@@ -46,8 +46,6 @@ public:
     bool InputEvent(int button, float value);
     bool KeyEvent(int button, float value);
 
-    void SetDisplayRotation(int rotation);
-
 private:
     InputManager() = default;
 

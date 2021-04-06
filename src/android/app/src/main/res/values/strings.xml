@@ -146,6 +146,7 @@
     <string name="setting_enable_cpu_jit">Enable CPU JIT</string>
     <string name="setting_region_value">Emulation Region</string>
     <string name="setting_system_language">System Language</string>
+    <string name="setting_theme_package">Theme</string>
 
     <string name="show_fps">Show FPS</string>
     <string name="layout_option">Screen Layout</string>

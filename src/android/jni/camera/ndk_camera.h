@@ -13,7 +13,7 @@
 
 class NDKCameraInterface : public Camera::CameraInterface {
 public:
-    NDKCameraInterface(const std::string &config, const Service::CAM::Flip& flip);
+    NDKCameraInterface(const std::string& config, const Service::CAM::Flip& flip);
     ~NDKCameraInterface() override;
 
     void StartCapture() override;
@@ -34,5 +34,5 @@ private:
 class NDKCameraFactory : public Camera::CameraFactory {
 public:
     std::unique_ptr<Camera::CameraInterface> Create(const std::string& config,
-                                            const Service::CAM::Flip& flip) override;
+                                                    const Service::CAM::Flip& flip) override;
 };

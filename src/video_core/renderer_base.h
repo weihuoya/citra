@@ -5,6 +5,7 @@
 #pragma once
 
 #include <memory>
+#include <vector>
 #include "common/common_types.h"
 #include "video_core/rasterizer_interface.h"
 #include "video_core/video_core.h"
@@ -23,9 +24,6 @@ public:
     /// Initialize the renderer
     virtual VideoCore::ResultStatus Init() = 0;
 
-    /// Shutdown the renderer
-    virtual void ShutDown() = 0;
-
     /// Finalize rendering the guest frame and draw into the presentation texture
     virtual void SwapBuffers() = 0;
 
@@ -36,37 +34,18 @@ public:
     ///
     virtual void ResetPresent() = 0;
 
-    /// Updates the framebuffer layout of the contained render window handle.
-    void UpdateCurrentFramebufferLayout();
+    ///
+    virtual void LoadBackgroundImage(u32* pixels, u32 width, u32 height) {}
 
     // Getter/setter functions:
     // ------------------------
-
-    u32 GetCurrentFrame() const {
-        return m_current_frame;
-    }
-
-    VideoCore::RasterizerInterface* Rasterizer() const {
-        return rasterizer.get();
-    }
 
     Frontend::EmuWindow& GetRenderWindow() {
         return render_window;
     }
 
-    const Frontend::EmuWindow& GetRenderWindow() const {
-        return render_window;
-    }
-
-    void RefreshRasterizerSetting();
-
 protected:
-    Frontend::EmuWindow& render_window; ///< Reference to the render window handle.
-    std::unique_ptr<VideoCore::RasterizerInterface> rasterizer;
-    u32 m_current_frame = 0; ///< Current frame, should be set by the renderer
-
-private:
-    bool opengl_rasterizer_active = false;
+    Frontend::EmuWindow& render_window;
 };
 
 } // namespace VideoCore

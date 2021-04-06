@@ -103,9 +103,9 @@ void EmuWindow::TouchMoved(unsigned framebuffer_x, unsigned framebuffer_y) {
     TouchPressed(framebuffer_x, framebuffer_y);
 }
 
-void EmuWindow::UpdateCurrentFramebufferLayout(unsigned width, unsigned height) {
+void EmuWindow::UpdateFramebufferLayout(u32 width, u32 height) {
     Layout::FramebufferLayout layout;
-    if (Settings::values.custom_layout == true) {
+    if (Settings::values.custom_layout) {
         layout = Layout::CustomFrameLayout(width, height);
     } else {
         switch (Settings::values.layout_option) {
@@ -116,12 +116,24 @@ void EmuWindow::UpdateCurrentFramebufferLayout(unsigned width, unsigned height) 
             layout = Layout::LargeFrameLayout(width, height, Settings::values.swap_screen);
             break;
         case Settings::LayoutOption::SideScreen:
+            width -= safe_inset_left + safe_inset_right;
             layout = Layout::SideFrameLayout(width, height, Settings::values.swap_screen);
+            layout.width += safe_inset_left + safe_inset_right;
             break;
         case Settings::LayoutOption::Default:
         default:
             layout = Layout::DefaultFrameLayout(width, height, Settings::values.swap_screen);
             break;
+        }
+        if (safe_inset_left > layout.top_screen.left) {
+            u32 offset = safe_inset_left - layout.top_screen.left;
+            layout.top_screen = layout.top_screen.TranslateX(offset);
+            layout.bottom_screen = layout.bottom_screen.TranslateX(offset);
+        }
+        if (safe_inset_top > layout.top_screen.top) {
+            u32 offset = safe_inset_top - layout.top_screen.top;
+            layout.top_screen = layout.top_screen.TranslateY(offset);
+            layout.bottom_screen = layout.bottom_screen.TranslateY(offset);
         }
     }
     NotifyFramebufferLayoutChanged(layout);

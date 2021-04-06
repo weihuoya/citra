@@ -5,8 +5,8 @@
 #pragma once
 
 #include <string>
-#include "core/frontend/camera/factory.h"
 #include "camera/camera_util.h"
+#include "core/frontend/camera/factory.h"
 #include "core/hle/service/cam/cam.h"
 
 class StillImageCamera : public Camera::CameraInterface {
@@ -35,7 +35,7 @@ private:
 class StillImageCameraFactory : public Camera::CameraFactory {
 public:
     std::unique_ptr<Camera::CameraInterface> Create(const std::string& config,
-                                            const Service::CAM::Flip& flip) override;
+                                                    const Service::CAM::Flip& flip) override;
 
 private:
     friend class StillImageCamera;

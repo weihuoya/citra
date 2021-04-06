@@ -146,6 +146,7 @@
     <string name="setting_enable_cpu_jit">开启 CPU JIT</string>
     <string name="setting_region_value">模拟地区</string>
     <string name="setting_system_language">系统语言</string>
+    <string name="setting_theme_package">主题</string>
 
     <string name="show_fps">显示帧率</string>
     <string name="layout_option">屏幕布局</string>

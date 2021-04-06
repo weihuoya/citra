@@ -93,7 +93,7 @@ public:
     virtual void UnloadComponent() = 0;
 
     /// Select the sink to use based on sink id.
-    void SetSink(const std::string& sink_id, const std::string& audio_device);
+    void SetSink(const std::string& sink_id, const std::string& audio_device_id);
     /// Get the current sink
     Sink& GetSink();
     /// Enable/Disable audio stretching.
@@ -113,6 +113,8 @@ private:
     Common::RingBuffer<s16, 0x2000, 2> fifo;
     std::array<s16, 2> last_frame{};
     TimeStretcher time_stretcher;
+    std::string current_sink_id;
+    std::string current_audio_device_id;
 };
 
 } // namespace AudioCore

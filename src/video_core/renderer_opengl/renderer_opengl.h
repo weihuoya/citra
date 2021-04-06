@@ -40,14 +40,11 @@ struct ScreenInfo {
 
 class RendererOpenGL : public VideoCore::RendererBase {
 public:
-    explicit RendererOpenGL(Frontend::EmuWindow& window);
+    explicit RendererOpenGL(Frontend::EmuWindow& window, bool use_gles);
     ~RendererOpenGL() override;
 
     /// Initialize the renderer
     VideoCore::ResultStatus Init() override;
-
-    /// Shutdown the renderer
-    void ShutDown() override;
 
     /// Finalizes rendering the guest frame
     void SwapBuffers() override;
@@ -58,6 +55,9 @@ public:
 
     ///
     void ResetPresent() override;
+
+    ///
+    void LoadBackgroundImage(u32* pixels, u32 width, u32 height) override;
 
 private:
     void InitOpenGLObjects();
@@ -73,6 +73,7 @@ private:
                             ScreenInfo& screen_info, bool right_eye);
     // Fills active OpenGL texture with the given RGB color.
     void LoadColorToActiveGLTexture(u8 color_r, u8 color_g, u8 color_b, const TextureInfo& texture);
+    void LoadBackgroundShader();
 
     OpenGLState state;
 
@@ -84,17 +85,15 @@ private:
     OGLProgram shader;
     OGLSampler filter_sampler;
 
+    OGLProgram bg_shader;
+    OGLTexture bg_texture;
+
     /// Display information for top and bottom screens respectively
     std::array<ScreenInfo, 3> screen_infos;
 
     // Shader uniform location indices
     GLuint uniform_modelview_matrix;
-    GLuint uniform_color_texture;
     GLuint uniform_resolution;
-
-    // Shader attribute input indices
-    GLuint attrib_position;
-    GLuint attrib_tex_coord;
 };
 
 } // namespace OpenGL

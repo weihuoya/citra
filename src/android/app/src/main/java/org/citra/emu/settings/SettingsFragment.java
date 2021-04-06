@@ -155,7 +155,7 @@ public final class SettingsFragment extends Fragment {
                 R.array.shaderValues, 1, shaderType));
         // post process shaders
         String[] stringValues = getShaderValues();
-        String[] stringEntries = getShaderEntries(stringValues);
+        String[] stringEntries = getSettingEntries(stringValues);
         sl.add(new StringSingleChoiceSetting(
             SettingsFile.KEY_POST_PROCESSING_SHADER, Settings.SECTION_INI_RENDERER,
             R.string.post_processing_shader, 0, stringEntries, stringValues, "", shader));
@@ -181,6 +181,7 @@ public final class SettingsFragment extends Fragment {
         Setting systemRegion = coreSection.getSetting(SettingsFile.KEY_SYSTEM_REGION);
         Setting cpuJIT = coreSection.getSetting(SettingsFile.KEY_USE_CPU_JIT);
         Setting language = coreSection.getSetting(SettingsFile.KEY_SYSTEM_LANGUAGE);
+        Setting theme = coreSection.getSetting(SettingsFile.KEY_THEME_PACKAGE);
 
         sl.add(new CheckBoxSetting(SettingsFile.KEY_IS_NEW_3DS, Settings.SECTION_INI_CORE,
                 R.string.setting_is_new_3ds, R.string.setting_is_new_3ds_desc, false, isNew3DS));
@@ -194,6 +195,17 @@ public final class SettingsFragment extends Fragment {
                 R.string.setting_system_language, 0,
                 R.array.languageNames, R.array.languageValues, 1,
                 language));
+        sl.add(new SingleChoiceSetting(SettingsFile.KEY_SYSTEM_LANGUAGE, Settings.SECTION_INI_CORE,
+                R.string.setting_system_language, 0,
+                R.array.languageNames, R.array.languageValues, 1,
+                language));
+
+        // theme
+        stringValues = getThemeValues();
+        stringEntries = getSettingEntries(stringValues);
+        sl.add(new StringSingleChoiceSetting(
+                SettingsFile.KEY_THEME_PACKAGE, Settings.SECTION_INI_CORE,
+                R.string.setting_theme_package, 0, stringEntries, stringValues, "default", theme));
 
         // audio
         sl.add(new HeaderSetting(null, null, R.string.setting_header_audio, 0));
@@ -328,32 +340,44 @@ public final class SettingsFragment extends Fragment {
         return text.substring(0, 1).toUpperCase() + text.substring(1);
     }
 
-    private String[] getShaderEntries(String[] values) {
+    private String[] getSettingEntries(String[] values) {
         String[] entries = new String[values.length];
-        entries[0] = mActivity.getString(R.string.off);
-        for (int i = 1; i < values.length; ++i) {
-            entries[i] = capitalize(values[i]);
+        for (int i = 0; i < values.length; ++i) {
+            if (values[i].isEmpty()) {
+                entries[i] = mActivity.getString(R.string.off);
+            } else {
+                entries[i] = capitalize(values[i]);
+            }
         }
         return entries;
     }
 
     private String[] getShaderValues() {
-        List<String> values = new ArrayList<>();
-        values.add("");
+        String path = DirectoryInitialization.getShadersDirectory();
+        List<String> values = getFileList(path, ".glsl");
+        values.add(0, "");
+        return values.toArray(new String[0]);
+    }
 
-        String shadersPath = DirectoryInitialization.getShadersDirectory();
-        File file = new File(shadersPath);
-        File[] shaderFiles = file.listFiles();
-        if (shaderFiles != null) {
-            for (int i = 0; i < shaderFiles.length; ++i) {
-                String name = shaderFiles[i].getName();
-                int extensionIndex = name.indexOf(".glsl");
+    private String[] getThemeValues() {
+        String path = DirectoryInitialization.getThemeDirectory();
+        List<String> values = getFileList(path, ".zip");
+        return values.toArray(new String[0]);
+    }
+
+    private List<String> getFileList(String path, String ext) {
+        List<String> values = new ArrayList<>();
+        File file = new File(path);
+        File[] files = file.listFiles();
+        if (files != null) {
+            for (int i = 0; i < files.length; ++i) {
+                String name = files[i].getName();
+                int extensionIndex = name.indexOf(ext);
                 if (extensionIndex > 0) {
                     values.add(name.substring(0, extensionIndex));
                 }
             }
         }
-
-        return values.toArray(new String[0]);
+        return values;
     }
 }

@@ -20,7 +20,7 @@ void AndroidMiiSelector::Setup(const Frontend::MiiSelectorConfig& config) {
 
     std::string title(config.title.empty() || config.title.at(0) == '\x0000' ? "Mii Selector"
                                                                              : config.title);
-    ShowMiiSelectorDialog(config.enable_cancel_button, title, mii_name_list);
+    NativeLibrary::ShowMiiSelectorDialog(config.enable_cancel_button, title, mii_name_list);
 }
 
 void AndroidMiiSelector::LoadExtSaveData() {

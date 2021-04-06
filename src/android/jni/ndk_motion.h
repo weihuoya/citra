@@ -6,8 +6,6 @@
 
 #include "core/frontend/input.h"
 
-inline std::atomic<int> ndkmotion_display_rotation;
-
 class NDKMotion;
 
 class NDKMotionFactory final : public Input::Factory<Input::MotionDevice> {

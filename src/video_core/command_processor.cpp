@@ -116,9 +116,9 @@ static void WritePicaReg(u32 id, u32 value, u32 mask) {
 
     // Expand a 4-bit mask to 4-byte mask, e.g. 0b0101 -> 0x00FF00FF
     static const u32 expand_bits_to_bytes[] = {
-            0x00000000, 0x000000ff, 0x0000ff00, 0x0000ffff, 0x00ff0000, 0x00ff00ff,
-            0x00ffff00, 0x00ffffff, 0xff000000, 0xff0000ff, 0xff00ff00, 0xff00ffff,
-            0xffff0000, 0xffff00ff, 0xffffff00, 0xffffffff,
+        0x00000000, 0x000000ff, 0x0000ff00, 0x0000ffff, 0x00ff0000, 0x00ff00ff,
+        0x00ffff00, 0x00ffffff, 0xff000000, 0xff0000ff, 0xff00ff00, 0xff00ffff,
+        0xffff0000, 0xffff00ff, 0xffffff00, 0xffffffff,
     };
     // TODO: Figure out how register masking acts on e.g. vs.uniform_setup.set_value
     const u32 old_value = regs.reg_array[id];
@@ -229,7 +229,7 @@ static void WritePicaReg(u32 id, u32 value, u32 mask) {
                     // TODO: If drawing after every immediate mode triangle kills performance,
                     // change it to flush triangles whenever a drawing config register changes
                     // See: https://github.com/citra-emu/citra/pull/2866#issuecomment-327011550
-                    VideoCore::g_renderer->Rasterizer()->DrawTriangles();
+                    VideoCore::Rasterizer()->DrawTriangles();
                 }
             }
         }
@@ -244,7 +244,7 @@ static void WritePicaReg(u32 id, u32 value, u32 mask) {
     case PICA_REG_INDEX(pipeline.command_buffer.trigger[1]): {
         unsigned index =
             static_cast<unsigned>(id - PICA_REG_INDEX(pipeline.command_buffer.trigger[0]));
-        u32* head_ptr = (u32*)VideoCore::g_memory->GetPhysicalPointer(
+        u32* head_ptr = (u32*)VideoCore::Memory()->GetPhysicalPointer(
             regs.pipeline.command_buffer.GetPhysicalAddress(index));
         g_state.cmd_list.head_ptr = g_state.cmd_list.current_ptr = head_ptr;
         g_state.cmd_list.length = regs.pipeline.command_buffer.GetSize(index) / sizeof(u32);
@@ -281,8 +281,7 @@ static void WritePicaReg(u32 id, u32 value, u32 mask) {
 
         bool is_indexed = (id == PICA_REG_INDEX(pipeline.trigger_draw_indexed));
 
-        if (accelerate_draw &&
-            VideoCore::g_renderer->Rasterizer()->AccelerateDrawBatch(is_indexed)) {
+        if (accelerate_draw && VideoCore::Rasterizer()->AccelerateDrawBatch(is_indexed)) {
             break;
         } else if (Settings::values.skip_slow_draw) {
             break;
@@ -298,7 +297,7 @@ static void WritePicaReg(u32 id, u32 value, u32 mask) {
         // Load vertices
         const auto& index_info = regs.pipeline.index_array;
         const u8* index_address_8 =
-            VideoCore::g_memory->GetPhysicalPointer(base_address + index_info.offset);
+            VideoCore::Memory()->GetPhysicalPointer(base_address + index_info.offset);
         const u16* index_address_16 = reinterpret_cast<const u16*>(index_address_8);
         bool index_u16 = index_info.format != 0;
 
@@ -374,7 +373,7 @@ static void WritePicaReg(u32 id, u32 value, u32 mask) {
             }
         }
 
-        VideoCore::g_renderer->Rasterizer()->DrawTriangles();
+        VideoCore::Rasterizer()->DrawTriangles();
         break;
     }
 
@@ -533,7 +532,7 @@ static void WritePicaReg(u32 id, u32 value, u32 mask) {
         ASSERT_MSG(lut_config.index < 256, "lut_config.index exceeded maximum value of 255!");
         g_state.lighting.luts[lut_config.type][lut_config.index].raw = value;
         lut_config.index.Assign(lut_config.index + 1);
-        VideoCore::g_renderer->Rasterizer()->SyncLightingLutData();
+        VideoCore::Rasterizer()->SyncLightingLutData();
         break;
     }
 
@@ -547,7 +546,7 @@ static void WritePicaReg(u32 id, u32 value, u32 mask) {
     case PICA_REG_INDEX(texturing.fog_lut_data[7]): {
         g_state.fog.lut[regs.texturing.fog_lut_offset % 128].raw = value;
         regs.texturing.fog_lut_offset.Assign(regs.texturing.fog_lut_offset + 1);
-        VideoCore::g_renderer->Rasterizer()->SyncFogLutData();
+        VideoCore::Rasterizer()->SyncFogLutData();
         break;
     }
 
@@ -579,24 +578,25 @@ static void WritePicaReg(u32 id, u32 value, u32 mask) {
             break;
         }
         index.Assign(index + 1);
-        VideoCore::g_renderer->Rasterizer()->SyncProcTexLutData();
+        VideoCore::Rasterizer()->SyncProcTexLutData();
         break;
     }
     default:
-        VideoCore::g_renderer->Rasterizer()->NotifyPicaRegisterChanged(id);
+        VideoCore::Rasterizer()->NotifyPicaRegisterChanged(id);
         break;
     }
 }
 
 void ProcessCommandList(PAddr list, u32 size) {
-    u32* buffer = (u32*)VideoCore::g_memory->GetPhysicalPointer(list);
+    u32* buffer = (u32*)VideoCore::Memory()->GetPhysicalPointer(list);
     g_state.cmd_list.addr = list;
     g_state.cmd_list.head_ptr = g_state.cmd_list.current_ptr = buffer;
     g_state.cmd_list.length = size / sizeof(u32);
 
     while (g_state.cmd_list.current_ptr < g_state.cmd_list.head_ptr + g_state.cmd_list.length) {
         // Align read pointer to 8 bytes
-        g_state.cmd_list.current_ptr += (g_state.cmd_list.head_ptr - g_state.cmd_list.current_ptr) & 1;
+        g_state.cmd_list.current_ptr +=
+            (g_state.cmd_list.head_ptr - g_state.cmd_list.current_ptr) & 1;
 
         u32 value = *g_state.cmd_list.current_ptr++;
         const CommandHeader header = {*g_state.cmd_list.current_ptr++};
