@@ -56,7 +56,7 @@ public final class EmulationActivity extends AppCompatActivity {
             settings.loadSettings(mGameId);
             SettingSection section = settings.getSection(Settings.SECTION_INI_CORE);
             Setting setting = section.getSetting(SettingsFile.KEY_THEME_PACKAGE);
-            String theme = setting.getValueAsString();
+            String theme = setting != null ? setting.getValueAsString() : "";
             return DirectoryInitialization.loadInputOverlay(contexts[0], theme);
         }
 
@@ -111,8 +111,6 @@ public final class EmulationActivity extends AppCompatActivity {
             mGamePath = savedInstanceState.getString(EXTRA_GAME_PATH);
         }
 
-        hideSystemUI();
-
         // Find or create the EmulationFragment
         mEmulationFragment = (EmulationFragment)getSupportFragmentManager().findFragmentById(
             R.id.fragment_emulation);
@@ -151,6 +149,12 @@ public final class EmulationActivity extends AppCompatActivity {
                 hideSystemUI();
             });
         }
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        hideSystemUI();
     }
 
     private void hideSystemUI() {

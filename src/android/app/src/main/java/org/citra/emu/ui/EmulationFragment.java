@@ -238,7 +238,7 @@ public final class EmulationFragment extends Fragment implements SurfaceHolder.C
                 EmulationActivity activity = (EmulationActivity)getActivity();
                 activity.updateDisplayConfig();
                 activity.updateBackgroundImage();
-                NativeLibrary.SurfaceChanged(mSurface);
+                NativeLibrary.WindowChanged();
                 mResizeOverlayTop.setRect(NativeLibrary.getCustomLayout(true));
                 mResizeOverlayBottom.setRect(NativeLibrary.getCustomLayout(false));
                 observer.removeOnGlobalLayoutListener(this);

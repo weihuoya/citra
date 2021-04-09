@@ -17,6 +17,7 @@ public:
 
     bool Initialize(ANativeWindow* surface);
     void UpdateSurface(ANativeWindow* surface);
+    void UpdateWindow();
     void UpdateLayout();
 
     void MakeCurrent() override;

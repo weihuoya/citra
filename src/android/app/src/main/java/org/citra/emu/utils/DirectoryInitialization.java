@@ -173,7 +173,11 @@ public final class DirectoryInitialization {
                 ZipEntry entry = new ZipEntry(inputNames[i]);
                 zipOut.putNextEntry(entry);
                 Bitmap bitmap = BitmapFactory.decodeResource(context.getResources(), inputIds[i]);
-                bitmap.compress(Bitmap.CompressFormat.PNG, 90, zipOut);
+                Bitmap.CompressFormat format = Bitmap.CompressFormat.PNG;
+                if (inputNames[i].endsWith(".jpg")) {
+                    format = Bitmap.CompressFormat.JPEG;
+                }
+                bitmap.compress(format, 90, zipOut);
             }
             zipOut.close();
         } catch (IOException e) {
