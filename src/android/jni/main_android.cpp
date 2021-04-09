@@ -286,6 +286,13 @@ JNIEXPORT void JNICALL Java_org_citra_emu_NativeLibrary_SurfaceDestroyed(JNIEnv*
     }
 }
 
+JNIEXPORT void JNICALL Java_org_citra_emu_NativeLibrary_WindowChanged(JNIEnv* env, jclass obj) {
+    if (s_render_window) {
+        UpdateDisplayRotation();
+        s_render_window->UpdateWindow();
+    }
+}
+
 JNIEXPORT void JNICALL Java_org_citra_emu_NativeLibrary_DoFrame(JNIEnv* env, jclass obj) {
     if (!s_is_running || s_stop_running) {
         return;
@@ -528,7 +535,7 @@ JNIEXPORT void JNICALL Java_org_citra_emu_NativeLibrary_setRunningSettings(JNIEn
     // Frame Limit
     Settings::values.frame_limit = settings[i++] * 2;
 
-    s_render_window->UpdateLayout();
+    VideoCore::SettingUpdate();
 
     env->ReleaseIntArrayElements(array, settings, 0);
 }

@@ -212,9 +212,7 @@ void main() {
 static const char fragment_shader[] = R"(
 in vec2 frag_tex_coord;
 out vec4 color;
-
 uniform sampler2D color_texture;
-
 void main() {
     color = texture(color_texture, frag_tex_coord);
 }
@@ -529,42 +527,34 @@ void RendererOpenGL::LoadBackgroundImage(u32* pixels, u32 width, u32 height) {
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
     OpenGLState::BindTexture2D(0, old_tex);
-    LoadBackgroundShader();
 }
 
 void RendererOpenGL::LoadBackgroundShader() {
-    if (!bg_shader.handle) {
-        std::string frag_source;
-        if (GLES) {
-            frag_source = fragment_shader_precision_OES;
-            frag_source += fragment_shader;
-        } else {
-            frag_source = fragment_shader;
-        }
-        bg_shader.Create(vertex_shader, frag_source.c_str());
+    const char bg_vertex_shader[] = R"(
+out vec2 frag_tex_coord;
+void main() {
+    vec2 rawpos = vec2(gl_VertexID & 1, (gl_VertexID & 2) >> 1);
+    frag_tex_coord = vec2(rawpos.x, rawpos.y);
+    mat2 rotate = mat2(0, -1, 1, 0); // rotate -90бу
+    gl_Position = vec4((rawpos * 2.0 - 1.0) * rotate, 0.0, 1.0);
+}
+)";
+    const char bg_fragment_shader[] = R"(
+in vec2 frag_tex_coord;
+out vec4 color;
+layout(binding = 0) uniform sampler2D color_texture;
+void main() {
+    color = texture(color_texture, frag_tex_coord);
+}
+)";
+    std::string frag_source;
+    if (GLES) {
+        frag_source = fragment_shader_precision_OES;
+        frag_source += bg_fragment_shader;
+    } else {
+        frag_source = bg_fragment_shader;
     }
-
-    OpenGLState::BindShaderProgram(bg_shader.handle);
-    GLuint modelview_matrix = glGetUniformLocation(shader.handle, "modelview_matrix");
-    GLuint color_texture = glGetUniformLocation(shader.handle, "color_texture");
-    GLuint attrib_position = glGetAttribLocation(shader.handle, "vert_position");
-    GLuint attrib_tex_coord = glGetAttribLocation(shader.handle, "vert_tex_coord");
-
-    // Set projection matrix
-    auto layout = render_window.GetFramebufferLayout();
-    std::array<GLfloat, 3 * 2> ortho_matrix = MakeOrthographicMatrix(layout.width, layout.height);
-    glUniformMatrix3x2fv(modelview_matrix, 1, GL_FALSE, ortho_matrix.data());
-
-    // Bind texture in Texture Unit 0
-    glUniform1i(color_texture, 0);
-
-    // Attach vertex data to VAO
-    glVertexAttribPointer(attrib_position, 2, GL_FLOAT, GL_FALSE, sizeof(ScreenRectVertex),
-                          (GLvoid*)offsetof(ScreenRectVertex, position));
-    glVertexAttribPointer(attrib_tex_coord, 2, GL_FLOAT, GL_FALSE, sizeof(ScreenRectVertex),
-                          (GLvoid*)offsetof(ScreenRectVertex, tex_coord));
-    glEnableVertexAttribArray(attrib_position);
-    glEnableVertexAttribArray(attrib_tex_coord);
+    bg_shader.Create(bg_vertex_shader, frag_source.c_str());
 }
 
 /**
@@ -710,12 +700,12 @@ void RendererOpenGL::InitOpenGLObjects() {
 
     uniform_modelview_matrix = glGetUniformLocation(shader.handle, "modelview_matrix");
     uniform_resolution = glGetUniformLocation(shader.handle, "resolution");
-    GLuint uniform_color_texture = glGetUniformLocation(shader.handle, "color_texture");
+    GLuint color_texture = glGetUniformLocation(shader.handle, "color_texture");
     GLuint attrib_position = glGetAttribLocation(shader.handle, "vert_position");
     GLuint attrib_tex_coord = glGetAttribLocation(shader.handle, "vert_tex_coord");
 
     // Bind texture in Texture Unit 0
-    glUniform1i(uniform_color_texture, 0);
+    glUniform1i(color_texture, 0);
 
     // Attach vertex data to VAO
     glVertexAttribPointer(attrib_position, 2, GL_FLOAT, GL_FALSE, sizeof(ScreenRectVertex),
@@ -857,7 +847,7 @@ void RendererOpenGL::DrawScreens(const Layout::FramebufferLayout& layout) {
     const auto& bottom_screen = layout.bottom_screen;
     const auto& bottom_texcoords = screen_infos[2].display_texcoords;
 
-    const std::array<ScreenRectVertex, 12> vertices = {{
+    const std::array<ScreenRectVertex, 8> vertices = {{
         // top screen
         ScreenRectVertex(top_screen.left, top_screen.top, top_texcoords.bottom, top_texcoords.left),
         ScreenRectVertex(top_screen.left, top_screen.top + top_screen.GetHeight(),
@@ -877,11 +867,6 @@ void RendererOpenGL::DrawScreens(const Layout::FramebufferLayout& layout) {
         ScreenRectVertex(bottom_screen.left + bottom_screen.GetWidth(),
                          bottom_screen.top + bottom_screen.GetHeight(), bottom_texcoords.top,
                          bottom_texcoords.right),
-        // background
-        ScreenRectVertex(0, 0, 1, 1),
-        ScreenRectVertex(0, layout.height, 0, 1),
-        ScreenRectVertex(layout.width, 0, 1, 0),
-        ScreenRectVertex(layout.width, layout.height, 0, 0),
     }};
     // prefer `glBufferData` than `glBufferSubData` on mobile device
     glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices.data(), GL_STREAM_DRAW);
@@ -889,7 +874,7 @@ void RendererOpenGL::DrawScreens(const Layout::FramebufferLayout& layout) {
     // background
     GLuint handle = OpenGLState::BindShaderProgram(bg_shader.handle);
     OpenGLState::BindTexture2D(0, bg_texture.handle);
-    glDrawArrays(GL_TRIANGLE_STRIP, 8, 4);
+    glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
     OpenGLState::BindShaderProgram(handle);
 
     if (layout.top_screen_enabled) {

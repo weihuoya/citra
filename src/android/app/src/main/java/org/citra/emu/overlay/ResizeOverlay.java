@@ -77,7 +77,7 @@ public class ResizeOverlay extends View {
         points[3].x = rect.left;
         points[3].y = rect.bottom;
 
-        if (mListener != null) {
+        if (getVisibility() == VISIBLE && mListener != null) {
             mListener.onResize(this);
         }
     }

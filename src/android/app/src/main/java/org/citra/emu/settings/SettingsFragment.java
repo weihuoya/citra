@@ -195,10 +195,6 @@ public final class SettingsFragment extends Fragment {
                 R.string.setting_system_language, 0,
                 R.array.languageNames, R.array.languageValues, 1,
                 language));
-        sl.add(new SingleChoiceSetting(SettingsFile.KEY_SYSTEM_LANGUAGE, Settings.SECTION_INI_CORE,
-                R.string.setting_system_language, 0,
-                R.array.languageNames, R.array.languageValues, 1,
-                language));
 
         // theme
         stringValues = getThemeValues();

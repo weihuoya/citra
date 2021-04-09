@@ -103,6 +103,16 @@ void EGLAndroid::UpdateSurface(ANativeWindow* surface) {
     StopPresenting();
 }
 
+void EGLAndroid::UpdateWindow() {
+    window_width = ANativeWindow_getWidth(host_window);
+    window_height = ANativeWindow_getHeight(host_window);
+    safe_inset_left = static_cast<u32>(NativeLibrary::GetSafeInsetLeft());
+    safe_inset_top = static_cast<u32>(NativeLibrary::GetSafeInsetTop());
+    safe_inset_right = static_cast<u32>(NativeLibrary::GetSafeInsetRight());
+    safe_inset_bottom = static_cast<u32>(NativeLibrary::GetSafeInsetBottom());
+    UpdateLayout();
+}
+
 void EGLAndroid::UpdateLayout() {
     UpdateFramebufferLayout(window_width, window_height);
 }

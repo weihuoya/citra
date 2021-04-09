@@ -22,6 +22,7 @@ namespace VideoCore {
 static std::unique_ptr<RendererBase> g_renderer;
 static std::unique_ptr<RasterizerInterface> g_rasterizer;
 static Memory::MemorySystem* g_memory = nullptr;
+static bool g_setting_update = false;
 static u16 g_scale_factor = 1;
 static u32 g_current_frame = 0;
 
@@ -32,6 +33,26 @@ static std::vector<u32> g_background_pixels;
 std::atomic<bool> g_hw_shader_enabled;
 std::function<void(u32 width, u32 height, const std::vector<u32>& pixels)>
     g_screenshot_complete_callback;
+
+static void ApplySetting() {
+    Frontend::EmuWindow& window = g_renderer->GetRenderWindow();
+    const Layout::FramebufferLayout& layout = window.GetFramebufferLayout();
+    window.UpdateFramebufferLayout(layout.width, layout.height);
+
+    if (Settings::values.use_hw_renderer) {
+        g_scale_factor = Settings::values.resolution_factor
+                         ? Settings::values.resolution_factor
+                         : window.GetFramebufferLayout().GetScalingRatio();
+    } else {
+        // Software renderer always render at native resolution
+        g_scale_factor = 1;
+    }
+
+    g_rasterizer->CheckForConfigChanges();
+    g_hw_shader_enabled = Settings::values.use_hw_shader;
+
+    g_setting_update = false;
+}
 
 /// Initialize the video core
 ResultStatus Init(Frontend::EmuWindow& window, Memory::MemorySystem& memory) {
@@ -46,7 +67,7 @@ ResultStatus Init(Frontend::EmuWindow& window, Memory::MemorySystem& memory) {
         } else {
             g_rasterizer = std::make_unique<VideoCore::SWRasterizer>();
         }
-        SettingUpdate();
+        ApplySetting();
         g_current_frame = 0;
     } else {
         g_renderer.reset();
@@ -83,28 +104,15 @@ void FrameUpdate() {
         g_background_width = 0;
         g_background_height = 0;
     }
+
+    // settings
+    if (g_setting_update) {
+        ApplySetting();
+    }
 }
 
 void SettingUpdate() {
-    if (!g_renderer) {
-        return;
-    }
-
-    Frontend::EmuWindow& window = g_renderer->GetRenderWindow();
-    const Layout::FramebufferLayout& layout = window.GetFramebufferLayout();
-    window.UpdateFramebufferLayout(layout.width, layout.height);
-
-    if (Settings::values.use_hw_renderer) {
-        g_scale_factor = Settings::values.resolution_factor
-                             ? Settings::values.resolution_factor
-                             : window.GetFramebufferLayout().GetScalingRatio();
-    } else {
-        // Software renderer always render at native resolution
-        g_scale_factor = 1;
-    }
-
-    g_rasterizer->CheckForConfigChanges();
-    g_hw_shader_enabled = Settings::values.use_hw_shader;
+    g_setting_update = (g_renderer != nullptr);
 }
 
 u16 GetResolutionScaleFactor() {
