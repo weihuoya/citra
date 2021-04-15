@@ -998,6 +998,16 @@ void Module::APTInterface::CheckNew3DS(Kernel::HLERequestContext& ctx) {
     LOG_WARNING(Service_APT, "(STUBBED) APT CheckNew3DS called");
 }
 
+void Module::APTInterface::Unknown0x0103(Kernel::HLERequestContext& ctx) {
+    IPC::RequestParser rp(ctx, 0x103, 0, 0); // 0x01030000
+    IPC::RequestBuilder rb = rp.MakeBuilder(2, 0);
+
+    rb.Push(RESULT_SUCCESS);
+    rb.Push<u8>(Settings::values.is_new_3ds ? 2 : 1);
+
+    LOG_WARNING(Service_APT, "(STUBBED) called");
+}
+
 void Module::APTInterface::IsTitleAllowed(Kernel::HLERequestContext& ctx) {
     IPC::RequestParser rp(ctx, 0x105, 4, 0); // 0x01050100
     const u64 program_id = rp.Pop<u64>();

@@ -109,6 +109,8 @@ void FrameUpdate() {
     if (g_setting_update) {
         ApplySetting();
     }
+
+    g_rasterizer->OnFrameUpdate();
 }
 
 void SettingUpdate() {

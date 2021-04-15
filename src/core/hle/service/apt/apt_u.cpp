@@ -98,7 +98,7 @@ APT_U::APT_U(std::shared_ptr<Module> apt)
         {0x00580002, nullptr, "GetProgramID"},
         {0x01010000, &APT_U::CheckNew3DSApp, "CheckNew3DSApp"},
         {0x01020000, &APT_U::CheckNew3DS, "CheckNew3DS"},
-        {0x01030000, nullptr, "UnknownMehod0x01030000"},
+        {0x01030000, &APT_U::Unknown0x0103, "Unknown0x0103"},
         {0x01040000, &APT_U::IsStandardMemoryLayout, "IsStandardMemoryLayout"},
         {0x01050100, nullptr, "IsTitleAllowed"},
     };

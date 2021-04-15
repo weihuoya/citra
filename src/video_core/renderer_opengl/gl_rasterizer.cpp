@@ -451,9 +451,11 @@ void RasterizerOpenGL::CheckForConfigChanges() {
     if (res_cache.GetScaleFactor() != scale_factor) {
         framebuffer_info = {};
         res_cache.SetScaleFactor(scale_factor);
-    } else {
-        res_cache.RecycleSurfaceUpdate();
     }
+}
+
+void RasterizerOpenGL::OnFrameUpdate() {
+    res_cache.OnFrameUpdate();
 }
 
 static GLenum GetCurrentPrimitiveMode() {

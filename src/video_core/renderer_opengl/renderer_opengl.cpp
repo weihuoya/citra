@@ -8,7 +8,7 @@
 #include <memory>
 #include <glad/glad.h>
 #include <queue>
-#include "common/assert.h"
+
 #include "common/bit_field.h"
 #include "common/logging/log.h"
 #include "core/core.h"
@@ -518,6 +518,54 @@ void RendererOpenGL::ResetPresent() {
 }
 
 void RendererOpenGL::LoadBackgroundImage(u32* pixels, u32 width, u32 height) {
+    u32 diff = 0;
+    u32 size = width * height;
+    for (u32 i = 0; i < size - 1; ++i) {
+        diff |= pixels[i] ^ pixels[i + 1];
+    }
+    if (diff == 0) {
+        // use solid color
+        u32 pixel = pixels[0];
+        float b = static_cast<float>(pixel & 255) / 255.0f;
+        float g = static_cast<float>((pixel >> 8) & 255) / 255.0f;
+        float r = static_cast<float>((pixel >> 16) & 255) / 255.0f;
+        glClearColor(r, g, b, 0.0f);
+        bg_texture.Release();
+        return;
+    }
+
+    if (bg_shader.handle == 0) {
+        const char bg_vertex_shader[] = R"(
+out vec2 frag_tex_coord;
+void main() {
+    vec2 rawpos = vec2(gl_VertexID & 1, (gl_VertexID & 2) >> 1);
+    frag_tex_coord = vec2(rawpos.x, rawpos.y);
+    mat2 rotate = mat2(0, -1, 1, 0); // rotate -90°
+    gl_Position = vec4((rawpos * 2.0 - 1.0) * rotate, 0.0, 1.0);
+}
+)";
+        const char bg_fragment_shader[] = R"(
+in vec2 frag_tex_coord;
+out vec4 color;
+layout(binding = 0) uniform sampler2D color_texture;
+void main() {
+    color = texture(color_texture, frag_tex_coord);
+}
+)";
+        std::string frag_source;
+        if (GLES) {
+            frag_source = fragment_shader_precision_OES;
+            frag_source += bg_fragment_shader;
+        } else {
+            frag_source = bg_fragment_shader;
+        }
+        bg_shader.Create(bg_vertex_shader, frag_source.c_str());
+    }
+
+    if (bg_texture.handle == 0) {
+        bg_texture.Create();
+    }
+
     auto old_tex = OpenGLState::BindTexture2D(0, bg_texture.handle);
     FlipPixels(pixels, width, height);
     glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, pixels);
@@ -527,34 +575,6 @@ void RendererOpenGL::LoadBackgroundImage(u32* pixels, u32 width, u32 height) {
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
     OpenGLState::BindTexture2D(0, old_tex);
-}
-
-void RendererOpenGL::LoadBackgroundShader() {
-    const char bg_vertex_shader[] = R"(
-out vec2 frag_tex_coord;
-void main() {
-    vec2 rawpos = vec2(gl_VertexID & 1, (gl_VertexID & 2) >> 1);
-    frag_tex_coord = vec2(rawpos.x, rawpos.y);
-    mat2 rotate = mat2(0, -1, 1, 0); // rotate -90¡ã
-    gl_Position = vec4((rawpos * 2.0 - 1.0) * rotate, 0.0, 1.0);
-}
-)";
-    const char bg_fragment_shader[] = R"(
-in vec2 frag_tex_coord;
-out vec4 color;
-layout(binding = 0) uniform sampler2D color_texture;
-void main() {
-    color = texture(color_texture, frag_tex_coord);
-}
-)";
-    std::string frag_source;
-    if (GLES) {
-        frag_source = fragment_shader_precision_OES;
-        frag_source += bg_fragment_shader;
-    } else {
-        frag_source = bg_fragment_shader;
-    }
-    bg_shader.Create(bg_vertex_shader, frag_source.c_str());
 }
 
 /**
@@ -645,6 +665,8 @@ void RendererOpenGL::LoadColorToActiveGLTexture(u8 color_r, u8 color_g, u8 color
  * Initializes the OpenGL state and creates persistent objects.
  */
 void RendererOpenGL::InitOpenGLObjects() {
+    glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
+
     // Generate VBO handle for drawing
     vertex_buffer.Create();
 
@@ -653,9 +675,6 @@ void RendererOpenGL::InitOpenGLObjects() {
 
     // sampler for post shader
     filter_sampler.Create();
-
-    // bg shader
-    LoadBackgroundShader();
 
     // Link shaders and get variable locations
     std::string frag_source;
@@ -732,12 +751,6 @@ void RendererOpenGL::InitOpenGLObjects() {
 
         screen_info.display_texture = screen_info.texture.resource.handle;
     }
-
-    // bg
-    u8 null_data[4] = {0, 0, 0, 1};
-    bg_texture.Create();
-    OpenGLState::BindTexture2D(0, bg_texture.handle);
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, 1, 1, 0, GL_RGBA, GL_UNSIGNED_BYTE, null_data);
 
     // init
     OSD::Initialize();
@@ -871,11 +884,15 @@ void RendererOpenGL::DrawScreens(const Layout::FramebufferLayout& layout) {
     // prefer `glBufferData` than `glBufferSubData` on mobile device
     glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices.data(), GL_STREAM_DRAW);
 
-    // background
-    GLuint handle = OpenGLState::BindShaderProgram(bg_shader.handle);
-    OpenGLState::BindTexture2D(0, bg_texture.handle);
-    glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
-    OpenGLState::BindShaderProgram(handle);
+    if (bg_texture.handle) {
+        // background image
+        GLuint handle = OpenGLState::BindShaderProgram(bg_shader.handle);
+        OpenGLState::BindTexture2D(0, bg_texture.handle);
+        glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
+        OpenGLState::BindShaderProgram(handle);
+    } else {
+        glClear(GL_COLOR_BUFFER_BIT);
+    }
 
     if (layout.top_screen_enabled) {
         DrawSingleScreenRotated(0);
