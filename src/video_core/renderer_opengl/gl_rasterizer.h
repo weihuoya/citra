@@ -51,6 +51,7 @@ public:
                            u32 pixel_stride, ScreenInfo& screen_info) override;
     bool AccelerateDrawBatch(bool is_indexed) override;
     void CheckForConfigChanges() override;
+    void OnFrameUpdate() override;
 
 private:
     struct SamplerInfo {
@@ -292,7 +293,7 @@ private:
     static constexpr std::size_t VERTEX_BUFFER_SIZE = 16 * 1024 * 1024;
     static constexpr std::size_t INDEX_BUFFER_SIZE = 4 * 1024 * 1024;
     static constexpr std::size_t UNIFORM_BUFFER_SIZE = 4 * 1024 * 1024;
-    static constexpr std::size_t TEXTURE_BUFFER_SIZE = 1 * 1024 * 1024;
+    static constexpr std::size_t TEXTURE_BUFFER_SIZE = 4 * 1024 * 1024;
 
     OGLVertexArray sw_vao; // VAO for software shader draw
     OGLVertexArray hw_vao; // VAO for hardware shader / accelerate draw

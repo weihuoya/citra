@@ -245,7 +245,7 @@ public:
     void FlushAll();
 
     /// Handle any config changes
-    void RecycleSurfaceUpdate();
+    void OnFrameUpdate();
 
     u16 GetScaleFactor() const;
 

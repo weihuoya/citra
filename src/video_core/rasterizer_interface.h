@@ -79,5 +79,6 @@ public:
 
     /// Handle any config changes, this gets propogated to the backend
     virtual void CheckForConfigChanges() {}
+    virtual void OnFrameUpdate() {}
 };
 } // namespace VideoCore

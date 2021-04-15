@@ -157,7 +157,7 @@ public:
 
     OGLShaderStage* GetShaderStageRef(const std::string& shader_code, GLenum shader_type) {
         u64 code_hash = Common::ComputeHash64(shader_code.data(), shader_code.size());
-        auto [iter, new_shader] = shaders.emplace(code_hash, OGLShaderStage{separable});
+        auto [iter, new_shader] = shaders.emplace(code_hash, separable);
         OGLShaderStage& cached_shader = iter->second;
         if (new_shader) {
             cached_shader.Create(shader_code, shader_type, code_hash);

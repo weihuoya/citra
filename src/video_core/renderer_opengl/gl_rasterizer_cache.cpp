@@ -1621,7 +1621,7 @@ void RasterizerCacheOpenGL::FlushAll() {
     FlushRegion(0, 0xFFFFFFFF);
 }
 
-void RasterizerCacheOpenGL::RecycleSurfaceUpdate() {
+void RasterizerCacheOpenGL::OnFrameUpdate() {
     u32 current_frame = VideoCore::GetCurrentFrame();
     if (current_frame > last_clean_frame + CLEAN_FRAME_INTERVAL) {
         const u32 frame_lower_bound = current_frame - CLEAN_FRAME_INTERVAL;
