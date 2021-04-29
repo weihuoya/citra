@@ -19,14 +19,15 @@ static void SetShaderUniformBlockBinding(GLuint shader, const char* name, Unifor
     }
     GLint ub_size = 0;
     glGetActiveUniformBlockiv(shader, ub_index, GL_UNIFORM_BLOCK_DATA_SIZE, &ub_size);
-    ASSERT_MSG(ub_size == expected_size, "Uniform block size did not match! Got {}, expected {}",
-               static_cast<int>(ub_size), expected_size);
+    ASSERT(ub_size == expected_size);
     glUniformBlockBinding(shader, ub_index, static_cast<GLuint>(binding));
 }
 
 static void SetShaderUniformBlockBindings(GLuint shader) {
     SetShaderUniformBlockBinding(shader, "shader_data", UniformBindings::Common,
                                  sizeof(UniformData));
+    SetShaderUniformBlockBinding(shader, "shader_light_data", UniformBindings::Light,
+                                 sizeof(UniformLightData));
     SetShaderUniformBlockBinding(shader, "vs_config", UniformBindings::VS, sizeof(VSUniformData));
 }
 
@@ -161,6 +162,10 @@ public:
         OGLShaderStage& cached_shader = iter->second;
         if (new_shader) {
             cached_shader.Create(shader_code, shader_type, code_hash);
+            if (cached_shader.GetHandle() == 0) {
+                shaders.erase(code_hash);
+                return nullptr;
+            }
             // load cached shader reference
             auto iter = reference_cache.find(code_hash);
             if (iter != reference_cache.end()) {
@@ -285,7 +290,7 @@ public:
         }
     }
 
-    static constexpr u32 PROGRAM_CACHE_VERSION = 0x6;
+    static constexpr u32 PROGRAM_CACHE_VERSION = 0x7;
 
     static std::string GetCacheFile() {
         u64 program_id = 0;
@@ -385,12 +390,26 @@ public:
             return 0;
         }
 
+        // load vertex shader cache
+        std::vector<u64> error_caches;
         for (const auto& entity : vertex_cache) {
-            GetShaderStageRef(entity.second, GL_VERTEX_SHADER);
+            if (!GetShaderStageRef(entity.second, GL_VERTEX_SHADER)) {
+                error_caches.push_back(entity.first);
+            }
+        }
+        for (auto key : error_caches) {
+            vertex_cache.erase(key);
         }
 
+        // load fragment shader cache
+        error_caches.clear();
         for (const auto& entity : fragment_cache) {
-            GetShaderStageRef(entity.second, GL_FRAGMENT_SHADER);
+            if (!GetShaderStageRef(entity.second, GL_FRAGMENT_SHADER)) {
+                error_caches.push_back(entity.first);
+            }
+        }
+        for (auto key : error_caches) {
+            vertex_cache.erase(key);
         }
 
         return file.GetSize();

@@ -132,6 +132,9 @@ public:
     /// Creates a new program from given shader soruce code
     void Create(const char* vert_shader, const char* frag_shader);
 
+    /// Creates a new program from given shader soruce code
+    void Create(const char* compute_shader);
+
     /// Deletes the internal OpenGL resource
     void Release();
 

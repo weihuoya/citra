@@ -102,6 +102,7 @@ RasterizerOpenGL::RasterizerOpenGL()
 
     uniform_block_data.lighting_lut_dirty.fill(true);
     uniform_block_data.lighting_lut_dirty_any = true;
+    uniform_block_data.light_dirty = true;
 
     uniform_block_data.fog_lut_dirty = true;
 
@@ -116,6 +117,8 @@ RasterizerOpenGL::RasterizerOpenGL()
         Common::AlignUp<std::size_t>(sizeof(VSUniformData), uniform_buffer_alignment);
     uniform_size_aligned_fs =
         Common::AlignUp<std::size_t>(sizeof(UniformData), uniform_buffer_alignment);
+    uniform_size_aligned_light =
+            Common::AlignUp<std::size_t>(sizeof(UniformLightData), uniform_buffer_alignment);
 
     // Set vertex attributes for software shader path
     state.draw.vertex_array = sw_vao.handle;
@@ -1789,9 +1792,9 @@ void RasterizerOpenGL::SyncTevConstColor(int stage_index,
 
 void RasterizerOpenGL::SyncGlobalAmbient() {
     const auto ambient_color = PicaToGL::LightColor(Pica::g_state.regs.lighting.global_ambient);
-    if (ambient_color != uniform_block_data.data.lighting_global_ambient) {
-        uniform_block_data.data.lighting_global_ambient = ambient_color;
-        uniform_block_data.dirty = true;
+    if (ambient_color != uniform_block_data.light_data.lighting_global_ambient) {
+        uniform_block_data.light_data.lighting_global_ambient = ambient_color;
+        uniform_block_data.light_dirty = true;
     }
 }
 
@@ -1806,9 +1809,9 @@ void RasterizerOpenGL::SyncLightingLutScale() {
     scales[5] = regs.lighting.lut_scale.GetScale(regs.lighting.lut_scale.rg);
     scales[6] = regs.lighting.lut_scale.GetScale(regs.lighting.lut_scale.rr);
     for (int i = 0; i < 7; ++i) {
-        if (scales[i] != uniform_block_data.data.lighting_lut_scales[i]) {
-            uniform_block_data.data.lighting_lut_scales[i] = scales[i];
-            uniform_block_data.dirty = true;
+        if (scales[i] != uniform_block_data.light_data.lighting_lut_scales[i]) {
+            uniform_block_data.light_data.lighting_lut_scales[i] = scales[i];
+            uniform_block_data.light_dirty = true;
         }
     }
 }
@@ -1822,33 +1825,33 @@ void RasterizerOpenGL::SyncLightingLutData() {
 
 void RasterizerOpenGL::SyncLightSpecular0(int light_index) {
     auto color = PicaToGL::LightColor(Pica::g_state.regs.lighting.light[light_index].specular_0);
-    if (color != uniform_block_data.data.light_src[light_index].specular_0) {
-        uniform_block_data.data.light_src[light_index].specular_0 = color;
-        uniform_block_data.dirty = true;
+    if (color != uniform_block_data.light_data.light_src[light_index].specular_0) {
+        uniform_block_data.light_data.light_src[light_index].specular_0 = color;
+        uniform_block_data.light_dirty = true;
     }
 }
 
 void RasterizerOpenGL::SyncLightSpecular1(int light_index) {
     auto color = PicaToGL::LightColor(Pica::g_state.regs.lighting.light[light_index].specular_1);
-    if (color != uniform_block_data.data.light_src[light_index].specular_1) {
-        uniform_block_data.data.light_src[light_index].specular_1 = color;
-        uniform_block_data.dirty = true;
+    if (color != uniform_block_data.light_data.light_src[light_index].specular_1) {
+        uniform_block_data.light_data.light_src[light_index].specular_1 = color;
+        uniform_block_data.light_dirty = true;
     }
 }
 
 void RasterizerOpenGL::SyncLightDiffuse(int light_index) {
     auto color = PicaToGL::LightColor(Pica::g_state.regs.lighting.light[light_index].diffuse);
-    if (color != uniform_block_data.data.light_src[light_index].diffuse) {
-        uniform_block_data.data.light_src[light_index].diffuse = color;
-        uniform_block_data.dirty = true;
+    if (color != uniform_block_data.light_data.light_src[light_index].diffuse) {
+        uniform_block_data.light_data.light_src[light_index].diffuse = color;
+        uniform_block_data.light_dirty = true;
     }
 }
 
 void RasterizerOpenGL::SyncLightAmbient(int light_index) {
     auto color = PicaToGL::LightColor(Pica::g_state.regs.lighting.light[light_index].ambient);
-    if (color != uniform_block_data.data.light_src[light_index].ambient) {
-        uniform_block_data.data.light_src[light_index].ambient = color;
-        uniform_block_data.dirty = true;
+    if (color != uniform_block_data.light_data.light_src[light_index].ambient) {
+        uniform_block_data.light_data.light_src[light_index].ambient = color;
+        uniform_block_data.light_dirty = true;
     }
 }
 
@@ -1858,9 +1861,9 @@ void RasterizerOpenGL::SyncLightPosition(int light_index) {
         Pica::float16::FromRaw(Pica::g_state.regs.lighting.light[light_index].y).ToFloat32(),
         Pica::float16::FromRaw(Pica::g_state.regs.lighting.light[light_index].z).ToFloat32()};
 
-    if (position != uniform_block_data.data.light_src[light_index].position) {
-        uniform_block_data.data.light_src[light_index].position = position;
-        uniform_block_data.dirty = true;
+    if (position != uniform_block_data.light_data.light_src[light_index].position) {
+        uniform_block_data.light_data.light_src[light_index].position = position;
+        uniform_block_data.light_dirty = true;
     }
 }
 
@@ -1869,9 +1872,9 @@ void RasterizerOpenGL::SyncLightSpotDirection(int light_index) {
     GLvec3 spot_direction = {light.spot_x / 2047.0f, light.spot_y / 2047.0f,
                              light.spot_z / 2047.0f};
 
-    if (spot_direction != uniform_block_data.data.light_src[light_index].spot_direction) {
-        uniform_block_data.data.light_src[light_index].spot_direction = spot_direction;
-        uniform_block_data.dirty = true;
+    if (spot_direction != uniform_block_data.light_data.light_src[light_index].spot_direction) {
+        uniform_block_data.light_data.light_src[light_index].spot_direction = spot_direction;
+        uniform_block_data.light_dirty = true;
     }
 }
 
@@ -1880,9 +1883,9 @@ void RasterizerOpenGL::SyncLightDistanceAttenuationBias(int light_index) {
         Pica::float20::FromRaw(Pica::g_state.regs.lighting.light[light_index].dist_atten_bias)
             .ToFloat32();
 
-    if (dist_atten_bias != uniform_block_data.data.light_src[light_index].dist_atten_bias) {
-        uniform_block_data.data.light_src[light_index].dist_atten_bias = dist_atten_bias;
-        uniform_block_data.dirty = true;
+    if (dist_atten_bias != uniform_block_data.light_data.light_src[light_index].dist_atten_bias) {
+        uniform_block_data.light_data.light_src[light_index].dist_atten_bias = dist_atten_bias;
+        uniform_block_data.light_dirty = true;
     }
 }
 
@@ -1891,9 +1894,9 @@ void RasterizerOpenGL::SyncLightDistanceAttenuationScale(int light_index) {
         Pica::float20::FromRaw(Pica::g_state.regs.lighting.light[light_index].dist_atten_scale)
             .ToFloat32();
 
-    if (dist_atten_scale != uniform_block_data.data.light_src[light_index].dist_atten_scale) {
-        uniform_block_data.data.light_src[light_index].dist_atten_scale = dist_atten_scale;
-        uniform_block_data.dirty = true;
+    if (dist_atten_scale != uniform_block_data.light_data.light_src[light_index].dist_atten_scale) {
+        uniform_block_data.light_data.light_src[light_index].dist_atten_scale = dist_atten_scale;
+        uniform_block_data.light_dirty = true;
     }
 }
 
@@ -1912,9 +1915,9 @@ void RasterizerOpenGL::SyncShadowBias() {
 
 void RasterizerOpenGL::SyncShadowTextureBias() {
     GLint bias = Pica::g_state.regs.texturing.shadow.bias << 1;
-    if (bias != uniform_block_data.data.shadow_texture_bias) {
-        uniform_block_data.data.shadow_texture_bias = bias;
-        uniform_block_data.dirty = AllowShadow;
+    if (bias != uniform_block_data.light_data.shadow_texture_bias) {
+        uniform_block_data.light_data.shadow_texture_bias = bias;
+        uniform_block_data.light_dirty = AllowShadow;
     }
 }
 
@@ -1950,9 +1953,9 @@ void RasterizerOpenGL::SyncAndUploadLUTsLF() {
                 if (is_changed || invalidate) {
                     std::memcpy(buffer + bytes_used, lighting_lut_data[index].data(),
                                 lighting_lut_data[index].size() * sizeof(GLvec2));
-                    uniform_block_data.data.lighting_lut_offset[index / 4][index % 4] =
+                    uniform_block_data.light_data.lighting_lut_offset[index / 4][index % 4] =
                         (offset + bytes_used) / sizeof(GLvec2);
-                    uniform_block_data.dirty = true;
+                    uniform_block_data.light_dirty = true;
                     bytes_used += lighting_lut_data[index].size() * sizeof(GLvec2);
                 }
                 uniform_block_data.lighting_lut_dirty[index] = false;
@@ -2103,13 +2106,24 @@ void RasterizerOpenGL::UploadUniforms(bool accelerate_draw) {
     // first
     OpenGLState::BindUniformBuffer(uniform_buffer.GetHandle());
 
-    bool sync_vs = accelerate_draw;
-    bool sync_fs = uniform_block_data.dirty;
+    const bool sync_vs = accelerate_draw;
+    const bool sync_fs = uniform_block_data.dirty;
+    const bool sync_light = uniform_block_data.light_dirty;
 
-    if (!sync_vs && !sync_fs)
+    std::size_t uniform_size = 0;
+    if (sync_vs) {
+        uniform_size += uniform_size_aligned_vs;
+    }
+    if (sync_fs) {
+        uniform_size += uniform_size_aligned_fs;
+    }
+    if (sync_light) {
+        uniform_size += uniform_size_aligned_light;
+    }
+    if (uniform_size == 0) {
         return;
+    }
 
-    std::size_t uniform_size = uniform_size_aligned_vs + uniform_size_aligned_fs;
     std::size_t used_bytes = 0;
     u8* uniforms;
     GLintptr offset;
@@ -2132,6 +2146,14 @@ void RasterizerOpenGL::UploadUniforms(bool accelerate_draw) {
                           uniform_buffer.GetHandle(), offset + used_bytes, sizeof(UniformData));
         uniform_block_data.dirty = false;
         used_bytes += uniform_size_aligned_fs;
+    }
+
+    if (sync_light || invalidate) {
+        std::memcpy(uniforms + used_bytes, &uniform_block_data.light_data, sizeof(UniformLightData));
+        glBindBufferRange(GL_UNIFORM_BUFFER, static_cast<GLuint>(UniformBindings::Light),
+                          uniform_buffer.GetHandle(), offset + used_bytes, sizeof(UniformLightData));
+        uniform_block_data.light_dirty = false;
+        used_bytes += uniform_size_aligned_light;
     }
 
     uniform_buffer.Unmap(used_bytes);

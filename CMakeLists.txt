@@ -48,6 +48,10 @@ include(CheckAndAddFlag)
 check_and_add_flag(VISIBILITY_INLINES_HIDDEN -fvisibility-inlines-hidden)
 check_and_add_flag(VISIBILITY_HIDDEN -fvisibility=hidden)
 
+set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -flto=thin")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -flto=thin")
+set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -flto=thin")
+
 if(CMAKE_SYSTEM_PROCESSOR STREQUAL "aarch64")
     set(_M_ARM 1)
     set(_M_ARM64 1)
