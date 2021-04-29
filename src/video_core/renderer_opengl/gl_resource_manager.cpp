@@ -100,9 +100,16 @@ void OGLProgram::Create(const char* vert_shader, const char* frag_shader) {
     OGLShader vert, frag;
     vert.Create(vert_shader, GL_VERTEX_SHADER);
     frag.Create(frag_shader, GL_FRAGMENT_SHADER);
+    if (vert.handle && frag.handle) {
+        Create(false, {vert.handle, frag.handle});
+    }
+}
 
-    MICROPROFILE_SCOPE(OpenGL_ResourceCreation);
-    Create(false, {vert.handle, frag.handle});
+void OGLProgram::Create(const char* compute_shader) {
+    OGLShader shader;
+    shader.Create(compute_shader, GL_COMPUTE_SHADER);
+
+    Create(false, {shader.handle});
 }
 
 void OGLProgram::Create(GLenum format, const std::vector<GLbyte>& binary) {

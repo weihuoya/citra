@@ -41,6 +41,9 @@ GLuint LoadShader(const char* source, GLenum type) {
     case GL_FRAGMENT_SHADER:
         debug_type = "fragment";
         break;
+    case GL_COMPUTE_SHADER:
+        debug_type = "compute";
+        break;
     default:
         UNREACHABLE();
     }
@@ -74,6 +77,8 @@ GLuint LoadShader(const char* source, GLenum type) {
             shader.append("\n\n");
             shader.append(shader_error.data(), shader_error.size());
             FileUtil::WriteStringToFile(true, filepath, shader);
+            glDeleteShader(shader_id);
+            shader_id = 0;
         }
     }
 
