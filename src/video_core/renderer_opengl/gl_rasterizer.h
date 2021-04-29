@@ -276,6 +276,11 @@ private:
 
     struct {
         UniformData data;
+        bool dirty;
+
+        UniformLightData light_data;
+        bool light_dirty;
+
         std::array<bool, Pica::LightingRegs::NumLightingSampler> lighting_lut_dirty;
         bool lighting_lut_dirty_any;
         bool fog_lut_dirty;
@@ -284,7 +289,6 @@ private:
         bool proctex_alpha_map_dirty;
         bool proctex_lut_dirty;
         bool proctex_diff_lut_dirty;
-        bool dirty;
     } uniform_block_data = {};
 
     std::unique_ptr<ShaderProgramManager> shader_program_manager;
@@ -316,6 +320,7 @@ private:
     GLint uniform_buffer_alignment;
     std::size_t uniform_size_aligned_vs;
     std::size_t uniform_size_aligned_fs;
+    std::size_t uniform_size_aligned_light;
 
     SamplerInfo texture_cube_sampler;
 

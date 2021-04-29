@@ -8,7 +8,6 @@
 #include <memory>
 #include <glad/glad.h>
 #include <queue>
-
 #include "common/bit_field.h"
 #include "common/logging/log.h"
 #include "core/core.h"
@@ -240,8 +239,9 @@ float4 Sample() { return texture(color_texture, frag_tex_coord); }
 float4 SampleLocation(float2 location) { return texture(color_texture, location); }
 float4 SampleFetch(int2 location) { return texelFetch(color_texture, location, 0); }
 int2 SampleSize() { return textureSize(color_texture, 0); }
-float2 GetResolution() { return resolution.xy; }
-float2 GetInvResolution() { return resolution.zw; }
+float2 GetResolution() { return resolution.zw; }
+float2 GetInvResolution() { return 1.0 / resolution.zw; }
+float2 GetOnScreenSize() { return resolution.xy; }
 float2 GetCoordinates() { return frag_tex_coord; }
 void SetOutput(float4 color) { output_color = color; }
 )";
@@ -700,7 +700,14 @@ void RendererOpenGL::InitOpenGLObjects() {
     } else {
         frag_source += fragment_shader;
     }
+
     shader.Create(vertex_shader, frag_source.data());
+    if (!shader.handle) {
+        // use default vertex and fragment shader
+        frag_source = fragment_shader_precision_OES;
+        frag_source += fragment_shader;
+        shader.Create(vertex_shader, frag_source.data());
+    }
 
     // sampler
     glSamplerParameteri(filter_sampler.handle, GL_TEXTURE_MAG_FILTER,
@@ -829,21 +836,6 @@ void RendererOpenGL::ConfigureFramebufferTexture(TextureInfo& texture,
 }
 
 /**
- * Draws a single texture to the emulator window, rotating the texture to correct for the 3DS's LCD
- * rotation.
- */
-void RendererOpenGL::DrawSingleScreenRotated(u32 index) {
-    const ScreenInfo& screen_info = screen_infos[index];
-    OpenGLState::BindTexture2D(0, screen_info.display_texture);
-
-    float src_width = screen_info.texture.width * Settings::values.resolution_factor;
-    float src_height = screen_info.texture.height * Settings::values.resolution_factor;
-    glUniform4f(uniform_resolution, src_width, src_height, 1.0f / src_width, 1.0f / src_height);
-
-    glDrawArrays(GL_TRIANGLE_STRIP, index * 2, 4);
-}
-
-/**
  * Draws the emulated screens to the emulator window.
  */
 void RendererOpenGL::DrawScreens(const Layout::FramebufferLayout& layout) {
@@ -894,12 +886,29 @@ void RendererOpenGL::DrawScreens(const Layout::FramebufferLayout& layout) {
         glClear(GL_COLOR_BUFFER_BIT);
     }
 
+    // Draws texture to the emulator window,
+    // rotating the texture to correct for the 3DS's LCD rotation.
+
     if (layout.top_screen_enabled) {
-        DrawSingleScreenRotated(0);
+        const ScreenInfo& screen_info = screen_infos[0];
+        OpenGLState::BindTexture2D(0, screen_info.display_texture);
+        float res_width = top_screen.GetHeight();
+        float res_height = top_screen.GetWidth();
+        float src_width = screen_info.texture.width * Settings::values.resolution_factor;
+        float src_height = screen_info.texture.height * Settings::values.resolution_factor;
+        glUniform4f(uniform_resolution, res_width, res_height, src_width, src_height);
+        glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
     }
 
     if (layout.bottom_screen_enabled) {
-        DrawSingleScreenRotated(2);
+        const ScreenInfo& screen_info = screen_infos[2];
+        OpenGLState::BindTexture2D(0, screen_info.display_texture);
+        float res_width = bottom_screen.GetHeight();
+        float res_height = bottom_screen.GetWidth();
+        float src_width = screen_info.texture.width * Settings::values.resolution_factor;
+        float src_height = screen_info.texture.height * Settings::values.resolution_factor;
+        glUniform4f(uniform_resolution, res_width, res_height, src_width, src_height);
+        glDrawArrays(GL_TRIANGLE_STRIP, 4, 4);
     }
 
     // draw on screen display
@@ -915,11 +924,6 @@ VideoCore::ResultStatus RendererOpenGL::Init() {
     LOG_INFO(Render_OpenGL, "GL_VERSION: {}", gl_version);
     LOG_INFO(Render_OpenGL, "GL_VENDOR: {}", gpu_vendor);
     LOG_INFO(Render_OpenGL, "GL_RENDERER: {}", gpu_model);
-
-    auto& telemetry_session = Core::System::GetInstance().TelemetrySession();
-    telemetry_session.AddField(Telemetry::FieldType::UserSystem, "GPU_Vendor", gpu_vendor);
-    telemetry_session.AddField(Telemetry::FieldType::UserSystem, "GPU_Model", gpu_model);
-    telemetry_session.AddField(Telemetry::FieldType::UserSystem, "GPU_OpenGL_Version", gl_version);
 
     if (!strcmp(gpu_vendor, "GDI Generic")) {
         return VideoCore::ResultStatus::ErrorGenericDrivers;

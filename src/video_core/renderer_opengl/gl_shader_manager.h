@@ -14,7 +14,7 @@
 
 namespace OpenGL {
 
-enum class UniformBindings : GLuint { Common, VS, GS };
+enum class UniformBindings : GLuint { Common, Light, VS, GS };
 
 struct LightSrc {
     alignas(16) GLvec3 specular_0;
@@ -48,25 +48,31 @@ struct UniformData {
     GLint proctex_lut_offset;
     GLint proctex_diff_lut_offset;
     GLfloat proctex_bias;
-    GLint shadow_texture_bias;
-    GLfloat lighting_lut_scales[7];
-    alignas(16) GLivec4 lighting_lut_offset[Pica::LightingRegs::NumLightingSampler / 4];
     alignas(16) GLvec3 fog_color;
     alignas(8) GLvec2 proctex_noise_f;
     alignas(8) GLvec2 proctex_noise_a;
     alignas(8) GLvec2 proctex_noise_p;
-    alignas(16) GLvec3 lighting_global_ambient;
-    LightSrc light_src[8];
     alignas(16) GLvec4 const_color[6]; // A vec4 color for each of the six tev stages
     alignas(16) GLvec4 tev_combiner_buffer_color;
     alignas(16) GLvec4 clip_coef;
 };
 
+struct UniformLightData {
+    alignas(16) GLivec4 lighting_lut_offset[Pica::LightingRegs::NumLightingSampler / 4];
+    alignas(16) GLvec3 lighting_global_ambient;
+    LightSrc light_src[8];
+    GLfloat lighting_lut_scales[7];
+    GLint shadow_texture_bias;
+};
+
 static_assert(
-    sizeof(UniformData) == 0x500,
+    sizeof(UniformData) == 0xF0,
     "The size of the UniformData structure has changed, update the structure in the shader");
 static_assert(sizeof(UniformData) < 0x4000,
               "UniformData structure must be less than 16kb as per the OpenGL spec");
+static_assert(
+        sizeof(UniformLightData) == 0x410,
+        "The size of the UniformData structure has changed, update the structure in the shader");
 
 /// Uniform struct for the Uniform Buffer Object that contains PICA vertex/geometry shader uniforms.
 // NOTE: the same rule from UniformData also applies here.

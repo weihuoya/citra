@@ -65,7 +65,19 @@ layout (std140) uniform shader_data {
     int proctex_lut_offset;
     int proctex_diff_lut_offset;
     float proctex_bias;
-    int shadow_texture_bias;
+    vec3 fog_color;
+    vec2 proctex_noise_f;
+    vec2 proctex_noise_a;
+    vec2 proctex_noise_p;
+    vec4 const_color[NUM_TEV_STAGES];
+    vec4 tev_combiner_buffer_color;
+    vec4 clip_coef;
+};
+
+layout (std140) uniform shader_light_data {
+    ivec4 lighting_lut_offset[NUM_LIGHTING_SAMPLERS / 4];
+    vec3 lighting_global_ambient;
+    LightSrc light_src[NUM_LIGHTS];
     float lut_scale_d0;
     float lut_scale_d1;
     float lut_scale_sp;
@@ -73,16 +85,7 @@ layout (std140) uniform shader_data {
     float lut_scale_rb;
     float lut_scale_rg;
     float lut_scale_rr;
-    ivec4 lighting_lut_offset[NUM_LIGHTING_SAMPLERS / 4];
-    vec3 fog_color;
-    vec2 proctex_noise_f;
-    vec2 proctex_noise_a;
-    vec2 proctex_noise_p;
-    vec3 lighting_global_ambient;
-    LightSrc light_src[NUM_LIGHTS];
-    vec4 const_color[NUM_TEV_STAGES];
-    vec4 tev_combiner_buffer_color;
-    vec4 clip_coef;
+    int shadow_texture_bias;
 };
 )";
 
@@ -680,8 +683,8 @@ static void WriteTevStage(std::string& out, const PicaFSConfig& config, u32 inde
                    index_name + "), vec4(0.0), vec4(1.0));\n";
         } else {
             out += "last_tex_env_out = clamp(vec4(color_output_" + index_name + " * " +
-                   std::to_string(stage.GetColorMultiplier()) + ".0, alpha_output_" + index_name +
-                   " * " + std::to_string(stage.GetAlphaMultiplier()) +
+                   std::to_string(color_scale) + ".0, alpha_output_" + index_name +
+                   " * " + std::to_string(alpha_scale) +
                    ".0), vec4(0.0), vec4(1.0));\n";
         }
     }
@@ -1325,7 +1328,7 @@ vec4 shadowTexture(vec2 uv, float w) {
         out += "uv /= w;";
     }
     out +=
-            "uint z = uint(max(0, int(min(abs(w), 1.0) * (exp2(24.0) - 1.0)) - shadow_texture_bias));";
+        "uint z = uint(max(0, int(min(abs(w), 1.0) * (exp2(24.0) - 1.0)) - shadow_texture_bias));";
     out += R"(
     vec2 coord = vec2(imageSize(shadow_texture_px)) * uv - vec2(0.5);
     vec2 coord_floor = floor(coord);
