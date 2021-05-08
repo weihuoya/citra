@@ -32,6 +32,7 @@
 #include "core/settings.h"
 #include "video_core/pica_state.h"
 #include "video_core/renderer_base.h"
+#include "video_core/renderer_opengl/gl_rasterizer.h"
 #include "video_core/renderer_opengl/gl_format_reinterpreter.h"
 #include "video_core/renderer_opengl/gl_rasterizer_cache.h"
 #include "video_core/renderer_opengl/gl_state.h"
@@ -274,7 +275,7 @@ static void AllocateTextureCube(GLuint texture, const FormatTuple& format_tuple,
     OpenGLState::BindTextureCube(old_tex);
 }
 
-static bool BlitTextures(GLuint src_tex, const Common::Rectangle<u32>& src_rect, GLuint dst_tex,
+static void BlitTextures(GLuint src_tex, const Common::Rectangle<u32>& src_rect, GLuint dst_tex,
                          const Common::Rectangle<u32>& dst_rect, SurfaceType type) {
     OpenGLState prev_state = OpenGLState::GetCurState();
     OpenGLState state;
@@ -327,7 +328,29 @@ static bool BlitTextures(GLuint src_tex, const Common::Rectangle<u32>& src_rect,
                       dst_rect.bottom, dst_rect.right, dst_rect.top, buffers,
                       buffers == GL_COLOR_BUFFER_BIT ? GL_LINEAR : GL_NEAREST);
     prev_state.SubApply();
-    return true;
+}
+
+static void BlitTextures(const Surface& src, const Common::Rectangle<u32>& src_rect,
+                         const Surface& dst, const Common::Rectangle<u32>& dst_rect) {
+    if (src->pixel_format == dst->pixel_format &&
+        src->pixel_format < SurfaceParams::PixelFormat::IA8 &&
+        src_rect.bottom < src_rect.top) {
+        // same color format, same size, don't flip vertically
+        u32 src_width = src_rect.GetWidth();
+        u32 src_height = src_rect.GetHeight();
+
+        u32 dst_width = dst_rect.GetWidth();
+        u32 dst_height = dst_rect.GetHeight();
+
+        if (src_width == dst_width && src_height == dst_height) {
+            glCopyImageSubData(src->texture.handle, GL_TEXTURE_2D, 0, src_rect.left, src_rect.bottom, 0,
+                               dst->texture.handle, GL_TEXTURE_2D, 0, dst_rect.left, dst_rect.bottom, 0,
+                               src_width, src_height, 1);
+            return;
+        }
+    }
+
+    BlitTextures(src->texture.handle, src_rect, dst->texture.handle, dst_rect, src->type);
 }
 
 static bool FillSurface(const Surface& surface, const u8* fill_data,
@@ -339,16 +362,12 @@ static bool FillSurface(const Surface& surface, const u8* fill_data,
     state.scissor.y = static_cast<GLint>(fill_rect.bottom);
     state.scissor.width = static_cast<GLsizei>(fill_rect.GetWidth());
     state.scissor.height = static_cast<GLsizei>(fill_rect.GetHeight());
-    state.draw.draw_framebuffer = g_draw_framebuffer.handle;
-    OpenGLState::BindDrawFramebuffer(g_draw_framebuffer.handle);
+    auto rasterizer = dynamic_cast<RasterizerOpenGL*>(VideoCore::Rasterizer());
 
     surface->InvalidateAllWatcher();
 
     if (surface->type == SurfaceType::Color || surface->type == SurfaceType::Texture) {
-        glFramebufferTexture2D(GL_DRAW_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D,
-                               surface->texture.handle, 0);
-        glFramebufferTexture2D(GL_DRAW_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_TEXTURE_2D, 0,
-                               0);
+        rasterizer->BindFramebufferColor(state, surface);
 
         Pica::Texture::TextureInfo tex_info{};
         tex_info.format = static_cast<Pica::TexturingRegs::TextureFormat>(surface->pixel_format);
@@ -364,10 +383,7 @@ static bool FillSurface(const Surface& surface, const u8* fill_data,
         state.SubApply();
         glClearBufferfv(GL_COLOR, 0, &color_values[0]);
     } else if (surface->type == SurfaceType::Depth) {
-        glFramebufferTexture2D(GL_DRAW_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, 0, 0);
-        glFramebufferTexture2D(GL_DRAW_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D,
-                               surface->texture.handle, 0);
-        glFramebufferTexture2D(GL_DRAW_FRAMEBUFFER, GL_STENCIL_ATTACHMENT, GL_TEXTURE_2D, 0, 0);
+        rasterizer->BindFramebufferDepth(state, surface);
 
         u32 value_32bit = 0;
         GLfloat value_float;
@@ -384,9 +400,7 @@ static bool FillSurface(const Surface& surface, const u8* fill_data,
         state.SubApply();
         glClearBufferfv(GL_DEPTH, 0, &value_float);
     } else if (surface->type == SurfaceType::DepthStencil) {
-        glFramebufferTexture2D(GL_DRAW_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, 0, 0);
-        glFramebufferTexture2D(GL_DRAW_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_TEXTURE_2D,
-                               surface->texture.handle, 0);
+        rasterizer->BindFramebufferDepthStencil(state, surface);
 
         u32 value_32bit;
         std::memcpy(&value_32bit, fill_data, sizeof(u32));
@@ -469,9 +483,8 @@ void RasterizerCacheOpenGL::CopySurface(const Surface& src_surface, const Surfac
         return;
     }
     if (src_surface->CanSubRect(subrect_params)) {
-        BlitTextures(src_surface->texture.handle, src_surface->GetScaledSubRect(subrect_params),
-                     dst_surface->texture.handle, dst_surface->GetScaledSubRect(subrect_params),
-                     src_surface->type);
+        BlitTextures(src_surface, src_surface->GetScaledSubRect(subrect_params),
+                     dst_surface, dst_surface->GetScaledSubRect(subrect_params));
         return;
     }
     UNREACHABLE();
@@ -906,8 +919,8 @@ bool RasterizerCacheOpenGL::BlitSurfaces(const Surface& src_surface,
 
     dst_surface->InvalidateAllWatcher();
 
-    return BlitTextures(src_surface->texture.handle, src_rect, dst_surface->texture.handle,
-                        dst_rect, src_surface->type);
+    BlitTextures(src_surface, src_rect, dst_surface, dst_rect);
+    return true;
 }
 
 Surface RasterizerCacheOpenGL::GetSurface(const SurfaceParams& params, ScaleMatch match_res_scale,
@@ -1078,9 +1091,7 @@ Surface RasterizerCacheOpenGL::GetTextureSurface(const Pica::Texture::TextureInf
 
         params.res_scale = src_surface->res_scale;
         Surface tmp_surface = CreateSurface(params);
-        BlitTextures(src_surface->texture.handle, rect, tmp_surface->texture.handle,
-                     tmp_surface->GetScaledRect(),
-                     SurfaceParams::GetFormatType(params.pixel_format));
+        BlitTextures(src_surface, rect, tmp_surface, tmp_surface->GetScaledRect());
 
         remove_surfaces.emplace(tmp_surface);
         return tmp_surface;

@@ -78,7 +78,7 @@ public final class MainActivity extends AppCompatActivity {
                         } else if (NativeLibrary.isValidFile(f.getName())) {
                             String path = f.getPath();
                             if (NativeLibrary.IsAppExecutable(path)) {
-                                GameFile game = new GameFile(path, path.contains(SDMC));
+                                GameFile game = new GameFile(path, true);
                                 publishProgress(game);
                             }
                         }

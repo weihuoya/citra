@@ -121,6 +121,7 @@ void BootGame(const std::string& path) {
                 // End emulation execution
                 break;
             } else if (result != Core::System::ResultStatus::Success) {
+                s_stop_running = true;
                 NativeLibrary::ShowMessageDialog(0, fmt::format("Error {}: {}",
                                                                 static_cast<u32>(result),
                                                                 system.GetStatusDetails()));
@@ -242,6 +243,7 @@ JNIEXPORT void JNICALL Java_org_citra_emu_NativeLibrary_SetUserPath(JNIEnv* env,
     FileUtil::CreateFullPath(FileUtil::GetUserPath(FileUtil::UserPath::CacheDir));
     FileUtil::CreateFullPath(FileUtil::GetUserPath(FileUtil::UserPath::ConfigDir));
     FileUtil::CreateFullPath(FileUtil::GetUserPath(FileUtil::UserPath::LogDir));
+    FileUtil::CreateFullPath(FileUtil::GetExtSaveUserPath());
     if (!FileUtil::Exists(FileUtil::GetUserPath(FileUtil::UserPath::ConfigDir) +
                           "config-mmj.ini")) {
         Config::SaveDefault();
