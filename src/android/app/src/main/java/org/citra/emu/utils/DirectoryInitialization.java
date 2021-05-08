@@ -82,7 +82,6 @@ public final class DirectoryInitialization {
         File theme = new File(getThemeDirectory());
         copyAssetFolder("shaders", shaders, false, context);
         copyAssetFolder("sysdata", sysdata, false, context);
-        // copyAssetFolder("cheats", cheats, false, context);
         copyAssetFolder("sdmc", sdmc, false, context);
         if (theme.exists() || theme.mkdir()) {
             saveInputOverlay(context);

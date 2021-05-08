@@ -75,11 +75,11 @@ public final class GameFile {
     }
 
     public boolean isInstalledApp() {
-        return isInstalled() && getPath().contains("/title/00040000/");
+        return isInstalled() && (getPath().contains("/title/00040000/") || getPath().contains("/title/00040010/"));
     }
 
     public boolean isInstalledDLC() {
-        return isInstalled() && !getPath().contains("/title/00040000/");
+        return isInstalled() && !getPath().contains("/title/00040000/") && !getPath().contains("/title/00040010/");
     }
 
     public String getPath() {

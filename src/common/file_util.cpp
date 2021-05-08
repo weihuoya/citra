@@ -747,6 +747,11 @@ const std::string& GetUserPath(UserPath path) {
     return g_paths[path];
 }
 
+std::string GetExtSaveUserPath() {
+    auto& nand = GetUserPath(FileUtil::UserPath::NANDDir);
+    return nand + "data" DIR_SEP "00000000000000000000000000000000" DIR_SEP "extdata" DIR_SEP "00048000" DIR_SEP "F0000001" DIR_SEP "user" DIR_SEP;
+}
+
 std::size_t WriteStringToFile(bool text_file, const std::string& filename, std::string_view str) {
     return IOFile(filename, text_file ? "w" : "wb").WriteString(str);
 }

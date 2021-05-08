@@ -521,6 +521,40 @@ void RasterizerOpenGL::DrawTriangles() {
     Draw(false, false);
 }
 
+void RasterizerOpenGL::BindFramebufferColor(OpenGLState& state, const Surface& surface) {
+    state.draw.draw_framebuffer = framebuffer.handle;
+    OpenGLState::BindDrawFramebuffer(framebuffer.handle);
+    if (framebuffer_info.color_attachment != surface->texture.handle) {
+        glFramebufferTexture2D(GL_DRAW_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D,
+                               surface->texture.handle, 0);
+        framebuffer_info.color_attachment = surface->texture.handle;
+    }
+}
+
+void RasterizerOpenGL::BindFramebufferDepthStencil(OpenGLState& state, const Surface& surface) {
+    state.draw.draw_framebuffer = framebuffer.handle;
+    OpenGLState::BindDrawFramebuffer(framebuffer.handle);
+    if (framebuffer_info.depth_attachment != surface->texture.handle) {
+        glFramebufferTexture2D(GL_DRAW_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_TEXTURE_2D,
+                               surface->texture.handle, 0);
+        framebuffer_info.depth_attachment = surface->texture.handle;
+        framebuffer_info.width = surface->width;
+        framebuffer_info.height = surface->height;
+    }
+}
+
+void RasterizerOpenGL::BindFramebufferDepth(OpenGLState& state, const Surface& surface) {
+    state.draw.draw_framebuffer = framebuffer.handle;
+    OpenGLState::BindDrawFramebuffer(framebuffer.handle);
+    if (framebuffer_info.depth_attachment != surface->texture.handle) {
+        glFramebufferTexture2D(GL_DRAW_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D,
+                               surface->texture.handle, 0);
+        framebuffer_info.depth_attachment = surface->texture.handle;
+        framebuffer_info.width = surface->width;
+        framebuffer_info.height = surface->height;
+    }
+}
+
 bool RasterizerOpenGL::Draw(bool accelerate, bool is_indexed) {
     const auto& regs = Pica::g_state.regs;
     const bool shadow_rendering = regs.framebuffer.IsShadowRendering();

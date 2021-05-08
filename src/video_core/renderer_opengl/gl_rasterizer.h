@@ -53,6 +53,10 @@ public:
     void CheckForConfigChanges() override;
     void OnFrameUpdate() override;
 
+    void BindFramebufferColor(OpenGLState& state, const Surface& surface);
+    void BindFramebufferDepthStencil(OpenGLState& state, const Surface& surface);
+    void BindFramebufferDepth(OpenGLState& state, const Surface& surface);
+
 private:
     struct SamplerInfo {
         using TextureConfig = Pica::TexturingRegs::TextureConfig;

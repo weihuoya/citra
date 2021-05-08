@@ -108,13 +108,13 @@
     <!-- Mic Input Preference -->
     <string-array name="micInputEntries">
         <item>@string/off</item>
-        <item>@string/real_device</item>
         <item>@string/static_noise</item>
+        <item>@string/real_device</item>
     </string-array>
     <integer-array name="micInputValues">
         <item>0</item>
-        <item>1</item>
         <item>2</item>
+        <item>1</item>
     </integer-array>
 
     <!-- Shader Type Preference -->
