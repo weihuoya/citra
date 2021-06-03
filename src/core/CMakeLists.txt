@@ -311,6 +311,8 @@ add_library(core STATIC
     hle/service/ldr_ro/cro_helper.h
     hle/service/ldr_ro/ldr_ro.cpp
     hle/service/ldr_ro/ldr_ro.h
+    hle/service/luma/hbldr.cpp
+    hle/service/luma/hbldr.h
     hle/service/mic_u.cpp
     hle/service/mic_u.h
     hle/service/mcu/mcu.cpp

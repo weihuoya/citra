@@ -21,6 +21,7 @@
 #include "core/hle/service/am/am.h"
 #include "core/hle/service/cfg/cfg.h"
 #include "core/hle/service/fs/archive.h"
+#include "core/hle/service/fs/fs_user.h"
 #include "core/loader/ncch.h"
 #include "core/loader/smdh.h"
 #include "core/memory.h"
@@ -138,14 +139,21 @@ ResultStatus AppLoader_NCCH::LoadExec(std::shared_ptr<Kernel::Process>& process)
             overlay_ncch->exheader_header.arm11_system_local_caps.ideal_processor;
 
         // Copy data while converting endianness
-        std::array<u32, ARRAY_SIZE(overlay_ncch->exheader_header.arm11_kernel_caps.descriptors)>
-            kernel_caps;
+        using KernelCaps = std::array<u32, ExHeader_ARM11_KernelCaps::NUM_DESCRIPTORS>;
+        KernelCaps kernel_caps;
         std::copy_n(overlay_ncch->exheader_header.arm11_kernel_caps.descriptors, kernel_caps.size(),
                     begin(kernel_caps));
         process->ParseKernelCaps(kernel_caps.data(), kernel_caps.size());
 
         s32 priority = overlay_ncch->exheader_header.arm11_system_local_caps.priority;
         u32 stack_size = overlay_ncch->exheader_header.codeset_info.stack_size;
+
+        // On real HW this is done with FS:Reg, but we can be lazy
+        auto fs_user =
+            Core::System::GetInstance().ServiceManager().GetService<Service::FS::FS_USER>(
+                "fs:USER");
+        fs_user->Register(process->process_id, process->codeset->program_id, filepath);
+
         process->Run(priority, stack_size);
         return ResultStatus::Success;
     }
@@ -195,7 +203,6 @@ ResultStatus AppLoader_NCCH::Load(std::shared_ptr<Kernel::Process>& process) {
     }
 
     auto& system = Core::System::GetInstance();
-    system.TelemetrySession().AddField(Telemetry::FieldType::Session, "ProgramId", program_id);
 
     if (auto room_member = Network::GetRoomMember().lock()) {
         Network::GameInfo game_info;

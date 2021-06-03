@@ -22,14 +22,15 @@ struct TagInfo {
 static_assert(sizeof(TagInfo) == 0x2C, "TagInfo is an invalid size");
 
 struct AmiiboConfig {
-    u16_le lastwritedate_year;
-    u8 lastwritedate_month;
-    u8 lastwritedate_day;
-    u16_le write_counter;
-    std::array<u8, 3> characterID;
+    u16_le last_write_year;
+    u8 last_write_month;
+    u8 last_write_day;
+    u16_le write_count;
+    u16_le char_id;
+    u8 char_variant;
     u8 series;
-    u16_le amiiboID;
-    u8 type;
+    u16_be model_number;
+    u8 figure_type;
     u8 pagex4_byte3;
     u16_le appdata_size;
     INSERT_PADDING_BYTES(0x30);
@@ -144,17 +145,21 @@ void Module::Interface::GetAmiiboConfig(Kernel::HLERequestContext& ctx) {
     IPC::RequestParser rp(ctx, 0x18, 0, 0);
 
     AmiiboConfig amiibo_config{};
-    amiibo_config.lastwritedate_year = 2017;
-    amiibo_config.lastwritedate_month = 10;
-    amiibo_config.lastwritedate_day = 10;
-    amiibo_config.write_counter = 0x0;
-    std::memcpy(amiibo_config.characterID.data(), &nfc->amiibo_data.char_id,
-                sizeof(nfc->amiibo_data.char_id));
-    amiibo_config.series = nfc->amiibo_data.series;
-    amiibo_config.amiiboID = nfc->amiibo_data.model_number;
-    amiibo_config.type = nfc->amiibo_data.figure_type;
-    amiibo_config.pagex4_byte3 = 0x0;
-    amiibo_config.appdata_size = 0xD8;
+    if (!nfc->amiibo_decrypted) {
+        /* Dummy data */
+        amiibo_config.last_write_year = 2017;
+        amiibo_config.last_write_month = 10;
+        amiibo_config.last_write_day = 10;
+        amiibo_config.write_count = 1;
+
+        amiibo_config.char_id = nfc->amiibo_data.char_id;
+        amiibo_config.char_variant = nfc->amiibo_data.char_variant;
+        amiibo_config.series = nfc->amiibo_data.series;
+        amiibo_config.model_number = nfc->amiibo_data.model_number;
+        amiibo_config.figure_type = nfc->amiibo_data.figure_type;
+        amiibo_config.pagex4_byte3 = 0x0;
+        amiibo_config.appdata_size = 0;
+    }
 
     IPC::RequestBuilder rb = rp.MakeBuilder(17, 0);
     rb.Push(RESULT_SUCCESS);
@@ -295,16 +300,16 @@ void Module::Interface::GetIdentificationBlock(Kernel::HLERequestContext& ctx) {
         return;
     }
 
-    IdentificationBlockReply identification_block_reply{};
-    identification_block_reply.char_id = nfc->amiibo_data.char_id;
-    identification_block_reply.char_variant = nfc->amiibo_data.char_variant;
-    identification_block_reply.series = nfc->amiibo_data.series;
-    identification_block_reply.model_number = nfc->amiibo_data.model_number;
-    identification_block_reply.figure_type = nfc->amiibo_data.figure_type;
+    IdentificationBlockReply reply{};
+    reply.char_id = nfc->amiibo_data.char_id;
+    reply.char_variant = nfc->amiibo_data.char_variant;
+    reply.series = nfc->amiibo_data.series;
+    reply.model_number = nfc->amiibo_data.model_number;
+    reply.figure_type = nfc->amiibo_data.figure_type;
 
     IPC::RequestBuilder rb = rp.MakeBuilder(0x1F, 0);
     rb.Push(RESULT_SUCCESS);
-    rb.PushRaw<IdentificationBlockReply>(identification_block_reply);
+    rb.PushRaw<IdentificationBlockReply>(reply);
     LOG_INFO(Service_NFC, "nfc GetIdentificationBlock called");
 }
 
@@ -312,11 +317,25 @@ std::shared_ptr<Module> Module::Interface::GetModule() const {
     return nfc;
 }
 
-void Module::Interface::LoadAmiibo(const AmiiboData& amiibo_data) {
+bool Module::Interface::LoadAmiibo(const std::string& fullpath) {
     std::lock_guard lock(HLE::g_hle_lock);
-    nfc->amiibo_data = amiibo_data;
-    nfc->amiibo_in_range = true;
-    nfc->SyncTagState();
+    FileUtil::IOFile amiibo_file(fullpath, "rb");
+    bool success = false;
+
+    if (!amiibo_file.IsOpen()) {
+        LOG_ERROR(Service_NFC, "Could not open amiibo file \"{}\"", fullpath);
+    } else if (amiibo_file.ReadBytes(&nfc->amiibo_data, sizeof(AmiiboData)) != sizeof(AmiiboData)) {
+        LOG_ERROR(Service_NFC, "Could not read amiibo data from file \"{}\"", fullpath);
+    } else {
+        nfc->amiibo_decrypted = false;
+        nfc->amiibo_filename = fullpath;
+        nfc->amiibo_in_range = true;
+        nfc->SyncTagState();
+        success = true;
+    }
+    amiibo_file.Close();
+
+    return success;
 }
 
 void Module::Interface::RemoveAmiibo() {

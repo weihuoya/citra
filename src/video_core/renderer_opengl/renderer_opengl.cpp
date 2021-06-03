@@ -487,7 +487,7 @@ bool RendererOpenGL::TryPresent() {
 
     // Clearing before a full overwrite of a fbo can signal to drivers that they can avoid a
     // readback since we won't be doing any blending
-    glClear(GL_COLOR_BUFFER_BIT);
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
 
     // Recreate the presentation FBO if the color attachment was changed
     if (frame->color_reloaded) {
@@ -876,14 +876,13 @@ void RendererOpenGL::DrawScreens(const Layout::FramebufferLayout& layout) {
     // prefer `glBufferData` than `glBufferSubData` on mobile device
     glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices.data(), GL_STREAM_DRAW);
 
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
     if (bg_texture.handle) {
         // background image
         GLuint handle = OpenGLState::BindShaderProgram(bg_shader.handle);
         OpenGLState::BindTexture2D(0, bg_texture.handle);
         glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
         OpenGLState::BindShaderProgram(handle);
-    } else {
-        glClear(GL_COLOR_BUFFER_BIT);
     }
 
     // Draws texture to the emulator window,

@@ -333,8 +333,7 @@ static void BlitTextures(GLuint src_tex, const Common::Rectangle<u32>& src_rect,
 static void BlitTextures(const Surface& src, const Common::Rectangle<u32>& src_rect,
                          const Surface& dst, const Common::Rectangle<u32>& dst_rect) {
     if (src->pixel_format == dst->pixel_format &&
-        src->pixel_format < SurfaceParams::PixelFormat::IA8 &&
-        src_rect.bottom < src_rect.top) {
+        src->pixel_format < SurfaceParams::PixelFormat::IA8 && src_rect.bottom < src_rect.top) {
         // same color format, same size, don't flip vertically
         u32 src_width = src_rect.GetWidth();
         u32 src_height = src_rect.GetHeight();
@@ -343,9 +342,9 @@ static void BlitTextures(const Surface& src, const Common::Rectangle<u32>& src_r
         u32 dst_height = dst_rect.GetHeight();
 
         if (src_width == dst_width && src_height == dst_height) {
-            glCopyImageSubData(src->texture.handle, GL_TEXTURE_2D, 0, src_rect.left, src_rect.bottom, 0,
-                               dst->texture.handle, GL_TEXTURE_2D, 0, dst_rect.left, dst_rect.bottom, 0,
-                               src_width, src_height, 1);
+            glCopyImageSubData(src->texture.handle, GL_TEXTURE_2D, 0, src_rect.left,
+                               src_rect.bottom, 0, dst->texture.handle, GL_TEXTURE_2D, 0,
+                               dst_rect.left, dst_rect.bottom, 0, src_width, src_height, 1);
             return;
         }
     }
@@ -483,8 +482,8 @@ void RasterizerCacheOpenGL::CopySurface(const Surface& src_surface, const Surfac
         return;
     }
     if (src_surface->CanSubRect(subrect_params)) {
-        BlitTextures(src_surface, src_surface->GetScaledSubRect(subrect_params),
-                     dst_surface, dst_surface->GetScaledSubRect(subrect_params));
+        BlitTextures(src_surface, src_surface->GetScaledSubRect(subrect_params), dst_surface,
+                     dst_surface->GetScaledSubRect(subrect_params));
         return;
     }
     UNREACHABLE();
@@ -612,28 +611,14 @@ void CachedSurface::FlushGLBuffer(PAddr flush_start, PAddr flush_end) {
 
 const Core::CustomTexInfo* CachedSurface::LoadCustomTexture(u64 tex_hash,
                                                             Common::Rectangle<u32>& custom_rect) {
-    const Core::CustomTexInfo* tex_info = nullptr;
     auto& custom_tex_cache = Core::System::GetInstance().CustomTexCache();
-
-    if (custom_tex_cache.IsTextureCached(tex_hash)) {
-        tex_info = &custom_tex_cache.LookupTexture(tex_hash);
-    } else {
-        if (custom_tex_cache.CustomTextureExists(tex_hash)) {
-            const auto& path_info = custom_tex_cache.LookupTexturePathInfo(tex_hash);
-            custom_tex_cache.LoadTexture(path_info);
-            if (custom_tex_cache.IsTextureCached(tex_hash)) {
-                tex_info = &custom_tex_cache.LookupTexture(tex_hash);
-            }
-        }
-    }
-
+    auto* tex_info = custom_tex_cache.LoadTexture(tex_hash);
     if (tex_info) {
         custom_rect.left = (custom_rect.left * tex_info->width) / width;
         custom_rect.top = (custom_rect.top * tex_info->height) / height;
         custom_rect.right = (custom_rect.right * tex_info->width) / width;
         custom_rect.bottom = (custom_rect.bottom * tex_info->height) / height;
     }
-
     return tex_info;
 }
 
@@ -907,20 +892,19 @@ RasterizerCacheOpenGL::~RasterizerCacheOpenGL() {
     g_draw_framebuffer.Release();
 }
 
-MICROPROFILE_DEFINE(OpenGL_BlitSurface, "OpenGL", "BlitSurface", MP_RGB(128, 192, 64));
 bool RasterizerCacheOpenGL::BlitSurfaces(const Surface& src_surface,
                                          const Common::Rectangle<u32>& src_rect,
                                          const Surface& dst_surface,
                                          const Common::Rectangle<u32>& dst_rect) {
-    MICROPROFILE_SCOPE(OpenGL_BlitSurface);
-
-    if (!SurfaceParams::CheckFormatsBlittable(src_surface->pixel_format, dst_surface->pixel_format))
+    if (SurfaceParams::CheckFormatsBlittable(src_surface->pixel_format, dst_surface->pixel_format)) {
+        dst_surface->InvalidateAllWatcher();
+        BlitTextures(src_surface, src_rect, dst_surface, dst_rect);
+        return true;
+    } else {
+        LOG_INFO(Render_OpenGL, "BlitSurfaces failed from: {} to: {}", src_surface->pixel_format,
+                 dst_surface->pixel_format);
         return false;
-
-    dst_surface->InvalidateAllWatcher();
-
-    BlitTextures(src_surface, src_rect, dst_surface, dst_rect);
-    return true;
+    }
 }
 
 Surface RasterizerCacheOpenGL::GetSurface(const SurfaceParams& params, ScaleMatch match_res_scale,
@@ -1665,7 +1649,6 @@ void RasterizerCacheOpenGL::SetScaleFactor(u16 scale) {
     while (!surface_cache.empty())
         UnregisterSurface(*surface_cache.begin()->second.begin());
     texture_cube_cache.clear();
-    surface_texture_cache.clear();
     resolution_scale_factor = scale;
 }
 
@@ -1785,14 +1768,13 @@ void RasterizerCacheOpenGL::UpdatePagesCachedCount(PAddr addr, u32 size, int del
         const PAddr interval_end_addr = boost::icl::last_next(interval) << Memory::PAGE_BITS;
         const u32 interval_size = interval_end_addr - interval_start_addr;
 
-        if (delta > 0 && count == delta)
+        if (count == delta) {
             VideoCore::Memory()->RasterizerMarkRegionCached(interval_start_addr, interval_size,
                                                             true);
-        else if (delta < 0 && count == -delta)
+        } else if (count == -delta) {
             VideoCore::Memory()->RasterizerMarkRegionCached(interval_start_addr, interval_size,
                                                             false);
-        else
-            ASSERT(count >= 0);
+        }
     }
 
     if (delta < 0)

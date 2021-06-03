@@ -9,6 +9,7 @@
 #include "core/hle/kernel/process.h"
 #include "core/hle/kernel/resource_limit.h"
 #include "core/hle/service/fs/archive.h"
+#include "core/hle/service/fs/fs_user.h"
 #include "core/loader/3dsx.h"
 #include "core/memory.h"
 
@@ -267,12 +268,16 @@ ResultStatus AppLoader_THREEDSX::Load(std::shared_ptr<Kernel::Process>& process)
     codeset->name = filename;
 
     process = Core::System::GetInstance().Kernel().CreateProcess(std::move(codeset));
-    process->svc_access_mask.set();
-    process->address_mappings = default_address_mappings;
+    process->Set3dsxKernelCaps();
 
     // Attach the default resource limit (APPLICATION) to the process
     process->resource_limit = Core::System::GetInstance().Kernel().ResourceLimit().GetForCategory(
         Kernel::ResourceLimitCategory::APPLICATION);
+
+    // On real HW this is done with FS:Reg, but we can be lazy
+    auto fs_user =
+        Core::System::GetInstance().ServiceManager().GetService<Service::FS::FS_USER>("fs:USER");
+    fs_user->Register(process->GetObjectId(), process->codeset->program_id, filepath);
 
     process->Run(48, Kernel::DEFAULT_STACK_SIZE);
 

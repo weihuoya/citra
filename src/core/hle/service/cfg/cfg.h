@@ -383,12 +383,13 @@ public:
 
     /**
      * Generates a new random console unique id.
-     * @param random_number a random generated 16bit number stored at 0x90002, used for generating
-     * the
-     * console_id
-     * @param console_id the randomly created console id
+     *
+     * @returns A pair containing a random number and a random console ID.
+     *
+     * @note The random number is a random generated 16bit number stored at 0x90002, used for
+     *       generating the console ID.
      */
-    void GenerateConsoleUniqueId(u32& random_number, u64& console_id);
+    std::pair<u32, u64> GenerateConsoleUniqueId() const;
 
     /**
      * Sets the random_number and the  console unique id in the config savegame.

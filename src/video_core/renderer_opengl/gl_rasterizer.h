@@ -310,8 +310,10 @@ private:
     struct {
         GLuint color_attachment;
         GLuint depth_attachment;
-        u32 width;
-        u32 height;
+        u32 color_width;
+        u32 color_height;
+        u32 depth_width;
+        u32 depth_height;
     } framebuffer_info{};
 
     std::array<SamplerInfo, 3> texture_samplers;

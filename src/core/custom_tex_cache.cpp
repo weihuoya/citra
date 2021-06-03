@@ -38,16 +38,18 @@ static void FlipCustomTexture(u32* pixels, u32 width, u32 height) {
     }
 }
 
-CustomTexCache::CustomTexCache() = default;
+const CustomTexInfo* CustomTexCache::LoadTexture(u64 hash) {
+    auto iter = custom_textures.find(hash);
+    if (iter != custom_textures.end()) {
+        return &iter->second;
+    }
 
-CustomTexCache::~CustomTexCache() = default;
+    auto piter = custom_texture_paths.find(hash);
+    if (piter == custom_texture_paths.end()) {
+        return nullptr;
+    }
 
-bool CustomTexCache::IsTextureCached(u64 hash) const {
-    return custom_textures.find(hash) != custom_textures.end();
-}
-
-const CustomTexInfo& CustomTexCache::LookupTexture(u64 hash) const {
-    return custom_textures.at(hash);
+    return LoadTexture(piter->second);
 }
 
 void CustomTexCache::AddTexturePath(u64 hash, const std::string& path) {
@@ -95,9 +97,10 @@ void CustomTexCache::PreloadTextures() {
     }
 }
 
-void CustomTexCache::LoadTexture(const CustomTexPathInfo& path_info) {
+const CustomTexInfo* CustomTexCache::LoadTexture(const CustomTexPathInfo& path_info) {
     const auto& image_interface = Core::System::GetInstance().GetImageInterface();
     auto& tex_info = custom_textures[path_info.hash];
+    auto* result = &tex_info;
     if (image_interface->DecodePNG(tex_info.tex, tex_info.width, tex_info.height, path_info.path)) {
         // Make sure the texture size is a power of 2
         if (!(tex_info.width & (tex_info.width - 1)) &&
@@ -108,18 +111,12 @@ void CustomTexCache::LoadTexture(const CustomTexPathInfo& path_info) {
         } else {
             LOG_ERROR(Render_OpenGL, "Texture {} size is not a power of 2", path_info.path);
             custom_textures.erase(path_info.hash);
+            result = nullptr;
         }
     } else {
         LOG_ERROR(Render_OpenGL, "Failed to load custom texture {}", path_info.path);
     }
-}
-
-bool CustomTexCache::CustomTextureExists(u64 hash) const {
-    return custom_texture_paths.count(hash);
-}
-
-const CustomTexPathInfo& CustomTexCache::LookupTexturePathInfo(u64 hash) const {
-    return custom_texture_paths.at(hash);
+    return result;
 }
 
 } // namespace Core

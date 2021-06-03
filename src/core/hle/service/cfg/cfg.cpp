@@ -61,6 +61,7 @@ enum ConfigBlockID {
     StateNameBlockID = 0x000B0002,
     EULAVersionBlockID = 0x000D0000,
     ConsoleModelBlockID = 0x000F0004,
+    DebugModeBlockID = 0x00130000,
 };
 
 struct UsernameBlock {
@@ -451,9 +452,7 @@ ResultCode Module::FormatConfig() {
     if (!res.IsSuccess())
         return res;
 
-    u32 random_number;
-    u64 console_id;
-    GenerateConsoleUniqueId(random_number, console_id);
+    const auto [random_number, console_id] = GenerateConsoleUniqueId();
 
     u64_le console_id_le = console_id;
     res = CreateConfigInfoBlk(ConsoleUniqueID1BlockID, sizeof(console_id_le), 0xE, &console_id_le);
@@ -526,6 +525,11 @@ ResultCode Module::FormatConfig() {
 
     res = CreateConfigInfoBlk(ConsoleModelBlockID, sizeof(CONSOLE_MODEL_OLD), 0xC,
                               &CONSOLE_MODEL_OLD);
+    if (!res.IsSuccess())
+        return res;
+
+    // 0x00130000 - DebugMode (0x100 for debug mode)
+    res = CreateConfigInfoBlk(DebugModeBlockID, 0x4, 0xE, zero_buffer);
     if (!res.IsSuccess())
         return res;
 
@@ -708,13 +712,18 @@ u8 Module::GetCountryCode() {
     return block.country_code;
 }
 
-void Module::GenerateConsoleUniqueId(u32& random_number, u64& console_id) {
+std::pair<u32, u64> Module::GenerateConsoleUniqueId() const {
     CryptoPP::AutoSeededRandomPool rng;
-    random_number = rng.GenerateWord32(0, 0xFFFF);
+    const u32 random_number = rng.GenerateWord32(0, 0xFFFF);
+
     u64_le local_friend_code_seed;
     rng.GenerateBlock(reinterpret_cast<CryptoPP::byte*>(&local_friend_code_seed),
                       sizeof(local_friend_code_seed));
-    console_id = (local_friend_code_seed & 0x3FFFFFFFF) | (static_cast<u64>(random_number) << 48);
+
+    const u64 console_id =
+        (local_friend_code_seed & 0x3FFFFFFFF) | (static_cast<u64>(random_number) << 48);
+
+    return std::make_pair(random_number, console_id);
 }
 
 ResultCode Module::SetConsoleUniqueId(u32 random_number, u64 console_id) {
@@ -759,9 +768,7 @@ void Module::SetEULAVersion(const EULAVersion& version) {
 
 std::shared_ptr<Module> GetModule(Core::System& system) {
     auto cfg = system.ServiceManager().GetService<Service::CFG::Module::Interface>("cfg:u");
-    if (!cfg)
-        return nullptr;
-    return cfg->GetModule();
+    return !cfg ? nullptr : cfg->GetModule();
 }
 
 void InstallInterfaces(Core::System& system) {

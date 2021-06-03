@@ -65,7 +65,7 @@ public:
 
         std::shared_ptr<Module> GetModule() const;
 
-        void LoadAmiibo(const AmiiboData& amiibo_data);
+        bool LoadAmiibo(const std::string& fullpath);
 
         void RemoveAmiibo();
 
@@ -240,6 +240,8 @@ private:
     CommunicationStatus nfc_status = CommunicationStatus::NfcInitialized;
 
     AmiiboData amiibo_data{};
+    bool amiibo_decrypted = false;
+    std::string amiibo_filename;
     bool amiibo_in_range = false;
     Core::System& system;
 };
