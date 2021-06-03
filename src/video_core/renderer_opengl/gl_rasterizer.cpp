@@ -11,7 +11,6 @@
 #ifdef ARCHITECTURE_ARM64
 #include <android/log.h>
 #include <arm_neon.h>
-
 #endif
 #include "common/alignment.h"
 #include "common/assert.h"
@@ -55,15 +54,6 @@ RasterizerOpenGL::RasterizerOpenGL()
     AllowShadow = (GLAD_GL_ARB_shader_image_load_store && GLAD_GL_ARB_shader_image_size &&
                    GLAD_GL_ARB_framebuffer_no_attachments) ||
                   Settings::values.allow_shadow;
-    if (!AllowShadow) {
-        LOG_WARNING(Render_OpenGL,
-                    "Shadow might not be able to render because of unsupported OpenGL extensions.");
-    }
-
-    if (!GLAD_GL_ARB_texture_barrier) {
-        LOG_WARNING(Render_OpenGL,
-                    "ARB_texture_barrier not supported. Some games might produce artifacts.");
-    }
 
     // Clipping plane 0 is always enabled for PICA fixed clip plane z <= 0
     state.clip_distance[0] = true;
@@ -118,7 +108,7 @@ RasterizerOpenGL::RasterizerOpenGL()
     uniform_size_aligned_fs =
         Common::AlignUp<std::size_t>(sizeof(UniformData), uniform_buffer_alignment);
     uniform_size_aligned_light =
-            Common::AlignUp<std::size_t>(sizeof(UniformLightData), uniform_buffer_alignment);
+        Common::AlignUp<std::size_t>(sizeof(UniformLightData), uniform_buffer_alignment);
 
     // Set vertex attributes for software shader path
     state.draw.vertex_array = sw_vao.handle;
@@ -190,7 +180,7 @@ RasterizerOpenGL::RasterizerOpenGL()
     SyncEntireState();
 }
 
-RasterizerOpenGL::~RasterizerOpenGL() {}
+RasterizerOpenGL::~RasterizerOpenGL() = default;
 
 void RasterizerOpenGL::SyncEntireState() {
     // Sync fixed function OpenGL state
@@ -528,6 +518,15 @@ void RasterizerOpenGL::BindFramebufferColor(OpenGLState& state, const Surface& s
         glFramebufferTexture2D(GL_DRAW_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D,
                                surface->texture.handle, 0);
         framebuffer_info.color_attachment = surface->texture.handle;
+        framebuffer_info.color_width = surface->width;
+        framebuffer_info.color_height = surface->height;
+    }
+    if (framebuffer_info.depth_attachment &&
+        (framebuffer_info.color_width > framebuffer_info.depth_width ||
+         framebuffer_info.color_height > framebuffer_info.depth_height)) {
+        glFramebufferTexture2D(GL_DRAW_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_TEXTURE_2D, 0,
+                               0);
+        framebuffer_info.depth_attachment = 0;
     }
 }
 
@@ -538,8 +537,14 @@ void RasterizerOpenGL::BindFramebufferDepthStencil(OpenGLState& state, const Sur
         glFramebufferTexture2D(GL_DRAW_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_TEXTURE_2D,
                                surface->texture.handle, 0);
         framebuffer_info.depth_attachment = surface->texture.handle;
-        framebuffer_info.width = surface->width;
-        framebuffer_info.height = surface->height;
+        framebuffer_info.depth_width = surface->width;
+        framebuffer_info.depth_height = surface->height;
+    }
+    if (framebuffer_info.color_attachment &&
+        (framebuffer_info.depth_width > framebuffer_info.color_width ||
+         framebuffer_info.depth_height > framebuffer_info.color_height)) {
+        glFramebufferTexture2D(GL_DRAW_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, 0, 0);
+        framebuffer_info.color_attachment = 0;
     }
 }
 
@@ -550,8 +555,14 @@ void RasterizerOpenGL::BindFramebufferDepth(OpenGLState& state, const Surface& s
         glFramebufferTexture2D(GL_DRAW_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D,
                                surface->texture.handle, 0);
         framebuffer_info.depth_attachment = surface->texture.handle;
-        framebuffer_info.width = surface->width;
-        framebuffer_info.height = surface->height;
+        framebuffer_info.depth_width = surface->width;
+        framebuffer_info.depth_height = surface->height;
+    }
+    if (framebuffer_info.color_attachment &&
+        (framebuffer_info.depth_width > framebuffer_info.color_width ||
+         framebuffer_info.depth_height > framebuffer_info.color_height)) {
+        glFramebufferTexture2D(GL_DRAW_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, 0, 0);
+        framebuffer_info.color_attachment = 0;
     }
 }
 
@@ -589,9 +600,13 @@ bool RasterizerOpenGL::Draw(bool accelerate, bool is_indexed) {
 
     u32 res_scale = 1;
     GLuint color_attachment = 0;
+    u32 color_width = 0;
+    u32 color_height = 0;
     if (color_surface) {
         res_scale = color_surface->res_scale;
         color_attachment = color_surface->texture.handle;
+        color_width = color_surface->width;
+        color_height = color_surface->height;
     } else if (depth_surface) {
         res_scale = depth_surface->res_scale;
     }
@@ -734,8 +749,10 @@ bool RasterizerOpenGL::Draw(bool accelerate, bool is_indexed) {
         }
         framebuffer_info.color_attachment = 0;
         framebuffer_info.depth_attachment = 0;
-        framebuffer_info.width = 0;
-        framebuffer_info.height = 0;
+        framebuffer_info.color_width = 0;
+        framebuffer_info.color_height = 0;
+        framebuffer_info.depth_width = 0;
+        framebuffer_info.depth_height = 0;
         glFramebufferParameteri(GL_DRAW_FRAMEBUFFER, GL_FRAMEBUFFER_DEFAULT_WIDTH,
                                 color_surface->GetScaledWidth());
         glFramebufferParameteri(GL_DRAW_FRAMEBUFFER, GL_FRAMEBUFFER_DEFAULT_HEIGHT,
@@ -749,6 +766,8 @@ bool RasterizerOpenGL::Draw(bool accelerate, bool is_indexed) {
             glFramebufferTexture2D(GL_DRAW_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D,
                                    color_attachment, 0);
             framebuffer_info.color_attachment = color_attachment;
+            framebuffer_info.color_width = color_width;
+            framebuffer_info.color_height = color_height;
         }
         if (depth_surface != nullptr) {
             if (has_stencil) {
@@ -757,8 +776,8 @@ bool RasterizerOpenGL::Draw(bool accelerate, bool is_indexed) {
                     glFramebufferTexture2D(GL_DRAW_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT,
                                            GL_TEXTURE_2D, depth_surface->texture.handle, 0);
                     framebuffer_info.depth_attachment = depth_surface->texture.handle;
-                    framebuffer_info.width = depth_surface->width;
-                    framebuffer_info.height = depth_surface->height;
+                    framebuffer_info.depth_width = depth_surface->width;
+                    framebuffer_info.depth_height = depth_surface->height;
                 }
             } else if (framebuffer_info.depth_attachment != depth_surface->texture.handle) {
                 // attach depth
@@ -768,18 +787,18 @@ bool RasterizerOpenGL::Draw(bool accelerate, bool is_indexed) {
                 glFramebufferTexture2D(GL_DRAW_FRAMEBUFFER, GL_STENCIL_ATTACHMENT, GL_TEXTURE_2D, 0,
                                        0);
                 framebuffer_info.depth_attachment = depth_surface->texture.handle;
-                framebuffer_info.width = depth_surface->width;
-                framebuffer_info.height = depth_surface->height;
+                framebuffer_info.depth_width = depth_surface->width;
+                framebuffer_info.depth_height = depth_surface->height;
             }
         } else if (framebuffer_info.depth_attachment != 0) {
-            if (framebuffer_info.width < surfaces_rect.right ||
-                framebuffer_info.height < surfaces_rect.top) {
+            if (framebuffer_info.depth_width < surfaces_rect.right ||
+                framebuffer_info.depth_height < surfaces_rect.top) {
                 // clear both depth and stencil attachment
                 glFramebufferTexture2D(GL_DRAW_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT,
                                        GL_TEXTURE_2D, 0, 0);
                 framebuffer_info.depth_attachment = 0;
-                framebuffer_info.width = 0;
-                framebuffer_info.height = 0;
+                framebuffer_info.depth_width = 0;
+                framebuffer_info.depth_height = 0;
             } else {
                 state.depth.test_enabled = false;
                 state.depth.write_mask = GL_FALSE;

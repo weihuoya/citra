@@ -119,6 +119,7 @@ void BootGame(const std::string& path) {
             result = system.RunLoop();
             if (result == Core::System::ResultStatus::ShutdownRequested) {
                 // End emulation execution
+                s_render_window->UpdateSurface(nullptr);
                 break;
             } else if (result != Core::System::ResultStatus::Success) {
                 s_stop_running = true;
@@ -208,6 +209,32 @@ static std::vector<Loader::SMDH::GameRegion> GetGameRegions(Loader::AppLoader* l
         return smdh.GetRegions();
     }
     return {};
+}
+
+static void UpdateDisplayRotation() {
+    // display rotation
+    NativeLibrary::current_display_rotation = NativeLibrary::GetDisplayRotation();
+
+    // custom layout
+    if (NativeLibrary::IsPortrait()) {
+        Settings::values.custom_top_left = Config::Get(Config::PORTRAIT_TOP_LEFT);
+        Settings::values.custom_top_top = Config::Get(Config::PORTRAIT_TOP_TOP);
+        Settings::values.custom_top_right = Config::Get(Config::PORTRAIT_TOP_RIGHT);
+        Settings::values.custom_top_bottom = Config::Get(Config::PORTRAIT_TOP_BOTTOM);
+        Settings::values.custom_bottom_left = Config::Get(Config::PORTRAIT_BOTTOM_LEFT);
+        Settings::values.custom_bottom_top = Config::Get(Config::PORTRAIT_BOTTOM_TOP);
+        Settings::values.custom_bottom_right = Config::Get(Config::PORTRAIT_BOTTOM_RIGHT);
+        Settings::values.custom_bottom_bottom = Config::Get(Config::PORTRAIT_BOTTOM_BOTTOM);
+    } else {
+        Settings::values.custom_top_left = Config::Get(Config::LANDSCAPE_TOP_LEFT);
+        Settings::values.custom_top_top = Config::Get(Config::LANDSCAPE_TOP_TOP);
+        Settings::values.custom_top_right = Config::Get(Config::LANDSCAPE_TOP_RIGHT);
+        Settings::values.custom_top_bottom = Config::Get(Config::LANDSCAPE_TOP_BOTTOM);
+        Settings::values.custom_bottom_left = Config::Get(Config::LANDSCAPE_BOTTOM_LEFT);
+        Settings::values.custom_bottom_top = Config::Get(Config::LANDSCAPE_BOTTOM_TOP);
+        Settings::values.custom_bottom_right = Config::Get(Config::LANDSCAPE_BOTTOM_RIGHT);
+        Settings::values.custom_bottom_bottom = Config::Get(Config::LANDSCAPE_BOTTOM_BOTTOM);
+    }
 }
 
 #ifdef __cplusplus
@@ -837,6 +864,8 @@ JNIEXPORT jstring JNICALL Java_org_citra_emu_utils_TranslateHelper_GoogleTransla
         aa = (aa & 2147483647) + 2147483648;
     }
     aa %= 1000000;
+
+    env->DeleteLocalRef(stringClass);
     return JniHelper::Wrap(fmt::format("{}.{}", aa, aa ^ ttk0));
 }
 

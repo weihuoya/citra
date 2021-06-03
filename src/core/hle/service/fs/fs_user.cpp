@@ -11,6 +11,7 @@
 #include "common/string_util.h"
 #include "core/core.h"
 #include "core/file_sys/errors.h"
+#include "core/file_sys/ncch_container.h"
 #include "core/file_sys/seed_db.h"
 #include "core/hle/ipc.h"
 #include "core/hle/ipc_helpers.h"
@@ -574,6 +575,14 @@ void FS_USER::CardSlotIsInserted(Kernel::HLERequestContext& ctx) {
     LOG_WARNING(Service_FS, "(STUBBED) FS_USER CardSlotIsInserted called");
 }
 
+void FS_USER::GetCardType(Kernel::HLERequestContext& ctx) {
+    IPC::RequestParser rp(ctx, 0x813, 0, 0);
+    IPC::RequestBuilder rb = rp.MakeBuilder(2, 0);
+    rb.Push(RESULT_SUCCESS);
+    rb.Push(false); // CTR card = 0, TWL card = 1
+    LOG_DEBUG(Service_FS, "(STUBBED) FS_USER GetCardType called");
+}
+
 void FS_USER::DeleteSystemSaveData(Kernel::HLERequestContext& ctx) {
     IPC::RequestParser rp(ctx, 0x857, 2, 0);
     u32 savedata_high = rp.Pop<u32>();
@@ -720,13 +729,11 @@ void FS_USER::GetProgramLaunchInfo(Kernel::HLERequestContext& ctx) {
 
     LOG_DEBUG(Service_FS, "FS_USER GetProgramLaunchInfo process_id={}", process_id);
 
-    // TODO(Subv): The real FS service manages its own process list and only checks the processes
-    // that were registered with the 'fs:REG' service.
-    auto process = system.Kernel().GetProcessById(process_id);
+    auto program_info = program_info_map.find(process_id);
 
     IPC::RequestBuilder rb = rp.MakeBuilder(5, 0);
 
-    if (process == nullptr) {
+    if (program_info == program_info_map.end()) {
         // Note: In this case, the rest of the parameters are not changed but the command header
         // remains the same.
         rb.Push(ResultCode(FileSys::ErrCodes::ArchiveNotMounted, ErrorModule::FS,
@@ -735,13 +742,9 @@ void FS_USER::GetProgramLaunchInfo(Kernel::HLERequestContext& ctx) {
         return;
     }
 
-    u64 program_id = process->codeset->program_id;
-
-    auto media_type = Service::AM::GetTitleMediaType(program_id);
-
     rb.Push(RESULT_SUCCESS);
-    rb.Push(program_id);
-    rb.Push(static_cast<u8>(media_type));
+    rb.Push(program_info->second.program_id);
+    rb.Push(static_cast<u8>(program_info->second.media_type));
 
     // TODO(Subv): Find out what this value means.
     rb.Push<u32>(0);
@@ -788,6 +791,32 @@ void FS_USER::ObsoletedDeleteExtSaveData(Kernel::HLERequestContext& ctx) {
 
     LOG_DEBUG(Service_FS, "called, save_low={:08X} media_type={:08X}", save_low,
               static_cast<u32>(media_type));
+}
+
+void FS_USER::GetSpecialContentIndex(Kernel::HLERequestContext& ctx) {
+    IPC::RequestParser rp(ctx, 0x83A, 4, 0);
+    const MediaType media_type = static_cast<MediaType>(rp.Pop<u8>());
+    const u64 title_id = rp.Pop<u64>();
+    const auto type = rp.PopEnum<SpecialContentType>();
+
+    LOG_DEBUG(Service_FS, "called, media_type={:08X} type={:08X}, title_id={:016X}",
+              static_cast<u32>(media_type), static_cast<u32>(type), title_id);
+
+    ResultVal<u16> index;
+    if (media_type == MediaType::GameCard) {
+        index = GetSpecialContentIndexFromGameCard(title_id, type);
+    } else {
+        index = GetSpecialContentIndexFromTMD(media_type, title_id, type);
+    }
+
+    if (index.Succeeded()) {
+        IPC::RequestBuilder rb = rp.MakeBuilder(2, 0);
+        rb.Push(RESULT_SUCCESS);
+        rb.Push(index.Unwrap());
+    } else {
+        IPC::RequestBuilder rb = rp.MakeBuilder(1, 0);
+        rb.Push(index.Code());
+    }
 }
 
 void FS_USER::GetNumSeeds(Kernel::HLERequestContext& ctx) {
@@ -846,6 +875,66 @@ void FS_USER::GetSaveDataSecureValue(Kernel::HLERequestContext& ctx) {
     rb.Push<u64>(0);      // the secure value
 }
 
+void FS_USER::Register(u32 process_id, u64 program_id, const std::string& filepath) {
+    const MediaType media_type = GetMediaTypeFromPath(filepath);
+    program_info_map.insert_or_assign(process_id, ProgramInfo{program_id, media_type});
+    if (media_type == MediaType::GameCard) {
+        current_gamecard_path = filepath;
+    }
+}
+
+std::string FS_USER::GetCurrentGamecardPath() const {
+    return current_gamecard_path;
+}
+
+ResultVal<u16> FS_USER::GetSpecialContentIndexFromGameCard(u64 title_id, SpecialContentType type) {
+    // TODO(B3N30) check if on real 3DS NCSD is checked if partition exists
+
+    if (type > SpecialContentType::DLPChild) {
+        // Maybe type 4 is New 3DS update/partition 6 but this needs more research
+        // TODO(B3N30): Find correct result code
+        return ResultCode(-1);
+    }
+
+    switch (type) {
+    case SpecialContentType::Update:
+        return MakeResult(static_cast<u16>(NCSDContentIndex::Update));
+    case SpecialContentType::Manual:
+        return MakeResult(static_cast<u16>(NCSDContentIndex::Manual));
+    case SpecialContentType::DLPChild:
+        return MakeResult(static_cast<u16>(NCSDContentIndex::DLP));
+    default:
+        ASSERT(false);
+    }
+}
+
+ResultVal<u16> FS_USER::GetSpecialContentIndexFromTMD(MediaType media_type, u64 title_id,
+                                                      SpecialContentType type) {
+    if (type > SpecialContentType::DLPChild) {
+        // TODO(B3N30): Find correct result code
+        return ResultCode(-1);
+    }
+
+    std::string tmd_path = AM::GetTitleMetadataPath(media_type, title_id);
+
+    FileSys::TitleMetadata tmd;
+    if (tmd.Load(tmd_path) != Loader::ResultStatus::Success || type == SpecialContentType::Update) {
+        // TODO(B3N30): Find correct result code
+        return ResultCode(-1);
+    }
+
+    // TODO(B3N30): Does real 3DS check if content exists in TMD?
+
+    switch (type) {
+    case SpecialContentType::Manual:
+        return MakeResult(static_cast<u16>(FileSys::TMDContentIndex::Manual));
+    case SpecialContentType::DLPChild:
+        return MakeResult(static_cast<u16>(FileSys::TMDContentIndex::DLP));
+    default:
+        ASSERT(false);
+    }
+}
+
 FS_USER::FS_USER(Core::System& system)
     : ServiceFramework("fs:USER", 30), system(system), archives(system.ArchiveManager()) {
     static const FunctionInfo functions[] = {
@@ -869,7 +958,7 @@ FS_USER::FS_USER(Core::System& system)
         {0x08100200, &FS_USER::CreateLegacySystemSaveData, "CreateLegacySystemSaveData"},
         {0x08110040, nullptr, "DeleteSystemSaveData"},
         {0x08120080, &FS_USER::GetFreeBytes, "GetFreeBytes"},
-        {0x08130000, nullptr, "GetCardType"},
+        {0x08130000, &FS_USER::GetCardType, "GetCardType"},
         {0x08140000, &FS_USER::GetSdmcArchiveResource, "GetSdmcArchiveResource"},
         {0x08150000, &FS_USER::GetNandArchiveResource, "GetNandArchiveResource"},
         {0x08160000, nullptr, "GetSdmcFatfsError"},
@@ -908,7 +997,7 @@ FS_USER::FS_USER(Core::System& system)
         {0x08370040, nullptr, "SetCardSpiBaudRate"},
         {0x08380040, nullptr, "SetCardSpiBusMode"},
         {0x08390000, nullptr, "SendInitializeInfoTo9"},
-        {0x083A0100, nullptr, "GetSpecialContentIndex"},
+        {0x083A0100, &FS_USER::GetSpecialContentIndex, "GetSpecialContentIndex"},
         {0x083B00C2, nullptr, "GetLegacyRomHeader"},
         {0x083C00C2, nullptr, "GetLegacyBannerData"},
         {0x083D0100, nullptr, "CheckAuthorityToAccessExtSaveData"},
@@ -957,6 +1046,10 @@ FS_USER::FS_USER(Core::System& system)
         {0x08680000, nullptr, "GetMediaType"},
         {0x08690000, nullptr, "GetNandEraseCount"},
         {0x086A0082, nullptr, "ReadNandReport"},
+        {0x086B00C2, nullptr, "SetOtherSaveDataSecureValue"},
+        {0x086C00C2, nullptr, "GetOtherSaveDataSecureValue"},
+        {0x086E00C0, nullptr, "SetThisSaveDataSecureValue"},
+        {0x086F0040, nullptr, "GetThisSaveDataSecureValue"},
         {0x087A0180, &FS_USER::AddSeed, "AddSeed"},
         {0x087D0000, &FS_USER::GetNumSeeds, "GetNumSeeds"},
         {0x088600C0, nullptr, "CheckUpdatedDat"},

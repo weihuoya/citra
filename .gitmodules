@@ -43,9 +43,9 @@
 [submodule "teakra"]
     path = externals/teakra
     url = https://github.com/wwylele/teakra.git
-[submodule "externals/oboe"]
-    path = externals/oboe
-    url = https://github.com/google/oboe.git
 [submodule "libyuv"]
     path = externals/libyuv
     url = https://github.com/lemenkov/libyuv.git
+[submodule "externals/libyuv"]
+	path = externals/libyuv
+	url = https://github.com/lemenkov/libyuv.git
