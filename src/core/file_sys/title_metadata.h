@@ -85,7 +85,7 @@ public:
 #pragma pack(pop)
 
     Loader::ResultStatus Load(const std::string& file_path);
-    Loader::ResultStatus Load(const std::vector<u8> file_data, std::size_t offset = 0);
+    Loader::ResultStatus Load(const std::vector<u8>& file_data, std::size_t offset = 0);
     Loader::ResultStatus Save(const std::string& file_path);
 
     u64 GetTitleID() const;
@@ -96,10 +96,10 @@ public:
     u32 GetBootContentID() const;
     u32 GetManualContentID() const;
     u32 GetDLPContentID() const;
-    u32 GetContentIDByIndex(u16 index) const;
-    u16 GetContentTypeByIndex(u16 index) const;
-    u64 GetContentSizeByIndex(u16 index) const;
-    std::array<u8, 16> GetContentCTRByIndex(u16 index) const;
+    u32 GetContentIDByIndex(std::size_t index) const;
+    u16 GetContentTypeByIndex(std::size_t index) const;
+    u64 GetContentSizeByIndex(std::size_t index) const;
+    std::array<u8, 16> GetContentCTRByIndex(std::size_t index) const;
 
     void SetTitleID(u64 title_id);
     void SetTitleType(u32 type);

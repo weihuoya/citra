@@ -118,20 +118,20 @@ private:
 /// Factory for creating a real Mic input device;
 class RealMicFactory {
 public:
-    virtual ~RealMicFactory();
+    virtual ~RealMicFactory() = default;
 
     virtual std::unique_ptr<Interface> Create(std::string mic_device_name) = 0;
 };
 
 class NullFactory final : public RealMicFactory {
 public:
-    ~NullFactory() override;
+    ~NullFactory() override = default;
 
     std::unique_ptr<Interface> Create(std::string mic_device_name) override;
 };
 
 void RegisterRealMicFactory(std::unique_ptr<RealMicFactory> factory);
 
-std::unique_ptr<Interface> CreateRealMic(std::string mic_device_name);
+std::unique_ptr<Interface> CreateRealMic();
 
 } // namespace Frontend::Mic

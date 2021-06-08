@@ -183,8 +183,11 @@ static bool GetSMDHData(Loader::AppLoader* loader, Loader::SMDH* smdh) {
         if (!update_loader)
             return;
 
-        smdh_data.clear();
-        update_loader->ReadIcon(smdh_data);
+        std::vector<u8> dlc_data;
+        update_loader->ReadIcon(dlc_data);
+        if (Loader::IsValidSMDH(dlc_data)) {
+            std::swap(smdh_data, dlc_data);
+        }
     }();
 
     if (Loader::IsValidSMDH(smdh_data)) {

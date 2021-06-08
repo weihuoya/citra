@@ -1137,11 +1137,13 @@ Surface RasterizerCacheOpenGL::GetTextureSurface(const Pica::Texture::TextureInf
                 glTexImage2D(GL_TEXTURE_2D, level, format_tuple.internal_format, width >> level,
                              height >> level, 0, format_tuple.format, format_tuple.type, nullptr);
             }
+            surface->max_level = max_level;
             if (surface->custom_tex_info) {
                 // TODO: proper mipmap support for custom textures
                 glGenerateMipmap(GL_TEXTURE_2D);
+                OpenGLState::BindTexture2D(0, old_tex);
+                return surface;
             }
-            surface->max_level = max_level;
             OpenGLState::BindTexture2D(0, old_tex);
         }
 
