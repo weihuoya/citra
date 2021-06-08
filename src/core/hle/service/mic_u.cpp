@@ -12,7 +12,6 @@
 #include "core/hle/kernel/kernel.h"
 #include "core/hle/kernel/shared_memory.h"
 #include "core/hle/service/mic_u.h"
-#include "core/settings.h"
 
 namespace Service::MIC {
 
@@ -322,21 +321,8 @@ struct MIC_U::Impl {
     }
 
     void CreateMic() {
-        std::unique_ptr<Frontend::Mic::Interface> new_mic;
-        switch (Settings::values.mic_input_type) {
-        case Settings::MicInputType::None:
-            new_mic = std::make_unique<Frontend::Mic::NullMic>();
-            break;
-        case Settings::MicInputType::Real:
-            new_mic = Frontend::Mic::CreateRealMic(Settings::values.mic_input_device);
-            break;
-        case Settings::MicInputType::Static:
-            new_mic = std::make_unique<Frontend::Mic::StaticMic>();
-            break;
-        default:
-            LOG_CRITICAL(Audio, "Mic type not found. Defaulting to null mic");
-            new_mic = std::make_unique<Frontend::Mic::NullMic>();
-        }
+        std::unique_ptr<Frontend::Mic::Interface> new_mic = Frontend::Mic::CreateRealMic();
+
         // If theres already a mic, copy over any data to the new mic impl
         if (mic) {
             new_mic->SetGain(mic->GetGain());

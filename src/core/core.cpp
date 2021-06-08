@@ -348,7 +348,6 @@ System::ResultStatus System::Load(Frontend::EmuWindow& emu_window, const std::st
         return init_result;
     }
 
-    telemetry_session->AddInitialInfo(*app_loader);
     std::shared_ptr<Kernel::Process> process;
     const Loader::ResultStatus load_result = app_loader->Load(process);
     kernel->Initialize(process, cpu_cores[0].get());

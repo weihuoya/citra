@@ -33,7 +33,7 @@ Loader::ResultStatus TitleMetadata::Load(const std::string& file_path) {
     return result;
 }
 
-Loader::ResultStatus TitleMetadata::Load(const std::vector<u8> file_data, std::size_t offset) {
+Loader::ResultStatus TitleMetadata::Load(const std::vector<u8>& file_data, std::size_t offset) {
     std::size_t total_size = static_cast<std::size_t>(file_data.size() - offset);
     if (total_size < sizeof(u32_be))
         return Loader::ResultStatus::Error;
@@ -68,7 +68,6 @@ Loader::ResultStatus TitleMetadata::Load(const std::vector<u8> file_data, std::s
 
     for (u16 i = 0; i < tmd_body.content_count; i++) {
         ContentChunk chunk;
-
         memcpy(&chunk, &file_data[offset + body_end + (i * sizeof(ContentChunk))],
                sizeof(ContentChunk));
         tmd_chunks.push_back(chunk);
@@ -125,7 +124,7 @@ Loader::ResultStatus TitleMetadata::Save(const std::string& file_path) {
         return Loader::ResultStatus::Error;
 
     for (u16 i = 0; i < tmd_body.content_count; i++) {
-        ContentChunk chunk = tmd_chunks[i];
+        const auto& chunk = tmd_chunks[i];
         if (file.WriteBytes(&chunk, sizeof(ContentChunk)) != sizeof(ContentChunk))
             return Loader::ResultStatus::Error;
     }
@@ -165,19 +164,19 @@ u32 TitleMetadata::GetDLPContentID() const {
     return tmd_chunks[TMDContentIndex::DLP].id;
 }
 
-u32 TitleMetadata::GetContentIDByIndex(u16 index) const {
+u32 TitleMetadata::GetContentIDByIndex(std::size_t index) const {
     return tmd_chunks[index].id;
 }
 
-u16 TitleMetadata::GetContentTypeByIndex(u16 index) const {
+u16 TitleMetadata::GetContentTypeByIndex(std::size_t index) const {
     return tmd_chunks[index].type;
 }
 
-u64 TitleMetadata::GetContentSizeByIndex(u16 index) const {
+u64 TitleMetadata::GetContentSizeByIndex(std::size_t index) const {
     return tmd_chunks[index].size;
 }
 
-std::array<u8, 16> TitleMetadata::GetContentCTRByIndex(u16 index) const {
+std::array<u8, 16> TitleMetadata::GetContentCTRByIndex(std::size_t index) const {
     std::array<u8, 16> ctr{};
     std::memcpy(ctr.data(), &tmd_chunks[index].index, sizeof(u16));
     return ctr;
@@ -231,7 +230,7 @@ void TitleMetadata::Print() const {
             if (j > tmd_body.content_count)
                 break;
 
-            const ContentChunk& chunk = tmd_chunks[j];
+            const auto& chunk = tmd_chunks[j];
             LOG_DEBUG(Service_FS, "    ID {:08X}, Index {:04X}, Type {:04x}, Size {:016X}",
                       static_cast<u32>(chunk.id), static_cast<u32>(chunk.index),
                       static_cast<u32>(chunk.type), static_cast<u64>(chunk.size));

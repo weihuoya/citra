@@ -119,7 +119,7 @@ void CubebInput::StopSampling() {
 
 void CubebInput::AdjustSampleRate(u32 sample_rate) {
     // TODO This should restart the stream with the new sample rate
-    LOG_ERROR(Audio, "AdjustSampleRate unimplemented!");
+    LOG_ERROR(Audio, "AdjustSampleRate unimplemented! sample_rate: {}", sample_rate);
 }
 
 Frontend::Mic::Samples CubebInput::Read() {
@@ -162,7 +162,9 @@ long CubebInput::Impl::DataCallback(cubeb_stream* stream, void* user_data, const
     return num_frames;
 }
 
-void CubebInput::Impl::StateCallback(cubeb_stream* stream, void* user_data, cubeb_state state) {}
+void CubebInput::Impl::StateCallback(cubeb_stream* stream, void* user_data, cubeb_state state) {
+    LOG_INFO(Audio, "cubeb state callback: {}", state);
+}
 
 std::vector<std::string> ListCubebInputDevices() {
     std::vector<std::string> device_list;

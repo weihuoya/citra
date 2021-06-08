@@ -4,10 +4,7 @@
 
 #include <array>
 #include "core/frontend/mic.h"
-
-#ifdef HAVE_CUBEB
-#include "audio_core/cubeb_input.h"
-#endif
+#include "core/settings.h"
 
 namespace Frontend::Mic {
 
@@ -61,26 +58,24 @@ Samples StaticMic::Read() {
     return (sample_size == 8) ? CACHE_8_BIT : CACHE_16_BIT;
 }
 
-RealMicFactory::~RealMicFactory() = default;
-
-NullFactory::~NullFactory() = default;
-
 std::unique_ptr<Interface> NullFactory::Create([[maybe_unused]] std::string mic_device_name) {
     return std::make_unique<NullMic>();
 }
 
-#ifdef HAVE_CUBEB
-static std::unique_ptr<RealMicFactory> g_factory = std::make_unique<AudioCore::CubebFactory>();
-#else
 static std::unique_ptr<RealMicFactory> g_factory = std::make_unique<NullFactory>();
-#endif
 
 void RegisterRealMicFactory(std::unique_ptr<RealMicFactory> factory) {
     g_factory = std::move(factory);
 }
 
-std::unique_ptr<Interface> CreateRealMic(std::string mic_device_name) {
-    return g_factory->Create(std::move(mic_device_name));
+std::unique_ptr<Interface> CreateRealMic() {
+    if (Settings::values.mic_input_type == Settings::MicInputType::Real) {
+        return g_factory->Create(Settings::values.mic_input_device);
+    } else if (Settings::values.mic_input_type == Settings::MicInputType::Static) {
+        return std::make_unique<Frontend::Mic::StaticMic>();
+    } else {
+        return std::make_unique<Frontend::Mic::NullMic>();
+    }
 }
 
 } // namespace Frontend::Mic
