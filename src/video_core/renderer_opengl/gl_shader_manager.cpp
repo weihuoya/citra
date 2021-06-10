@@ -290,7 +290,7 @@ public:
         }
     }
 
-    static constexpr u32 PROGRAM_CACHE_VERSION = 0x7;
+    static constexpr u32 PROGRAM_CACHE_VERSION = 0x8;
 
     static std::string GetCacheFile() {
         u64 program_id = 0;
@@ -309,16 +309,13 @@ public:
         file.Do(count);
 
         u64 hash;
-        u32 length;
         GLenum format;
         std::vector<GLbyte> binary;
         for (auto& pair : binary_cache) {
             hash = pair.first;
             format = pair.second.format;
-            length = static_cast<u32>(pair.second.binary.size());
             file.Do(hash);
             file.Do(format);
-            file.Do(length);
             file.Do(pair.second.binary);
         }
 
@@ -353,13 +350,11 @@ public:
         file.Do(count);
 
         u64 hash;
-        u32 length;
         GLenum format;
         std::vector<GLbyte> binary;
         for (s32 i = 0; i < count; ++i) {
             file.Do(hash);
             file.Do(format);
-            file.Do(length);
             file.Do(binary);
             binary_cache.emplace(hash, ProgramCacheEntity{format, std::move(binary)});
         }
@@ -409,7 +404,7 @@ public:
             }
         }
         for (auto key : error_caches) {
-            vertex_cache.erase(key);
+            fragment_cache.erase(key);
         }
 
         return file.GetSize();

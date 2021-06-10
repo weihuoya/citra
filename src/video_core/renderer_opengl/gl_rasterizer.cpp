@@ -554,6 +554,7 @@ void RasterizerOpenGL::BindFramebufferDepth(OpenGLState& state, const Surface& s
     if (framebuffer_info.depth_attachment != surface->texture.handle) {
         glFramebufferTexture2D(GL_DRAW_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D,
                                surface->texture.handle, 0);
+        glFramebufferTexture2D(GL_DRAW_FRAMEBUFFER, GL_STENCIL_ATTACHMENT, GL_TEXTURE_2D, 0, 0);
         framebuffer_info.depth_attachment = surface->texture.handle;
         framebuffer_info.depth_width = surface->width;
         framebuffer_info.depth_height = surface->height;
@@ -600,13 +601,11 @@ bool RasterizerOpenGL::Draw(bool accelerate, bool is_indexed) {
 
     u32 res_scale = 1;
     GLuint color_attachment = 0;
-    u32 color_width = 0;
-    u32 color_height = 0;
     if (color_surface) {
         res_scale = color_surface->res_scale;
         color_attachment = color_surface->texture.handle;
-        color_width = color_surface->width;
-        color_height = color_surface->height;
+        framebuffer_info.color_width = color_surface->width;
+        framebuffer_info.color_height = color_surface->height;
     } else if (depth_surface) {
         res_scale = depth_surface->res_scale;
     }
@@ -749,10 +748,6 @@ bool RasterizerOpenGL::Draw(bool accelerate, bool is_indexed) {
         }
         framebuffer_info.color_attachment = 0;
         framebuffer_info.depth_attachment = 0;
-        framebuffer_info.color_width = 0;
-        framebuffer_info.color_height = 0;
-        framebuffer_info.depth_width = 0;
-        framebuffer_info.depth_height = 0;
         glFramebufferParameteri(GL_DRAW_FRAMEBUFFER, GL_FRAMEBUFFER_DEFAULT_WIDTH,
                                 color_surface->GetScaledWidth());
         glFramebufferParameteri(GL_DRAW_FRAMEBUFFER, GL_FRAMEBUFFER_DEFAULT_HEIGHT,
@@ -766,8 +761,6 @@ bool RasterizerOpenGL::Draw(bool accelerate, bool is_indexed) {
             glFramebufferTexture2D(GL_DRAW_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D,
                                    color_attachment, 0);
             framebuffer_info.color_attachment = color_attachment;
-            framebuffer_info.color_width = color_width;
-            framebuffer_info.color_height = color_height;
         }
         if (depth_surface != nullptr) {
             if (has_stencil) {
@@ -797,8 +790,6 @@ bool RasterizerOpenGL::Draw(bool accelerate, bool is_indexed) {
                 glFramebufferTexture2D(GL_DRAW_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT,
                                        GL_TEXTURE_2D, 0, 0);
                 framebuffer_info.depth_attachment = 0;
-                framebuffer_info.depth_width = 0;
-                framebuffer_info.depth_height = 0;
             } else {
                 state.depth.test_enabled = false;
                 state.depth.write_mask = GL_FALSE;
@@ -1294,29 +1285,23 @@ void RasterizerOpenGL::NotifyPicaRegisterChanged(u32 id) {
 }
 
 void RasterizerOpenGL::FlushAll() {
-    MICROPROFILE_SCOPE(OpenGL_CacheManagement);
     res_cache.FlushAll();
 }
 
 void RasterizerOpenGL::FlushRegion(PAddr addr, u32 size) {
-    MICROPROFILE_SCOPE(OpenGL_CacheManagement);
     res_cache.FlushRegion(addr, size);
 }
 
 void RasterizerOpenGL::InvalidateRegion(PAddr addr, u32 size) {
-    MICROPROFILE_SCOPE(OpenGL_CacheManagement);
     res_cache.InvalidateRegion(addr, size, nullptr);
 }
 
 void RasterizerOpenGL::FlushAndInvalidateRegion(PAddr addr, u32 size) {
-    MICROPROFILE_SCOPE(OpenGL_CacheManagement);
     res_cache.FlushRegion(addr, size);
     res_cache.InvalidateRegion(addr, size, nullptr);
 }
 
 bool RasterizerOpenGL::AccelerateDisplayTransfer(const GPU::Regs::DisplayTransferConfig& config) {
-    MICROPROFILE_SCOPE(OpenGL_Blits);
-
     SurfaceParams src_params;
     src_params.addr = config.GetPhysicalInputAddress();
     src_params.width = config.output_width;

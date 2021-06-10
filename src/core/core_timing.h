@@ -17,12 +17,12 @@
  *   ScheduleEvent(periodInCycles - cyclesLate, callback, "whatever")
  */
 
+#include <array>
 #include <chrono>
 #include <functional>
 #include <limits>
 #include <string>
 #include <unordered_map>
-#include <array>
 #include <vector>
 #include "common/common_types.h"
 #include "common/logging/log.h"
