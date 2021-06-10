@@ -111,6 +111,7 @@ const CustomTexInfo* CustomTexCache::LoadTexture(const CustomTexPathInfo& path_i
         } else {
             LOG_ERROR(Render_OpenGL, "Texture {} size is not a power of 2", path_info.path);
             custom_textures.erase(path_info.hash);
+            custom_texture_paths.erase(path_info.hash);
             result = nullptr;
         }
     } else {
