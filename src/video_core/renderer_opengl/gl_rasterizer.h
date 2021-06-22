@@ -293,9 +293,13 @@ private:
         bool proctex_alpha_map_dirty;
         bool proctex_lut_dirty;
         bool proctex_diff_lut_dirty;
-    } uniform_block_data = {};
+    } uniform_block_data{};
 
     std::unique_ptr<ShaderProgramManager> shader_program_manager;
+
+    // clean surface/shader cache
+    constexpr static u32 CLEAN_FRAME_INTERVAL = 60 * 60;
+    u32 last_clean_frame = 0;
 
     // They shall be big enough for about one frame.
     static constexpr std::size_t VERTEX_BUFFER_SIZE = 16 * 1024 * 1024;

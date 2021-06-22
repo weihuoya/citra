@@ -115,6 +115,8 @@ public:
 
     void ApplyTo(OpenGLState& state);
 
+    void CleanUp(u32 deadline_frame);
+
 private:
     class Impl;
     std::unique_ptr<Impl> impl;
