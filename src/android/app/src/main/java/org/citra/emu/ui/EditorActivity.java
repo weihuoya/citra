@@ -27,13 +27,13 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.content.pm.ShortcutManagerCompat;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.appcompat.widget.Toolbar;
 
 import com.nononsenseapps.filepicker.DividerItemDecoration;
 
-import java.io.BufferedInputStream;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
@@ -44,11 +44,13 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.citra.emu.R;
+import org.citra.emu.model.GameFile;
 import org.citra.emu.utils.DirectoryInitialization;
 
 public final class EditorActivity extends AppCompatActivity {
-    public static final String ARG_PROGRAM_ID = "program_id";
-    public static final String ARG_PROGRAM_TITLE = "program_title";
+    public static final String EXTRA_GAME_ID = "GameId";
+    public static final String EXTRA_GAME_NAME = "GameName";
+    public static final String EXTRA_GAME_PATH = "GamePath";
     private static final String CHEAT_ENABLED_TEXT = "*citra_enabled";
 
     static class CheatEntry {
@@ -135,17 +137,20 @@ public final class EditorActivity extends AppCompatActivity {
         }
     }
 
-    private String mProgramId;
+    private String mGameId;
+    private String mGameName;
+    private String mGamePath;
     private boolean mReloadText;
     private EditText mEditor;
     private RecyclerView mListView;
     private CheatEntryAdapter mAdapter;
     private List<CheatEntry> mCheats;
 
-    public static void launch(Context context, String programId, String title) {
+    public static void launch(Context context, GameFile game) {
         Intent settings = new Intent(context, EditorActivity.class);
-        settings.putExtra(ARG_PROGRAM_ID, programId);
-        settings.putExtra(ARG_PROGRAM_TITLE, title);
+        settings.putExtra(EXTRA_GAME_ID, game.getId());
+        settings.putExtra(EXTRA_GAME_NAME, game.getName());
+        settings.putExtra(EXTRA_GAME_PATH, game.getPath());
         context.startActivity(settings);
     }
 
@@ -154,17 +159,25 @@ public final class EditorActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_editor);
 
-        final String title = getIntent().getStringExtra(ARG_PROGRAM_TITLE);
-        mProgramId = getIntent().getStringExtra(ARG_PROGRAM_ID);
+        if (savedInstanceState == null) {
+            Intent intent = getIntent();
+            mGameId = intent.getStringExtra(EXTRA_GAME_ID);
+            mGameName = intent.getStringExtra(EXTRA_GAME_NAME);
+            mGamePath = intent.getStringExtra(EXTRA_GAME_PATH);
+        } else {
+            mGameId = savedInstanceState.getString(EXTRA_GAME_ID);
+            mGameName = savedInstanceState.getString(EXTRA_GAME_NAME);
+            mGamePath = savedInstanceState.getString(EXTRA_GAME_PATH);
+        }
 
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
-        setTitle(title);
+        setTitle(mGameName);
 
         mCheats = new ArrayList<>();
 
         TextView gameInfo = findViewById(R.id.game_info);
-        gameInfo.setText("ID: " + mProgramId);
+        gameInfo.setText("ID: " + mGameId);
 
         mEditor = findViewById(R.id.code_content);
         mListView = findViewById(R.id.code_list);
@@ -193,9 +206,19 @@ public final class EditorActivity extends AppCompatActivity {
         mListView.addItemDecoration(new DividerItemDecoration(lineDivider));
         mListView.setLayoutManager(new LinearLayoutManager(this));
 
+        Button buttonShortcut = findViewById(R.id.button_shortcut);
+        if (ShortcutManagerCompat.isRequestPinShortcutSupported(this)) {
+            buttonShortcut.setVisibility(View.VISIBLE);
+        } else {
+            buttonShortcut.setVisibility(View.INVISIBLE);
+        }
+        buttonShortcut.setOnClickListener(view -> {
+            ShortcutDialog.newInstance(mGamePath).show(getSupportFragmentManager(), "ShortcutDialog");
+        });
+
         Button buttonConfirm = findViewById(R.id.button_confirm);
         buttonConfirm.setOnClickListener(view -> {
-            saveCheatCode(mProgramId);
+            saveCheatCode(mGameId);
             mEditor.clearFocus();
             finish();
         });
@@ -206,8 +229,16 @@ public final class EditorActivity extends AppCompatActivity {
             finish();
         });
 
-        loadCheatFile(mProgramId);
+        loadCheatFile(mGameId);
         toggleListView(mCheats.size() > 0);
+    }
+
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        outState.putString(EXTRA_GAME_ID, mGameId);
+        outState.putString(EXTRA_GAME_NAME, mGameName);
+        outState.putString(EXTRA_GAME_PATH, mGamePath);
+        super.onSaveInstanceState(outState);
     }
 
     @Override
@@ -259,7 +290,7 @@ public final class EditorActivity extends AppCompatActivity {
     }
 
     private void deleteShaderCache() {
-        File cache = DirectoryInitialization.getShaderCacheFile(mProgramId);
+        File cache = DirectoryInitialization.getShaderCacheFile(mGameId);
         if (cache.exists()) {
             if (cache.delete()) {
                 Toast.makeText(this, R.string.delete_success, Toast.LENGTH_SHORT).show();
@@ -271,8 +302,8 @@ public final class EditorActivity extends AppCompatActivity {
         AlertDialog.Builder builder = new AlertDialog.Builder(EditorActivity.this);
         builder.setMessage(R.string.delete_confirm_notice);
         builder.setPositiveButton(android.R.string.ok, (DialogInterface dialog, int which) -> {
-            String pid = mProgramId.substring(0, 8).toLowerCase();
-            String subid = mProgramId.substring(8).toLowerCase();
+            String pid = mGameId.substring(0, 8).toLowerCase();
+            String subid = mGameId.substring(8).toLowerCase();
             if (pid.equals("00040010") || pid.equals("00040030")) {
                 String system = DirectoryInitialization.getSystemTitleDirectory();
                 String path = system + "/" + pid + "/" + subid;

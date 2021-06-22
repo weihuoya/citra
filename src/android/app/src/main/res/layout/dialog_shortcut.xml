@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content">
+
+    <TextView
+        android:id="@+id/text_title"
+        android:text="@string/create_shortcut"
+        android:textAlignment="center"
+        android:gravity="center"
+        android:textColor="@android:color/white"
+        android:background="@color/citra_orange"
+        android:layout_alignParentTop="true"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" />
+
+    <ImageView
+        android:id="@+id/image_game_screen"
+        android:src="@drawable/no_banner"
+        android:layout_width="72dp"
+        android:layout_height="72dp"
+        android:layout_below="@id/text_title"
+        android:layout_centerHorizontal="true"
+        android:layout_gravity="start|center"
+        android:layout_margin="8dp"
+        android:scaleType="fitCenter"/>
+
+    <EditText
+        android:id="@+id/text_name"
+        android:text="Name"
+        android:layout_centerHorizontal="true"
+        android:layout_below="@id/image_game_screen"
+        android:singleLine="true"
+        android:gravity="center"
+        android:maxLength="20"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"/>
+
+    <View
+        android:id="@+id/dummy_view"
+        android:visibility="invisible"
+        android:layout_centerHorizontal="true"
+        android:layout_below="@id/text_name"
+        android:layout_width="1px"
+        android:layout_height="1px"/>
+
+    <Button
+        android:text="@string/grant_permission"
+        android:id="@+id/button_permission"
+        style="@style/Widget.AppCompat.Button.Colored"
+        android:textAllCaps="false"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/text_name"
+        android:layout_toStartOf="@id/dummy_view"
+        android:stateListAnimator="@null"/>
+
+    <Button
+        android:text="@string/create"
+        android:id="@+id/button_confirm"
+        style="@style/Widget.AppCompat.Button.Colored"
+        android:textAllCaps="false"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/text_name"
+        android:layout_toEndOf="@id/dummy_view"
+        android:stateListAnimator="@null"/>
+
+</RelativeLayout>

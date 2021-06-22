@@ -8,6 +8,17 @@
     <string name="scheme">citra</string>
 
     <string name="error">错误</string>
+    <string name="about">关于</string>
+    <string name="version_info">非官方版本</string>
+    <string name="citra_official_website">Citra 官方网站</string>
+    <string name="open_weibo">微博：EMU-MMJ</string>
+    <string name="latest_version">最新版本</string>
+    <string name="shortcut">快捷方式</string>
+    <string name="create_shortcut">创建桌面快捷方式</string>
+    <string name="create">创建</string>
+    <string name="grant_permission">授予权限</string>
+    <string name="create_success">创建成功！</string>
+    <string name="create_failed">创建失败！</string>
     <string name="cia_install_success">安装成功！</string>
     <string name="delete_success">删除成功！</string>
     <string name="keyboard_please_input">请输入：</string>

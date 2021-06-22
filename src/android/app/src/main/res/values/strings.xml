@@ -8,6 +8,17 @@
     <string name="scheme">citra</string>
 
     <string name="error">Error</string>
+    <string name="about">About</string>
+    <string name="version_info">Unofficial Build</string>
+    <string name="citra_official_website">Citra Official Website</string>
+    <string name="open_weibo">Weibo: EMU-MMJ</string>
+    <string name="latest_version">Latest Version</string>
+    <string name="shortcut">Shortcut</string>
+    <string name="create_shortcut">Create Shortcut On Home Screen</string>
+    <string name="create">Create</string>
+    <string name="grant_permission">Grant Permission</string>
+    <string name="create_success">Create Success!</string>
+    <string name="create_failed">Create Failed!</string>
     <string name="cia_install_success">Install Success!</string>
     <string name="delete_success">Delete Success!</string>
     <string name="keyboard_please_input">Please Input:</string>

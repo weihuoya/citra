@@ -632,8 +632,7 @@ public final class MainActivity extends AppCompatActivity {
         @Override
         public boolean onLongClick(View view) {
             GameViewHolder holder = (GameViewHolder)view.getTag();
-            GameFile model = holder.getModel();
-            EditorActivity.launch(view.getContext(), model.getId(), model.getName());
+            EditorActivity.launch(view.getContext(), holder.getModel());
             return true;
         }
 

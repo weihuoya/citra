@@ -40,9 +40,9 @@ import org.citra.emu.utils.ControllerMappingHelper;
 import org.citra.emu.utils.DirectoryInitialization;
 
 public final class EmulationActivity extends AppCompatActivity {
-    private static final String EXTRA_GAME_ID = "GameId";
-    private static final String EXTRA_GAME_NAME = "GameName";
-    private static final String EXTRA_GAME_PATH = "GamePath";
+    public static final String EXTRA_GAME_ID = "GameId";
+    public static final String EXTRA_GAME_NAME = "GameName";
+    public static final String EXTRA_GAME_PATH = "GamePath";
     public static final int REQUEST_PICK_IMAGE = 1;
     public static final int REQUEST_CHEAT_CODE = 2;
 
@@ -443,8 +443,9 @@ public final class EmulationActivity extends AppCompatActivity {
 
     public void launchCheatCode() {
         Intent intent = new Intent(this, EditorActivity.class);
-        intent.putExtra(EditorActivity.ARG_PROGRAM_ID, mGameId);
-        intent.putExtra(EditorActivity.ARG_PROGRAM_TITLE, mGameName);
+        intent.putExtra(EditorActivity.EXTRA_GAME_ID, mGameId);
+        intent.putExtra(EditorActivity.EXTRA_GAME_NAME, mGameName);
+        intent.putExtra(EditorActivity.EXTRA_GAME_PATH, mGamePath);
         startActivityForResult(intent, REQUEST_CHEAT_CODE);
     }
 

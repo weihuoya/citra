@@ -1,0 +1,122 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".ui.AboutActivity">
+
+    <androidx.appcompat.widget.Toolbar
+        android:id="@+id/toolbar_main"
+        android:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar"
+        app:popupTheme="@style/ThemeOverlay.AppCompat.Light"
+        android:background="?attr/colorPrimary"
+        android:layout_width="match_parent"
+        android:layout_height="?attr/actionBarSize"
+        android:layout_alignParentTop="true" />
+
+    <ImageView
+        android:id="@+id/banner"
+        android:src="@mipmap/ic_launcher_foreground"
+        android:layout_centerHorizontal="true"
+        android:layout_below="@id/toolbar_main"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"/>
+
+    <TextView
+        android:id="@+id/version"
+        android:text="@string/version_info"
+        android:layout_centerHorizontal="true"
+        android:layout_below="@id/banner"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"/>
+
+    <androidx.appcompat.widget.LinearLayoutCompat
+        android:layout_marginTop="50dp"
+        android:layout_marginStart="16dp"
+        android:layout_marginEnd="16dp"
+        android:background="@android:color/white"
+        android:elevation="2dp"
+        android:orientation="vertical"
+        android:layout_below="@id/banner"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <Button
+            android:id="@+id/btn_official_website"
+            android:text="@string/citra_official_website"
+            android:textAllCaps="false"
+            android:textStyle="normal"
+            android:layout_margin="0dp"
+            android:padding="16dp"
+            android:minWidth="0dp"
+            android:minHeight="0dp"
+            android:stateListAnimator="@null"
+            android:gravity="center_vertical"
+            style="@style/Widget.AppCompat.Button.Borderless"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"/>
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_marginStart="16dp"
+            android:layout_marginEnd="16dp"
+            android:layout_height="1dp"
+            android:background="@color/light_grey"/>
+
+        <Button
+            android:id="@+id/btn_open_weibo"
+            android:text="@string/open_weibo"
+            android:textAllCaps="false"
+            android:textStyle="normal"
+            android:layout_margin="0dp"
+            android:padding="16dp"
+            android:minWidth="0dp"
+            android:minHeight="0dp"
+            android:stateListAnimator="@null"
+            android:gravity="center_vertical"
+            style="@style/Widget.AppCompat.Button.Borderless"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"/>
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_marginStart="16dp"
+            android:layout_marginEnd="16dp"
+            android:layout_height="1dp"
+            android:background="@color/light_grey"/>
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+            <Button
+                android:id="@+id/btn_latest_version"
+                android:text="@string/latest_version"
+                android:textAllCaps="false"
+                android:textStyle="normal"
+                android:layout_margin="0dp"
+                android:padding="16dp"
+                android:minWidth="0dp"
+                android:minHeight="0dp"
+                android:stateListAnimator="@null"
+                android:gravity="center_vertical"
+                style="@style/Widget.AppCompat.Button.Borderless"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"/>
+
+            <ProgressBar
+                android:id="@+id/latest_version_progress"
+                style="?android:attr/progressBarStyleHorizontal"
+                android:layout_marginStart="16dp"
+                android:layout_marginEnd="16dp"
+                android:padding="0dp"
+                android:indeterminate="true"
+                android:visibility="invisible"
+                android:layout_alignBottom="@id/btn_latest_version"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"/>
+        </RelativeLayout>
+
+    </androidx.appcompat.widget.LinearLayoutCompat>
+
+</RelativeLayout>

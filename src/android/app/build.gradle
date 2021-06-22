@@ -81,6 +81,7 @@ dependencies {
     implementation "androidx.recyclerview:recyclerview:1.1.+"
     implementation "androidx.cardview:cardview:1.0.+"
     implementation "androidx.preference:preference:1.1.+"
+    implementation "androidx.core:core-google-shortcuts:+"
 }
 
 def getVersion() {

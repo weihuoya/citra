@@ -6,6 +6,7 @@
 #include <unordered_map>
 #include "core/cache_file.h"
 #include "core/settings.h"
+#include "video_core/video_core.h"
 #include "video_core/renderer_opengl/gl_shader_manager.h"
 #include "video_core/renderer_opengl/on_screen_display.h"
 
@@ -128,6 +129,14 @@ private:
     u64 hash = 0;
 };
 
+/**
+ * An object representing a shader program.
+ */
+struct OGLProgramEntity {
+    OGLProgram program;
+    u32 last_used_frame;
+};
+
 class ShaderProgramManager::Impl {
 public:
     explicit Impl(bool separable)
@@ -157,12 +166,13 @@ public:
     }
 
     OGLShaderStage* GetShaderStageRef(const std::string& shader_code, GLenum shader_type) {
-        u64 code_hash = Common::ComputeHash64(shader_code.data(), shader_code.size());
+        const u64 code_hash = Common::ComputeHash64(shader_code.data(), shader_code.size());
         auto [iter, new_shader] = shaders.emplace(code_hash, separable);
         OGLShaderStage& cached_shader = iter->second;
         if (new_shader) {
             cached_shader.Create(shader_code, shader_type, code_hash);
             if (cached_shader.GetHandle() == 0) {
+                LOG_WARNING(Render_OpenGL, "shader {:04X} create failed!", shader_type);
                 shaders.erase(code_hash);
                 return nullptr;
             }
@@ -178,32 +188,33 @@ public:
     }
 
     bool UseProgrammableVertexShader(const Pica::Regs& regs, Pica::Shader::ShaderSetup& setup) {
-        PicaVSConfig key(regs, setup);
-        u64 key_hash = Common::ComputeHash64(&key, sizeof(key));
-        auto iter_ref = shaders_ref.find(key_hash);
+        bool result = false;
+        const PicaVSConfig key(regs, setup);
+        const u64 key_hash = Common::ComputeHash64(&key, sizeof(key));
+        const auto iter_ref = shaders_ref.find(key_hash);
         if (iter_ref == shaders_ref.end()) {
-            auto [code_iter, new_code] = vertex_cache.emplace(key_hash, std::string{});
-            if (new_code) {
-                // always new code
-                code_iter->second = GenerateVertexShader(setup, key, separable);
-            }
-            const std::string& vs_code = code_iter->second;
+            std::string vs_code = GenerateVertexShader(setup, key, separable);
             if (vs_code.empty()) {
-                shaders_ref[key_hash] = nullptr;
+                LOG_WARNING(Render_OpenGL, "generate programmable vertex shader failed!");
                 current_shaders.vs = nullptr;
             } else {
                 current_shaders.vs = GetShaderStageRef(vs_code, GL_VERTEX_SHADER);
-                shaders_ref[key_hash] = current_shaders.vs;
+                if (current_shaders.vs) {
+                    shaders_ref[key_hash] = current_shaders.vs;
+                    vertex_cache.emplace(current_shaders.vs->GetHash(), std::move(vs_code));
+                    result = true;
+                }
             }
         } else {
             current_shaders.vs = iter_ref->second;
+            result = true;
         }
-        return (current_shaders.vs != nullptr);
+        return result;
     }
 
     void UseFixedGeometryShader(const Pica::Regs& regs) {
-        PicaFixedGSConfig key(regs);
-        u64 key_hash = Common::ComputeHash64(&key, sizeof(key));
+        const PicaFixedGSConfig key(regs);
+        const u64 key_hash = Common::ComputeHash64(&key, sizeof(key));
         auto [iter, new_shader] = shaders.emplace(key_hash, separable);
         OGLShaderStage& cached_shader = iter->second;
         if (new_shader) {
@@ -214,17 +225,16 @@ public:
     }
 
     void UseFragmentShader(const Pica::Regs& regs) {
-        auto key = PicaFSConfig::BuildFromRegs(regs);
-        u64 key_hash = Common::ComputeHash64(&key, sizeof(key));
+        const auto key = PicaFSConfig::BuildFromRegs(regs);
+        const u64 key_hash = Common::ComputeHash64(&key, sizeof(key));
         auto iter_ref = shaders_ref.find(key_hash);
         if (iter_ref == shaders_ref.end()) {
-            auto [code_iter, new_code] = fragment_cache.emplace(key_hash, std::string{});
-            if (new_code) {
-                // always new code
-                code_iter->second = GenerateFragmentShader(key, separable);
+            std::string fs_code = GenerateFragmentShader(key, separable);
+            current_shaders.fs = GetShaderStageRef(fs_code, GL_FRAGMENT_SHADER);
+            if (current_shaders.fs) {
+                shaders_ref[key_hash] = current_shaders.fs;
+                fragment_cache.emplace(current_shaders.fs->GetHash(), std::move(fs_code));
             }
-            current_shaders.fs = GetShaderStageRef(code_iter->second, GL_FRAGMENT_SHADER);
-            shaders_ref[key_hash] = current_shaders.fs;
         } else {
             current_shaders.fs = iter_ref->second;
         }
@@ -256,14 +266,27 @@ public:
                 current_shaders.fs->GetHash(),
             };
             u64 hash = Common::ComputeHash64(bundle.data(), bundle.size() * sizeof(u64));
-            OGLProgram& cached_program = program_cache[hash];
-            if (cached_program.handle == 0) {
-                CreateProgram(cached_program, hash, vs, gs, fs);
-                SetShaderUniformBlockBindings(cached_program.handle);
-                SetShaderSamplerBindings(cached_program.handle);
+            auto& cached_program = program_cache[hash];
+            if (cached_program.program.handle == 0) {
+                CreateProgram(cached_program.program, hash, vs, gs, fs);
+                SetShaderUniformBlockBindings(cached_program.program.handle);
+                SetShaderSamplerBindings(cached_program.program.handle);
             }
-            state.draw.shader_program = cached_program.handle;
+            cached_program.last_used_frame = VideoCore::GetCurrentFrame();
+            state.draw.shader_program = cached_program.program.handle;
             state.draw.program_pipeline = 0;
+        }
+    }
+
+    void CleanUp(u32 deadline_frame) {
+        std::vector<u64> unused;
+        for (const auto& entity : program_cache) {
+            if (entity.second.last_used_frame < deadline_frame) {
+                unused.push_back(entity.first);
+            }
+        }
+        for (const auto& key : unused) {
+            program_cache.erase(key);
         }
     }
 
@@ -290,7 +313,7 @@ public:
         }
     }
 
-    static constexpr u32 PROGRAM_CACHE_VERSION = 0x8;
+    static constexpr u32 PROGRAM_CACHE_VERSION = 0x9;
 
     static std::string GetCacheFile() {
         u64 program_id = 0;
@@ -470,7 +493,7 @@ private:
     std::unordered_map<u64, OGLShaderStage> shaders;
 
     OGLPipeline pipeline;
-    std::unordered_map<u64, OGLProgram> program_cache;
+    std::unordered_map<u64, OGLProgramEntity> program_cache;
 };
 
 ShaderProgramManager::ShaderProgramManager(bool separable)
@@ -502,4 +525,9 @@ void ShaderProgramManager::UseFragmentShader(const Pica::Regs& regs) {
 void ShaderProgramManager::ApplyTo(OpenGLState& state) {
     impl->ApplyTo(state);
 }
+
+void ShaderProgramManager::CleanUp(u32 deadline_frame) {
+    impl->CleanUp(deadline_frame);
+}
+
 } // namespace OpenGL
