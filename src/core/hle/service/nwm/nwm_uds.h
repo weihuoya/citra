@@ -73,8 +73,10 @@ enum class NetworkStatus {
 };
 
 enum class DisconnectStatus {
+    None = 0,
     Connected = 1,
     NotConnected = 2,
+    ConnectionLost = 4,
     // TODO(B3N30): Figure out the other values
 };
 
@@ -233,6 +235,18 @@ private:
      *      2 : Channel of the current WiFi network connection.
      */
     void SetApplicationData(Kernel::HLERequestContext& ctx);
+
+    /**
+     * NWM_UDS::GetApplicationData service function.
+     * Loads the application data from the current beacon.
+     *  Inputs:
+     *      1 : Data size.
+     *  Outputs:
+     *      0 : Return header
+     *      1 : Result of function, always 0
+     *      2 : Actual data size
+     */
+    void GetApplicationData(Kernel::HLERequestContext& ctx);
 
     /**
      * NWM_UDS::Bind service function.

@@ -185,7 +185,7 @@
     <string name="setting_audio_output">Audio Output</string>
     <string name="setting_audio_stretching">Enable Audio Stretching</string>
     <string name="setting_audio_stretching_description">Stretches audio to reduce stuttering, but increases latency.</string>
-    <string name="setting_audio_mic_type">Micophone Type</string>
+    <string name="setting_audio_mic_type">Microphone Type</string>
 
     <string name="running_frame_limit">Speed Limit</string>
     <string name="running_resolution">Resolution</string>
@@ -266,7 +266,7 @@
     <string name="nnf_name">Name</string>
     <string name="nnf_select_something_first">Please select something first</string>
     <string name="nnf_need_valid_filename">Please enter or select a valid filename</string>
-    <string name="nnf_permission_external_write_denied">Permisson to access filesystem denied</string>
+    <string name="nnf_permission_external_write_denied">Permission to access filesystem denied</string>
     <string name="nnf_filename">Filename</string>
     <string name="nnf_list_ok">@android:string/ok</string>
     <string name="nnf_list_cancel">@android:string/cancel</string>

@@ -111,6 +111,7 @@ public:
 private:
     u16 sample_rate = 0;
     u8 sample_size = 0;
+    u32 sample_value = 0;
     std::vector<u8> CACHE_8_BIT;
     std::vector<u8> CACHE_16_BIT;
 };

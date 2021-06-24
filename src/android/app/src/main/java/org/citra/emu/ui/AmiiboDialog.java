@@ -12,6 +12,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.fragment.app.DialogFragment;
@@ -124,7 +125,13 @@ public final class AmiiboDialog extends DialogFragment {
         public void onClick(View v) {
             FileViewHolder holder = (FileViewHolder)v.getTag();
             String path = holder.getPath();
+            String name = path;
+            int index = path.lastIndexOf('/');
+            if (index > 0) {
+                name = path.substring(index + 1);
+            }
             NativeLibrary.loadAmiibo(path);
+            Toast.makeText(v.getContext(), name, Toast.LENGTH_SHORT).show();
         }
 
         @Override
