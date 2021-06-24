@@ -55,7 +55,18 @@ void StaticMic::StopSampling() {
 void StaticMic::AdjustSampleRate(u32 sample_rate) {}
 
 Samples StaticMic::Read() {
-    return (sample_size == 8) ? CACHE_8_BIT : CACHE_16_BIT;
+    if (sample_size == 8) {
+        return CACHE_8_BIT;
+    } else {
+        const u16 values[] = {0, 1024, 4096, 8192, 16384, 32768, 49152, 65535};
+        std::vector<u8> samples(32);
+        u16 value = values[(++sample_value / 512) & 7];
+        u16* p = reinterpret_cast<u16*>(samples.data());
+        for (int i = 0; i < 16; ++i) {
+            p[i] = value;
+        }
+        return samples;
+    }
 }
 
 std::unique_ptr<Interface> NullFactory::Create([[maybe_unused]] std::string mic_device_name) {
