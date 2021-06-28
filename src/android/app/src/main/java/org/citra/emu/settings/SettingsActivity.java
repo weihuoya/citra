@@ -34,7 +34,7 @@ public final class SettingsActivity extends AppCompatActivity {
 
     public static void launch(Context context, MenuTag menuTag, String gameId) {
         Intent settings = new Intent(context, SettingsActivity.class);
-        settings.putExtra(ARG_MENU_TAG, menuTag);
+        settings.putExtra(ARG_MENU_TAG, menuTag.toString());
         settings.putExtra(ARG_GAME_ID, gameId);
         context.startActivity(settings);
     }
@@ -46,7 +46,8 @@ public final class SettingsActivity extends AppCompatActivity {
 
         if (savedInstanceState == null) {
             Intent intent = getIntent();
-            mMenuTag = (MenuTag)intent.getSerializableExtra(ARG_MENU_TAG);
+            String menuTagStr = intent.getStringExtra(ARG_MENU_TAG);
+            mMenuTag = MenuTag.getMenuTag(menuTagStr);
             mGameId = intent.getStringExtra(ARG_GAME_ID);
         } else {
             String menuTagStr = savedInstanceState.getString(KEY_MENU_TAG);
