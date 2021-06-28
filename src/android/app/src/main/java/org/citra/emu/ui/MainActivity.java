@@ -62,7 +62,6 @@ public final class MainActivity extends AppCompatActivity {
     private class RefreshTask extends AsyncTask<Void, GameFile, Void> {
         @Override
         protected Void doInBackground(Void... args) {
-            final String SDMC = "citra-emu/sdmc/Nintendo 3DS";
             List<File> dirs = new ArrayList<>();
             dirs.add(new File(DirectoryInitialization.getSystemApplicationDirectory()));
             dirs.add(new File(DirectoryInitialization.getSystemAppletDirectory()));

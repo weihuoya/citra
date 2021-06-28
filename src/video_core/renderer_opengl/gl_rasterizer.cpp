@@ -525,14 +525,14 @@ void RasterizerOpenGL::BindFramebufferColor(OpenGLState& state, const Surface& s
         framebuffer_info.color_attachment = surface->texture.handle;
         framebuffer_info.color_width = surface->width;
         framebuffer_info.color_height = surface->height;
+    }
 
-        if (framebuffer_info.depth_attachment &&
-            (framebuffer_info.color_width > framebuffer_info.depth_width ||
-             framebuffer_info.color_height > framebuffer_info.depth_height)) {
-            glFramebufferTexture2D(GL_DRAW_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_TEXTURE_2D, 0,
-                                   0);
-            framebuffer_info.depth_attachment = 0;
-        }
+    if (framebuffer_info.depth_attachment &&
+        (framebuffer_info.color_width > framebuffer_info.depth_width ||
+         framebuffer_info.color_height > framebuffer_info.depth_height)) {
+        glFramebufferTexture2D(GL_DRAW_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_TEXTURE_2D, 0,
+                               0);
+        framebuffer_info.depth_attachment = 0;
     }
 }
 
@@ -545,13 +545,13 @@ void RasterizerOpenGL::BindFramebufferDepthStencil(OpenGLState& state, const Sur
         framebuffer_info.depth_attachment = surface->texture.handle;
         framebuffer_info.depth_width = surface->width;
         framebuffer_info.depth_height = surface->height;
+    }
 
-        if (framebuffer_info.color_attachment &&
-            (framebuffer_info.depth_width > framebuffer_info.color_width ||
-             framebuffer_info.depth_height > framebuffer_info.color_height)) {
-            glFramebufferTexture2D(GL_DRAW_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, 0, 0);
-            framebuffer_info.color_attachment = 0;
-        }
+    if (framebuffer_info.color_attachment &&
+        (framebuffer_info.depth_width > framebuffer_info.color_width ||
+         framebuffer_info.depth_height > framebuffer_info.color_height)) {
+        glFramebufferTexture2D(GL_DRAW_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, 0, 0);
+        framebuffer_info.color_attachment = 0;
     }
 }
 
@@ -565,13 +565,13 @@ void RasterizerOpenGL::BindFramebufferDepth(OpenGLState& state, const Surface& s
         framebuffer_info.depth_attachment = surface->texture.handle;
         framebuffer_info.depth_width = surface->width;
         framebuffer_info.depth_height = surface->height;
+    }
 
-        if (framebuffer_info.color_attachment &&
-            (framebuffer_info.depth_width > framebuffer_info.color_width ||
-             framebuffer_info.depth_height > framebuffer_info.color_height)) {
-            glFramebufferTexture2D(GL_DRAW_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, 0, 0);
-            framebuffer_info.color_attachment = 0;
-        }
+    if (framebuffer_info.color_attachment &&
+        (framebuffer_info.depth_width > framebuffer_info.color_width ||
+         framebuffer_info.depth_height > framebuffer_info.color_height)) {
+        glFramebufferTexture2D(GL_DRAW_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, 0, 0);
+        framebuffer_info.color_attachment = 0;
     }
 }
 
