@@ -20,5 +20,6 @@
 # hide the original source file name.
 #-renamesourcefileattribute SourceFile
 
+-keepclasseswithmembernames class * { native <methods>; }
 -keep class org.citra.emu.NativeLibrary { *; }
 -keep interface org.citra.emu.NativeLibrary$OnScreenshotCompleteListener {*;}
