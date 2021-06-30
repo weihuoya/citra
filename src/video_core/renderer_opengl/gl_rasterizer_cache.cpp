@@ -994,13 +994,16 @@ SurfaceRect_Tuple RasterizerCacheOpenGL::GetSurfaceSubRect(const SurfaceParams& 
 
     // Check for a surface we can expand before creating a new one
     if (surface == nullptr) {
-        SurfaceParams expand_params = aligned_params;
-        if (aligned_params.height < 512) {
+        if (match_res_scale == ScaleMatch::Exact && aligned_params.height < 512) {
+            SurfaceParams expand_params = aligned_params;
             expand_params.addr -= expand_params.size;
-            expand_params.end += expand_params.size;
+            surface = FindMatch<MatchFlags::Expand | MatchFlags::Invalid>(surface_cache, expand_params,
+                                                                          match_res_scale);
+        } else {
+            surface = FindMatch<MatchFlags::Expand | MatchFlags::Invalid>(surface_cache, aligned_params,
+                                                                          match_res_scale);
         }
-        surface = FindMatch<MatchFlags::Expand | MatchFlags::Invalid>(surface_cache, expand_params,
-                                                                      match_res_scale);
+
         if (surface != nullptr) {
             if (aligned_params.width != aligned_params.stride) {
                 // Can't have gaps in a surface
