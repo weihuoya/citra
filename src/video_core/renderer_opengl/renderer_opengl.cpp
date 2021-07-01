@@ -36,25 +36,24 @@ namespace OpenGL {
 constexpr std::size_t SWAP_CHAIN_SIZE = 6;
 
 struct OGLFrame {
-    u32 width{};                 /// Width of the frame (to detect resize)
-    u32 height{};                /// Height of the frame
-    bool color_reloaded = false; /// Texture attachment was recreated (ie: resized)
-    OGLRenderbuffer color{};     /// Buffer shared between the render/present FBO
-    OGLFramebuffer render{};     /// FBO created on the render thread
-    OGLFramebuffer present{};    /// FBO created on the present thread
-    GLsync render_fence{};       /// Fence created on the render thread
-    GLsync present_fence{};      /// Fence created on the presentation thread
+    u32 width;              /// Width of the frame (to detect resize)
+    u32 height;             /// Height of the frame
+    bool color_reloaded;    /// Texture attachment was recreated (ie: resized)
+    OGLRenderbuffer color;  /// Buffer shared between the render/present FBO
+    OGLFramebuffer render;  /// FBO created on the render thread
+    OGLFramebuffer present; /// FBO created on the present thread
+    GLsync render_fence;    /// Fence created on the render thread
+    GLsync present_fence;   /// Fence created on the presentation thread
 };
 
-class OGLTextureMailbox {
-public:
+struct OGLTextureMailbox {
     std::mutex swap_chain_lock;
     std::condition_variable free_cv;
     std::array<OGLFrame, SWAP_CHAIN_SIZE> swap_chain{};
     std::queue<OGLFrame*> free_queue;
     std::deque<OGLFrame*> present_queue;
     OGLFrame* previous_frame = nullptr;
-    std::chrono::milliseconds elapsed{0};
+    std::chrono::milliseconds elapsed{};
 
     OGLTextureMailbox() {
         if (Settings::values.use_frame_limit) {
@@ -143,30 +142,31 @@ public:
     }
 
     /// called in present thread
-    OGLFrame* TryGetPresentFrame() {
-        if (present_queue.empty()) {
-            return nullptr;
-        } else {
-            std::unique_lock<std::mutex> lock(swap_chain_lock);
+    OGLFrame* GetPresentFrame() {
+        std::unique_lock<std::mutex> lock(swap_chain_lock);
 
-            // free the previous frame and add it back to the free queue
-            if (previous_frame) {
-                free_queue.push(previous_frame);
-                free_cv.notify_one();
-            }
-
-            // the newest entries are pushed to the front of the queue
-            previous_frame = present_queue.front();
-            present_queue.pop_front();
-
-            if (present_queue.size() > 1) {
-                // skip a frame if pendings more than 1
-                free_queue.push(present_queue.front());
-                present_queue.pop_front();
-            }
-
-            return previous_frame;
+        // free the previous frame and add it back to the free queue
+        if (previous_frame) {
+            free_queue.push(previous_frame);
+            free_cv.notify_one();
         }
+
+        // the newest entries are pushed to the front of the queue
+        previous_frame = present_queue.front();
+        present_queue.pop_front();
+
+        if (present_queue.size() > 1) {
+            // skip frame if pending present frames more than one
+            free_queue.push(present_queue.front());
+            present_queue.pop_front();
+        }
+
+        return previous_frame;
+    }
+
+    /// called in present thread
+    bool IsPresentEmpty() const {
+        return present_queue.empty();
     }
 
     /// called in present thread
@@ -477,12 +477,12 @@ void RendererOpenGL::RenderToMailbox(const Layout::FramebufferLayout& layout) {
 
 /// run in present thread
 bool RendererOpenGL::TryPresent() {
-    auto frame = mailbox->TryGetPresentFrame();
-    if (!frame) {
-        LOG_DEBUG(Render_OpenGL, "TryGetPresentFrame returned no frame to present");
+    if (mailbox->IsPresentEmpty()) {
+        LOG_DEBUG(Render_OpenGL, "mailbox no frame to present");
         return false;
     }
 
+    auto frame = mailbox->GetPresentFrame();
     const auto& layout = render_window.GetFramebufferLayout();
 
     // Clearing before a full overwrite of a fbo can signal to drivers that they can avoid a

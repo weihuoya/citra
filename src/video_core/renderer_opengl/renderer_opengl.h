@@ -19,7 +19,7 @@ struct FramebufferLayout;
 
 namespace OpenGL {
 
-class OGLTextureMailbox;
+struct OGLTextureMailbox;
 
 /// Structure used for storing information about the textures for each 3DS screen
 struct TextureInfo {
