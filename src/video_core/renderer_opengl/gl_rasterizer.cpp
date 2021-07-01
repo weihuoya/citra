@@ -792,8 +792,8 @@ bool RasterizerOpenGL::Draw(bool accelerate, bool is_indexed) {
                 framebuffer_info.depth_height = depth_surface->height;
             }
         } else if (framebuffer_info.depth_attachment != 0) {
-            if (framebuffer_info.depth_width < surfaces_rect.right ||
-                framebuffer_info.depth_height < surfaces_rect.top) {
+            if (framebuffer_info.depth_width < surfaces_rect.right / res_scale ||
+                framebuffer_info.depth_height < surfaces_rect.top / res_scale) {
                 // clear both depth and stencil attachment
                 glFramebufferTexture2D(GL_DRAW_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT,
                                        GL_TEXTURE_2D, 0, 0);
