@@ -21,6 +21,7 @@
     <string name="create_failed">Create Failed!</string>
     <string name="cia_install_success">Install Success!</string>
     <string name="delete_success">Delete Success!</string>
+    <string name="copy_success">Copy Success!</string>
     <string name="keyboard_please_input">Please Input:</string>
     <string name="input_text_max_length">Max input length: %1$d.</string>
     <string name="text_amiibo_hint">The amiibo directory is empty!</string>

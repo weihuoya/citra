@@ -451,7 +451,7 @@ void RasterizerOpenGL::OnFrameUpdate() {
     const u32 current_frame = VideoCore::GetCurrentFrame();
     if (current_frame >= last_clean_frame + CLEAN_FRAME_INTERVAL) {
         res_cache.CleanUp(last_clean_frame);
-        shader_program_manager->CleanUp(last_clean_frame);
+        // shader_program_manager->CleanUp(last_clean_frame);
         last_clean_frame = current_frame;
     }
 }
