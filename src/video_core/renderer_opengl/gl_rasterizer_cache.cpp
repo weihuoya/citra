@@ -926,15 +926,15 @@ Surface RasterizerCacheOpenGL::GetSurface(const SurfaceParams& params, ScaleMatc
         if (match_res_scale != ScaleMatch::Exact) {
             // This surface may have a subrect of another surface with a higher res_scale, find
             // it to adjust our params
-            SurfaceParams find_params = params;
             Surface expandable = FindMatch<MatchFlags::Expand | MatchFlags::Invalid>(
-                surface_cache, find_params, match_res_scale);
+                surface_cache, params, match_res_scale);
             if (expandable != nullptr && expandable->res_scale > target_res_scale) {
                 target_res_scale = expandable->res_scale;
             }
 
             // Keep res_scale when reinterpreting d24s8 -> rgba8
             if (params.pixel_format == PixelFormat::RGBA8) {
+                SurfaceParams find_params = params;
                 find_params.pixel_format = PixelFormat::D24S8;
                 expandable = FindMatch<MatchFlags::Expand | MatchFlags::Invalid>(
                     surface_cache, find_params, match_res_scale);
@@ -994,7 +994,7 @@ SurfaceRect_Tuple RasterizerCacheOpenGL::GetSurfaceSubRect(const SurfaceParams& 
 
     // Check for a surface we can expand before creating a new one
     if (surface == nullptr) {
-        if (match_res_scale == ScaleMatch::Exact && aligned_params.height < 512) {
+        if (match_res_scale == ScaleMatch::Exact && aligned_params.height <= 512) {
             SurfaceParams expand_params = aligned_params;
             expand_params.addr -= expand_params.size;
             surface = FindMatch<MatchFlags::Expand | MatchFlags::Invalid>(surface_cache, expand_params,
@@ -1351,22 +1351,38 @@ SurfaceSurfaceRect_Tuple RasterizerCacheOpenGL::GetFramebufferSurfaces(
         } else {
             std::tie(color_surface, color_rect) =
                 GetSurfaceSubRect(color_params, ScaleMatch::Exact, false);
+            // adjust depth surface
+            if (depth_surface && color_rect.bottom > 0) {
+                SurfaceParams new_params = depth_params;
+                new_params.height = color_rect.top / color_surface->res_scale;
+                new_params.UpdateParams();
+                remove_surfaces.emplace(depth_surface);
+                std::tie(depth_surface, depth_rect) =
+                        GetSurfaceSubRect(new_params, ScaleMatch::Exact, false);
+                depth_rect.bottom += color_rect.bottom;
+            }
         }
     }
 
-    Common::Rectangle<u32> fb_rect{};
-    if (color_surface != nullptr && depth_surface != nullptr) {
-        fb_rect = color_rect;
-        // Color and Depth surfaces must have the same dimensions and offsets
-        if (color_rect != depth_rect) {
-            color_surface = GetSurface(color_params, ScaleMatch::Exact, false);
-            depth_surface = GetSurface(depth_params, ScaleMatch::Exact, false);
-            fb_rect = color_surface->GetScaledRect();
+    if (color_surface != nullptr) {
+        if (depth_surface != nullptr && color_rect != depth_rect) {
+            // Color and Depth surfaces must have the same dimensions and offsets
+            auto new_color_surface = GetSurface(color_params, ScaleMatch::Exact, false);
+            if (new_color_surface != color_surface) {
+                remove_surfaces.emplace(color_surface);
+                color_surface = new_color_surface;
+            }
+            color_rect = color_surface->GetScaledRect();
+            if (color_rect != depth_rect) {
+                auto new_depth_surface = GetSurface(depth_params, ScaleMatch::Exact, false);
+                if (new_depth_surface != depth_surface) {
+                    remove_surfaces.emplace(depth_surface);
+                    depth_surface = new_depth_surface;
+                }
+            }
         }
-    } else if (color_surface != nullptr) {
-        fb_rect = color_rect;
     } else if (depth_surface != nullptr) {
-        fb_rect = depth_rect;
+        color_rect = depth_rect;
     }
 
     if (color_surface != nullptr) {
@@ -1382,7 +1398,7 @@ SurfaceSurfaceRect_Tuple RasterizerCacheOpenGL::GetFramebufferSurfaces(
         depth_surface->last_used_frame = VideoCore::GetCurrentFrame();
     }
 
-    return std::make_tuple(color_surface, depth_surface, fb_rect);
+    return std::make_tuple(color_surface, depth_surface, color_rect);
 }
 
 Surface RasterizerCacheOpenGL::GetFillSurface(const GPU::Regs::MemoryFillConfig& config) {

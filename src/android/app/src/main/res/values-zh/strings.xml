@@ -21,6 +21,7 @@
     <string name="create_failed">创建失败！</string>
     <string name="cia_install_success">安装成功！</string>
     <string name="delete_success">删除成功！</string>
+    <string name="copy_success">复制成功！</string>
     <string name="keyboard_please_input">请输入：</string>
     <string name="input_text_max_length">输入长度限制：%1$d.</string>
     <string name="text_amiibo_hint">Amiibo 目录是空的！</string>
