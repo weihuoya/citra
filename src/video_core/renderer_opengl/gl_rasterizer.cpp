@@ -422,12 +422,7 @@ bool RasterizerOpenGL::SetupGeometryShader() {
 bool RasterizerOpenGL::AccelerateDrawBatch(bool is_indexed) {
     const auto& regs = Pica::g_state.regs;
     if (regs.pipeline.use_gs != Pica::PipelineRegs::UseGS::No) {
-        if (regs.pipeline.gs_config.mode != Pica::PipelineRegs::GSMode::Point) {
-            return false;
-        }
-        if (regs.pipeline.triangle_topology != Pica::PipelineRegs::TriangleTopology::Shader) {
-            return false;
-        }
+        return false;
     }
 
     if (!SetupVertexShader())
@@ -451,7 +446,6 @@ void RasterizerOpenGL::OnFrameUpdate() {
     const u32 current_frame = VideoCore::GetCurrentFrame();
     if (current_frame >= last_clean_frame + CLEAN_FRAME_INTERVAL) {
         res_cache.CleanUp(last_clean_frame);
-        // shader_program_manager->CleanUp(last_clean_frame);
         last_clean_frame = current_frame;
     }
 }
@@ -628,16 +622,12 @@ bool RasterizerOpenGL::Draw(bool accelerate, bool is_indexed) {
                 using TextureType = Pica::TexturingRegs::TextureConfig::TextureType;
                 switch (texture.config.type.Value()) {
                 case TextureType::Shadow2D: {
-                    if (!AllowShadow)
-                        continue;
                     Surface surface = res_cache.GetTextureSurface(texture);
                     state.image_shadow_texture_px =
                         surface != nullptr ? surface->texture.handle : 0;
                     continue;
                 }
                 case TextureType::ShadowCube: {
-                    if (!AllowShadow)
-                        continue;
                     Pica::Texture::TextureInfo info = Pica::Texture::TextureInfo::FromPicaRegister(
                         texture.config, texture.format);
                     Surface surface;

@@ -31,6 +31,7 @@ import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.appcompat.widget.Toolbar;
 import androidx.preference.PreferenceManager;
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import com.nononsenseapps.filepicker.DividerItemDecoration;
 
@@ -91,7 +92,7 @@ public final class MainActivity extends AppCompatActivity {
         protected void onPreExecute() {
             super.onPreExecute();
             ShowEmulationInfo(false);
-            mProgressBar.setVisibility(View.VISIBLE);
+            mSwipeRefreshLayout.setRefreshing(true);
         }
 
         @Override
@@ -123,7 +124,7 @@ public final class MainActivity extends AppCompatActivity {
 
             if (mIsListApp) {
                 mAdapter.setGameList(mInstalledGames);
-                mProgressBar.setVisibility(View.INVISIBLE);
+                mSwipeRefreshLayout.setRefreshing(false);
             }
         }
 
@@ -133,7 +134,7 @@ public final class MainActivity extends AppCompatActivity {
             if (mInstalledGames.size() == 0) {
                 ShowEmulationInfo(true);
             }
-            mProgressBar.setVisibility(View.INVISIBLE);
+            mSwipeRefreshLayout.setRefreshing(false);
         }
     }
 
@@ -145,6 +146,7 @@ public final class MainActivity extends AppCompatActivity {
     private TextView mGameEmulationInfo;
     private TextView mAppEmulationInfo;
     private RecyclerView mGameListView;
+    private SwipeRefreshLayout mSwipeRefreshLayout;
     private Button mBtnAddFiles;
     private Button mBtnInstallFile;
     private boolean mIsListApp;
@@ -183,6 +185,11 @@ public final class MainActivity extends AppCompatActivity {
         mGameListView.addItemDecoration(new DividerItemDecoration(lineDivider));
         RecyclerView.LayoutManager layoutManager = new GridLayoutManager(this, columns);
         mGameListView.setLayoutManager(layoutManager);
+
+        mSwipeRefreshLayout = findViewById(R.id.swipe_refresh_layout);
+        mSwipeRefreshLayout.setColorSchemeResources(R.color.citra_accent);
+        mSwipeRefreshLayout.post(() -> mSwipeRefreshLayout.setDistanceToTriggerSync(mSwipeRefreshLayout.getHeight() / 3));
+        mSwipeRefreshLayout.setOnRefreshListener(this::refreshLibrary);
 
         SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(this);
         mIsListApp = pref.getBoolean(PREF_LIST_TYPE, false);
@@ -235,9 +242,6 @@ public final class MainActivity extends AppCompatActivity {
             return true;
 
         case R.id.menu_refresh:
-            if (mIsListApp) {
-                mInstalledGames.clear();
-            }
             refreshLibrary();
             return true;
         }
@@ -369,6 +373,7 @@ public final class MainActivity extends AppCompatActivity {
 
     public void refreshLibrary() {
         if (mIsListApp) {
+            mInstalledGames.clear();
             new RefreshTask().execute();
         } else {
             List<String> dirs = new ArrayList<>();
@@ -393,6 +398,7 @@ public final class MainActivity extends AppCompatActivity {
             }
             saveGameList();
             showGames();
+            mSwipeRefreshLayout.setRefreshing(false);
         }
     }
 

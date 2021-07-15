@@ -245,7 +245,7 @@ public:
     void FlushAll();
 
     /// Handle any config changes
-    void OnFrameUpdate();
+    void CleanUp(u32 deadline_frame);
 
     u16 GetScaleFactor() const;
 
@@ -280,10 +280,6 @@ private:
 
     /// Increase/decrease the number of surface in pages touching the specified region
     void UpdatePagesCachedCount(PAddr addr, u32 size, int delta);
-
-    // clean surface cache
-    constexpr static u32 CLEAN_FRAME_INTERVAL = 60 * 60;
-    u32 last_clean_frame = 0;
 
     u16 resolution_scale_factor = 1;
 

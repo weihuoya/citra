@@ -1642,27 +1642,22 @@ void RasterizerCacheOpenGL::FlushAll() {
     FlushRegion(0, 0xFFFFFFFF);
 }
 
-void RasterizerCacheOpenGL::OnFrameUpdate() {
-    u32 current_frame = VideoCore::GetCurrentFrame();
-    if (current_frame > last_clean_frame + CLEAN_FRAME_INTERVAL) {
-        const u32 frame_lower_bound = current_frame - CLEAN_FRAME_INTERVAL;
-        const SurfaceInterval interval(0, 0xFFFFFFFF);
-        std::vector<Surface> unused;
-        for (const auto& pair : RangeFromInterval(surface_cache, interval)) {
-            auto& surfaceSet = pair.second;
-            for (const auto& surface : surfaceSet) {
-                if (surface->last_used_frame < frame_lower_bound) {
-                    unused.push_back(surface);
-                }
+void RasterizerCacheOpenGL::CleanUp(u32 deadline_frame) {
+    const SurfaceInterval interval(0, 0xFFFFFFFF);
+    std::vector<Surface> unused;
+    for (const auto& pair : RangeFromInterval(surface_cache, interval)) {
+        auto& surfaceSet = pair.second;
+        for (const auto& surface : surfaceSet) {
+            if (surface->last_used_frame < deadline_frame) {
+                unused.push_back(surface);
             }
         }
-        if (!unused.empty()) {
-            FlushAll();
-            for (const auto& surface : unused) {
-                UnregisterSurface(surface);
-            }
+    }
+    if (!unused.empty()) {
+        FlushAll();
+        for (const auto& surface : unused) {
+            UnregisterSurface(surface);
         }
-        last_clean_frame = current_frame;
     }
 }
 
