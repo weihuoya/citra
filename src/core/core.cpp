@@ -147,12 +147,15 @@ static void LoadOverrides(u64 title_id) {
         // Shovel Knight
         Settings::values.stream_buffer_hack = false;
     } else if (title_id == 0x000400000008FE00) {
-        // 1001 Spikes [USA]
+        // 1001 Spikes
         Settings::values.stream_buffer_hack = false;
         Settings::SetFMVHack(!Settings::values.core_downcount_hack);
     } else if (title_id == 0x0004000000049100 || title_id == 0x0004000000030400 ||
                title_id == 0x0004000000049000) {
         // Star Fox 64
+        Settings::values.disable_clip_coef = true;
+    } else if (title_id == 0x0004000000187E00 || title_id == 0x0004000000169A00) {
+        // Picross 2
         Settings::values.disable_clip_coef = true;
     } else if (title_id == 0x00040000000DCA00) {
         // Danball Senki W Chou Custom
@@ -160,13 +163,13 @@ static void LoadOverrides(u64 title_id) {
     }
 
     const std::array<u64, 7> cpu_limit_ids = {
-            0x000400000007C700, // Mario Tennis Open
-            0x000400000007C800, // Mario Tennis Open
-            0x0004000000064D00, // Mario Tennis Open
-            0x00040000000B9100, // Mario Tennis Open
-            0x00040000000DCD00, // Mario Golf: World Tour
-            0x00040000000A5300, // Mario Golf: World Tour
-            0x00040000000DCE00, // Mario Golf: World Tour
+        0x000400000007C700, // Mario Tennis Open
+        0x000400000007C800, // Mario Tennis Open
+        0x0004000000064D00, // Mario Tennis Open
+        0x00040000000B9100, // Mario Tennis Open
+        0x00040000000DCD00, // Mario Golf: World Tour
+        0x00040000000A5300, // Mario Golf: World Tour
+        0x00040000000DCE00, // Mario Golf: World Tour
     };
     for (auto id : cpu_limit_ids) {
         if (title_id == id) {

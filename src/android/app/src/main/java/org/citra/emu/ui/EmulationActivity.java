@@ -52,6 +52,9 @@ public final class EmulationActivity extends AppCompatActivity {
     private class InitTask extends AsyncTask<Context, Void, Map<Integer, Bitmap>> {
         @Override
         protected Map<Integer, Bitmap> doInBackground(Context... contexts) {
+            if (!DirectoryInitialization.isInitialized()) {
+                DirectoryInitialization.start(contexts[0]);
+            }
             Settings settings = new Settings();
             settings.loadSettings(mGameId);
             SettingSection section = settings.getSection(Settings.SECTION_INI_CORE);

@@ -85,7 +85,6 @@ static OGLFramebuffer g_draw_framebuffer;
 const FormatTuple& GetFormatTuple(PixelFormat pixel_format) {
     const SurfaceType type = SurfaceParams::GetFormatType(pixel_format);
     if (type == SurfaceType::Color) {
-        ASSERT(static_cast<std::size_t>(pixel_format) < fb_format_tuples.size());
         if (GLES) {
             return fb_format_tuples_oes[static_cast<unsigned int>(pixel_format)];
         }
@@ -928,17 +927,15 @@ Surface RasterizerCacheOpenGL::GetSurface(const SurfaceParams& params, ScaleMatc
             // it to adjust our params
             Surface expandable = FindMatch<MatchFlags::Expand | MatchFlags::Invalid>(
                 surface_cache, params, match_res_scale);
-            if (expandable != nullptr && expandable->res_scale > target_res_scale) {
+            if (expandable != nullptr) {
                 target_res_scale = expandable->res_scale;
-            }
-
-            // Keep res_scale when reinterpreting d24s8 -> rgba8
-            if (params.pixel_format == PixelFormat::RGBA8) {
+            } else if (params.pixel_format == PixelFormat::RGBA8) {
+                // Keep res_scale when reinterpreting d24s8 -> rgba8
                 SurfaceParams find_params = params;
                 find_params.pixel_format = PixelFormat::D24S8;
                 expandable = FindMatch<MatchFlags::Expand | MatchFlags::Invalid>(
                     surface_cache, find_params, match_res_scale);
-                if (expandable != nullptr && expandable->res_scale > target_res_scale) {
+                if (expandable != nullptr) {
                     target_res_scale = expandable->res_scale;
                 }
             }
@@ -1548,10 +1545,7 @@ bool RasterizerCacheOpenGL::NoUnimplementedReinterpretations(const Surface& surf
                                                              const SurfaceInterval& interval) {
     static constexpr std::array<PixelFormat, 17> all_formats{
         PixelFormat::RGBA8, PixelFormat::RGB8,   PixelFormat::RGB5A1, PixelFormat::RGB565,
-        PixelFormat::RGBA4, PixelFormat::IA8,    PixelFormat::RG8,    PixelFormat::I8,
-        PixelFormat::A8,    PixelFormat::IA4,    PixelFormat::I4,     PixelFormat::A4,
-        PixelFormat::ETC1,  PixelFormat::ETC1A4, PixelFormat::D16,    PixelFormat::D24,
-        PixelFormat::D24S8,
+        PixelFormat::RGBA4, PixelFormat::D16,    PixelFormat::D24, PixelFormat::D24S8,
     };
     bool implemented = true;
     for (PixelFormat format : all_formats) {

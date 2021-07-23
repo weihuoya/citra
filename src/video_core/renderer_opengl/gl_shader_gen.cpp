@@ -1885,10 +1885,13 @@ struct Vertex {
            semantic(VSOutputAttributes::POSITION_Z) + ", " +
            semantic(VSOutputAttributes::POSITION_W) + ");\n";
     out += "    gl_Position = vtx_pos;\n";
-    out += "#if !defined(CITRA_GLES) || defined(GL_EXT_clip_cull_distance)\n";
-    out += "    gl_ClipDistance[0] = -vtx_pos.z;\n"; // fixed PICA clipping plane z <= 0
-    out += "    gl_ClipDistance[1] = dot(clip_coef, vtx_pos);\n";
-    out += "#endif // !defined(CITRA_GLES) || defined(GL_EXT_clip_cull_distance)\n\n";
+
+    if (!Settings::values.disable_clip_coef) {
+        out += "#if !defined(CITRA_GLES) || defined(GL_EXT_clip_cull_distance)\n";
+        out += "    gl_ClipDistance[0] = -vtx_pos.z;\n"; // fixed PICA clipping plane z <= 0
+        out += "    gl_ClipDistance[1] = dot(clip_coef, vtx_pos);\n";
+        out += "#endif // !defined(CITRA_GLES) || defined(GL_EXT_clip_cull_distance)\n\n";
+    }
 
     out += "    vec4 vtx_quat = GetVertexQuaternion(vtx);\n";
     out += "    normquat = mix(vtx_quat, -vtx_quat, bvec4(quats_opposite));\n\n";
