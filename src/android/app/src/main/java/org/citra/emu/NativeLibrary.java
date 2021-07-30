@@ -109,7 +109,7 @@ public final class NativeLibrary {
         HandleImage(pixels, width, height);
     }
 
-    public static void updateProgress(String name, int written, int total) {
+    public static void updateProgress(String name, long written, long total) {
         EmulationActivity activity1 = EmulationActivity.get();
         if (activity1 != null) {
             activity1.runOnUiThread(() -> activity1.updateProgress(name, written, total));

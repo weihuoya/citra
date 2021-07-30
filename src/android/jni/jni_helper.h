@@ -264,6 +264,10 @@ private:
         return "J";
     }
 
+    static std::string JniSignature(unsigned long) {
+        return "J";
+    }
+
     static std::string JniSignature(float) {
         return "F";
     }

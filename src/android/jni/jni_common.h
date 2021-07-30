@@ -19,7 +19,7 @@ public:
                                 u32 height);
     static void LoadImageFromFile(std::vector<u8>& pixels, u32& width, u32& height,
                                   const std::string& path);
-    static void UpdateProgress(const std::string& name, u32 progress, u32 total);
+    static void UpdateProgress(const std::string& name, u64 progress, u64 total);
     static void ShowInputBoxDialog(int maxLength, const std::string& error, const std::string& hint,
                                    const std::string& button0, const std::string& button1,
                                    const std::string& button2);

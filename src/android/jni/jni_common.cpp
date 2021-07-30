@@ -61,7 +61,7 @@ void NativeLibrary::LoadImageFromFile(std::vector<u8>& pixels, u32& width, u32& 
     JniHelper::CallStaticMethod<void>(CLASS, "loadImageFromFile", path);
 }
 
-void NativeLibrary::UpdateProgress(const std::string& name, u32 progress, u32 total) {
+void NativeLibrary::UpdateProgress(const std::string& name, u64 progress, u64 total) {
     JniHelper::CallStaticMethod<void>(CLASS, "updateProgress", name, progress, total);
 }
 
