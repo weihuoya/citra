@@ -73,6 +73,7 @@ public abstract class AbstractFilePickerFragment<T>
     protected final HashSet<CheckableViewHolder> mCheckedVisibleViewHolders;
     protected int mode = MODE_FILE;
     protected T mCurrentPath = null;
+    protected String mStartPath = null;
     protected boolean allowMultiple = false;
     protected boolean allowExistingFile = true;
     protected boolean singleClick = false;
@@ -403,9 +404,9 @@ public abstract class AbstractFilePickerFragment<T>
                     getArguments().getBoolean(KEY_ALLOW_EXISTING_FILE, allowExistingFile);
                 singleClick = getArguments().getBoolean(KEY_SINGLE_CLICK, singleClick);
                 if (getArguments().containsKey(KEY_START_PATH)) {
-                    String path = getArguments().getString(KEY_START_PATH);
-                    if (path != null) {
-                        T file = getPath(path.trim());
+                    mStartPath = getArguments().getString(KEY_START_PATH);
+                    if (mStartPath != null) {
+                        T file = getPath(mStartPath.trim());
                         if (isDir(file)) {
                             mCurrentPath = file;
                         } else {

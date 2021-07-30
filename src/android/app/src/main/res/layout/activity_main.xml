@@ -73,9 +73,26 @@
 
     <ProgressBar
         android:id="@+id/progress_bar"
-        android:visibility="invisible"
         android:layout_centerInParent="true"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"/>
+        android:visibility="invisible"
+        android:layout_width="80dp"
+        android:layout_height="80dp"/>
+
+    <TextView
+        android:id="@+id/progress_text"
+        android:text="99%"
+        android:shadowColor="@android:color/black"
+        android:shadowDx="1.3"
+        android:shadowDy="1.3"
+        android:shadowRadius="1.3"
+        android:textColor="@color/citra_accent"
+        android:typeface="monospace"
+        android:textSize="16sp"
+        android:gravity="center"
+        android:clickable="true"
+        android:focusable="true"
+        android:visibility="invisible"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" />
 
 </RelativeLayout>

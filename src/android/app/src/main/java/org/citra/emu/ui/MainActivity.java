@@ -19,6 +19,7 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
@@ -143,6 +144,7 @@ public final class MainActivity extends AppCompatActivity {
     private String[] mFilesToAdd;
     private GameAdapter mAdapter;
     private ProgressBar mProgressBar;
+    private TextView mProgressText;
     private TextView mGameEmulationInfo;
     private TextView mAppEmulationInfo;
     private RecyclerView mGameListView;
@@ -168,6 +170,7 @@ public final class MainActivity extends AppCompatActivity {
         setSupportActionBar(toolbar);
 
         mProgressBar = findViewById(R.id.progress_bar);
+        mProgressText = findViewById(R.id.progress_text);
         mGameEmulationInfo = findViewById(R.id.game_emulation_info);
         mAppEmulationInfo = findViewById(R.id.app_emulation_info);
         mBtnAddFiles = findViewById(R.id.btn_add_files);
@@ -269,6 +272,7 @@ public final class MainActivity extends AppCompatActivity {
             }
             mFilesToAdd = null;
             final String[] files = filelist.toArray(new String[0]);
+            getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
             new Thread(() -> NativeLibrary.InstallCIA(files)).start();
         }
     }
@@ -484,11 +488,15 @@ public final class MainActivity extends AppCompatActivity {
         return list;
     }
 
-    public void updateProgress(String name, int written, int total) {
+    public void updateProgress(String name, long written, long total) {
         if (written < total) {
             mProgressBar.setVisibility(View.VISIBLE);
+            mProgressText.setVisibility(View.VISIBLE);
+            mProgressText.setText((written * 100 / total) + "%");
         } else {
             mProgressBar.setVisibility(View.INVISIBLE);
+            mProgressText.setVisibility(View.INVISIBLE);
+            getWindow().clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
             if (total == 0) {
                 if (written == 0) {
                     Toast.makeText(this, getString(R.string.cia_install_success), Toast.LENGTH_LONG).show();

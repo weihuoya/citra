@@ -460,7 +460,7 @@ public final class EmulationActivity extends AppCompatActivity {
         }
     }
 
-    public void updateProgress(String name, int written, int total) {
+    public void updateProgress(String name, long written, long total) {
         mEmulationFragment.updateProgress(name, written, total);
     }
 

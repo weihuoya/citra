@@ -424,7 +424,7 @@ public final class EmulationFragment extends Fragment implements SurfaceHolder.C
         }, 6 * 1000);
     }
 
-    public void updateProgress(String name, int written, int total) {
+    public void updateProgress(String name, long written, long total) {
         mProgressBar.setVisibility(written < total ? View.VISIBLE : View.INVISIBLE);
     }
 

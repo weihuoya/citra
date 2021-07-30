@@ -7,8 +7,11 @@
 package com.nononsenseapps.filepicker;
 
 import android.Manifest;
+import android.content.Context;
 import android.content.pm.PackageManager;
 import android.net.Uri;
+import android.os.Build;
+import android.os.Environment;
 import android.os.FileObserver;
 import android.widget.Toast;
 
@@ -21,6 +24,9 @@ import androidx.recyclerview.widget.SortedList;
 import androidx.recyclerview.widget.SortedListAdapterCallback;
 
 import java.io.File;
+import java.util.ArrayList;
+import java.util.List;
+
 import org.citra.emu.R;
 
 /**
@@ -217,6 +223,38 @@ public class FilePickerFragment extends AbstractFilePickerFragment<File> {
             @Override
             public SortedList<File> loadInBackground() {
                 File[] listFiles = mCurrentPath.listFiles();
+                if (listFiles == null && mStartPath != null) {
+                    String path = mCurrentPath.getPath();
+                    if (mStartPath.startsWith(path)) {
+                        int length = path.length();
+                        if (!path.endsWith(File.separator)) {
+                            length += 1;
+                        }
+                        String subpath = mStartPath.substring(length);
+                        int index = subpath.indexOf(File.separator);
+                        if (index != -1) {
+                            subpath = subpath.substring(0, index);
+                        }
+                        File file = new File(path + File.separator + subpath);
+
+                        if (path.equals(File.separator)) {
+                            List<String> sdcards = getSdCardPaths(getContext());
+                            List<File> files = new ArrayList<>();
+                            if (file.exists()) {
+                                files.add(file);
+                            }
+                            for (String sdcard : sdcards) {
+                                file = new File(sdcard);
+                                if (file.exists()) {
+                                    files.add(file);
+                                }
+                            }
+                            listFiles = files.toArray(new File[0]);
+                        } else if (file.exists()) {
+                            listFiles = new File[]{file};
+                        }
+                    }
+                }
                 final int initCap = listFiles == null ? 0 : listFiles.length;
 
                 SortedList<File> files = new SortedList<>(
@@ -331,5 +369,86 @@ public class FilePickerFragment extends AbstractFilePickerFragment<File> {
         } else {
             return lhs.getName().compareToIgnoreCase(rhs.getName());
         }
+    }
+
+    // Unofficial hacks to get a list of SD cards that are not the main "external storage".
+    private static List<String> getSdCardPaths(final Context context) {
+        // Q is the last version that will support normal file access.
+        List<String> list = null;
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT && Build.VERSION.SDK_INT <= Build.VERSION_CODES.Q) {
+            // Log.i(TAG, "getSdCardPaths: Trying KitKat method");
+            list = getSdCardPaths19(context);
+        }
+
+        if (list == null) {
+            // Log.i(TAG, "getSdCardPaths: Attempting fallback");
+            // Try another method.
+            list = new ArrayList<String>();
+            File[] fileList = new File("/storage/").listFiles();
+            if (fileList != null) {
+                String removableStoragePath = Environment.getExternalStorageDirectory().getAbsolutePath();
+                for (File file : fileList) {
+                    if (!file.getAbsolutePath().equalsIgnoreCase(removableStoragePath) &&
+                            file.isDirectory() &&
+                            file.canRead()) {
+                        list.add(file.getAbsolutePath());
+                    }
+                }
+            }
+        }
+
+        // TODO: On older devices, try System.getenv(¡°EXTERNAL_SDCARD_STORAGE¡±)
+
+        return list;
+    }
+
+    /**
+     * returns a list of all available sd cards paths, or null if not found.
+     */
+    private static List<String> getSdCardPaths19(final Context context) {
+        final File[] externalCacheDirs = context.getExternalCacheDirs();
+        if (externalCacheDirs == null || externalCacheDirs.length==0)
+            return null;
+        if (externalCacheDirs.length == 1) {
+            if (externalCacheDirs[0] == null)
+                return null;
+            final String storageState = Environment.getStorageState(externalCacheDirs[0]);
+            if (!Environment.MEDIA_MOUNTED.equals(storageState))
+                return null;
+            if (Environment.isExternalStorageEmulated())
+                return null;
+        }
+        final List<String> result = new ArrayList<>();
+        if (externalCacheDirs.length == 1)
+            result.add(getRootOfInnerSdCardFolder(externalCacheDirs[0]));
+        for (int i = 1; i < externalCacheDirs.length; ++i) {
+            final File file=externalCacheDirs[i];
+            if (file == null)
+                continue;
+            final String storageState = Environment.getStorageState(file);
+            if (Environment.MEDIA_MOUNTED.equals(storageState))
+                result.add(getRootOfInnerSdCardFolder(externalCacheDirs[i]));
+        }
+        if (result.isEmpty())
+            return null;
+        return result;
+    }
+
+    /** Given any file/folder inside an sd card, this will return the path of the sd card */
+    private static String getRootOfInnerSdCardFolder(File file) {
+        if (file == null)
+            return null;
+        final long totalSpace = file.getTotalSpace();
+        while (true) {
+            final File parentFile = file.getParentFile();
+            if (parentFile == null || !parentFile.canRead()) {
+                break;
+            }
+            if (parentFile.getTotalSpace() != totalSpace) {
+                break;
+            }
+            file = parentFile;
+        }
+        return file.getAbsolutePath();
     }
 }
