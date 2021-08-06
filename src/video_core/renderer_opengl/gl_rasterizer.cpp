@@ -1321,14 +1321,22 @@ bool RasterizerOpenGL::AccelerateDisplayTransfer(const GPU::Regs::DisplayTransfe
 
     // hack for Tales of the Abyss / Pac Man Party 3D
     if (Settings::values.display_transfer_hack) {
-        src_params.addr += 0x6000;
-        src_params.end += 0x6000;
         if (dst_params.height == 400) {
-            dst_params.addr += 0x1B0;
-            dst_params.end += 0x1B0;
+            if (dst_params.addr == 0x183CE430) {
+                dst_params.addr -= 0xCE430;
+                dst_params.end -= 0xCE430;
+            } else if (dst_params.addr == 0x18387F30) {
+                dst_params.addr -= 0x41A30;
+                dst_params.end -= 0x41A30;
+            }
         } else {
-            dst_params.addr += 0xC0;
-            dst_params.end += 0xC0;
+            if (dst_params.addr == 0x180B4830) {
+                dst_params.addr -= 0x34830;
+                dst_params.end -= 0x34830;
+            } else if (dst_params.addr == 0x1807C430) {
+                dst_params.addr += 0x3BFD0;
+                dst_params.end += 0x3BFD0;
+            }
         }
     }
 

@@ -572,7 +572,7 @@ void FS_USER::CardSlotIsInserted(Kernel::HLERequestContext& ctx) {
     IPC::RequestBuilder rb = rp.MakeBuilder(2, 0);
     rb.Push(RESULT_SUCCESS);
     rb.Push(false);
-    LOG_WARNING(Service_FS, "(STUBBED) FS_USER CardSlotIsInserted called");
+    LOG_DEBUG(Service_FS, "(STUBBED) FS_USER CardSlotIsInserted called");
 }
 
 void FS_USER::GetCardType(Kernel::HLERequestContext& ctx) {
@@ -590,6 +590,57 @@ void FS_USER::DeleteSystemSaveData(Kernel::HLERequestContext& ctx) {
 
     IPC::RequestBuilder rb = rp.MakeBuilder(1, 0);
     rb.Push(archives.DeleteSystemSaveData(savedata_high, savedata_low));
+
+    LOG_DEBUG(Service_FS, "(STUBBED) FS_USER DeleteSystemSaveData called");
+}
+
+void FS_USER::EnumerateExtSaveData(Kernel::HLERequestContext& ctx) {
+    IPC::RequestParser rp(ctx, 0x855, 4, 2);
+    u32 buff_size = rp.Pop<u32>();
+    MediaType media_type = static_cast<MediaType>(rp.Pop<u8>());
+    u32 unknown = rp.Pop<u32>();
+    u32 shared = rp.Pop<u32>();
+    auto& extdata_list = rp.PopMappedBuffer();
+
+    IPC::RequestBuilder rb = rp.MakeBuilder(2, 0);
+
+    std::string title_path;
+    if (media_type == Service::FS::MediaType::NAND) {
+        title_path = fmt::format("{}{}/extdata/",
+                                 FileUtil::GetUserPath(FileUtil::UserPath::NANDDir), SYSTEM_ID);
+    } else if (media_type == Service::FS::MediaType::SDMC) {
+        title_path = fmt::format("{}Nintendo 3DS/{}/{}/extdata/",
+                                 FileUtil::GetUserPath(FileUtil::UserPath::SDMCDir), SYSTEM_ID, SDCARD_ID);
+    } else {
+        rb.Push(RESULT_SUCCESS);
+        rb.Push(0);
+        return;
+    }
+
+    std::vector<u64_le> title_list;
+    FileUtil::FSTEntry entries;
+    constexpr std::size_t TITLE_ID_VALID_LENGTH = 16;
+    FileUtil::ScanDirectoryTree(title_path, entries, 1);
+    for (const FileUtil::FSTEntry& tid_high : entries.children) {
+        for (const FileUtil::FSTEntry& tid_low : tid_high.children) {
+            std::string tid_string = tid_high.virtualName + tid_low.virtualName;
+            if (tid_string.length() == TITLE_ID_VALID_LENGTH) {
+                std::string user_path = fmt::format("{}{}/{}/user/", title_path, tid_high.virtualName, tid_low.virtualName);
+                if (FileUtil::Exists(user_path)) {
+                    const u64 tid = std::stoull(tid_string, nullptr, 16);
+                    title_list.push_back(tid);
+                }
+            }
+        }
+    }
+
+    u32 count = std::min(title_list.size(), buff_size / sizeof(u64));
+    extdata_list.Write(title_list.data(), 0, count * sizeof(u64));
+    rb.Push(RESULT_SUCCESS);
+    rb.Push(count);
+
+    LOG_DEBUG(Service_FS, "FS_USER EnumerateExtSaveData buff_size={} media_type={:08X}, unk: {}, shared: {:08X}",
+              buff_size, static_cast<u32>(media_type), unknown, shared);
 }
 
 void FS_USER::CreateSystemSaveData(Kernel::HLERequestContext& ctx) {
@@ -1024,7 +1075,7 @@ FS_USER::FS_USER(Core::System& system)
         {0x08520100, &FS_USER::DeleteExtSaveData, "DeleteExtSaveData"},
         {0x08530142, nullptr, "ReadExtSaveDataIcon"},
         {0x085400C0, nullptr, "GetExtDataBlockSize"},
-        {0x08550102, nullptr, "EnumerateExtSaveData"},
+        {0x08550102, &FS_USER::EnumerateExtSaveData, "EnumerateExtSaveData"},
         {0x08560240, &FS_USER::CreateSystemSaveData, "CreateSystemSaveData"},
         {0x08570080, &FS_USER::DeleteSystemSaveData, "DeleteSystemSaveData"},
         {0x08580000, nullptr, "StartDeviceMoveAsSource"},
