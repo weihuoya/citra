@@ -598,6 +598,7 @@ private:
     void GetSaveDataSecureValue(Kernel::HLERequestContext& ctx);
 
     void GetCardType(Kernel::HLERequestContext& ctx);
+    void EnumerateExtSaveData(Kernel::HLERequestContext& ctx);
 
     static ResultVal<u16> GetSpecialContentIndexFromGameCard(u64 title_id, SpecialContentType type);
     static ResultVal<u16> GetSpecialContentIndexFromTMD(MediaType media_type, u64 title_id,

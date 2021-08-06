@@ -397,7 +397,7 @@ public class FilePickerFragment extends AbstractFilePickerFragment<File> {
             }
         }
 
-        // TODO: On older devices, try System.getenv(¡°EXTERNAL_SDCARD_STORAGE¡±)
+        // TODO: On older devices, try System.getenv("EXTERNAL_SDCARD_STORAGE")
 
         return list;
     }

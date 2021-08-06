@@ -107,7 +107,7 @@ System::ResultStatus System::SingleStep() {
 
 static void LoadOverrides(u64 title_id) {
     if (title_id == 0x0004000000068B00 || title_id == 0x0004000000061300 ||
-        title_id == 0x000400000004A700) {
+        title_id == 0x000400000004A700 || title_id == 0x000400000005D700) {
         // hack for Tales of the Abyss / Pac Man Party 3D
         Settings::values.display_transfer_hack = true;
         // crash on `g_state.geometry_pipeline.Reconfigure();`
