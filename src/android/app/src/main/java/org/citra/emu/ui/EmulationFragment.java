@@ -10,14 +10,21 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.view.Choreographer;
 import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.Surface;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewTreeObserver;
+import android.view.inputmethod.EditorInfo;
+import android.view.inputmethod.InputMethod;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.FrameLayout;
+import android.widget.ImageButton;
+import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
@@ -29,6 +36,7 @@ import org.citra.emu.R;
 import org.citra.emu.overlay.InputOverlay;
 import org.citra.emu.overlay.LassoOverlay;
 import org.citra.emu.overlay.ResizeOverlay;
+import org.citra.emu.utils.NetPlayManager;
 import org.citra.emu.utils.TranslateHelper;
 
 import java.util.ArrayList;
@@ -55,6 +63,10 @@ public final class EmulationFragment extends Fragment implements SurfaceHolder.C
     private TextView mNetPlayMessage;
     private ProgressBar mProgressBar;
     private Button mBtnDone;
+
+    private LinearLayout mChatLayout;
+    private EditText mChatEditText;
+    private ImageButton mBtnChatSend;
 
     private List<String> mMessageList;
     private Handler mTaskHandler;
@@ -125,6 +137,7 @@ public final class EmulationFragment extends Fragment implements SurfaceHolder.C
         mState = EmulationState.STOPPED;
     }
 
+    @SuppressLint("ClickableViewAccessibility")
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
@@ -156,6 +169,95 @@ public final class EmulationFragment extends Fragment implements SurfaceHolder.C
         mBtnDone.setOnClickListener(v -> {
             stopConfiguringControls();
             stopConfiguringLayout();
+        });
+
+        mChatLayout = contents.findViewById(R.id.chat_input);
+        if (!NetPlayManager.NetPlayIsJoined()) {
+            mChatLayout.setVisibility(View.GONE);
+        }
+        mChatLayout.setOnTouchListener(new View.OnTouchListener() {
+            private int prevX;
+            private int prevY;
+            private int leftMargin;
+            private int topMargin;
+            private FrameLayout.LayoutParams params;
+            @Override
+            public boolean onTouch(View v, MotionEvent event) {
+                switch (event.getAction()) {
+                    case MotionEvent.ACTION_MOVE: {
+                        final int currX = (int)event.getRawX();
+                        final int currY = (int)event.getRawY();
+                        //params.leftMargin = leftMargin + currX - prevX;
+                        params.topMargin = topMargin + currY - prevY;
+                        v.setLayoutParams(params);
+                        return true;
+                    }
+                    case MotionEvent.ACTION_UP: {
+                        return true;
+                    }
+                    case MotionEvent.ACTION_DOWN: {
+                        prevX = (int) event.getRawX();
+                        prevY = (int) event.getRawY();
+                        params = (FrameLayout.LayoutParams)v.getLayoutParams();
+                        leftMargin = params.leftMargin;
+                        topMargin = params.topMargin;
+                        return true;
+                    }
+                }
+                return false;
+            }
+        });
+
+        mBtnChatSend = contents.findViewById(R.id.chat_send_button);
+        mBtnChatSend.setOnTouchListener(new View.OnTouchListener() {
+            private int prevX;
+            private int prevY;
+            private int leftMargin;
+            private int topMargin;
+            private FrameLayout.LayoutParams params;
+            private long touchtime;
+            @Override
+            public boolean onTouch(View v, MotionEvent event) {
+                switch (event.getAction()) {
+                    case MotionEvent.ACTION_MOVE: {
+                        final int currX = (int)event.getRawX();
+                        final int currY = (int)event.getRawY();
+                        //params.leftMargin = leftMargin + currX - prevX;
+                        params.topMargin = topMargin + currY - prevY;
+                        mChatLayout.setLayoutParams(params);
+                        return true;
+                    }
+                    case MotionEvent.ACTION_UP: {
+                        if (System.currentTimeMillis() - touchtime < 100) {
+                            toggleInput();
+                        }
+                        return true;
+                    }
+                    case MotionEvent.ACTION_DOWN: {
+                        prevX = (int) event.getRawX();
+                        prevY = (int) event.getRawY();
+                        params = (FrameLayout.LayoutParams)mChatLayout.getLayoutParams();
+                        leftMargin = params.leftMargin;
+                        topMargin = params.topMargin;
+                        touchtime = System.currentTimeMillis();
+                        return true;
+                    }
+                }
+                return false;
+            }
+        });
+
+        mChatEditText = contents.findViewById(R.id.chat_text_input);
+        mChatEditText.setOnEditorActionListener((view, action, event) -> {
+            if (action == EditorInfo.IME_ACTION_SEND) {
+                String name = NetPlayManager.GetUsername(getActivity());
+                String msg = view.getText().toString();
+                addNetPlayMessage(name + ": " + msg);
+                NetPlayManager.NetPlaySendMessage(msg);
+                view.setText("");
+                return true;
+            }
+            return false;
         });
 
         return contents;
@@ -244,6 +346,25 @@ public final class EmulationFragment extends Fragment implements SurfaceHolder.C
                 observer.removeOnGlobalLayoutListener(this);
             }
         });
+    }
+
+    private void toggleInput() {
+        float alpha = mChatLayout.getAlpha();
+        final Activity activity = getActivity();
+        final View decor = activity.getWindow().getDecorView();
+        InputMethodManager imm = activity.getSystemService(InputMethodManager.class);
+
+        if (alpha > 0.5f) {
+            mChatEditText.clearFocus();
+            mChatEditText.setVisibility(View.GONE);
+            mChatLayout.animate().alpha(0.5f).setDuration(500).start();
+            imm.hideSoftInputFromWindow(decor.getWindowToken(), 0);
+        } else {
+            mChatLayout.animate().alpha(1.0f).setDuration(500).start();
+            mChatEditText.setVisibility(View.VISIBLE);
+            mChatEditText.requestFocus();
+            imm.showSoftInput(mChatEditText, InputMethod.SHOW_FORCED);
+        }
     }
 
     public void setTranslateProgress(int progress) {
@@ -398,6 +519,8 @@ public final class EmulationFragment extends Fragment implements SurfaceHolder.C
         if (msg.isEmpty()) {
             return;
         }
+
+        mChatLayout.setVisibility(NetPlayManager.NetPlayIsJoined() ? View.VISIBLE : View.GONE);
 
         if (mMessageList == null) {
             mMessageList = new ArrayList<>();

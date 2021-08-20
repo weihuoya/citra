@@ -187,31 +187,25 @@ public final class EmulationActivity extends AppCompatActivity {
         int action;
         switch (event.getAction()) {
         case KeyEvent.ACTION_DOWN:
-            // Handling the case where the back button is pressed.
-            if (button == KeyEvent.KEYCODE_BACK) {
-                onBackPressed();
-                return true;
-            }
-            // Normal key events.
             action = NativeLibrary.ButtonState.PRESSED;
             break;
         case KeyEvent.ACTION_UP:
             action = NativeLibrary.ButtonState.RELEASED;
             break;
         default:
-            return false;
+            return super.dispatchKeyEvent(event);
         }
 
-        if (input != null)
-            return NativeLibrary.KeyEvent(button, action);
-        else
-            return false;
+        if (input != null && NativeLibrary.KeyEvent(button, action)) {
+            return true;
+        } else
+            return super.dispatchKeyEvent(event);
     }
 
     @Override
     public boolean dispatchGenericMotionEvent(MotionEvent event) {
         if (mMenuVisible) {
-            return false;
+            return super.dispatchGenericMotionEvent(event);
         }
 
         if (((event.getSource() & InputDevice.SOURCE_CLASS_JOYSTICK) == 0)) {

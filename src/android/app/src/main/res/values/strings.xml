@@ -103,6 +103,7 @@
     <string name="multiplayer_member_banned">%1$s banned</string>
     <string name="multiplayer_address_unbanned">address unbanned</string>
     <string name="multiplayer_kick_member">Kick Out</string>
+    <string name="multiplayer_chat_input_hint">Send messages……</string>
 
     <string name="emulation_system_files">System Files</string>
     <string name="emulation_memory_viewer">Memory Viewer</string>

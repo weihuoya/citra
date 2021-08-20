@@ -1,10 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
-             xmlns:tools="http://schemas.android.com/tools"
-             android:layout_width="match_parent"
-             android:layout_height="match_parent"
-             android:keepScreenOn="true"
-             tools:context="org.citra.emu.ui.EmulationFragment">
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:keepScreenOn="true"
+    tools:context="org.citra.emu.ui.EmulationFragment">
 
     <SurfaceView
         android:id="@+id/surface_emulation"
@@ -47,7 +48,7 @@
     <TextView
         android:id="@+id/netplay_message"
         android:layout_marginStart="8dp"
-        android:layout_marginTop="2dp"
+        android:layout_marginTop="8dp"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:visibility="invisible"
@@ -82,5 +83,59 @@
         android:textColor="@android:color/white"
         android:text="@string/emulation_done"
         android:visibility="invisible"/>
+
+    <LinearLayout
+        android:id="@+id/chat_input"
+        android:animateLayoutChanges="true"
+        android:orientation="horizontal"
+        android:clickable="true"
+        android:focusable="true"
+        android:paddingTop="2dp"
+        android:paddingBottom="0dp"
+        android:alpha="0.5"
+        android:layout_marginTop="32dp"
+        android:layout_marginStart="2dp"
+        android:background="@drawable/rounded"
+        android:backgroundTint="#AAFBFBFB"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content">
+
+        <EditText
+            android:id="@+id/chat_text_input"
+            android:hint="@string/multiplayer_chat_input_hint"
+            android:singleLine="true"
+            android:paddingTop="0dp"
+            android:paddingBottom="8dp"
+            android:paddingStart="2dp"
+            android:paddingEnd="2dp"
+            android:inputType="text"
+            android:layout_marginStart="8dp"
+            app:backgroundTint="@color/citra_orange"
+            android:imeOptions="actionSend"
+            android:layout_marginEnd="0dp"
+            android:layout_marginBottom="0dp"
+            android:layout_marginTop="0dp"
+            android:layout_width="240dp"
+            android:visibility="gone"
+            android:layout_height="wrap_content"/>
+
+        <ImageButton
+            android:src="@drawable/outline_message_24"
+            android:background="@drawable/rounded"
+            android:backgroundTint="#F9F9F9F9"
+            android:id="@+id/chat_send_button"
+            android:minWidth="32dp"
+            android:minHeight="32dp"
+            android:layout_marginStart="2dp"
+            android:layout_marginEnd="2dp"
+            android:layout_marginBottom="2dp"
+            android:layout_marginTop="0dp"
+            android:tint="@color/citra_orange"
+            style="@style/Widget.AppCompat.Button.Colored"
+            android:stateListAnimator="@null"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:contentDescription="TODO" />
+    </LinearLayout>
 
 </FrameLayout>

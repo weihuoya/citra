@@ -890,6 +890,11 @@ Java_org_citra_emu_utils_NetPlayManager_NetPlayRoomInfo(JNIEnv* env, jclass claz
 }
 
 JNIEXPORT jboolean JNICALL
+Java_org_citra_emu_utils_NetPlayManager_NetPlayIsJoined(JNIEnv* env, jclass clazz) {
+    return NetPlayIsJoined();
+}
+
+JNIEXPORT jboolean JNICALL
 Java_org_citra_emu_utils_NetPlayManager_NetPlayIsHostedRoom(JNIEnv* env, jclass clazz) {
     return NetPlayIsHostedRoom();
 }

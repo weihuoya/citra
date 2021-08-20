@@ -108,7 +108,7 @@ public class NetPlayManager {
         });
     }
 
-    private static String GetUsername(final Activity activity) {
+    public static String GetUsername(final Activity activity) {
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(activity);
         String name = "Citra" + (int) (Math.random() * 100);
         return prefs.getString("NetPlayUsername", name);
@@ -145,6 +145,8 @@ public class NetPlayManager {
     private static native int NetPlayJoinRoom(String ipaddress, int port, String username);
 
     public static native String[] NetPlayRoomInfo();
+
+    public static native boolean NetPlayIsJoined();
 
     public static native boolean NetPlayIsHostedRoom();
 
@@ -237,7 +239,7 @@ public class NetPlayManager {
     @SuppressWarnings("deprecation")
     private static String GetIpAddressByWifi(final Activity activity) {
         int ipaddress = 0;
-        WifiManager wifiManager = (WifiManager) activity.getSystemService(Context.WIFI_SERVICE);
+        WifiManager wifiManager = activity.getSystemService(WifiManager.class);
         WifiInfo wifiInfo = wifiManager.getConnectionInfo();
         if (wifiInfo != null) {
             ipaddress = wifiInfo.getIpAddress();
