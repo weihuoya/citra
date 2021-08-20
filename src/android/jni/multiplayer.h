@@ -43,6 +43,7 @@ NetPlayStatus NetPlayCreateRoom(const std::string& ipaddress, int port,
                                 const std::string& username);
 NetPlayStatus NetPlayJoinRoom(const std::string& ipaddress, int port, const std::string& username);
 std::vector<std::string> NetPlayRoomInfo();
+bool NetPlayIsJoined();
 bool NetPlayIsHostedRoom();
 void NetPlaySendMessage(const std::string& msg);
 void NetPlayKickUser(const std::string& username);

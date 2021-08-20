@@ -269,8 +269,7 @@ public final class EditorActivity extends AppCompatActivity {
 
     private void toggleListView(boolean isShowList) {
         if (isShowList) {
-            InputMethodManager imm =
-                (InputMethodManager)getSystemService(Context.INPUT_METHOD_SERVICE);
+            InputMethodManager imm = getSystemService(InputMethodManager.class);
             imm.hideSoftInputFromWindow(getWindow().getDecorView().getWindowToken(), 0);
             mListView.setVisibility(View.VISIBLE);
             mEditor.setVisibility(View.INVISIBLE);

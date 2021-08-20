@@ -532,7 +532,6 @@ public class RunningSettingDialog extends DialogFragment {
         private int mHideInputOverlay;
         private int mControllerScale;
         private int mControllerAlpha;
-        private int mEmulateMotionByTouch;
         private ArrayList<SettingsItem> mSettings;
 
         public void loadMainMenu() {
@@ -543,11 +542,11 @@ public class RunningSettingDialog extends DialogFragment {
             mSettings.add(new SettingsItem(SettingsItem.SETTING_ROTATE_SCREEN, R.string.emulation_screen_rotation, SettingsItem.TYPE_TEXT, 0));
             mSettings.add(new SettingsItem(SettingsItem.SETTING_CHEAT_CODE, R.string.menu_cheat_code, SettingsItem.TYPE_TEXT, 0));
             mSettings.add(new SettingsItem(SettingsItem.SETTING_MEMORY_VIEWER, R.string.emulation_memory_search, SettingsItem.TYPE_TEXT, 0));
+            mSettings.add(new SettingsItem(SettingsItem.SETTING_LOAD_SUBMENU, R.string.multiplayer, SettingsItem.TYPE_TEXT, MENU_MULTIPLAYER));
+            mSettings.add(new SettingsItem(SettingsItem.SETTING_EDIT_SCREEN, R.string.emulation_screen_layout, SettingsItem.TYPE_TEXT, 0));
             if (TranslateHelper.BaiduOCRToken != null) {
                 mSettings.add(new SettingsItem(SettingsItem.SETTING_LOAD_SUBMENU, R.string.translate_settings, SettingsItem.TYPE_TEXT, MENU_TRANSLATE));
             }
-            mSettings.add(new SettingsItem(SettingsItem.SETTING_LOAD_SUBMENU, R.string.multiplayer, SettingsItem.TYPE_TEXT, MENU_MULTIPLAYER));
-            mSettings.add(new SettingsItem(SettingsItem.SETTING_EDIT_SCREEN, R.string.emulation_screen_layout, SettingsItem.TYPE_TEXT, 0));
             mSettings.add(new SettingsItem(SettingsItem.SETTING_EXIT_GAME, R.string.emulation_stop_running, SettingsItem.TYPE_TEXT, 0));
             notifyDataSetChanged();
         }

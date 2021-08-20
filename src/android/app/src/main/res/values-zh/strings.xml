@@ -103,6 +103,7 @@
     <string name="multiplayer_member_banned">%1$s 被禁</string>
     <string name="multiplayer_address_unbanned">已解封</string>
     <string name="multiplayer_kick_member">踢出</string>
+    <string name="multiplayer_chat_input_hint">发送消息……</string>
 
     <string name="emulation_system_files">系统文件</string>
     <string name="emulation_memory_viewer">内存查看器</string>

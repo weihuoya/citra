@@ -207,6 +207,19 @@ std::vector<std::string> NetPlayRoomInfo() {
     return infolist;
 }
 
+bool NetPlayIsJoined() {
+    auto member = Network::GetRoomMember().lock();
+    if (!member) {
+        return false;
+    }
+
+    if (member->GetState() == Network::RoomMember::State::Joining || member->IsConnected()) {
+        return true;
+    }
+
+    return false;
+}
+
 bool NetPlayIsHostedRoom() {
     if (auto room = Network::GetRoom().lock()) {
         return room->GetState() == Network::Room::State::Open;

@@ -75,11 +75,11 @@ public final class GameFile {
     }
 
     public boolean isInstalledApp() {
-        return isInstalled() && (getPath().contains("/title/00040000/") || getPath().contains("/title/00040010/"));
+        return isInstalled() && isAppPath(getPath());
     }
 
     public boolean isInstalledDLC() {
-        return isInstalled() && !getPath().contains("/title/00040000/") && !getPath().contains("/title/00040010/");
+        return isInstalled() && !isAppPath(getPath());
     }
 
     public String getPath() {
@@ -149,7 +149,11 @@ public final class GameFile {
                 }
             }
         } catch (IOException e) {
-
+            // ignore
         }
+    }
+
+    public static boolean isAppPath(String path) {
+        return path.contains("/title/00040000/") || path.contains("/title/00040010/") || path.contains("/title/00040030/");
     }
 }
