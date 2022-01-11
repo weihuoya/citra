@@ -1,8 +1,6 @@
 package org.citra.emu.model;
 
-import android.content.Context;
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.graphics.BitmapShader;
 import android.graphics.Canvas;
 import android.graphics.Matrix;
@@ -11,26 +9,16 @@ import android.graphics.Rect;
 import android.graphics.RectF;
 import android.graphics.Shader;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.nio.IntBuffer;
-import java.util.Dictionary;
-import java.util.Hashtable;
+import java.net.URLDecoder;
+import java.nio.ByteBuffer;
 
-import org.citra.emu.NativeLibrary;
-import org.citra.emu.R;
+import org.citra.emu.utils.CitraDirectory;
 
 public final class GameFile {
-    private String mId;
-    private String mPath;
-    private String mName;
-    private String mInfo;
+    private final String mPath;
+    private final boolean mInstalled;
+    private GameInfo mInfo;
     private Bitmap mIcon;
-    private boolean mInstalled;
-    private int mRegion = NativeLibrary.GameRegion.Invalid;
-    private static Dictionary<String, String> sTitleDB = new Hashtable<>();
 
     public GameFile(String path) {
         mPath = path;
@@ -43,31 +31,25 @@ public final class GameFile {
     }
 
     public String getId() {
-        if (mId == null) {
-            mId = NativeLibrary.GetAppId(mPath);
-        }
-        return mId;
+        init();
+        return mInfo.id;
     }
 
     public String getName() {
-        if (mName == null) {
-            String id = getId();
-            mName = sTitleDB.get(id);
-            if (mName == null) {
-                mName = sTitleDB.get("00040000" + id.substring(8));
-            }
-            if (mName == null) {
-                mName = NativeLibrary.GetAppTitle(mPath);
-            }
-        }
-        return mName;
+        init();
+        return mInfo.name;
     }
 
     public String getInfo() {
-        if (mInfo == null) {
-            mInfo = mPath.substring(mPath.lastIndexOf('/') + 1);
+        String uri = mPath;
+        if (uri.startsWith("content://")) {
+            try {
+                uri = URLDecoder.decode(uri, "utf-8");
+            } catch (Exception e) {
+                // ignore
+            }
         }
-        return mInfo;
+        return uri.substring(uri.lastIndexOf('/') + 1);
     }
 
     public boolean isInstalled() {
@@ -87,24 +69,27 @@ public final class GameFile {
     }
 
     public int getRegion() {
-        if (mRegion == NativeLibrary.GameRegion.Invalid) {
-            mRegion = NativeLibrary.GetAppRegion(mPath);
-        }
-        return mRegion;
+        return mInfo.region;
     }
 
-    public Bitmap getIcon(Context context) {
+    public Bitmap getIcon() {
         if (mIcon == null) {
-            int[] pixels = NativeLibrary.GetAppIcon(mPath);
-            if (pixels == null || pixels.length == 0) {
-                mIcon = BitmapFactory.decodeResource(context.getResources(), R.drawable.no_banner);
+            init();
+            if (mInfo.icon == null || mInfo.icon.length == 0) {
+                mIcon = CitraDirectory.getDefaultIcon();
             } else {
                 Bitmap icon = Bitmap.createBitmap(48, 48, Bitmap.Config.RGB_565);
-                icon.copyPixelsFromBuffer(IntBuffer.wrap(pixels));
+                icon.copyPixelsFromBuffer(ByteBuffer.wrap(mInfo.icon));
                 mIcon = roundBitmap(resizeBitmap(icon, 96, 96), 10);
             }
         }
         return mIcon;
+    }
+
+    public void init() {
+        if (mInfo == null) {
+            mInfo = CitraDirectory.loadGameInfo(mPath);
+        }
     }
 
     public static Bitmap roundBitmap(Bitmap icon, float radius) {
@@ -132,25 +117,6 @@ public final class GameFile {
         Matrix matrix = new Matrix();
         matrix.postScale(scaleWidth, scaleHeight);
         return Bitmap.createBitmap(icon, 0, 0, width, height, matrix, true);
-    }
-
-    public static void loadTitleDB(InputStream db) {
-        BufferedReader input = new BufferedReader(new InputStreamReader(db));
-        try {
-            while (input.ready()) {
-                String line = input.readLine();
-                int sep = line.indexOf('=');
-                if (sep > 0 && sep < line.length() - 1) {
-                    String key = line.substring(0, sep).trim();
-                    String value = line.substring(sep + 1).trim();
-                    if (!key.isEmpty() && !value.isEmpty()) {
-                        sTitleDB.put(key, value);
-                    }
-                }
-            }
-        } catch (IOException e) {
-            // ignore
-        }
     }
 
     public static boolean isAppPath(String path) {

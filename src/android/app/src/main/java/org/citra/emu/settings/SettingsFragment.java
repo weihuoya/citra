@@ -29,7 +29,7 @@ import org.citra.emu.settings.view.SettingsItem;
 import org.citra.emu.settings.view.SingleChoiceSetting;
 import org.citra.emu.settings.view.SliderSetting;
 import org.citra.emu.settings.view.StringSingleChoiceSetting;
-import org.citra.emu.utils.DirectoryInitialization;
+import org.citra.emu.utils.CitraDirectory;
 
 public final class SettingsFragment extends Fragment {
     private static final String ARGUMENT_MENU_TAG = "menu_tag";
@@ -349,14 +349,14 @@ public final class SettingsFragment extends Fragment {
     }
 
     private String[] getShaderValues() {
-        String path = DirectoryInitialization.getShadersDirectory();
+        String path = CitraDirectory.getShadersDirectory();
         List<String> values = getFileList(path, ".glsl");
         values.add(0, "");
         return values.toArray(new String[0]);
     }
 
     private String[] getThemeValues() {
-        String path = DirectoryInitialization.getThemeDirectory();
+        String path = CitraDirectory.getThemeDirectory();
         List<String> values = getFileList(path, ".zip");
         return values.toArray(new String[0]);
     }

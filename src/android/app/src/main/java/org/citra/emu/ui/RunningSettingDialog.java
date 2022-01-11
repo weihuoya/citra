@@ -134,6 +134,7 @@ public class RunningSettingDialog extends DialogFragment {
         public static final int SETTING_CONTROLLER_SCALE = 102;
         public static final int SETTING_CONTROLLER_ALPHA = 103;
         public static final int SETTING_SHOW_RIGHT_JOYSTICK = 104;
+        public static final int SETTING_USE_HAPTIC_FEEDBACK = 105;
 
         // func
         public static final int SETTING_LOAD_SUBMENU = 201;
@@ -527,6 +528,7 @@ public class RunningSettingDialog extends DialogFragment {
 
     public class SettingsAdapter extends RecyclerView.Adapter<SettingViewHolder> {
         private int[] mRunningSettings;
+        private int mUseHapticFeedback;
         private int mJoystickRelative;
         private int mShowRightJoystick;
         private int mHideInputOverlay;
@@ -610,6 +612,11 @@ public class RunningSettingDialog extends DialogFragment {
             mSettings = new ArrayList<>();
 
             // pref settings
+            mUseHapticFeedback = InputOverlay.sUseHapticFeedback ? 1 : 0;
+            mSettings.add(new SettingsItem(SettingsItem.SETTING_USE_HAPTIC_FEEDBACK,
+                    R.string.use_haptic_feedback,
+                    SettingsItem.TYPE_CHECKBOX, mUseHapticFeedback));
+
             mJoystickRelative = InputOverlay.sJoystickRelative ? 1 : 0;
             mSettings.add(new SettingsItem(SettingsItem.SETTING_JOYSTICK_RELATIVE,
                     R.string.joystick_relative_center,
@@ -729,6 +736,14 @@ public class RunningSettingDialog extends DialogFragment {
             // pref settings
             SharedPreferences.Editor editor =
                 PreferenceManager.getDefaultSharedPreferences(activity).edit();
+
+            int feedback = mSettings.get(0).getValue();
+            if (mUseHapticFeedback != feedback) {
+                editor.putBoolean(InputOverlay.PREF_HAPTIC_FEEDBACK, feedback > 0);
+                InputOverlay.sUseHapticFeedback = feedback > 0;
+            }
+            mSettings.remove(0);
+
             int relative = mSettings.get(0).getValue();
             if (mJoystickRelative != relative) {
                 editor.putBoolean(InputOverlay.PREF_JOYSTICK_RELATIVE, relative > 0);

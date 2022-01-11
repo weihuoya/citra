@@ -11,6 +11,10 @@ public:
     static void Initialize(JNIEnv* env);
     static void Shutdown(JNIEnv* env);
 
+    static int SafOpen(const std::string& path, const std::string& mode);
+    static u64 SafLastModified(const std::string& path);
+    static int SafClose(int fd);
+
     static jobject GetEmulationContext();
     static int GetDisplayRotation();
     static bool IsPortrait();

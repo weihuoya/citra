@@ -45,7 +45,7 @@ import java.util.List;
 
 import org.citra.emu.R;
 import org.citra.emu.model.GameFile;
-import org.citra.emu.utils.DirectoryInitialization;
+import org.citra.emu.utils.CitraDirectory;
 
 public final class EditorActivity extends AppCompatActivity {
     public static final String EXTRA_GAME_ID = "GameId";
@@ -289,7 +289,7 @@ public final class EditorActivity extends AppCompatActivity {
     }
 
     private void deleteShaderCache() {
-        File cache = DirectoryInitialization.getShaderCacheFile(mGameId);
+        File cache = CitraDirectory.getShaderCacheFile(mGameId);
         if (cache.exists()) {
             if (cache.delete()) {
                 Toast.makeText(this, R.string.delete_success, Toast.LENGTH_SHORT).show();
@@ -304,11 +304,11 @@ public final class EditorActivity extends AppCompatActivity {
             String pid = mGameId.substring(0, 8).toLowerCase();
             String subid = mGameId.substring(8).toLowerCase();
             if (pid.equals("00040010") || pid.equals("00040030")) {
-                String system = DirectoryInitialization.getSystemTitleDirectory();
+                String system = CitraDirectory.getSystemTitleDirectory();
                 String path = system + "/" + pid + "/" + subid;
                 deleteContents(new File(path));
             } else if (pid.equals("00040000")) {
-                String root = DirectoryInitialization.getApplicationDirectory();
+                String root = CitraDirectory.getApplicationDirectory();
                 String path = root + "/" + pid + "/" + subid;
                 deleteContents(new File(path));
 
@@ -321,7 +321,7 @@ public final class EditorActivity extends AppCompatActivity {
                 deleteContents(new File(path));
             } else if (pid.equals("0004000e")) {
                 // DLC
-                String root = DirectoryInitialization.getApplicationDirectory();
+                String root = CitraDirectory.getApplicationDirectory();
                 String path = root + "/" + pid + "/" + subid;
                 deleteContents(new File(path));
             }
@@ -332,7 +332,7 @@ public final class EditorActivity extends AppCompatActivity {
     }
 
     private void loadCheatFile(String programId) {
-        File cheatFile = DirectoryInitialization.getCheatFile(programId);
+        File cheatFile = CitraDirectory.getCheatFile(programId);
         mCheats.clear();
         if (cheatFile == null || !cheatFile.exists()) {
             String code = getBuiltinCheat(programId);
@@ -424,7 +424,7 @@ public final class EditorActivity extends AppCompatActivity {
     }
 
     private void saveCheatCode(String programId) {
-        File cheatFile = DirectoryInitialization.getCheatFile(programId);
+        File cheatFile = CitraDirectory.getCheatFile(programId);
         String content = mReloadText ? mEditor.getText().toString() : loadCheatText();
         if (content.isEmpty()) {
             cheatFile.delete();

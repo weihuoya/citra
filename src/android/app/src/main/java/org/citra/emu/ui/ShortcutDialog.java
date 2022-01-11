@@ -49,7 +49,7 @@ public final class ShortcutDialog extends DialogFragment {
                 (ViewGroup)getActivity().getLayoutInflater().inflate(R.layout.dialog_shortcut, null);
 
         ImageView imageIcon = contents.findViewById(R.id.image_game_screen);
-        imageIcon.setImageBitmap(mGame.getIcon(getContext()));
+        imageIcon.setImageBitmap(mGame.getIcon());
 
         mName = contents.findViewById(R.id.text_name);
         mName.setText(mGame.getName());
@@ -78,7 +78,7 @@ public final class ShortcutDialog extends DialogFragment {
     private void addShortcut() {
         final String id = mGame.getId();
         final String name = mName.getText().toString();
-        final Bitmap icon = mGame.getIcon(getContext());
+        final Bitmap icon = mGame.getIcon();
         final Intent intent = new Intent(getContext(), EmulationActivity.class);
         intent.setAction(Intent.ACTION_VIEW);
         intent.putExtra(EmulationActivity.EXTRA_GAME_ID, id);

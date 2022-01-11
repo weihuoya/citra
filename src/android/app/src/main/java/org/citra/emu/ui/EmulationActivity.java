@@ -37,7 +37,7 @@ import org.citra.emu.settings.SettingsFile;
 import org.citra.emu.settings.model.Setting;
 import org.citra.emu.settings.model.SettingSection;
 import org.citra.emu.utils.ControllerMappingHelper;
-import org.citra.emu.utils.DirectoryInitialization;
+import org.citra.emu.utils.CitraDirectory;
 
 public final class EmulationActivity extends AppCompatActivity {
     public static final String EXTRA_GAME_ID = "GameId";
@@ -52,15 +52,15 @@ public final class EmulationActivity extends AppCompatActivity {
     private class InitTask extends AsyncTask<Context, Void, Map<Integer, Bitmap>> {
         @Override
         protected Map<Integer, Bitmap> doInBackground(Context... contexts) {
-            if (!DirectoryInitialization.isInitialized()) {
-                DirectoryInitialization.start(contexts[0]);
+            if (!CitraDirectory.isInitialized()) {
+                CitraDirectory.start(contexts[0]);
             }
             Settings settings = new Settings();
             settings.loadSettings(mGameId);
             SettingSection section = settings.getSection(Settings.SECTION_INI_CORE);
             Setting setting = section.getSetting(SettingsFile.KEY_THEME_PACKAGE);
             String theme = setting != null ? setting.getValueAsString() : "";
-            return DirectoryInitialization.loadInputOverlay(contexts[0], theme);
+            return CitraDirectory.loadInputOverlay(contexts[0], theme);
         }
 
         @Override
@@ -205,7 +205,7 @@ public final class EmulationActivity extends AppCompatActivity {
     @Override
     public boolean dispatchGenericMotionEvent(MotionEvent event) {
         if (mMenuVisible) {
-            return super.dispatchGenericMotionEvent(event);
+            return false;
         }
 
         if (((event.getSource() & InputDevice.SOURCE_CLASS_JOYSTICK) == 0)) {

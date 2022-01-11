@@ -251,10 +251,12 @@ public final class EmulationFragment extends Fragment implements SurfaceHolder.C
         mChatEditText.setOnEditorActionListener((view, action, event) -> {
             if (action == EditorInfo.IME_ACTION_SEND) {
                 String name = NetPlayManager.GetUsername(getActivity());
-                String msg = view.getText().toString();
-                addNetPlayMessage(name + ": " + msg);
-                NetPlayManager.NetPlaySendMessage(msg);
-                view.setText("");
+                String msg = view.getText().toString().trim();
+                if (!msg.isEmpty()) {
+                    addNetPlayMessage(name + ": " + msg);
+                    NetPlayManager.NetPlaySendMessage(msg);
+                    view.setText("");
+                }
                 return true;
             }
             return false;

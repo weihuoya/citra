@@ -12,7 +12,7 @@ import androidx.fragment.app.FragmentTransaction;
 
 import org.citra.emu.R;
 import org.citra.emu.settings.model.Setting;
-import org.citra.emu.utils.DirectoryInitialization;
+import org.citra.emu.utils.CitraDirectory;
 
 import java.io.File;
 
@@ -96,7 +96,7 @@ public final class SettingsActivity extends AppCompatActivity {
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         if (item.getItemId() == R.id.menu_reset_setting) {
-            File ini = new File(DirectoryInitialization.getConfigFile());
+            File ini = new File(CitraDirectory.getConfigFile());
             try {
                 ini.delete();
             } catch (Exception e) {

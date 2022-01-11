@@ -44,6 +44,8 @@ public final class GameFilePickerActivity extends FilePickerActivity {
                 return false;
             if (file.isDirectory())
                 return true;
+            if (mode == MODE_FILE)
+                return file.getName().endsWith(".cia");
             return NativeLibrary.isValidFile(file.getName());
         }
     }
