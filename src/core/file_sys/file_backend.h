@@ -81,7 +81,7 @@ public:
      * Close the file
      * @return true if the file closed correctly
      */
-    virtual bool Close() const = 0;
+    virtual void Close() const = 0;
 
     /**
      * Flushes the file

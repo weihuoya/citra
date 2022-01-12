@@ -276,7 +276,7 @@ bool CIAFile::SetSize(u64 size) const {
     return false;
 }
 
-bool CIAFile::Close() const {
+void CIAFile::Close() const {
     bool complete = true;
     for (std::size_t i = 0; i < container.GetTitleMetadata().GetContentCount(); i++) {
         if (content_written[i] < container.GetContentSize(static_cast<u16>(i)))
@@ -287,7 +287,7 @@ bool CIAFile::Close() const {
     if (!complete) {
         LOG_ERROR(Service_AM, "CIAFile closed prematurely, aborting install...");
         FileUtil::DeleteDir(GetTitlePath(media_type, container.GetTitleMetadata().GetTitleID()));
-        return true;
+        return;
     }
 
     // Clean up older content data if we installed newer content on top
@@ -321,7 +321,6 @@ bool CIAFile::Close() const {
 
         FileUtil::Delete(old_tmd_path);
     }
-    return true;
 }
 
 void CIAFile::Flush() const {}
@@ -1155,9 +1154,7 @@ public:
     bool SetSize(u64 size) const override {
         return false;
     }
-    bool Close() const override {
-        return false;
-    }
+    void Close() const override {}
     void Flush() const override {}
 
 private:

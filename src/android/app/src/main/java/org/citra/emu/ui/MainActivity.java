@@ -458,7 +458,11 @@ public final class MainActivity extends AppCompatActivity {
 
         mSwipeRefresh = findViewById(R.id.swipe_refresh);
         mSwipeRefresh.setColorSchemeResources(R.color.citra_accent);
-        mSwipeRefresh.post(() -> mSwipeRefresh.setDistanceToTriggerSync(mSwipeRefresh.getHeight() / 3));
+        mSwipeRefresh.post(() -> {
+            float scale = getResources().getDisplayMetrics().scaledDensity;
+            int height = mSwipeRefresh.getHeight();
+            mSwipeRefresh.setDistanceToTriggerSync((int)(height / scale / 3));
+        });
         mSwipeRefresh.setOnRefreshListener(this::refreshLibrary);
 
         SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(this);

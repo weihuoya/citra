@@ -47,8 +47,8 @@ bool DiskFile::SetSize(const u64 size) const {
     return true;
 }
 
-bool DiskFile::Close() const {
-    return file->Close();
+void DiskFile::Close() const {
+    file->Close();
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////

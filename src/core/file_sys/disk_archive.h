@@ -34,7 +34,7 @@ public:
                                  const u8* buffer) override;
     u64 GetSize() const override;
     bool SetSize(u64 size) const override;
-    bool Close() const override;
+    void Close() const override;
 
     void Flush() const override {
         file->Flush();
@@ -55,9 +55,7 @@ public:
 
     u32 Read(u32 count, Entry* entries) override;
 
-    bool Close() const override {
-        return true;
-    }
+    void Close() const override {}
 
 protected:
     FileUtil::FSTEntry directory{};

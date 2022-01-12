@@ -55,11 +55,8 @@ bool IsDirectory(const std::string& filename);
 // Returns the size of filename (64bit)
 u64 GetSize(const std::string& filename);
 
-// Overloaded GetSize, accepts file descriptor
-u64 GetSize(const int fd);
-
-// Overloaded GetSize, accepts FILE*
-u64 GetSize(FILE* f);
+// get file modification timestamp, return 0 on failed
+u64 GetFileModificationTimestamp(const std::string& filename);
 
 // Returns true if successful, or path already exists.
 bool CreateDir(const std::string& filename);
@@ -82,9 +79,6 @@ bool Copy(const std::string& srcFilename, const std::string& destFilename);
 
 // creates an empty file filename, returns true on success
 bool CreateEmptyFile(const std::string& filename);
-
-//
-u64 GetFileModificationTimestamp(const std::string& filename);
 
 /**
  * @param num_entries_out to be assigned by the callable with the number of iterated directory
@@ -140,9 +134,6 @@ void SetUserPath(const std::string& path);
 // directory. To be used in "multi-user" mode (that is, installed).
 const std::string& GetUserPath(UserPath path);
 
-// used by system application
-std::string GetExtSaveUserPath();
-
 std::size_t WriteStringToFile(bool text_file, const std::string& filename, std::string_view str);
 
 std::size_t ReadFileToString(bool text_file, const std::string& filename, std::string& str);
@@ -167,45 +158,54 @@ std::string_view GetParentPath(std::string_view path);
 // Gets the filename of the path
 std::string_view GetFilename(std::string_view path);
 
-// Android Storage Access Framework
-using SafOpenFunction = std::function<std::FILE*(const std::string& path, const std::string& mode)>;
-using SafCloseFunction = std::function<int(std::FILE* fp)>;
-void RegisterSafOpen(SafOpenFunction);
-void RegisterSafClose(SafCloseFunction);
-bool IsSafPath(const std::string& path);
+class IOHandler {
+public:
+    virtual ~IOHandler() = default;
+    virtual std::size_t Read(void* buf, std::size_t size, std::size_t count) = 0;
+    virtual std::size_t Write(const void* buf, std::size_t size, std::size_t count) = 0;
+    virtual bool Seek(s64 offset, int whence) = 0;
+    virtual u64 Tell() = 0;
+    virtual u64 GetSize() = 0;
+    virtual bool Resize(u64 size) = 0;
+    virtual bool Flush() = 0;
+};
+
+class IOFactory {
+public:
+    virtual ~IOFactory() = default;
+    virtual std::unique_ptr<IOHandler> Open(const std::string& filename, const char openmode[]) = 0;
+};
+void RegisterIOFactory(std::unique_ptr<IOFactory> factory);
 
 // simple wrapper for cstdlib file functions to
 // hopefully will make error checking easier
 // and make forgetting an fclose() harder
 class IOFile : public NonCopyable {
 public:
-    IOFile();
-
+    IOFile() = default;
     IOFile(const std::string& filename, const char openmode[]);
-
+    IOFile(IOFile&& other) noexcept;
     ~IOFile();
 
-    IOFile(IOFile&& other) noexcept;
-    IOFile& operator=(IOFile&& other) noexcept;
+    bool Open(const std::string& filename, const char openmode[]);
 
-    void Swap(IOFile& other) noexcept;
+    void Close() {
+        m_file.reset();
+        m_good = false;
+    }
 
-    bool Close();
+    void ReadAllLines(std::vector<std::string>& lines);
 
     template <typename T>
     std::size_t ReadArray(T* data, std::size_t length) {
         static_assert(std::is_trivially_copyable_v<T>,
                       "Given array does not consist of trivially copyable objects");
-
         if (!IsOpen()) {
-            m_good = false;
             return std::numeric_limits<std::size_t>::max();
         }
-
-        std::size_t items_read = std::fread(data, sizeof(T), length, m_file);
+        std::size_t items_read = m_file->Read(data, sizeof(T), length);
         if (items_read != length)
             m_good = false;
-
         return items_read;
     }
 
@@ -213,16 +213,12 @@ public:
     std::size_t WriteArray(const T* data, std::size_t length) {
         static_assert(std::is_trivially_copyable_v<T>,
                       "Given array does not consist of trivially copyable objects");
-
         if (!IsOpen()) {
-            m_good = false;
             return std::numeric_limits<std::size_t>::max();
         }
-
-        std::size_t items_written = std::fwrite(data, sizeof(T), length, m_file);
+        std::size_t items_written = m_file->Write(data, sizeof(T), length);
         if (items_written != length)
             m_good = false;
-
         return items_written;
     }
 
@@ -260,26 +256,29 @@ public:
         return IsGood();
     }
 
-    bool Seek(s64 off, int origin);
-    u64 Tell() const;
-    u64 GetSize() const;
-    bool Resize(u64 size);
-    bool Flush();
+    bool Seek(s64 offset, int whence) {
+        return m_file->Seek(offset, whence);
+    }
 
-    // clear error state
-    void Clear() {
-        m_good = true;
-        std::clearerr(m_file);
+    u64 Tell() const {
+        m_file->Tell();
+    }
+
+    u64 GetSize() const {
+        return m_file->GetSize();
+    }
+
+    bool Resize(u64 size) {
+        return m_file->Resize(size);
+    }
+
+    bool Flush() {
+        return m_file->Flush();
     }
 
 private:
-    bool Open();
-
-    std::FILE* m_file = nullptr;
-    bool m_good = true;
-    bool m_saf = false;
-    std::string filename;
-    std::string openmode;
+    std::unique_ptr<FileUtil::IOHandler> m_file;
+    bool m_good = false;
 };
 
 } // namespace FileUtil

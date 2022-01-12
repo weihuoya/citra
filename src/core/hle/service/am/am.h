@@ -75,7 +75,7 @@ public:
                                  const u8* buffer) override;
     u64 GetSize() const override;
     bool SetSize(u64 size) const override;
-    bool Close() const override;
+    void Close() const override;
     void Flush() const override;
 
 private:
