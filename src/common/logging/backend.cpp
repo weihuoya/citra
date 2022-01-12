@@ -149,7 +149,7 @@ void ColorConsoleBackend::Write(const Entry& entry) {
 // _SH_DENYWR allows read only access to the file for other programs.
 // It is #defined to 0 on other platforms
 FileBackend::FileBackend(const std::string& filename)
-    : file(filename, "w", _SH_DENYWR), bytes_written(0) {}
+    : file(filename, "w"), bytes_written(0) {}
 
 void FileBackend::Write(const Entry& entry) {
     // prevent logs from going over the maximum size (in case its spamming and the user doesn't

@@ -18,7 +18,7 @@ import org.citra.emu.settings.model.IntSetting;
 import org.citra.emu.settings.model.Setting;
 import org.citra.emu.settings.model.SettingSection;
 import org.citra.emu.settings.model.StringSetting;
-import org.citra.emu.utils.DirectoryInitialization;
+import org.citra.emu.utils.CitraDirectory;
 
 public final class SettingsFile {
     // Core
@@ -91,7 +91,7 @@ public final class SettingsFile {
      */
     public static HashMap<String, SettingSection> loadSettings(String gameId) {
         HashMap<String, SettingSection> sections = new Settings.SettingsSectionMap();
-        File ini = new File(DirectoryInitialization.getConfigFile());
+        File ini = new File(CitraDirectory.getConfigFile());
         BufferedReader reader = null;
 
         try {
@@ -141,7 +141,7 @@ public final class SettingsFile {
         String[] splitLine = line.split("=");
 
         if (splitLine.length != 2) {
-            Log.w("citra", "Skipping invalid config line \"" + line + "\"");
+            Log.e("citra", "Skipping invalid config line \"" + line + "\"");
             return null;
         }
 
@@ -183,7 +183,7 @@ public final class SettingsFile {
      * @param sections The HashMap containing the Settings we want to serialize.
      */
     public static void saveFile(HashMap<String, SettingSection> sections) {
-        File ini = new File(DirectoryInitialization.getConfigFile());
+        File ini = new File(CitraDirectory.getConfigFile());
         PrintWriter writer = null;
         try {
             writer = new PrintWriter(ini, "UTF-8");

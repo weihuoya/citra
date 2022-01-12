@@ -23,7 +23,7 @@ import com.nononsenseapps.filepicker.DividerItemDecoration;
 
 import org.citra.emu.NativeLibrary;
 import org.citra.emu.R;
-import org.citra.emu.utils.DirectoryInitialization;
+import org.citra.emu.utils.CitraDirectory;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -56,7 +56,7 @@ public final class AmiiboDialog extends DialogFragment {
 
         // load amiibo list
         List<String> amiibos = new ArrayList<>();
-        String amiiboDir = DirectoryInitialization.getAmiiboDirectory();
+        String amiiboDir = CitraDirectory.getAmiiboDirectory();
         File[] files = new File(amiiboDir).listFiles((File dir, String name) -> name.endsWith(".bin"));
         for(File f : files) {
             amiibos.add(f.getPath());

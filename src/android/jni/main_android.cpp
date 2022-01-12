@@ -43,7 +43,17 @@ static std::mutex s_running_mutex;
 static std::condition_variable s_running_cv;
 static std::unique_ptr<EGLAndroid> s_render_window;
 static std::shared_ptr<AndroidKeyboard> s_keyboard;
-static std::map<std::string, std::unique_ptr<Loader::AppLoader>> s_app_loaders;
+
+struct GameInfo {
+    u64 id;
+    u64 timestamp;
+    std::string strid;
+    std::string name;
+    std::vector<u16> icon;
+    std::vector<Loader::SMDH::GameRegion> regions;
+    bool executable;
+};
+static std::map<std::string, GameInfo> s_app_dict;
 
 void BootGame(const std::string& path) {
     NativeLibrary::UpdateProgress("BootGame", 0, 1);
@@ -154,16 +164,6 @@ void BootGame(const std::string& path) {
     Config::Save();
 }
 
-static Loader::AppLoader* GetAppLoader(const std::string& path) {
-    auto iter = s_app_loaders.find(path);
-    if (iter != s_app_loaders.end()) {
-        return iter->second.get();
-    }
-
-    auto result = s_app_loaders.emplace(path, Loader::GetLoader(path));
-    return result.first->second.get();
-}
-
 static bool GetSMDHData(Loader::AppLoader* loader, Loader::SMDH* smdh) {
     std::vector<u8> smdh_data;
     [&loader, &smdh_data]() -> void {
@@ -198,20 +198,43 @@ static bool GetSMDHData(Loader::AppLoader* loader, Loader::SMDH* smdh) {
     return false;
 }
 
-static std::vector<u16> GetIconData(Loader::AppLoader* loader) {
-    Loader::SMDH smdh;
-    if (GetSMDHData(loader, &smdh)) {
-        return smdh.GetIcon(true);
+static const GameInfo& GetGameInfo(const std::string& path) {
+    u64 timestamp;
+    if (FileUtil::IsSafPath(path)) {
+        timestamp = NativeLibrary::SafLastModified(path);
+    } else {
+        timestamp = FileUtil::GetFileModificationTimestamp(path);
     }
-    return std::vector<u16>();
-}
+    auto [iter, is_new] = s_app_dict.emplace(path, GameInfo{});
+    auto& game = iter->second;
+    if (!is_new) {
+        if (timestamp == game.timestamp) {
+            return game;
+        }
+    }
 
-static std::vector<Loader::SMDH::GameRegion> GetGameRegions(Loader::AppLoader* loader) {
-    Loader::SMDH smdh;
-    if (GetSMDHData(loader, &smdh)) {
-        return smdh.GetRegions();
+    auto app_loader = Loader::GetLoader(path);
+    if (app_loader == nullptr) {
+        return game;
     }
-    return {};
+
+    app_loader->ReadProgramId(game.id);
+    app_loader->ReadTitle(game.name);
+    app_loader->IsExecutable(game.executable);
+    game.strid = fmt::format("{:016X}", game.id);
+    game.timestamp = timestamp;
+
+    Loader::SMDH smdh;
+    if (GetSMDHData(app_loader.get(), &smdh)) {
+        game.icon = smdh.GetIcon(true);
+        game.regions = smdh.GetRegions();
+    }
+
+    if (game.regions.empty()) {
+        game.regions.push_back(Loader::SMDH::GameRegion::Japan);
+    }
+
+    return game;
 }
 
 static void UpdateDisplayRotation() {
@@ -240,6 +263,16 @@ static void UpdateDisplayRotation() {
     }
 }
 
+static std::FILE* SafOpenFunction(const std::string& path, const std::string& mode) {
+    int fd = NativeLibrary::SafOpen(path, mode);
+    return fd != 0 ? fdopen(fd, mode.c_str()) : nullptr;
+}
+
+static int SafCloseFunction(std::FILE* fp) {
+    int fd = fileno(fp);
+    return std::fclose(fp) | NativeLibrary::SafClose(fd);
+}
+
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -258,10 +291,17 @@ JNIEXPORT void JNICALL Java_org_citra_emu_NativeLibrary_InstallCIA(JNIEnv* env, 
             NativeLibrary::UpdateProgress(path, 0, 0);
         }
     }
+
+    // clear all cached game infos
+    s_app_dict.clear();
 }
 
 JNIEXPORT void JNICALL Java_org_citra_emu_NativeLibrary_SetUserPath(JNIEnv* env, jclass obj,
                                                                     jstring jPath) {
+    // saf
+    FileUtil::RegisterSafOpen(&SafOpenFunction);
+    FileUtil::RegisterSafClose(&SafCloseFunction);
+
     // init user path
     std::string path = JniHelper::Unwrap(jPath);
     if (path[path.size() - 1] != '/')
@@ -766,45 +806,34 @@ JNIEXPORT void JNICALL Java_org_citra_emu_NativeLibrary_ResetCamera(JNIEnv* env,
 
 JNIEXPORT jstring JNICALL Java_org_citra_emu_NativeLibrary_GetAppId(JNIEnv* env, jclass obj,
                                                                     jstring jPath) {
-    Loader::AppLoader* app_loader = GetAppLoader(JniHelper::Unwrap(jPath));
-    u64 programId;
-    app_loader->ReadProgramId(programId);
-    return JniHelper::Wrap(fmt::format("{:016X}", programId));
+    return JniHelper::Wrap(GetGameInfo(JniHelper::Unwrap(jPath)).strid);
 }
 
 JNIEXPORT jstring JNICALL Java_org_citra_emu_NativeLibrary_GetAppTitle(JNIEnv* env, jclass obj,
                                                                        jstring jPath) {
-    Loader::AppLoader* app_loader = GetAppLoader(JniHelper::Unwrap(jPath));
-    std::string title;
-    app_loader->ReadTitle(title);
-    return JniHelper::Wrap(title);
+    return JniHelper::Wrap(GetGameInfo(JniHelper::Unwrap(jPath)).name);
 }
 
-JNIEXPORT jintArray JNICALL Java_org_citra_emu_NativeLibrary_GetAppIcon(JNIEnv* env, jclass obj,
+JNIEXPORT jbyteArray JNICALL Java_org_citra_emu_NativeLibrary_GetAppIcon(JNIEnv* env, jclass obj,
                                                                         jstring jPath) {
-    Loader::AppLoader* app_loader = GetAppLoader(JniHelper::Unwrap(jPath));
-    std::vector<u16> icon = GetIconData(app_loader);
-    return JniHelper::Wrap(reinterpret_cast<u32*>(icon.data()), icon.size() / 2);
+    auto& icon = GetGameInfo(JniHelper::Unwrap(jPath)).icon;
+    return JniHelper::Wrap(reinterpret_cast<const u8*>(icon.data()), icon.size() * 2);
 }
 
 JNIEXPORT jint JNICALL Java_org_citra_emu_NativeLibrary_GetAppRegion(JNIEnv* env, jclass obj,
                                                                      jstring jPath) {
-    Loader::AppLoader* app_loader = GetAppLoader(JniHelper::Unwrap(jPath));
-    std::vector<Loader::SMDH::GameRegion> regions = GetGameRegions(app_loader);
-    if (regions.empty()) {
-        regions.push_back(Loader::SMDH::GameRegion::Japan);
-    }
+    auto& regions = GetGameInfo(JniHelper::Unwrap(jPath)).regions;
     return static_cast<jint>(regions[0]);
 }
 
 JNIEXPORT jboolean JNICALL Java_org_citra_emu_NativeLibrary_IsAppExecutable(JNIEnv* env, jclass obj,
                                                                             jstring jPath) {
-    bool executable = false;
-    Loader::AppLoader* app_loader = GetAppLoader(JniHelper::Unwrap(jPath));
-    if (app_loader) {
-        app_loader->IsExecutable(executable);
-    }
-    return executable;
+    return GetGameInfo(JniHelper::Unwrap(jPath)).executable;
+}
+
+JNIEXPORT jboolean JNICALL Java_org_citra_emu_NativeLibrary_IsAppVisible(JNIEnv* env, jclass obj,
+                                                                            jstring jPath) {
+    return GetGameInfo(JniHelper::Unwrap(jPath)).icon.size() > 0;
 }
 
 JNIEXPORT jstring JNICALL Java_org_citra_emu_utils_TranslateHelper_GoogleTranslateToken(

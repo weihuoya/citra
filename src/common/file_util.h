@@ -15,9 +15,6 @@
 #include <type_traits>
 #include <vector>
 #include "common/common_types.h"
-#ifdef _MSC_VER
-#include "common/string_util.h"
-#endif
 
 namespace FileUtil {
 
@@ -109,7 +106,7 @@ using DirectoryEntryCallable = std::function<bool(
  * @return whether scanning the directory succeeded
  */
 bool ForeachDirectoryEntry(u64* num_entries_out, const std::string& directory,
-                           DirectoryEntryCallable callback);
+                           const DirectoryEntryCallable& callback);
 
 /**
  * Scans the directory tree, storing the results.
@@ -137,10 +134,7 @@ std::optional<std::string> GetCurrentDir();
 // Create directory and copy contents (does not overwrite existing files)
 void CopyDir(const std::string& source_path, const std::string& dest_path);
 
-// Set the current directory to given directory
-bool SetCurrentDir(const std::string& directory);
-
-void SetUserPath(const std::string& path = "");
+void SetUserPath(const std::string& path);
 
 // Returns a pointer to a string with a Citra data dir in the user's home
 // directory. To be used in "multi-user" mode (that is, installed).
@@ -148,18 +142,6 @@ const std::string& GetUserPath(UserPath path);
 
 // used by system application
 std::string GetExtSaveUserPath();
-
-// Returns the path to where the sys file are
-std::string GetSysDirectory();
-
-#ifdef __APPLE__
-std::string GetBundleDirectory();
-#endif
-
-#ifdef _WIN32
-const std::string& GetExeDirectory();
-std::string AppDataRoamingDirectory();
-#endif
 
 std::size_t WriteStringToFile(bool text_file, const std::string& filename, std::string_view str);
 
@@ -182,33 +164,15 @@ std::vector<std::string> SplitPathComponents(std::string_view filename);
 // Gets all of the text up to the last '/' or '\' in the path.
 std::string_view GetParentPath(std::string_view path);
 
-// Gets all of the text after the first '/' or '\' in the path.
-std::string_view GetPathWithoutTop(std::string_view path);
-
 // Gets the filename of the path
 std::string_view GetFilename(std::string_view path);
 
-// Gets the extension of the filename
-std::string_view GetExtensionFromFilename(std::string_view name);
-
-// Removes the final '/' or '\' if one exists
-std::string_view RemoveTrailingSlash(std::string_view path);
-
-// Creates a new vector containing indices [first, last) from the original.
-template <typename T>
-std::vector<T> SliceVector(const std::vector<T>& vector, std::size_t first, std::size_t last) {
-    if (first >= last)
-        return {};
-    last = std::min<std::size_t>(last, vector.size());
-    return std::vector<T>(vector.begin() + first, vector.begin() + first + last);
-}
-
-enum class DirectorySeparator { ForwardSlash, BackwardSlash, PlatformDefault };
-
-// Removes trailing slash, makes all '\\' into '/', and removes duplicate '/'. Makes '/' into '\\'
-// depending if directory_separator is BackwardSlash or PlatformDefault and running on windows
-std::string SanitizePath(std::string_view path,
-                         DirectorySeparator directory_separator = DirectorySeparator::ForwardSlash);
+// Android Storage Access Framework
+using SafOpenFunction = std::function<std::FILE*(const std::string& path, const std::string& mode)>;
+using SafCloseFunction = std::function<int(std::FILE* fp)>;
+void RegisterSafOpen(SafOpenFunction);
+void RegisterSafClose(SafCloseFunction);
+bool IsSafPath(const std::string& path);
 
 // simple wrapper for cstdlib file functions to
 // hopefully will make error checking easier
@@ -217,10 +181,7 @@ class IOFile : public NonCopyable {
 public:
     IOFile();
 
-    // flags is used for windows specific file open mode flags, which
-    // allows citra to open the logs in shared write mode, so that the file
-    // isn't considered "locked" while citra is open and people can open the log file and view it
-    IOFile(const std::string& filename, const char openmode[], int flags = 0);
+    IOFile(const std::string& filename, const char openmode[]);
 
     ~IOFile();
 
@@ -316,10 +277,9 @@ private:
 
     std::FILE* m_file = nullptr;
     bool m_good = true;
-
+    bool m_saf = false;
     std::string filename;
     std::string openmode;
-    u32 flags;
 };
 
 } // namespace FileUtil

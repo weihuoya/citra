@@ -26,14 +26,12 @@
         android:xlargeScreens="true" />
 
     <application
-        android:allowBackup="true"
         android:banner="@mipmap/ic_citra"
         android:hardwareAccelerated="true"
         android:icon="@mipmap/ic_citra"
         android:isGame="true"
         android:label="Citra"
-        android:requestLegacyExternalStorage="true"
-        android:resizeableActivity="false">
+        android:requestLegacyExternalStorage="true">
         <meta-data
             android:name="android.max_aspect"
             android:value="2.4" />
@@ -41,7 +39,8 @@
             android:name=".ui.MainActivity"
             android:configChanges="orientation|screenSize"
             android:launchMode="singleTop"
-            android:theme="@style/CitraBase">
+            android:theme="@style/CitraBase"
+            android:exported="true">
 
             <!-- This intentfilter marks this Activity as the one that gets launched from Home screen. -->
             <intent-filter>
@@ -59,7 +58,8 @@
             android:name=".ui.GameFilePickerActivity"
             android:configChanges="orientation|screenSize"
             android:label="@string/app_name"
-            android:theme="@style/FilePickerTheme">
+            android:theme="@style/FilePickerTheme"
+            android:exported="false">
             <intent-filter>
                 <action android:name="android.intent.action.GET_CONTENT" />
 
@@ -68,37 +68,42 @@
         </activity>
         <activity
             android:name=".ui.EmulationActivity"
-            android:configChanges="orientation|screenSize"
+            android:configChanges="orientation|screenSize|screenLayout|smallestScreenSize"
             android:launchMode="singleTop"
-            android:resizeableActivity="false"
+            android:exported="true"
             android:theme="@style/CitraEmulationBase" />
         <activity
             android:name=".settings.SettingsActivity"
             android:configChanges="orientation|screenSize"
             android:label="@string/preferences_settings"
             android:launchMode="singleTop"
+            android:exported="true"
             android:theme="@style/CitraSettingsBase" />
         <activity
             android:name=".ui.ComboKeyActivity"
             android:configChanges="orientation|screenSize"
             android:label="@string/combo_key_settings"
             android:launchMode="singleTop"
+            android:exported="false"
             android:theme="@style/CitraSettingsBase" />
         <activity
             android:name=".ui.EditorActivity"
             android:configChanges="orientation|screenSize|keyboardHidden"
             android:label="@string/app_name"
+            android:exported="false"
             android:screenOrientation="behind"
             android:theme="@style/CitraBase"
             android:windowSoftInputMode="adjustUnspecified|stateHidden" />
         <activity
             android:name=".ui.MemoryActivity"
             android:label="@string/emulation_memory_viewer"
+            android:exported="false"
             android:screenOrientation="behind"
             android:theme="@style/CitraBase" />
         <activity
             android:name=".ui.SystemFilesActivity"
             android:configChanges="orientation|screenSize"
+            android:exported="false"
             android:label="@string/emulation_system_files"
             android:theme="@style/CitraBase" />
         <activity
@@ -106,6 +111,7 @@
             android:label="@string/about"
             android:screenOrientation="portrait"
             android:launchMode="singleTop"
+            android:exported="true"
             android:theme="@style/CitraBase" />
         <provider
             android:name="androidx.core.content.FileProvider"

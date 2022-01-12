@@ -5,22 +5,19 @@
 package org.citra.emu.ui;
 
 import android.annotation.SuppressLint;
+import android.content.ClipData;
+import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.UriPermission;
 import android.content.pm.PackageManager;
-import android.content.res.Configuration;
-import android.graphics.Color;
-import android.graphics.drawable.Drawable;
+import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.os.Handler;
 import android.view.LayoutInflater;
-import android.view.Menu;
-import android.view.MenuInflater;
-import android.view.MenuItem;
 import android.view.View;
-import android.view.ViewGroup;
 import android.view.WindowManager;
-import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
@@ -28,252 +25,466 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.recyclerview.widget.GridLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
-import androidx.appcompat.widget.Toolbar;
+import androidx.documentfile.provider.DocumentFile;
+import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentActivity;
 import androidx.preference.PreferenceManager;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
+import androidx.viewpager2.adapter.FragmentStateAdapter;
+import androidx.viewpager2.widget.ViewPager2;
 
-import com.nononsenseapps.filepicker.DividerItemDecoration;
+import com.google.android.material.appbar.MaterialToolbar;
+import com.google.android.material.tabs.TabLayout;
+import com.google.android.material.tabs.TabLayoutMediator;
 
 import java.io.File;
 import java.io.FileReader;
-import java.io.FileWriter;
 import java.io.IOException;
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Comparator;
+import java.util.HashSet;
 import java.util.List;
-import java.util.Locale;
 
 import org.citra.emu.NativeLibrary;
 import org.citra.emu.R;
 import org.citra.emu.model.GameFile;
 import org.citra.emu.settings.MenuTag;
 import org.citra.emu.settings.SettingsActivity;
-import org.citra.emu.utils.DirectoryInitialization;
+import org.citra.emu.utils.CitraDirectory;
 import org.citra.emu.utils.FileBrowserHelper;
+import org.citra.emu.utils.GZipUtil;
 import org.citra.emu.utils.PermissionsHandler;
 
 public final class MainActivity extends AppCompatActivity {
-    public static final int REQUEST_ADD_DIRECTORY = 1;
-    public static final int REQUEST_OPEN_FILE = 2;
+    public static final int PAGE_FRAGMENT_EXTERNAL = 0;
+    public static final int PAGE_FRAGMENT_INSTALLED = 1;
+    public static final int PAGE_FRAGMENT_CONTENT = 2;
 
-    public static final String PREF_LIST_TYPE = "list_type";
+    public static final String PREF_TAB_INDEX = "tab_index";
 
     @SuppressLint("StaticFieldLeak")
-    private class RefreshTask extends AsyncTask<Void, GameFile, Void> {
+    private class RefreshTask extends AsyncTask<Boolean, Void, Void> {
+        private final HashSet<String> dirSet = new HashSet<>();
+        private final HashSet<Uri> uriSet = new HashSet<>();
+        private final List<GameFile> externals = new ArrayList<>();
+        private final List<GameFile> installs = new ArrayList<>();
+        private final List<GameFile> contents = new ArrayList<>();
+        private final Context context;
+        private final boolean isInstalled;
+
+        public RefreshTask(boolean isInstalled) {
+            this.context = null;
+            this.isInstalled = isInstalled;
+        }
+
+        public RefreshTask(String dir) {
+            this.context = null;
+            isInstalled = false;
+            dirSet.add(dir);
+        }
+
+        public RefreshTask(Context context, List<Uri> list) {
+            this.context = context;
+            isInstalled = false;
+            uriSet.addAll(list);
+        }
+
         @Override
-        protected Void doInBackground(Void... args) {
+        protected Void doInBackground(Boolean... args) {
+            boolean cleanCache = args[0];
+            if (cleanCache) {
+                CitraDirectory.clearIconCache();
+            }
+            if (context != null) {
+                refreshSaf();
+            } else {
+                refreshLegacy();
+            }
+            saveGameList();
+            return null;
+        }
+
+        protected void refreshLegacy() {
             List<File> dirs = new ArrayList<>();
-            dirs.add(new File(DirectoryInitialization.getSystemApplicationDirectory()));
-            dirs.add(new File(DirectoryInitialization.getSystemAppletDirectory()));
-            dirs.add(new File(DirectoryInitialization.getSDMCDirectory()));
+            if (isInstalled) {
+                dirs.add(new File(CitraDirectory.getSystemApplicationDirectory()));
+                dirs.add(new File(CitraDirectory.getSystemAppletDirectory()));
+                dirs.add(new File(CitraDirectory.getSDMCDirectory()));
+            } else {
+                for (GameFile game : externals) {
+                    String path = game.getPath();
+                    if (new File(path).isFile()) {
+                        int lastSlash = path.lastIndexOf('/');
+                        if (lastSlash == -1) {
+                            path = "/";
+                        } else {
+                            path = path.substring(0, lastSlash);
+                        }
+                        dirSet.add(path);
+                    }
+                }
+                for (String dir : dirSet) {
+                    dirs.add(new File(dir));
+                }
+                externals.clear();
+            }
+            refreshDirectoryLegacy(dirs);
+        }
+
+        protected void refreshDirectoryLegacy(List<File> dirs) {
             while (dirs.size() > 0) {
                 File dir = dirs.get(0);
                 File[] files = dir.listFiles();
                 dirs.remove(0);
                 if (files != null) {
                     for (File f : files) {
+                        String path = f.getPath();
                         if (f.isDirectory()) {
-                            dirs.add(f);
-                        } else if (NativeLibrary.isValidFile(f.getName())) {
-                            String path = f.getPath();
-                            if (NativeLibrary.IsAppExecutable(path)) {
-                                GameFile game = new GameFile(path, true);
-                                publishProgress(game);
+                            // recursive search
+                            if (isInstalled || !dirSet.contains(path)) {
+                                dirs.add(f);
+                            }
+                        } else if (NativeLibrary.isValidFile(path) && NativeLibrary.IsAppVisible(path)) {
+                            GameFile game = new GameFile(path, isInstalled);
+                            game.init();
+                            if (isInstalled) {
+                                if (game.isInstalledDLC()) {
+                                    contents.add(game);
+                                } else {
+                                    installs.add(game);
+                                }
+                            } else {
+                                externals.add(game);
                             }
                         }
                     }
                 }
             }
-            return null;
+
+            if (isInstalled) {
+                contents.sort(Comparator.comparing(GameFile::getName));
+                installs.sort(Comparator.comparing(GameFile::getName));
+            } else {
+                externals.sort(Comparator.comparing(GameFile::getName));
+            }
+        }
+
+        protected void refreshSaf() {
+            List<Uri> dirs = new ArrayList<>(uriSet);
+            while (dirs.size() > 0) {
+                Uri dirUri = dirs.get(0);
+                dirs.remove(0);
+                DocumentFile documentFile = DocumentFile.fromTreeUri(context, dirUri);
+                if (documentFile == null) {
+                    continue;
+                }
+                DocumentFile[] files = documentFile.listFiles();
+                for (DocumentFile file : files) {
+                    Uri uri = file.getUri();
+                    String path = uri.toString();
+                    if (file.isDirectory()) {
+                        if (!uriSet.contains(uri)) {
+                            dirs.add(uri);
+                        }
+                    } else if (NativeLibrary.isValidFile(path) && NativeLibrary.IsAppExecutable(path)) {
+                        GameFile game = new GameFile(path, false);
+                        game.init();
+                        externals.add(game);
+                    }
+                }
+            }
+
+            externals.sort(Comparator.comparing(GameFile::getName));
+        }
+
+        protected void saveGameList() {
+            StringBuilder sb = new StringBuilder();
+
+            for (GameFile game : externals) {
+                sb.append(game.getPath());
+                sb.append(";");
+            }
+
+            sb.append("\n");
+            for (GameFile game : installs) {
+                sb.append(game.getPath());
+                sb.append(";");
+            }
+
+            sb.append("\n");
+            for (GameFile game : contents) {
+                sb.append(game.getPath());
+                sb.append(";");
+            }
+
+            File cache = CitraDirectory.getGameListFile();
+            GZipUtil.writeAllText(cache, sb.toString());
         }
 
         @Override
         protected void onPreExecute() {
-            super.onPreExecute();
-            ShowEmulationInfo(false);
-            mSwipeRefreshLayout.setRefreshing(true);
-        }
-
-        @Override
-        protected void onProgressUpdate(GameFile... args) {
-            super.onProgressUpdate(args);
-
-            GameFile game = args[0];
-            String path = game.getPath();
-            for (int i = 0; i < mInstalledGames.size(); ++i) {
-                if (mInstalledGames.get(i).getPath().equals(path)) {
-                    return;
-                }
+            mSwipeRefresh.setRefreshing(true);
+            // for save game list
+            if (context == null) {
+                externals.addAll(mExternalGames);
             }
-
-            mInstalledGames.add(game);
-            mInstalledGames.sort((GameFile x, GameFile y) -> {
-                if (x.isInstalledApp()) {
-                    if (y.isInstalledApp()) {
-                        return x.getName().compareTo(y.getName());
-                    } else {
-                        return -1;
-                    }
-                } else if (y.isInstalledApp()) {
-                    return 1;
-                } else {
-                    return x.getName().compareTo(y.getName());
-                }
-            });
-
-            if (mIsListApp) {
-                mAdapter.setGameList(mInstalledGames);
-                mSwipeRefreshLayout.setRefreshing(false);
+            if (!isInstalled) {
+                installs.addAll(mInstalledGames);
+                contents.addAll(mInstalledContents);
             }
         }
 
         @Override
         protected void onPostExecute(Void args) {
-            super.onPostExecute(args);
-            if (mInstalledGames.size() == 0) {
-                ShowEmulationInfo(true);
+            mExternalGames = externals;
+            mInstalledGames = installs;
+            mInstalledContents = contents;
+            if (isInstalled) {
+                refreshInstalledContents();
+                refreshInstalledGames();
+            } else {
+                refreshExternalGames();
             }
-            mSwipeRefreshLayout.setRefreshing(false);
+            mSwipeRefresh.setRefreshing(false);
+        }
+    }
+
+    @SuppressLint("StaticFieldLeak")
+    private class InstallTask extends AsyncTask<Void, Void, Void> {
+        private final String[] files;
+
+        public InstallTask(List<String> files) {
+            this.files = files.toArray(new String[0]);
+        }
+
+        @Override
+        protected void onPreExecute() {
+            getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
+        }
+
+        @Override
+        protected void onPostExecute(Void unused) {
+            getWindow().clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
+        }
+
+        @Override
+        protected Void doInBackground(Void... voids) {
+            NativeLibrary.InstallCIA(files);
+            return null;
+        }
+    }
+
+    @SuppressLint("StaticFieldLeak")
+    private class LoadGameListTask extends AsyncTask<Void, Void, Void> {
+        List<GameFile> externals = new ArrayList<>();
+        List<GameFile> installs = new ArrayList<>();
+        List<GameFile> contents = new ArrayList<>();
+
+        @Override
+        protected void onPreExecute() {
+            mSwipeRefresh.setRefreshing(true);
+        }
+
+        @Override
+        protected void onPostExecute(Void unused) {
+            mSwipeRefresh.setRefreshing(false);
+            mExternalGames = externals;
+            mInstalledGames = installs;
+            mInstalledContents = contents;
+            showGameList();
+        }
+
+        @Override
+        protected Void doInBackground(Void... voids) {
+            loadGameList();
+            return null;
+        }
+
+        protected void loadGameList() {
+            String content;
+            File cache = CitraDirectory.getGameListFile();
+            if (GZipUtil.isGZipped(cache)) {
+                content = GZipUtil.readAllText(cache);
+            } else {
+                try {
+                    FileReader reader = new FileReader(cache);
+                    char[] buffer = new char[(int)cache.length()];
+                    int size = reader.read(buffer);
+                    content = new String(buffer, 0, size);
+                    reader.close();
+                } catch (IOException e) {
+                    return;
+                }
+            }
+
+            String[] lines = content.split("\n");
+            if (lines.length > 0) {
+                for (String path : lines[0].split(";")) {
+                    if (path.startsWith("content://") || new File(path).exists()) {
+                        GameFile game = new GameFile(path, false);
+                        game.init();
+                        externals.add(game);
+                    }
+                }
+            }
+
+            if (lines.length > 1) {
+                for (String path : lines[1].split(";")) {
+                    if (new File(path).exists()) {
+                        GameFile game = new GameFile(path, true);
+                        game.init();
+                        installs.add(game);
+                    }
+                }
+            }
+
+            if (lines.length > 2) {
+                for (String path : lines[2].split(";")) {
+                    if (new File(path).exists()) {
+                        GameFile game = new GameFile(path, true);
+                        game.init();
+                        contents.add(game);
+                    }
+                }
+            }
         }
     }
 
     private static WeakReference<MainActivity> sInstance = new WeakReference<>(null);
+
     private String mDirToAdd;
-    private String[] mFilesToAdd;
-    private GameAdapter mAdapter;
+    private List<String> mFilesToAdd;
+    private boolean mRefreshPersistedUri;
     private ProgressBar mProgressBar;
     private TextView mProgressText;
-    private TextView mGameEmulationInfo;
-    private TextView mAppEmulationInfo;
-    private RecyclerView mGameListView;
-    private SwipeRefreshLayout mSwipeRefreshLayout;
-    private Button mBtnAddFiles;
-    private Button mBtnInstallFile;
-    private boolean mIsListApp;
+    private TabLayout mTabLayout;
+    private TabLayoutMediator mMediator;
+    private MainPagerAdapter mPagerAdapter;
+    private ViewPager2 mViewPager;
+    private SwipeRefreshLayout mSwipeRefresh;
+    private int mTabIndex;
 
-    private List<GameFile> mGames;
-    private List<GameFile> mInstalledGames;
+    private Handler mHandler;
+    private final boolean[] mRunningHandlers = new boolean[] {false, false, false};
+
+    private boolean mIsLoadGameList;
+    private List<GameFile> mExternalGames = new ArrayList<>();
+    private List<GameFile> mInstalledGames = new ArrayList<>();
+    private List<GameFile> mInstalledContents = new ArrayList<>();
 
     public static MainActivity get() {
         return sInstance.get();
     }
 
+    @SuppressLint("NonConstantResourceId")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         sInstance = new WeakReference<>(this);
+        mHandler = new Handler(getMainLooper());
 
-        Toolbar toolbar = findViewById(R.id.toolbar_main);
-        setSupportActionBar(toolbar);
+        if (PermissionsHandler.checkWritePermission(this)) {
+            CitraDirectory.start(this);
+        }
+
+        MaterialToolbar toolbar = findViewById(R.id.top_appbar);
+        toolbar.setOnMenuItemClickListener(menuItem -> {
+            switch (menuItem.getItemId()) {
+                case R.id.menu_add_directory:
+                    FileBrowserHelper.openDirectoryPicker(this);
+                    return true;
+
+                case R.id.menu_settings_core:
+                    SettingsActivity.launch(this, MenuTag.CONFIG, "");
+                    return true;
+
+                case R.id.menu_input_binding:
+                    SettingsActivity.launch(this, MenuTag.INPUT, "");
+                    return true;
+
+                case R.id.menu_combo_key:
+                    ComboKeyActivity.launch(this);
+                    return true;
+
+                case R.id.menu_install_cia:
+                    FileBrowserHelper.openFilePicker(this);
+                    return true;
+
+                case R.id.menu_refresh:
+                    refreshLibrary();
+                    return true;
+            }
+            return false;
+        });
 
         mProgressBar = findViewById(R.id.progress_bar);
         mProgressText = findViewById(R.id.progress_text);
-        mGameEmulationInfo = findViewById(R.id.game_emulation_info);
-        mAppEmulationInfo = findViewById(R.id.app_emulation_info);
-        mBtnAddFiles = findViewById(R.id.btn_add_files);
-        mBtnAddFiles.setClickable(true);
-        mBtnAddFiles.setOnClickListener(view -> FileBrowserHelper.openDirectoryPicker(this));
-        mBtnInstallFile = findViewById(R.id.btn_install_file);
-        mBtnInstallFile.setClickable(true);
-        mBtnInstallFile.setOnClickListener(view -> FileBrowserHelper.openFilePicker(this, REQUEST_OPEN_FILE));
+        mTabLayout = findViewById(R.id.tabs_main);
+        mViewPager = findViewById(R.id.pager_main);
 
-        mAdapter = new GameAdapter();
-        mGameListView = findViewById(R.id.grid_games);
-        mGameListView.setAdapter(mAdapter);
-        int columns = getResources().getInteger(R.integer.game_grid_columns);
-        Drawable lineDivider = getDrawable(R.drawable.line_divider);
-        mGameListView.addItemDecoration(new DividerItemDecoration(lineDivider));
-        RecyclerView.LayoutManager layoutManager = new GridLayoutManager(this, columns);
-        mGameListView.setLayoutManager(layoutManager);
+        mPagerAdapter = new MainPagerAdapter(this);
+        mViewPager.setAdapter(mPagerAdapter);
+        mViewPager.setOffscreenPageLimit(mPagerAdapter.getItemCount());
+        mViewPager.registerOnPageChangeCallback(new ViewPager2.OnPageChangeCallback() {
+            @Override
+            public void onPageScrollStateChanged(int state) {
+                mSwipeRefresh.setEnabled(state == ViewPager2.SCROLL_STATE_IDLE);
+            }
 
-        mSwipeRefreshLayout = findViewById(R.id.swipe_refresh_layout);
-        mSwipeRefreshLayout.setColorSchemeResources(R.color.citra_accent);
-        mSwipeRefreshLayout.post(() -> mSwipeRefreshLayout.setDistanceToTriggerSync(mSwipeRefreshLayout.getHeight() / 3));
-        mSwipeRefreshLayout.setOnRefreshListener(this::refreshLibrary);
+            @Override
+            public void onPageSelected(int position) {
+                mTabIndex = position;
+                showGameList();
+            }
+        });
+
+        mMediator = new TabLayoutMediator(mTabLayout, mViewPager, (tab, position) -> {
+            switch (position) {
+                case PAGE_FRAGMENT_EXTERNAL:
+                    tab.setCustomView(getCustomTabView(R.drawable.outline_create_new_folder_24));
+                    break;
+                case PAGE_FRAGMENT_INSTALLED:
+                    tab.setCustomView(getCustomTabView(R.drawable.outline_shop_24));
+                    break;
+                case PAGE_FRAGMENT_CONTENT:
+                    tab.setCustomView(getCustomTabView(R.drawable.outline_extension_24));
+                    break;
+            }
+        });
+        mMediator.attach();
+
+        mSwipeRefresh = findViewById(R.id.swipe_refresh);
+        mSwipeRefresh.setColorSchemeResources(R.color.citra_accent);
+        mSwipeRefresh.post(() -> mSwipeRefresh.setDistanceToTriggerSync(mSwipeRefresh.getHeight() / 3));
+        mSwipeRefresh.setOnRefreshListener(this::refreshLibrary);
 
         SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(this);
-        mIsListApp = pref.getBoolean(PREF_LIST_TYPE, false);
-
-        loadTitleDB();
-        if (PermissionsHandler.checkWritePermission(this)) {
-            DirectoryInitialization.start(this);
-            showGameList();
-        }
-    }
-
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        MenuInflater inflater = getMenuInflater();
-        inflater.inflate(R.menu.menu_main, menu);
-        menu.findItem(R.id.menu_system_files).setVisible(false);
-        return true;
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        switch (item.getItemId()) {
-        case R.id.menu_add_directory:
-            FileBrowserHelper.openDirectoryPicker(this);
-            return true;
-
-        case R.id.menu_switch_list:
-            mIsListApp = !mIsListApp;
-            showGameList();
-            return true;
-
-        case R.id.menu_settings_core:
-            SettingsActivity.launch(this, MenuTag.CONFIG, "");
-            return true;
-
-        case R.id.menu_input_binding:
-            SettingsActivity.launch(this, MenuTag.INPUT, "");
-            return true;
-
-        case R.id.menu_combo_key:
-            ComboKeyActivity.launch(this);
-            return true;
-
-        case R.id.menu_system_files:
-            SystemFilesActivity.launch(this);
-            return true;
-
-        case R.id.menu_install_cia:
-            FileBrowserHelper.openFilePicker(this, REQUEST_OPEN_FILE);
-            return true;
-
-        case R.id.menu_refresh:
-            refreshLibrary();
-            return true;
-        }
-
-        return false;
+        mTabIndex = pref.getInt(PREF_TAB_INDEX, 0);
+        mViewPager.setCurrentItem(mTabIndex, false);
     }
 
     @Override
     protected void onResume() {
         super.onResume();
         if (mDirToAdd != null) {
-            mIsListApp = false;
-            addGamesInDirectory(mDirToAdd);
+            mTabIndex = 0;
+            new RefreshTask(mDirToAdd).execute(false);
             mDirToAdd = null;
-            saveGameList();
-            showGames();
         }
 
         if (mFilesToAdd != null) {
-            List<String> filelist = new ArrayList<>();
-            for (String f : mFilesToAdd) {
-                if (f.toLowerCase().endsWith(".cia")) {
-                    filelist.add(f);
-                }
+            if (mFilesToAdd.size() > 0) {
+                new InstallTask(mFilesToAdd).execute();
             }
             mFilesToAdd = null;
-            final String[] files = filelist.toArray(new String[0]);
-            getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
-            new Thread(() -> NativeLibrary.InstallCIA(files)).start();
+        }
+
+        if (mRefreshPersistedUri) {
+            mRefreshPersistedUri = false;
+            RefreshPersistedUri(false);
         }
     }
 
@@ -282,7 +493,7 @@ public final class MainActivity extends AppCompatActivity {
         super.onDestroy();
 
         SharedPreferences.Editor editor = PreferenceManager.getDefaultSharedPreferences(this).edit();
-        editor.putBoolean(PREF_LIST_TYPE, mIsListApp);
+        editor.putInt(PREF_TAB_INDEX, mTabIndex);
         editor.commit();
 
         sInstance = new WeakReference<>(null);
@@ -293,15 +504,43 @@ public final class MainActivity extends AppCompatActivity {
         super.onActivityResult(requestCode, resultCode, result);
 
         switch (requestCode) {
-        case REQUEST_ADD_DIRECTORY:
+        case FileBrowserHelper.REQUEST_OPEN_DIRECTORY:
             // If the user picked a file, as opposed to just backing out.
-            if (resultCode == MainActivity.RESULT_OK) {
+            if (resultCode == RESULT_OK) {
                 mDirToAdd = FileBrowserHelper.getSelectedDirectory(result);
             }
             break;
-        case REQUEST_OPEN_FILE:
-            if (resultCode == MainActivity.RESULT_OK) {
-                mFilesToAdd = FileBrowserHelper.getSelectedFiles(result);
+        case FileBrowserHelper.REQUEST_OPEN_FILE:
+            if (resultCode == RESULT_OK) {
+                String[] files = FileBrowserHelper.getSelectedFiles(result);
+                if (files != null) {
+                    mFilesToAdd = Arrays.asList(files);
+                }
+            }
+            break;
+        case FileBrowserHelper.REQUEST_OPEN_DOCUMENT_TREE:
+            if (resultCode == RESULT_OK) {
+                Uri uri = result.getData();
+                getContentResolver().takePersistableUriPermission(uri,
+                        Intent.FLAG_GRANT_READ_URI_PERMISSION |
+                                Intent.FLAG_GRANT_WRITE_URI_PERMISSION);
+                mRefreshPersistedUri = true;
+            }
+            break;
+        case FileBrowserHelper.REQUEST_OPEN_DOCUMENT:
+            if (resultCode == RESULT_OK) {
+                Uri uri = result.getData();
+                ClipData clipData = result.getClipData();
+                mFilesToAdd = new ArrayList<>();
+                if (uri != null) {
+                    mFilesToAdd.add(uri.toString());
+                }
+                if (clipData != null) {
+                    for (int i = 0; i < clipData.getItemCount(); ++i) {
+                        ClipData.Item item = clipData.getItemAt(i);
+                        mFilesToAdd.add(item.getUri().toString());
+                    }
+                }
             }
             break;
         }
@@ -313,7 +552,7 @@ public final class MainActivity extends AppCompatActivity {
         switch (requestCode) {
         case PermissionsHandler.REQUEST_CODE_WRITE_PERMISSION:
             if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                DirectoryInitialization.start(this);
+                CitraDirectory.start(this);
                 showGameList();
             } else {
                 Toast.makeText(this, R.string.write_permission_needed, Toast.LENGTH_SHORT).show();
@@ -325,167 +564,50 @@ public final class MainActivity extends AppCompatActivity {
         }
     }
 
-    @Override
-    public void onConfigurationChanged(@NonNull Configuration newConfig) {
-        super.onConfigurationChanged(newConfig);
-        //mAdapter.notifyDataSetChanged();
-        int columns = getResources().getInteger(R.integer.game_grid_columns);
-        RecyclerView.LayoutManager layoutManager = new GridLayoutManager(this, columns);
-        mGameListView.setLayoutManager(layoutManager);
-    }
-
-    private void loadTitleDB() {
-        String lan = Locale.getDefault().getLanguage();
-        if (lan.equals("zh")) {
-            lan = lan + "_" + Locale.getDefault().getCountry();
-        }
-        String asset = "3dstdb-" + lan + ".txt";
-        try {
-            GameFile.loadTitleDB(getAssets().open(asset));
-        } catch (IOException e) {
-
-        }
+    private View getCustomTabView(int icon) {
+        View view = LayoutInflater.from(this).inflate(R.layout.main_tab_item, null);
+        ImageView image = view.findViewById(R.id.tab_icon);
+        image.setImageResource(icon);
+        return view;
     }
 
     public void showGameList() {
-        if (mIsListApp) {
-            if (mInstalledGames == null) {
-                mInstalledGames = new ArrayList<>();
-                mAdapter.setGameList(mInstalledGames);
-                new RefreshTask().execute();
-            } else {
-                if (mInstalledGames.size() > 0) {
-                    mAdapter.setGameList(mInstalledGames);
-                    ShowEmulationInfo(false);
-                } else {
-                    ShowEmulationInfo(true);
-                }
-            }
-        } else {
-            if (mGames == null) {
-                mGames = new ArrayList<>();
-                loadGameList();
-            }
-            if (mGames.size() > 0) {
-                mAdapter.setGameList(mGames);
-                ShowEmulationInfo(false);
-            } else {
-                ShowEmulationInfo(true);
-            }
+        if (!CitraDirectory.isInitialized()) {
+            // wait for initialized
+
+        } else if (!mIsLoadGameList) {
+            mIsLoadGameList = true;
+            new LoadGameListTask().execute();
+        } else if (mTabIndex == PAGE_FRAGMENT_EXTERNAL) {
+            refreshExternalGames();
+        } else if (mTabIndex == PAGE_FRAGMENT_INSTALLED) {
+            refreshInstalledGames();
+        } else if (mTabIndex == PAGE_FRAGMENT_CONTENT) {
+            refreshInstalledContents();
         }
     }
 
     public void refreshLibrary() {
-        if (mIsListApp) {
-            mInstalledGames.clear();
-            new RefreshTask().execute();
+        if (mTabIndex == PAGE_FRAGMENT_EXTERNAL) {
+            if (CitraDirectory.isExternalStorageLegacy()) {
+                new RefreshTask(false).execute(true);
+            } else {
+                RefreshPersistedUri(true);
+            }
         } else {
-            List<String> dirs = new ArrayList<>();
-            for (int i = mGames.size(); i > 0; --i) {
-                GameFile game = mGames.get(i - 1);
-                String path = game.getPath();
-                if (new File(path).exists()) {
-                    int lastSlash = path.lastIndexOf('/');
-                    if (lastSlash == -1)
-                        path = "/";
-                    else
-                        path = path.substring(0, lastSlash);
-                    if (!dirs.contains(path)) {
-                        dirs.add(path);
-                    }
-                } else {
-                    mGames.remove(i - 1);
-                }
-            }
-            for (String dir : dirs) {
-                addGamesInDirectory(dir);
-            }
-            saveGameList();
-            showGames();
-            mSwipeRefreshLayout.setRefreshing(false);
+            new RefreshTask(true).execute(true);
         }
     }
 
-    public void addGamesInDirectory(String directory) {
-        File[] files = new File(directory).listFiles((File dir, String name) -> {
-            if (NativeLibrary.isValidFile(name)) {
-                String path = dir.getPath() + File.separator + name;
-                for (GameFile game : mGames) {
-                    if (path.equals(game.getPath())) {
-                        return false;
-                    }
-                }
-                return true;
-            }
-            return false;
-        });
-
-        if (files == null) {
-            return;
-        }
-
-        for (File f : files) {
-            String path = f.getPath();
-            if (NativeLibrary.IsAppExecutable(path))
-                mGames.add(new GameFile(path));
-        }
-    }
-
-    public void loadGameList() {
-        String content = "";
-        File cache = getGameListCache();
-        try {
-            FileReader reader = new FileReader(cache);
-            char[] buffer = new char[(int)cache.length()];
-            int size = reader.read(buffer);
-            content = new String(buffer);
-            reader.close();
-        } catch (IOException e) {
-            // ignore
-        }
-
-        mGames.clear();
-        for (String path : content.split(";")) {
-            if (NativeLibrary.isValidFile(path) && new File(path).exists() &&
-                    NativeLibrary.IsAppExecutable(path)) {
-                mGames.add(new GameFile(path));
+    private void RefreshPersistedUri(boolean clearCache) {
+        List<UriPermission> list = getContentResolver().getPersistedUriPermissions();
+        List<Uri> dirs = new ArrayList<>();
+        for (UriPermission entity : list) {
+            if (entity.isReadPermission()) {
+                dirs.add(entity.getUri());
             }
         }
-    }
-
-    public void saveGameList() {
-        StringBuilder sb = new StringBuilder();
-
-        mGames.sort((GameFile x, GameFile y) -> x.getName().compareTo(y.getName()));
-        for (GameFile game : mGames) {
-            sb.append(game.getPath());
-            sb.append(";");
-        }
-
-        File cache = getGameListCache();
-        FileWriter writer;
-        try {
-            writer = new FileWriter(cache);
-            writer.write(sb.toString());
-            writer.close();
-        } catch (IOException e) {
-            //
-        }
-    }
-
-    public File getGameListCache() {
-        String path = DirectoryInitialization.getUserDirectory() + File.separator;
-        File list = new File(path + "gamelist.bin");
-        File cache = new File(path + "gamelist.cache");
-        if (cache.exists()) {
-            try {
-                cache.renameTo(list);
-                cache.delete();
-            } catch (Exception e) {
-                // ignore
-            }
-        }
-        return list;
+        new RefreshTask(this, dirs).execute(clearCache);
     }
 
     public void updateProgress(String name, long written, long total) {
@@ -507,40 +629,6 @@ public final class MainActivity extends AppCompatActivity {
         }
     }
 
-    public void showGames() {
-        if (mIsListApp) {
-            if (mInstalledGames.size() > 0) {
-                mAdapter.setGameList(mInstalledGames);
-                ShowEmulationInfo(false);
-            } else {
-                ShowEmulationInfo(true);
-            }
-        } else {
-            if (mGames.size() > 0) {
-                mAdapter.setGameList(mGames);
-                ShowEmulationInfo(false);
-            } else {
-                ShowEmulationInfo(true);
-            }
-        }
-    }
-
-    public void ShowEmulationInfo(boolean visible) {
-        if (visible) {
-            mAppEmulationInfo.setVisibility(mIsListApp ? View.VISIBLE : View.INVISIBLE);
-            mBtnInstallFile.setVisibility(mIsListApp ? View.VISIBLE : View.INVISIBLE);
-            mGameEmulationInfo.setVisibility(mIsListApp ? View.INVISIBLE : View.VISIBLE);
-            mBtnAddFiles.setVisibility(mIsListApp ? View.INVISIBLE : View.VISIBLE);
-            mGameListView.setVisibility(View.INVISIBLE);
-        } else {
-            mAppEmulationInfo.setVisibility(View.INVISIBLE);
-            mBtnInstallFile.setVisibility(View.INVISIBLE);
-            mGameEmulationInfo.setVisibility(View.INVISIBLE);
-            mBtnAddFiles.setVisibility(View.INVISIBLE);
-            mGameListView.setVisibility(View.VISIBLE);
-        }
-    }
-
     public void addNetPlayMessage(String msg) {
         if (msg.isEmpty()) {
             return;
@@ -548,110 +636,46 @@ public final class MainActivity extends AppCompatActivity {
         Toast.makeText(this, msg, Toast.LENGTH_SHORT).show();
     }
 
-    static class GameViewHolder extends RecyclerView.ViewHolder {
-        private ImageView mImageIcon;
-        private TextView mTextTitle;
-        private TextView mTextRegion;
-        private TextView mTextCompany;
-        private GameFile mModel;
+    private void refreshExternalGames() {
+        setGames(PAGE_FRAGMENT_EXTERNAL, mExternalGames);
+    }
 
-        public GameViewHolder(View itemView) {
-            super(itemView);
-            itemView.setTag(this);
-            mImageIcon = itemView.findViewById(R.id.image_game_screen);
-            mTextTitle = itemView.findViewById(R.id.text_game_title);
-            mTextRegion = itemView.findViewById(R.id.text_region);
-            mTextCompany = itemView.findViewById(R.id.text_company);
-        }
+    private void refreshInstalledGames() {
+        setGames(PAGE_FRAGMENT_INSTALLED, mInstalledGames);
+    }
 
-        public void bind(GameFile model) {
-            int[] regions = {
-                R.string.region_invalid, R.string.region_japan,     R.string.region_north_america,
-                R.string.region_europe,  R.string.region_australia, R.string.region_china,
-                R.string.region_korea,   R.string.region_taiwan,
-            };
-            mModel = model;
-            mTextTitle.setText(model.getName());
-            if ("0004000000000000".equals(model.getId())) {
-                mTextTitle.setTextColor(Color.RED);
-            } else {
-                mTextTitle.setTextColor(Color.BLACK);
-            }
-            mTextCompany.setText(model.getInfo());
-            if (model.isInstalled()) {
-                String region = mTextRegion.getContext().getString(regions[model.getRegion() + 1]);
-                String desc = getAppDesc(model);
-                mTextRegion.setText(region + desc);
-            } else {
-                mTextRegion.setText(regions[model.getRegion() + 1]);
-            }
-            mImageIcon.setImageBitmap(model.getIcon(mImageIcon.getContext()));
-        }
+    private void refreshInstalledContents() {
+        setGames(PAGE_FRAGMENT_CONTENT, mInstalledContents);
+    }
 
-        public String getAppDesc(GameFile model) {
-            String path = model.getPath();
-            File appFile = new File(path);
-            if (appFile.exists()) {
-                String size = NativeLibrary.Size2String(appFile.length());
-                String desc = size + (model.isInstalledApp() ? " APP" : " DLC");
-                return mTextRegion.getContext().getString(R.string.installed_app, desc);
-            } else {
-                return "";
-            }
-        }
-
-        public GameFile getModel() {
-            return mModel;
+    private void setGames(int position, List<GameFile> games) {
+        Fragment fragment = getSupportFragmentManager().findFragmentByTag("f" + position);
+        if (fragment != null) {
+            ((MainPageFragment)fragment).setGames(games);
+        } else if (!mRunningHandlers[position]) {
+            mRunningHandlers[position] = true;
+            mHandler.postDelayed(() -> {
+                mRunningHandlers[position] = false;
+                setGames(position, games);
+            }, 60);
         }
     }
 
-    static class GameAdapter extends RecyclerView.Adapter<GameViewHolder>
-        implements View.OnClickListener, View.OnLongClickListener {
-        private List<GameFile> mGameList = new ArrayList<>();
+    private static class MainPagerAdapter extends FragmentStateAdapter {
 
-        @Override
-        public GameViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-            View gameCard =
-                LayoutInflater.from(parent.getContext()).inflate(viewType, parent, false);
-            gameCard.setOnClickListener(this);
-            gameCard.setOnLongClickListener(this);
-            return new GameViewHolder(gameCard);
+        public MainPagerAdapter(@NonNull FragmentActivity fragmentActivity) {
+            super(fragmentActivity);
         }
 
+        @NonNull
         @Override
-        public void onBindViewHolder(GameViewHolder holder, int position) {
-            holder.bind(mGameList.get(position));
-        }
-
-        @Override
-        public int getItemViewType(int position) {
-            return R.layout.card_game;
+        public Fragment createFragment(int position) {
+            return MainPageFragment.newInstance(position);
         }
 
         @Override
         public int getItemCount() {
-            return mGameList.size();
-        }
-
-        @Override
-        public void onClick(View view) {
-            GameViewHolder holder = (GameViewHolder)view.getTag();
-            GameFile model = holder.getModel();
-            if (DirectoryInitialization.isInitialized() && !model.isInstalledDLC()) {
-                EmulationActivity.launch(view.getContext(), model);
-            }
-        }
-
-        @Override
-        public boolean onLongClick(View view) {
-            GameViewHolder holder = (GameViewHolder)view.getTag();
-            EditorActivity.launch(view.getContext(), holder.getModel());
-            return true;
-        }
-
-        public void setGameList(List<GameFile> games) {
-            mGameList = games;
-            notifyDataSetChanged();
+            return 3;
         }
     }
 }

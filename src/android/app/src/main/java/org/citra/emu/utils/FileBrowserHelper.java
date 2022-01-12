@@ -1,9 +1,12 @@
 package org.citra.emu.utils;
 
 import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Environment;
+import android.os.storage.StorageManager;
 
 import androidx.annotation.Nullable;
 
@@ -11,26 +14,46 @@ import com.nononsenseapps.filepicker.FilePickerActivity;
 import com.nononsenseapps.filepicker.Utils;
 import java.io.File;
 import java.util.List;
+
+import org.citra.emu.R;
 import org.citra.emu.ui.GameFilePickerActivity;
-import org.citra.emu.ui.MainActivity;
 
 public final class FileBrowserHelper {
+    public static final int REQUEST_OPEN_DIRECTORY = 1;
+    public static final int REQUEST_OPEN_FILE = 2;
+    public static final int REQUEST_OPEN_DOCUMENT_TREE = 3;
+    public static final int REQUEST_OPEN_DOCUMENT = 4;
+
     public static void openDirectoryPicker(Activity activity) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+            if (!Environment.isExternalStorageLegacy()) {
+                openDocumentTree(activity, REQUEST_OPEN_DOCUMENT_TREE);
+                return;
+            }
+        }
+
         Intent i = new Intent(activity, GameFilePickerActivity.class);
         i.putExtra(FilePickerActivity.EXTRA_ALLOW_MULTIPLE, false);
         i.putExtra(FilePickerActivity.EXTRA_MODE, FilePickerActivity.MODE_DIR);
         i.putExtra(FilePickerActivity.EXTRA_START_PATH,
                    Environment.getExternalStorageDirectory().getPath());
-        activity.startActivityForResult(i, MainActivity.REQUEST_ADD_DIRECTORY);
+        activity.startActivityForResult(i, REQUEST_OPEN_DIRECTORY);
     }
 
-    public static void openFilePicker(Activity activity, int requestCode) {
+    public static void openFilePicker(Activity activity) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+            if (!Environment.isExternalStorageLegacy()) {
+                openDocument(activity, REQUEST_OPEN_DOCUMENT);
+                return;
+            }
+        }
+
         Intent i = new Intent(activity, GameFilePickerActivity.class);
         i.putExtra(FilePickerActivity.EXTRA_ALLOW_MULTIPLE, true);
         i.putExtra(FilePickerActivity.EXTRA_MODE, FilePickerActivity.MODE_FILE);
         i.putExtra(FilePickerActivity.EXTRA_START_PATH,
                    Environment.getExternalStorageDirectory().getPath());
-        activity.startActivityForResult(i, requestCode);
+        activity.startActivityForResult(i, REQUEST_OPEN_FILE);
     }
 
     @Nullable
@@ -57,5 +80,33 @@ public final class FileBrowserHelper {
         }
 
         return null;
+    }
+
+    public static void openDocumentTree(Activity activity, int requestCode) {
+        Intent intent;
+        if (Build.VERSION.SDK_INT > Build.VERSION_CODES.Q) {
+            StorageManager storageMgr = (StorageManager)activity.getSystemService(Context.STORAGE_SERVICE);
+            intent = storageMgr.getPrimaryStorageVolume().createOpenDocumentTreeIntent();
+        } else {
+            intent = new Intent(Intent.ACTION_OPEN_DOCUMENT_TREE);
+        }
+        intent.addCategory(Intent.CATEGORY_DEFAULT);
+        intent.putExtra(Intent.EXTRA_LOCAL_ONLY, true);
+        intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+        intent.addFlags(Intent.FLAG_GRANT_PERSISTABLE_URI_PERMISSION);
+
+        intent = Intent.createChooser(intent, activity.getString(R.string.main_choose_directory));
+        activity.startActivityForResult(intent, requestCode);
+    }
+
+    public static void openDocument(Activity activity, int requestCode) {
+        Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT);
+        intent.addCategory(Intent.CATEGORY_DEFAULT);
+        intent.setType("*/*");
+        intent.putExtra(Intent.EXTRA_ALLOW_MULTIPLE, true);
+        intent.putExtra(Intent.EXTRA_LOCAL_ONLY, true);
+        intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+        intent = Intent.createChooser(intent, activity.getString(R.string.grid_menu_install_cia));
+        activity.startActivityForResult(intent, requestCode);
     }
 }

@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".ui.MainPageFragment">
+
+    <Button
+        android:id="@+id/page_action"
+        android:text="@string/add_directory_title"
+        android:visibility="invisible"
+        android:layout_centerHorizontal="true"
+        android:textAllCaps="false"
+        android:padding="18dp"
+        android:layout_centerInParent="true"
+        style="@style/Widget.AppCompat.Button.Colored"
+        android:stateListAnimator="@null"
+        android:layout_width="240dp"
+        android:layout_height="wrap_content"/>
+
+    <TextView
+        android:id="@+id/page_info"
+        android:text="@string/game_emulation_info"
+        android:textAlignment="center"
+        android:visibility="invisible"
+        android:gravity="center"
+        android:layout_centerHorizontal="true"
+        android:layout_above="@id/page_action"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"/>
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/page_grid"
+        android:nestedScrollingEnabled="true"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"/>
+
+</RelativeLayout>

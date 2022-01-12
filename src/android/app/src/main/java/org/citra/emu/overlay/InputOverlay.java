@@ -13,6 +13,7 @@ import androidx.preference.PreferenceManager;
 
 import android.util.AttributeSet;
 import android.util.DisplayMetrics;
+import android.view.HapticFeedbackConstants;
 import android.view.MotionEvent;
 import android.view.View;
 import java.util.ArrayList;
@@ -24,6 +25,7 @@ import org.citra.emu.ui.EmulationActivity;
 
 public final class InputOverlay extends View {
     public static final String PREF_CONTROLLER_INIT = "InitOverlay";
+    public static final String PREF_HAPTIC_FEEDBACK = "UseHapticFeedback";
     public static final String PREF_JOYSTICK_RELATIVE = "JoystickRelative";
     public static final String PREF_CONTROLLER_SCALE = "ControllerScale";
     public static final String PREF_CONTROLLER_ALPHA = "ControllerAlpha";
@@ -35,6 +37,7 @@ public final class InputOverlay extends View {
     public static boolean sJoystickRelative = true;
     public static boolean sHideInputOverlay = false;
     public static boolean sShowRightJoystick = false;
+    public static boolean sUseHapticFeedback = false;
 
     private final ArrayList<InputOverlayButton> mButtons = new ArrayList<>();
     private final ArrayList<InputOverlayDpad> mDpads = new ArrayList<>();
@@ -56,6 +59,7 @@ public final class InputOverlay extends View {
         if (!mPreferences.getBoolean(PREF_CONTROLLER_INIT, false)) {
             defaultOverlay();
         }
+        sUseHapticFeedback = mPreferences.getBoolean(InputOverlay.PREF_HAPTIC_FEEDBACK, true);
         sJoystickRelative = mPreferences.getBoolean(InputOverlay.PREF_JOYSTICK_RELATIVE, true);
         sControllerScale = mPreferences.getInt(InputOverlay.PREF_CONTROLLER_SCALE, 50);
         sControllerAlpha = mPreferences.getInt(InputOverlay.PREF_CONTROLLER_ALPHA, 100);
@@ -131,6 +135,7 @@ public final class InputOverlay extends View {
             return onTouchWhileEditing(event);
         }
 
+        boolean isPressed = false;
         boolean isProcessed = false;
         switch (event.getAction() & MotionEvent.ACTION_MASK) {
         case MotionEvent.ACTION_DOWN:
@@ -151,6 +156,7 @@ public final class InputOverlay extends View {
             for (InputOverlayButton button : mButtons) {
                 if (button.getBounds().contains((int)pointerX, (int)pointerY)) {
                     button.onPointerDown(pointerId, pointerX, pointerY);
+                    isPressed = true;
                     isProcessed = true;
                 }
             }
@@ -158,6 +164,7 @@ public final class InputOverlay extends View {
             for (InputOverlayDpad dpad : mDpads) {
                 if (dpad.getBounds().contains((int)pointerX, (int)pointerY)) {
                     dpad.onPointerDown(pointerId, pointerX, pointerY);
+                    isPressed = true;
                     isProcessed = true;
                 }
             }
@@ -189,6 +196,7 @@ public final class InputOverlay extends View {
                     if (button.getBounds().contains((int)pointerX, (int)pointerY)) {
                         if (button.getPointerId() == -1) {
                             button.onPointerDown(pointerId, pointerX, pointerY);
+                            isPressed = true;
                             isProcessed = true;
                         }
                     } else if (button.getPointerId() == pointerId) {
@@ -200,6 +208,9 @@ public final class InputOverlay extends View {
                 for (InputOverlayDpad dpad : mDpads) {
                     if (dpad.getPointerId() == pointerId) {
                         dpad.onPointerMove(pointerId, pointerX, pointerY);
+                        if (!isPressed && dpad.isPressed()) {
+                            isPressed = true;
+                        }
                         isProcessed = true;
                     }
                 }
@@ -267,8 +278,12 @@ public final class InputOverlay extends View {
         }
         }
 
-        if (isProcessed)
+        if (isProcessed) {
             invalidate();
+            if (isPressed) {
+                onPressedFeedback();
+            }
+        }
 
         return true;
     }
@@ -484,7 +499,7 @@ public final class InputOverlay extends View {
         final int defaultResId = R.drawable.dpad;
         final int pressedOneDirectionResId = R.drawable.dpad_pressed_one;
         final int pressedTwoDirectionsResId = R.drawable.dpad_pressed_two;
-        float scale = 0.3f * (sControllerScale + 50) / 100;
+        float scale = 0.32f * (sControllerScale + 50) / 100;
 
         Bitmap defaultBitmap = getInputBitmap(defaultResId, scale);
         Bitmap onePressedBitmap = getInputBitmap(pressedOneDirectionResId, scale);
@@ -536,7 +551,7 @@ public final class InputOverlay extends View {
         // Now set the bounds for the InputOverlayDrawableJoystick.
         // This will dictate where on the screen (and the what the size) the
         // InputOverlayDrawableJoystick will be.
-        float innerScale = 1.833f;
+        float innerScale = 1.7f;
         int outerSize = bitmapOuter.getWidth();
         int drawableX = (int)((dm.widthPixels / 2.0f) * (1.0f + x) - outerSize / 2.0f);
         int drawableY = (int)((dm.heightPixels / 2.0f) * (1.0f + y) - outerSize / 2.0f);
@@ -550,6 +565,12 @@ public final class InputOverlay extends View {
             bitmapOuter, bitmapInnerDefault, bitmapInnerPressed, outerRect, innerRect, joystick);
 
         return overlay;
+    }
+
+    public void onPressedFeedback() {
+        if (sUseHapticFeedback) {
+            performHapticFeedback(HapticFeedbackConstants.VIRTUAL_KEY, HapticFeedbackConstants.FLAG_IGNORE_GLOBAL_SETTING);
+        }
     }
 
     public Bitmap getInputBitmap(int id, float scale) {

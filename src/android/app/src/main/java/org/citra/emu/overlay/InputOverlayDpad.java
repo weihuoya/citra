@@ -8,6 +8,7 @@ import org.citra.emu.NativeLibrary;
 
 public final class InputOverlayDpad {
     private boolean[] mPressStates = new boolean[4];
+    private boolean[] mLastStates = new boolean[4];
     private int[] mButtonIds = new int[4];
     private boolean mIsStick;
     private Bitmap mDefaultBitmap;
@@ -35,6 +36,8 @@ public final class InputOverlayDpad {
         mPressStates[1] = false;
         mPressStates[2] = false;
         mPressStates[3] = false;
+
+        System.arraycopy(mPressStates, 0, mLastStates, 0, mLastStates.length);
     }
 
     public void onConfigureBegin(int x, int y) {
@@ -180,6 +183,18 @@ public final class InputOverlayDpad {
                 mPressStates[i] = pressed[i];
             }
         }
+    }
+
+    public boolean isPressed() {
+        boolean pressed = false;
+        for (int i = 0; i < mLastStates.length; ++i) {
+            if (!mLastStates[i] && mLastStates[i] != mPressStates[i]) {
+                pressed = true;
+                break;
+            }
+        }
+        System.arraycopy(mPressStates, 0, mLastStates, 0, mLastStates.length);
+        return pressed;
     }
 
     public int getButtonId() {

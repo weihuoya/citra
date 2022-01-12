@@ -6,11 +6,16 @@ import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Rect;
+import android.net.Uri;
+import android.os.ParcelFileDescriptor;
 import android.util.Log;
 import android.view.Surface;
 
+import androidx.documentfile.provider.DocumentFile;
+
 import java.io.File;
 import java.io.FileOutputStream;
+import java.util.HashMap;
 
 import org.citra.emu.ui.EmulationActivity;
 import org.citra.emu.ui.MainActivity;
@@ -21,6 +26,74 @@ public final class NativeLibrary {
 
     static {
         System.loadLibrary("main");
+    }
+
+    public static HashMap<Integer, ParcelFileDescriptor> SafFileDescriptorMap = new HashMap<>();
+
+    public static int SafOpen(String path, String mode) {
+        Context context = getMainContext();
+        if (context == null) {
+            context = getEmulationContext();
+            if (context == null) {
+                return 0;
+            }
+        }
+
+        StringBuilder sb = new StringBuilder();
+        for (int i = 0; i < mode.length(); ++i) {
+            switch (mode.charAt(i)) {
+                case 'r':
+                    sb.append('r');
+                    break;
+                case 'w':
+                    sb.append('w');
+                    break;
+                case 'a':
+                    sb.append('a');
+                    break;
+                default:
+                    break;
+            }
+        }
+
+        int fd = 0;
+        try {
+            final ParcelFileDescriptor file = context.getContentResolver()
+                    .openFileDescriptor(Uri.parse(path), sb.toString());
+            fd = file.getFd();
+            SafFileDescriptorMap.put(fd, file);
+        } catch (Exception e) {
+            Log.e("citra", "SafOpen error: " + path, e);
+        }
+        return fd;
+    }
+
+    public static long SafLastModified(String path) {
+        Context context = getMainContext();
+        if (context == null) {
+            context = getEmulationContext();
+            if (context == null) {
+                return 0;
+            }
+        }
+        DocumentFile file = DocumentFile.fromTreeUri(context, Uri.parse(path));
+        return file.lastModified();
+    }
+
+    public static int SafClose(int fd) {
+        int ret = 0;
+        final ParcelFileDescriptor file = SafFileDescriptorMap.get(fd);
+        if (file != null) {
+            try {
+                file.close();
+            } catch (Exception e) {
+                Log.e("citra", "SafClose error: " + fd, e);
+                ret = -1;
+            }
+        } else {
+            ret = -1;
+        }
+        return ret;
     }
 
     public interface OnScreenshotCompleteListener {
@@ -93,7 +166,7 @@ public final class NativeLibrary {
                 bitmap.compress(Bitmap.CompressFormat.PNG, 100, out);
                 out.close();
             } catch (Exception e) {
-                Log.i("citra", "saveImageToFile error: " + e.getMessage());
+                Log.e("citra", "saveImageToFile error: " + path, e);
             }
         }
     }
@@ -195,46 +268,9 @@ public final class NativeLibrary {
         TranslateHelper.Initialize(key, secret);
     }
 
-    public static String Size2String(long size) {
-        final int KB = 1024;
-        final int MB = KB * KB;
-        final int GB = KB * MB;
-
-        StringBuilder sb = new StringBuilder();
-
-        if (size > GB) {
-            sb.append(size / GB);
-            sb.append(" GB ");
-            size %= GB;
-        }
-
-        if (size > MB) {
-            sb.append(size / MB);
-            sb.append(" MB ");
-            size %= MB;
-        }
-
-        if (size > KB) {
-            sb.append(size / KB);
-            sb.append(" KB ");
-            size %= KB;
-        }
-
-        if (sb.length() == 0 && size > 0) {
-            sb.append(size);
-            sb.append(" B ");
-        }
-
-        int length = sb.length();
-        if (length > 0) {
-            sb.deleteCharAt(length - 1);
-        }
-        return sb.toString();
-    }
-
     public static boolean isValidFile(String filename) {
         String name = filename.toLowerCase();
-        return (name.endsWith(".cia") || name.endsWith(".cci") || name.endsWith(".3ds") || name.endsWith(".elf") ||
+        return (name.endsWith(".cci") || name.endsWith(".3ds") || name.endsWith(".elf") ||
                 name.endsWith(".cxi") || name.endsWith(".app") || name.endsWith(".3dsx"));
     }
 
@@ -246,11 +282,13 @@ public final class NativeLibrary {
 
     public static native String GetAppTitle(String path);
 
-    public static native int[] GetAppIcon(String path);
+    public static native byte[] GetAppIcon(String path);
 
     public static native int GetAppRegion(String path);
 
     public static native boolean IsAppExecutable(String path);
+
+    public static native boolean IsAppVisible(String path);
 
     public static native void InstallCIA(String[] path);
 
@@ -373,19 +411,5 @@ public final class NativeLibrary {
         public static final int TOUCH_PRESSED = 1;
         public static final int TOUCH_MOVED = 2;
         public static final int TOUCH_RELEASED = 4;
-    }
-
-    /**
-     * Game regions
-     */
-    public static final class GameRegion {
-        public static final int Invalid = -1;
-        public static final int Japan = 0;
-        public static final int NorthAmerica = 1;
-        public static final int Europe = 2;
-        public static final int Australia = 3;
-        public static final int China = 4;
-        public static final int Korea = 5;
-        public static final int Taiwan = 6;
     }
 }
