@@ -1,5 +1,3 @@
-cmake_minimum_required(VERSION 3.8)
-
 add_library(main SHARED
             jni_common.cpp
             jni_common.h

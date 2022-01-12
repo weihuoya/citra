@@ -105,8 +105,8 @@ private:
     };
 
     template <typename... Ts>
-    struct JniStaticMethod<int, Ts...> {
-        static int Call(const char* className, const char* methodName, Ts... xs) {
+    struct JniStaticMethod<jint, Ts...> {
+        static jint Call(const char* className, const char* methodName, Ts... xs) {
             jint ret;
             std::vector<jobject> localRefs;
             JNIEnv* env = GetEnvForThread();
@@ -120,8 +120,23 @@ private:
     };
 
     template <typename... Ts>
-    struct JniStaticMethod<float, Ts...> {
-        static float Call(const char* className, const char* methodName, Ts... xs) {
+    struct JniStaticMethod<jlong, Ts...> {
+        static jlong Call(const char* className, const char* methodName, Ts... xs) {
+            jlong ret;
+            std::vector<jobject> localRefs;
+            JNIEnv* env = GetEnvForThread();
+            std::string signature = "(" + JniSignature(xs...) + ")J";
+            jclass clazz = FindClass(className);
+            jmethodID method = env->GetStaticMethodID(clazz, methodName, signature.c_str());
+            ret = env->CallStaticLongMethod(clazz, method, JniWrap(env, localRefs, xs)...);
+            DeleteLocalRefs(env, localRefs);
+            return ret;
+        }
+    };
+
+    template <typename... Ts>
+    struct JniStaticMethod<jfloat, Ts...> {
+        static jfloat Call(const char* className, const char* methodName, Ts... xs) {
             jfloat ret;
             std::vector<jobject> localRefs;
             JNIEnv* env = GetEnvForThread();
@@ -140,7 +155,7 @@ private:
         const char* str = env->GetStringUTFChars(value, nullptr);
         result = str;
         env->ReleaseStringUTFChars(value, str);
-        env->DeleteLocalRef(value);
+        //env->DeleteLocalRef(value);
         return result;
     }
 
@@ -244,35 +259,35 @@ private:
         return "Z";
     }
 
-    static std::string JniSignature(char) {
+    static std::string JniSignature(jchar) {
         return "C";
     }
 
-    static std::string JniSignature(short) {
+    static std::string JniSignature(jshort) {
         return "S";
     }
 
-    static std::string JniSignature(int) {
+    static std::string JniSignature(jint) {
         return "I";
     }
 
-    static std::string JniSignature(unsigned int) {
+    static std::string JniSignature(uint32_t) {
         return "I";
     }
 
-    static std::string JniSignature(long) {
+    static std::string JniSignature(jlong) {
         return "J";
     }
 
-    static std::string JniSignature(unsigned long) {
+    static std::string JniSignature(uint64_t) {
         return "J";
     }
 
-    static std::string JniSignature(float) {
+    static std::string JniSignature(jfloat) {
         return "F";
     }
 
-    static std::string JniSignature(double) {
+    static std::string JniSignature(jdouble) {
         return "D";
     }
 

@@ -251,7 +251,7 @@ public:
 void Room::RoomImpl::ServerLoop() {
     while (state != State::Closed) {
         ENetEvent event;
-        if (enet_host_service(server, &event, 50) > 0) {
+        if (enet_host_service(server, &event, 32) > 0) {
             switch (event.type) {
             case ENET_EVENT_TYPE_RECEIVE:
                 switch (event.packet->data[0]) {
@@ -912,7 +912,7 @@ void Room::RoomImpl::HandleChatPacket(const ENetEvent* event) {
     }
 
     // Limit the size of chat messages to MaxMessageSize
-    message.resize(MaxMessageSize);
+    message.resize(std::min(static_cast<u32>(message.size()), MaxMessageSize));
 
     Packet out_packet;
     out_packet << static_cast<u8>(IdChatMessage);

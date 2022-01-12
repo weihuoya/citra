@@ -25,11 +25,13 @@
     <string name="keyboard_please_input">请输入：</string>
     <string name="input_text_max_length">输入长度限制：%1$d.</string>
     <string name="text_amiibo_hint">Amiibo 目录是空的！</string>
+    <string name="main_choose_directory">选择目录</string>
 
     <string name="setting_core_ticks_hack">FMV Hack</string>
     <string name="setting_skip_slow_draw">跳过慢渲染</string>
     <string name="setting_skip_cpu_write">跳过CPU访问</string>
     <string name="setting_use_linear_filter">使用线性过滤</string>
+    <string name="use_haptic_feedback">按键反馈（震动）</string>
     <string name="joystick_relative_center">摇杆使用相对位置</string>
     <string name="show_right_joystick">显示右摇杆</string>
     <string name="hide_input_overlay">隐藏屏幕按键</string>
@@ -42,8 +44,8 @@
     <string name="translate_show_ocr_results">显示原文</string>
     <string name="translate_game_language">游戏语言</string>
     <string name="translate_service">翻译服务</string>
-    <string name="baidu_ocr_key">百度 API Key</string>
-    <string name="baidu_ocr_secret">百度 Secret Key</string>
+    <string name="baidu_ocr_key">百度文字识别 API Key</string>
+    <string name="baidu_ocr_secret">百度文字识别 Secret Key</string>
 
     <string name="translate_service_google">谷歌</string>
     <string name="translate_service_youdao">有道</string>
@@ -210,7 +212,7 @@
     <string name="save">保存</string>
     <string name="menu_cheat_code">金手指</string>
     <string name="cheat_code">[CHEAT NAME]\n*citra_enabled\nFEDCBA98 76543210</string>
-    <string name="write_permission_needed">You need to allow write access to external storage for the emulator to work.</string>
+    <string name="write_permission_needed">模拟器需要允许对外部存储的读写权限才能工作。</string>
     <string name="camera_permission_needed">You need to allow take photos for the emulator to work.</string>
     <string name="record_permission_needed">You need to allow record audio for the emulator to work.</string>
 
@@ -233,11 +235,14 @@
     <string name="region_korea">韩国</string>
     <string name="region_taiwan">台湾</string>
 
-    <string name="game_emulation_info">文件支持：.CCI，.CXI，.3DS，.3DSX</string>
-    <string name="application_emulation_info">应用将被安装到“citra-emu/sdmc”目录</string>
+    <string name="game_emulation_info">下拉刷新\n长按游戏编辑金手指\n文件支持：.CCI，.CXI，.3DS，.3DSX</string>
+    <string name="application_emulation_info">下拉刷新\n长按游戏编辑金手指\n应用将被安装到“citra-emu/sdmc”目录</string>
     <string name="toggle_list">切换列表</string>
     <string name="reset_setting">重置设置</string>
-    <string name="installed_app">(已安装：%1$s)</string>
+    <string name="installed_app">已安装：%1$s</string>
+    <string name="playtime_desc">游戏时长：%1$s</string>
+    <string name="playtime_minutes">%1$s 分钟</string>
+    <string name="playtime_hours">%1$s 小时</string>
     <string name="delete_app_sdmc">删除存档目录</string>
     <string name="delete_shader_cache">删除着色器缓存</string>
     <string name="delete_confirm_notice">确定删除游戏存档目录？</string>

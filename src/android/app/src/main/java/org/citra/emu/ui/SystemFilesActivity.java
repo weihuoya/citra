@@ -25,12 +25,11 @@ import androidx.appcompat.widget.Toolbar;
 import com.nononsenseapps.filepicker.DividerItemDecoration;
 
 import org.citra.emu.R;
-import org.citra.emu.utils.DirectoryInitialization;
+import org.citra.emu.utils.CitraDirectory;
 
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 
 public final class SystemFilesActivity extends AppCompatActivity {
@@ -297,7 +296,7 @@ public final class SystemFilesActivity extends AppCompatActivity {
     }
 
     protected File getNandTitlePath() {
-        return new File(DirectoryInitialization.getSystemTitleDirectory());
+        return new File(CitraDirectory.getSystemTitleDirectory());
     }
 
     static class FileViewHolder extends RecyclerView.ViewHolder {

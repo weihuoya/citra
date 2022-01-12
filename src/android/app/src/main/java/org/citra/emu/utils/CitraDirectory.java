@@ -1,24 +1,31 @@
 package org.citra.emu.utils;
 
 import android.content.Context;
-import android.content.res.Resources;
+import android.content.res.AssetManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.AsyncTask;
+import android.os.Build;
 import android.os.Environment;
+import android.util.Log;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
+import java.io.BufferedReader;
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.io.OutputStream;
-import java.util.Collection;
+import java.util.ArrayList;
 import java.util.Dictionary;
-import java.util.Enumeration;
 import java.util.HashMap;
+import java.util.Hashtable;
+import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
@@ -26,11 +33,22 @@ import java.util.zip.ZipOutputStream;
 
 import org.citra.emu.NativeLibrary;
 import org.citra.emu.R;
+import org.citra.emu.iconcache.IconCache;
+import org.citra.emu.model.GameInfo;
 import org.citra.emu.overlay.InputOverlay;
 
-public final class DirectoryInitialization {
-    private static DirectoryInitializationState sDirectoryState;
+public final class CitraDirectory {
+    private static int sInitState;
     private static String mUserPath;
+    private static IconCache mIconCache;
+    private static Bitmap mDefaultIcon;
+    private static final Dictionary<String, String> mTitleDB = new Hashtable<>();
+
+    private static final int INIT_FAILED = -1;
+    private static final int INIT_UNKNOWN = 0;
+    private static final int INIT_LEGACY = 1;
+    private static final int INIT_SAF = 2;
+
 
     private static class InitTask extends AsyncTask<Context, Void, Void> {
         @Override
@@ -41,60 +59,119 @@ public final class DirectoryInitialization {
     }
 
     public static void start(Context context) {
-        if (sDirectoryState != DirectoryInitializationState.DIRECTORIES_INITIALIZED) {
-            if (PermissionsHandler.hasWriteAccess(context)) {
-                if (setUserDirectory()) {
-                    new InitTask().execute(context);
-                } else {
-                    sDirectoryState = DirectoryInitializationState.CANT_FIND_EXTERNAL_STORAGE;
-                }
+        if (sInitState == INIT_LEGACY || sInitState == INIT_SAF) {
+            return;
+        }
+
+        File externalPath = null;
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q && !Environment.isExternalStorageLegacy()) {
+            sInitState = INIT_SAF;
+            externalPath = context.getExternalFilesDir(null);
+        } else if (PermissionsHandler.hasWriteAccess(context)) {
+            if (Environment.MEDIA_MOUNTED.equals(Environment.getExternalStorageState())) {
+                sInitState = INIT_LEGACY;
+                externalPath = Environment.getExternalStorageDirectory();
             } else {
-                sDirectoryState = DirectoryInitializationState.EXTERNAL_STORAGE_PERMISSION_NEEDED;
+                sInitState = INIT_FAILED;
             }
+        } else {
+            sInitState = INIT_FAILED;
+        }
+
+        if (externalPath != null) {
+            File userPath = new File(externalPath, "citra-emu");
+            if (!userPath.isDirectory() && !userPath.mkdir()) {
+                sInitState = INIT_FAILED;
+            } else {
+                mUserPath = userPath.getPath();
+                mDefaultIcon = BitmapFactory.decodeResource(context.getResources(), R.drawable.no_banner);
+                mIconCache = new IconCache(context);
+                loadTitleDB(context.getAssets());
+                NativeLibrary.SetUserPath(mUserPath);
+                new InitTask().execute(context);
+            }
+        }
+    }
+
+    public static Bitmap getDefaultIcon() {
+        return mDefaultIcon;
+    }
+
+    public static GameInfo loadGameInfo(String path) {
+        GameInfo info = mIconCache.getEntry(path);
+        if (info == null) {
+            info = new GameInfo();
+            info.path = path;
+            info.id = NativeLibrary.GetAppId(path);
+            info.name = NativeLibrary.GetAppTitle(path);
+            info.region = NativeLibrary.GetAppRegion(path);
+            info.icon = NativeLibrary.GetAppIcon(path);
+            mIconCache.addIconToDB(info);
+        }
+        // get name from title db
+        String name = mTitleDB.get(info.id);
+        if (name == null && info.id.length() > 8) {
+            String id = "00040000" + info.id.substring(8);
+            if (!info.id.equals(id)) {
+                // DLC? try again
+                name = mTitleDB.get(id);
+            }
+        }
+        if (name != null) {
+            info.name = name;
+        }
+        return info;
+    }
+
+    private static void loadTitleDB(AssetManager mgr) {
+        String lan = Locale.getDefault().getLanguage();
+        if (lan.equals("zh")) {
+            lan = lan + "_" + Locale.getDefault().getCountry();
+        }
+        String asset = "3dstdb-" + lan + ".txt";
+        try {
+            BufferedReader input = new BufferedReader(new InputStreamReader(mgr.open(asset)));
+            while (input.ready()) {
+                String line = input.readLine();
+                int sep = line.indexOf('=');
+                if (sep > 0 && sep < line.length() - 1) {
+                    String key = line.substring(0, sep).trim();
+                    String value = line.substring(sep + 1).trim();
+                    if (!key.isEmpty() && !value.isEmpty()) {
+                        mTitleDB.put(key, value);
+                    }
+                }
+            }
+        } catch (IOException e) {
+            Log.e("citra", "loadTitleDB error", e);
         }
     }
 
     public static boolean isInitialized() {
-        return sDirectoryState == DirectoryInitializationState.DIRECTORIES_INITIALIZED;
+        return sInitState == INIT_LEGACY || sInitState == INIT_SAF;
     }
 
-    private static boolean setUserDirectory() {
-        if (Environment.MEDIA_MOUNTED.equals(Environment.getExternalStorageState())) {
-            File externalPath = Environment.getExternalStorageDirectory();
-            if (externalPath != null) {
-                File userPath = new File(externalPath, "citra-emu");
-                if (!userPath.isDirectory() && !userPath.mkdir()) {
-                    return false;
-                }
-                mUserPath = userPath.getPath();
-                NativeLibrary.SetUserPath(mUserPath);
-                return true;
-            }
-        }
-        return false;
+    public static boolean isExternalStorageLegacy() {
+        return sInitState == INIT_LEGACY;
+    }
+
+    public static void clearIconCache() {
+        mIconCache.clearCache();
     }
 
     private static void initializeExternalStorage(Context context) {
         File shaders = new File(getShadersDirectory());
         File sysdata = new File(getSysDataDirectory());
-        File cheats = new File(getCheatsDirectory());
+        File nand = new File(getNandDirectory());
         File sdmc = new File(getSDMCDirectory());
         File theme = new File(getThemeDirectory());
         copyAssetFolder("shaders", shaders, false, context);
         copyAssetFolder("sysdata", sysdata, false, context);
+        copyAssetFolder("nand", nand, false, context);
         copyAssetFolder("sdmc", sdmc, false, context);
         if (theme.exists() || theme.mkdir()) {
             saveInputOverlay(context);
         }
-        sDirectoryState = DirectoryInitializationState.DIRECTORIES_INITIALIZED;
-    }
-
-    private static void deleteDirectoryRecursively(File file) {
-        if (file.isDirectory()) {
-            for (File child : file.listFiles())
-                deleteDirectoryRecursively(child);
-        }
-        file.delete();
     }
 
     public static String getUserDirectory() {
@@ -111,6 +188,11 @@ public final class DirectoryInitialization {
 
     public static String getConfigFile() {
         return getUserDirectory() + File.separator + "config" + File.separator + "config-mmj.ini";
+    }
+
+    public static File getGameListFile() {
+        String path = getUserDirectory() + File.separator + "gamelist.bin";
+        return new File(path);
     }
 
     public static String getShadersDirectory() {
@@ -135,6 +217,10 @@ public final class DirectoryInitialization {
 
     public static String getSDMCDirectory() {
         return getUserDirectory() + File.separator + "sdmc";
+    }
+
+    public static String getNandDirectory() {
+        return getUserDirectory() + File.separator + "nand";
     }
 
     public static String getSystemTitleDirectory() {
@@ -180,7 +266,7 @@ public final class DirectoryInitialization {
             }
             zipOut.close();
         } catch (IOException e) {
-            // ignore
+            Log.e("citra", "saveInputOverlay error", e);
         }
     }
 
@@ -219,7 +305,7 @@ public final class DirectoryInitialization {
             }
             zipIn.close();
         } catch (IOException e) {
-            // ignore
+            Log.e("citra", "loadInputOverlay error", e);
         }
 
         return inputs;
@@ -235,6 +321,7 @@ public final class DirectoryInitialization {
                 out.close();
             }
         } catch (IOException e) {
+            Log.e("citra", "copyAsset error: " + asset, e);
         }
     }
 
@@ -253,6 +340,7 @@ public final class DirectoryInitialization {
                           overwrite, context);
             }
         } catch (IOException e) {
+            Log.e("citra", "copyAssetFolder error: " + assetFolder, e);
         }
     }
 
@@ -262,6 +350,7 @@ public final class DirectoryInitialization {
             OutputStream out = new FileOutputStream(to);
             copyFile(in, out);
         } catch (IOException e) {
+            Log.e("citra", "copyFile error from: " + from + ", to: " + to, e);
         }
     }
 
@@ -273,9 +362,41 @@ public final class DirectoryInitialization {
         }
     }
 
-    public enum DirectoryInitializationState {
-        DIRECTORIES_INITIALIZED,
-        EXTERNAL_STORAGE_PERMISSION_NEEDED,
-        CANT_FIND_EXTERNAL_STORAGE
+    public static List<String> readAllLines(InputStream input) {
+        byte[] buffer = new byte[1024*8];
+        List<String> lines = new ArrayList<>();
+        ByteArrayOutputStream output = new ByteArrayOutputStream();
+        try {
+            while (true) {
+                int size = input.read(buffer, 0, buffer.length);
+                if (size > 0) {
+                    int i = 0;
+                    int offset = 0;
+                    while (i < size) {
+                        if (buffer[i++] == '\n') {
+                            // new line start, save previous line
+                            output.write(buffer, offset, i - offset - 1);
+                            lines.add(output.toString());
+                            output.reset();
+                            offset = i;
+                        }
+                    }
+                    if (offset < size) {
+                        // save remain bytes
+                        output.write(buffer, offset, size - offset);
+                    }
+                } else {
+                    if (output.size() > 0) {
+                        lines.add(output.toString());
+                    }
+                    break;
+                }
+            }
+            input.close();
+        } catch (IOException e) {
+            Log.e("citra", "readAllLines error", e);
+            lines.clear();
+        }
+        return lines;
     }
 }

@@ -25,11 +25,13 @@
     <string name="keyboard_please_input">Please Input:</string>
     <string name="input_text_max_length">Max input length: %1$d.</string>
     <string name="text_amiibo_hint">The amiibo directory is empty!</string>
+    <string name="main_choose_directory">Choose directory</string>
 
     <string name="setting_core_ticks_hack">FMV Hack</string>
     <string name="setting_skip_slow_draw">Skip Slow Draw</string>
     <string name="setting_skip_cpu_write">Skip CPU Access</string>
     <string name="setting_use_linear_filter">Use Linear Filter</string>
+    <string name="use_haptic_feedback">Haptic Feedback (Vibration)</string>
     <string name="joystick_relative_center">Joystick use relative center</string>
     <string name="show_right_joystick">Show Right Joystick</string>
     <string name="hide_input_overlay">Hide Input Buttons</string>
@@ -42,8 +44,8 @@
     <string name="translate_show_ocr_results">Show OCR Results</string>
     <string name="translate_game_language">Game Language</string>
     <string name="translate_service">Translate Service</string>
-    <string name="baidu_ocr_key">Baidu API Key</string>
-    <string name="baidu_ocr_secret">Baidu Secret Key</string>
+    <string name="baidu_ocr_key">Baidu OCR API Key</string>
+    <string name="baidu_ocr_secret">Baidu OCR Secret Key</string>
 
     <string name="translate_service_google">Google</string>
     <string name="translate_service_youdao">Youdao</string>
@@ -233,11 +235,14 @@
     <string name="region_korea">Korea</string>
     <string name="region_taiwan">Taiwan</string>
 
-    <string name="game_emulation_info">File Support: .CCI, .CXI, .3DS, .3DSX</string>
-    <string name="application_emulation_info">Application will be installed in "citra-emu/sdmc"</string>
+    <string name="game_emulation_info">Pull to refresh\nLong press game to edit cheat\nFile Support: .CCI, .CXI, .3DS, .3DSX</string>
+    <string name="application_emulation_info">Pull to refresh\nLong press game to edit cheat\nApp will be installed in \"citra-emu/sdmc\"</string>
     <string name="toggle_list">Toggle List</string>
     <string name="reset_setting">Reset Setting</string>
-    <string name="installed_app">(Installed: %1$s)</string>
+    <string name="installed_app">Installed: %1$s</string>
+    <string name="playtime_desc">Play Time: %1$s</string>
+    <string name="playtime_minutes">%1$s minutes</string>
+    <string name="playtime_hours">%1$s hours</string>
     <string name="delete_app_sdmc">Delete Archive Directory</string>
     <string name="delete_shader_cache">Delete Shader Cache</string>
     <string name="delete_confirm_notice">Are you sure to delete the game archive directory?</string>

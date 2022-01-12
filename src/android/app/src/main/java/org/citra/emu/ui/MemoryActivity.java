@@ -103,7 +103,7 @@ public final class MemoryActivity extends AppCompatActivity {
             for (int i = 0; i < pages.length; i += 2) {
                 long addr = GetUnsigned(pages[i]);
                 long size = GetUnsigned(pages[i + 1]);
-                mTexts.add("[" + Long2Hex(addr) + ", " + Long2Hex(addr + size) + ") - " + NativeLibrary.Size2String(size));
+                mTexts.add("[" + Long2Hex(addr) + ", " + Long2Hex(addr + size) + ") - " + Size2String(size));
             }
         }
 
@@ -115,6 +115,43 @@ public final class MemoryActivity extends AppCompatActivity {
         @Override
         public String get(int position) {
             return mTexts.get(position);
+        }
+
+        public static String Size2String(long size) {
+            final int KB = 1024;
+            final int MB = KB * KB;
+            final int GB = KB * MB;
+
+            StringBuilder sb = new StringBuilder();
+
+            if (size > GB) {
+                sb.append(size / GB);
+                sb.append("GB ");
+                size %= GB;
+            }
+
+            if (size > MB) {
+                sb.append(size / MB);
+                sb.append("MB ");
+                size %= MB;
+            }
+
+            if (size > KB) {
+                sb.append(size / KB);
+                sb.append("KB ");
+                size %= KB;
+            }
+
+            if (sb.length() == 0 && size > 0) {
+                sb.append(size);
+                sb.append("B ");
+            }
+
+            int length = sb.length();
+            if (length > 0) {
+                sb.deleteCharAt(length - 1);
+            }
+            return sb.toString();
         }
     }
 

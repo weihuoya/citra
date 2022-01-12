@@ -59,7 +59,7 @@ void LogSettings() {
     LogSetting("Renderer_UseGLES", Settings::values.use_gles);
     LogSetting("Renderer_UseHwRenderer", Settings::values.use_hw_renderer);
     LogSetting("Renderer_UseHwShader", Settings::values.use_hw_shader);
-    LogSetting("Renderer_ShadersAccurateMul", Settings::values.shaders_accurate_mul);
+    LogSetting("Renderer_ShadersAccurateMul", static_cast<int>(Settings::values.shaders_accurate_mul));
     LogSetting("Renderer_UseShaderJit", Settings::values.use_shader_jit);
     LogSetting("Renderer_UseResolutionFactor", Settings::values.resolution_factor);
     LogSetting("Renderer_UseFrameLimit", Settings::values.use_frame_limit);
