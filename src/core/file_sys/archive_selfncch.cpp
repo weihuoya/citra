@@ -66,9 +66,7 @@ public:
         return false;
     }
 
-    bool Close() const override {
-        return true;
-    }
+    void Close() const override {}
 
     void Flush() const override {}
 

@@ -33,6 +33,7 @@
 #include "mic.h"
 #include "multiplayer.h"
 #include "png_handler.h"
+#include "saf_handler.h"
 
 static ANativeWindow* s_surface = nullptr;
 
@@ -200,7 +201,7 @@ static bool GetSMDHData(Loader::AppLoader* loader, Loader::SMDH* smdh) {
 
 static const GameInfo& GetGameInfo(const std::string& path) {
     u64 timestamp;
-    if (FileUtil::IsSafPath(path)) {
+    if (IsSafPath(path)) {
         timestamp = NativeLibrary::SafLastModified(path);
     } else {
         timestamp = FileUtil::GetFileModificationTimestamp(path);
@@ -263,16 +264,6 @@ static void UpdateDisplayRotation() {
     }
 }
 
-static std::FILE* SafOpenFunction(const std::string& path, const std::string& mode) {
-    int fd = NativeLibrary::SafOpen(path, mode);
-    return fd != 0 ? fdopen(fd, mode.c_str()) : nullptr;
-}
-
-static int SafCloseFunction(std::FILE* fp) {
-    int fd = fileno(fp);
-    return std::fclose(fp) | NativeLibrary::SafClose(fd);
-}
-
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -299,8 +290,7 @@ JNIEXPORT void JNICALL Java_org_citra_emu_NativeLibrary_InstallCIA(JNIEnv* env, 
 JNIEXPORT void JNICALL Java_org_citra_emu_NativeLibrary_SetUserPath(JNIEnv* env, jclass obj,
                                                                     jstring jPath) {
     // saf
-    FileUtil::RegisterSafOpen(&SafOpenFunction);
-    FileUtil::RegisterSafClose(&SafCloseFunction);
+    FileUtil::RegisterIOFactory(std::make_unique<AndroidIOFactory>());
 
     // init user path
     std::string path = JniHelper::Unwrap(jPath);
@@ -313,7 +303,6 @@ JNIEXPORT void JNICALL Java_org_citra_emu_NativeLibrary_SetUserPath(JNIEnv* env,
     FileUtil::CreateFullPath(FileUtil::GetUserPath(FileUtil::UserPath::CacheDir));
     FileUtil::CreateFullPath(FileUtil::GetUserPath(FileUtil::UserPath::ConfigDir));
     FileUtil::CreateFullPath(FileUtil::GetUserPath(FileUtil::UserPath::LogDir));
-    FileUtil::CreateFullPath(FileUtil::GetExtSaveUserPath());
     if (!FileUtil::Exists(FileUtil::GetUserPath(FileUtil::UserPath::ConfigDir) +
                           "config-mmj.ini")) {
         Config::SaveDefault();

@@ -30,15 +30,9 @@
 // REMEMBER: strdup considered harmful!
 namespace FileUtil {
 
-static SafOpenFunction s_saf_open_function;
-static SafCloseFunction s_saf_close_function;
-
-void RegisterSafOpen(SafOpenFunction func) {
-    s_saf_open_function = std::move(func);
-}
-
-void RegisterSafClose(SafCloseFunction func) {
-    s_saf_close_function = std::move(func);
+static std::unique_ptr<IOFactory> s_io_factory;
+void RegisterIOFactory(std::unique_ptr<IOFactory> factory) {
+    s_io_factory = std::move(factory);
 }
 
 bool IsSafPath(const std::string& path) {
@@ -59,38 +53,47 @@ bool IsSafPath(const std::string& path) {
 
 // Remove any ending forward slashes from directory paths
 // Modifies argument.
-static void StripTailDirSlashes(std::string& fname) {
-    if (fname.length() <= 1) {
-        return;
+static int GetFileStat(const std::string& filename, struct stat* buf) {
+    std::size_t i = filename.length();
+    if (i > 1 && filename[i - 1] == DIR_SEP_CHR) {
+        while (i > 0 && filename[i - 1] == DIR_SEP_CHR) {
+            --i;
+        }
+        return stat(filename.substr(0, i).c_str(), buf);
+    } else {
+        return stat(filename.c_str(), buf);
     }
-
-    std::size_t i = fname.length();
-    while (i > 0 && fname[i - 1] == DIR_SEP_CHR) {
-        --i;
-    }
-    fname.resize(i);
 }
 
 bool Exists(const std::string& filename) {
     struct stat file_info;
-    std::string copy(filename);
-    StripTailDirSlashes(copy);
-    int result = stat(copy.c_str(), &file_info);
-    return (result == 0);
+    return (GetFileStat(filename, &file_info) == 0);
 }
 
 bool IsDirectory(const std::string& filename) {
     struct stat file_info;
-    std::string copy(filename);
-    StripTailDirSlashes(copy);
-    int result = stat(copy.c_str(), &file_info);
-
-    if (result < 0) {
-        LOG_DEBUG(Common_Filesystem, "stat failed on {}: {}", filename, GetLastErrorMsg());
+    if (GetFileStat(filename.c_str(), &file_info) != 0) {
         return false;
     }
-
     return S_ISDIR(file_info.st_mode);
+}
+
+u64 GetSize(const std::string& filename) {
+    struct stat file_info;
+    if (stat(filename.c_str(), &file_info) != 0) {
+        LOG_ERROR(Common_Filesystem, "failed {}: No such file", filename);
+        return false;
+    }
+    return file_info.st_size;
+}
+
+u64 GetFileModificationTimestamp(const std::string& filename) {
+    struct stat64 file_info;
+    if (stat64(filename.c_str(), &file_info) != 0) {
+        LOG_ERROR(Common_Filesystem, "failed {}: No such file", filename);
+        return 0;
+    }
+    return static_cast<u64>(file_info.st_mtim.tv_sec);
 }
 
 bool Delete(const std::string& filename) {
@@ -239,52 +242,6 @@ bool Copy(const std::string& srcFilename, const std::string& destFilename) {
     return true;
 }
 
-u64 GetSize(const std::string& filename) {
-    if (!Exists(filename)) {
-        LOG_ERROR(Common_Filesystem, "failed {}: No such file", filename);
-        return 0;
-    }
-
-    if (IsDirectory(filename)) {
-        LOG_ERROR(Common_Filesystem, "failed {}: is a directory", filename);
-        return 0;
-    }
-
-    struct stat buf;
-    if (stat(filename.c_str(), &buf) == 0)
-    {
-        LOG_TRACE(Common_Filesystem, "{}: {}", filename, buf.st_size);
-        return buf.st_size;
-    }
-
-    LOG_ERROR(Common_Filesystem, "Stat failed {}: {}", filename, GetLastErrorMsg());
-    return 0;
-}
-
-u64 GetSize(const int fd) {
-    struct stat buf;
-    if (fstat(fd, &buf) != 0) {
-        LOG_ERROR(Common_Filesystem, "GetSize: stat failed {}: {}", fd, GetLastErrorMsg());
-        return 0;
-    }
-    return buf.st_size;
-}
-
-u64 GetSize(FILE* f) {
-    // can't use off_t here because it can be 32-bit
-    u64 pos = ftello(f);
-    if (fseeko(f, 0, SEEK_END) != 0) {
-        LOG_ERROR(Common_Filesystem, "GetSize: seek failed {}: {}", fmt::ptr(f), GetLastErrorMsg());
-        return 0;
-    }
-    u64 size = ftello(f);
-    if ((size != pos) && (fseeko(f, pos, SEEK_SET) != 0)) {
-        LOG_ERROR(Common_Filesystem, "GetSize: seek failed {}: {}", fmt::ptr(f), GetLastErrorMsg());
-        return 0;
-    }
-    return size;
-}
-
 bool CreateEmptyFile(const std::string& filename) {
     LOG_TRACE(Common_Filesystem, "{}", filename);
 
@@ -294,16 +251,6 @@ bool CreateEmptyFile(const std::string& filename) {
     }
 
     return true;
-}
-
-u64 GetFileModificationTimestamp(const std::string& filename) {
-    if (Exists(filename)) {
-        struct stat64 file_info;
-        if (stat64(filename.c_str(), &file_info) == 0) {
-            return static_cast<u64>(file_info.st_mtim.tv_sec);
-        }
-    }
-    return 0;
 }
 
 bool ForeachDirectoryEntry(u64* num_entries_out, const std::string& directory,
@@ -484,11 +431,6 @@ const std::string& GetUserPath(UserPath path) {
     return g_paths[path];
 }
 
-std::string GetExtSaveUserPath() {
-    auto& nand = GetUserPath(FileUtil::UserPath::NANDDir);
-    return nand + "data" DIR_SEP "00000000000000000000000000000000" DIR_SEP "extdata" DIR_SEP "00048000" DIR_SEP "F0000001" DIR_SEP "user" DIR_SEP;
-}
-
 std::size_t WriteStringToFile(bool text_file, const std::string& filename, std::string_view str) {
     return IOFile(filename, text_file ? "w" : "wb").WriteString(str);
 }
@@ -576,11 +518,8 @@ std::string_view GetFilename(std::string_view path) {
     return path.substr(name_index + 1);
 }
 
-IOFile::IOFile() = default;
-
-IOFile::IOFile(const std::string& filename, const char openmode[])
-    : filename(filename), openmode(openmode) {
-    Open();
+IOFile::IOFile(const std::string& filename, const char openmode[]) {
+    Open(filename, openmode);
 }
 
 IOFile::~IOFile() {
@@ -588,84 +527,38 @@ IOFile::~IOFile() {
 }
 
 IOFile::IOFile(IOFile&& other) noexcept {
-    Swap(other);
-}
-
-IOFile& IOFile::operator=(IOFile&& other) noexcept {
-    Swap(other);
-    return *this;
-}
-
-void IOFile::Swap(IOFile& other) noexcept {
     std::swap(m_file, other.m_file);
     std::swap(m_good, other.m_good);
-    std::swap(filename, other.filename);
-    std::swap(openmode, other.openmode);
-    std::swap(m_saf, other.m_saf);
 }
 
-bool IOFile::Open() {
-    Close();
-
-    m_saf = IsSafPath(filename);
-    if (m_saf) {
-        m_file = s_saf_open_function(filename, openmode);
-    } else {
-        m_file = std::fopen(filename.c_str(), openmode.c_str());
-    }
-
+bool IOFile::Open(const std::string& filename, const char openmode[]) {
+    m_file = s_io_factory->Open(filename, openmode);
     m_good = m_file != nullptr;
     return m_good;
 }
 
-bool IOFile::Close() {
-    if (IsOpen()) {
-        if (m_saf) {
-            m_good = !s_saf_close_function(m_file);
-        } else {
-            m_good = !std::fclose(m_file);
-        }
-        m_file = nullptr;
-    } else {
-        m_good = false;
+void IOFile::ReadAllLines(std::vector<std::string>& lines) {
+    if (!IsGood()) {
+        return;
     }
-    return m_good;
-}
 
-u64 IOFile::GetSize() const {
-    if (IsOpen())
-        return FileUtil::GetSize(m_file);
+    std::size_t total = GetSize();
+    std::vector<char> content(total);
+    std::size_t length = ReadArray(content.data(), total);
+    if (length != total) {
+        return;
+    }
 
-    return 0;
-}
-
-bool IOFile::Seek(s64 off, int origin) {
-    if (!IsOpen() || 0 != fseeko(m_file, off, origin))
-        m_good = false;
-
-    return m_good;
-}
-
-u64 IOFile::Tell() const {
-    if (IsOpen())
-        return ftello(m_file);
-
-    return std::numeric_limits<u64>::max();
-}
-
-bool IOFile::Flush() {
-    if (!IsOpen() || 0 != std::fflush(m_file))
-        m_good = false;
-
-    return m_good;
-}
-
-bool IOFile::Resize(u64 size) {
-    // TODO: handle 64bit and growing
-    if (!IsOpen() || 0 != ftruncate(fileno(m_file), size))
-        m_good = false;
-
-    return m_good;
+    std::size_t idx = 0;
+    for (std::size_t j = 0; j < total; ++j) {
+        if (content[j] == '\n') {
+            lines.emplace_back(content.data() + idx, j - idx);
+            idx = j + 1;
+        }
+    }
+    if (idx < total) {
+        lines.emplace_back(content.data() + idx, total - idx);
+    }
 }
 
 } // namespace FileUtil

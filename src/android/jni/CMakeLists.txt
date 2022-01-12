@@ -22,6 +22,8 @@ add_library(main SHARED
             ndk_motion.h
             png_handler.h
             png_handler.cpp
+            saf_handler.cpp
+            saf_handler.h
             camera/camera_util.cpp
             camera/camera_util.h
             camera/ndk_camera.cpp

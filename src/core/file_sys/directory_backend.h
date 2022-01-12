@@ -52,7 +52,7 @@ public:
      * Close the directory
      * @return true if the directory closed correctly
      */
-    virtual bool Close() const = 0;
+    virtual void Close() const = 0;
 };
 
 } // namespace FileSys

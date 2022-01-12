@@ -29,9 +29,11 @@ struct State {
 };
 
 template <typename T, typename ReadFunction, typename WriteFunction>
-static inline std::enable_if_t<std::is_integral_v<T>> WriteOp(
-        const GatewayCheat::CheatLine& line, const State& state,
-        ReadFunction read_func, WriteFunction write_func, Core::System& system) {
+static inline std::enable_if_t<std::is_integral_v<T>> WriteOp(const GatewayCheat::CheatLine& line,
+                                                              const State& state,
+                                                              ReadFunction read_func,
+                                                              WriteFunction write_func,
+                                                              Core::System& system) {
     u32 addr = line.address + state.offset;
     T val = read_func(addr);
     if (val != static_cast<T>(line.value)) {
@@ -103,8 +105,8 @@ static inline void SetValueOp(const GatewayCheat::CheatLine& line, State& state)
 
 template <typename T, typename ReadFunction, typename WriteFunction>
 static inline std::enable_if_t<std::is_integral_v<T>> IncrementiveWriteOp(
-    const GatewayCheat::CheatLine& line, State& state,
-    ReadFunction read_func, WriteFunction write_func, Core::System& system) {
+    const GatewayCheat::CheatLine& line, State& state, ReadFunction read_func,
+    WriteFunction write_func, Core::System& system) {
     u32 addr = line.value + state.offset;
     T val = read_func(addr);
     if (val != static_cast<T>(state.reg)) {
@@ -471,22 +473,16 @@ std::string GatewayCheat::ToString() const {
 std::vector<std::unique_ptr<CheatBase>> GatewayCheat::LoadFile(const std::string& filepath) {
     std::vector<std::unique_ptr<CheatBase>> cheats;
 
-    std::ifstream file;
-    OpenFStream(file, filepath, std::ios_base::in);
-    if (!file) {
-        return cheats;
-    }
-
+    FileUtil::IOFile file(filepath, "r");
     std::string comments;
     std::vector<CheatLine> cheat_lines;
     std::string name;
     bool enabled = false;
 
-    while (!file.eof()) {
-        std::string line;
-        std::getline(file, line);
-        line.erase(std::remove(line.begin(), line.end(), '\0'), line.end());
-        line = Common::StripSpaces(line); // remove spaces at front and end
+    std::vector<std::string> lines;
+    file.ReadAllLines(lines);
+    for (const auto& raw_line : lines) {
+        auto line = Common::StripSpaces(raw_line); // remove spaces at front and end
         if (line.length() >= 2 && line.front() == '[') {
             if (!cheat_lines.empty()) {
                 cheats.push_back(std::make_unique<GatewayCheat>(name, cheat_lines, comments));
@@ -506,6 +502,7 @@ std::vector<std::unique_ptr<CheatBase>> GatewayCheat::LoadFile(const std::string
             cheat_lines.emplace_back(std::move(line));
         }
     }
+
     if (!cheat_lines.empty()) {
         cheats.push_back(std::make_unique<GatewayCheat>(name, cheat_lines, comments));
         cheats.back()->SetEnabled(enabled);

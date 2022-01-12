@@ -256,11 +256,11 @@ ResultCode SDMCArchive::CreateFile(const FileSys::Path& path, u64 size) const {
     FileUtil::IOFile file(full_path, "wb");
     // Creates a sparse file (or a normal file on filesystems without the concept of sparse files)
     // We do this by seeking to the right size, then writing a single null byte.
-    if (file.Seek(size - 1, SEEK_SET) && file.WriteBytes("", 1) == 1) {
+    if (file.Resize(size)) {
         return RESULT_SUCCESS;
     }
 
-    LOG_ERROR(Service_FS, "Too large file");
+    LOG_ERROR(Service_FS, "SDMCArchive Too large file: {:x}", size);
     return ResultCode(ErrorDescription::TooLarge, ErrorModule::FS, ErrorSummary::OutOfResource,
                       ErrorLevel::Info);
 }

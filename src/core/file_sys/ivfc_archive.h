@@ -121,9 +121,7 @@ public:
                                  const u8* buffer) override;
     u64 GetSize() const override;
     bool SetSize(u64 size) const override;
-    bool Close() const override {
-        return false;
-    }
+    void Close() const override {}
     void Flush() const override {}
 
 private:
@@ -135,9 +133,7 @@ public:
     u32 Read(const u32 count, Entry* entries) override {
         return 0;
     }
-    bool Close() const override {
-        return false;
-    }
+    void Close() const override {}
 };
 
 class IVFCFileInMemory : public FileBackend {
@@ -150,9 +146,7 @@ public:
                                  const u8* buffer) override;
     u64 GetSize() const override;
     bool SetSize(u64 size) const override;
-    bool Close() const override {
-        return false;
-    }
+    void Close() const override {}
     void Flush() const override {}
 
 private:

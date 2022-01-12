@@ -235,7 +235,7 @@ namespace FileSys {
 class NCCHContainer {
 public:
     NCCHContainer(const std::string& filepath, u32 ncch_offset = 0, u32 partition = 0);
-    NCCHContainer() {}
+    NCCHContainer() = default;
 
     Loader::ResultStatus OpenFile(const std::string& filepath, u32 ncch_offset = 0,
                                   u32 partition = 0);

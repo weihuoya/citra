@@ -116,7 +116,7 @@ static bool LZSS_Decompress(const u8* compressed, u32 compressed_size, u8* decom
 
 NCCHContainer::NCCHContainer(const std::string& filepath, u32 ncch_offset, u32 partition)
     : ncch_offset(ncch_offset), partition(partition), filepath(filepath) {
-    file = FileUtil::IOFile(filepath, "rb");
+    file.Open(filepath, "rb");
 }
 
 Loader::ResultStatus NCCHContainer::OpenFile(const std::string& filepath, u32 ncch_offset,
@@ -124,7 +124,7 @@ Loader::ResultStatus NCCHContainer::OpenFile(const std::string& filepath, u32 nc
     this->filepath = filepath;
     this->ncch_offset = ncch_offset;
     this->partition = partition;
-    file = FileUtil::IOFile(filepath, "rb");
+    file.Open(filepath, "rb");
 
     if (!file.IsOpen()) {
         LOG_WARNING(Service_FS, "Failed to open {}", filepath);
@@ -196,8 +196,10 @@ Loader::ResultStatus NCCHContainer::Load() {
         }
 
         // Verify we are loading the correct file type...
-        if (Loader::MakeMagic('N', 'C', 'C', 'H') != ncch_header.magic)
+        if (Loader::MakeMagic('N', 'C', 'C', 'H') != ncch_header.magic) {
+            LOG_DEBUG(Service_FS, "NCCH Container invalid format: {:08X}", ncch_header.magic);
             return Loader::ResultStatus::ErrorInvalidFormat;
+        }
 
         has_header = true;
         bool failed_to_decrypt = false;
@@ -425,7 +427,7 @@ Loader::ResultStatus NCCHContainer::Load() {
                     .ProcessData(data, data, sizeof(exefs_header));
             }
 
-            exefs_file = FileUtil::IOFile(filepath, "rb");
+            exefs_file.Open(filepath, "rb");
             has_exefs = true;
         }
 
@@ -454,7 +456,7 @@ Loader::ResultStatus NCCHContainer::LoadOverrides() {
     std::string exefs_override = filepath + ".exefs";
     std::string exefsdir_override = filepath + ".exefsdir/";
     if (FileUtil::Exists(exefs_override)) {
-        exefs_file = FileUtil::IOFile(exefs_override, "rb");
+        exefs_file.Open(exefs_override, "rb");
 
         if (exefs_file.ReadBytes(&exefs_header, sizeof(ExeFs_Header)) == sizeof(ExeFs_Header)) {
             LOG_DEBUG(Service_FS, "Loading ExeFS section from {}", exefs_override);
@@ -462,7 +464,7 @@ Loader::ResultStatus NCCHContainer::LoadOverrides() {
             is_tainted = true;
             has_exefs = true;
         } else {
-            exefs_file = FileUtil::IOFile(filepath, "rb");
+            exefs_file.Open(filepath, "rb");
         }
     } else if (FileUtil::Exists(exefsdir_override) && FileUtil::IsDirectory(exefsdir_override)) {
         is_tainted = true;
