@@ -152,7 +152,7 @@ public final class MainActivity extends AppCompatActivity {
                             if (isInstalled) {
                                 if (game.isInstalledDLC()) {
                                     contents.add(game);
-                                } else {
+                                } else if (NativeLibrary.IsAppExecutable(path)) {
                                     installs.add(game);
                                 }
                             } else {
@@ -431,7 +431,9 @@ public final class MainActivity extends AppCompatActivity {
         mViewPager.registerOnPageChangeCallback(new ViewPager2.OnPageChangeCallback() {
             @Override
             public void onPageScrollStateChanged(int state) {
-                mSwipeRefresh.setEnabled(state == ViewPager2.SCROLL_STATE_IDLE);
+                if (!mSwipeRefresh.isRefreshing()) {
+                    mSwipeRefresh.setEnabled(state == ViewPager2.SCROLL_STATE_IDLE);
+                }
             }
 
             @Override
