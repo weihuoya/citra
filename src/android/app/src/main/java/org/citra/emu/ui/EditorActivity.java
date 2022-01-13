@@ -305,24 +305,26 @@ public final class EditorActivity extends AppCompatActivity {
             String subid = mGameId.substring(8).toLowerCase();
             if (pid.equals("00040010") || pid.equals("00040030")) {
                 String system = CitraDirectory.getSystemTitleDirectory();
-                String path = system + "/" + pid + "/" + subid;
+                String path = String.format("%s/%s/%s", system, pid, subid);
                 deleteContents(new File(path));
             } else if (pid.equals("00040000")) {
+                // App
                 String root = CitraDirectory.getApplicationDirectory();
-                String path = root + "/" + pid + "/" + subid;
+                String path = String.format("%s/%s/%s/content", root, pid, subid);
                 deleteContents(new File(path));
-
-                // DLC
-                path = root + "/0004000e/" + subid;
+                // Updates
+                path = String.format("%s/0004000e/%s/content", root, subid);
                 deleteContents(new File(path));
-
-                // DLC
-                path = root + "/0004008c/" + subid;
+                // DLCs
+                path = String.format("%s/0004008c/%s/content", root, subid);
                 deleteContents(new File(path));
-            } else if (pid.equals("0004000e")) {
-                // DLC
+            } else if (pid.equals("0004000e") || pid.equals("0004008c")) {
+                // Updates
                 String root = CitraDirectory.getApplicationDirectory();
-                String path = root + "/" + pid + "/" + subid;
+                String path = String.format("%s/0004000e/%s/content", root, subid);
+                deleteContents(new File(path));
+                // DLCs
+                path = String.format("%s/0004008c/%s/content", root, subid);
                 deleteContents(new File(path));
             }
             Toast.makeText(this, "Delete Success!", Toast.LENGTH_LONG).show();

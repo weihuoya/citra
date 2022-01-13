@@ -243,9 +243,9 @@
     <string name="playtime_desc">游戏时长：%1$s</string>
     <string name="playtime_minutes">%1$s 分钟</string>
     <string name="playtime_hours">%1$s 小时</string>
-    <string name="delete_app_sdmc">删除存档目录</string>
+    <string name="delete_app_sdmc">删除安装目录</string>
     <string name="delete_shader_cache">删除着色器缓存</string>
-    <string name="delete_confirm_notice">确定删除游戏存档目录？</string>
+    <string name="delete_confirm_notice">确定删除游戏安装目录？</string>
 
     <string name="controller_stick">主摇杆</string>
     <string name="c_controller_stick">C 摇杆</string>

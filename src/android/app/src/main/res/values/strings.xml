@@ -243,9 +243,9 @@
     <string name="playtime_desc">Play Time: %1$s</string>
     <string name="playtime_minutes">%1$s minutes</string>
     <string name="playtime_hours">%1$s hours</string>
-    <string name="delete_app_sdmc">Delete Archive Directory</string>
+    <string name="delete_app_sdmc">Delete Install Directory</string>
     <string name="delete_shader_cache">Delete Shader Cache</string>
-    <string name="delete_confirm_notice">Are you sure to delete the game archive directory?</string>
+    <string name="delete_confirm_notice">Are you sure to delete the game install directory?</string>
 
     <string name="controller_stick">Main Stick</string>
     <string name="c_controller_stick">C Stick</string>
