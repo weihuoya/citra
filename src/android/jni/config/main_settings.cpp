@@ -6,6 +6,7 @@ namespace Config {
 
 // core
 const ConfigInfo<bool> USE_CPU_JIT{{"Core", "use_cpu_jit"}, true};
+const ConfigInfo<int> CPU_CLOCK_SPEED{{"Core", "cpu_clock_speed"}, 100};
 const ConfigInfo<bool> IS_NEW_3DS{{"Core", "is_new_3ds"}, false};
 const ConfigInfo<bool> USE_VIRTUAL_SD{{"Core", "use_virtual_sd"}, true};
 const ConfigInfo<int> SYSTEM_REGION{{"Core", "region_value"}, Settings::REGION_VALUE_AUTO_SELECT};

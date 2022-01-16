@@ -20,11 +20,17 @@ bool Timing::Event::operator<(const Timing::Event& right) const {
     return std::tie(time, fifo_order) < std::tie(right.time, right.fifo_order);
 }
 
-Timing::Timing() {
+Timing::Timing(u32 cpu_clock_percentage) {
     for (u32 i = 0; i < timers.size(); ++i) {
-        timers[i] = std::make_shared<Timer>();
+        timers[i] = std::make_shared<Timer>(100.0 / cpu_clock_percentage);
     }
     current_timer = timers[0].get();
+}
+
+void Timing::UpdateClockSpeed(u32 cpu_clock_percentage) {
+    for (auto& timer : timers) {
+        timer->cpu_clock_scale = 100.0 / cpu_clock_percentage;
+    }
 }
 
 TimingEventType* Timing::RegisterEvent(const std::string& name, TimedCallback callback) {
@@ -125,6 +131,8 @@ std::shared_ptr<Timing::Timer> Timing::GetTimer(u32 core_id) {
     return timers[core_id];
 }
 
+Timing::Timer::Timer(double cpu_clock_scale_) : cpu_clock_scale(cpu_clock_scale_) {}
+
 Timing::Timer::~Timer() {
     MoveEvents();
 }
@@ -138,7 +146,7 @@ s64 Timing::Timer::GetTicks() const {
 }
 
 void Timing::Timer::AddTicks(u64 ticks) {
-    downcount -= ticks;
+    downcount -= static_cast<u64>(ticks * cpu_clock_scale);
 }
 
 void Timing::Timer::ForceExceptionCheck(s64 cycles) {

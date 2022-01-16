@@ -2,8 +2,8 @@
 <resources>
 
     <!-- Title of the app -->
-    <string name="app_name">Citra</string>
-    <string name="app_name_version">Citra %1$s</string>
+    <string name="app_name" translatable="false">Citra</string>
+    <string name="app_name_version" translatable="false">Citra %1$s</string>
     <string name="host">app</string>
     <string name="scheme">citra</string>
 
@@ -170,6 +170,7 @@
     <string name="setting_hw_shader_desc">Turn it on to improve performance, but some 2D games have display issues.</string>
     <string name="setting_shaders_accurate_mul">Accurate Multiplication</string>
     <string name="setting_shaders_accurate_mul_desc">Turn it on to fixes some of the game\'s display issues, but slows down the simulation.</string>
+    <string name="setting_cpu_clock_speed">Emulated CPU Clock Speed</string>
     <string name="post_processing_shader">Post-Processing Effect</string>
     <string name="setting_use_present_thread">Use Dual Core</string>
     <string name="setting_use_present_thread_desc">Most games can improve performance by using dual core.</string>

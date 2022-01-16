@@ -20,6 +20,7 @@ Layer& GetLayer() {
 void SaveDefault() {
     // core
     s_layer.Set(USE_CPU_JIT, USE_CPU_JIT.default_value);
+    s_layer.Set(CPU_CLOCK_SPEED, CPU_CLOCK_SPEED.default_value);
     s_layer.Set(IS_NEW_3DS, IS_NEW_3DS.default_value);
     s_layer.Set(USE_VIRTUAL_SD, USE_VIRTUAL_SD.default_value);
     s_layer.Set(SYSTEM_REGION, SYSTEM_REGION.default_value);

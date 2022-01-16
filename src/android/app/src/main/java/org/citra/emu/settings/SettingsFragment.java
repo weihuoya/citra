@@ -115,11 +115,13 @@ public final class SettingsFragment extends Fragment {
         // renderer
         sl.add(new HeaderSetting(null, null, R.string.setting_header_renderer, 0));
         SettingSection rendererSection = mSettings.getSection(Settings.SECTION_INI_RENDERER);
+        SettingSection coreSection = mSettings.getSection(Settings.SECTION_INI_CORE);
         Setting layoutOption = rendererSection.getSetting(SettingsFile.KEY_LAYOUT_OPTION);
         Setting showFPS = rendererSection.getSetting(SettingsFile.KEY_SHOW_FPS);
         Setting resolution = rendererSection.getSetting(SettingsFile.KEY_RESOLUTION_FACTOR);
         Setting hwShader = rendererSection.getSetting(SettingsFile.KEY_USE_HW_SHADER);
         Setting accurateMul = rendererSection.getSetting(SettingsFile.KEY_SHADERS_ACCURATE_MUL);
+        Setting cpuClockSpeed = coreSection.getSetting(SettingsFile.KEY_CPU_CLOCK_SPEED);
         Setting shader = rendererSection.getSetting(SettingsFile.KEY_POST_PROCESSING_SHADER);
         Setting frameLimit = rendererSection.getSetting(SettingsFile.KEY_FRAME_LIMIT);
         Setting customTex = rendererSection.getSetting(SettingsFile.KEY_CUSTOM_TEXTURES);
@@ -150,6 +152,9 @@ public final class SettingsFragment extends Fragment {
                 Settings.SECTION_INI_RENDERER, R.string.setting_shaders_accurate_mul,
                 R.string.setting_shaders_accurate_mul_desc, R.array.accurateMulEntries,
                 R.array.accurateMulValues, 0, accurateMul));
+        sl.add(new SliderSetting(SettingsFile.KEY_CPU_CLOCK_SPEED, Settings.SECTION_INI_CORE,
+                R.string.setting_cpu_clock_speed, 0, 400, "%",
+                100, cpuClockSpeed));
         sl.add(new SingleChoiceSetting(SettingsFile.KEY_SHADER_TYPE, Settings.SECTION_INI_DEBUG,
                 R.string.setting_shader_type, 0, R.array.shaderEntries,
                 R.array.shaderValues, 1, shaderType));
@@ -176,7 +181,6 @@ public final class SettingsFragment extends Fragment {
 
         // core
         sl.add(new HeaderSetting(null, null, R.string.setting_header_core, 0));
-        SettingSection coreSection = mSettings.getSection(Settings.SECTION_INI_CORE);
         Setting isNew3DS = coreSection.getSetting(SettingsFile.KEY_IS_NEW_3DS);
         Setting systemRegion = coreSection.getSetting(SettingsFile.KEY_SYSTEM_REGION);
         Setting cpuJIT = coreSection.getSetting(SettingsFile.KEY_USE_CPU_JIT);

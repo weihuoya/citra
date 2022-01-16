@@ -2,8 +2,6 @@
 <resources>
 
     <!-- Title of the app -->
-    <string name="app_name">Citra</string>
-    <string name="app_name_version">Citra %1$s</string>
     <string name="host">app</string>
     <string name="scheme">citra</string>
 
@@ -155,7 +153,7 @@
     <string name="setting_header_audio">声音设置</string>
     <string name="setting_header_camera">摄像头设置</string>
 
-    <string name="setting_is_new_3ds">New 3DS Mode</string>
+    <string name="setting_is_new_3ds">新的 3DS 模式</string>
     <string name="setting_is_new_3ds_desc">新 3DS 的内存和处理器不一样，少数游戏只能在新 3DS 上才能启动。</string>
     <string name="setting_use_virtual_sd">使用虚拟SD卡</string>
     <string name="setting_enable_cpu_jit">开启 CPU JIT</string>
@@ -170,6 +168,7 @@
     <string name="setting_hw_shader_desc">开启可以提升性能，但部分2D游戏会有显示问题。</string>
     <string name="setting_shaders_accurate_mul">精确乘法运算</string>
     <string name="setting_shaders_accurate_mul_desc">开启可以修复部分游戏的显示问题，但会降低模拟速度。</string>
+    <string name="setting_cpu_clock_speed">模拟 CPU 时钟速度</string>
     <string name="post_processing_shader">后处理效果</string>
     <string name="setting_use_present_thread">启用多核心</string>
     <string name="setting_use_present_thread_desc">大部分游戏启用多核心可以提升性能。</string>

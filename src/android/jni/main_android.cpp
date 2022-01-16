@@ -434,6 +434,7 @@ JNIEXPORT void JNICALL Java_org_citra_emu_NativeLibrary_Run(JNIEnv* env, jclass 
     Config::Load();
     // system
     Settings::values.use_cpu_jit = Config::Get(Config::USE_CPU_JIT);
+    Settings::values.cpu_clock_percentage = Config::Get(Config::CPU_CLOCK_SPEED);
     Settings::values.is_new_3ds = Config::Get(Config::IS_NEW_3DS);
     Settings::values.use_virtual_sd = Config::Get(Config::USE_VIRTUAL_SD);
     Settings::values.region_value = Config::Get(Config::SYSTEM_REGION);

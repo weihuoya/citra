@@ -15,6 +15,7 @@ namespace Config {
 
 // core
 extern const ConfigInfo<bool> USE_CPU_JIT;
+extern const ConfigInfo<int> CPU_CLOCK_SPEED;
 extern const ConfigInfo<bool> IS_NEW_3DS;
 extern const ConfigInfo<bool> USE_VIRTUAL_SD;
 extern const ConfigInfo<int> SYSTEM_REGION;
