@@ -32,6 +32,8 @@ void SaveDefault() {
     s_layer.Set(USE_HW_SHADER, USE_HW_SHADER.default_value);
     s_layer.Set(USE_SHADER_JIT, USE_SHADER_JIT.default_value);
     s_layer.Set(SHADERS_ACCURATE_MUL, SHADERS_ACCURATE_MUL.default_value);
+    s_layer.Set(USE_CUSTOM_TICKS, USE_CUSTOM_TICKS.default_value);
+    s_layer.Set(TICKS, TICKS.default_value);
     s_layer.Set(RESOLUTION_FACTOR, RESOLUTION_FACTOR.default_value);
     s_layer.Set(USE_FRAME_LIMIT, USE_FRAME_LIMIT.default_value);
     s_layer.Set(FRAME_LIMIT, FRAME_LIMIT.default_value);

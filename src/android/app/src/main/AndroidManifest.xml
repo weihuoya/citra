@@ -30,7 +30,7 @@
         android:hardwareAccelerated="true"
         android:icon="@mipmap/ic_citra"
         android:isGame="true"
-        android:label="Citra">
+        android:label="@string/app_name">
         <meta-data
             android:name="android.max_aspect"
             android:value="2.4" />

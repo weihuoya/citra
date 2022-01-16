@@ -37,6 +37,8 @@ public final class SettingsFile {
     public static final String KEY_USE_HW_SHADER = "use_hw_shader";
     public static final String KEY_USE_SHADER_JIT = "use_shader_jit";
     public static final String KEY_SHADERS_ACCURATE_MUL = "accurate_mul_type";
+    public static final String KEY_USE_CUSTOM_TICKS = "custom_ticks";
+    public static final String KEY_TICKS = "ticks";
     public static final String KEY_RESOLUTION_FACTOR = "resolution_factor";
     public static final String KEY_USE_FRAME_LIMIT = "use_frame_limit";
     public static final String KEY_FRAME_LIMIT = "frame_limit";

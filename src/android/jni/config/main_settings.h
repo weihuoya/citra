@@ -28,6 +28,8 @@ extern const ConfigInfo<bool> USE_HW_RENDERER;
 extern const ConfigInfo<bool> USE_HW_SHADER;
 extern const ConfigInfo<bool> USE_SHADER_JIT;
 extern const ConfigInfo<Settings::AccurateMul> SHADERS_ACCURATE_MUL;
+extern const ConfigInfo<bool> USE_CUSTOM_TICKS;
+extern const ConfigInfo<u64> TICKS;
 extern const ConfigInfo<u16> RESOLUTION_FACTOR;
 extern const ConfigInfo<bool> USE_FRAME_LIMIT;
 extern const ConfigInfo<u16> FRAME_LIMIT;

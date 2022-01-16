@@ -75,29 +75,29 @@ public:
         : parent(parent), svc_context(parent.system), memory(parent.memory) {}
     ~DynarmicUserCallbacks() = default;
 
-    std::uint8_t MemoryRead8(VAddr vaddr) override {
+    u8 MemoryRead8(VAddr vaddr) override {
         return memory.Read8(vaddr);
     }
-    std::uint16_t MemoryRead16(VAddr vaddr) override {
+    u16 MemoryRead16(VAddr vaddr) override {
         return memory.Read16(vaddr);
     }
-    std::uint32_t MemoryRead32(VAddr vaddr) override {
+    u32 MemoryRead32(VAddr vaddr) override {
         return memory.Read32(vaddr);
     }
-    std::uint64_t MemoryRead64(VAddr vaddr) override {
+    u64 MemoryRead64(VAddr vaddr) override {
         return memory.Read64(vaddr);
     }
 
-    void MemoryWrite8(VAddr vaddr, std::uint8_t value) override {
+    void MemoryWrite8(VAddr vaddr, u8 value) override {
         memory.Write8(vaddr, value);
     }
-    void MemoryWrite16(VAddr vaddr, std::uint16_t value) override {
+    void MemoryWrite16(VAddr vaddr, u16 value) override {
         memory.Write16(vaddr, value);
     }
-    void MemoryWrite32(VAddr vaddr, std::uint32_t value) override {
+    void MemoryWrite32(VAddr vaddr, u32 value) override {
         memory.Write32(vaddr, value);
     }
-    void MemoryWrite64(VAddr vaddr, std::uint64_t value) override {
+    void MemoryWrite64(VAddr vaddr, u64 value) override {
         memory.Write64(vaddr, value);
     }
 
@@ -107,7 +107,7 @@ public:
                         pc, MemoryReadCode(pc), num_instructions);
     }
 
-    void CallSVC(std::uint32_t swi) override {
+    void CallSVC(u32 swi) override {
         svc_context.CallSVC(swi);
     }
 
@@ -137,11 +137,11 @@ public:
                    static_cast<std::size_t>(exception), pc, MemoryReadCode(pc));
     }
 
-    void AddTicks(std::uint64_t ticks) override {
-        ticks = std::max(ticks, static_cast<std::uint64_t>(Settings::values.core_ticks_hack));
-        parent.GetTimer().AddTicks(ticks);
+    void AddTicks(u64 ticks) override {
+        ticks = std::max(ticks, static_cast<u64>(Settings::values.core_ticks_hack));
+        parent.GetTimer().AddTicks(Settings::values.custom_ticks ? Settings::values.ticks : ticks);
     }
-    std::uint64_t GetTicksRemaining() override {
+    u64 GetTicksRemaining() override {
         s64 ticks = parent.GetTimer().GetDowncount();
         return static_cast<u64>(ticks <= 0 ? 0 : ticks);
     }

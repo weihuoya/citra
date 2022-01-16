@@ -21,6 +21,10 @@ const ConfigInfo<bool> USE_HW_SHADER{{"Renderer", "use_hw_shader"}, true};
 const ConfigInfo<bool> USE_SHADER_JIT{{"Renderer", "use_shader_jit"}, false};
 const ConfigInfo<Settings::AccurateMul> SHADERS_ACCURATE_MUL{{"Renderer", "accurate_mul_type"},
                                                              Settings::AccurateMul::OFF};
+// custom ticks
+const ConfigInfo<bool> USE_CUSTOM_TICKS{{"Core", "custom_ticks"}, false};
+const ConfigInfo<u64> TICKS{{"Core", "ticks"}, 10000};
+
 const ConfigInfo<u16> RESOLUTION_FACTOR{{"Renderer", "resolution_factor"}, 1};
 const ConfigInfo<bool> USE_FRAME_LIMIT{{"Renderer", "use_frame_limit"}, true};
 const ConfigInfo<u16> FRAME_LIMIT{{"Renderer", "frame_limit"}, 100};

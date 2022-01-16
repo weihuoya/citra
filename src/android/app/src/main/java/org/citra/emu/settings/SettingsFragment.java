@@ -121,6 +121,8 @@ public final class SettingsFragment extends Fragment {
         Setting resolution = rendererSection.getSetting(SettingsFile.KEY_RESOLUTION_FACTOR);
         Setting hwShader = rendererSection.getSetting(SettingsFile.KEY_USE_HW_SHADER);
         Setting accurateMul = rendererSection.getSetting(SettingsFile.KEY_SHADERS_ACCURATE_MUL);
+        Setting customTicks = coreSection.getSetting(SettingsFile.KEY_USE_CUSTOM_TICKS);
+        Setting ticks = coreSection.getSetting(SettingsFile.KEY_TICKS);
         Setting cpuClockSpeed = coreSection.getSetting(SettingsFile.KEY_CPU_CLOCK_SPEED);
         Setting shader = rendererSection.getSetting(SettingsFile.KEY_POST_PROCESSING_SHADER);
         Setting frameLimit = rendererSection.getSetting(SettingsFile.KEY_FRAME_LIMIT);
@@ -152,6 +154,11 @@ public final class SettingsFragment extends Fragment {
                 Settings.SECTION_INI_RENDERER, R.string.setting_shaders_accurate_mul,
                 R.string.setting_shaders_accurate_mul_desc, R.array.accurateMulEntries,
                 R.array.accurateMulValues, 0, accurateMul));
+        sl.add(new CheckBoxSetting(SettingsFile.KEY_USE_CUSTOM_TICKS, Settings.SECTION_INI_CORE,
+                R.string.setting_use_custom_ticks, R.string.setting_use_custom_ticks_desc, false, customTicks));
+        sl.add(new SingleChoiceSetting(SettingsFile.KEY_TICKS, Settings.SECTION_INI_CORE,
+                R.string.setting_ticks, 0, R.array.ticksEntries,
+                R.array.ticksValues, 10000, ticks));
         sl.add(new SliderSetting(SettingsFile.KEY_CPU_CLOCK_SPEED, Settings.SECTION_INI_CORE,
                 R.string.setting_cpu_clock_speed, 0, 400, "%",
                 100, cpuClockSpeed));

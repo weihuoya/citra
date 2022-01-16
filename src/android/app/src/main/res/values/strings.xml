@@ -170,6 +170,9 @@
     <string name="setting_hw_shader_desc">Turn it on to improve performance, but some 2D games have display issues.</string>
     <string name="setting_shaders_accurate_mul">Accurate Multiplication</string>
     <string name="setting_shaders_accurate_mul_desc">Turn it on to fixes some of the game\'s display issues, but slows down the simulation.</string>
+    <string name="setting_use_custom_ticks">Use Custom Ticks</string>
+    <string name="setting_use_custom_ticks_desc">Uses a custom core ticks level, very useful for some games like Luigi Mansion 2.</string>
+    <string name="setting_ticks">Ticks</string>
     <string name="setting_cpu_clock_speed">Emulated CPU Clock Speed</string>
     <string name="post_processing_shader">Post-Processing Effect</string>
     <string name="setting_use_present_thread">Use Dual Core</string>
