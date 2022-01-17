@@ -161,4 +161,15 @@
         <item>@string/memory_value_one_byte</item>
     </string-array>
 
+    <string-array name="game_regions">
+        <item>@string/region_japan</item>
+        <item>@string/region_north_america</item>
+        <item>@string/region_europe</item>
+        <item>@string/region_australia</item>
+        <item>@string/region_china</item>
+        <item>@string/region_korea</item>
+        <item>@string/region_taiwan</item>
+        <item>@string/region_global</item>
+    </string-array>
+
 </resources>

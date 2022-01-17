@@ -226,7 +226,7 @@
     <string name="accurate_mul_fast">快速</string>
     <string name="accurate_mul_accurate">准确</string>
 
-    <string name="region_invalid">未知</string>
+    <string name="region_global">全球</string>
     <string name="region_japan">日本</string>
     <string name="region_north_america">北美</string>
     <string name="region_europe">欧洲</string>

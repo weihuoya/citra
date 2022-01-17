@@ -140,17 +140,13 @@ public class MainPageFragment extends Fragment {
         }
 
         public String getAppDesc(GameFile model) {
-            final int[] regions = {
-                    R.string.region_invalid, R.string.region_japan,     R.string.region_north_america,
-                    R.string.region_europe,  R.string.region_australia, R.string.region_china,
-                    R.string.region_korea,   R.string.region_taiwan,
-            };
             String path = model.getPath();
             File appFile = new File(path);
 
             long playtime = 0;
             Context context = mTextRegion.getContext();
-            String regionDesc = context.getString(regions[model.getRegion() + 1]);
+            String[] regions = context.getResources().getStringArray(R.array.game_regions);
+            String regionDesc = regions[model.getRegion()];
             String desc = "";
 
             if (model.isInstalledDLC()) {

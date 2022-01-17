@@ -226,7 +226,7 @@
     <string name="accurate_mul_fast">Fast</string>
     <string name="accurate_mul_accurate">Accurate</string>
 
-    <string name="region_invalid">Unknown</string>
+    <string name="region_global">Global</string>
     <string name="region_japan">Japan</string>
     <string name="region_north_america">North America</string>
     <string name="region_europe">Europe</string>
