@@ -132,6 +132,17 @@ static void MortonCopyTile(u32 stride, u8* tile_buffer, u8* gl_buffer) {
                 if constexpr (format == PixelFormat::D24S8) {
                     std::memcpy(tile_ptr, gl_ptr + 1, 3);
                     tile_ptr[3] = gl_ptr[0];
+                } else if (format == PixelFormat::RGBA8 && GLES) {
+                    // because GLES does not have ABGR format
+                    // so we will do byteswapping here
+                    tile_ptr[0] = gl_ptr[3];
+                    tile_ptr[1] = gl_ptr[2];
+                    tile_ptr[2] = gl_ptr[1];
+                    tile_ptr[3] = gl_ptr[0];
+                } else if (format == PixelFormat::RGB8 && GLES) {
+                    tile_ptr[0] = gl_ptr[2];
+                    tile_ptr[1] = gl_ptr[1];
+                    tile_ptr[2] = gl_ptr[0];
                 } else {
                     std::memcpy(tile_ptr, gl_ptr, bytes_per_pixel);
                 }
@@ -507,31 +518,24 @@ void CachedSurface::LoadGLBuffer(PAddr load_start, PAddr load_end) {
     if (load_start < Memory::VRAM_VADDR && load_end > Memory::VRAM_VADDR)
         load_start = Memory::VRAM_VADDR;
 
-    MICROPROFILE_SCOPE(OpenGL_SurfaceLoad);
-
     ASSERT(load_start >= addr && load_end <= end);
     const u32 start_offset = load_start - addr;
 
     if (!is_tiled) {
         ASSERT(type == SurfaceType::Color);
-        const bool need_swap =
-            GLES && (pixel_format == PixelFormat::RGBA8 || pixel_format == PixelFormat::RGB8);
-        if (need_swap) {
-            // TODO(liushuyu): check if the byteswap here is 100% correct
-            // cannot fully test this
-            if (pixel_format == PixelFormat::RGBA8) {
-                for (std::size_t i = start_offset; i < load_end - addr; i += 4) {
-                    gl_buffer[i] = texture_src_data[i + 3];
-                    gl_buffer[i + 1] = texture_src_data[i + 2];
-                    gl_buffer[i + 2] = texture_src_data[i + 1];
-                    gl_buffer[i + 3] = texture_src_data[i];
-                }
-            } else if (pixel_format == PixelFormat::RGB8) {
-                for (std::size_t i = start_offset; i < load_end - addr; i += 3) {
-                    gl_buffer[i] = texture_src_data[i + 2];
-                    gl_buffer[i + 1] = texture_src_data[i + 1];
-                    gl_buffer[i + 2] = texture_src_data[i];
-                }
+        // TODO(liushuyu): check if the byteswap here is 100% correct, cannot fully test this
+        if (pixel_format == PixelFormat::RGBA8) {
+            for (std::size_t i = start_offset; i < load_end - addr; i += 4) {
+                gl_buffer[i] = texture_src_data[i + 3];
+                gl_buffer[i + 1] = texture_src_data[i + 2];
+                gl_buffer[i + 2] = texture_src_data[i + 1];
+                gl_buffer[i + 3] = texture_src_data[i];
+            }
+        } else if (pixel_format == PixelFormat::RGB8) {
+            for (std::size_t i = start_offset; i < load_end - addr; i += 3) {
+                gl_buffer[i] = texture_src_data[i + 2];
+                gl_buffer[i + 1] = texture_src_data[i + 1];
+                gl_buffer[i + 2] = texture_src_data[i];
             }
         } else {
             std::memcpy(&gl_buffer[start_offset], texture_src_data + start_offset,
@@ -579,8 +583,6 @@ void CachedSurface::FlushGLBuffer(PAddr flush_start, PAddr flush_end) {
     if (flush_start < Memory::VRAM_VADDR && flush_end > Memory::VRAM_VADDR)
         flush_start = Memory::VRAM_VADDR;
 
-    MICROPROFILE_SCOPE(OpenGL_SurfaceFlush);
-
     ASSERT(flush_start >= addr && flush_end <= end);
     const u32 start_offset = flush_start - addr;
     const u32 end_offset = flush_end - addr;
@@ -601,7 +603,22 @@ void CachedSurface::FlushGLBuffer(PAddr flush_start, PAddr flush_end) {
             std::memcpy(&dst_buffer[coarse_start_offset], &backup_data[0], backup_bytes);
     } else if (!is_tiled) {
         ASSERT(type == SurfaceType::Color);
-        std::memcpy(dst_buffer + start_offset, &gl_buffer[start_offset], flush_end - flush_start);
+        if (pixel_format == PixelFormat::RGBA8) {
+            for (std::size_t i = start_offset; i < flush_end - addr; i += 4) {
+                dst_buffer[i] = gl_buffer[i + 3];
+                dst_buffer[i + 1] = gl_buffer[i + 2];
+                dst_buffer[i + 2] = gl_buffer[i + 1];
+                dst_buffer[i + 3] = gl_buffer[i];
+            }
+        } else if (pixel_format == PixelFormat::RGB8) {
+            for (std::size_t i = start_offset; i < flush_end - addr; i += 3) {
+                dst_buffer[i] = gl_buffer[i + 2];
+                dst_buffer[i + 1] = gl_buffer[i + 1];
+                dst_buffer[i + 2] = gl_buffer[i];
+            }
+        } else {
+            std::memcpy(dst_buffer + start_offset, &gl_buffer[start_offset], flush_end - flush_start);
+        }
     } else {
         gl_to_morton_fns[static_cast<std::size_t>(pixel_format)](stride, height, &gl_buffer[0],
                                                                  addr, flush_start, flush_end);

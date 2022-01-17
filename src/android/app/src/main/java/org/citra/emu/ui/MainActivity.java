@@ -146,16 +146,18 @@ public final class MainActivity extends AppCompatActivity {
                             if (isInstalled || !dirSet.contains(path)) {
                                 dirs.add(f);
                             }
-                        } else if (NativeLibrary.isValidFile(path) && NativeLibrary.IsAppVisible(path)) {
+                        } else if (NativeLibrary.isValidFile(path)) {
                             GameFile game = new GameFile(path, isInstalled);
-                            game.init();
-                            if (isInstalled) {
+                            if (isInstalled && NativeLibrary.IsAppVisible(path)) {
                                 if (game.isInstalledDLC()) {
+                                    game.init();
                                     contents.add(game);
                                 } else if (NativeLibrary.IsAppExecutable(path)) {
+                                    game.init();
                                     installs.add(game);
                                 }
-                            } else {
+                            } else if (NativeLibrary.IsAppExecutable(path)) {
+                                game.init();
                                 externals.add(game);
                             }
                         }

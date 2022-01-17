@@ -812,7 +812,7 @@ JNIEXPORT jbyteArray JNICALL Java_org_citra_emu_NativeLibrary_GetAppIcon(JNIEnv*
 JNIEXPORT jint JNICALL Java_org_citra_emu_NativeLibrary_GetAppRegion(JNIEnv* env, jclass obj,
                                                                      jstring jPath) {
     auto& regions = GetGameInfo(JniHelper::Unwrap(jPath)).regions;
-    return static_cast<jint>(regions[0]);
+    return regions.size() == 7 ? 7 : static_cast<jint>(regions[0]);
 }
 
 JNIEXPORT jboolean JNICALL Java_org_citra_emu_NativeLibrary_IsAppExecutable(JNIEnv* env, jclass obj,

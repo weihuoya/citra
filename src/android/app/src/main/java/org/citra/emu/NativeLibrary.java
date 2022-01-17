@@ -90,6 +90,7 @@ public final class NativeLibrary {
                 Log.e("citra", "SafClose error: " + fd, e);
                 ret = -1;
             }
+            SafFileDescriptorMap.remove(fd);
         } else {
             ret = -1;
         }
