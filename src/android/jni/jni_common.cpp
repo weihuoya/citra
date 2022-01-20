@@ -45,7 +45,7 @@ int NativeLibrary::GetDisplayRotation() {
 }
 
 bool NativeLibrary::IsPortrait() {
-    return current_display_rotation == 0 || current_display_rotation == 3;
+    return current_display_rotation == 0 || current_display_rotation == 2;
 }
 
 bool NativeLibrary::CheckRecordPermission() {

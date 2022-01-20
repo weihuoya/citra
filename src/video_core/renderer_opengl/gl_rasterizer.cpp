@@ -1413,7 +1413,7 @@ bool RasterizerOpenGL::AccelerateTextureCopy(const GPU::Regs::DisplayTransferCon
     Surface src_surface;
     std::tie(src_surface, src_rect) = res_cache.GetTexCopySurface(src_params);
     if (src_surface == nullptr) {
-        return false;
+        return Settings::values.skip_texture_copy;
     }
 
     if (output_gap != 0 &&
