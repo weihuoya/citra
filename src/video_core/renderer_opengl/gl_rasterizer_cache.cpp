@@ -744,7 +744,7 @@ void CachedSurface::DownloadGLTexture(const Common::Rectangle<u32>& rect) {
 
     glPixelStorei(GL_PACK_ROW_LENGTH, static_cast<GLint>(stride));
     OpenGLState::BindReadFramebuffer(g_read_framebuffer.handle);
-    std::size_t buffer_offset = (y0 * stride + x0) * bytes_per_pixel;
+    std::size_t buffer_offset = (rect.bottom * stride + rect.left) * bytes_per_pixel;
     if (type == SurfaceType::Color || type == SurfaceType::Texture) {
         glFramebufferTexture2D(GL_READ_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, target_tex,
                                0);
@@ -774,7 +774,7 @@ void CachedSurface::DumpToFile() {
     const std::string& output = FileUtil::GetUserPath(FileUtil::UserPath::LogDir);
     const auto& image_interface = Core::System::GetInstance().GetImageInterface();
     std::string path =
-        fmt::format("{}{:08X}_{}_{}_{}.png", output, addr, width, height, pixel_format);
+        fmt::format("{}{:08X}_{}_{}_{}.png", output, addr, width, height, (u32)pixel_format);
     u32 bytes_per_pixel = GetGLBytesPerPixel(pixel_format);
     const FormatTuple& tuple = GetFormatTuple(pixel_format);
     std::vector<u8> pixels(width * height * bytes_per_pixel);
@@ -917,8 +917,8 @@ bool RasterizerCacheOpenGL::BlitSurfaces(const Surface& src_surface,
         BlitTextures(src_surface, src_rect, dst_surface, dst_rect);
         return true;
     } else {
-        LOG_INFO(Render_OpenGL, "BlitSurfaces failed from: {} to: {}", src_surface->pixel_format,
-                 dst_surface->pixel_format);
+        LOG_INFO(Render_OpenGL, "BlitSurfaces failed from: {} to: {}", (u32)src_surface->pixel_format,
+                 (u32)dst_surface->pixel_format);
         return false;
     }
 }
@@ -1551,7 +1551,7 @@ void RasterizerCacheOpenGL::ValidateSurface(const Surface& surface, PAddr addr, 
             surface->LoadGLBuffer(params.addr, params.end);
             surface->UploadGLTexture(surface->GetSubRect(params));
         } else {
-            LOG_INFO(Render_OpenGL, "ValidateSurface load depth: {}", surface->pixel_format);
+            LOG_INFO(Render_OpenGL, "ValidateSurface load depth: {}", (u32)surface->pixel_format);
         }
         notify_validated(params.GetInterval());
     }
@@ -1573,8 +1573,8 @@ bool RasterizerCacheOpenGL::NoUnimplementedReinterpretations(const Surface& surf
             Surface test_surface =
                 FindMatch<MatchFlags::Copy>(surface_cache, params, ScaleMatch::Ignore, interval);
             if (test_surface != nullptr) {
-                LOG_WARNING(Render_OpenGL, "Missing pixel_format reinterpreter: {} -> {}", format,
-                            surface->pixel_format);
+                LOG_WARNING(Render_OpenGL, "Missing pixel_format reinterpreter: {} -> {}", (u32)format,
+                            (u32)surface->pixel_format);
                 implemented = false;
             }
         }

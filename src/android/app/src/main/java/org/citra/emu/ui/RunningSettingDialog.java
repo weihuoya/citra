@@ -121,12 +121,13 @@ public class RunningSettingDialog extends DialogFragment {
         public static final int SETTING_CORE_TICKS_HACK = 0;
         public static final int SETTING_SKIP_SLOW_DRAW = 1;
         public static final int SETTING_SKIP_CPU_WRITE = 2;
-        public static final int SETTING_USE_LINEAR_FILTER = 3;
-        public static final int SETTING_SCALE_FACTOR = 4;
-        public static final int SETTING_SCREEN_LAYOUT = 5;
-        public static final int SETTING_ACCURATE_MUL = 6;
-        public static final int SETTING_CUSTOM_LAYOUT = 7;
-        public static final int SETTING_FRAME_LIMIT = 8;
+        public static final int SETTING_SKIP_TEXTURE_COPY = 3;
+        public static final int SETTING_USE_LINEAR_FILTER = 4;
+        public static final int SETTING_SCALE_FACTOR = 5;
+        public static final int SETTING_SCREEN_LAYOUT = 6;
+        public static final int SETTING_ACCURATE_MUL = 7;
+        public static final int SETTING_CUSTOM_LAYOUT = 8;
+        public static final int SETTING_FRAME_LIMIT = 9;
 
         // pref
         public static final int SETTING_JOYSTICK_RELATIVE = 100;
@@ -651,6 +652,9 @@ public class RunningSettingDialog extends DialogFragment {
                     SettingsItem.TYPE_CHECKBOX, mRunningSettings[i++]));
             mSettings.add(new SettingsItem(SettingsItem.SETTING_SKIP_CPU_WRITE,
                     R.string.setting_skip_cpu_write,
+                    SettingsItem.TYPE_CHECKBOX, mRunningSettings[i++]));
+            mSettings.add(new SettingsItem(SettingsItem.SETTING_SKIP_TEXTURE_COPY,
+                    R.string.setting_skip_texture_copy,
                     SettingsItem.TYPE_CHECKBOX, mRunningSettings[i++]));
             mSettings.add(new SettingsItem(SettingsItem.SETTING_USE_LINEAR_FILTER,
                     R.string.setting_use_linear_filter,

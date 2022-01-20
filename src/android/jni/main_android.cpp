@@ -488,6 +488,7 @@ JNIEXPORT void JNICALL Java_org_citra_emu_NativeLibrary_Run(JNIEnv* env, jclass 
     Settings::values.skip_slow_draw = false;
     Settings::values.display_transfer_hack = false;
     Settings::values.skip_cpu_write = false;
+    Settings::values.skip_texture_copy = false;
     Settings::values.disable_clip_coef = false;
     Settings::values.y2r_perform_hack = false;
     Settings::values.y2r_event_delay = false;
@@ -524,8 +525,10 @@ JNIEXPORT void JNICALL Java_org_citra_emu_NativeLibrary_Run(JNIEnv* env, jclass 
 }
 
 JNIEXPORT void JNICALL Java_org_citra_emu_NativeLibrary_ResumeEmulation(JNIEnv* env, jclass obj) {
-    s_is_running = true;
-    s_running_cv.notify_all();
+    if (!s_stop_running) {
+        s_is_running = true;
+        s_running_cv.notify_all();
+    }
 }
 
 JNIEXPORT void JNICALL Java_org_citra_emu_NativeLibrary_PauseEmulation(JNIEnv* env, jclass obj) {
@@ -542,12 +545,13 @@ JNIEXPORT void JNICALL Java_org_citra_emu_NativeLibrary_StopEmulation(JNIEnv* en
 JNIEXPORT jintArray JNICALL Java_org_citra_emu_NativeLibrary_getRunningSettings(JNIEnv* env,
                                                                                 jclass obj) {
     int i = 0;
-    int settings[9];
+    int settings[10];
 
     // get settings
     settings[i++] = Settings::values.core_ticks_hack > 0;
     settings[i++] = Settings::values.skip_slow_draw;
     settings[i++] = Settings::values.skip_cpu_write;
+    settings[i++] = Settings::values.skip_texture_copy;
     settings[i++] = Settings::values.use_linear_filter;
     settings[i++] = std::min(std::max(Settings::values.resolution_factor - 1, 0), 3);
     settings[i++] = static_cast<int>(Settings::values.layout_option);
@@ -573,6 +577,9 @@ JNIEXPORT void JNICALL Java_org_citra_emu_NativeLibrary_setRunningSettings(JNIEn
 
     // Skip CPU Write
     Settings::values.skip_cpu_write = settings[i++] > 0;
+
+    // Skip Texture Copy
+    Settings::values.skip_texture_copy = settings[i++] > 0;
 
     // Use Linear Filter
     Settings::values.use_linear_filter = settings[i++] > 0;

@@ -198,6 +198,7 @@ struct Values {
     bool use_shader_cache;
     bool skip_slow_draw;
     bool skip_cpu_write;
+    bool skip_texture_copy;
     bool disable_clip_coef;
     bool display_transfer_hack;
     bool stream_buffer_hack;

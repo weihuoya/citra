@@ -160,6 +160,10 @@ static void LoadOverrides(u64 title_id) {
     } else if (title_id == 0x00040000000DCA00) {
         // Danball Senki W Chou Custom
         Settings::values.y2r_perform_hack = true;
+    } else if (title_id == 0x000400000008B400 || title_id == 0x0004000000030600 ||
+               title_id == 0x0004000000030800 || title_id == 0x0004000000030700) {
+        // Mario Kart 7
+        Settings::values.skip_texture_copy = true;
     }
 
     const std::array<u64, 7> cpu_limit_ids = {
