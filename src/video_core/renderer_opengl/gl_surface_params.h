@@ -22,7 +22,7 @@ using SurfaceInterval = boost::icl::right_open_interval<PAddr>;
 
 struct SurfaceParams {
 private:
-    static constexpr std::array<unsigned int, 18> BPP_TABLE = {
+    static constexpr std::array<u32, 18> BPP_TABLE = {
         32, // RGBA8
         24, // RGB8
         16, // RGB5A1
@@ -81,13 +81,13 @@ public:
         Invalid = 5
     };
 
-    static constexpr unsigned int GetFormatBpp(PixelFormat format) {
+    static constexpr u32 GetFormatBpp(PixelFormat format) {
         const auto format_idx = static_cast<std::size_t>(format);
         DEBUG_ASSERT_MSG(format_idx < BPP_TABLE.size(), "Invalid pixel format {}", format_idx);
         return BPP_TABLE[format_idx];
     }
 
-    unsigned int GetFormatBpp() const {
+    u32 GetFormatBpp() const {
         return GetFormatBpp(pixel_format);
     }
 

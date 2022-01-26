@@ -521,7 +521,9 @@ void FS_USER::GetNandArchiveResource(Kernel::HLERequestContext& ctx) {
 void FS_USER::CreateExtSaveData(Kernel::HLERequestContext& ctx) {
     // TODO(Subv): Figure out the other parameters.
     IPC::RequestParser rp(ctx, 0x0851, 9, 2);
-    MediaType media_type = static_cast<MediaType>(rp.Pop<u32>()); // the other bytes are unknown
+    auto media_type = rp.PopEnum<MediaType>();
+    u8 unk0 = rp.Pop<u8>();
+    u16 reserved = rp.Pop<u16>();
     u32 save_low = rp.Pop<u32>();
     u32 save_high = rp.Pop<u32>();
     u32 unknown = rp.Pop<u32>();
@@ -554,7 +556,9 @@ void FS_USER::CreateExtSaveData(Kernel::HLERequestContext& ctx) {
 
 void FS_USER::DeleteExtSaveData(Kernel::HLERequestContext& ctx) {
     IPC::RequestParser rp(ctx, 0x852, 4, 0);
-    MediaType media_type = static_cast<MediaType>(rp.Pop<u32>()); // the other bytes are unknown
+    auto media_type = rp.PopEnum<MediaType>();
+    u8 unk0 = rp.Pop<u8>();
+    u16 reserved = rp.Pop<u16>();
     u32 save_low = rp.Pop<u32>();
     u32 save_high = rp.Pop<u32>();
     u32 unknown = rp.Pop<u32>(); // TODO(Subv): Figure out what this is
@@ -597,7 +601,7 @@ void FS_USER::DeleteSystemSaveData(Kernel::HLERequestContext& ctx) {
 void FS_USER::EnumerateExtSaveData(Kernel::HLERequestContext& ctx) {
     IPC::RequestParser rp(ctx, 0x855, 4, 2);
     u32 buff_size = rp.Pop<u32>();
-    MediaType media_type = static_cast<MediaType>(rp.Pop<u8>());
+    auto media_type = rp.PopEnum<MediaType>();
     u32 unknown = rp.Pop<u32>();
     u32 shared = rp.Pop<u32>();
     auto& extdata_list = rp.PopMappedBuffer();
@@ -803,7 +807,7 @@ void FS_USER::GetProgramLaunchInfo(Kernel::HLERequestContext& ctx) {
 
 void FS_USER::ObsoletedCreateExtSaveData(Kernel::HLERequestContext& ctx) {
     IPC::RequestParser rp(ctx, 0x830, 6, 2);
-    MediaType media_type = static_cast<MediaType>(rp.Pop<u8>());
+    auto media_type = rp.PopEnum<MediaType>();
     u32 save_low = rp.Pop<u32>();
     u32 save_high = rp.Pop<u32>();
     u32 icon_size = rp.Pop<u32>();
@@ -834,7 +838,7 @@ void FS_USER::ObsoletedCreateExtSaveData(Kernel::HLERequestContext& ctx) {
 
 void FS_USER::ObsoletedDeleteExtSaveData(Kernel::HLERequestContext& ctx) {
     IPC::RequestParser rp(ctx, 0x835, 2, 0);
-    MediaType media_type = static_cast<MediaType>(rp.Pop<u8>());
+    auto media_type = rp.PopEnum<MediaType>();
     u32 save_low = rp.Pop<u32>();
 
     IPC::RequestBuilder rb = rp.MakeBuilder(1, 0);
@@ -846,7 +850,7 @@ void FS_USER::ObsoletedDeleteExtSaveData(Kernel::HLERequestContext& ctx) {
 
 void FS_USER::GetSpecialContentIndex(Kernel::HLERequestContext& ctx) {
     IPC::RequestParser rp(ctx, 0x83A, 4, 0);
-    const MediaType media_type = static_cast<MediaType>(rp.Pop<u8>());
+    const auto media_type = rp.PopEnum<MediaType>();
     const u64 title_id = rp.Pop<u64>();
     const auto type = rp.PopEnum<SpecialContentType>();
 
