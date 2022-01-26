@@ -21,7 +21,7 @@ class System;
 }
 
 namespace Service::FS {
-enum class MediaType : u32;
+enum class MediaType : u8;
 }
 
 namespace Service::AM {

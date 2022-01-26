@@ -131,26 +131,23 @@ Common::Rectangle<u32> SurfaceParams::GetScaledSubRect(const SurfaceParams& sub_
 bool SurfaceParams::ExactMatch(const SurfaceParams& other_surface) const {
     return std::tie(other_surface.addr, other_surface.width, other_surface.height,
                     other_surface.stride, other_surface.pixel_format, other_surface.is_tiled) ==
-               std::tie(addr, width, height, stride, pixel_format, is_tiled) &&
-           pixel_format != PixelFormat::Invalid;
+               std::tie(addr, width, height, stride, pixel_format, is_tiled);
 }
 
 bool SurfaceParams::CanSubRect(const SurfaceParams& sub_surface) const {
     return sub_surface.addr >= addr && sub_surface.end <= end &&
-           sub_surface.pixel_format == pixel_format && pixel_format != PixelFormat::Invalid &&
-           sub_surface.is_tiled == is_tiled &&
+           sub_surface.pixel_format == pixel_format && sub_surface.is_tiled == is_tiled &&
            (sub_surface.addr - addr) % BytesInPixels(is_tiled ? 64 : 1) == 0 &&
            (sub_surface.stride == stride || sub_surface.height <= (is_tiled ? 8u : 1u)) &&
            GetSubRect(sub_surface).right <= stride;
 }
 
 bool SurfaceParams::CanExpand(const SurfaceParams& expanded_surface) const {
-    return pixel_format != PixelFormat::Invalid && pixel_format == expanded_surface.pixel_format &&
+    return pixel_format == expanded_surface.pixel_format &&
            addr <= expanded_surface.end && expanded_surface.addr <= end &&
            is_tiled == expanded_surface.is_tiled && stride == expanded_surface.stride &&
            (std::max(expanded_surface.addr, addr) - std::min(expanded_surface.addr, addr)) %
-                   BytesInPixels(stride * (is_tiled ? 8 : 1)) ==
-               0;
+                   BytesInPixels(stride * (is_tiled ? 8 : 1)) == 0;
 }
 
 bool SurfaceParams::CanTexCopy(const SurfaceParams& texcopy_params) const {

@@ -44,7 +44,7 @@ enum class ArchiveIdCode : u32 {
 };
 
 /// Media types for the archives
-enum class MediaType : u32 { NAND = 0, SDMC = 1, GameCard = 2 };
+enum class MediaType : u8 { NAND = 0, SDMC = 1, GameCard = 2 };
 
 MediaType GetMediaTypeFromPath(std::string_view path);
 

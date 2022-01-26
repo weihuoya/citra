@@ -696,8 +696,8 @@ void CachedSurface::UploadGLTexture(const Common::Rectangle<u32>& rect) {
     glPixelStorei(GL_UNPACK_ROW_LENGTH, 0);
     OpenGLState::BindTexture2D(0, old_tex);
 
-    if (res_scale != 1) {
-        auto scaled_rect = custom_rect;
+    if (unscaled_tex.handle) {
+        auto scaled_rect = rect;
         scaled_rect.left *= res_scale;
         scaled_rect.top *= res_scale;
         scaled_rect.right *= res_scale;
