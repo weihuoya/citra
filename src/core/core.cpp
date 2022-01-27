@@ -217,7 +217,7 @@ static void LoadOverrides(u64 title_id) {
         }
     }
 
-    const std::array<u64, 49> accurate_mul_ids = {
+    const std::array<u64, 50> accurate_mul_ids = {
         0x0004000000134500, // Attack on Titan
         0x00040000000DF800, // Attack on Titan
         0x0004000000152000, // Attack on Titan
@@ -237,6 +237,7 @@ static void LoadOverrides(u64 title_id) {
         0x0004000000132800, // Mario & Luigi: Paper Jam
         0x00040000001D1400, // Mario & Luigi: Bowsers Inside Story + Bowser Jrs Journey
         0x00040000001D1500, // Mario & Luigi: Bowsers Inside Story + Bowser Jrs Journey
+        0x00040000001CA900, // Mario & Luigi: Bowsers Inside Story + Bowser Jrs Journey
         0x00040000001B8F00, // Mario & Luigi: Superstar Saga + Bowsers Minions
         0x00040000001B9000, // Mario & Luigi: Superstar Saga + Bowsers Minions
         0x0004000000194B00, // Mario & Luigi: Superstar Saga + Bowsers Minions
