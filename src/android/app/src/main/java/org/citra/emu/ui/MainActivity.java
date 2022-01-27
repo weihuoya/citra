@@ -148,8 +148,8 @@ public final class MainActivity extends AppCompatActivity {
                             }
                         } else if (NativeLibrary.isValidFile(path)) {
                             GameFile game = new GameFile(path, isInstalled);
-                            if (isInstalled && NativeLibrary.IsAppVisible(path)) {
-                                if (game.isInstalledDLC()) {
+                            if (isInstalled) {
+                                if (game.isInstalledDLC() && NativeLibrary.IsAppVisible(path)) {
                                     game.init();
                                     contents.add(game);
                                 } else if (NativeLibrary.IsAppExecutable(path)) {
@@ -463,9 +463,7 @@ public final class MainActivity extends AppCompatActivity {
         mSwipeRefresh = findViewById(R.id.swipe_refresh);
         mSwipeRefresh.setColorSchemeResources(R.color.citra_accent);
         mSwipeRefresh.post(() -> {
-            float scale = getResources().getDisplayMetrics().scaledDensity;
-            int height = mSwipeRefresh.getHeight();
-            mSwipeRefresh.setDistanceToTriggerSync((int)(height / scale / 3));
+            mSwipeRefresh.setDistanceToTriggerSync(mSwipeRefresh.getHeight() / 3);
         });
         mSwipeRefresh.setOnRefreshListener(this::refreshLibrary);
 

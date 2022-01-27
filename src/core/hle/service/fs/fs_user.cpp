@@ -521,9 +521,7 @@ void FS_USER::GetNandArchiveResource(Kernel::HLERequestContext& ctx) {
 void FS_USER::CreateExtSaveData(Kernel::HLERequestContext& ctx) {
     // TODO(Subv): Figure out the other parameters.
     IPC::RequestParser rp(ctx, 0x0851, 9, 2);
-    auto media_type = rp.PopEnum<MediaType>();
-    u8 unk0 = rp.Pop<u8>();
-    u16 reserved = rp.Pop<u16>();
+    auto media_type = static_cast<MediaType>(rp.Pop<u32>()); // the other bytes are unknown
     u32 save_low = rp.Pop<u32>();
     u32 save_high = rp.Pop<u32>();
     u32 unknown = rp.Pop<u32>();
@@ -549,16 +547,14 @@ void FS_USER::CreateExtSaveData(Kernel::HLERequestContext& ctx) {
     rb.PushMappedBuffer(icon_buffer);
 
     LOG_DEBUG(Service_FS,
-              "called, savedata_high={:08X} savedata_low={:08X} unknown={:08X} "
-              "files={:08X} directories={:08X} size_limit={:016x} icon_size={:08X}",
-              save_high, save_low, unknown, directories, files, size_limit, icon_size);
+              "CreateExtSaveData called, savedata_high={:08X} savedata_low={:08X} unknown={:08X} "
+              "files={:08X} directories={:08X} size_limit={:016x} icon_size={:08X}, media_type: {}",
+              save_high, save_low, unknown, directories, files, size_limit, icon_size, (u32)media_type);
 }
 
 void FS_USER::DeleteExtSaveData(Kernel::HLERequestContext& ctx) {
     IPC::RequestParser rp(ctx, 0x852, 4, 0);
-    auto media_type = rp.PopEnum<MediaType>();
-    u8 unk0 = rp.Pop<u8>();
-    u16 reserved = rp.Pop<u16>();
+    auto media_type = static_cast<MediaType>(rp.Pop<u32>()); // the other bytes are unknown
     u32 save_low = rp.Pop<u32>();
     u32 save_high = rp.Pop<u32>();
     u32 unknown = rp.Pop<u32>(); // TODO(Subv): Figure out what this is
@@ -567,8 +563,8 @@ void FS_USER::DeleteExtSaveData(Kernel::HLERequestContext& ctx) {
     rb.Push(archives.DeleteExtSaveData(media_type, save_high, save_low));
 
     LOG_DEBUG(Service_FS,
-              "called, save_low={:08X} save_high={:08X} media_type={:08X} unknown={:08X}", save_low,
-              save_high, static_cast<u32>(media_type), unknown);
+              "DeleteExtSaveData called, save_low={:08X} save_high={:08X} media_type={:08X} unknown={:08X}",
+              save_low, save_high, static_cast<u32>(media_type), unknown);
 }
 
 void FS_USER::CardSlotIsInserted(Kernel::HLERequestContext& ctx) {

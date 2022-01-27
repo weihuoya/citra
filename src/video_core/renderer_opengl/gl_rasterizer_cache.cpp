@@ -467,7 +467,6 @@ bool CachedSurface::CanCopy(const SurfaceParams& dest_surface,
     return false;
 }
 
-MICROPROFILE_DEFINE(OpenGL_CopySurface, "OpenGL", "CopySurface", MP_RGB(128, 192, 64));
 void RasterizerCacheOpenGL::CopySurface(const Surface& src_surface, const Surface& dst_surface,
                                         SurfaceInterval copy_interval) {
     MICROPROFILE_SCOPE(OpenGL_CopySurface);
@@ -499,7 +498,6 @@ void RasterizerCacheOpenGL::CopySurface(const Surface& src_surface, const Surfac
     UNREACHABLE();
 }
 
-MICROPROFILE_DEFINE(OpenGL_SurfaceLoad, "OpenGL", "Surface Load", MP_RGB(128, 192, 64));
 void CachedSurface::LoadGLBuffer(PAddr load_start, PAddr load_end) {
     ASSERT(type != SurfaceType::Fill);
 
@@ -569,7 +567,6 @@ void CachedSurface::LoadGLBuffer(PAddr load_start, PAddr load_end) {
     }
 }
 
-MICROPROFILE_DEFINE(OpenGL_SurfaceFlush, "OpenGL", "Surface Flush", MP_RGB(128, 192, 64));
 void CachedSurface::FlushGLBuffer(PAddr flush_start, PAddr flush_end) {
     u8* const dst_buffer = VideoCore::Memory()->GetPhysicalPointer(addr);
     if (dst_buffer == nullptr)
@@ -625,22 +622,12 @@ void CachedSurface::FlushGLBuffer(PAddr flush_start, PAddr flush_end) {
     }
 }
 
-const Core::CustomTexInfo* CachedSurface::LoadCustomTexture(u64 tex_hash,
-                                                            Common::Rectangle<u32>& custom_rect) {
+const Core::CustomTexInfo* CachedSurface::LoadCustomTexture(u64 tex_hash) {
     auto& custom_tex_cache = Core::System::GetInstance().CustomTexCache();
-    auto* tex_info = custom_tex_cache.LoadTexture(tex_hash);
-    if (tex_info) {
-        custom_rect.left = (custom_rect.left * tex_info->width) / width;
-        custom_rect.top = (custom_rect.top * tex_info->height) / height;
-        custom_rect.right = (custom_rect.right * tex_info->width) / width;
-        custom_rect.bottom = (custom_rect.bottom * tex_info->height) / height;
-    }
-    return tex_info;
+    return custom_tex_cache.LoadTexture(tex_hash);
 }
 
-MICROPROFILE_DEFINE(OpenGL_TextureUL, "OpenGL", "Texture Upload", MP_RGB(128, 192, 64));
 void CachedSurface::UploadGLTexture(const Common::Rectangle<u32>& rect) {
-    MICROPROFILE_SCOPE(OpenGL_TextureUL);
     // Required for rect to function properly with custom textures
     Common::Rectangle custom_rect = rect;
     PixelFormat custom_format = pixel_format;
@@ -648,11 +635,15 @@ void CachedSurface::UploadGLTexture(const Common::Rectangle<u32>& rect) {
     if (Settings::values.custom_textures) {
         u64 tex_hash = Common::TextureHash64(gl_buffer.data(), gl_buffer.size());
         if (!custom_tex_info || custom_tex_info->hash != tex_hash) {
-            custom_tex_info = LoadCustomTexture(tex_hash, custom_rect);
+            custom_tex_info = LoadCustomTexture(tex_hash);
         }
         if (custom_tex_info) {
             // always going to be using rgba8
             custom_format = PixelFormat::RGBA8;
+            custom_rect.left = (custom_rect.left * custom_tex_info->width) / width;
+            custom_rect.top = (custom_rect.top * custom_tex_info->height) / height;
+            custom_rect.right = (custom_rect.right * custom_tex_info->width) / width;
+            custom_rect.bottom = (custom_rect.bottom * custom_tex_info->height) / height;
         }
     }
 
@@ -709,9 +700,7 @@ void CachedSurface::UploadGLTexture(const Common::Rectangle<u32>& rect) {
     InvalidateAllWatcher();
 }
 
-MICROPROFILE_DEFINE(OpenGL_TextureDL, "OpenGL", "Texture Download", MP_RGB(128, 192, 64));
 void CachedSurface::DownloadGLTexture(const Common::Rectangle<u32>& rect) {
-    MICROPROFILE_SCOPE(OpenGL_TextureDL);
     u32 bytes_per_pixel = GetGLBytesPerPixel(pixel_format);
     const FormatTuple& tuple = GetFormatTuple(pixel_format);
     if (gl_buffer.empty()) {
