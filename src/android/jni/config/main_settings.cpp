@@ -72,7 +72,7 @@ const ConfigInfo<std::string> BUTTON_DEBUG{{"Controls", "button_debug"}, "code:1
 const ConfigInfo<std::string> BUTTON_GPIO14{{"Controls", "button_gpio14"}, "code:112"};
 const ConfigInfo<std::string> BUTTON_ZL{{"Controls", "button_zl"}, "code:104"};
 const ConfigInfo<std::string> BUTTON_ZR{{"Controls", "button_zr"}, "code:105"};
-const ConfigInfo<std::string> BUTTON_HOME{{"Controls", "button_home"}, "code:100"};
+const ConfigInfo<std::string> BUTTON_HOME{{"Controls", "button_home"}, "code:106"};
 const ConfigInfo<std::string> CIRCLE_PAD_X{{"Controls", "circle_pad_x"}, "code:0"};
 const ConfigInfo<std::string> CIRCLE_PAD_Y{{"Controls", "circle_pad_y"}, "code:1"};
 const ConfigInfo<std::string> C_STICK_X{{"Controls", "c_stick_x"}, "code:11"};

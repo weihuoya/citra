@@ -9,6 +9,11 @@
         app:showAsAction="ifRoom"/>
 
     <item
+        android:id="@+id/menu_open_archive"
+        android:title="@string/open_app_archive"
+        app:showAsAction="never"/>
+
+    <item
         android:id="@+id/menu_delete_sdmc"
         android:title="@string/delete_app_sdmc"
         app:showAsAction="never"/>

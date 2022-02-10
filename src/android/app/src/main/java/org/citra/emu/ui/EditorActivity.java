@@ -11,6 +11,7 @@ import android.content.Intent;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.text.Editable;
+import android.text.TextUtils;
 import android.text.TextWatcher;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -40,6 +41,8 @@ import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
+import java.lang.reflect.Field;
+import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -245,6 +248,7 @@ public final class EditorActivity extends AppCompatActivity {
     public boolean onCreateOptionsMenu(Menu menu) {
         MenuInflater inflater = getMenuInflater();
         inflater.inflate(R.menu.menu_editor, menu);
+        menu.findItem(R.id.menu_open_archive).setVisible(isMiUiSystem());
         return true;
     }
 
@@ -254,6 +258,10 @@ public final class EditorActivity extends AppCompatActivity {
             case R.id.menu_toggle_list:
                 toggleListView(mEditor.getVisibility() == View.VISIBLE);
                 return true;
+
+            case R.id.menu_open_archive:
+                jumpToExplore();
+                break;
 
             case R.id.menu_delete_sdmc:
                 deleteAppSdmc();
@@ -286,6 +294,55 @@ public final class EditorActivity extends AppCompatActivity {
             // reload
             mEditor.setText(loadCheatText());
         }
+    }
+
+    private void jumpToExplore() {
+        String root;
+        String pid = mGameId.substring(0, 8).toLowerCase();
+        String subid = mGameId.substring(8).toLowerCase();
+        if (pid.equals("00040010") || pid.equals("00040030")) {
+            root = CitraDirectory.getSystemTitleDirectory();
+        } else {
+            root = CitraDirectory.getApplicationDirectory();
+        }
+        String path = String.format("%s/%s/%s", root, pid, subid);
+
+        try {
+            Intent intent = new Intent("miui.intent.action.OPEN");
+            intent.addFlags(0x10000000);
+            if (isMiUiInternational()) {
+                intent.setPackage("com.mi.android.globalFileexplorer");
+            } else {
+                intent.setPackage("com.android.fileexplorer");
+            }
+            intent.putExtra("explorer_path", path);
+            startActivity(intent);
+        } catch (Exception e) {
+            // ignore
+        }
+    }
+
+    private boolean isMiUiSystem() {
+        try {
+            Class<?> c = Class.forName("android.os.SystemProperties");
+            Method get = c.getMethod("get", String.class);
+            String miuiName = (String) get.invoke(null, "ro.miui.ui.version.name");
+            return !TextUtils.isEmpty(miuiName);
+        } catch (Exception e) {
+            // ignore
+        }
+        return false;
+    }
+
+    private boolean isMiUiInternational() {
+        try {
+            Class<?> buildClazz = Class.forName("miui.os.Build");
+            Field isInternational = buildClazz.getDeclaredField("IS_INTERNATIONAL_BUILD");
+            return isInternational.getBoolean(null);
+        } catch (Exception e) {
+            // ignore
+        }
+        return false;
     }
 
     private void deleteShaderCache() {
@@ -339,7 +396,7 @@ public final class EditorActivity extends AppCompatActivity {
         if (cheatFile == null || !cheatFile.exists()) {
             String code = getBuiltinCheat(programId);
             loadCheatCode(code);
-            if (code.contains("*citra_enabled")) {
+            if (code.contains(CHEAT_ENABLED_TEXT)) {
                 saveCheatCode(programId);
             }
             return;
@@ -381,6 +438,7 @@ public final class EditorActivity extends AppCompatActivity {
         String[] lines = data.split(System.lineSeparator());
         CheatEntry entry = new CheatEntry();
         for (String line : lines) {
+            line = line.trim();
             if (!line.isEmpty()) {
                 if (line.charAt(0) == '[') {
                     if (entry.infos.size() > 0 || entry.codes.size() > 0) {

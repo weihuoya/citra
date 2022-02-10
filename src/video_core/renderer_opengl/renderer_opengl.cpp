@@ -355,7 +355,7 @@ RendererOpenGL::~RendererOpenGL() {
 
 /// Swap buffers (render frame)
 void RendererOpenGL::SwapBuffers() {
-    const Layout::FramebufferLayout& layout = render_window.GetFramebufferLayout();
+    const auto& layout = render_window.GetFramebufferLayout();
     // Maintain the rasterizer's state as a priority
     OpenGLState prev_state = OpenGLState::GetCurState();
     state.viewport.x = 0;
@@ -416,7 +416,7 @@ void RendererOpenGL::RenderScreenshot() {
         OpenGLState::BindReadFramebuffer(screenshot_framebuffer.handle);
         OpenGLState::BindDrawFramebuffer(screenshot_framebuffer.handle);
 
-        const Layout::FramebufferLayout& layout = render_window.GetFramebufferLayout();
+        const auto& layout = render_window.GetFramebufferLayout();
         GLuint renderbuffer;
         glGenRenderbuffers(1, &renderbuffer);
         glBindRenderbuffer(GL_RENDERBUFFER, renderbuffer);

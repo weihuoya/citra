@@ -104,9 +104,16 @@ void EmuWindow::TouchMoved(unsigned framebuffer_x, unsigned framebuffer_y) {
 }
 
 void EmuWindow::UpdateFramebufferLayout(u32 width, u32 height) {
+    ASSERT(width > 0);
+    ASSERT(height > 0);
+
     Layout::FramebufferLayout layout;
     if (Settings::values.custom_layout) {
         layout = Layout::CustomFrameLayout(width, height);
+        if (Settings::values.swap_screen) {
+            std::swap(layout.top_screen_enabled, layout.bottom_screen_enabled);
+            std::swap(layout.top_screen, layout.bottom_screen);
+        }
     } else {
         switch (Settings::values.layout_option) {
         case Settings::LayoutOption::SingleScreen:
@@ -125,15 +132,28 @@ void EmuWindow::UpdateFramebufferLayout(u32 width, u32 height) {
             layout = Layout::DefaultFrameLayout(width, height, Settings::values.swap_screen);
             break;
         }
-        if (safe_inset_left > layout.top_screen.left) {
-            u32 offset = safe_inset_left - layout.top_screen.left;
-            layout.top_screen = layout.top_screen.TranslateX(offset);
-            layout.bottom_screen = layout.bottom_screen.TranslateX(offset);
-        }
-        if (safe_inset_top > layout.top_screen.top) {
-            u32 offset = safe_inset_top - layout.top_screen.top;
-            layout.top_screen = layout.top_screen.TranslateY(offset);
-            layout.bottom_screen = layout.bottom_screen.TranslateY(offset);
+        if (Settings::values.swap_screen) {
+            if (safe_inset_left > layout.bottom_screen.left) {
+                u32 offset = safe_inset_left - layout.bottom_screen.left;
+                layout.top_screen = layout.top_screen.TranslateX(offset);
+                layout.bottom_screen = layout.bottom_screen.TranslateX(offset);
+            }
+            if (safe_inset_top > layout.bottom_screen.top) {
+                u32 offset = safe_inset_top - layout.bottom_screen.top;
+                layout.top_screen = layout.top_screen.TranslateY(offset);
+                layout.bottom_screen = layout.bottom_screen.TranslateY(offset);
+            }
+        } else {
+            if (safe_inset_left > layout.top_screen.left) {
+                u32 offset = safe_inset_left - layout.top_screen.left;
+                layout.top_screen = layout.top_screen.TranslateX(offset);
+                layout.bottom_screen = layout.bottom_screen.TranslateX(offset);
+            }
+            if (safe_inset_top > layout.top_screen.top) {
+                u32 offset = safe_inset_top - layout.top_screen.top;
+                layout.top_screen = layout.top_screen.TranslateY(offset);
+                layout.bottom_screen = layout.bottom_screen.TranslateY(offset);
+            }
         }
     }
     NotifyFramebufferLayoutChanged(layout);
