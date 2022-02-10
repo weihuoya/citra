@@ -479,6 +479,7 @@ JNIEXPORT void JNICALL Java_org_citra_emu_NativeLibrary_Run(JNIEnv* env, jclass 
     }
     Settings::SetLLEModules(Config::Get(Config::LLE_MODULES));
     // custom layout
+    Settings::values.swap_screen = false;
     Settings::values.custom_layout = Config::Get(Config::USE_CUSTOM_LAYOUT);
     UpdateDisplayRotation();
     //

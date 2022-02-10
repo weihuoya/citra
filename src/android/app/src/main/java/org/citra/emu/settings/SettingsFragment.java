@@ -9,6 +9,7 @@ import android.view.ViewGroup;
 
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -83,9 +84,17 @@ public final class SettingsFragment extends Fragment {
 
     @Override
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
-        Drawable lineDivider = mActivity.getDrawable(R.drawable.line_divider);
+        Drawable lineDivider = getContext().getDrawable(R.drawable.line_divider);
+        GridLayoutManager gridLayout = new GridLayoutManager(getContext(), 2);
+        gridLayout.setSpanSizeLookup(new GridLayoutManager.SpanSizeLookup() {
+            @Override
+            public int getSpanSize(int position) {
+                int viewType = mAdapter.getItemViewType(position);
+                return SettingsItem.TYPE_INPUT_BINDING == viewType ? 1 : 2;
+            }
+        });
         RecyclerView recyclerView = view.findViewById(R.id.list_settings);
-        recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
+        recyclerView.setLayoutManager(gridLayout);
         recyclerView.addItemDecoration(new DividerItemDecoration(lineDivider));
         recyclerView.setAdapter(mAdapter);
         showSettingsList(mActivity.getSettings());
@@ -269,6 +278,7 @@ public final class SettingsFragment extends Fragment {
         Setting buttonZR = bindingsSection.getSetting(SettingsFile.KEY_BUTTON_ZR);
         Setting buttonStart = bindingsSection.getSetting(SettingsFile.KEY_BUTTON_START);
         Setting buttonSelect = bindingsSection.getSetting(SettingsFile.KEY_BUTTON_SELECT);
+        Setting buttonHome = bindingsSection.getSetting(SettingsFile.KEY_BUTTON_HOME);
 
         sl.add(new HeaderSetting(null, null, R.string.generic_buttons, 0));
         sl.add(new InputBindingSetting(SettingsFile.KEY_BUTTON_A, Settings.SECTION_INI_CONTROLS,
@@ -293,6 +303,9 @@ public final class SettingsFragment extends Fragment {
         sl.add(new InputBindingSetting(SettingsFile.KEY_BUTTON_SELECT,
                                        Settings.SECTION_INI_CONTROLS, R.string.button_select,
                                        buttonSelect));
+        sl.add(new InputBindingSetting(SettingsFile.KEY_BUTTON_HOME,
+                                       Settings.SECTION_INI_CONTROLS, R.string.button_home,
+                                       buttonHome));
 
         sl.add(new HeaderSetting(null, null, R.string.controller_dpad, 0));
         sl.add(new InputBindingSetting(SettingsFile.KEY_BUTTON_UP, Settings.SECTION_INI_CONTROLS,

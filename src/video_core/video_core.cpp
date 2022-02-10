@@ -36,13 +36,13 @@ std::function<void(u32 width, u32 height, const std::vector<u32>& pixels)>
 
 static void ApplySetting() {
     Frontend::EmuWindow& window = g_renderer->GetRenderWindow();
-    const Layout::FramebufferLayout& layout = window.GetFramebufferLayout();
+    const auto& layout = window.GetFramebufferLayout();
     window.UpdateFramebufferLayout(layout.width, layout.height);
 
     if (Settings::values.use_hw_renderer) {
         g_scale_factor = Settings::values.resolution_factor
-                         ? Settings::values.resolution_factor
-                         : window.GetFramebufferLayout().GetScalingRatio();
+                             ? Settings::values.resolution_factor
+                             : layout.GetScalingRatio();
     } else {
         // Software renderer always render at native resolution
         g_scale_factor = 1;

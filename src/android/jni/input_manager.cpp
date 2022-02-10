@@ -374,6 +374,13 @@ bool InputManager::InputEvent(int button, float value) {
 }
 
 bool InputManager::KeyEvent(int button, float value) {
+    if (mButtonKeys[N3DS_BUTTON_HOME] == button) {
+        if (value == 0) {
+            Settings::SwapScreenLayout();
+        }
+        return true;
+    }
+
     // buttons
     if (mButtonFactory->ButtonEvent(button, value)) {
         return true;

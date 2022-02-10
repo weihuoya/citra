@@ -6,7 +6,6 @@
 #include <unordered_map>
 #include "core/cache_file.h"
 #include "core/settings.h"
-#include "video_core/video_core.h"
 #include "video_core/renderer_opengl/gl_shader_manager.h"
 #include "video_core/renderer_opengl/on_screen_display.h"
 
@@ -127,14 +126,6 @@ private:
     OGLProgram program;
     bool separable;
     u64 hash = 0;
-};
-
-/**
- * An object representing a shader program.
- */
-struct OGLProgramEntity {
-    OGLProgram program;
-    u32 last_used_frame;
 };
 
 class ShaderProgramManager::Impl {
@@ -267,26 +258,13 @@ public:
             };
             u64 hash = Common::ComputeHash64(bundle.data(), bundle.size() * sizeof(u64));
             auto& cached_program = program_cache[hash];
-            if (cached_program.program.handle == 0) {
-                CreateProgram(cached_program.program, hash, vs, gs, fs);
-                SetShaderUniformBlockBindings(cached_program.program.handle);
-                SetShaderSamplerBindings(cached_program.program.handle);
+            if (cached_program.handle == 0) {
+                CreateProgram(cached_program, hash, vs, gs, fs);
+                SetShaderUniformBlockBindings(cached_program.handle);
+                SetShaderSamplerBindings(cached_program.handle);
             }
-            cached_program.last_used_frame = VideoCore::GetCurrentFrame();
-            state.draw.shader_program = cached_program.program.handle;
+            state.draw.shader_program = cached_program.handle;
             state.draw.program_pipeline = 0;
-        }
-    }
-
-    void CleanUp(u32 deadline_frame) {
-        std::vector<u64> unused;
-        for (const auto& entity : program_cache) {
-            if (entity.second.last_used_frame < deadline_frame) {
-                unused.push_back(entity.first);
-            }
-        }
-        for (const auto& key : unused) {
-            program_cache.erase(key);
         }
     }
 
@@ -493,7 +471,7 @@ private:
     std::unordered_map<u64, OGLShaderStage> shaders;
 
     OGLPipeline pipeline;
-    std::unordered_map<u64, OGLProgramEntity> program_cache;
+    std::unordered_map<u64, OGLProgram> program_cache;
 };
 
 ShaderProgramManager::ShaderProgramManager(bool separable)
@@ -524,10 +502,6 @@ void ShaderProgramManager::UseFragmentShader(const Pica::Regs& regs) {
 
 void ShaderProgramManager::ApplyTo(OpenGLState& state) {
     impl->ApplyTo(state);
-}
-
-void ShaderProgramManager::CleanUp(u32 deadline_frame) {
-    impl->CleanUp(deadline_frame);
 }
 
 } // namespace OpenGL

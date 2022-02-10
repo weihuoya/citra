@@ -3,7 +3,6 @@
 // Refer to the license.txt file included.
 
 #include <cmath>
-
 #include "common/assert.h"
 #include "core/3ds.h"
 #include "core/frontend/framebuffer_layout.h"
@@ -31,9 +30,6 @@ static Common::Rectangle<T> maxRectangle(Common::Rectangle<T> window_area,
 }
 
 FramebufferLayout DefaultFrameLayout(u32 width, u32 height, bool swapped) {
-    ASSERT(width > 0);
-    ASSERT(height > 0);
-
     FramebufferLayout res{width, height, true, true, {}, {}};
     // Default layout gives equal screen sizes to the top and bottom screen
     Common::Rectangle<u32> screen_window_area{0, 0, width, height / 2};
@@ -60,8 +56,7 @@ FramebufferLayout DefaultFrameLayout(u32 width, u32 height, bool swapped) {
         bot_screen = maxRectangle(screen_window_area, BOT_SCREEN_ASPECT_RATIO);
         bot_screen = bot_screen.TranslateX((top_screen.GetWidth() - bot_screen.GetWidth()) / 2);
         if (swapped) {
-            bot_screen = bot_screen.TranslateY(height / 2 - bot_screen.GetHeight());
-            res.top_screen = top_screen.TranslateY(height / 2);
+            res.top_screen = top_screen.TranslateY(bot_screen.GetHeight());
             res.bottom_screen = bot_screen;
         } else {
             res.top_screen = top_screen;
@@ -72,8 +67,6 @@ FramebufferLayout DefaultFrameLayout(u32 width, u32 height, bool swapped) {
 }
 
 FramebufferLayout SingleFrameLayout(u32 width, u32 height, bool swapped) {
-    ASSERT(width > 0);
-    ASSERT(height > 0);
     // The drawing code needs at least somewhat valid values for both screens
     // so just calculate them both even if the other isn't showing.
     FramebufferLayout res{width, height, !swapped, swapped, {}, {}};
@@ -100,9 +93,6 @@ FramebufferLayout SingleFrameLayout(u32 width, u32 height, bool swapped) {
 }
 
 FramebufferLayout LargeFrameLayout(u32 width, u32 height, bool swapped) {
-    ASSERT(width > 0);
-    ASSERT(height > 0);
-
     FramebufferLayout res{width, height, true, true, {}, {}};
     // Split the window into two parts. Give 4x width to the main screen and 1x width to the small
     // To do that, find the total emulation box and maximize that based on window size
@@ -136,9 +126,6 @@ FramebufferLayout LargeFrameLayout(u32 width, u32 height, bool swapped) {
 }
 
 FramebufferLayout SideFrameLayout(u32 width, u32 height, bool swapped) {
-    ASSERT(width > 0);
-    ASSERT(height > 0);
-
     FramebufferLayout res{width, height, true, true, {}, {}};
     const float window_aspect_ratio = static_cast<float>(height) / width;
 
@@ -149,8 +136,8 @@ FramebufferLayout SideFrameLayout(u32 width, u32 height, bool swapped) {
         Common::Rectangle<u32> bot_screen = Common::Rectangle<u32>{
             top_screen.left, top_screen.top, top_screen.right,
             static_cast<u32>(top_screen.GetHeight() / BOT_SCREEN_ASPECT_RATIO)};
-        res.top_screen = top_screen;
-        res.bottom_screen = bot_screen.TranslateY(top_screen.GetHeight());
+        res.top_screen = swapped ? top_screen.TranslateY(bot_screen.GetHeight()) : top_screen;
+        res.bottom_screen = swapped ? bot_screen : bot_screen.TranslateY(top_screen.GetHeight());
     } else {
         // Aspect ratio of both screens side by side
         const float emulation_aspect_ratio = static_cast<float>(Core::kScreenTopHeight) /
@@ -183,9 +170,6 @@ FramebufferLayout SideFrameLayout(u32 width, u32 height, bool swapped) {
 }
 
 FramebufferLayout CustomFrameLayout(u32 width, u32 height) {
-    ASSERT(width > 0);
-    ASSERT(height > 0);
-
     FramebufferLayout res{width, height, true, true, {}, {}};
 
     Common::Rectangle<u32> top_screen{

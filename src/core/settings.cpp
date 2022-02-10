@@ -154,6 +154,13 @@ void SetLLEModules(const std::string& modules) {
     }
 }
 
+void SwapScreenLayout() {
+    Settings::values.swap_screen = !Settings::values.swap_screen;
+    if (Core::System::GetInstance().IsPoweredOn()) {
+        VideoCore::SettingUpdate();
+    }
+}
+
 void LoadProfile(int index) {
     Settings::values.current_input_profile = Settings::values.input_profiles[index];
     Settings::values.current_input_profile_index = index;

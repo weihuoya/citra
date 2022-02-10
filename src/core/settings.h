@@ -224,6 +224,7 @@ void LogSettings();
 
 void SetFMVHack(bool enable);
 void SetLLEModules(const std::string& modules);
+void SwapScreenLayout();
 
 // Input profiles
 void LoadProfile(int index);

@@ -244,6 +244,7 @@
     <string name="playtime_desc">游戏时长：%1$s</string>
     <string name="playtime_minutes">%1$s 分钟</string>
     <string name="playtime_hours">%1$s 小时</string>
+    <string name="open_app_archive">打开存档目录</string>
     <string name="delete_app_sdmc">删除安装目录</string>
     <string name="delete_shader_cache">删除着色器缓存</string>
     <string name="delete_confirm_notice">确定删除游戏安装目录？</string>
@@ -268,6 +269,7 @@
     <string name="button_zr">ZR</string>
     <string name="button_start">START</string>
     <string name="button_select">SELECT</string>
+    <string name="button_home">切换屏幕</string>
 
     <string name="nnf_new_folder">New folder</string>
     <string name="nnf_create_folder_error">Failed to create folder</string>
