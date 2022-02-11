@@ -227,7 +227,7 @@
     <string name="accurate_mul_fast">Rápido</string>
     <string name="accurate_mul_accurate">Precisión</string>
 
-    <string name="region_invalid">Inválido</string>
+    <string name="region_global">Global</string>
     <string name="region_japan">日本</string>
     <string name="region_north_america">North America</string>
     <string name="region_europe">Europe</string>
@@ -238,7 +238,8 @@
 
     <string name="game_emulation_info">Formatos soportados: .CCI, .CXI, .3DS, .3DSX</string>
     <string name="application_emulation_info">La aplicación se instalará en "citra-emu/sdmc"</string>
-    <string name="toggle_list">Lista de alternancia</string>
+    <string name="cheat_list">Cheat List</string>
+    <string name="edit_cheat">Edit Cheat</string>
     <string name="reset_setting">Resetear ajustes</string>
     <string name="installed_app">(Instalado: %1$s)</string>
     <string name="playtime_desc">Play Time: %1$s</string>

@@ -238,7 +238,8 @@
 
     <string name="game_emulation_info">下拉刷新\n长按游戏编辑金手指\n文件支持：.CCI，.CXI，.3DS，.3DSX</string>
     <string name="application_emulation_info">下拉刷新\n长按游戏编辑金手指\n应用将被安装到“citra-emu/sdmc”目录</string>
-    <string name="toggle_list">切换列表</string>
+    <string name="cheat_list">金手指列表</string>
+    <string name="edit_cheat">编辑金手指</string>
     <string name="reset_setting">重置设置</string>
     <string name="installed_app">已安装：%1$s</string>
     <string name="playtime_desc">游戏时长：%1$s</string>

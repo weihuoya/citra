@@ -49,6 +49,7 @@ public:
 private:
     InputManager() = default;
 
+    bool mHomePressed = false;
     std::vector<int> mButtonKeys;
     std::vector<int> mAnalogKeys;
     std::vector<float> mAnalogValues;
