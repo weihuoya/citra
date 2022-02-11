@@ -238,7 +238,8 @@
 
     <string name="game_emulation_info">Pull to refresh\nLong press game to edit cheat\nFile Support: .CCI, .CXI, .3DS, .3DSX</string>
     <string name="application_emulation_info">Pull to refresh\nLong press game to edit cheat\nApp will be installed in \"citra-emu/sdmc\"</string>
-    <string name="toggle_list">Toggle List</string>
+    <string name="cheat_list">Cheat List</string>
+    <string name="edit_cheat">Edit Cheat</string>
     <string name="reset_setting">Reset Setting</string>
     <string name="installed_app">Installed: %1$s</string>
     <string name="playtime_desc">Play Time: %1$s</string>

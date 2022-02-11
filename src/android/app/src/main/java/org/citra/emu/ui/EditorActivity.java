@@ -145,6 +145,7 @@ public final class EditorActivity extends AppCompatActivity {
     private String mGamePath;
     private boolean mReloadText;
     private EditText mEditor;
+    private Button mBtnConfirm;
     private RecyclerView mListView;
     private CheatEntryAdapter mAdapter;
     private List<CheatEntry> mCheats;
@@ -219,21 +220,19 @@ public final class EditorActivity extends AppCompatActivity {
             ShortcutDialog.newInstance(mGamePath).show(getSupportFragmentManager(), "ShortcutDialog");
         });
 
-        Button buttonConfirm = findViewById(R.id.button_confirm);
-        buttonConfirm.setOnClickListener(view -> {
-            saveCheatCode(mGameId);
-            mEditor.clearFocus();
-            finish();
-        });
-
-        Button buttonCancel = findViewById(R.id.button_cancel);
-        buttonCancel.setOnClickListener(view -> {
-            mEditor.clearFocus();
-            finish();
+        mBtnConfirm = findViewById(R.id.button_confirm);
+        mBtnConfirm.setOnClickListener(view -> {
+            toggleListView(mEditor.getVisibility() == View.VISIBLE);
         });
 
         loadCheatFile(mGameId);
         toggleListView(mCheats.size() > 0);
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        saveCheatCode(mGameId);
     }
 
     @Override
@@ -255,10 +254,6 @@ public final class EditorActivity extends AppCompatActivity {
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
-            case R.id.menu_toggle_list:
-                toggleListView(mEditor.getVisibility() == View.VISIBLE);
-                return true;
-
             case R.id.menu_open_archive:
                 jumpToExplore();
                 break;
@@ -288,11 +283,13 @@ public final class EditorActivity extends AppCompatActivity {
                 mReloadText = false;
             }
             mAdapter.loadCheats(mCheats);
+            mBtnConfirm.setText(R.string.edit_cheat);
         } else {
             mListView.setVisibility(View.INVISIBLE);
             mEditor.setVisibility(View.VISIBLE);
             // reload
             mEditor.setText(loadCheatText());
+            mBtnConfirm.setText(R.string.cheat_list);
         }
     }
 
