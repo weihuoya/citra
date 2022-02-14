@@ -157,8 +157,8 @@ static void LoadOverrides(u64 title_id) {
     } else if (title_id == 0x0004000000187E00 || title_id == 0x0004000000169A00) {
         // Picross 2
         Settings::values.disable_clip_coef = true;
-    } else if (title_id == 0x00040000000DCA00) {
-        // Danball Senki W Chou Custom
+    } else if (title_id == 0x00040000000DCA00 || title_id == 0x00040000000F4000) {
+        // Danball Senki W Chou Custom, Danball Senki WARS
         Settings::values.y2r_perform_hack = true;
     } else if (title_id == 0x000400000008B400 || title_id == 0x0004000000030600 ||
                title_id == 0x0004000000030800 || title_id == 0x0004000000030700) {
@@ -381,9 +381,9 @@ System::ResultStatus System::Load(Frontend::EmuWindow& emu_window, const std::st
         FileUtil::CreateFullPath(fmt::format(
             "{}textures/{:016X}/", FileUtil::GetUserPath(FileUtil::UserPath::LoadDir), title_id));
         custom_tex_cache->FindCustomTextures(title_id);
-    }
-    if (Settings::values.preload_textures) {
-        custom_tex_cache->PreloadTextures();
+        if (Settings::values.preload_textures) {
+            custom_tex_cache->PreloadTextures();
+        }
     }
 
     status = ResultStatus::Success;

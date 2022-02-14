@@ -62,6 +62,25 @@
 
     </FrameLayout>
 
+    <View
+        android:id="@+id/dummy_view"
+        android:visibility="invisible"
+        android:layout_centerHorizontal="true"
+        android:layout_alignParentBottom="true"
+        android:layout_width="1px"
+        android:layout_height="1px"/>
+
+    <Button
+        android:text="@android:string/cancel"
+        android:id="@+id/button_cancel"
+        style="@style/Widget.AppCompat.Button.Colored"
+        android:textAllCaps="false"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_toStartOf="@id/dummy_view"
+        android:stateListAnimator="@null"/>
+
     <Button
         android:text="@string/cheat_list"
         android:id="@+id/button_confirm"
@@ -70,7 +89,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
-        android:layout_centerHorizontal="true"
+        android:layout_toEndOf="@id/dummy_view"
         android:stateListAnimator="@null"/>
 
 </RelativeLayout>
