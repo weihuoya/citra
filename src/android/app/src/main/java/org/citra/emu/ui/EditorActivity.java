@@ -144,6 +144,7 @@ public final class EditorActivity extends AppCompatActivity {
     private String mGameName;
     private String mGamePath;
     private boolean mReloadText;
+    private boolean mCancelSave;
     private EditText mEditor;
     private Button mBtnConfirm;
     private RecyclerView mListView;
@@ -220,6 +221,13 @@ public final class EditorActivity extends AppCompatActivity {
             ShortcutDialog.newInstance(mGamePath).show(getSupportFragmentManager(), "ShortcutDialog");
         });
 
+        mCancelSave = false;
+        Button buttonCancel = findViewById(R.id.button_cancel);
+        buttonCancel.setOnClickListener(view -> {
+            mCancelSave = true;
+            finish();
+        });
+
         mBtnConfirm = findViewById(R.id.button_confirm);
         mBtnConfirm.setOnClickListener(view -> {
             toggleListView(mEditor.getVisibility() == View.VISIBLE);
@@ -232,7 +240,9 @@ public final class EditorActivity extends AppCompatActivity {
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        saveCheatCode(mGameId);
+        if (!mCancelSave) {
+            saveCheatCode(mGameId);
+        }
     }
 
     @Override
@@ -246,8 +256,9 @@ public final class EditorActivity extends AppCompatActivity {
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         MenuInflater inflater = getMenuInflater();
+        boolean visible = isMiUiSystem() && CitraDirectory.isExternalStorageLegacy();
         inflater.inflate(R.menu.menu_editor, menu);
-        menu.findItem(R.id.menu_open_archive).setVisible(isMiUiSystem());
+        menu.findItem(R.id.menu_open_archive).setVisible(visible);
         return true;
     }
 
@@ -450,7 +461,7 @@ public final class EditorActivity extends AppCompatActivity {
                         entry.infos.add(line);
                     }
                 } else {
-                    entry.codes.add(line);
+                    entry.codes.add(validateCheat(line));
                 }
             }
         }
@@ -458,6 +469,31 @@ public final class EditorActivity extends AppCompatActivity {
         if (entry.infos.size() > 0 || entry.codes.size() > 0) {
             mCheats.add(entry);
         }
+    }
+
+    private String validateCheat(String line) {
+        StringBuilder sb = new StringBuilder();
+        boolean insertSpace = false;
+        for (int i = 0; i < line.length(); ++i) {
+            char c = line.charAt(i);
+            if (c >= '0' && c <= '9') {
+                sb.append(c);
+                insertSpace = true;
+            } else if (c >= 'a' && c <= 'z') {
+                sb.append(Character.toUpperCase(c));
+                insertSpace = true;
+            } else if (c >= 'A' && c <= 'Z') {
+                sb.append(c);
+                insertSpace = true;
+            } else if (insertSpace) {
+                sb.append(' ');
+                insertSpace = false;
+            }
+        }
+        if (sb.charAt(sb.length() - 1) == ' ') {
+            sb.deleteCharAt(sb.length() - 1);
+        }
+        return sb.toString();
     }
 
     private String loadCheatText() {

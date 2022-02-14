@@ -162,7 +162,8 @@ bool SurfaceParams::CanTexCopy(const SurfaceParams& texcopy_params) const {
                (texcopy_params.height == 1 || texcopy_params.stride == tile_stride) &&
                ((texcopy_params.addr - addr) % tile_stride) + texcopy_params.width <= tile_stride;
     }
-    return FromInterval(texcopy_params.GetInterval()).GetInterval() == texcopy_params.GetInterval();
+    auto copy_interval = texcopy_params.GetInterval();
+    return FromInterval(copy_interval).GetInterval() == copy_interval;
 }
 
 } // namespace OpenGL

@@ -663,7 +663,7 @@ public final class MemoryActivity extends AppCompatActivity {
             String strStop = mEditRegionStop.getText().toString();
             boolean isHex = mHexCheckBox.isChecked();
             int startAddr = GetSigned(Hex2Long(strStart));
-            int stopAddr = GetSigned(Hex2Long(strStop));
+            int stopAddr = strStop.isEmpty() ? -1 : GetSigned(Hex2Long(strStop));
             long value = 0;
             try {
                 value = Long.parseLong(strValue, isHex ? 16 : 10);
@@ -679,7 +679,7 @@ public final class MemoryActivity extends AppCompatActivity {
             String strStart = mEditRegionStart.getText().toString();
             String strStop = mEditRegionStop.getText().toString();
             long start = Hex2Long(strStart);
-            long stop = Hex2Long(strStop);
+            long stop = strStop.isEmpty() ? 0xFFFFFFFFL : Hex2Long(strStop);
             loadMemory(start, stop);
         });
 

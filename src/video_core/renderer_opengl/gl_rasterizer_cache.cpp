@@ -1608,7 +1608,7 @@ bool RasterizerCacheOpenGL::ValidateByReinterpretation(const Surface& surface,
 }
 
 void RasterizerCacheOpenGL::FlushRegion(PAddr addr, u32 size, const Surface& flush_surface) {
-    if (size == 0 || surface_cache.rbegin()->first.upper() < addr) {
+    if (size == 0 || dirty_regions.rbegin()->first.upper() < addr) {
         return;
     }
 
