@@ -485,12 +485,18 @@ public final class EditorActivity extends AppCompatActivity {
             } else if (c >= 'A' && c <= 'Z') {
                 sb.append(c);
                 insertSpace = true;
-            } else if (insertSpace) {
-                sb.append(' ');
-                insertSpace = false;
+            } else if (Character.isWhitespace(c)) {
+                if (insertSpace) {
+                    sb.append(' ');
+                    insertSpace = false;
+                }
+            } else {
+                // invalid cheat code
+                sb.append(line.substring(i));
+                break;
             }
         }
-        if (sb.charAt(sb.length() - 1) == ' ') {
+        if (sb.length() > 0 && sb.charAt(sb.length() - 1) == ' ') {
             sb.deleteCharAt(sb.length() - 1);
         }
         return sb.toString();
