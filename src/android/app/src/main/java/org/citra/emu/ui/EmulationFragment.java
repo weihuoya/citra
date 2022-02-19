@@ -469,6 +469,9 @@ public final class EmulationFragment extends Fragment implements SurfaceHolder.C
     }
 
     public void stopConfiguringControls() {
+        if (!mInputOverlay.isInEditMode()) {
+            return;
+        }
         mBtnDone.setVisibility(View.INVISIBLE);
         mInputOverlay.setInEditMode(false);
     }
@@ -482,7 +485,6 @@ public final class EmulationFragment extends Fragment implements SurfaceHolder.C
 
     public void refreshControls() {
         mInputOverlay.refreshControls();
-        mInputOverlay.invalidate();
     }
 
     private boolean mPreviousHide;
@@ -499,6 +501,9 @@ public final class EmulationFragment extends Fragment implements SurfaceHolder.C
     }
 
     public void stopConfiguringLayout() {
+        if (mResizeOverlayTop.getVisibility() == View.INVISIBLE) {
+            return;
+        }
         InputOverlay.sHideInputOverlay = mPreviousHide;
         refreshControls();
         mResizeOverlayTop.setVisibility(View.INVISIBLE);

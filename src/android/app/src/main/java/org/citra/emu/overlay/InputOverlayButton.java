@@ -6,10 +6,11 @@ import android.graphics.Paint;
 import android.graphics.Rect;
 import org.citra.emu.NativeLibrary;
 
-public final class InputOverlayButton {
+public final class InputOverlayButton implements InputOverlay.InputObject {
     private Bitmap mDefaultBitmap;
     private Bitmap mPressedBitmap;
     private int mPreviousTouchX, mPreviousTouchY;
+    private boolean mPressed;
     private int mPointerId;
     private int[] mButtonIds;
     private int mId;
@@ -40,6 +41,7 @@ public final class InputOverlayButton {
     }
 
     public void onPointerDown(int id, float x, float y) {
+        mPressed = mPointerId != id;
         mPointerId = id;
         for(int buttonId : mButtonIds) {
             NativeLibrary.InputEvent(buttonId, NativeLibrary.ButtonState.PRESSED);
@@ -69,6 +71,12 @@ public final class InputOverlayButton {
 
     public Rect getBounds() {
         return mBounds;
+    }
+
+    public boolean isPressed() {
+        boolean ret = mPressed;
+        mPressed = false;
+        return ret;
     }
 
     public void setBounds(Rect bounds) {
