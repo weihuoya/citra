@@ -6,7 +6,7 @@ import android.graphics.Paint;
 import android.graphics.Rect;
 import org.citra.emu.NativeLibrary;
 
-public final class InputOverlayDpad {
+public final class InputOverlayDpad implements InputOverlay.InputObject {
     private boolean[] mPressStates = new boolean[4];
     private boolean[] mLastStates = new boolean[4];
     private int[] mButtonIds = new int[4];

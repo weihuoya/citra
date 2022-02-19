@@ -18,6 +18,7 @@ import android.view.MotionEvent;
 import android.view.View;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 
 import org.citra.emu.NativeLibrary.ButtonType;
 import org.citra.emu.R;
@@ -25,12 +26,49 @@ import org.citra.emu.ui.EmulationActivity;
 
 public final class InputOverlay extends View {
     public static final String PREF_CONTROLLER_INIT = "InitOverlay";
+    public static final String PREF_INPUT_VISIBLE = "InputVisible";
     public static final String PREF_HAPTIC_FEEDBACK = "UseHapticFeedback";
     public static final String PREF_JOYSTICK_RELATIVE = "JoystickRelative";
     public static final String PREF_CONTROLLER_SCALE = "ControllerScale";
     public static final String PREF_CONTROLLER_ALPHA = "ControllerAlpha";
     public static final String PREF_CONTROLLER_HIDE = "ControllerHide";
     public static final String PREF_SHOW_RIGHT_JOYSTICK = "ShowRightJoystick";
+
+    public interface InputObject {
+        void onConfigureBegin(int x, int y);
+        void onConfigureMove(int x, int y);
+        void onDraw(Canvas canvas, Paint paint);
+        void onPointerDown(int id, float x, float y);
+        void onPointerMove(int id, float x, float y);
+        void onPointerUp(int id, float x, float y);
+        int getButtonId();
+        int getPointerId();
+        Rect getBounds();
+        boolean isPressed();
+    }
+
+    private final int[][] mInputConfigs = new int[][] {
+            {ButtonType.N3DS_BUTTON_A, R.integer.BUTTON_A_X, R.integer.BUTTON_A_Y, R.drawable.a, R.drawable.a_pressed},
+            {ButtonType.N3DS_BUTTON_B, R.integer.BUTTON_B_X, R.integer.BUTTON_B_Y, R.drawable.b, R.drawable.b_pressed},
+            {ButtonType.N3DS_BUTTON_X, R.integer.BUTTON_X_X, R.integer.BUTTON_X_Y, R.drawable.x, R.drawable.x_pressed},
+            {ButtonType.N3DS_BUTTON_Y, R.integer.BUTTON_Y_X, R.integer.BUTTON_Y_Y, R.drawable.y, R.drawable.y_pressed},
+            {ButtonType.N3DS_BUTTON_START, R.integer.BUTTON_START_X, R.integer.BUTTON_START_Y, R.drawable.start, R.drawable.start_pressed},
+            {ButtonType.N3DS_BUTTON_SELECT, R.integer.BUTTON_SELECT_X, R.integer.BUTTON_SELECT_Y, R.drawable.select, R.drawable.select_pressed},
+            {ButtonType.N3DS_BUTTON_ZL, R.integer.TRIGGER_ZL_X, R.integer.TRIGGER_ZL_Y, R.drawable.zl, R.drawable.zl_pressed},
+            {ButtonType.N3DS_BUTTON_ZR, R.integer.TRIGGER_ZR_X, R.integer.TRIGGER_ZR_Y, R.drawable.zr, R.drawable.zr_pressed},
+            {ButtonType.N3DS_BUTTON_L, R.integer.TRIGGER_L_X, R.integer.TRIGGER_L_Y, R.drawable.l, R.drawable.l_pressed},
+            {ButtonType.N3DS_BUTTON_R, R.integer.TRIGGER_R_X, R.integer.TRIGGER_R_Y, R.drawable.r, R.drawable.r_pressed},
+            // dpad
+            {ButtonType.N3DS_DPAD_UP, R.integer.PAD_MAIN_X, R.integer.PAD_MAIN_Y, 0, 0},
+            // stick
+            {ButtonType.N3DS_CPAD_X, R.integer.STICK_MAIN_X, R.integer.STICK_MAIN_Y, 0, 0},
+            // stick
+            {ButtonType.N3DS_STICK_X, R.integer.STICK_RIGHT_X, R.integer.STICK_RIGHT_Y, 0, 0},
+            // combo key
+            {ButtonType.EMU_COMBO_KEY_1, R.integer.COMBO_KEY1_X, R.integer.COMBO_KEY1_Y, R.drawable.one, R.drawable.one_pressed},
+            {ButtonType.EMU_COMBO_KEY_2, R.integer.COMBO_KEY2_X, R.integer.COMBO_KEY2_Y, R.drawable.two, R.drawable.two_pressed},
+            {ButtonType.EMU_COMBO_KEY_3, R.integer.COMBO_KEY3_X, R.integer.COMBO_KEY3_Y, R.drawable.three, R.drawable.three_pressed},
+    };
 
     public static int sControllerScale = 50;
     public static int sControllerAlpha = 100;
@@ -39,14 +77,13 @@ public final class InputOverlay extends View {
     public static boolean sShowRightJoystick = false;
     public static boolean sUseHapticFeedback = false;
 
-    private final ArrayList<InputOverlayButton> mButtons = new ArrayList<>();
-    private final ArrayList<InputOverlayDpad> mDpads = new ArrayList<>();
-    private final ArrayList<InputOverlayJoystick> mJoysticks = new ArrayList<>();
+    private final ArrayList<InputObject> mInputObjects = new ArrayList<>();
+    private final HashMap<Integer, Boolean> mInputVisibles = new HashMap<>();
+    private int mJoystickIndex = 0;
     private boolean mIsLandscape = false;
     private boolean mInEditMode = false;
-    private InputOverlayButton mButtonBeingConfigured;
-    private InputOverlayDpad mDpadBeingConfigured;
-    private InputOverlayJoystick mJoystickBeingConfigured;
+    private boolean mBeingMoved = false;
+    private InputObject mInputBeingConfigured;
     private InputOverlayPointer mOverlayPointer;
     private Paint mPaint;
 
@@ -55,10 +92,17 @@ public final class InputOverlay extends View {
     public InputOverlay(Context context, AttributeSet attrs) {
         super(context, attrs);
         mPaint = new Paint();
+
         mPreferences = PreferenceManager.getDefaultSharedPreferences(context);
         if (!mPreferences.getBoolean(PREF_CONTROLLER_INIT, false)) {
             defaultOverlay();
         }
+
+        int visibles = mPreferences.getInt(PREF_INPUT_VISIBLE, 0xC0);
+        for (int i = 0; i < mInputConfigs.length; ++i) {
+            mInputVisibles.put(mInputConfigs[i][0], ((visibles >> i) & 1) == 0);
+        }
+
         sUseHapticFeedback = mPreferences.getBoolean(InputOverlay.PREF_HAPTIC_FEEDBACK, true);
         sJoystickRelative = mPreferences.getBoolean(InputOverlay.PREF_JOYSTICK_RELATIVE, true);
         sControllerScale = mPreferences.getInt(InputOverlay.PREF_CONTROLLER_SCALE, 50);
@@ -70,29 +114,10 @@ public final class InputOverlay extends View {
     private void defaultOverlay() {
         SharedPreferences.Editor sPrefsEditor = mPreferences.edit();
         Resources res = getResources();
-        int[][] buttons = new int[][] {
-            {ButtonType.N3DS_BUTTON_A, R.integer.BUTTON_A_X, R.integer.BUTTON_A_Y},
-            {ButtonType.N3DS_BUTTON_B, R.integer.BUTTON_B_X, R.integer.BUTTON_B_Y},
-            {ButtonType.N3DS_BUTTON_X, R.integer.BUTTON_X_X, R.integer.BUTTON_X_Y},
-            {ButtonType.N3DS_BUTTON_Y, R.integer.BUTTON_Y_X, R.integer.BUTTON_Y_Y},
-            {ButtonType.N3DS_BUTTON_START, R.integer.BUTTON_START_X, R.integer.BUTTON_START_Y},
-            {ButtonType.N3DS_BUTTON_SELECT, R.integer.BUTTON_SELECT_X, R.integer.BUTTON_SELECT_Y},
-            {ButtonType.N3DS_BUTTON_ZL, R.integer.TRIGGER_ZL_X, R.integer.TRIGGER_ZL_Y},
-            {ButtonType.N3DS_BUTTON_ZR, R.integer.TRIGGER_ZR_X, R.integer.TRIGGER_ZR_Y},
-            {ButtonType.N3DS_BUTTON_L, R.integer.TRIGGER_L_X, R.integer.TRIGGER_L_Y},
-            {ButtonType.N3DS_BUTTON_R, R.integer.TRIGGER_R_X, R.integer.TRIGGER_R_Y},
-            {ButtonType.N3DS_DPAD_UP, R.integer.PAD_MAIN_X, R.integer.PAD_MAIN_Y},
-            {ButtonType.N3DS_CPAD_X, R.integer.STICK_MAIN_X, R.integer.STICK_MAIN_Y},
-            {ButtonType.N3DS_STICK_X, R.integer.STICK_RIGHT_X, R.integer.STICK_RIGHT_Y},
-            {ButtonType.EMU_COMBO_KEY_1, R.integer.COMBO_KEY1_X, R.integer.COMBO_KEY1_Y},
-            {ButtonType.EMU_COMBO_KEY_2, R.integer.COMBO_KEY2_X, R.integer.COMBO_KEY2_Y},
-            {ButtonType.EMU_COMBO_KEY_3, R.integer.COMBO_KEY3_X, R.integer.COMBO_KEY3_Y},
-        };
-
-        for (int[] button : buttons) {
-            int id = button[0];
-            int x = button[1];
-            int y = button[2];
+        for (int[] input : mInputConfigs) {
+            int id = input[0];
+            int x = input[1];
+            int y = input[2];
             float posX = res.getInteger(x) / 100.0f;
             float posY = res.getInteger(y) / 100.0f;
             sPrefsEditor.putFloat(id + "_X", posX);
@@ -100,7 +125,6 @@ public final class InputOverlay extends View {
             sPrefsEditor.putFloat(id + "_XX", posX);
             sPrefsEditor.putFloat(id + "_YY", posY);
         }
-
         sPrefsEditor.putBoolean(PREF_CONTROLLER_INIT, true);
         sPrefsEditor.apply();
     }
@@ -113,25 +137,30 @@ public final class InputOverlay extends View {
         mPaint.setStyle(Paint.Style.FILL);
         canvas.drawPaint(mPaint);
 
+        if (mInEditMode) {
+            final int visible = 0x00FF00;
+            final int invisible = 0xFF0000;
+            for (InputObject input : mInputObjects) {
+                if (mInputVisibles.get(input.getButtonId())) {
+                    mPaint.setColor(visible);
+                } else {
+                    mPaint.setColor(invisible);
+                }
+                mPaint.setAlpha(100);
+                canvas.drawRect(input.getBounds(), mPaint);
+            }
+        }
+
         mPaint.setAlpha((sControllerAlpha * 255) / 100);
-
-        for (InputOverlayButton button : mButtons) {
-            button.onDraw(canvas, mPaint);
-        }
-
-        for (InputOverlayDpad dpad : mDpads) {
-            dpad.onDraw(canvas, mPaint);
-        }
-
-        for (InputOverlayJoystick joystick : mJoysticks) {
-            joystick.onDraw(canvas, mPaint);
+        for (InputObject input : mInputObjects) {
+            input.onDraw(canvas, mPaint);
         }
     }
 
     @SuppressLint("ClickableViewAccessibility")
     @Override
     public boolean onTouchEvent(MotionEvent event) {
-        if (isInEditMode()) {
+        if (mInEditMode) {
             return onTouchWhileEditing(event);
         }
 
@@ -144,33 +173,16 @@ public final class InputOverlay extends View {
             int pointerId = event.getPointerId(pointerIndex);
             float pointerX = event.getX(pointerIndex);
             float pointerY = event.getY(pointerIndex);
-
-            for (InputOverlayJoystick joystick : mJoysticks) {
-                if (joystick.getBounds().contains((int)pointerX, (int)pointerY)) {
-                    joystick.onPointerDown(pointerId, pointerX, pointerY);
-                    isProcessed = true;
-                    break;
-                }
-            }
-
-            for (InputOverlayButton button : mButtons) {
-                if (button.getBounds().contains((int)pointerX, (int)pointerY)) {
-                    button.onPointerDown(pointerId, pointerX, pointerY);
-                    isPressed = true;
+            for (InputObject input : mInputObjects) {
+                if (input.getBounds().contains((int)pointerX, (int)pointerY)) {
+                    input.onPointerDown(pointerId, pointerX, pointerY);
+                    isPressed = input.isPressed();
                     isProcessed = true;
                 }
             }
-
-            for (InputOverlayDpad dpad : mDpads) {
-                if (dpad.getBounds().contains((int)pointerX, (int)pointerY)) {
-                    dpad.onPointerDown(pointerId, pointerX, pointerY);
-                    isPressed = true;
-                    isProcessed = true;
-                }
-            }
-
-            if (!isProcessed && mOverlayPointer != null && mOverlayPointer.getPointerId() == -1)
+            if (!isProcessed && mOverlayPointer != null && mOverlayPointer.getPointerId() == -1) {
                 mOverlayPointer.onPointerDown(pointerId, pointerX, pointerY);
+            }
             break;
         }
         case MotionEvent.ACTION_MOVE: {
@@ -180,43 +192,31 @@ public final class InputOverlay extends View {
                 int pointerId = event.getPointerId(i);
                 float pointerX = event.getX(i);
                 float pointerY = event.getY(i);
-
-                for (InputOverlayJoystick joystick : mJoysticks) {
-                    if (joystick.getPointerId() == pointerId) {
-                        joystick.onPointerMove(pointerId, pointerX, pointerY);
+                if (mOverlayPointer != null && mOverlayPointer.getPointerId() == pointerId) {
+                    mOverlayPointer.onPointerMove(pointerId, pointerX, pointerY);
+                }
+                for (int j = mJoystickIndex; j < mInputObjects.size(); ++j) {
+                    InputObject input = mInputObjects.get(j);
+                    if (input.getPointerId() == pointerId) {
+                        input.onPointerMove(pointerId, pointerX, pointerY);
                         isCaptured = true;
                         isProcessed = true;
                         break;
                     }
                 }
-                if (isCaptured)
+                if (isCaptured) {
                     continue;
-
-                for (InputOverlayButton button : mButtons) {
-                    if (button.getBounds().contains((int)pointerX, (int)pointerY)) {
-                        if (button.getPointerId() == -1) {
-                            button.onPointerDown(pointerId, pointerX, pointerY);
-                            isPressed = true;
-                            isProcessed = true;
-                        }
-                    } else if (button.getPointerId() == pointerId) {
-                        button.onPointerUp(pointerId, pointerX, pointerY);
+                }
+                for (int j = 0; j < mJoystickIndex; ++j) {
+                    InputObject input = mInputObjects.get(j);
+                    if (input.getBounds().contains((int)pointerX, (int)pointerY)) {
+                        input.onPointerDown(pointerId, pointerX, pointerY);
+                        isPressed = input.isPressed();
+                        isProcessed = true;
+                    } else if (input.getPointerId() == pointerId){
+                        input.onPointerUp(pointerId, pointerX, pointerY);
                         isProcessed = true;
                     }
-                }
-
-                for (InputOverlayDpad dpad : mDpads) {
-                    if (dpad.getPointerId() == pointerId) {
-                        dpad.onPointerMove(pointerId, pointerX, pointerY);
-                        if (!isPressed && dpad.isPressed()) {
-                            isPressed = true;
-                        }
-                        isProcessed = true;
-                    }
-                }
-
-                if (mOverlayPointer != null && mOverlayPointer.getPointerId() == pointerId) {
-                    mOverlayPointer.onPointerMove(pointerId, pointerX, pointerY);
                 }
             }
             break;
@@ -228,51 +228,28 @@ public final class InputOverlay extends View {
             int pointerId = event.getPointerId(pointerIndex);
             float pointerX = event.getX(pointerIndex);
             float pointerY = event.getY(pointerIndex);
-
             if (mOverlayPointer != null && mOverlayPointer.getPointerId() == pointerId) {
                 mOverlayPointer.onPointerUp(pointerId, pointerX, pointerY);
             }
-
-            for (InputOverlayJoystick joystick : mJoysticks) {
-                if (joystick.getPointerId() == pointerId) {
-                    joystick.onPointerUp(pointerId, pointerX, pointerY);
+            for (InputObject input : mInputObjects) {
+                if (input.getPointerId() == pointerId) {
+                    input.onPointerUp(pointerId, pointerX, pointerY);
                     isProcessed = true;
                     break;
-                }
-            }
-
-            for (InputOverlayButton button : mButtons) {
-                if (button.getPointerId() == pointerId) {
-                    button.onPointerUp(pointerId, pointerX, pointerY);
-                    isProcessed = true;
-                }
-            }
-
-            for (InputOverlayDpad dpad : mDpads) {
-                if (dpad.getPointerId() == pointerId) {
-                    dpad.onPointerUp(pointerId, pointerX, pointerY);
-                    isProcessed = true;
                 }
             }
             break;
         }
 
         case MotionEvent.ACTION_CANCEL: {
-            isProcessed = true;
-            if (mOverlayPointer != null) {
+            if (mOverlayPointer != null && mOverlayPointer.getPointerId() != -1) {
                 mOverlayPointer.onPointerUp(0, 0, 0);
             }
-
-            for (InputOverlayJoystick joystick : mJoysticks) {
-                joystick.onPointerUp(0, 0, 0);
-            }
-
-            for (InputOverlayButton button : mButtons) {
-                button.onPointerUp(0, 0, 0);
-            }
-
-            for (InputOverlayDpad dpad : mDpads) {
-                dpad.onPointerUp(0, 0, 0);
+            for (InputObject input : mInputObjects) {
+                if (input.getPointerId() != -1) {
+                    input.onPointerUp(0, 0, 0);
+                    isProcessed = true;
+                }
             }
             break;
         }
@@ -296,70 +273,38 @@ public final class InputOverlay extends View {
         switch (event.getAction() & MotionEvent.ACTION_MASK) {
         case MotionEvent.ACTION_DOWN:
         case MotionEvent.ACTION_POINTER_DOWN:
-            if (mButtonBeingConfigured != null || mDpadBeingConfigured != null ||
-                mJoystickBeingConfigured != null)
+            if (mInputBeingConfigured != null) {
                 return false;
-            for (InputOverlayButton button : mButtons) {
-                if (mButtonBeingConfigured == null &&
-                    button.getBounds().contains(pointerX, pointerY)) {
-                    mButtonBeingConfigured = button;
-                    mButtonBeingConfigured.onConfigureBegin(pointerX, pointerY);
-                    return true;
-                }
             }
-
-            for (InputOverlayDpad dpad : mDpads) {
-                if (mDpadBeingConfigured == null && dpad.getBounds().contains(pointerX, pointerY)) {
-                    mDpadBeingConfigured = dpad;
-                    mDpadBeingConfigured.onConfigureBegin(pointerX, pointerY);
-                    return true;
-                }
-            }
-
-            for (InputOverlayJoystick joystick : mJoysticks) {
-                if (mJoystickBeingConfigured == null &&
-                    joystick.getBounds().contains(pointerX, pointerY)) {
-                    mJoystickBeingConfigured = joystick;
-                    mJoystickBeingConfigured.onConfigureBegin(pointerX, pointerY);
+            mBeingMoved = false;
+            for (InputObject input : mInputObjects) {
+                if (input.getBounds().contains(pointerX, pointerY)) {
+                    mInputBeingConfigured = input;
+                    input.onConfigureBegin(pointerX, pointerY);
                     return true;
                 }
             }
             break;
         case MotionEvent.ACTION_MOVE:
-            if (mButtonBeingConfigured != null) {
-                mButtonBeingConfigured.onConfigureMove(pointerX, pointerY);
-                invalidate();
-                return true;
-            }
-            if (mDpadBeingConfigured != null) {
-                mDpadBeingConfigured.onConfigureMove(pointerX, pointerY);
-                invalidate();
-                return true;
-            }
-            if (mJoystickBeingConfigured != null) {
-                mJoystickBeingConfigured.onConfigureMove(pointerX, pointerY);
+            if (mInputBeingConfigured != null) {
+                mBeingMoved = true;
+                mInputBeingConfigured.onConfigureMove(pointerX, pointerY);
                 invalidate();
                 return true;
             }
             break;
         case MotionEvent.ACTION_UP:
         case MotionEvent.ACTION_POINTER_UP:
-            if (mButtonBeingConfigured != null) {
-                saveControlPosition(mButtonBeingConfigured.getButtonId(),
-                                    mButtonBeingConfigured.getBounds());
-                mButtonBeingConfigured = null;
-                return true;
-            }
-            if (mDpadBeingConfigured != null) {
-                saveControlPosition(mDpadBeingConfigured.getButtonId(),
-                                    mDpadBeingConfigured.getBounds());
-                mDpadBeingConfigured = null;
-                return true;
-            }
-            if (mJoystickBeingConfigured != null) {
-                saveControlPosition(mJoystickBeingConfigured.getButtonId(),
-                                    mJoystickBeingConfigured.getBounds());
-                mJoystickBeingConfigured = null;
+            if (mInputBeingConfigured != null) {
+                int id = mInputBeingConfigured.getButtonId();
+                if (mBeingMoved) {
+                    saveControlPosition(id, mInputBeingConfigured.getBounds());
+                } else {
+                    mInputVisibles.put(id, !mInputVisibles.get(id));
+                    onPressedFeedback();
+                    invalidate();
+                }
+                mInputBeingConfigured = null;
                 return true;
             }
             break;
@@ -384,40 +329,27 @@ public final class InputOverlay extends View {
         // Remove all the overlay buttons
         mIsLandscape =
             getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE;
-        mButtons.clear();
-        mDpads.clear();
-        mJoysticks.clear();
+        mInputObjects.clear();
         mOverlayPointer = new InputOverlayPointer();
 
-        if (sHideInputOverlay)
+        if (sHideInputOverlay) {
+            invalidate();
             return;
-
-        int[][] buttons = new int[][] {
-            {ButtonType.N3DS_BUTTON_A, R.drawable.a, R.drawable.a_pressed},
-            {ButtonType.N3DS_BUTTON_B, R.drawable.b, R.drawable.b_pressed},
-            {ButtonType.N3DS_BUTTON_X, R.drawable.x, R.drawable.x_pressed},
-            {ButtonType.N3DS_BUTTON_Y, R.drawable.y, R.drawable.y_pressed},
-            {ButtonType.N3DS_BUTTON_START, R.drawable.start, R.drawable.start_pressed},
-            {ButtonType.N3DS_BUTTON_SELECT, R.drawable.select, R.drawable.select_pressed},
-            {ButtonType.N3DS_BUTTON_L, R.drawable.l, R.drawable.l_pressed},
-            {ButtonType.N3DS_BUTTON_R, R.drawable.r, R.drawable.r_pressed},
-            {ButtonType.N3DS_BUTTON_ZL, R.drawable.zl, R.drawable.zl_pressed},
-            {ButtonType.N3DS_BUTTON_ZR, R.drawable.zr, R.drawable.zr_pressed},
-        };
-        for (int i = 0; i < buttons.length; ++i) {
-            int id = buttons[i][0];
-            int normal = buttons[i][1];
-            int pressed = buttons[i][2];
-            int[] buttonIds = {id};
-            mButtons.add(initializeButton(normal, pressed, id, buttonIds));
         }
 
-        int[][] combokeys = {
-                {ButtonType.EMU_COMBO_KEY_1, R.drawable.one, R.drawable.one_pressed},
-                {ButtonType.EMU_COMBO_KEY_2, R.drawable.two, R.drawable.two_pressed},
-                {ButtonType.EMU_COMBO_KEY_3, R.drawable.three, R.drawable.three_pressed},
-        };
-        for (int i = 0; i < combokeys.length; ++i) {
+        // normal button begin
+        for (int i = 0; i < 10; ++i) {
+            int id = mInputConfigs[i][0];
+            if (mInEditMode || mInputVisibles.get(id)) {
+                int normal = mInputConfigs[i][3];
+                int pressed = mInputConfigs[i][4];
+                int[] buttonIds = {id};
+                mInputObjects.add(initializeButton(normal, pressed, id, buttonIds));
+            }
+        }
+
+        // combo key begin
+        for (int i = 0; i < 3; ++i) {
             String value = mPreferences.getString("combo_key_" + i, "");
             String[] keyStrs = value.split(",");
             ArrayList<Integer> keys = new ArrayList<>();
@@ -427,21 +359,32 @@ public final class InputOverlay extends View {
                 }
             }
             if (keys.size() > 0) {
-                int id = combokeys[i][0];
-                int normal = combokeys[i][1];
-                int pressed = combokeys[i][2];
-                int[] buttonIds = new int[keys.size()];
-                Arrays.setAll(buttonIds, keys::get);
-                mButtons.add(initializeButton(normal, pressed, id, buttonIds));
+                int id = mInputConfigs[mInputConfigs.length - 3 + i][0];
+                if (mInEditMode || mInputVisibles.get(id)) {
+                    int normal = mInputConfigs[mInputConfigs.length - 3 + i][3];
+                    int pressed = mInputConfigs[mInputConfigs.length - 3 + i][4];
+                    int[] buttonIds = new int[keys.size()];
+                    Arrays.setAll(buttonIds, keys::get);
+                    mInputObjects.add(initializeButton(normal, pressed, id, buttonIds));
+                }
             }
         }
 
-        // mDpads.add(initializeDpad(ButtonType.N3DS_CPAD_X));
-        mDpads.add(initializeDpad(ButtonType.N3DS_DPAD_UP));
-        mJoysticks.add(initializeJoystick(ButtonType.N3DS_CPAD_X));
-        if (sShowRightJoystick) {
-            mJoysticks.add(initializeJoystick(ButtonType.N3DS_STICK_X));
+        // dpad begin
+        if (mInEditMode || mInputVisibles.get(ButtonType.N3DS_DPAD_UP)) {
+            mInputObjects.add(initializeDpad(ButtonType.N3DS_DPAD_UP));
         }
+
+        // joystick begin
+        mJoystickIndex = mInputObjects.size();
+        if (mInEditMode || mInputVisibles.get(ButtonType.N3DS_CPAD_X)) {
+            mInputObjects.add(initializeJoystick(ButtonType.N3DS_CPAD_X));
+        }
+        if (sShowRightJoystick && (mInEditMode || mInputVisibles.get(ButtonType.N3DS_STICK_X))) {
+            mInputObjects.add(initializeJoystick(ButtonType.N3DS_STICK_X));
+        }
+
+        invalidate();
     }
 
     private InputOverlayButton initializeButton(int defaultResId, int pressedResId, int id, int[] buttons) {
@@ -583,6 +526,16 @@ public final class InputOverlay extends View {
 
     public void setInEditMode(boolean mode) {
         mInEditMode = mode;
+        if (!mode) {
+            int visibles = 0;
+            for (int i = 0; i < mInputConfigs.length; ++i) {
+                if (!mInputVisibles.get(mInputConfigs[i][0])) {
+                    visibles |= 1 << i;
+                }
+            }
+            mPreferences.edit().putInt(PREF_INPUT_VISIBLE, visibles).apply();
+        }
+        refreshControls();
     }
 
     public static final int[] ResIds = {

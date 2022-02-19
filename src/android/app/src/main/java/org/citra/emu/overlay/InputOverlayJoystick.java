@@ -6,7 +6,7 @@ import android.graphics.Paint;
 import android.graphics.Rect;
 import org.citra.emu.NativeLibrary;
 
-public final class InputOverlayJoystick {
+public final class InputOverlayJoystick implements InputOverlay.InputObject {
     private final int[] mAxisIDs = {0, 0};
     private final float[] mAxises = {0f, 0f};
 
@@ -114,6 +114,10 @@ public final class InputOverlayJoystick {
 
     public Rect getBounds() {
         return mBounds;
+    }
+
+    public boolean isPressed() {
+        return false;
     }
 
     private Bitmap getCurrentBitmap() {

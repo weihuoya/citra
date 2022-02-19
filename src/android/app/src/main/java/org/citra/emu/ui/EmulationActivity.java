@@ -145,6 +145,8 @@ public final class EmulationActivity extends AppCompatActivity {
             sInstance = new WeakReference<>(null);
         } else {
             mMenuVisible = true;
+            mEmulationFragment.stopConfiguringLayout();
+            mEmulationFragment.stopConfiguringControls();
             RunningSettingDialog dialog = RunningSettingDialog.newInstance();
             dialog.show(getSupportFragmentManager(), "RunningSettingDialog");
             dialog.setOnDismissListener(v -> {
@@ -466,13 +468,8 @@ public final class EmulationActivity extends AppCompatActivity {
         Bitmap bitmap = mBitmaps.get(id);
         int dstWidth = bitmap.getWidth();
         int dstHeight = bitmap.getHeight();
-        if (dstWidth > dstHeight) {
-            dstWidth = dstWidth * dimension / dstHeight;
-            dstHeight = dimension;
-        } else {
-            dstHeight = dstHeight * dimension / dstWidth;
-            dstWidth = dimension;
-        }
+        dstHeight = dstHeight * dimension / dstWidth;
+        dstWidth = dimension;
         return Bitmap.createScaledBitmap(mBitmaps.get(id), dstWidth, dstHeight, true);
     }
 }
