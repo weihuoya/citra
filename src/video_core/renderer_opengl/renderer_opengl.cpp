@@ -478,7 +478,7 @@ void RendererOpenGL::RenderToMailbox(const Layout::FramebufferLayout& layout) {
 /// run in present thread
 bool RendererOpenGL::TryPresent() {
     if (mailbox->IsPresentEmpty()) {
-        LOG_DEBUG(Render_OpenGL, "mailbox no frame to present");
+        LOG_TRACE(Render_OpenGL, "mailbox no frame to present");
         return false;
     }
 

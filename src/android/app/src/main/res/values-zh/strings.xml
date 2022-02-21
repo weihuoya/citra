@@ -141,7 +141,7 @@
 
     <string name="emulation_screen_rotation">屏幕旋转</string>
     <string name="menu_emulation_camera">重置摄像头</string>
-    <string name="emulation_edit_layout">编辑按键</string>
+    <string name="emulation_edit_layout">编辑按键/显示隐藏</string>
     <string name="emulation_screen_layout">自定义布局</string>
     <string name="emulation_stop_running">退出游戏</string>
     <string name="emulation_done">确定</string>

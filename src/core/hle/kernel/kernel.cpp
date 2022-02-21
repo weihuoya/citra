@@ -103,7 +103,7 @@ void KernelSystem::Run(ARM_Interface* cpu) {
     // If we don't have a currently active thread then don't execute instructions,
     // instead advance to the next event and try to yield to the next thread
     if (thread_managers[new_cpu_id]->GetCurrentThread() == nullptr) {
-        LOG_TRACE(Core_ARM11, "Core {} idling", current_cpu_id);
+        LOG_TRACE(Core_ARM11, "Core {} idling", new_cpu_id);
         current_cpu->GetTimer().Idle();
         thread_managers[new_cpu_id]->PrepareReschedule();
     } else {

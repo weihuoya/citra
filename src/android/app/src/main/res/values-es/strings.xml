@@ -141,7 +141,7 @@
 
     <string name="emulation_screen_rotation">Rotar pantalla</string>
     <string name="menu_emulation_camera">Resetear Cámara</string>
-    <string name="emulation_edit_layout">Editar posición de controles</string>
+    <string name="emulation_edit_layout">Editar posición de controles/Controles de alternar</string>
     <string name="emulation_screen_layout">Posición de pantalla personalizada</string>
     <string name="emulation_stop_running">Salir</string>
     <string name="emulation_done">Hecho</string>

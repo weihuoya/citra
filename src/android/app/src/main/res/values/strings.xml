@@ -141,7 +141,7 @@
 
     <string name="emulation_screen_rotation">Screen Rotation</string>
     <string name="menu_emulation_camera">Reset Camera</string>
-    <string name="emulation_edit_layout">Edit Buttons</string>
+    <string name="emulation_edit_layout">Edit Buttons/Toggle Controls</string>
     <string name="emulation_screen_layout">Custom Layout</string>
     <string name="emulation_stop_running">Exit Game</string>
     <string name="emulation_done">Done</string>
