@@ -235,7 +235,6 @@ public final class InputOverlay extends View {
                 if (input.getPointerId() == pointerId) {
                     input.onPointerUp(pointerId, pointerX, pointerY);
                     isProcessed = true;
-                    break;
                 }
             }
             break;
@@ -326,14 +325,17 @@ public final class InputOverlay extends View {
     }
 
     public void refreshControls() {
-        // Remove all the overlay buttons
+        int previousSize = mInputObjects.size();
         mIsLandscape =
             getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE;
+        // Remove all the overlay buttons
         mInputObjects.clear();
         mOverlayPointer = new InputOverlayPointer();
 
         if (sHideInputOverlay) {
-            invalidate();
+            if (previousSize > 0) {
+                invalidate();
+            }
             return;
         }
 

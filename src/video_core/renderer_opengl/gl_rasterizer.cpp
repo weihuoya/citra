@@ -1466,7 +1466,6 @@ bool RasterizerOpenGL::AccelerateDisplay(const GPU::Regs::FramebufferConfig& con
     if (framebuffer_addr == 0) {
         return false;
     }
-    MICROPROFILE_SCOPE(OpenGL_CacheManagement);
 
     SurfaceParams src_params;
     src_params.addr = framebuffer_addr;
@@ -1570,7 +1569,7 @@ void RasterizerOpenGL::SamplerInfo::SyncWithConfig(const TextureConfig& config) 
     if (lod_bias != config.lod.bias) {
         lod_bias = config.lod.bias;
         if (GLES) {
-            LOG_DEBUG(Render_OpenGL, "sync sampler lod bias: {}", lod_bias);
+            LOG_TRACE(Render_OpenGL, "sync sampler lod bias: {}", lod_bias);
         } else {
             glSamplerParameterf(s, GL_TEXTURE_LOD_BIAS, lod_bias / 256.0f);
         }
