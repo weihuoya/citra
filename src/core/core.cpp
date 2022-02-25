@@ -116,10 +116,10 @@ static void LoadOverrides(u64 title_id) {
         Settings::values.skip_slow_draw = true;
     } else if (title_id == 0x00040000001CCD00 || title_id == 0x00040000001B4500) {
         // The Alliance Alive
-        Settings::SetFMVHack(!Settings::values.core_downcount_hack);
+        Settings::values.core_downcount_hack = true;
     } else if (title_id == 0x0004000000120900 || title_id == 0x0004000000164300) {
         // Lord of Magna: Maiden Heaven
-        Settings::SetFMVHack(!Settings::values.core_downcount_hack);
+        Settings::values.core_downcount_hack = true;
     } else if (title_id == 0x000400000015CB00) {
         // New Atelier Rorona
         Settings::values.skip_slow_draw = true;
@@ -149,7 +149,7 @@ static void LoadOverrides(u64 title_id) {
     } else if (title_id == 0x000400000008FE00) {
         // 1001 Spikes
         Settings::values.stream_buffer_hack = false;
-        Settings::SetFMVHack(!Settings::values.core_downcount_hack);
+        Settings::values.core_downcount_hack = true;
     } else if (title_id == 0x0004000000049100 || title_id == 0x0004000000030400 ||
                title_id == 0x0004000000049000) {
         // Star Fox 64

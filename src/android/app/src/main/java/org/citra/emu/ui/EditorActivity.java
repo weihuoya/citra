@@ -267,7 +267,7 @@ public final class EditorActivity extends AppCompatActivity {
         switch (item.getItemId()) {
             case R.id.menu_open_archive:
                 jumpToExplore();
-                break;
+                return true;
 
             case R.id.menu_delete_sdmc:
                 deleteAppSdmc();
