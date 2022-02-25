@@ -246,6 +246,7 @@
     <string name="playtime_minutes">%1$s 分钟</string>
     <string name="playtime_hours">%1$s 小时</string>
     <string name="open_app_archive">打开存档目录</string>
+    <string name="current_directory">当前目录</string>
     <string name="delete_app_sdmc">删除安装目录</string>
     <string name="delete_shader_cache">删除着色器缓存</string>
     <string name="delete_confirm_notice">确定删除游戏安装目录？</string>
@@ -276,7 +277,7 @@
     <string name="nnf_create_folder_error">Failed to create folder</string>
     <string name="nnf_name">Name</string>
     <string name="nnf_select_something_first">Please select something first</string>
-    <string name="nnf_need_valid_filename">Please enter or select a valid filename</string>
+    <string name="nnf_need_valid_filename">请输入或选择一个有效的文件名</string>
     <string name="nnf_permission_external_write_denied">Permission to access filesystem denied</string>
     <string name="nnf_filename">Filename</string>
     <string name="nnf_list_ok">@android:string/ok</string>

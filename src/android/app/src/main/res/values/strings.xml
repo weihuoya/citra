@@ -246,6 +246,7 @@
     <string name="playtime_minutes">%1$s minutes</string>
     <string name="playtime_hours">%1$s hours</string>
     <string name="open_app_archive">Open Archive Directory</string>
+    <string name="current_directory">Current Directory</string>
     <string name="delete_app_sdmc">Delete Install Directory</string>
     <string name="delete_shader_cache">Delete Shader Cache</string>
     <string name="delete_confirm_notice">Are you sure to delete the game install directory?</string>
