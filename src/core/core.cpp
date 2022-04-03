@@ -404,7 +404,7 @@ System::ResultStatus System::Init(Frontend::EmuWindow& emu_window, u32 system_mo
     LOG_DEBUG(HW_Memory, "initialized OK");
 
     memory = std::make_unique<Memory::MemorySystem>();
-    timing = std::make_unique<Timing>();
+    timing = std::make_unique<Timing>(Settings::values.cpu_clock_percentage);
     kernel = std::make_unique<Kernel::KernelSystem>(*memory, *timing, system_mode, n3ds_mode);
 
     if (Settings::values.use_cpu_jit) {

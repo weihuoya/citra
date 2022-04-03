@@ -130,8 +130,13 @@ struct Values {
     int current_input_profile_index;          ///< The current input profile index
     std::vector<InputProfile> input_profiles; ///< The list of input profiles
 
+    // Custom Ticks
+    bool custom_ticks;
+    u64 ticks;
+
     // Core
     bool use_cpu_jit;
+    int cpu_clock_percentage;
 
     // Data Storage
     bool use_virtual_sd;

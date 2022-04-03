@@ -6,15 +6,6 @@ std::atomic<bool> NativeLibrary::using_front_camera = false;
 static constexpr char* CLASS = "org/citra/emu/NativeLibrary";
 static NativeLibrary::ImageLoadedHandler s_image_loaded_callback;
 
-// jni for cubeb
-JNIEnv* cubeb_get_jni_env_for_thread() {
-    return JniHelper::GetEnvForThread();
-}
-
-jobject cubeb_jni_get_context_instance() {
-    return NativeLibrary::GetEmulationContext();
-}
-
 void NativeLibrary::Initialize(JNIEnv* env) {
     // todo
 }
