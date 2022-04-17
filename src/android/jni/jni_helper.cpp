@@ -47,6 +47,7 @@ void JniHelper::OnUnload() {
     for (auto& pair : sClassMap) {
         env->DeleteGlobalRef(pair.second);
     }
+    sClassMap.clear();
 }
 
 jobject JniHelper::RectObject(int left, int top, int right, int bottom) {

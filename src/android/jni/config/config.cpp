@@ -37,6 +37,7 @@ void SaveDefault() {
     s_layer.Set(FACTOR_3D, FACTOR_3D.default_value);
     s_layer.Set(LAYOUT_OPTION, LAYOUT_OPTION.default_value);
     s_layer.Set(POST_PROCESSING_SHADER, POST_PROCESSING_SHADER.default_value);
+    s_layer.Set(REMOTE_SHADER_HOST, REMOTE_SHADER_HOST.default_value);
 
     // audio
     s_layer.Set(ENABLE_DSP_LLE, ENABLE_DSP_LLE.default_value);

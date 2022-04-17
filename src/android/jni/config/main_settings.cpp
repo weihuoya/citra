@@ -29,6 +29,8 @@ const ConfigInfo<bool> PRELOAD_TEXTURES{{"Renderer", "preload_textures"}, false}
 const ConfigInfo<Settings::LayoutOption> LAYOUT_OPTION{{"Renderer", "layout_option"},
                                                        Settings::LayoutOption::Default};
 const ConfigInfo<std::string> POST_PROCESSING_SHADER{{"Renderer", "pp_shader_name"}, ""};
+const ConfigInfo<std::string> REMOTE_SHADER_HOST{{"Renderer", "remote_shader_host"},
+                                                 "https://raw.githubusercontent.com/weihuoya/citra/master/cache/"};
 
 // audio
 const ConfigInfo<bool> ENABLE_DSP_LLE{{"Audio", "enable_dsp_lle"}, false};
