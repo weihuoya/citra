@@ -13,7 +13,7 @@ class SharedContext_Android;
 class EGLAndroid : public Frontend::EmuWindow {
 public:
     explicit EGLAndroid(bool use_shared_context);
-    ~EGLAndroid();
+    ~EGLAndroid() override;
 
     bool Initialize(ANativeWindow* surface);
     void UpdateSurface(ANativeWindow* surface);

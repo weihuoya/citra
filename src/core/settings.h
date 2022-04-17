@@ -191,7 +191,7 @@ struct Values {
     std::string log_filter;
     std::unordered_map<std::string, bool> lle_modules;
 
-    u32 core_ticks_hack;
+    s64 core_ticks_hack;
     bool core_downcount_hack;
     bool allow_shadow;
     bool use_separable_shader;
@@ -207,6 +207,7 @@ struct Values {
     bool use_linear_filter;
     bool use_present_thread;
     AccurateMul shaders_accurate_mul;
+    std::string remote_shader_host;
 
     // WebService
     bool enable_telemetry;

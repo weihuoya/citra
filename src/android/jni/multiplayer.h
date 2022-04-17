@@ -3,7 +3,7 @@
 #include <string>
 #include <vector>
 
-enum class NetPlayStatus {
+enum class NetPlayStatus : s32 {
     NO_ERROR,
 
     NETWORK_ERROR,

@@ -35,6 +35,7 @@ extern const ConfigInfo<bool> CUSTOM_TEXTURES;
 extern const ConfigInfo<bool> PRELOAD_TEXTURES;
 extern const ConfigInfo<Settings::LayoutOption> LAYOUT_OPTION;
 extern const ConfigInfo<std::string> POST_PROCESSING_SHADER;
+extern const ConfigInfo<std::string> REMOTE_SHADER_HOST;
 
 // audio
 extern const ConfigInfo<bool> ENABLE_DSP_LLE;

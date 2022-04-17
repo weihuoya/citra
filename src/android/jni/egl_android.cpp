@@ -171,6 +171,7 @@ void EGLAndroid::DestroyContext() {
 }
 
 EGLAndroid::~EGLAndroid() {
+    core_context.reset();
     DestroyWindowSurface();
     DestroyContext();
 }

@@ -46,5 +46,5 @@ add_library(main SHARED
             config/config_loader.h
             )
 
-target_link_libraries(main android camera2ndk EGL log core input_common network yuv)
-target_include_directories(main PRIVATE "./" "../../../externals/glad/include/")
+target_link_libraries(main android camera2ndk EGL log core input_common network yuv glad)
+target_include_directories(main PRIVATE "./")

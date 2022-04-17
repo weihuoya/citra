@@ -452,6 +452,7 @@ JNIEXPORT void JNICALL Java_org_citra_emu_NativeLibrary_Run(JNIEnv* env, jclass 
     Settings::values.preload_textures = Config::Get(Config::PRELOAD_TEXTURES);
     Settings::values.layout_option = Config::Get(Config::LAYOUT_OPTION);
     Settings::values.pp_shader_name = Config::Get(Config::POST_PROCESSING_SHADER);
+    Settings::values.remote_shader_host = Config::Get(Config::REMOTE_SHADER_HOST);
     // audio
     Settings::values.enable_dsp_lle = Config::Get(Config::ENABLE_DSP_LLE);
     Settings::values.enable_dsp_lle_multithread = Config::Get(Config::DSP_LLE_MULTITHREAD);
