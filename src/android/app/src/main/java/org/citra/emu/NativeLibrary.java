@@ -3,6 +3,7 @@ package org.citra.emu;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Context;
+import android.content.res.AssetManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Rect;
@@ -19,8 +20,8 @@ import java.util.HashMap;
 
 import org.citra.emu.ui.EmulationActivity;
 import org.citra.emu.ui.MainActivity;
-import org.citra.emu.utils.NetPlayManager;
 import org.citra.emu.utils.TranslateHelper;
+import org.citra.emu.utils.WebRequestHandler;
 
 public final class NativeLibrary {
 
@@ -28,7 +29,7 @@ public final class NativeLibrary {
         System.loadLibrary("main");
     }
 
-    public static HashMap<Integer, ParcelFileDescriptor> SafFileDescriptorMap = new HashMap<>();
+    static HashMap<Integer, ParcelFileDescriptor> SafFileDescriptorMap = new HashMap<>();
 
     public static int SafOpen(String path, String mode) {
         Context context = getMainContext();
@@ -97,6 +98,38 @@ public final class NativeLibrary {
         return ret;
     }
 
+    static WebRequestHandler RemoteFileHandler = null;
+    public static boolean RemoteFileOpen(String url) {
+        if (RemoteFileHandler != null) {
+            RemoteFileHandler.close();
+        }
+        RemoteFileHandler = WebRequestHandler.Create(url);
+        return RemoteFileHandler != null;
+    }
+
+    public static byte[] RemoteFileData() {
+        if (RemoteFileHandler != null) {
+            return RemoteFileHandler.data();
+        } else {
+            return null;
+        }
+    }
+
+    public static int RemoteFileRead() {
+        if (RemoteFileHandler != null) {
+            return RemoteFileHandler.read();
+        } else {
+            return 0;
+        }
+    }
+
+    public static void RemoteFileClose() {
+        if (RemoteFileHandler != null) {
+            RemoteFileHandler.close();
+            RemoteFileHandler = null;
+        }
+    }
+
     public interface OnScreenshotCompleteListener {
         void OnScreenshotComplete(int width, int height, int[] pixels);
     }
@@ -107,6 +140,17 @@ public final class NativeLibrary {
 
     public static Context getEmulationContext() {
         return EmulationActivity.get();
+    }
+
+    public static AssetManager getAssetManager() {
+        Context context = getMainContext();
+        if (context == null) {
+            context = getEmulationContext();
+            if (context == null) {
+                return null;
+            }
+        }
+        return context.getAssets();
     }
 
     public static void notifyGameShudown() {
@@ -275,89 +319,72 @@ public final class NativeLibrary {
                 name.endsWith(".cxi") || name.endsWith(".app") || name.endsWith(".3dsx"));
     }
 
-    public static void addNetPlayMessage(int type, String message) {
-        NetPlayManager.AddNetPlayMessage(type, message);
-    }
-
+    /**
+     * meta info
+     */
     public static native String GetAppId(String path);
-
     public static native String GetAppTitle(String path);
-
     public static native byte[] GetAppIcon(String path);
-
     public static native int GetAppRegion(String path);
-
     public static native boolean IsAppExecutable(String path);
-
     public static native boolean IsAppVisible(String path);
 
-    public static native void InstallCIA(String[] path);
-
+    /**
+     * emulation
+     */
     public static native void SetUserPath(String path);
-
+    public static native void loadAmiibo(String path);
+    public static native void InstallCIA(String[] path);
     public static native void HandleImage(int[] pixels, int width, int height);
-
-    public static native void SetBackgroundImage(int[] pixels, int width, int height);
-
-    public static native void ResetCamera();
-
     public static native void Screenshot(OnScreenshotCompleteListener listener);
 
+    /**
+     * input
+     */
     // input overlay
     public static native void InputEvent(int button, float value);
-
     // touch screen
     public static native void TouchEvent(int action, int x, int y);
-
     // gamepad
     public static native boolean KeyEvent(int button, int action);
     public static native void MoveEvent(int axis, float value);
-
     // edit box
     public static native void KeyboardEvent(int type, String text);
 
+    /**
+     * emulation
+     */
     public static native boolean IsRunning();
-
     public static native void SurfaceChanged(Surface surf);
-
     public static native void SurfaceDestroyed();
-
     public static native void WindowChanged();
-
     public static native void DoFrame();
-
     public static native void Run(String path);
-
     public static native void ResumeEmulation();
-
     public static native void PauseEmulation();
-
     public static native void StopEmulation();
 
+    /**
+     * running settings
+     */
     public static native int[] getRunningSettings();
-
     public static native void setRunningSettings(int[] settings);
-
     public static native void setCustomLayout(boolean isTopScreen, int left, int top, int right, int bottom);
-
     public static native Rect getCustomLayout(boolean isTopScreen);
-
-    public static native int[] searchMemory(int startAddr, int stopAddr, int valueType, int searchType, int scanType, int value);
-
-    public static native int[] getSearchResults();
-
-    public static native void resetSearchResults();
-
-    public static native int[] loadPageTable();
-
-    public static native byte[] loadPage(int index);
-
-    public static native int readMemory(int addr, int valueType);
-    public static native void writeMemory(int addr, int valueType, int value);
-
+    public static native void SetBackgroundImage(int[] pixels, int width, int height);
+    public static native void ResetCamera();
     public static native void reloadCheatCode();
 
-    public static native void loadAmiibo(String path);
+    /**
+     * memory editor
+     */
+    public static native int[] searchMemory(int startAddr, int stopAddr, int valueType, int searchType, int scanType, int value);
+    public static native int[] getSearchResults();
+    public static native void resetSearchResults();
+    public static native int[] loadPageTable();
+    public static native byte[] loadPage(int index);
+    public static native int readMemory(int addr, int valueType);
+    public static native void writeMemory(int addr, int valueType, int value);
 
     /**
      * Button type for use in onTouchEvent
