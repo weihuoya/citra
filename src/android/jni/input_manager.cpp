@@ -86,10 +86,7 @@ public:
 
     void DestroyButton(AnalogButton* target) {
         std::lock_guard<std::mutex> guard(mutex);
-        auto iter =
-            std::remove_if(buttons.begin(), buttons.end(),
-                           [target](const AnalogButton* button) { return button == target; });
-        buttons.erase(iter, buttons.end());
+        buttons.erase(std::remove(buttons.begin(), buttons.end(), target), buttons.end());
     }
 
     bool ChangeButtonValue(int button_id, float value) {
@@ -166,9 +163,7 @@ public:
 
     void DestroyButton(Joystick* target) {
         std::lock_guard<std::mutex> guard(mutex);
-        auto iter = std::remove_if(buttons.begin(), buttons.end(),
-                                   [target](const Joystick* button) { return button == target; });
-        buttons.erase(iter, buttons.end());
+        buttons.erase(std::remove(buttons.begin(), buttons.end(), target), buttons.end());
     }
 
     bool ChangeJoystickStatus(int button_id, float x, float y) {

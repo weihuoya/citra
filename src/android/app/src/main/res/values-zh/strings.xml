@@ -212,7 +212,7 @@
     <string name="clear_input_binding">清除</string>
     <string name="save">保存</string>
     <string name="menu_cheat_code">金手指</string>
-    <string name="cheat_code">[CHEAT NAME]\n*citra_enabled\nFEDCBA98 76543210</string>
+    <string name="cheat_code">[金手指名称]\n*citra_enabled\nFEDCBA98 76543210</string>
     <string name="write_permission_needed">模拟器需要允许对外部存储的读写权限才能工作。</string>
     <string name="camera_permission_needed">You need to allow take photos for the emulator to work.</string>
     <string name="record_permission_needed">You need to allow record audio for the emulator to work.</string>

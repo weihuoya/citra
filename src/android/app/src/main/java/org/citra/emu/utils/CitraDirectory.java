@@ -106,6 +106,12 @@ public final class CitraDirectory {
             info.name = NativeLibrary.GetAppTitle(path);
             info.region = NativeLibrary.GetAppRegion(path);
             info.icon = NativeLibrary.GetAppIcon(path);
+            if (!isExternalStorageLegacy()) {
+                int idx = info.name.indexOf("%2F");
+                if (idx > 0) {
+                    info.name = info.name.substring(idx + 3);
+                }
+            }
             mIconCache.addIconToDB(info);
         }
         // get name from title db
@@ -162,11 +168,13 @@ public final class CitraDirectory {
     private static void initializeExternalStorage(Context context) {
         File shaders = new File(getShadersDirectory());
         File sysdata = new File(getSysDataDirectory());
+        File config = new File(getConfigDirectory());
         File nand = new File(getNandDirectory());
         File sdmc = new File(getSDMCDirectory());
         File theme = new File(getThemeDirectory());
         copyAssetFolder("shaders", shaders, false, context);
         copyAssetFolder("sysdata", sysdata, false, context);
+        copyAssetFolder("config", config, false, context);
         copyAssetFolder("nand", nand, false, context);
         copyAssetFolder("sdmc", sdmc, false, context);
         if (theme.exists() || theme.mkdir()) {
@@ -187,12 +195,16 @@ public final class CitraDirectory {
     }
 
     public static String getConfigFile() {
-        return getUserDirectory() + File.separator + "config" + File.separator + "config-mmj.ini";
+        return getConfigDirectory() + File.separator + "config-mmj.ini";
     }
 
     public static File getGameListFile() {
         String path = getUserDirectory() + File.separator + "gamelist.bin";
         return new File(path);
+    }
+
+    public static String getConfigDirectory() {
+        return getUserDirectory() + File.separator + "config";
     }
 
     public static String getShadersDirectory() {
