@@ -1728,7 +1728,7 @@ do {
         }
     }
 
-    out += '}';
+    out += "}\n";
 
     return out;
 }

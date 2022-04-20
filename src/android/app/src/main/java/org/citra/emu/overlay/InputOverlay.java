@@ -326,6 +326,7 @@ public final class InputOverlay extends View {
 
     public void refreshControls() {
         int previousSize = mInputObjects.size();
+        mJoystickIndex = 0;
         mIsLandscape =
             getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE;
         // Remove all the overlay buttons

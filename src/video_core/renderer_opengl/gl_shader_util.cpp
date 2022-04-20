@@ -50,8 +50,8 @@ GLuint LoadShader(const char* source, GLenum type) {
 
     std::array<const char*, 2> src_arr{version.data(), source};
     GLuint shader_id = glCreateShader(type);
+    LOG_DEBUG(Render_OpenGL, "Compiling {} shader: {}", debug_type, shader_id);
     glShaderSource(shader_id, static_cast<GLsizei>(src_arr.size()), src_arr.data(), nullptr);
-    LOG_DEBUG(Render_OpenGL, "Compiling {} shader...", debug_type);
     glCompileShader(shader_id);
 
     GLint result = GL_FALSE;

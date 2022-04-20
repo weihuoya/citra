@@ -52,7 +52,7 @@ System::ResultStatus System::RunLoopMultiCores() {
     for (auto& cpu_core : cpu_cores) {
         s64 delay = timing->GetDelayTicks(cpu_core->GetID());
         if (delay > 0) {
-            kernel->Advance(cpu_core.get(), max_delay);
+            kernel->Advance(cpu_core.get(), delay);
             if (delay > max_delay) {
                 max_delay = delay;
                 current_core_to_execute = cpu_core.get();
