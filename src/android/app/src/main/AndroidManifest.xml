@@ -100,12 +100,6 @@
             android:screenOrientation="behind"
             android:theme="@style/CitraBase" />
         <activity
-            android:name=".ui.SystemFilesActivity"
-            android:configChanges="orientation|screenSize"
-            android:exported="false"
-            android:label="@string/emulation_system_files"
-            android:theme="@style/CitraBase" />
-        <activity
             android:name=".ui.AboutActivity"
             android:label="@string/about"
             android:screenOrientation="portrait"

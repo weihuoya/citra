@@ -20,6 +20,7 @@ import java.util.HashMap;
 
 import org.citra.emu.ui.EmulationActivity;
 import org.citra.emu.ui.MainActivity;
+import org.citra.emu.utils.NetPlayManager;
 import org.citra.emu.utils.TranslateHelper;
 import org.citra.emu.utils.WebRequestHandler;
 
@@ -317,6 +318,10 @@ public final class NativeLibrary {
         String name = filename.toLowerCase();
         return (name.endsWith(".cci") || name.endsWith(".3ds") || name.endsWith(".elf") ||
                 name.endsWith(".cxi") || name.endsWith(".app") || name.endsWith(".3dsx"));
+    }
+
+    public static void addNetPlayMessage(int type, String message) {
+        NetPlayManager.AddNetPlayMessage(type, message);
     }
 
     /**

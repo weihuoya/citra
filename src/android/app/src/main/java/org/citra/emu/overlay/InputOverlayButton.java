@@ -41,7 +41,10 @@ public final class InputOverlayButton implements InputOverlay.InputObject {
     }
 
     public void onPointerDown(int id, float x, float y) {
-        mPressed = mPointerId != id;
+        if (mPointerId == id) {
+            return;
+        }
+        mPressed = true;
         mPointerId = id;
         for(int buttonId : mButtonIds) {
             NativeLibrary.InputEvent(buttonId, NativeLibrary.ButtonState.PRESSED);

@@ -41,7 +41,7 @@ enum class ExitMethod {
 struct Subroutine {
     /// Generates a name suitable for GLSL source code.
     std::string GetName() const {
-        return "sub_" + std::to_string(begin) + "_" + std::to_string(end);
+        return fmt::format("sub_{}_{}", begin, end);
     }
 
     u32 begin;              ///< Entry point of the subroutine.
@@ -283,17 +283,11 @@ private:
     /// Generates condition evaluation code for the flow control instruction.
     static std::string EvaluateCondition(Instruction::FlowControlType flow_control) {
         using Op = Instruction::FlowControlType::Op;
-
-        std::string result_x =
-            flow_control.refx.Value() ? "conditional_code.x" : "!conditional_code.x";
-        std::string result_y =
-            flow_control.refy.Value() ? "conditional_code.y" : "!conditional_code.y";
-
         switch (flow_control.op) {
         case Op::JustX:
-            return result_x;
+            return flow_control.refx.Value() ? "conditional_code.x" : "!conditional_code.x";
         case Op::JustY:
-            return result_y;
+            return flow_control.refy.Value() ? "conditional_code.y" : "!conditional_code.y";
         case Op::Or:
         case Op::And: {
             std::string and_or = flow_control.op == Op::Or ? "any" : "all";
@@ -303,6 +297,14 @@ private:
             } else if (!flow_control.refx.Value() && !flow_control.refy.Value()) {
                 bvec = "not(conditional_code)";
             } else {
+                std::string result_x{"!conditional_code.x"};
+                std::string result_y{"!conditional_code.y"};
+                if (flow_control.refx.Value()) {
+                    result_x.erase(result_x.begin());
+                }
+                if (flow_control.refy.Value()) {
+                    result_y.erase(result_y.begin());
+                }
                 bvec = "bvec2(" + result_x + ", " + result_y + ")";
             }
             return and_or + "(" + bvec + ")";
@@ -454,11 +456,7 @@ private:
             }
 
             case OpCode::Id::MUL: {
-                if (sanitize_mul) {
-                    SetDest(swizzle, dest_reg, "mul_safe(" + src1 + ", " + src2 + ")", 4, 4);
-                } else {
-                    SetDest(swizzle, dest_reg, src1 + " * " + src2, 4, 4);
-                }
+                SetDest(swizzle, dest_reg, "mul_safe(" + src1 + ", " + src2 + ")", 4, 4);
                 break;
             }
 
@@ -615,13 +613,7 @@ private:
                         : (instr.mad.dest.Value() < 0x20)
                               ? "reg_tmp" + std::to_string(instr.mad.dest.Value().GetIndex())
                               : "";
-
-                if (sanitize_mul) {
-                    SetDest(swizzle, dest_reg, "mul_safe(" + src1 + ", " + src2 + ") + " + src3,
-                            4, 4);
-                } else {
-                    SetDest(swizzle, dest_reg, src1 + " * " + src2 + " + " + src3, 4, 4);
-                }
+                SetDest(swizzle, dest_reg, fmt::format("fma_safe({}, {}, {})", src1, src2, src3), 4, 4);
             } else {
                 LOG_ERROR(HW_GPU, "Unhandled multiply-add instruction: 0x{:02x} ({}): 0x{:08x}",
                           (int)instr.opcode.Value().EffectiveOpCode(),
@@ -797,15 +789,18 @@ private:
         std::string mul_safe{"#define mul_safe(x, y) (x * y)"};
         std::string rcp_safe{"#define rcp_safe(x) (1.0f / x)"};
         std::string rsq_safe{"#define rsq_safe(x) inversesqrt(x)"};
+        std::string fma_safe{"#define fma_safe(x, y, z) fma(x, y, z)"};
         if (sanitize_mul == 1) {
             // Use a cheaper sanitize_mul on Android, as mobile GPUs struggle here
             // This seems to be sufficient at least for Ocarina of Time and Attack on Titan accurate
             // multiplication bugs
             mul_safe = "#define mul_safe(x, y) mix(x * y, vec4(0.0), isnan(x * y))";
+            fma_safe = "#define fma_safe(x, y, z) (mul_safe(x, y) + z)";
         } else if (sanitize_mul == 2) {
             // On the PICA200, "infinity * 0 = 0" but in OpenGL "infinity * 0 = NaN"
             // infinity = 1.0 / 0.0;
             mul_safe = "#define mul_safe(x, y) mix(x * y, vec4(0.0), isnan(x * y))";
+            fma_safe = "#define fma_safe(x, y, z) (mul_safe(x, y) + z)";
             // rcp_safe = "#define rcp_safe(x) mix(1.0f / x, 0.0f, x == 0.0f)";
             // rsq_safe = "#define rsq_safe(x) mix(inversesqrt(x), 0.0f, x == 0.0f)";
             rcp_safe = R"(
@@ -824,6 +819,7 @@ float rsq_safe(float x) {
         shader.AddLine(mul_safe);
         shader.AddLine(rcp_safe);
         shader.AddLine(rsq_safe);
+        shader.AddLine(fma_safe);
 
         // Add declarations for registers
         shader.AddLine("bvec2 conditional_code = bvec2(false);");
@@ -893,7 +889,7 @@ float rsq_safe(float x) {
             }
 
             --shader.scope;
-            shader.AddLine("}\n");
+            shader.AddLine("}");
 
             DEBUG_ASSERT(shader.scope == 0);
         }
