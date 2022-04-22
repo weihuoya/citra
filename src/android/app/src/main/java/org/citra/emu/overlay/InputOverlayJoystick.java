@@ -8,7 +8,7 @@ import org.citra.emu.NativeLibrary;
 
 public final class InputOverlayJoystick implements InputOverlay.InputObject {
     private final int[] mAxisIDs = {0, 0};
-    private final float[] mAxises = {0f, 0f};
+    private final double[] mAxises = {0, 0};
 
     private Bitmap mOuterBitmap;
     private Bitmap mDefaultInnerBitmap;
@@ -77,8 +77,8 @@ public final class InputOverlayJoystick implements InputOverlay.InputObject {
 
     private void setJoystickState(float touchX, float touchY) {
         if (mPointerId != -1) {
-            float maxY = mOuterBounds.bottom;
-            float maxX = mOuterBounds.right;
+            double maxY = mOuterBounds.bottom;
+            double maxX = mOuterBounds.right;
             touchX -= mOuterBounds.centerX();
             maxX -= mOuterBounds.centerX();
             touchY -= mOuterBounds.centerY();
@@ -86,22 +86,23 @@ public final class InputOverlayJoystick implements InputOverlay.InputObject {
             mAxises[0] = touchX / maxX;
             mAxises[1] = touchY / maxY;
         } else {
-            mAxises[0] = mAxises[1] = 0.0f;
+            mAxises[0] = mAxises[1] = 0;
         }
 
         // Clamp the circle pad input to a circle
-        float radius = (float) Math.sqrt(mAxises[0] *  mAxises[0] + mAxises[1] * mAxises[1]);
-        if(radius > 1.0f)
-        {
-            float angle = (float) Math.atan2(mAxises[1], mAxises[0]);
-            mAxises[0] = ((float)Math.cos(angle) * 1.0f);
-            mAxises[1] = ((float)Math.sin(angle) * 1.0f);
+        double radius = Math.sqrt(mAxises[0] *  mAxises[0] + mAxises[1] * mAxises[1]);
+        if(radius > 1.0) {
+            double angle = Math.atan2(mAxises[1], mAxises[0]);
+            mAxises[0] = Math.cos(angle);
+            mAxises[1] = Math.sin(angle);
         }
 
         updateInnerBounds();
 
-        NativeLibrary.InputEvent(mAxisIDs[0], mAxises[0]);
-        NativeLibrary.InputEvent(mAxisIDs[1], mAxises[1]);
+        double x = 1.0 - (1 - mAxises[0]) * (1 - mAxises[0]);
+        double y = 1.0 - (1 - mAxises[1]) * (1 - mAxises[1]);
+        NativeLibrary.InputEvent(mAxisIDs[0], (float)x);
+        NativeLibrary.InputEvent(mAxisIDs[1], (float)y);
     }
 
     public int getButtonId() {
@@ -125,13 +126,13 @@ public final class InputOverlayJoystick implements InputOverlay.InputObject {
     }
 
     private void updateInnerBounds() {
-        float centerX = mOuterBounds.centerX();
-        float centerY = mOuterBounds.centerY();
-        float halfWidth = mOuterBounds.width() / 2.0f;
-        float halfHeight = mOuterBounds.height() / 2.0f;
+        double centerX = mOuterBounds.centerX();
+        double centerY = mOuterBounds.centerY();
+        double halfWidth = mOuterBounds.width() / 2.0;
+        double halfHeight = mOuterBounds.height() / 2.0;
 
-        float x = centerX + mAxises[0] * halfWidth;
-        float y = centerY + mAxises[1] * halfHeight;
+        double x = centerX + mAxises[0] * halfWidth;
+        double y = centerY + mAxises[1] * halfHeight;
 
         if (x > centerX + halfWidth)
             x = centerX + halfWidth;
@@ -143,6 +144,6 @@ public final class InputOverlayJoystick implements InputOverlay.InputObject {
         if (y < centerY - halfHeight)
             y = centerY - halfHeight;
 
-        mInnerBounds.offsetTo((int)(x - mInnerBounds.width() / 2.0f), (int)(y - mInnerBounds.height() / 2.0f));
+        mInnerBounds.offsetTo((int)(x - mInnerBounds.width() / 2.0), (int)(y - mInnerBounds.height() / 2.0));
     }
 }

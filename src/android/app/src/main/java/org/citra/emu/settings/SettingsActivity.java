@@ -97,8 +97,10 @@ public final class SettingsActivity extends AppCompatActivity {
     public boolean onOptionsItemSelected(MenuItem item) {
         if (item.getItemId() == R.id.menu_reset_setting) {
             File ini = new File(CitraDirectory.getConfigFile());
+            File ini2 = new File(CitraDirectory.getConfigDirectory() + "/config-games.ini");
             try {
                 ini.delete();
+                ini2.delete();
             } catch (Exception e) {
                 // ignore
             }
