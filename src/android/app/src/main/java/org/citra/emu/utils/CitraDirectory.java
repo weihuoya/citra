@@ -251,10 +251,6 @@ public final class CitraDirectory {
         return getSDMCDirectory() + "/Nintendo 3DS/00000000000000000000000000000000/00000000000000000000000000000000/title";
     }
 
-    public static File getShaderCacheFile(String programId) {
-        return new File(getUserDirectory() + "/Cache/" + programId + ".cache");
-    }
-
     public static void saveInputOverlay(Context context) {
         final int[] inputIds = InputOverlay.ResIds;
         final String[] inputNames = InputOverlay.ResNames;

@@ -354,8 +354,13 @@ public final class EditorActivity extends AppCompatActivity {
     }
 
     private void deleteShaderCache() {
-        File cache = CitraDirectory.getShaderCacheFile(mGameId);
+        String dir = CitraDirectory.getUserDirectory() + "/Cache/";
+        File cache = new File(dir + mGameId + ".cache");
+        File shader = new File(dir + mGameId + ".shader");
+        File meta = new File(dir + mGameId + ".shader.meta");
         if (cache.exists()) {
+            shader.delete();
+            meta.delete();
             if (cache.delete()) {
                 Toast.makeText(this, R.string.delete_success, Toast.LENGTH_SHORT).show();
             }
