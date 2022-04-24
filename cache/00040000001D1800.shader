@@ -1,4 +1,4 @@
-// shader: 8B31, 06F56F2630B83832
+// shader: 8B31, 36F55378B7FE8570
 
 struct pica_uniforms {
     bool b[16];
@@ -7,7 +7,6 @@ struct pica_uniforms {
 };
 
 bool exec_shader();
-
 
 #define uniforms vs_uniforms
 layout (std140) uniform vs_config {
@@ -30,10 +29,7 @@ void main() {
     exec_shader();
 }
 
-#define fma_safe(x, y, z) mix(fma(x, y, z), vec4(0.0), isnan(fma(x, y, z)))
-#define mul_safe(x, y) mix(x * y, vec4(0.0), isnan(x * y))
-#define rcp_safe(x) (1.0f / x)
-#define rsq_safe(x) inversesqrt(x)
+// accurate_mul: fast
 bvec2 conditional_code = bvec2(false);
 ivec3 address_registers = ivec3(0);
 vec4 reg_tmp0 = vec4(0.0, 0.0, 0.0, 1.0);
@@ -81,34 +77,34 @@ bool exec_shader() {
 
 bool sub_0_4096() {
     // 0: max
-    reg_tmp1 = max(vs_in_reg0, -vs_in_reg0);
+    reg_tmp1 = abs(vs_in_reg0);
     // 1: mova
-    address_registers.xy = ivec2(reg_tmp1.xyyy);
+    address_registers.xy = ivec2(reg_tmp1.xy);
     // 2: nop
     // 3: mov
     reg_tmp2 = uniforms.f[18 + address_registers.x];
     // 4: mov
     reg_tmp3 = uniforms.f[19 + address_registers.x];
     // 5: mul
-    reg_tmp15.xy = (mul_safe(uniforms.f[91 + address_registers.y].xyyy, reg_tmp2.xyyy)).xy;
+    reg_tmp15.xy = (mul_s(uniforms.f[91 + address_registers.y].xyyy, reg_tmp2.xyyy)).xy;
     // 6: add
     reg_tmp15.xy = (reg_tmp15.xyyy + reg_tmp2.zwww).xy;
     // 7: mov
     reg_tmp15.zw = (uniforms.f[95].xyyy).zw;
     // 8: dp4
-    reg_tmp8.x = dot(mul_safe(uniforms.f[8], reg_tmp15), vec4(1.0));
+    reg_tmp8.x = dot_s(uniforms.f[8], reg_tmp15);
     // 9: dp4
-    reg_tmp8.y = dot(mul_safe(uniforms.f[9], reg_tmp15), vec4(1.0));
+    reg_tmp8.y = dot_s(uniforms.f[9], reg_tmp15);
     // 10: dp4
-    reg_tmp8.z = dot(mul_safe(uniforms.f[10], reg_tmp15), vec4(1.0));
+    reg_tmp8.z = dot_s(uniforms.f[10], reg_tmp15);
     // 11: mov
     reg_tmp8.w = (uniforms.f[95].yyyy).w;
     // 12: dp4
-    reg_tmp15.x = dot(mul_safe(uniforms.f[4], reg_tmp8), vec4(1.0));
+    reg_tmp15.x = dot_s(uniforms.f[4], reg_tmp8);
     // 13: dp4
-    reg_tmp15.y = dot(mul_safe(uniforms.f[5], reg_tmp8), vec4(1.0));
+    reg_tmp15.y = dot_s(uniforms.f[5], reg_tmp8);
     // 14: dp4
-    reg_tmp15.z = dot(mul_safe(uniforms.f[6], reg_tmp8), vec4(1.0));
+    reg_tmp15.z = dot_s(uniforms.f[6], reg_tmp8);
     // 15: mov
     reg_tmp15.w = (uniforms.f[95].yyyy).w;
     // 16: ifu
@@ -124,13 +120,13 @@ bool sub_0_4096() {
     }
     // 35: nop
     // 36: dp4
-    vs_out_attr0.x = dot(mul_safe(uniforms.f[0], reg_tmp15), vec4(1.0));
+    vs_out_attr0.x = dot_s(uniforms.f[0], reg_tmp15);
     // 37: dp4
-    vs_out_attr0.y = dot(mul_safe(uniforms.f[1], reg_tmp15), vec4(1.0));
+    vs_out_attr0.y = dot_s(uniforms.f[1], reg_tmp15);
     // 38: dp4
-    vs_out_attr0.z = dot(mul_safe(uniforms.f[2], reg_tmp15), vec4(1.0));
+    vs_out_attr0.z = dot_s(uniforms.f[2], reg_tmp15);
     // 39: dp4
-    vs_out_attr0.w = dot(mul_safe(uniforms.f[3], reg_tmp15), vec4(1.0));
+    vs_out_attr0.w = dot_s(uniforms.f[3], reg_tmp15);
     // 40: mov
     vs_out_attr1 = reg_tmp10;
     // 41: ifu
@@ -165,22 +161,22 @@ bool sub_17_24() {
     // 17: mov
     reg_tmp0.z = (reg_tmp15.zzzz).z;
     // 18: max
-    reg_tmp0.z = (max(reg_tmp0.zzzz, -reg_tmp0.zzzz)).z;
+    reg_tmp0.z = (abs(reg_tmp0.zzzz)).z;
     // 19: mov
     reg_tmp0.x = (uniforms.f[11].xxxx).x;
     // 20: add
     reg_tmp0.y = (-uniforms.f[11].yyyy + reg_tmp0.zzzz).y;
     // 21: rcp
-    reg_tmp0.z = rcp_safe(reg_tmp0.zzzz.x);
+    reg_tmp0.z = rcp_s(reg_tmp0.z);
     // 22: mul
-    reg_tmp0.z = (mul_safe(reg_tmp0.yyyy, reg_tmp0.zzzz)).z;
+    reg_tmp0.z = (mul_s(reg_tmp0.yyyy, reg_tmp0.zzzz)).z;
     // 23: mad
-    reg_tmp15.x = (fma_safe(reg_tmp0.xxxx, reg_tmp0.zzzz, reg_tmp15.xxxx)).x;
+    reg_tmp15.x = (fma_s(reg_tmp0.xxxx, reg_tmp0.zzzz, reg_tmp15.xxxx)).x;
     return false;
 }
 bool sub_27_35() {
     // 27: cmp
-    conditional_code = greaterThan(vec2(uniforms.f[95].xxxx), vec2(reg_tmp3.xxxx));
+    conditional_code = greaterThan(uniforms.f[95].xx, reg_tmp3.xx);
     // 28: ifc
     if (conditional_code.x) {
         sub_29_33();
@@ -192,11 +188,11 @@ bool sub_27_35() {
 }
 bool sub_29_33() {
     // 29: max
-    reg_tmp3 = max(reg_tmp3, -reg_tmp3);
+    reg_tmp3 = abs(reg_tmp3);
     // 30: add
     reg_tmp3.x = (reg_tmp3.xxxx + vs_in_reg0.yyyy).x;
     // 31: mova
-    address_registers.y = (ivec2(reg_tmp3.xxxx)).y;
+    address_registers.y = (ivec2(reg_tmp3.xx)).y;
     // 32: mov
     reg_tmp10 = uniforms.f[0 + address_registers.y];
     return false;
@@ -208,7 +204,7 @@ bool sub_33_34() {
 }
 bool sub_42_61() {
     // 42: cmp
-    conditional_code = equal(vec2(uniforms.f[95].zwww), vec2(reg_tmp1.yyyy));
+    conditional_code = equal(uniforms.f[95].zw, reg_tmp1.yy);
     // 43: ifc
     if (all(not(conditional_code))) {
         sub_44_51();
@@ -217,16 +213,16 @@ bool sub_42_61() {
     }
     // 57: nop
     // 58: dp4
-    reg_tmp11.x = dot(mul_safe(uniforms.f[12], reg_tmp10), vec4(1.0));
+    reg_tmp11.x = dot_s(uniforms.f[12], reg_tmp10);
     // 59: dp4
-    reg_tmp11.y = dot(mul_safe(uniforms.f[13], reg_tmp10), vec4(1.0));
+    reg_tmp11.y = dot_s(uniforms.f[13], reg_tmp10);
     // 60: mov
     reg_tmp11.zw = (uniforms.f[95].xxxx).zw;
     return false;
 }
 bool sub_44_51() {
     // 44: cmp
-    conditional_code = equal(vec2(uniforms.f[95].xyyy), vec2(reg_tmp1.yyyy));
+    conditional_code = equal(uniforms.f[95].xy, reg_tmp1.yy);
     // 45: ifc
     if (conditional_code.x) {
         sub_46_48();
@@ -281,7 +277,7 @@ bool sub_61_62() {
 }
 bool sub_65_83() {
     // 65: cmp
-    conditional_code = equal(vec2(uniforms.f[95].zwww), vec2(reg_tmp1.yyyy));
+    conditional_code = equal(uniforms.f[95].zw, reg_tmp1.yy);
     // 66: ifc
     if (all(not(conditional_code))) {
         sub_67_74();
@@ -290,14 +286,14 @@ bool sub_65_83() {
     }
     // 80: nop
     // 81: dp4
-    reg_tmp12.x = dot(mul_safe(uniforms.f[14], reg_tmp10), vec4(1.0));
+    reg_tmp12.x = dot_s(uniforms.f[14], reg_tmp10);
     // 82: dp4
-    reg_tmp12.y = dot(mul_safe(uniforms.f[15], reg_tmp10), vec4(1.0));
+    reg_tmp12.y = dot_s(uniforms.f[15], reg_tmp10);
     return false;
 }
 bool sub_67_74() {
     // 67: cmp
-    conditional_code = equal(vec2(uniforms.f[95].xyyy), vec2(reg_tmp1.yyyy));
+    conditional_code = equal(uniforms.f[95].xy, reg_tmp1.yy);
     // 68: ifc
     if (conditional_code.x) {
         sub_69_71();
@@ -345,7 +341,7 @@ bool sub_77_79() {
     reg_tmp10.zw = (uniforms.f[95].xyyy).zw;
     return false;
 }
-// reference: 96575038AD4BA98D, 06F56F2630B83832
+// reference: 96575038AD4BA98D, 36F55378B7FE8570
 // shader: 8DD9, E4F72E6786B1F5DC
 
 layout(triangles) in;
@@ -471,13 +467,7 @@ void main() {
     EmitPrim(prim_buffer[0], prim_buffer[1], prim_buffer[2]);
 }
 // reference: 83ABF08ECCF76B42, E4F72E6786B1F5DC
-// shader: 8B30, 7BD362BEDDE071ED
-
-precision highp int;
-precision highp float;
-precision highp samplerBuffer;
-precision highp usampler2D;
-precision highp uimage2D;
+// shader: 8B30, 360B6047239AC8BE
 in vec4 primary_color;
 in vec2 texcoord0;
 in vec2 texcoord1;
@@ -639,16 +629,10 @@ combiner_buffer = next_combiner_buffer;
 gl_FragDepth = depth;
 color = byteround(last_tex_env_out);
 }
-// reference: D4F4BEF986CEC0A6, 7BD362BEDDE071ED
-// program: 06F56F2630B83832, E4F72E6786B1F5DC, 7BD362BEDDE071ED
-// reference: 1DB78797AD4BA98D, 06F56F2630B83832
-// shader: 8B30, 4982B44D494E20C9
-
-precision highp int;
-precision highp float;
-precision highp samplerBuffer;
-precision highp usampler2D;
-precision highp uimage2D;
+// reference: D4F4BEF986CEC0A6, 360B6047239AC8BE
+// program: 36F55378B7FE8570, E4F72E6786B1F5DC, 360B6047239AC8BE
+// reference: 1DB78797AD4BA98D, 36F55378B7FE8570
+// shader: 8B30, 28AD7E8A860FE887
 in vec4 primary_color;
 in vec2 texcoord0;
 in vec2 texcoord1;
@@ -809,9 +793,9 @@ combiner_buffer = next_combiner_buffer;
 gl_FragDepth = depth;
 color = byteround(last_tex_env_out);
 }
-// reference: D4F4BEF912097B5D, 4982B44D494E20C9
-// program: 06F56F2630B83832, E4F72E6786B1F5DC, 4982B44D494E20C9
-// shader: 8B31, A0A01900FB0E2CEC
+// reference: D4F4BEF912097B5D, 28AD7E8A860FE887
+// program: 36F55378B7FE8570, E4F72E6786B1F5DC, 28AD7E8A860FE887
+// shader: 8B31, 1A9F70669A3C74DF
 
 struct pica_uniforms {
     bool b[16];
@@ -820,7 +804,6 @@ struct pica_uniforms {
 };
 
 bool exec_shader();
-
 
 #define uniforms vs_uniforms
 layout (std140) uniform vs_config {
@@ -857,10 +840,7 @@ void main() {
     exec_shader();
 }
 
-#define fma_safe(x, y, z) mix(fma(x, y, z), vec4(0.0), isnan(fma(x, y, z)))
-#define mul_safe(x, y) mix(x * y, vec4(0.0), isnan(x * y))
-#define rcp_safe(x) (1.0f / x)
-#define rsq_safe(x) inversesqrt(x)
+// accurate_mul: fast
 bvec2 conditional_code = bvec2(false);
 ivec3 address_registers = ivec3(0);
 vec4 reg_tmp0 = vec4(0.0, 0.0, 0.0, 1.0);
@@ -976,7 +956,7 @@ bool sub_0_4096() {
     // 0: mov
     reg_tmp0.xy = (uniforms.f[89].wwww).xy;
     // 1: cmp
-    conditional_code = equal(vec2(uniforms.f[93].xyyy), vec2(reg_tmp0.xyyy));
+    conditional_code = equal(uniforms.f[93].xy, reg_tmp0.xy);
     // 2: ifc
     if (conditional_code.x) {
         sub_3_5();
@@ -1013,31 +993,31 @@ bool sub_10_175() {
     // 40: mov
     reg_tmp8.w = (uniforms.f[93].yyyy).w;
     // 41: dp3
-    reg_tmp0.w = dot(vec3(mul_safe(reg_tmp11, reg_tmp11)), vec3(1.0));
+    reg_tmp0.w = dot_3(reg_tmp11.xyz, reg_tmp11.xyz);
     // 42: dp3
-    reg_tmp1.w = dot(vec3(mul_safe(reg_tmp12, reg_tmp12)), vec3(1.0));
+    reg_tmp1.w = dot_3(reg_tmp12.xyz, reg_tmp12.xyz);
     // 43: rsq
-    reg_tmp0.w = rsq_safe(reg_tmp0.wwww.x);
+    reg_tmp0.w = rsq_s(reg_tmp0.w);
     // 44: rsq
-    reg_tmp1.w = rsq_safe(reg_tmp1.wwww.x);
+    reg_tmp1.w = rsq_s(reg_tmp1.w);
     // 45: mul
-    reg_tmp11 = mul_safe(reg_tmp11, reg_tmp0.wwww);
+    reg_tmp11 = mul_s(reg_tmp11, reg_tmp0.wwww);
     // 46: mul
-    reg_tmp12 = mul_safe(reg_tmp12, reg_tmp1.wwww);
+    reg_tmp12 = mul_s(reg_tmp12, reg_tmp1.wwww);
     // 47: dp4
-    reg_tmp15.x = dot(mul_safe(uniforms.f[4], reg_tmp8), vec4(1.0));
+    reg_tmp15.x = dot_s(uniforms.f[4], reg_tmp8);
     // 48: dp4
-    reg_tmp15.y = dot(mul_safe(uniforms.f[5], reg_tmp8), vec4(1.0));
+    reg_tmp15.y = dot_s(uniforms.f[5], reg_tmp8);
     // 49: dp4
-    reg_tmp15.z = dot(mul_safe(uniforms.f[6], reg_tmp8), vec4(1.0));
+    reg_tmp15.z = dot_s(uniforms.f[6], reg_tmp8);
     // 50: mov
     reg_tmp15.w = (uniforms.f[93].yyyy).w;
     // 51: dp3
-    reg_tmp14.x = dot(vec3(mul_safe(uniforms.f[4], reg_tmp11)), vec3(1.0));
+    reg_tmp14.x = dot_3(uniforms.f[4].xyz, reg_tmp11.xyz);
     // 52: dp3
-    reg_tmp14.y = dot(vec3(mul_safe(uniforms.f[5], reg_tmp11)), vec3(1.0));
+    reg_tmp14.y = dot_3(uniforms.f[5].xyz, reg_tmp11.xyz);
     // 53: dp3
-    reg_tmp14.z = dot(vec3(mul_safe(uniforms.f[6], reg_tmp11)), vec3(1.0));
+    reg_tmp14.z = dot_3(uniforms.f[6].xyz, reg_tmp11.xyz);
     // 54: mov
     vs_out_attr6 = -reg_tmp15;
     // 55: ifu
@@ -1058,13 +1038,13 @@ bool sub_10_175() {
         sub_125_126();
     }
     // 126: dp4
-    vs_out_attr0.x = dot(mul_safe(uniforms.f[0], reg_tmp15), vec4(1.0));
+    vs_out_attr0.x = dot_s(uniforms.f[0], reg_tmp15);
     // 127: dp4
-    vs_out_attr0.y = dot(mul_safe(uniforms.f[1], reg_tmp15), vec4(1.0));
+    vs_out_attr0.y = dot_s(uniforms.f[1], reg_tmp15);
     // 128: dp4
-    vs_out_attr0.z = dot(mul_safe(uniforms.f[2], reg_tmp15), vec4(1.0));
+    vs_out_attr0.z = dot_s(uniforms.f[2], reg_tmp15);
     // 129: dp4
-    vs_out_attr0.w = dot(mul_safe(uniforms.f[3], reg_tmp15), vec4(1.0));
+    vs_out_attr0.w = dot_s(uniforms.f[3], reg_tmp15);
     // 130: mov
     vs_out_attr1 = reg_tmp10;
     // 131: ifu
@@ -1112,25 +1092,25 @@ bool sub_17_20() {
 }
 bool sub_21_40() {
     // 21: mul
-    reg_tmp15 = mul_safe(uniforms.f[90].xxxx, vs_in_reg0);
+    reg_tmp15 = mul_s(uniforms.f[90].xxxx, vs_in_reg0);
     // 22: mul
-    reg_tmp14 = mul_safe(uniforms.f[90].yyyy, vs_in_reg1);
+    reg_tmp14 = mul_s(uniforms.f[90].yyyy, vs_in_reg1);
     // 23: mul
-    reg_tmp13 = mul_safe(uniforms.f[90].wwww, vs_in_reg2);
+    reg_tmp13 = mul_s(uniforms.f[90].wwww, vs_in_reg2);
     // 24: dp3
-    reg_tmp11.x = dot(vec3(mul_safe(uniforms.f[20], reg_tmp14)), vec3(1.0));
+    reg_tmp11.x = dot_3(uniforms.f[20].xyz, reg_tmp14.xyz);
     // 25: dp3
-    reg_tmp11.y = dot(vec3(mul_safe(uniforms.f[21], reg_tmp14)), vec3(1.0));
+    reg_tmp11.y = dot_3(uniforms.f[21].xyz, reg_tmp14.xyz);
     // 26: dp3
-    reg_tmp11.z = dot(vec3(mul_safe(uniforms.f[22], reg_tmp14)), vec3(1.0));
+    reg_tmp11.z = dot_3(uniforms.f[22].xyz, reg_tmp14.xyz);
     // 27: mov
     reg_tmp11.w = (uniforms.f[93].xxxx).w;
     // 28: dp4
-    reg_tmp8.x = dot(mul_safe(uniforms.f[20], reg_tmp15), vec4(1.0));
+    reg_tmp8.x = dot_s(uniforms.f[20], reg_tmp15);
     // 29: dp4
-    reg_tmp8.y = dot(mul_safe(uniforms.f[21], reg_tmp15), vec4(1.0));
+    reg_tmp8.y = dot_s(uniforms.f[21], reg_tmp15);
     // 30: dp4
-    reg_tmp8.z = dot(mul_safe(uniforms.f[22], reg_tmp15), vec4(1.0));
+    reg_tmp8.z = dot_s(uniforms.f[22], reg_tmp15);
     // 31: ifu
     if (uniforms.b[0]) {
         sub_32_37();
@@ -1142,11 +1122,11 @@ bool sub_21_40() {
 }
 bool sub_32_37() {
     // 32: dp3
-    reg_tmp12.x = dot(vec3(mul_safe(uniforms.f[20], reg_tmp13)), vec3(1.0));
+    reg_tmp12.x = dot_3(uniforms.f[20].xyz, reg_tmp13.xyz);
     // 33: dp3
-    reg_tmp12.y = dot(vec3(mul_safe(uniforms.f[21], reg_tmp13)), vec3(1.0));
+    reg_tmp12.y = dot_3(uniforms.f[21].xyz, reg_tmp13.xyz);
     // 34: dp3
-    reg_tmp12.z = dot(vec3(mul_safe(uniforms.f[22], reg_tmp13)), vec3(1.0));
+    reg_tmp12.z = dot_3(uniforms.f[22].xyz, reg_tmp13.xyz);
     // 35: mov
     reg_tmp12.w = (uniforms.f[93].xxxx).w;
     // 36: nop
@@ -1170,11 +1150,11 @@ bool sub_56_74() {
 }
 bool sub_57_62() {
     // 57: dp3
-    reg_tmp13.x = dot(vec3(mul_safe(uniforms.f[4], reg_tmp12)), vec3(1.0));
+    reg_tmp13.x = dot_3(uniforms.f[4].xyz, reg_tmp12.xyz);
     // 58: dp3
-    reg_tmp13.y = dot(vec3(mul_safe(uniforms.f[5], reg_tmp12)), vec3(1.0));
+    reg_tmp13.y = dot_3(uniforms.f[5].xyz, reg_tmp12.xyz);
     // 59: dp3
-    reg_tmp13.z = dot(vec3(mul_safe(uniforms.f[6], reg_tmp12)), vec3(1.0));
+    reg_tmp13.z = dot_3(uniforms.f[6].xyz, reg_tmp12.xyz);
     // 60: call
     {
         sub_418_483();
@@ -1186,15 +1166,15 @@ bool sub_62_73() {
     // 62: add
     reg_tmp4 = uniforms.f[93].yyyy + reg_tmp14.zzzz;
     // 63: mul
-    reg_tmp4 = mul_safe(uniforms.f[94].zzzz, reg_tmp4);
+    reg_tmp4 = mul_s(uniforms.f[94].zzzz, reg_tmp4);
     // 64: cmp
-    conditional_code = greaterThanEqual(vec2(uniforms.f[93].xxxx), vec2(reg_tmp4.xxxx));
+    conditional_code = greaterThanEqual(uniforms.f[93].xx, reg_tmp4.xx);
     // 65: mov
     vs_out_attr5.w = (uniforms.f[93].xxxx).w;
     // 66: rsq
-    reg_tmp4 = vec4(rsq_safe(reg_tmp4.xxxx.x));
+    reg_tmp4 = vec4(rsq_s(reg_tmp4.x));
     // 67: mul
-    reg_tmp5 = mul_safe(uniforms.f[94].zzzz, reg_tmp14);
+    reg_tmp5 = mul_s(uniforms.f[94].zzzz, reg_tmp14);
     // 68: ifc
     if (!conditional_code.x) {
         sub_69_71();
@@ -1206,9 +1186,9 @@ bool sub_62_73() {
 }
 bool sub_69_71() {
     // 69: rcp
-    vs_out_attr5.z = rcp_safe(reg_tmp4.xxxx.x);
+    vs_out_attr5.z = rcp_s(reg_tmp4.x);
     // 70: mul
-    vs_out_attr5.xy = (mul_safe(reg_tmp5, reg_tmp4)).xy;
+    vs_out_attr5.xy = (mul_s(reg_tmp5, reg_tmp4)).xy;
     return false;
 }
 bool sub_71_72() {
@@ -1227,15 +1207,15 @@ bool sub_76_118() {
     // 77: mov
     reg_tmp1 = uniforms.f[9];
     // 78: dp3
-    reg_tmp3.x = dot(vec3(mul_safe(uniforms.f[77], reg_tmp14)), vec3(1.0));
+    reg_tmp3.x = dot_3(uniforms.f[77].xyz, reg_tmp14.xyz);
     // 79: dp3
-    reg_tmp3.y = dot(vec3(mul_safe(uniforms.f[80], reg_tmp14)), vec3(1.0));
+    reg_tmp3.y = dot_3(uniforms.f[80].xyz, reg_tmp14.xyz);
     // 80: dp3
-    reg_tmp3.z = dot(vec3(mul_safe(uniforms.f[83], reg_tmp14)), vec3(1.0));
+    reg_tmp3.z = dot_3(uniforms.f[83].xyz, reg_tmp14.xyz);
     // 81: dp3
-    reg_tmp3.w = dot(vec3(mul_safe(uniforms.f[86], reg_tmp14)), vec3(1.0));
+    reg_tmp3.w = dot_3(uniforms.f[86].xyz, reg_tmp14.xyz);
     // 82: mul
-    reg_tmp5 = mul_safe(uniforms.f[74], reg_tmp1);
+    reg_tmp5 = mul_s(uniforms.f[74], reg_tmp1);
     // 83: mov
     reg_tmp9 = uniforms.f[93].xxxx;
     // 84: mov
@@ -1243,7 +1223,7 @@ bool sub_76_118() {
     // 85: mov
     reg_tmp2 = uniforms.f[75];
     // 86: cmp
-    conditional_code = equal(vec2(uniforms.f[93].yyyy), vec2(reg_tmp2.xyyy));
+    conditional_code = equal(uniforms.f[93].yy, reg_tmp2.xy);
     // 87: ifc
     if (conditional_code.x) {
         sub_88_93();
@@ -1253,7 +1233,7 @@ bool sub_76_118() {
         sub_94_99();
     }
     // 99: cmp
-    conditional_code = equal(vec2(uniforms.f[93].yyyy), vec2(reg_tmp2.zwww));
+    conditional_code = equal(uniforms.f[93].yy, reg_tmp2.zw);
     // 100: ifc
     if (conditional_code.x) {
         sub_101_106();
@@ -1275,61 +1255,61 @@ bool sub_76_118() {
 }
 bool sub_88_93() {
     // 88: mul
-    reg_tmp4 = mul_safe(uniforms.f[78], reg_tmp0);
+    reg_tmp4 = mul_s(uniforms.f[78], reg_tmp0);
     // 89: max
     reg_tmp3.x = (max(uniforms.f[93].xxxx, reg_tmp3.xxxx)).x;
     // 90: mad
-    reg_tmp9.xyz = (fma_safe(reg_tmp1.xyzz, uniforms.f[79].xyzz, reg_tmp9.xyzz)).xyz;
+    reg_tmp9.xyz = (fma_s(reg_tmp1.xyzz, uniforms.f[79].xyzz, reg_tmp9.xyzz)).xyz;
     // 91: mad
-    reg_tmp10.xyz = (fma_safe(reg_tmp3.xxxx, reg_tmp4.xyzz, reg_tmp10.xyzz)).xyz;
+    reg_tmp10.xyz = (fma_s(reg_tmp3.xxxx, reg_tmp4.xyzz, reg_tmp10.xyzz)).xyz;
     // 92: add
     reg_tmp10.w = (reg_tmp10.wwww + reg_tmp4.wwww).w;
     return false;
 }
 bool sub_94_99() {
     // 94: mul
-    reg_tmp4 = mul_safe(uniforms.f[81], reg_tmp0);
+    reg_tmp4 = mul_s(uniforms.f[81], reg_tmp0);
     // 95: max
     reg_tmp3.y = (max(uniforms.f[93].xxxx, reg_tmp3.yyyy)).y;
     // 96: mad
-    reg_tmp9.xyz = (fma_safe(reg_tmp1.xyzz, uniforms.f[82].xyzz, reg_tmp9.xyzz)).xyz;
+    reg_tmp9.xyz = (fma_s(reg_tmp1.xyzz, uniforms.f[82].xyzz, reg_tmp9.xyzz)).xyz;
     // 97: mad
-    reg_tmp10.xyz = (fma_safe(reg_tmp3.yyyy, reg_tmp4.xyzz, reg_tmp10.xyzz)).xyz;
+    reg_tmp10.xyz = (fma_s(reg_tmp3.yyyy, reg_tmp4.xyzz, reg_tmp10.xyzz)).xyz;
     // 98: add
     reg_tmp10.w = (reg_tmp10.wwww + reg_tmp4.wwww).w;
     return false;
 }
 bool sub_101_106() {
     // 101: mul
-    reg_tmp4 = mul_safe(uniforms.f[84], reg_tmp0);
+    reg_tmp4 = mul_s(uniforms.f[84], reg_tmp0);
     // 102: max
     reg_tmp3.z = (max(uniforms.f[93].xxxx, reg_tmp3.zzzz)).z;
     // 103: mad
-    reg_tmp9.xyz = (fma_safe(reg_tmp1.xyzz, uniforms.f[85].xyzz, reg_tmp9.xyzz)).xyz;
+    reg_tmp9.xyz = (fma_s(reg_tmp1.xyzz, uniforms.f[85].xyzz, reg_tmp9.xyzz)).xyz;
     // 104: mad
-    reg_tmp10.xyz = (fma_safe(reg_tmp3.zzzz, reg_tmp4.xyzz, reg_tmp10.xyzz)).xyz;
+    reg_tmp10.xyz = (fma_s(reg_tmp3.zzzz, reg_tmp4.xyzz, reg_tmp10.xyzz)).xyz;
     // 105: add
     reg_tmp10.w = (reg_tmp10.wwww + reg_tmp4.wwww).w;
     return false;
 }
 bool sub_107_112() {
     // 107: mul
-    reg_tmp4 = mul_safe(uniforms.f[87], reg_tmp0);
+    reg_tmp4 = mul_s(uniforms.f[87], reg_tmp0);
     // 108: max
     reg_tmp3.w = (max(uniforms.f[93].xxxx, reg_tmp3.wwww)).w;
     // 109: mad
-    reg_tmp9.xyz = (fma_safe(reg_tmp1.xyzz, uniforms.f[88].xyzz, reg_tmp9.xyzz)).xyz;
+    reg_tmp9.xyz = (fma_s(reg_tmp1.xyzz, uniforms.f[88].xyzz, reg_tmp9.xyzz)).xyz;
     // 110: mad
-    reg_tmp10.xyz = (fma_safe(reg_tmp3.wwww, reg_tmp4.xyzz, reg_tmp10.xyzz)).xyz;
+    reg_tmp10.xyz = (fma_s(reg_tmp3.wwww, reg_tmp4.xyzz, reg_tmp10.xyzz)).xyz;
     // 111: add
     reg_tmp10.w = (reg_tmp10.wwww + reg_tmp4.wwww).w;
     return false;
 }
 bool sub_115_117() {
     // 115: mul
-    reg_tmp9 = mul_safe(uniforms.f[90].zzzz, vs_in_reg3);
+    reg_tmp9 = mul_s(uniforms.f[90].zzzz, vs_in_reg3);
     // 116: mul
-    reg_tmp10 = mul_safe(reg_tmp10, reg_tmp9);
+    reg_tmp10 = mul_s(reg_tmp10, reg_tmp9);
     return false;
 }
 bool sub_118_123() {
@@ -1344,9 +1324,9 @@ bool sub_118_123() {
 }
 bool sub_120_122() {
     // 120: mul
-    reg_tmp9 = mul_safe(uniforms.f[90].zzzz, vs_in_reg3);
+    reg_tmp9 = mul_s(uniforms.f[90].zzzz, vs_in_reg3);
     // 121: mul
-    reg_tmp10 = mul_safe(reg_tmp10, reg_tmp9);
+    reg_tmp10 = mul_s(reg_tmp10, reg_tmp9);
     return false;
 }
 bool sub_125_126() {
@@ -1358,7 +1338,7 @@ bool sub_132_166() {
     // 132: mov
     reg_tmp0.xy = (uniforms.f[92].xxxx).xy;
     // 133: cmp
-    conditional_code = lessThanEqual(vec2(uniforms.f[93].yyyy), vec2(reg_tmp0.xyyy));
+    conditional_code = lessThanEqual(uniforms.f[93].yy, reg_tmp0.xy);
     // 134: ifc
     if (conditional_code.x) {
         sub_135_139();
@@ -1375,7 +1355,7 @@ bool sub_132_166() {
     // 144: mov
     reg_tmp0.xy = (uniforms.f[92].yyyy).xy;
     // 145: cmp
-    conditional_code = lessThanEqual(vec2(uniforms.f[93].yyyy), vec2(reg_tmp0.xyyy));
+    conditional_code = lessThanEqual(uniforms.f[93].yy, reg_tmp0.xy);
     // 146: ifc
     if (conditional_code.x) {
         sub_147_151();
@@ -1390,7 +1370,7 @@ bool sub_132_166() {
     // 155: mov
     reg_tmp0.xy = (uniforms.f[92].zzzz).xy;
     // 156: cmp
-    conditional_code = lessThanEqual(vec2(uniforms.f[93].yyyy), vec2(reg_tmp0.xyyy));
+    conditional_code = lessThanEqual(uniforms.f[93].yy, reg_tmp0.xy);
     // 157: ifc
     if (conditional_code.x) {
         sub_158_162();
@@ -1476,19 +1456,19 @@ bool sub_166_174() {
 }
 bool sub_176_228() {
     // 176: dp4
-    reg_tmp8.x = dot(mul_safe(uniforms.f[20], vs_in_reg0), vec4(1.0));
+    reg_tmp8.x = dot_s(uniforms.f[20], vs_in_reg0);
     // 177: dp4
-    reg_tmp8.y = dot(mul_safe(uniforms.f[21], vs_in_reg0), vec4(1.0));
+    reg_tmp8.y = dot_s(uniforms.f[21], vs_in_reg0);
     // 178: dp4
-    reg_tmp8.z = dot(mul_safe(uniforms.f[22], vs_in_reg0), vec4(1.0));
+    reg_tmp8.z = dot_s(uniforms.f[22], vs_in_reg0);
     // 179: mov
     reg_tmp8.w = (uniforms.f[93].yyyy).w;
     // 180: dp4
-    reg_tmp15.x = dot(mul_safe(uniforms.f[4], reg_tmp8), vec4(1.0));
+    reg_tmp15.x = dot_s(uniforms.f[4], reg_tmp8);
     // 181: dp4
-    reg_tmp15.y = dot(mul_safe(uniforms.f[5], reg_tmp8), vec4(1.0));
+    reg_tmp15.y = dot_s(uniforms.f[5], reg_tmp8);
     // 182: dp4
-    reg_tmp15.z = dot(mul_safe(uniforms.f[6], reg_tmp8), vec4(1.0));
+    reg_tmp15.z = dot_s(uniforms.f[6], reg_tmp8);
     // 183: mov
     reg_tmp15.w = (uniforms.f[93].yyyy).w;
     // 184: ifu
@@ -1503,13 +1483,13 @@ bool sub_176_228() {
     }
     // 196: nop
     // 197: dp4
-    vs_out_attr0.x = dot(mul_safe(uniforms.f[0], reg_tmp15), vec4(1.0));
+    vs_out_attr0.x = dot_s(uniforms.f[0], reg_tmp15);
     // 198: dp4
-    vs_out_attr0.y = dot(mul_safe(uniforms.f[1], reg_tmp15), vec4(1.0));
+    vs_out_attr0.y = dot_s(uniforms.f[1], reg_tmp15);
     // 199: dp4
-    vs_out_attr0.z = dot(mul_safe(uniforms.f[2], reg_tmp15), vec4(1.0));
+    vs_out_attr0.z = dot_s(uniforms.f[2], reg_tmp15);
     // 200: dp4
-    vs_out_attr0.w = dot(mul_safe(uniforms.f[3], reg_tmp15), vec4(1.0));
+    vs_out_attr0.w = dot_s(uniforms.f[3], reg_tmp15);
     // 201: mov
     vs_out_attr1 = reg_tmp10;
     // 202: mov
@@ -1542,24 +1522,24 @@ bool sub_185_192() {
     // 185: mov
     reg_tmp0.z = (reg_tmp15.zzzz).z;
     // 186: max
-    reg_tmp0.z = (max(reg_tmp0.zzzz, -reg_tmp0.zzzz)).z;
+    reg_tmp0.z = (abs(reg_tmp0.zzzz)).z;
     // 187: mov
     reg_tmp0.x = (uniforms.f[23].xxxx).x;
     // 188: add
     reg_tmp0.y = (-uniforms.f[23].yyyy + reg_tmp0.zzzz).y;
     // 189: rcp
-    reg_tmp0.z = rcp_safe(reg_tmp0.zzzz.x);
+    reg_tmp0.z = rcp_s(reg_tmp0.z);
     // 190: mul
-    reg_tmp0.z = (mul_safe(reg_tmp0.yyyy, reg_tmp0.zzzz)).z;
+    reg_tmp0.z = (mul_s(reg_tmp0.yyyy, reg_tmp0.zzzz)).z;
     // 191: mad
-    reg_tmp15.x = (fma_safe(reg_tmp0.xxxx, reg_tmp0.zzzz, reg_tmp15.xxxx)).x;
+    reg_tmp15.x = (fma_s(reg_tmp0.xxxx, reg_tmp0.zzzz, reg_tmp15.xxxx)).x;
     return false;
 }
 bool sub_194_196() {
     // 194: mul
-    reg_tmp9 = mul_safe(uniforms.f[90].zzzz, vs_in_reg3);
+    reg_tmp9 = mul_s(uniforms.f[90].zzzz, vs_in_reg3);
     // 195: mul
-    reg_tmp10 = mul_safe(reg_tmp10, reg_tmp9);
+    reg_tmp10 = mul_s(reg_tmp10, reg_tmp9);
     return false;
 }
 bool sub_205_218() {
@@ -1570,9 +1550,9 @@ bool sub_205_218() {
         sub_376_394();
     }
     // 207: dp4
-    reg_tmp3.x = dot(mul_safe(uniforms.f[10], reg_tmp10), vec4(1.0));
+    reg_tmp3.x = dot_s(uniforms.f[10], reg_tmp10);
     // 208: dp4
-    reg_tmp3.y = dot(mul_safe(uniforms.f[11], reg_tmp10), vec4(1.0));
+    reg_tmp3.y = dot_s(uniforms.f[11], reg_tmp10);
     // 209: mov
     reg_tmp3.z = (uniforms.f[93].xxxx).z;
     // 210: mov
@@ -1582,9 +1562,9 @@ bool sub_205_218() {
         sub_376_394();
     }
     // 212: dp4
-    reg_tmp4.x = dot(mul_safe(uniforms.f[14], reg_tmp10), vec4(1.0));
+    reg_tmp4.x = dot_s(uniforms.f[14], reg_tmp10);
     // 213: dp4
-    reg_tmp4.y = dot(mul_safe(uniforms.f[15], reg_tmp10), vec4(1.0));
+    reg_tmp4.y = dot_s(uniforms.f[15], reg_tmp10);
     // 214: mov
     reg_tmp1.xy = (uniforms.f[89].zzzz).xy;
     // 215: call
@@ -1592,9 +1572,9 @@ bool sub_205_218() {
         sub_376_394();
     }
     // 216: dp4
-    reg_tmp5.x = dot(mul_safe(uniforms.f[17], reg_tmp10), vec4(1.0));
+    reg_tmp5.x = dot_s(uniforms.f[17], reg_tmp10);
     // 217: dp4
-    reg_tmp5.y = dot(mul_safe(uniforms.f[18], reg_tmp10), vec4(1.0));
+    reg_tmp5.y = dot_s(uniforms.f[18], reg_tmp10);
     return false;
 }
 bool sub_218_221() {
@@ -1608,9 +1588,9 @@ bool sub_218_221() {
 }
 bool sub_230_257() {
     // 230: mul
-    reg_tmp15 = mul_safe(uniforms.f[90].xxxx, vs_in_reg0);
+    reg_tmp15 = mul_s(uniforms.f[90].xxxx, vs_in_reg0);
     // 231: mul
-    reg_tmp14 = mul_safe(uniforms.f[90].yyyy, vs_in_reg1);
+    reg_tmp14 = mul_s(uniforms.f[90].yyyy, vs_in_reg1);
     // 232: ifu
     if (uniforms.b[3]) {
         sub_233_252();
@@ -1622,17 +1602,17 @@ bool sub_230_257() {
 }
 bool sub_233_252() {
     // 233: mul
-    reg_tmp1.xy = (mul_safe(uniforms.f[93].wwww, vs_in_reg7.xxxx)).xy;
+    reg_tmp1.xy = (mul_s(uniforms.f[93].wwww, vs_in_reg7.xxxx)).xy;
     // 234: mul
-    reg_tmp1.w = (mul_safe(uniforms.f[94].wwww, vs_in_reg8.xxxx)).w;
+    reg_tmp1.w = (mul_s(uniforms.f[94].wwww, vs_in_reg8.xxxx)).w;
     // 235: call
     {
         sub_287_299();
     }
     // 236: mul
-    reg_tmp1.xy = (mul_safe(uniforms.f[93].wwww, vs_in_reg7.yyyy)).xy;
+    reg_tmp1.xy = (mul_s(uniforms.f[93].wwww, vs_in_reg7.yyyy)).xy;
     // 237: mul
-    reg_tmp1.w = (mul_safe(uniforms.f[94].wwww, vs_in_reg8.yyyy)).w;
+    reg_tmp1.w = (mul_s(uniforms.f[94].wwww, vs_in_reg8.yyyy)).w;
     // 238: call
     {
         sub_287_299();
@@ -1640,7 +1620,7 @@ bool sub_233_252() {
     // 239: mov
     reg_tmp0.xy = (uniforms.f[91].wwww).xy;
     // 240: cmp
-    conditional_code = lessThanEqual(vec2(uniforms.f[95].xyyy), vec2(reg_tmp0.xyyy));
+    conditional_code = lessThanEqual(uniforms.f[95].xy, reg_tmp0.xy);
     // 241: ifc
     if (conditional_code.x) {
         sub_242_246();
@@ -1654,9 +1634,9 @@ bool sub_233_252() {
 }
 bool sub_242_246() {
     // 242: mul
-    reg_tmp1.xy = (mul_safe(uniforms.f[93].wwww, vs_in_reg7.zzzz)).xy;
+    reg_tmp1.xy = (mul_s(uniforms.f[93].wwww, vs_in_reg7.zzzz)).xy;
     // 243: mul
-    reg_tmp1.w = (mul_safe(uniforms.f[94].wwww, vs_in_reg8.zzzz)).w;
+    reg_tmp1.w = (mul_s(uniforms.f[94].wwww, vs_in_reg8.zzzz)).w;
     // 244: call
     {
         sub_287_299();
@@ -1666,9 +1646,9 @@ bool sub_242_246() {
 }
 bool sub_247_251() {
     // 247: mul
-    reg_tmp1.xy = (mul_safe(uniforms.f[93].wwww, vs_in_reg7.wwww)).xy;
+    reg_tmp1.xy = (mul_s(uniforms.f[93].wwww, vs_in_reg7.wwww)).xy;
     // 248: mul
-    reg_tmp1.w = (mul_safe(uniforms.f[94].wwww, vs_in_reg8.wwww)).w;
+    reg_tmp1.w = (mul_s(uniforms.f[94].wwww, vs_in_reg8.wwww)).w;
     // 249: call
     {
         sub_287_299();
@@ -1678,7 +1658,7 @@ bool sub_247_251() {
 }
 bool sub_252_256() {
     // 252: mul
-    reg_tmp1.xy = (mul_safe(uniforms.f[93].wwww, vs_in_reg7.xxxx)).xy;
+    reg_tmp1.xy = (mul_s(uniforms.f[93].wwww, vs_in_reg7.xxxx)).xy;
     // 253: mov
     reg_tmp1.w = (uniforms.f[93].yyyy).w;
     // 254: call
@@ -1690,11 +1670,11 @@ bool sub_252_256() {
 }
 bool sub_258_286() {
     // 258: mul
-    reg_tmp15 = mul_safe(uniforms.f[90].xxxx, vs_in_reg0);
+    reg_tmp15 = mul_s(uniforms.f[90].xxxx, vs_in_reg0);
     // 259: mul
-    reg_tmp14 = mul_safe(uniforms.f[90].yyyy, vs_in_reg1);
+    reg_tmp14 = mul_s(uniforms.f[90].yyyy, vs_in_reg1);
     // 260: mul
-    reg_tmp13 = mul_safe(uniforms.f[90].wwww, vs_in_reg2);
+    reg_tmp13 = mul_s(uniforms.f[90].wwww, vs_in_reg2);
     // 261: ifu
     if (uniforms.b[3]) {
         sub_262_281();
@@ -1706,17 +1686,17 @@ bool sub_258_286() {
 }
 bool sub_262_281() {
     // 262: mul
-    reg_tmp1.xy = (mul_safe(uniforms.f[93].wwww, vs_in_reg7.xxxx)).xy;
+    reg_tmp1.xy = (mul_s(uniforms.f[93].wwww, vs_in_reg7.xxxx)).xy;
     // 263: mul
-    reg_tmp1.w = (mul_safe(uniforms.f[94].wwww, vs_in_reg8.xxxx)).w;
+    reg_tmp1.w = (mul_s(uniforms.f[94].wwww, vs_in_reg8.xxxx)).w;
     // 264: call
     {
         sub_300_317();
     }
     // 265: mul
-    reg_tmp1.xy = (mul_safe(uniforms.f[93].wwww, vs_in_reg7.yyyy)).xy;
+    reg_tmp1.xy = (mul_s(uniforms.f[93].wwww, vs_in_reg7.yyyy)).xy;
     // 266: mul
-    reg_tmp1.w = (mul_safe(uniforms.f[94].wwww, vs_in_reg8.yyyy)).w;
+    reg_tmp1.w = (mul_s(uniforms.f[94].wwww, vs_in_reg8.yyyy)).w;
     // 267: call
     {
         sub_300_317();
@@ -1724,7 +1704,7 @@ bool sub_262_281() {
     // 268: mov
     reg_tmp0.xy = (uniforms.f[91].wwww).xy;
     // 269: cmp
-    conditional_code = lessThanEqual(vec2(uniforms.f[95].xyyy), vec2(reg_tmp0.xyyy));
+    conditional_code = lessThanEqual(uniforms.f[95].xy, reg_tmp0.xy);
     // 270: ifc
     if (conditional_code.x) {
         sub_271_275();
@@ -1738,9 +1718,9 @@ bool sub_262_281() {
 }
 bool sub_271_275() {
     // 271: mul
-    reg_tmp1.xy = (mul_safe(uniforms.f[93].wwww, vs_in_reg7.zzzz)).xy;
+    reg_tmp1.xy = (mul_s(uniforms.f[93].wwww, vs_in_reg7.zzzz)).xy;
     // 272: mul
-    reg_tmp1.w = (mul_safe(uniforms.f[94].wwww, vs_in_reg8.zzzz)).w;
+    reg_tmp1.w = (mul_s(uniforms.f[94].wwww, vs_in_reg8.zzzz)).w;
     // 273: call
     {
         sub_300_317();
@@ -1750,9 +1730,9 @@ bool sub_271_275() {
 }
 bool sub_276_280() {
     // 276: mul
-    reg_tmp1.xy = (mul_safe(uniforms.f[93].wwww, vs_in_reg7.wwww)).xy;
+    reg_tmp1.xy = (mul_s(uniforms.f[93].wwww, vs_in_reg7.wwww)).xy;
     // 277: mul
-    reg_tmp1.w = (mul_safe(uniforms.f[94].wwww, vs_in_reg8.wwww)).w;
+    reg_tmp1.w = (mul_s(uniforms.f[94].wwww, vs_in_reg8.wwww)).w;
     // 278: call
     {
         sub_300_317();
@@ -1762,7 +1742,7 @@ bool sub_276_280() {
 }
 bool sub_281_285() {
     // 281: mul
-    reg_tmp1.xy = (mul_safe(uniforms.f[93].wwww, vs_in_reg7.xxxx)).xy;
+    reg_tmp1.xy = (mul_s(uniforms.f[93].wwww, vs_in_reg7.xxxx)).xy;
     // 282: mov
     reg_tmp1.w = (uniforms.f[93].yyyy).w;
     // 283: call
@@ -1774,73 +1754,73 @@ bool sub_281_285() {
 }
 bool sub_287_299() {
     // 287: mova
-    address_registers.xy = ivec2(reg_tmp1.xyyy);
+    address_registers.xy = ivec2(reg_tmp1.xy);
     // 288: nop
     // 289: mov
     reg_tmp3.w = (uniforms.f[93].yyyy).w;
     // 290: dp4
-    reg_tmp3.x = dot(mul_safe(uniforms.f[20 + address_registers.x], reg_tmp15), vec4(1.0));
+    reg_tmp3.x = dot_s(uniforms.f[20 + address_registers.x], reg_tmp15);
     // 291: dp4
-    reg_tmp3.y = dot(mul_safe(uniforms.f[21 + address_registers.x], reg_tmp15), vec4(1.0));
+    reg_tmp3.y = dot_s(uniforms.f[21 + address_registers.x], reg_tmp15);
     // 292: dp4
-    reg_tmp3.z = dot(mul_safe(uniforms.f[22 + address_registers.x], reg_tmp15), vec4(1.0));
+    reg_tmp3.z = dot_s(uniforms.f[22 + address_registers.x], reg_tmp15);
     // 293: dp3
-    reg_tmp4.x = dot(vec3(mul_safe(uniforms.f[20 + address_registers.y], reg_tmp14)), vec3(1.0));
+    reg_tmp4.x = dot_3(uniforms.f[20 + address_registers.y].xyz, reg_tmp14.xyz);
     // 294: dp3
-    reg_tmp4.y = dot(vec3(mul_safe(uniforms.f[21 + address_registers.y], reg_tmp14)), vec3(1.0));
+    reg_tmp4.y = dot_3(uniforms.f[21 + address_registers.y].xyz, reg_tmp14.xyz);
     // 295: dp3
-    reg_tmp4.z = dot(vec3(mul_safe(uniforms.f[22 + address_registers.y], reg_tmp14)), vec3(1.0));
+    reg_tmp4.z = dot_3(uniforms.f[22 + address_registers.y].xyz, reg_tmp14.xyz);
     // 296: mov
     reg_tmp4.w = (uniforms.f[93].xxxx).w;
     // 297: mad
-    reg_tmp8 = fma_safe(reg_tmp1.wwww, reg_tmp3, reg_tmp8);
+    reg_tmp8 = fma_s(reg_tmp1.wwww, reg_tmp3, reg_tmp8);
     // 298: mad
-    reg_tmp11 = fma_safe(reg_tmp1.wwww, reg_tmp4, reg_tmp11);
+    reg_tmp11 = fma_s(reg_tmp1.wwww, reg_tmp4, reg_tmp11);
     return false;
 }
 bool sub_300_317() {
     // 300: mova
-    address_registers.xy = ivec2(reg_tmp1.xyyy);
+    address_registers.xy = ivec2(reg_tmp1.xy);
     // 301: nop
     // 302: dp4
-    reg_tmp3.x = dot(mul_safe(uniforms.f[20 + address_registers.x], reg_tmp15), vec4(1.0));
+    reg_tmp3.x = dot_s(uniforms.f[20 + address_registers.x], reg_tmp15);
     // 303: dp4
-    reg_tmp3.y = dot(mul_safe(uniforms.f[21 + address_registers.x], reg_tmp15), vec4(1.0));
+    reg_tmp3.y = dot_s(uniforms.f[21 + address_registers.x], reg_tmp15);
     // 304: dp4
-    reg_tmp3.z = dot(mul_safe(uniforms.f[22 + address_registers.x], reg_tmp15), vec4(1.0));
+    reg_tmp3.z = dot_s(uniforms.f[22 + address_registers.x], reg_tmp15);
     // 305: mov
     reg_tmp3.w = (uniforms.f[93].yyyy).w;
     // 306: dp3
-    reg_tmp4.x = dot(vec3(mul_safe(uniforms.f[20 + address_registers.y], reg_tmp14)), vec3(1.0));
+    reg_tmp4.x = dot_3(uniforms.f[20 + address_registers.y].xyz, reg_tmp14.xyz);
     // 307: dp3
-    reg_tmp4.y = dot(vec3(mul_safe(uniforms.f[21 + address_registers.y], reg_tmp14)), vec3(1.0));
+    reg_tmp4.y = dot_3(uniforms.f[21 + address_registers.y].xyz, reg_tmp14.xyz);
     // 308: dp3
-    reg_tmp4.z = dot(vec3(mul_safe(uniforms.f[22 + address_registers.y], reg_tmp14)), vec3(1.0));
+    reg_tmp4.z = dot_3(uniforms.f[22 + address_registers.y].xyz, reg_tmp14.xyz);
     // 309: mov
     reg_tmp4.w = (uniforms.f[93].xxxx).w;
     // 310: dp3
-    reg_tmp5.x = dot(vec3(mul_safe(uniforms.f[20 + address_registers.y], reg_tmp13)), vec3(1.0));
+    reg_tmp5.x = dot_3(uniforms.f[20 + address_registers.y].xyz, reg_tmp13.xyz);
     // 311: dp3
-    reg_tmp5.y = dot(vec3(mul_safe(uniforms.f[21 + address_registers.y], reg_tmp13)), vec3(1.0));
+    reg_tmp5.y = dot_3(uniforms.f[21 + address_registers.y].xyz, reg_tmp13.xyz);
     // 312: dp3
-    reg_tmp5.z = dot(vec3(mul_safe(uniforms.f[22 + address_registers.y], reg_tmp13)), vec3(1.0));
+    reg_tmp5.z = dot_3(uniforms.f[22 + address_registers.y].xyz, reg_tmp13.xyz);
     // 313: mov
     reg_tmp5.w = (uniforms.f[93].xxxx).w;
     // 314: mad
-    reg_tmp8 = fma_safe(reg_tmp1.wwww, reg_tmp3, reg_tmp8);
+    reg_tmp8 = fma_s(reg_tmp1.wwww, reg_tmp3, reg_tmp8);
     // 315: mad
-    reg_tmp11 = fma_safe(reg_tmp1.wwww, reg_tmp4, reg_tmp11);
+    reg_tmp11 = fma_s(reg_tmp1.wwww, reg_tmp4, reg_tmp11);
     // 316: mad
-    reg_tmp12 = fma_safe(reg_tmp1.wwww, reg_tmp5, reg_tmp12);
+    reg_tmp12 = fma_s(reg_tmp1.wwww, reg_tmp5, reg_tmp12);
     return false;
 }
 bool sub_318_375() {
     // 318: cmp
-    conditional_code = equal(vec2(uniforms.f[95].xyyy), vec2(reg_tmp0.xyyy));
+    conditional_code = equal(uniforms.f[95].xy, reg_tmp0.xy);
     // 319: mad
-    reg_tmp2.x = (fma_safe(reg_tmp2.xxxx, uniforms.f[93].wwww, reg_tmp2.yyyy)).x;
+    reg_tmp2.x = (fma_s(reg_tmp2.xxxx, uniforms.f[93].wwww, reg_tmp2.yyyy)).x;
     // 320: mova
-    address_registers.x = (ivec2(reg_tmp2.xxxx)).x;
+    address_registers.x = (ivec2(reg_tmp2.xx)).x;
     // 321: nop
     // 322: ifc
     if (all(not(conditional_code))) {
@@ -1853,7 +1833,7 @@ bool sub_318_375() {
 }
 bool sub_323_347() {
     // 323: cmp
-    conditional_code = equal(vec2(uniforms.f[93].zyyy), vec2(reg_tmp0.xyyy));
+    conditional_code = equal(uniforms.f[93].zy, reg_tmp0.xy);
     // 324: ifc
     if (all(not(conditional_code))) {
         sub_325_333();
@@ -1865,19 +1845,19 @@ bool sub_323_347() {
 }
 bool sub_325_333() {
     // 325: dp4
-    reg_tmp10.x = dot(mul_safe(uniforms.f[70], reg_tmp15), vec4(1.0));
+    reg_tmp10.x = dot_s(uniforms.f[70], reg_tmp15);
     // 326: dp4
-    reg_tmp10.y = dot(mul_safe(uniforms.f[71], reg_tmp15), vec4(1.0));
+    reg_tmp10.y = dot_s(uniforms.f[71], reg_tmp15);
     // 327: dp4
-    reg_tmp10.z = dot(mul_safe(uniforms.f[72], reg_tmp15), vec4(1.0));
+    reg_tmp10.z = dot_s(uniforms.f[72], reg_tmp15);
     // 328: mov
     reg_tmp10.w = (uniforms.f[93].yyyy).w;
     // 329: dp4
-    reg_tmp3.x = dot(mul_safe(uniforms.f[10 + address_registers.x], reg_tmp10), vec4(1.0));
+    reg_tmp3.x = dot_s(uniforms.f[10 + address_registers.x], reg_tmp10);
     // 330: dp4
-    reg_tmp3.y = dot(mul_safe(uniforms.f[11 + address_registers.x], reg_tmp10), vec4(1.0));
+    reg_tmp3.y = dot_s(uniforms.f[11 + address_registers.x], reg_tmp10);
     // 331: dp4
-    reg_tmp3.z = dot(mul_safe(uniforms.f[12 + address_registers.x], reg_tmp10), vec4(1.0));
+    reg_tmp3.z = dot_s(uniforms.f[12 + address_registers.x], reg_tmp10);
     // 332: mov
     reg_tmp3.w = (uniforms.f[93].yyyy).w;
     return false;
@@ -1898,11 +1878,11 @@ bool sub_334_340() {
         sub_395_402();
     }
     // 335: dp3
-    reg_tmp3.x = dot(vec3(mul_safe(uniforms.f[70], reg_tmp10)), vec3(1.0));
+    reg_tmp3.x = dot_3(uniforms.f[70].xyz, reg_tmp10.xyz);
     // 336: dp3
-    reg_tmp3.y = dot(vec3(mul_safe(uniforms.f[71], reg_tmp10)), vec3(1.0));
+    reg_tmp3.y = dot_3(uniforms.f[71].xyz, reg_tmp10.xyz);
     // 337: dp3
-    reg_tmp3.z = dot(vec3(mul_safe(uniforms.f[72], reg_tmp10)), vec3(1.0));
+    reg_tmp3.z = dot_3(uniforms.f[72].xyz, reg_tmp10.xyz);
     // 338: mov
     reg_tmp3.w = (uniforms.f[93].xxxx).w;
     // 339: nop
@@ -1914,9 +1894,9 @@ bool sub_340_345() {
         sub_376_394();
     }
     // 341: dp4
-    reg_tmp3.x = dot(mul_safe(uniforms.f[10 + address_registers.x], reg_tmp10), vec4(1.0));
+    reg_tmp3.x = dot_s(uniforms.f[10 + address_registers.x], reg_tmp10);
     // 342: dp4
-    reg_tmp3.y = dot(mul_safe(uniforms.f[11 + address_registers.x], reg_tmp10), vec4(1.0));
+    reg_tmp3.y = dot_s(uniforms.f[11 + address_registers.x], reg_tmp10);
     // 343: mov
     reg_tmp3.zw = (uniforms.f[93].xxxx).zw;
     // 344: nop
@@ -1938,36 +1918,36 @@ bool sub_348_352() {
         sub_403_407();
     }
     // 349: dp4
-    reg_tmp3.x = dot(mul_safe(uniforms.f[10 + address_registers.x], reg_tmp10), vec4(1.0));
+    reg_tmp3.x = dot_s(uniforms.f[10 + address_registers.x], reg_tmp10);
     // 350: dp4
-    reg_tmp3.y = dot(mul_safe(uniforms.f[11 + address_registers.x], reg_tmp10), vec4(1.0));
+    reg_tmp3.y = dot_s(uniforms.f[11 + address_registers.x], reg_tmp10);
     // 351: mov
     reg_tmp3.zw = (uniforms.f[93].xxxx).zw;
     return false;
 }
 bool sub_352_373() {
     // 352: dp3
-    reg_tmp10.x = dot(vec3(mul_safe(uniforms.f[70], reg_tmp14)), vec3(1.0));
+    reg_tmp10.x = dot_3(uniforms.f[70].xyz, reg_tmp14.xyz);
     // 353: dp3
-    reg_tmp10.y = dot(vec3(mul_safe(uniforms.f[71], reg_tmp14)), vec3(1.0));
+    reg_tmp10.y = dot_3(uniforms.f[71].xyz, reg_tmp14.xyz);
     // 354: dp3
-    reg_tmp10.z = dot(vec3(mul_safe(uniforms.f[72], reg_tmp14)), vec3(1.0));
+    reg_tmp10.z = dot_3(uniforms.f[72].xyz, reg_tmp14.xyz);
     // 355: dp3
-    reg_tmp4.z = dot(vec3(mul_safe(uniforms.f[12 + address_registers.x], reg_tmp10)), vec3(1.0));
+    reg_tmp4.z = dot_3(uniforms.f[12 + address_registers.x].xyz, reg_tmp10.xyz);
     // 356: dp4
-    reg_tmp10.x = dot(mul_safe(uniforms.f[70], reg_tmp15), vec4(1.0));
+    reg_tmp10.x = dot_s(uniforms.f[70], reg_tmp15);
     // 357: dp4
-    reg_tmp10.y = dot(mul_safe(uniforms.f[71], reg_tmp15), vec4(1.0));
+    reg_tmp10.y = dot_s(uniforms.f[71], reg_tmp15);
     // 358: dp4
-    reg_tmp10.z = dot(mul_safe(uniforms.f[72], reg_tmp15), vec4(1.0));
+    reg_tmp10.z = dot_s(uniforms.f[72], reg_tmp15);
     // 359: mov
     reg_tmp10.w = (uniforms.f[93].yyyy).w;
     // 360: dp4
-    reg_tmp3.x = dot(mul_safe(uniforms.f[10 + address_registers.x], reg_tmp10), vec4(1.0));
+    reg_tmp3.x = dot_s(uniforms.f[10 + address_registers.x], reg_tmp10);
     // 361: dp4
-    reg_tmp3.y = dot(mul_safe(uniforms.f[11 + address_registers.x], reg_tmp10), vec4(1.0));
+    reg_tmp3.y = dot_s(uniforms.f[11 + address_registers.x], reg_tmp10);
     // 362: dp4
-    reg_tmp3.z = dot(mul_safe(uniforms.f[12 + address_registers.x], reg_tmp10), vec4(1.0));
+    reg_tmp3.z = dot_s(uniforms.f[12 + address_registers.x], reg_tmp10);
     // 363: cmp
     conditional_code.x = uniforms.f[93].xyyy.x >= reg_tmp4.zzzz.x;
     conditional_code.y = uniforms.f[93].xyyy.y < reg_tmp4.zzzz.y;
@@ -2008,7 +1988,7 @@ bool sub_368_370() {
 }
 bool sub_376_394() {
     // 376: cmp
-    conditional_code = equal(vec2(uniforms.f[93].xyyy), vec2(reg_tmp1.xyyy));
+    conditional_code = equal(uniforms.f[93].xy, reg_tmp1.xy);
     // 377: mov
     reg_tmp10 = reg_tmp15;
     // 378: ifc
@@ -2030,7 +2010,7 @@ bool sub_379_383() {
 }
 bool sub_380_382() {
     // 380: mul
-    reg_tmp10.xy = (mul_safe(uniforms.f[91].xxxx, vs_in_reg4.xyyy)).xy;
+    reg_tmp10.xy = (mul_s(uniforms.f[91].xxxx, vs_in_reg4.xyyy)).xy;
     // 381: mov
     reg_tmp10.zw = (uniforms.f[93].xyyy).zw;
     return false;
@@ -2055,7 +2035,7 @@ bool sub_384_388() {
 }
 bool sub_385_387() {
     // 385: mul
-    reg_tmp10.xy = (mul_safe(uniforms.f[91].yyyy, vs_in_reg5)).xy;
+    reg_tmp10.xy = (mul_s(uniforms.f[91].yyyy, vs_in_reg5)).xy;
     // 386: mov
     reg_tmp10.zw = (uniforms.f[93].xyyy).zw;
     return false;
@@ -2070,7 +2050,7 @@ bool sub_388_392() {
 }
 bool sub_389_391() {
     // 389: mul
-    reg_tmp10.xy = (mul_safe(uniforms.f[91].zzzz, vs_in_reg6)).xy;
+    reg_tmp10.xy = (mul_s(uniforms.f[91].zzzz, vs_in_reg6)).xy;
     // 390: mov
     reg_tmp10.zw = (uniforms.f[93].xyyy).zw;
     return false;
@@ -2079,17 +2059,17 @@ bool sub_395_402() {
     // 395: mov
     reg_tmp0 = -reg_tmp15;
     // 396: dp3
-    reg_tmp0.w = dot(vec3(mul_safe(reg_tmp0, reg_tmp0)), vec3(1.0));
+    reg_tmp0.w = dot_3(reg_tmp0.xyz, reg_tmp0.xyz);
     // 397: rsq
-    reg_tmp0.w = rsq_safe(reg_tmp0.wwww.x);
+    reg_tmp0.w = rsq_s(reg_tmp0.w);
     // 398: mul
-    reg_tmp0 = mul_safe(reg_tmp0, reg_tmp0.wwww);
+    reg_tmp0 = mul_s(reg_tmp0, reg_tmp0.wwww);
     // 399: dp3
-    reg_tmp1 = vec4(dot(vec3(mul_safe(reg_tmp0, reg_tmp14)), vec3(1.0)));
+    reg_tmp1 = vec4(dot_3(reg_tmp0.xyz, reg_tmp14.xyz));
     // 400: add
     reg_tmp1 = reg_tmp1 + reg_tmp1;
     // 401: mad
-    reg_tmp10 = fma_safe(reg_tmp1, reg_tmp14, -reg_tmp0);
+    reg_tmp10 = fma_s(reg_tmp1, reg_tmp14, -reg_tmp0);
     return false;
 }
 bool sub_403_407() {
@@ -2098,14 +2078,14 @@ bool sub_403_407() {
     // 404: mov
     reg_tmp1.zw = (uniforms.f[93].xxxx).zw;
     // 405: mad
-    reg_tmp10 = fma_safe(reg_tmp14, reg_tmp1, reg_tmp1);
+    reg_tmp10 = fma_s(reg_tmp14, reg_tmp1, reg_tmp1);
     // 406: mov
     reg_tmp10.zw = (uniforms.f[93].yyyy).zw;
     return false;
 }
 bool sub_408_417() {
     // 408: cmp
-    conditional_code = greaterThanEqual(vec2(uniforms.f[93].xxxx), vec2(reg_tmp3.xyyy));
+    conditional_code = greaterThanEqual(uniforms.f[93].xx, reg_tmp3.xy);
     // 409: ifc
     if (conditional_code.x) {
         sub_410_411();
@@ -2150,21 +2130,21 @@ bool sub_418_483() {
             // 418: mov
             reg_tmp10 = uniforms.f[93].yxxx;
             // 419: mul
-            reg_tmp5 = mul_safe(reg_tmp14.yzxx, reg_tmp13.zxyy);
+            reg_tmp5 = mul_s(reg_tmp14.yzxx, reg_tmp13.zxyy);
             // 420: mad
-            reg_tmp5 = fma_safe(-reg_tmp13.yzxx, reg_tmp14.zxyy, reg_tmp5);
+            reg_tmp5 = fma_s(-reg_tmp13.yzxx, reg_tmp14.zxyy, reg_tmp5);
             // 421: dp3
-            reg_tmp5.w = dot(vec3(mul_safe(reg_tmp5, reg_tmp5)), vec3(1.0));
+            reg_tmp5.w = dot_3(reg_tmp5.xyz, reg_tmp5.xyz);
             // 422: rsq
-            reg_tmp5.w = rsq_safe(reg_tmp5.wwww.x);
+            reg_tmp5.w = rsq_s(reg_tmp5.w);
             // 423: mul
-            reg_tmp5 = mul_safe(reg_tmp5, reg_tmp5.wwww);
+            reg_tmp5 = mul_s(reg_tmp5, reg_tmp5.wwww);
             // 424: add
             reg_tmp6.w = (reg_tmp14.zzzz + reg_tmp5.yyyy).w;
             // 425: mul
-            reg_tmp13 = mul_safe(reg_tmp5.yzxx, reg_tmp14.zxyy);
+            reg_tmp13 = mul_s(reg_tmp5.yzxx, reg_tmp14.zxyy);
             // 426: mad
-            reg_tmp13 = fma_safe(-reg_tmp14.yzxx, reg_tmp5.zxyy, reg_tmp13);
+            reg_tmp13 = fma_s(-reg_tmp14.yzxx, reg_tmp5.zxyy, reg_tmp13);
             // 427: add
             reg_tmp6.w = (reg_tmp13.xxxx + reg_tmp6.wwww).w;
             // 428: mov
@@ -2178,7 +2158,7 @@ bool sub_418_483() {
             // 432: mov
             reg_tmp5.x = (reg_tmp14.zzzz).x;
             // 433: cmp
-            conditional_code = lessThan(vec2(uniforms.f[94].yyyy), vec2(reg_tmp6.wwww));
+            conditional_code = lessThan(uniforms.f[94].yy, reg_tmp6.ww);
             // 434: mov
             reg_tmp6.x = (uniforms.f[93].yyyy).x;
             // 435: mov
@@ -2194,11 +2174,11 @@ bool sub_418_483() {
             // 439: mov
             reg_tmp7.w = (reg_tmp6.wwww).w;
             // 440: dp4
-            reg_tmp6 = vec4(dot(mul_safe(reg_tmp7, reg_tmp7), vec4(1.0)));
+            reg_tmp6 = vec4(dot_s(reg_tmp7, reg_tmp7));
             // 441: rsq
-            reg_tmp6 = vec4(rsq_safe(reg_tmp6.xxxx.x));
+            reg_tmp6 = vec4(rsq_s(reg_tmp6.x));
             // 442: mul
-            reg_tmp10 = mul_safe(reg_tmp7, reg_tmp6);
+            reg_tmp10 = mul_s(reg_tmp7, reg_tmp6);
             // 443: jmpu
             if (uniforms.b[0]) {
                 { jmp_to = 482u; break; }
@@ -2206,7 +2186,7 @@ bool sub_418_483() {
         }
         case 444u: {
             // 444: cmp
-            conditional_code = greaterThan(vec2(reg_tmp5.zyyy), vec2(reg_tmp5.yxxx));
+            conditional_code = greaterThan(reg_tmp5.zy, reg_tmp5.yx);
             // 445: ifc
             if (conditional_code.x) {
                 sub_446_466();
@@ -2214,11 +2194,11 @@ bool sub_418_483() {
                 sub_466_479();
             }
             // 479: dp4
-            reg_tmp6 = vec4(dot(mul_safe(reg_tmp8, reg_tmp8), vec4(1.0)));
+            reg_tmp6 = vec4(dot_s(reg_tmp8, reg_tmp8));
             // 480: rsq
-            reg_tmp6 = vec4(rsq_safe(reg_tmp6.xxxx.x));
+            reg_tmp6 = vec4(rsq_s(reg_tmp6.x));
             // 481: mul
-            reg_tmp10 = mul_safe(reg_tmp8, reg_tmp6);
+            reg_tmp10 = mul_s(reg_tmp8, reg_tmp6);
         }
         case 482u: {
             // 482: mov
@@ -2242,7 +2222,7 @@ bool sub_446_466() {
 }
 bool sub_447_452() {
     // 447: mul
-    reg_tmp8 = mul_safe(reg_tmp13.yyzw, reg_tmp6.xxxy);
+    reg_tmp8 = mul_s(reg_tmp13.yyzw, reg_tmp6.xxxy);
     // 448: add
     reg_tmp8.x = (uniforms.f[93].yyyy + -reg_tmp5.yyyy).x;
     // 449: add
@@ -2255,9 +2235,9 @@ bool sub_447_452() {
 }
 bool sub_452_465() {
     // 452: cmp
-    conditional_code = greaterThan(vec2(reg_tmp5.zzzz), vec2(reg_tmp5.xxxx));
+    conditional_code = greaterThan(reg_tmp5.zz, reg_tmp5.xx);
     // 453: mul
-    reg_tmp8 = mul_safe(reg_tmp13.yyzw, reg_tmp6.xxxy);
+    reg_tmp8 = mul_s(reg_tmp13.yyzw, reg_tmp6.xxxy);
     // 454: add
     reg_tmp8.x = (uniforms.f[93].yyyy + -reg_tmp5.yyyy).x;
     // 455: ifc
@@ -2280,7 +2260,7 @@ bool sub_456_459() {
 }
 bool sub_459_464() {
     // 459: mul
-    reg_tmp8 = mul_safe(reg_tmp13.zwwy, reg_tmp6.xxxy);
+    reg_tmp8 = mul_s(reg_tmp13.zwwy, reg_tmp6.xxxy);
     // 460: add
     reg_tmp8.z = (uniforms.f[93].yyyy + -reg_tmp5.zzzz).z;
     // 461: add
@@ -2303,7 +2283,7 @@ bool sub_466_479() {
 }
 bool sub_467_472() {
     // 467: mul
-    reg_tmp8 = mul_safe(reg_tmp13.yywz, reg_tmp6.xxxy);
+    reg_tmp8 = mul_s(reg_tmp13.yywz, reg_tmp6.xxxy);
     // 468: add
     reg_tmp8.y = (uniforms.f[93].yyyy + -reg_tmp5.zzzz).y;
     // 469: add
@@ -2316,7 +2296,7 @@ bool sub_467_472() {
 }
 bool sub_472_478() {
     // 472: mul
-    reg_tmp8 = mul_safe(reg_tmp13.zwwy, reg_tmp6.xxxy);
+    reg_tmp8 = mul_s(reg_tmp13.zwwy, reg_tmp6.xxxy);
     // 473: add
     reg_tmp8.z = (uniforms.f[93].yyyy + -reg_tmp5.zzzz).z;
     // 474: add
@@ -2329,7 +2309,7 @@ bool sub_472_478() {
     reg_tmp8.w = (-reg_tmp8).w;
     return false;
 }
-// reference: D9710A74EECD6E4F, A0A01900FB0E2CEC
+// reference: D9710A74EECD6E4F, 1A9F70669A3C74DF
 // shader: 8DD9, F0531050140A5884
 
 layout(triangles) in;
@@ -2458,13 +2438,7 @@ void main() {
     EmitPrim(prim_buffer[0], prim_buffer[1], prim_buffer[2]);
 }
 // reference: C9E56D0A62F3408C, F0531050140A5884
-// shader: 8B30, E5DF22D9178E1D89
-
-precision highp int;
-precision highp float;
-precision highp samplerBuffer;
-precision highp usampler2D;
-precision highp uimage2D;
+// shader: 8B30, 7633E11BC8B25C9D
 in vec4 primary_color;
 in vec2 texcoord0;
 in vec2 texcoord1;
@@ -2668,16 +2642,10 @@ combiner_buffer = next_combiner_buffer;
 gl_FragDepth = depth;
 color = byteround(last_tex_env_out);
 }
-// reference: 0CAC10A974E7FC8B, E5DF22D9178E1D89
-// program: A0A01900FB0E2CEC, F0531050140A5884, E5DF22D9178E1D89
-// reference: 5291DDDBEECD6E4F, A0A01900FB0E2CEC
-// shader: 8B30, 4A73E62BC552BFDD
-
-precision highp int;
-precision highp float;
-precision highp samplerBuffer;
-precision highp usampler2D;
-precision highp uimage2D;
+// reference: 0CAC10A974E7FC8B, 7633E11BC8B25C9D
+// program: 1A9F70669A3C74DF, F0531050140A5884, 7633E11BC8B25C9D
+// reference: 5291DDDBEECD6E4F, 1A9F70669A3C74DF
+// shader: 8B30, 10C0808EA73CEBD9
 in vec4 primary_color;
 in vec2 texcoord0;
 in vec2 texcoord1;
@@ -2885,16 +2853,10 @@ combiner_buffer = next_combiner_buffer;
 gl_FragDepth = depth;
 color = byteround(last_tex_env_out);
 }
-// reference: 7BB026119C34623E, 4A73E62BC552BFDD
-// program: A0A01900FB0E2CEC, F0531050140A5884, 4A73E62BC552BFDD
-// reference: 5291DDDB3574CF08, A0A01900FB0E2CEC
-// shader: 8B30, 59E874A2A118C4BE
-
-precision highp int;
-precision highp float;
-precision highp samplerBuffer;
-precision highp usampler2D;
-precision highp uimage2D;
+// reference: 7BB026119C34623E, 10C0808EA73CEBD9
+// program: 1A9F70669A3C74DF, F0531050140A5884, 10C0808EA73CEBD9
+// reference: 5291DDDB3574CF08, 1A9F70669A3C74DF
+// shader: 8B30, C6C603AD23B7BE7F
 in vec4 primary_color;
 in vec2 texcoord0;
 in vec2 texcoord1;
@@ -3103,15 +3065,9 @@ combiner_buffer = next_combiner_buffer;
 gl_FragDepth = depth;
 color = byteround(last_tex_env_out);
 }
-// reference: B9F661CDC3BAE227, 59E874A2A118C4BE
-// program: A0A01900FB0E2CEC, F0531050140A5884, 59E874A2A118C4BE
-// shader: 8B30, 5A21DE7E07AB5AC7
-
-precision highp int;
-precision highp float;
-precision highp samplerBuffer;
-precision highp usampler2D;
-precision highp uimage2D;
+// reference: B9F661CDC3BAE227, C6C603AD23B7BE7F
+// program: 1A9F70669A3C74DF, F0531050140A5884, C6C603AD23B7BE7F
+// shader: 8B30, 097920794A6F50F7
 in vec4 primary_color;
 in vec2 texcoord0;
 in vec2 texcoord1;
@@ -3320,15 +3276,9 @@ combiner_buffer = next_combiner_buffer;
 gl_FragDepth = depth;
 color = byteround(last_tex_env_out);
 }
-// reference: 67473BD260EEBCFD, 5A21DE7E07AB5AC7
-// program: A0A01900FB0E2CEC, F0531050140A5884, 5A21DE7E07AB5AC7
-// shader: 8B30, 0365AFC3D2833ABF
-
-precision highp int;
-precision highp float;
-precision highp samplerBuffer;
-precision highp usampler2D;
-precision highp uimage2D;
+// reference: 67473BD260EEBCFD, 097920794A6F50F7
+// program: 1A9F70669A3C74DF, F0531050140A5884, 097920794A6F50F7
+// shader: 8B30, 7EDFE9A009F66D2D
 in vec4 primary_color;
 in vec2 texcoord0;
 in vec2 texcoord1;
@@ -3538,15 +3488,9 @@ combiner_buffer = next_combiner_buffer;
 gl_FragDepth = depth;
 color = byteround(last_tex_env_out);
 }
-// reference: 5D9EE16C477017AD, 0365AFC3D2833ABF
-// program: A0A01900FB0E2CEC, F0531050140A5884, 0365AFC3D2833ABF
-// shader: 8B30, DBAB7B432EAEAE7D
-
-precision highp int;
-precision highp float;
-precision highp samplerBuffer;
-precision highp usampler2D;
-precision highp uimage2D;
+// reference: 5D9EE16C477017AD, 7EDFE9A009F66D2D
+// program: 1A9F70669A3C74DF, F0531050140A5884, 7EDFE9A009F66D2D
+// shader: 8B30, 5C244F154DA1309E
 in vec4 primary_color;
 in vec2 texcoord0;
 in vec2 texcoord1;
@@ -3751,16 +3695,10 @@ if (int(last_tex_env_out.a * 255.0) <= alphatest_ref) discard;
 gl_FragDepth = depth;
 color = byteround(last_tex_env_out);
 }
-// reference: 0CAC10A998501788, DBAB7B432EAEAE7D
-// program: A0A01900FB0E2CEC, F0531050140A5884, DBAB7B432EAEAE7D
-// reference: 9F7EA1AF90F922AF, 06F56F2630B83832
-// shader: 8B30, 99329F09C39EADEB
-
-precision highp int;
-precision highp float;
-precision highp samplerBuffer;
-precision highp usampler2D;
-precision highp uimage2D;
+// reference: 0CAC10A998501788, 5C244F154DA1309E
+// program: 1A9F70669A3C74DF, F0531050140A5884, 5C244F154DA1309E
+// reference: 9F7EA1AF90F922AF, 36F55378B7FE8570
+// shader: 8B30, 0B2F21C78555FEAA
 in vec4 primary_color;
 in vec2 texcoord0;
 in vec2 texcoord1;
@@ -3941,15 +3879,9 @@ if (int(last_tex_env_out.a * 255.0) <= alphatest_ref) discard;
 gl_FragDepth = depth;
 color = byteround(last_tex_env_out);
 }
-// reference: B9748374F5314446, 99329F09C39EADEB
-// program: 06F56F2630B83832, E4F72E6786B1F5DC, 99329F09C39EADEB
-// shader: 8B30, 02A7207975892E2C
-
-precision highp int;
-precision highp float;
-precision highp samplerBuffer;
-precision highp usampler2D;
-precision highp uimage2D;
+// reference: B9748374F5314446, 0B2F21C78555FEAA
+// program: 36F55378B7FE8570, E4F72E6786B1F5DC, 0B2F21C78555FEAA
+// shader: 8B30, FEBF5EE4741D81E1
 in vec4 primary_color;
 in vec2 texcoord0;
 in vec2 texcoord1;
@@ -4121,16 +4053,10 @@ if (int(last_tex_env_out.a * 255.0) <= alphatest_ref) discard;
 gl_FragDepth = depth;
 color = byteround(last_tex_env_out);
 }
-// reference: 64011D69B3765532, 02A7207975892E2C
-// program: 06F56F2630B83832, E4F72E6786B1F5DC, 02A7207975892E2C
-// reference: 149E76004B4083E8, 06F56F2630B83832
-// shader: 8B30, 3907E286D9662158
-
-precision highp int;
-precision highp float;
-precision highp samplerBuffer;
-precision highp usampler2D;
-precision highp uimage2D;
+// reference: 64011D69B3765532, FEBF5EE4741D81E1
+// program: 36F55378B7FE8570, E4F72E6786B1F5DC, FEBF5EE4741D81E1
+// reference: 149E76004B4083E8, 36F55378B7FE8570
+// shader: 8B30, 25A54B604309F4E5
 in vec4 primary_color;
 in vec2 texcoord0;
 in vec2 texcoord1;
@@ -4296,15 +4222,9 @@ if (int(last_tex_env_out.a * 255.0) <= alphatest_ref) discard;
 gl_FragDepth = depth;
 color = byteround(last_tex_env_out);
 }
-// reference: 0605656193D6D855, 3907E286D9662158
-// program: 06F56F2630B83832, E4F72E6786B1F5DC, 3907E286D9662158
-// shader: 8B30, 32519FA0A5D7625C
-
-precision highp int;
-precision highp float;
-precision highp samplerBuffer;
-precision highp usampler2D;
-precision highp uimage2D;
+// reference: 0605656193D6D855, 25A54B604309F4E5
+// program: 36F55378B7FE8570, E4F72E6786B1F5DC, 25A54B604309F4E5
+// shader: 8B30, F949FECD7D5407A2
 in vec4 primary_color;
 in vec2 texcoord0;
 in vec2 texcoord1;
@@ -4467,15 +4387,9 @@ if (int(last_tex_env_out.a * 255.0) <= alphatest_ref) discard;
 gl_FragDepth = depth;
 color = byteround(last_tex_env_out);
 }
-// reference: 10807477E48A212B, 32519FA0A5D7625C
-// program: 06F56F2630B83832, E4F72E6786B1F5DC, 32519FA0A5D7625C
-// shader: 8B30, 99329F095BF27FFC
-
-precision highp int;
-precision highp float;
-precision highp samplerBuffer;
-precision highp usampler2D;
-precision highp uimage2D;
+// reference: 10807477E48A212B, F949FECD7D5407A2
+// program: 36F55378B7FE8570, E4F72E6786B1F5DC, F949FECD7D5407A2
+// shader: 8B30, 0B2F21C7061E17BF
 in vec4 primary_color;
 in vec2 texcoord0;
 in vec2 texcoord1;
@@ -4656,15 +4570,9 @@ if (int(last_tex_env_out.a * 255.0) <= alphatest_ref) discard;
 gl_FragDepth = depth;
 color = byteround(last_tex_env_out);
 }
-// reference: 3092B42CF5314446, 99329F095BF27FFC
-// program: 06F56F2630B83832, E4F72E6786B1F5DC, 99329F095BF27FFC
-// shader: 8B30, E3B37246E89BD1AF
-
-precision highp int;
-precision highp float;
-precision highp samplerBuffer;
-precision highp usampler2D;
-precision highp uimage2D;
+// reference: 3092B42CF5314446, 0B2F21C7061E17BF
+// program: 36F55378B7FE8570, E4F72E6786B1F5DC, 0B2F21C7061E17BF
+// shader: 8B30, 333E5DA0A2BB960D
 in vec4 primary_color;
 in vec2 texcoord0;
 in vec2 texcoord1;
@@ -4889,15 +4797,9 @@ combiner_buffer = next_combiner_buffer;
 gl_FragDepth = depth;
 color = byteround(last_tex_env_out);
 }
-// reference: B045CDC47D4DD279, E3B37246E89BD1AF
-// program: A0A01900FB0E2CEC, F0531050140A5884, E3B37246E89BD1AF
-// shader: 8B30, 850BB99074BDC0F7
-
-precision highp int;
-precision highp float;
-precision highp samplerBuffer;
-precision highp usampler2D;
-precision highp uimage2D;
+// reference: B045CDC47D4DD279, 333E5DA0A2BB960D
+// program: 1A9F70669A3C74DF, F0531050140A5884, 333E5DA0A2BB960D
+// shader: 8B30, 268E5765EF79AEE3
 in vec4 primary_color;
 in vec2 texcoord0;
 in vec2 texcoord1;
@@ -5121,15 +5023,9 @@ combiner_buffer = next_combiner_buffer;
 gl_FragDepth = depth;
 color = byteround(last_tex_env_out);
 }
-// reference: 601CD4AD5D939D1F, 850BB99074BDC0F7
-// program: A0A01900FB0E2CEC, F0531050140A5884, 850BB99074BDC0F7
-// shader: 8B30, 8253E51D288EC453
-
-precision highp int;
-precision highp float;
-precision highp samplerBuffer;
-precision highp usampler2D;
-precision highp uimage2D;
+// reference: 601CD4AD5D939D1F, 268E5765EF79AEE3
+// program: 1A9F70669A3C74DF, F0531050140A5884, 268E5765EF79AEE3
+// shader: 8B30, AC5DBFA3CE712CB3
 in vec4 primary_color;
 in vec2 texcoord0;
 in vec2 texcoord1;
@@ -5353,15 +5249,9 @@ combiner_buffer = next_combiner_buffer;
 gl_FragDepth = depth;
 color = byteround(last_tex_env_out);
 }
-// reference: B7C81F185C89069F, 8253E51D288EC453
-// program: A0A01900FB0E2CEC, F0531050140A5884, 8253E51D288EC453
-// shader: 8B30, AB556A27C14B7D1C
-
-precision highp int;
-precision highp float;
-precision highp samplerBuffer;
-precision highp usampler2D;
-precision highp uimage2D;
+// reference: B7C81F185C89069F, AC5DBFA3CE712CB3
+// program: 1A9F70669A3C74DF, F0531050140A5884, AC5DBFA3CE712CB3
+// shader: 8B30, 98542B6344D6479D
 in vec4 primary_color;
 in vec2 texcoord0;
 in vec2 texcoord1;
@@ -5589,15 +5479,9 @@ combiner_buffer = next_combiner_buffer;
 gl_FragDepth = depth;
 color = byteround(last_tex_env_out);
 }
-// reference: 0C08367B92592D61, AB556A27C14B7D1C
-// program: A0A01900FB0E2CEC, F0531050140A5884, AB556A27C14B7D1C
-// shader: 8B30, 572437B134D53A58
-
-precision highp int;
-precision highp float;
-precision highp samplerBuffer;
-precision highp usampler2D;
-precision highp uimage2D;
+// reference: 0C08367B92592D61, 98542B6344D6479D
+// program: 1A9F70669A3C74DF, F0531050140A5884, 98542B6344D6479D
+// shader: 8B30, 8F28F5AC2DEC891A
 in vec4 primary_color;
 in vec2 texcoord0;
 in vec2 texcoord1;
@@ -5821,15 +5705,9 @@ combiner_buffer = next_combiner_buffer;
 gl_FragDepth = depth;
 color = byteround(last_tex_env_out);
 }
-// reference: A4681E236D9EB848, 572437B134D53A58
-// program: A0A01900FB0E2CEC, F0531050140A5884, 572437B134D53A58
-// shader: 8B30, 6D7E1F4AF7C4737C
-
-precision highp int;
-precision highp float;
-precision highp samplerBuffer;
-precision highp usampler2D;
-precision highp uimage2D;
+// reference: A4681E236D9EB848, 8F28F5AC2DEC891A
+// program: 1A9F70669A3C74DF, F0531050140A5884, 8F28F5AC2DEC891A
+// shader: 8B30, 1B08F421BEED7CD6
 in vec4 primary_color;
 in vec2 texcoord0;
 in vec2 texcoord1;
@@ -6027,15 +5905,9 @@ combiner_buffer = next_combiner_buffer;
 gl_FragDepth = depth;
 color = byteround(last_tex_env_out);
 }
-// reference: B29228998A9914FA, 6D7E1F4AF7C4737C
-// program: A0A01900FB0E2CEC, F0531050140A5884, 6D7E1F4AF7C4737C
-// shader: 8B30, A7954DEA0B803A61
-
-precision highp int;
-precision highp float;
-precision highp samplerBuffer;
-precision highp usampler2D;
-precision highp uimage2D;
+// reference: B29228998A9914FA, 1B08F421BEED7CD6
+// program: 1A9F70669A3C74DF, F0531050140A5884, 1B08F421BEED7CD6
+// shader: 8B30, C703402B53C26DA1
 in vec4 primary_color;
 in vec2 texcoord0;
 in vec2 texcoord1;
@@ -6229,15 +6101,9 @@ combiner_buffer = next_combiner_buffer;
 gl_FragDepth = depth;
 color = byteround(last_tex_env_out);
 }
-// reference: 8B1822F30899775E, A7954DEA0B803A61
-// program: A0A01900FB0E2CEC, F0531050140A5884, A7954DEA0B803A61
-// shader: 8B30, 7A6CC210392D9876
-
-precision highp int;
-precision highp float;
-precision highp samplerBuffer;
-precision highp usampler2D;
-precision highp uimage2D;
+// reference: 8B1822F30899775E, C703402B53C26DA1
+// program: 1A9F70669A3C74DF, F0531050140A5884, C703402B53C26DA1
+// shader: 8B30, 2788B4E425F03854
 in vec4 primary_color;
 in vec2 texcoord0;
 in vec2 texcoord1;
@@ -6431,15 +6297,9 @@ combiner_buffer = next_combiner_buffer;
 gl_FragDepth = depth;
 color = byteround(last_tex_env_out);
 }
-// reference: 248A0934C97A4194, 7A6CC210392D9876
-// program: A0A01900FB0E2CEC, F0531050140A5884, 7A6CC210392D9876
-// shader: 8B30, 3C3FAFB549D94EB2
-
-precision highp int;
-precision highp float;
-precision highp samplerBuffer;
-precision highp usampler2D;
-precision highp uimage2D;
+// reference: 248A0934C97A4194, 2788B4E425F03854
+// program: 1A9F70669A3C74DF, F0531050140A5884, 2788B4E425F03854
+// shader: 8B30, 3B106CD7B2F100F8
 in vec4 primary_color;
 in vec2 texcoord0;
 in vec2 texcoord1;
@@ -6637,15 +6497,9 @@ combiner_buffer = next_combiner_buffer;
 gl_FragDepth = depth;
 color = byteround(last_tex_env_out);
 }
-// reference: 99931B8B47A9E820, 3C3FAFB549D94EB2
-// program: A0A01900FB0E2CEC, F0531050140A5884, 3C3FAFB549D94EB2
-// shader: 8B30, 8614F540B8FFFCE3
-
-precision highp int;
-precision highp float;
-precision highp samplerBuffer;
-precision highp usampler2D;
-precision highp uimage2D;
+// reference: 99931B8B47A9E820, 3B106CD7B2F100F8
+// program: 1A9F70669A3C74DF, F0531050140A5884, 3B106CD7B2F100F8
+// shader: 8B30, 64739E6B66C43269
 in vec4 primary_color;
 in vec2 texcoord0;
 in vec2 texcoord1;
@@ -6826,15 +6680,9 @@ if (int(last_tex_env_out.a * 255.0) <= alphatest_ref) discard;
 gl_FragDepth = depth;
 color = byteround(last_tex_env_out);
 }
-// reference: B483BEB2F5314446, 8614F540B8FFFCE3
-// program: 06F56F2630B83832, E4F72E6786B1F5DC, 8614F540B8FFFCE3
-// shader: 8B30, 91257F1B6F2A76F7
-
-precision highp int;
-precision highp float;
-precision highp samplerBuffer;
-precision highp usampler2D;
-precision highp uimage2D;
+// reference: B483BEB2F5314446, 64739E6B66C43269
+// program: 36F55378B7FE8570, E4F72E6786B1F5DC, 64739E6B66C43269
+// shader: 8B30, 94B6891F64D83622
 in vec4 primary_color;
 in vec2 texcoord0;
 in vec2 texcoord1;
@@ -7015,15 +6863,9 @@ if (int(last_tex_env_out.a * 255.0) <= alphatest_ref) discard;
 gl_FragDepth = depth;
 color = byteround(last_tex_env_out);
 }
-// reference: 422C06C5DD3815A7, 91257F1B6F2A76F7
-// program: 06F56F2630B83832, E4F72E6786B1F5DC, 91257F1B6F2A76F7
-// shader: 8B30, F20291EB19604A25
-
-precision highp int;
-precision highp float;
-precision highp samplerBuffer;
-precision highp usampler2D;
-precision highp uimage2D;
+// reference: 422C06C5DD3815A7, 94B6891F64D83622
+// program: 36F55378B7FE8570, E4F72E6786B1F5DC, 94B6891F64D83622
+// shader: 8B30, 8D6BCC705A3DC0CD
 in vec4 primary_color;
 in vec2 texcoord0;
 in vec2 texcoord1;
@@ -7192,15 +7034,9 @@ if (int(last_tex_env_out.a * 255.0) <= alphatest_ref) discard;
 gl_FragDepth = depth;
 color = byteround(last_tex_env_out);
 }
-// reference: 569F798CEE5736FB, F20291EB19604A25
-// program: 06F56F2630B83832, E4F72E6786B1F5DC, F20291EB19604A25
-// shader: 8B30, 99329F09AEEEF73D
-
-precision highp int;
-precision highp float;
-precision highp samplerBuffer;
-precision highp usampler2D;
-precision highp uimage2D;
+// reference: 569F798CEE5736FB, 8D6BCC705A3DC0CD
+// program: 36F55378B7FE8570, E4F72E6786B1F5DC, 8D6BCC705A3DC0CD
+// shader: 8B30, 0B2F21C7EA88F911
 in vec4 primary_color;
 in vec2 texcoord0;
 in vec2 texcoord1;
@@ -7381,15 +7217,9 @@ if (int(last_tex_env_out.a * 255.0) <= alphatest_ref) discard;
 gl_FragDepth = depth;
 color = byteround(last_tex_env_out);
 }
-// reference: FA4D4F99F5314446, 99329F09AEEEF73D
-// program: 06F56F2630B83832, E4F72E6786B1F5DC, 99329F09AEEEF73D
-// shader: 8B30, 99329F093682252A
-
-precision highp int;
-precision highp float;
-precision highp samplerBuffer;
-precision highp usampler2D;
-precision highp uimage2D;
+// reference: FA4D4F99F5314446, 0B2F21C7EA88F911
+// program: 36F55378B7FE8570, E4F72E6786B1F5DC, 0B2F21C7EA88F911
+// shader: 8B30, 0B2F21C769C31004
 in vec4 primary_color;
 in vec2 texcoord0;
 in vec2 texcoord1;
@@ -7570,15 +7400,9 @@ if (int(last_tex_env_out.a * 255.0) <= alphatest_ref) discard;
 gl_FragDepth = depth;
 color = byteround(last_tex_env_out);
 }
-// reference: 73AB78C1F5314446, 99329F093682252A
-// program: 06F56F2630B83832, E4F72E6786B1F5DC, 99329F093682252A
-// shader: 8B30, 6DC523A8932A06D4
-
-precision highp int;
-precision highp float;
-precision highp samplerBuffer;
-precision highp usampler2D;
-precision highp uimage2D;
+// reference: 73AB78C1F5314446, 0B2F21C769C31004
+// program: 36F55378B7FE8570, E4F72E6786B1F5DC, 0B2F21C769C31004
+// shader: 8B30, 9E09F28A2C4840E1
 in vec4 primary_color;
 in vec2 texcoord0;
 in vec2 texcoord1;
@@ -7791,15 +7615,9 @@ last_tex_env_out.rgb = mix(fog_color.rgb, last_tex_env_out.rgb, fog_factor);
 gl_FragDepth = depth;
 color = byteround(last_tex_env_out);
 }
-// reference: D7812AA4EA2685DE, 6DC523A8932A06D4
-// program: A0A01900FB0E2CEC, F0531050140A5884, 6DC523A8932A06D4
-// shader: 8B30, 9CE0C18FE1B5A6DD
-
-precision highp int;
-precision highp float;
-precision highp samplerBuffer;
-precision highp usampler2D;
-precision highp uimage2D;
+// reference: D7812AA4EA2685DE, 9E09F28A2C4840E1
+// program: 1A9F70669A3C74DF, F0531050140A5884, 9E09F28A2C4840E1
+// shader: 8B30, B41BA7401C6D742B
 in vec4 primary_color;
 in vec2 texcoord0;
 in vec2 texcoord1;
@@ -8034,15 +7852,9 @@ last_tex_env_out.rgb = mix(fog_color.rgb, last_tex_env_out.rgb, fog_factor);
 gl_FragDepth = depth;
 color = byteround(last_tex_env_out);
 }
-// reference: 57C16CEFF7C24ECE, 9CE0C18FE1B5A6DD
-// program: A0A01900FB0E2CEC, F0531050140A5884, 9CE0C18FE1B5A6DD
-// shader: 8B30, 9F21BC711BD34CEE
-
-precision highp int;
-precision highp float;
-precision highp samplerBuffer;
-precision highp usampler2D;
-precision highp uimage2D;
+// reference: 57C16CEFF7C24ECE, B41BA7401C6D742B
+// program: 1A9F70669A3C74DF, F0531050140A5884, B41BA7401C6D742B
+// shader: 8B30, 8FDA4DF42EDE39C5
 in vec4 primary_color;
 in vec2 texcoord0;
 in vec2 texcoord1;
@@ -8271,16 +8083,10 @@ last_tex_env_out.rgb = mix(fog_color.rgb, last_tex_env_out.rgb, fog_factor);
 gl_FragDepth = depth;
 color = byteround(last_tex_env_out);
 }
-// reference: 06F39D2AE03D0DD7, 9F21BC711BD34CEE
-// program: A0A01900FB0E2CEC, F0531050140A5884, 9F21BC711BD34CEE
-// reference: 57C16CEFD3AAE6F1, 9CE0C18FE1B5A6DD
-// shader: 8B30, 001767485E1FBEEC
-
-precision highp int;
-precision highp float;
-precision highp samplerBuffer;
-precision highp usampler2D;
-precision highp uimage2D;
+// reference: 06F39D2AE03D0DD7, 8FDA4DF42EDE39C5
+// program: 1A9F70669A3C74DF, F0531050140A5884, 8FDA4DF42EDE39C5
+// reference: 57C16CEFD3AAE6F1, B41BA7401C6D742B
+// shader: 8B30, A08ED1714BFCB217
 in vec4 primary_color;
 in vec2 texcoord0;
 in vec2 texcoord1;
@@ -8510,15 +8316,9 @@ last_tex_env_out.rgb = mix(fog_color.rgb, last_tex_env_out.rgb, fog_factor);
 gl_FragDepth = depth;
 color = byteround(last_tex_env_out);
 }
-// reference: 06F39D2A0C8AE6D4, 001767485E1FBEEC
-// program: A0A01900FB0E2CEC, F0531050140A5884, 001767485E1FBEEC
-// shader: 8B30, 276E546A7FDB5E58
-
-precision highp int;
-precision highp float;
-precision highp samplerBuffer;
-precision highp usampler2D;
-precision highp uimage2D;
+// reference: 06F39D2A0C8AE6D4, A08ED1714BFCB217
+// program: 1A9F70669A3C74DF, F0531050140A5884, A08ED1714BFCB217
+// shader: 8B30, 5082E4C251040713
 in vec4 primary_color;
 in vec2 texcoord0;
 in vec2 texcoord1;
@@ -8731,15 +8531,9 @@ last_tex_env_out.rgb = mix(fog_color.rgb, last_tex_env_out.rgb, fog_factor);
 gl_FragDepth = depth;
 color = byteround(last_tex_env_out);
 }
-// reference: E8AA9F14AB9715AB, 276E546A7FDB5E58
-// program: A0A01900FB0E2CEC, F0531050140A5884, 276E546A7FDB5E58
-// shader: 8B30, 67865E9391D8B0DB
-
-precision highp int;
-precision highp float;
-precision highp samplerBuffer;
-precision highp usampler2D;
-precision highp uimage2D;
+// reference: E8AA9F14AB9715AB, 5082E4C251040713
+// program: 1A9F70669A3C74DF, F0531050140A5884, 5082E4C251040713
+// shader: 8B30, 0595273BC03CA08C
 in vec4 primary_color;
 in vec2 texcoord0;
 in vec2 texcoord1;
@@ -8955,15 +8749,9 @@ last_tex_env_out.rgb = mix(fog_color.rgb, last_tex_env_out.rgb, fog_factor);
 gl_FragDepth = depth;
 color = byteround(last_tex_env_out);
 }
-// reference: 04A2F3651AA7363D, 67865E9391D8B0DB
-// program: A0A01900FB0E2CEC, F0531050140A5884, 67865E9391D8B0DB
-// shader: 8B30, 71F9AEC51BF107CA
-
-precision highp int;
-precision highp float;
-precision highp samplerBuffer;
-precision highp usampler2D;
-precision highp uimage2D;
+// reference: 04A2F3651AA7363D, 0595273BC03CA08C
+// program: 1A9F70669A3C74DF, F0531050140A5884, 0595273BC03CA08C
+// shader: 8B30, 7D2A336FADB43BE6
 in vec4 primary_color;
 in vec2 texcoord0;
 in vec2 texcoord1;
@@ -9130,16 +8918,10 @@ combiner_buffer = next_combiner_buffer;
 gl_FragDepth = depth;
 color = byteround(last_tex_env_out);
 }
-// reference: A2F542542E725395, 71F9AEC51BF107CA
-// program: A0A01900FB0E2CEC, F0531050140A5884, 71F9AEC51BF107CA
-// reference: 149E760090F922AF, 06F56F2630B83832
-// shader: 8B30, 0D24B44795A30CE4
-
-precision highp int;
-precision highp float;
-precision highp samplerBuffer;
-precision highp usampler2D;
-precision highp uimage2D;
+// reference: A2F542542E725395, 7D2A336FADB43BE6
+// program: 1A9F70669A3C74DF, F0531050140A5884, 7D2A336FADB43BE6
+// reference: 149E760090F922AF, 36F55378B7FE8570
+// shader: 8B30, 30EE8464792C55A5
 in vec4 primary_color;
 in vec2 texcoord0;
 in vec2 texcoord1;
@@ -9361,15 +9143,9 @@ last_tex_env_out.rgb = mix(fog_color.rgb, last_tex_env_out.rgb, fog_factor);
 gl_FragDepth = depth;
 color = byteround(last_tex_env_out);
 }
-// reference: DBA38B8B0D20F7C3, 0D24B44795A30CE4
-// program: A0A01900FB0E2CEC, F0531050140A5884, 0D24B44795A30CE4
-// shader: 8B30, 7F25E4049F2BAC92
-
-precision highp int;
-precision highp float;
-precision highp samplerBuffer;
-precision highp usampler2D;
-precision highp uimage2D;
+// reference: DBA38B8B0D20F7C3, 30EE8464792C55A5
+// program: 1A9F70669A3C74DF, F0531050140A5884, 30EE8464792C55A5
+// shader: 8B30, 5AB2BF7C897CD70A
 in vec4 primary_color;
 in vec2 texcoord0;
 in vec2 texcoord1;
@@ -9580,15 +9356,9 @@ last_tex_env_out.rgb = mix(fog_color.rgb, last_tex_env_out.rgb, fog_factor);
 gl_FragDepth = depth;
 color = byteround(last_tex_env_out);
 }
-// reference: 3D8C60D074E7FC8B, 7F25E4049F2BAC92
-// program: A0A01900FB0E2CEC, F0531050140A5884, 7F25E4049F2BAC92
-// shader: 8B30, F6E9E9F38A33C091
-
-precision highp int;
-precision highp float;
-precision highp samplerBuffer;
-precision highp usampler2D;
-precision highp uimage2D;
+// reference: 3D8C60D074E7FC8B, 5AB2BF7C897CD70A
+// program: 1A9F70669A3C74DF, F0531050140A5884, 5AB2BF7C897CD70A
+// shader: 8B30, CDAD7660C2CD0D77
 in vec4 primary_color;
 in vec2 texcoord0;
 in vec2 texcoord1;
@@ -9800,15 +9570,9 @@ last_tex_env_out.rgb = mix(fog_color.rgb, last_tex_env_out.rgb, fog_factor);
 gl_FragDepth = depth;
 color = byteround(last_tex_env_out);
 }
-// reference: 3D8C60D098501788, F6E9E9F38A33C091
-// program: A0A01900FB0E2CEC, F0531050140A5884, F6E9E9F38A33C091
-// shader: 8B30, 7F9D5ED14B2C74A1
-
-precision highp int;
-precision highp float;
-precision highp samplerBuffer;
-precision highp usampler2D;
-precision highp uimage2D;
+// reference: 3D8C60D098501788, CDAD7660C2CD0D77
+// program: 1A9F70669A3C74DF, F0531050140A5884, CDAD7660C2CD0D77
+// shader: 8B30, 8BDE82EB2870B12A
 in vec4 primary_color;
 in vec2 texcoord0;
 in vec2 texcoord1;
@@ -9999,15 +9763,9 @@ combiner_buffer = next_combiner_buffer;
 gl_FragDepth = depth;
 color = byteround(last_tex_env_out);
 }
-// reference: B7DF9B84961F261D, 7F9D5ED14B2C74A1
-// program: A0A01900FB0E2CEC, F0531050140A5884, 7F9D5ED14B2C74A1
-// shader: 8B30, 2D346FB12E5D9AE5
-
-precision highp int;
-precision highp float;
-precision highp samplerBuffer;
-precision highp usampler2D;
-precision highp uimage2D;
+// reference: B7DF9B84961F261D, 8BDE82EB2870B12A
+// program: 1A9F70669A3C74DF, F0531050140A5884, 8BDE82EB2870B12A
+// shader: 8B30, 4239E6F7B7E430E6
 in vec4 primary_color;
 in vec2 texcoord0;
 in vec2 texcoord1;
@@ -10222,15 +9980,9 @@ last_tex_env_out.rgb = mix(fog_color.rgb, last_tex_env_out.rgb, fog_factor);
 gl_FragDepth = depth;
 color = byteround(last_tex_env_out);
 }
-// reference: 4A9056689C34623E, 2D346FB12E5D9AE5
-// program: A0A01900FB0E2CEC, F0531050140A5884, 2D346FB12E5D9AE5
-// shader: 8B30, B7364AEA0B811BD3
-
-precision highp int;
-precision highp float;
-precision highp samplerBuffer;
-precision highp usampler2D;
-precision highp uimage2D;
+// reference: 4A9056689C34623E, 4239E6F7B7E430E6
+// program: 1A9F70669A3C74DF, F0531050140A5884, 4239E6F7B7E430E6
+// shader: 8B30, A244ACC72CFFA55B
 in vec4 primary_color;
 in vec2 texcoord0;
 in vec2 texcoord1;
@@ -10446,16 +10198,10 @@ last_tex_env_out.rgb = mix(fog_color.rgb, last_tex_env_out.rgb, fog_factor);
 gl_FragDepth = depth;
 color = byteround(last_tex_env_out);
 }
-// reference: 4A90566854EB2102, B7364AEA0B811BD3
-// program: A0A01900FB0E2CEC, F0531050140A5884, B7364AEA0B811BD3
-// reference: 4A9056687083893D, B7364AEA0B811BD3
-// shader: 8B30, C2E1A2E54F428DF3
-
-precision highp int;
-precision highp float;
-precision highp samplerBuffer;
-precision highp usampler2D;
-precision highp uimage2D;
+// reference: 4A90566854EB2102, A244ACC72CFFA55B
+// program: 1A9F70669A3C74DF, F0531050140A5884, A244ACC72CFFA55B
+// reference: 4A9056687083893D, A244ACC72CFFA55B
+// shader: 8B30, AC4A0726BCCFA3B8
 in vec4 primary_color;
 in vec2 texcoord0;
 in vec2 texcoord1;
@@ -10672,16 +10418,10 @@ last_tex_env_out.rgb = mix(fog_color.rgb, last_tex_env_out.rgb, fog_factor);
 gl_FragDepth = depth;
 color = byteround(last_tex_env_out);
 }
-// reference: 6CBE91156318BF92, C2E1A2E54F428DF3
-// program: A0A01900FB0E2CEC, F0531050140A5884, C2E1A2E54F428DF3
-// reference: 6CBE9115477017AD, C2E1A2E54F428DF3
-// shader: 8B30, 08B1AA441F5F6FC6
-
-precision highp int;
-precision highp float;
-precision highp samplerBuffer;
-precision highp usampler2D;
-precision highp uimage2D;
+// reference: 6CBE91156318BF92, AC4A0726BCCFA3B8
+// program: 1A9F70669A3C74DF, F0531050140A5884, AC4A0726BCCFA3B8
+// reference: 6CBE9115477017AD, AC4A0726BCCFA3B8
+// shader: 8B30, 393BCF1369606F65
 in vec4 primary_color;
 in vec2 texcoord0;
 in vec2 texcoord1;
@@ -10843,15 +10583,9 @@ combiner_buffer = next_combiner_buffer;
 gl_FragDepth = depth;
 color = byteround(last_tex_env_out);
 }
-// reference: 6A19C1DFE1E30FC0, 08B1AA441F5F6FC6
-// program: A0A01900FB0E2CEC, F0531050140A5884, 08B1AA441F5F6FC6
-// shader: 8B30, 69126DDB9F369A3C
-
-precision highp int;
-precision highp float;
-precision highp samplerBuffer;
-precision highp usampler2D;
-precision highp uimage2D;
+// reference: 6A19C1DFE1E30FC0, 393BCF1369606F65
+// program: 1A9F70669A3C74DF, F0531050140A5884, 393BCF1369606F65
+// shader: 8B30, 0B8D1AB9512C6386
 in vec4 primary_color;
 in vec2 texcoord0;
 in vec2 texcoord1;
@@ -11013,15 +10747,9 @@ combiner_buffer = next_combiner_buffer;
 gl_FragDepth = depth;
 color = byteround(last_tex_env_out);
 }
-// reference: 110AB562E3D5F427, 69126DDB9F369A3C
-// program: A0A01900FB0E2CEC, F0531050140A5884, 69126DDB9F369A3C
-// shader: 8B30, 30E9E01BBAE5605A
-
-precision highp int;
-precision highp float;
-precision highp samplerBuffer;
-precision highp usampler2D;
-precision highp uimage2D;
+// reference: 110AB562E3D5F427, 0B8D1AB9512C6386
+// program: 1A9F70669A3C74DF, F0531050140A5884, 0B8D1AB9512C6386
+// shader: 8B30, B216C466B26875E5
 in vec4 primary_color;
 in vec2 texcoord0;
 in vec2 texcoord1;
@@ -11191,15 +10919,9 @@ combiner_buffer = next_combiner_buffer;
 gl_FragDepth = depth;
 color = byteround(last_tex_env_out);
 }
-// reference: E76B6D7D3CB04597, 30E9E01BBAE5605A
-// program: A0A01900FB0E2CEC, F0531050140A5884, 30E9E01BBAE5605A
-// shader: 8B30, 477BE635BAA3C804
-
-precision highp int;
-precision highp float;
-precision highp samplerBuffer;
-precision highp usampler2D;
-precision highp uimage2D;
+// reference: E76B6D7D3CB04597, B216C466B26875E5
+// program: 1A9F70669A3C74DF, F0531050140A5884, B216C466B26875E5
+// shader: 8B30, 5367115587B24670
 in vec4 primary_color;
 in vec2 texcoord0;
 in vec2 texcoord1;
@@ -11408,15 +11130,9 @@ combiner_buffer = next_combiner_buffer;
 gl_FragDepth = depth;
 color = byteround(last_tex_env_out);
 }
-// reference: 8CA0667E02C5D741, 477BE635BAA3C804
-// program: A0A01900FB0E2CEC, F0531050140A5884, 477BE635BAA3C804
-// shader: 8B30, 82A419CEC1612E39
-
-precision highp int;
-precision highp float;
-precision highp samplerBuffer;
-precision highp usampler2D;
-precision highp uimage2D;
+// reference: 8CA0667E02C5D741, 5367115587B24670
+// program: 1A9F70669A3C74DF, F0531050140A5884, 5367115587B24670
+// shader: 8B30, 5F5F10D6A62E6DFD
 in vec4 primary_color;
 in vec2 texcoord0;
 in vec2 texcoord1;
@@ -11649,15 +11365,9 @@ last_tex_env_out.rgb = mix(fog_color.rgb, last_tex_env_out.rgb, fog_factor);
 gl_FragDepth = depth;
 color = byteround(last_tex_env_out);
 }
-// reference: 71EFAB9208EE9362, 82A419CEC1612E39
-// program: A0A01900FB0E2CEC, F0531050140A5884, 82A419CEC1612E39
-// shader: 8B30, 6F1903BB0A8255DF
-
-precision highp int;
-precision highp float;
-precision highp samplerBuffer;
-precision highp usampler2D;
-precision highp uimage2D;
+// reference: 71EFAB9208EE9362, 5F5F10D6A62E6DFD
+// program: 1A9F70669A3C74DF, F0531050140A5884, 5F5F10D6A62E6DFD
+// shader: 8B30, 9C4EE380CB548533
 in vec4 primary_color;
 in vec2 texcoord0;
 in vec2 texcoord1;
@@ -11891,16 +11601,10 @@ last_tex_env_out.rgb = mix(fog_color.rgb, last_tex_env_out.rgb, fog_factor);
 gl_FragDepth = depth;
 color = byteround(last_tex_env_out);
 }
-// reference: 71EFAB92C031D05E, 6F1903BB0A8255DF
-// program: A0A01900FB0E2CEC, F0531050140A5884, 6F1903BB0A8255DF
-// reference: 71EFAB92E4597861, 6F1903BB0A8255DF
-// shader: 8B30, A8944920BB4C62F1
-
-precision highp int;
-precision highp float;
-precision highp samplerBuffer;
-precision highp usampler2D;
-precision highp uimage2D;
+// reference: 71EFAB92C031D05E, 9C4EE380CB548533
+// program: 1A9F70669A3C74DF, F0531050140A5884, 9C4EE380CB548533
+// reference: 71EFAB92E4597861, 9C4EE380CB548533
+// shader: 8B30, 21ECC5BA6E3F14E8
 in vec4 primary_color;
 in vec2 texcoord0;
 in vec2 texcoord1;
@@ -12138,15 +11842,9 @@ last_tex_env_out.rgb = mix(fog_color.rgb, last_tex_env_out.rgb, fog_factor);
 gl_FragDepth = depth;
 color = byteround(last_tex_env_out);
 }
-// reference: 70B946AFE03D0DD7, A8944920BB4C62F1
-// program: A0A01900FB0E2CEC, F0531050140A5884, A8944920BB4C62F1
-// shader: 8B30, 731F4AD85AF8EE96
-
-precision highp int;
-precision highp float;
-precision highp samplerBuffer;
-precision highp usampler2D;
-precision highp uimage2D;
+// reference: 70B946AFE03D0DD7, 21ECC5BA6E3F14E8
+// program: 1A9F70669A3C74DF, F0531050140A5884, 21ECC5BA6E3F14E8
+// shader: 8B30, 14C56CC6448CC7AB
 in vec4 primary_color;
 in vec2 texcoord0;
 in vec2 texcoord1;
@@ -12385,15 +12083,9 @@ last_tex_env_out.rgb = mix(fog_color.rgb, last_tex_env_out.rgb, fog_factor);
 gl_FragDepth = depth;
 color = byteround(last_tex_env_out);
 }
-// reference: 70B946AF0C8AE6D4, 731F4AD85AF8EE96
-// program: A0A01900FB0E2CEC, F0531050140A5884, 731F4AD85AF8EE96
-// shader: 8B30, FC823F484CD10D71
-
-precision highp int;
-precision highp float;
-precision highp samplerBuffer;
-precision highp usampler2D;
-precision highp uimage2D;
+// reference: 70B946AF0C8AE6D4, 14C56CC6448CC7AB
+// program: 1A9F70669A3C74DF, F0531050140A5884, 14C56CC6448CC7AB
+// shader: 8B30, 8F6089AD1BA440D0
 in vec4 primary_color;
 in vec2 texcoord0;
 in vec2 texcoord1;
@@ -12611,15 +12303,9 @@ combiner_buffer = next_combiner_buffer;
 gl_FragDepth = depth;
 color = byteround(last_tex_env_out);
 }
-// reference: FAEABDFB02C5D741, FC823F484CD10D71
-// program: A0A01900FB0E2CEC, F0531050140A5884, FC823F484CD10D71
-// shader: 8B30, 61D383383055DB4D
-
-precision highp int;
-precision highp float;
-precision highp samplerBuffer;
-precision highp usampler2D;
-precision highp uimage2D;
+// reference: FAEABDFB02C5D741, 8F6089AD1BA440D0
+// program: 1A9F70669A3C74DF, F0531050140A5884, 8F6089AD1BA440D0
+// shader: 8B30, 99BE207F94CB75E9
 in vec4 primary_color;
 in vec2 texcoord0;
 in vec2 texcoord1;
@@ -12861,15 +12547,9 @@ last_tex_env_out.rgb = mix(fog_color.rgb, last_tex_env_out.rgb, fog_factor);
 gl_FragDepth = depth;
 color = byteround(last_tex_env_out);
 }
-// reference: 07A5701708EE9362, 61D383383055DB4D
-// program: A0A01900FB0E2CEC, F0531050140A5884, 61D383383055DB4D
-// shader: 8B30, E537FF1DE50B728A
-
-precision highp int;
-precision highp float;
-precision highp samplerBuffer;
-precision highp usampler2D;
-precision highp uimage2D;
+// reference: 07A5701708EE9362, 99BE207F94CB75E9
+// program: 1A9F70669A3C74DF, F0531050140A5884, 99BE207F94CB75E9
+// shader: 8B30, FDB217430B208C91
 in vec4 primary_color;
 in vec2 texcoord0;
 in vec2 texcoord1;
@@ -13112,16 +12792,10 @@ last_tex_env_out.rgb = mix(fog_color.rgb, last_tex_env_out.rgb, fog_factor);
 gl_FragDepth = depth;
 color = byteround(last_tex_env_out);
 }
-// reference: 07A57017C031D05E, E537FF1DE50B728A
-// program: A0A01900FB0E2CEC, F0531050140A5884, E537FF1DE50B728A
-// reference: 07A57017E4597861, E537FF1DE50B728A
-// shader: 8B30, C401F41A02EB5DF5
-
-precision highp int;
-precision highp float;
-precision highp samplerBuffer;
-precision highp usampler2D;
-precision highp uimage2D;
+// reference: 07A57017C031D05E, FDB217430B208C91
+// program: 1A9F70669A3C74DF, F0531050140A5884, FDB217430B208C91
+// reference: 07A57017E4597861, FDB217430B208C91
+// shader: 8B30, 235A8CBDB1EE3945
 in vec4 primary_color;
 in vec2 texcoord0;
 in vec2 texcoord1;
@@ -13365,16 +13039,10 @@ last_tex_env_out.rgb = mix(fog_color.rgb, last_tex_env_out.rgb, fog_factor);
 gl_FragDepth = depth;
 color = byteround(last_tex_env_out);
 }
-// reference: 218BB76AF7C24ECE, C401F41A02EB5DF5
-// program: A0A01900FB0E2CEC, F0531050140A5884, C401F41A02EB5DF5
-// reference: 218BB76AD3AAE6F1, C401F41A02EB5DF5
-// shader: 8B30, 54AAF9D0749B5FA9
-
-precision highp int;
-precision highp float;
-precision highp samplerBuffer;
-precision highp usampler2D;
-precision highp uimage2D;
+// reference: 218BB76AF7C24ECE, 235A8CBDB1EE3945
+// program: 1A9F70669A3C74DF, F0531050140A5884, 235A8CBDB1EE3945
+// reference: 218BB76AD3AAE6F1, 235A8CBDB1EE3945
+// shader: 8B30, A524649BCEAECDD4
 in vec4 primary_color;
 in vec2 texcoord0;
 in vec2 texcoord1;
@@ -13587,16 +13255,10 @@ last_tex_env_out.rgb = mix(fog_color.rgb, last_tex_env_out.rgb, fog_factor);
 gl_FragDepth = depth;
 color = byteround(last_tex_env_out);
 }
-// reference: C4B4DE4E3F564BD2, 54AAF9D0749B5FA9
-// program: A0A01900FB0E2CEC, F0531050140A5884, 54AAF9D0749B5FA9
-// reference: 750E941AD395B3D1, 08B1AA441F5F6FC6
-// shader: 8B30, 67CA5F64C556E09D
-
-precision highp int;
-precision highp float;
-precision highp samplerBuffer;
-precision highp usampler2D;
-precision highp uimage2D;
+// reference: C4B4DE4E3F564BD2, A524649BCEAECDD4
+// program: 1A9F70669A3C74DF, F0531050140A5884, A524649BCEAECDD4
+// reference: 750E941AD395B3D1, 393BCF1369606F65
+// shader: 8B30, 2FEA5D791338F981
 in vec4 primary_color;
 in vec2 texcoord0;
 in vec2 texcoord1;
@@ -13818,15 +13480,9 @@ last_tex_env_out.rgb = mix(fog_color.rgb, last_tex_env_out.rgb, fog_factor);
 gl_FragDepth = depth;
 color = byteround(last_tex_env_out);
 }
-// reference: C8967F61D85039CF, 67CA5F64C556E09D
-// program: A0A01900FB0E2CEC, F0531050140A5884, 67CA5F64C556E09D
-// shader: 8B30, 8B3B07E88FFD975F
-
-precision highp int;
-precision highp float;
-precision highp samplerBuffer;
-precision highp usampler2D;
-precision highp uimage2D;
+// reference: C8967F61D85039CF, 2FEA5D791338F981
+// program: 1A9F70669A3C74DF, F0531050140A5884, 2FEA5D791338F981
+// shader: 8B30, 52A61A8BDDB3EFC9
 in vec4 primary_color;
 in vec2 texcoord0;
 in vec2 texcoord1;
@@ -14048,15 +13704,9 @@ last_tex_env_out.rgb = mix(fog_color.rgb, last_tex_env_out.rgb, fog_factor);
 gl_FragDepth = depth;
 color = byteround(last_tex_env_out);
 }
-// reference: F7BDCAD199E1A9BA, 8B3B07E88FFD975F
-// program: A0A01900FB0E2CEC, F0531050140A5884, 8B3B07E88FFD975F
-// shader: 8B30, 280A09BB3B3C43A1
-
-precision highp int;
-precision highp float;
-precision highp samplerBuffer;
-precision highp usampler2D;
-precision highp uimage2D;
+// reference: F7BDCAD199E1A9BA, 52A61A8BDDB3EFC9
+// program: 1A9F70669A3C74DF, F0531050140A5884, 52A61A8BDDB3EFC9
+// shader: 8B30, 09886D456A0AEA93
 in vec4 primary_color;
 in vec2 texcoord0;
 in vec2 texcoord1;
@@ -14281,15 +13931,9 @@ last_tex_env_out.rgb = mix(fog_color.rgb, last_tex_env_out.rgb, fog_factor);
 gl_FragDepth = depth;
 color = byteround(last_tex_env_out);
 }
-// reference: 1BB5A6A028D18A2C, 280A09BB3B3C43A1
-// program: A0A01900FB0E2CEC, F0531050140A5884, 280A09BB3B3C43A1
-// shader: 8B30, 5C4B0156803F33A4
-
-precision highp int;
-precision highp float;
-precision highp samplerBuffer;
-precision highp usampler2D;
-precision highp uimage2D;
+// reference: 1BB5A6A028D18A2C, 09886D456A0AEA93
+// program: 1A9F70669A3C74DF, F0531050140A5884, 09886D456A0AEA93
+// shader: 8B30, 60BADB4273FEE02B
 in vec4 primary_color;
 in vec2 texcoord0;
 in vec2 texcoord1;
@@ -14531,15 +14175,9 @@ last_tex_env_out.rgb = mix(fog_color.rgb, last_tex_env_out.rgb, fog_factor);
 gl_FragDepth = depth;
 color = byteround(last_tex_env_out);
 }
-// reference: A25F5845523B15B5, 5C4B0156803F33A4
-// program: A0A01900FB0E2CEC, F0531050140A5884, 5C4B0156803F33A4
-// shader: 8B30, 0B34F835F411E844
-
-precision highp int;
-precision highp float;
-precision highp samplerBuffer;
-precision highp usampler2D;
-precision highp uimage2D;
+// reference: A25F5845523B15B5, 60BADB4273FEE02B
+// program: 1A9F70669A3C74DF, F0531050140A5884, 60BADB4273FEE02B
+// shader: 8B30, 77CE385F68F74072
 in vec4 primary_color;
 in vec2 texcoord0;
 in vec2 texcoord1;
@@ -14781,15 +14419,9 @@ last_tex_env_out.rgb = mix(fog_color.rgb, last_tex_env_out.rgb, fog_factor);
 gl_FragDepth = depth;
 color = byteround(last_tex_env_out);
 }
-// reference: DAFD4A8D18747B3C, 0B34F835F411E844
-// program: A0A01900FB0E2CEC, F0531050140A5884, 0B34F835F411E844
-// shader: 8B30, 8F942750FDD1E6B3
-
-precision highp int;
-precision highp float;
-precision highp samplerBuffer;
-precision highp usampler2D;
-precision highp uimage2D;
+// reference: DAFD4A8D18747B3C, 77CE385F68F74072
+// program: 1A9F70669A3C74DF, F0531050140A5884, 77CE385F68F74072
+// shader: 8B30, 4041EB49FD05CDA6
 in vec4 primary_color;
 in vec2 texcoord0;
 in vec2 texcoord1;
@@ -15024,15 +14656,9 @@ last_tex_env_out.rgb = mix(fog_color.rgb, last_tex_env_out.rgb, fog_factor);
 gl_FragDepth = depth;
 color = byteround(last_tex_env_out);
 }
-// reference: C1D3F41FBBFEC8BD, 8F942750FDD1E6B3
-// program: A0A01900FB0E2CEC, F0531050140A5884, 8F942750FDD1E6B3
-// shader: 8B30, 5C2EEA8888180CEB
-
-precision highp int;
-precision highp float;
-precision highp samplerBuffer;
-precision highp usampler2D;
-precision highp uimage2D;
+// reference: C1D3F41FBBFEC8BD, 4041EB49FD05CDA6
+// program: 1A9F70669A3C74DF, F0531050140A5884, 4041EB49FD05CDA6
+// shader: 8B30, 6897A848DE6FD13A
 in vec4 primary_color;
 in vec2 texcoord0;
 in vec2 texcoord1;
@@ -15267,15 +14893,9 @@ last_tex_env_out.rgb = mix(fog_color.rgb, last_tex_env_out.rgb, fog_factor);
 gl_FragDepth = depth;
 color = byteround(last_tex_env_out);
 }
-// reference: 5C5D61BD83CD90A1, 5C2EEA8888180CEB
-// program: A0A01900FB0E2CEC, F0531050140A5884, 5C2EEA8888180CEB
-// shader: 8B30, 39993D7B1C836C24
-
-precision highp int;
-precision highp float;
-precision highp samplerBuffer;
-precision highp usampler2D;
-precision highp uimage2D;
+// reference: 5C5D61BD83CD90A1, 6897A848DE6FD13A
+// program: 1A9F70669A3C74DF, F0531050140A5884, 6897A848DE6FD13A
+// shader: 8B30, 038E998EBF98C045
 in vec4 primary_color;
 in vec2 texcoord0;
 in vec2 texcoord1;
@@ -15495,15 +15115,9 @@ last_tex_env_out.rgb = mix(fog_color.rgb, last_tex_env_out.rgb, fog_factor);
 gl_FragDepth = depth;
 color = byteround(last_tex_env_out);
 }
-// reference: 19E4C8EFD389DBF1, 39993D7B1C836C24
-// program: A0A01900FB0E2CEC, F0531050140A5884, 39993D7B1C836C24
-// shader: 8B30, 8F0AA0D951BDED66
-
-precision highp int;
-precision highp float;
-precision highp samplerBuffer;
-precision highp usampler2D;
-precision highp uimage2D;
+// reference: 19E4C8EFD389DBF1, 038E998EBF98C045
+// program: 1A9F70669A3C74DF, F0531050140A5884, 038E998EBF98C045
+// shader: 8B30, 1C8B0C3455093EAD
 in vec4 primary_color;
 in vec2 texcoord0;
 in vec2 texcoord1;
@@ -15724,16 +15338,10 @@ last_tex_env_out.rgb = mix(fog_color.rgb, last_tex_env_out.rgb, fog_factor);
 gl_FragDepth = depth;
 color = byteround(last_tex_env_out);
 }
-// reference: 19E4C8EF3F3E30F2, 8F0AA0D951BDED66
-// program: A0A01900FB0E2CEC, F0531050140A5884, 8F0AA0D951BDED66
-// reference: 73AB78C1F4F32E71, 99329F093682252A
-// shader: 8B30, 983E2992B9D824EC
-
-precision highp int;
-precision highp float;
-precision highp samplerBuffer;
-precision highp usampler2D;
-precision highp uimage2D;
+// reference: 19E4C8EF3F3E30F2, 1C8B0C3455093EAD
+// program: 1A9F70669A3C74DF, F0531050140A5884, 1C8B0C3455093EAD
+// reference: 73AB78C1F4F32E71, 0B2F21C769C31004
+// shader: 8B30, 927C6E55F6CF8A94
 in vec4 primary_color;
 in vec2 texcoord0;
 in vec2 texcoord1;
@@ -15964,20 +15572,14 @@ last_tex_env_out.rgb = mix(fog_color.rgb, last_tex_env_out.rgb, fog_factor);
 gl_FragDepth = depth;
 color = byteround(last_tex_env_out);
 }
-// reference: BEDCA4E4D99253F8, 983E2992B9D824EC
-// program: A0A01900FB0E2CEC, F0531050140A5884, 983E2992B9D824EC
-// reference: 70B946AFE1FF67E0, A8944920BB4C62F1
-// reference: 07A57017092CF955, 61D383383055DB4D
-// reference: 218BB76AF60024F9, C401F41A02EB5DF5
-// reference: 218BB76AD2688CC6, C401F41A02EB5DF5
-// reference: 70B946AF0D488CE3, 731F4AD85AF8EE96
-// shader: 8B30, E9AFBD04287426B6
-
-precision highp int;
-precision highp float;
-precision highp samplerBuffer;
-precision highp usampler2D;
-precision highp uimage2D;
+// reference: BEDCA4E4D99253F8, 927C6E55F6CF8A94
+// program: 1A9F70669A3C74DF, F0531050140A5884, 927C6E55F6CF8A94
+// reference: 70B946AFE1FF67E0, 21ECC5BA6E3F14E8
+// reference: 07A57017092CF955, 99BE207F94CB75E9
+// reference: 218BB76AF60024F9, 235A8CBDB1EE3945
+// reference: 218BB76AD2688CC6, 235A8CBDB1EE3945
+// reference: 70B946AF0D488CE3, 14C56CC6448CC7AB
+// shader: 8B30, 97D0F45C8F73A789
 in vec4 primary_color;
 in vec2 texcoord0;
 in vec2 texcoord1;
@@ -16209,15 +15811,9 @@ last_tex_env_out.rgb = mix(fog_color.rgb, last_tex_env_out.rgb, fog_factor);
 gl_FragDepth = depth;
 color = byteround(last_tex_env_out);
 }
-// reference: AA4E604EB8A611C4, E9AFBD04287426B6
-// program: A0A01900FB0E2CEC, F0531050140A5884, E9AFBD04287426B6
-// shader: 8B30, 8DB34EF821962404
-
-precision highp int;
-precision highp float;
-precision highp samplerBuffer;
-precision highp usampler2D;
-precision highp uimage2D;
+// reference: AA4E604EB8A611C4, 97D0F45C8F73A789
+// program: 1A9F70669A3C74DF, F0531050140A5884, 97D0F45C8F73A789
+// shader: 8B30, 2844EBABF2102195
 in vec4 primary_color;
 in vec2 texcoord0;
 in vec2 texcoord1;
@@ -16452,16 +16048,10 @@ last_tex_env_out.rgb = mix(fog_color.rgb, last_tex_env_out.rgb, fog_factor);
 gl_FragDepth = depth;
 color = byteround(last_tex_env_out);
 }
-// reference: 46460C3F8FE9AD28, 8DB34EF821962404
-// program: A0A01900FB0E2CEC, F0531050140A5884, 8DB34EF821962404
-// reference: A2F542542FB039A2, 71F9AEC51BF107CA
-// shader: 8B30, DE33297A2F58FCC3
-
-precision highp int;
-precision highp float;
-precision highp samplerBuffer;
-precision highp usampler2D;
-precision highp uimage2D;
+// reference: 46460C3F8FE9AD28, 2844EBABF2102195
+// program: 1A9F70669A3C74DF, F0531050140A5884, 2844EBABF2102195
+// reference: A2F542542FB039A2, 7D2A336FADB43BE6
+// shader: 8B30, 3E02852258FEAB0F
 in vec4 primary_color;
 in vec2 texcoord0;
 in vec2 texcoord1;
@@ -16685,15 +16275,9 @@ last_tex_env_out.rgb = mix(fog_color.rgb, last_tex_env_out.rgb, fog_factor);
 gl_FragDepth = depth;
 color = byteround(last_tex_env_out);
 }
-// reference: 6EF8FE573B5A4544, DE33297A2F58FCC3
-// program: A0A01900FB0E2CEC, F0531050140A5884, DE33297A2F58FCC3
-// shader: 8B30, 3156F5930FED7541
-
-precision highp int;
-precision highp float;
-precision highp samplerBuffer;
-precision highp usampler2D;
-precision highp uimage2D;
+// reference: 6EF8FE573B5A4544, 3E02852258FEAB0F
+// program: 1A9F70669A3C74DF, F0531050140A5884, 3E02852258FEAB0F
+// shader: 8B30, 7BB4F86506CC7EE6
 in vec4 primary_color;
 in vec2 texcoord0;
 in vec2 texcoord1;
@@ -16910,15 +16494,9 @@ last_tex_env_out.rgb = mix(fog_color.rgb, last_tex_env_out.rgb, fog_factor);
 gl_FragDepth = depth;
 color = byteround(last_tex_env_out);
 }
-// reference: BD86502B7D42EB89, 3156F5930FED7541
-// program: A0A01900FB0E2CEC, F0531050140A5884, 3156F5930FED7541
-// shader: 8B30, 9164AA6350A18939
-
-precision highp int;
-precision highp float;
-precision highp samplerBuffer;
-precision highp usampler2D;
-precision highp uimage2D;
+// reference: BD86502B7D42EB89, 7BB4F86506CC7EE6
+// program: 1A9F70669A3C74DF, F0531050140A5884, 7BB4F86506CC7EE6
+// shader: 8B30, 3C8AD262EE942B60
 in vec4 primary_color;
 in vec2 texcoord0;
 in vec2 texcoord1;
@@ -17139,15 +16717,9 @@ last_tex_env_out.rgb = mix(fog_color.rgb, last_tex_env_out.rgb, fog_factor);
 gl_FragDepth = depth;
 color = byteround(last_tex_env_out);
 }
-// reference: C7F45082C830E273, 9164AA6350A18939
-// program: A0A01900FB0E2CEC, F0531050140A5884, 9164AA6350A18939
-// shader: 8B30, 08468CC590D670EA
-
-precision highp int;
-precision highp float;
-precision highp samplerBuffer;
-precision highp usampler2D;
-precision highp uimage2D;
+// reference: C7F45082C830E273, 3C8AD262EE942B60
+// program: 1A9F70669A3C74DF, F0531050140A5884, 3C8AD262EE942B60
+// shader: 8B30, 1882209243CF3F34
 in vec4 primary_color;
 in vec2 texcoord0;
 in vec2 texcoord1;
@@ -17376,15 +16948,9 @@ last_tex_env_out.rgb = mix(fog_color.rgb, last_tex_env_out.rgb, fog_factor);
 gl_FragDepth = depth;
 color = byteround(last_tex_env_out);
 }
-// reference: 86E2FC1BE1FF67E0, 08468CC590D670EA
-// program: A0A01900FB0E2CEC, F0531050140A5884, 08468CC590D670EA
-// shader: 8B30, D6A09C4EE672E780
-
-precision highp int;
-precision highp float;
-precision highp samplerBuffer;
-precision highp usampler2D;
-precision highp uimage2D;
+// reference: 86E2FC1BE1FF67E0, 1882209243CF3F34
+// program: 1A9F70669A3C74DF, F0531050140A5884, 1882209243CF3F34
+// shader: 8B30, 2B7C092176015E81
 in vec4 primary_color;
 in vec2 texcoord0;
 in vec2 texcoord1;
@@ -17617,15 +17183,9 @@ last_tex_env_out.rgb = mix(fog_color.rgb, last_tex_env_out.rgb, fog_factor);
 gl_FragDepth = depth;
 color = byteround(last_tex_env_out);
 }
-// reference: F1FECAA3092CF955, D6A09C4EE672E780
-// program: A0A01900FB0E2CEC, F0531050140A5884, D6A09C4EE672E780
-// shader: 8B30, 252EF2825DEDDF2A
-
-precision highp int;
-precision highp float;
-precision highp samplerBuffer;
-precision highp usampler2D;
-precision highp uimage2D;
+// reference: F1FECAA3092CF955, 2B7C092176015E81
+// program: 1A9F70669A3C74DF, F0531050140A5884, 2B7C092176015E81
+// shader: 8B30, 0545852A7469675B
 in vec4 primary_color;
 in vec2 texcoord0;
 in vec2 texcoord1;
@@ -17859,16 +17419,10 @@ last_tex_env_out.rgb = mix(fog_color.rgb, last_tex_env_out.rgb, fog_factor);
 gl_FragDepth = depth;
 color = byteround(last_tex_env_out);
 }
-// reference: F1FECAA3C1F3BA69, 252EF2825DEDDF2A
-// program: A0A01900FB0E2CEC, F0531050140A5884, 252EF2825DEDDF2A
-// reference: F1FECAA3E59B1256, 252EF2825DEDDF2A
-// shader: 8B30, 37A63370BB14819A
-
-precision highp int;
-precision highp float;
-precision highp samplerBuffer;
-precision highp usampler2D;
-precision highp uimage2D;
+// reference: F1FECAA3C1F3BA69, 0545852A7469675B
+// program: 1A9F70669A3C74DF, F0531050140A5884, 0545852A7469675B
+// reference: F1FECAA3E59B1256, 0545852A7469675B
+// shader: 8B30, 8161F2ED81C38235
 in vec4 primary_color;
 in vec2 texcoord0;
 in vec2 texcoord1;
@@ -18103,16 +17657,10 @@ last_tex_env_out.rgb = mix(fog_color.rgb, last_tex_env_out.rgb, fog_factor);
 gl_FragDepth = depth;
 color = byteround(last_tex_env_out);
 }
-// reference: D7D00DDEF60024F9, 37A63370BB14819A
-// program: A0A01900FB0E2CEC, F0531050140A5884, 37A63370BB14819A
-// reference: D7D00DDED2688CC6, 37A63370BB14819A
-// shader: 8B30, BBA72BAFE1C76893
-
-precision highp int;
-precision highp float;
-precision highp samplerBuffer;
-precision highp usampler2D;
-precision highp uimage2D;
+// reference: D7D00DDEF60024F9, 8161F2ED81C38235
+// program: 1A9F70669A3C74DF, F0531050140A5884, 8161F2ED81C38235
+// reference: D7D00DDED2688CC6, 8161F2ED81C38235
+// shader: 8B30, 5B04A20C02182EC9
 in vec4 primary_color;
 in vec2 texcoord0;
 in vec2 texcoord1;
@@ -18342,15 +17890,9 @@ last_tex_env_out.rgb = mix(fog_color.rgb, last_tex_env_out.rgb, fog_factor);
 gl_FragDepth = depth;
 color = byteround(last_tex_env_out);
 }
-// reference: 86E2FC1B0D488CE3, BBA72BAFE1C76893
-// program: A0A01900FB0E2CEC, F0531050140A5884, BBA72BAFE1C76893
-// shader: 8B30, 2C0C50DC90F0F471
-
-precision highp int;
-precision highp float;
-precision highp samplerBuffer;
-precision highp usampler2D;
-precision highp uimage2D;
+// reference: 86E2FC1B0D488CE3, 5B04A20C02182EC9
+// program: 1A9F70669A3C74DF, F0531050140A5884, 5B04A20C02182EC9
+// shader: 8B30, 11375506D8A667D8
 in vec4 primary_color;
 in vec2 texcoord0;
 in vec2 texcoord1;
@@ -18564,15 +18106,9 @@ last_tex_env_out.rgb = mix(fog_color.rgb, last_tex_env_out.rgb, fog_factor);
 gl_FragDepth = depth;
 color = byteround(last_tex_env_out);
 }
-// reference: 43028F3F8AD0ADD5, 2C0C50DC90F0F471
-// program: A0A01900FB0E2CEC, F0531050140A5884, 2C0C50DC90F0F471
-// shader: 8B30, 125A9DB234C7B954
-
-precision highp int;
-precision highp float;
-precision highp samplerBuffer;
-precision highp usampler2D;
-precision highp uimage2D;
+// reference: 43028F3F8AD0ADD5, 11375506D8A667D8
+// program: 1A9F70669A3C74DF, F0531050140A5884, 11375506D8A667D8
+// shader: 8B30, 7C041E485653F010
 in vec4 primary_color;
 in vec2 texcoord0;
 in vec2 texcoord1;
@@ -18789,15 +18325,9 @@ last_tex_env_out.rgb = mix(fog_color.rgb, last_tex_env_out.rgb, fog_factor);
 gl_FragDepth = depth;
 color = byteround(last_tex_env_out);
 }
-// reference: AF0AE34EBD9F1139, 125A9DB234C7B954
-// program: A0A01900FB0E2CEC, F0531050140A5884, 125A9DB234C7B954
-// shader: 8B30, DDAE4921C4D1BC08
-
-precision highp int;
-precision highp float;
-precision highp samplerBuffer;
-precision highp usampler2D;
-precision highp uimage2D;
+// reference: AF0AE34EBD9F1139, 7C041E485653F010
+// program: 1A9F70669A3C74DF, F0531050140A5884, 7C041E485653F010
+// shader: 8B30, 0F86B16D362EE6B8
 in vec4 primary_color;
 in vec2 texcoord0;
 in vec2 texcoord1;
@@ -18960,15 +18490,9 @@ combiner_buffer = next_combiner_buffer;
 gl_FragDepth = depth;
 color = byteround(last_tex_env_out);
 }
-// reference: 110AB5629335EF5B, DDAE4921C4D1BC08
-// program: A0A01900FB0E2CEC, F0531050140A5884, DDAE4921C4D1BC08
-// shader: 8B30, 5249043DEBC9A282
-
-precision highp int;
-precision highp float;
-precision highp samplerBuffer;
-precision highp usampler2D;
-precision highp uimage2D;
+// reference: 110AB5629335EF5B, 0F86B16D362EE6B8
+// program: 1A9F70669A3C74DF, F0531050140A5884, 0F86B16D362EE6B8
+// shader: 8B30, 5FF0DFE36FF570AC
 in vec4 primary_color;
 in vec2 texcoord0;
 in vec2 texcoord1;
@@ -19130,15 +18654,9 @@ combiner_buffer = next_combiner_buffer;
 gl_FragDepth = depth;
 color = byteround(last_tex_env_out);
 }
-// reference: D57E7FEC488469C9, 5249043DEBC9A282
-// program: A0A01900FB0E2CEC, F0531050140A5884, 5249043DEBC9A282
-// shader: 8B30, 86F720EDF79A66D7
-
-precision highp int;
-precision highp float;
-precision highp samplerBuffer;
-precision highp usampler2D;
-precision highp uimage2D;
+// reference: D57E7FEC488469C9, 5FF0DFE36FF570AC
+// program: 1A9F70669A3C74DF, F0531050140A5884, 5FF0DFE36FF570AC
+// shader: 8B30, 3759378F3A653E3A
 in vec4 primary_color;
 in vec2 texcoord0;
 in vec2 texcoord1;
@@ -19302,15 +18820,9 @@ combiner_buffer = next_combiner_buffer;
 gl_FragDepth = depth;
 color = byteround(last_tex_env_out);
 }
-// reference: 9CC264E803ADBA08, 86F720EDF79A66D7
-// program: A0A01900FB0E2CEC, F0531050140A5884, 86F720EDF79A66D7
-// shader: 8B30, 3A710D5F94085DFD
-
-precision highp int;
-precision highp float;
-precision highp samplerBuffer;
-precision highp usampler2D;
-precision highp uimage2D;
+// reference: 9CC264E803ADBA08, 3759378F3A653E3A
+// program: 1A9F70669A3C74DF, F0531050140A5884, 3759378F3A653E3A
+// shader: 8B30, 14DC5E734B89EE49
 in vec4 primary_color;
 in vec2 texcoord0;
 in vec2 texcoord1;
@@ -19536,15 +19048,9 @@ last_tex_env_out.rgb = mix(fog_color.rgb, last_tex_env_out.rgb, fog_factor);
 gl_FragDepth = depth;
 color = byteround(last_tex_env_out);
 }
-// reference: A29105EE4F345798, 3A710D5F94085DFD
-// program: A0A01900FB0E2CEC, F0531050140A5884, 3A710D5F94085DFD
-// shader: 8B30, B44EC9732C4C7F62
-
-precision highp int;
-precision highp float;
-precision highp samplerBuffer;
-precision highp usampler2D;
-precision highp uimage2D;
+// reference: A29105EE4F345798, 14DC5E734B89EE49
+// program: 1A9F70669A3C74DF, F0531050140A5884, 14DC5E734B89EE49
+// shader: 8B30, FF1468150DA0C84B
 in vec4 primary_color;
 in vec2 texcoord0;
 in vec2 texcoord1;
@@ -19774,15 +19280,9 @@ last_tex_env_out.rgb = mix(fog_color.rgb, last_tex_env_out.rgb, fog_factor);
 gl_FragDepth = depth;
 color = byteround(last_tex_env_out);
 }
-// reference: D8E30547FA465E62, B44EC9732C4C7F62
-// program: A0A01900FB0E2CEC, F0531050140A5884, B44EC9732C4C7F62
-// shader: 8B30, AF09CB0C2A01EEA1
-
-precision highp int;
-precision highp float;
-precision highp samplerBuffer;
-precision highp usampler2D;
-precision highp uimage2D;
+// reference: D8E30547FA465E62, FF1468150DA0C84B
+// program: 1A9F70669A3C74DF, F0531050140A5884, FF1468150DA0C84B
+// shader: 8B30, FD9770B7C31E0992
 in vec4 primary_color;
 in vec2 texcoord0;
 in vec2 texcoord1;
@@ -20005,15 +19505,9 @@ last_tex_env_out.rgb = mix(fog_color.rgb, last_tex_env_out.rgb, fog_factor);
 gl_FragDepth = depth;
 color = byteround(last_tex_env_out);
 }
-// reference: 5C15DAFAB8A611C4, AF09CB0C2A01EEA1
-// program: A0A01900FB0E2CEC, F0531050140A5884, AF09CB0C2A01EEA1
-// shader: 8B30, 08F0EA6021FBA015
-
-precision highp int;
-precision highp float;
-precision highp samplerBuffer;
-precision highp usampler2D;
-precision highp uimage2D;
+// reference: 5C15DAFAB8A611C4, FD9770B7C31E0992
+// program: 1A9F70669A3C74DF, F0531050140A5884, FD9770B7C31E0992
+// shader: 8B30, 40EC376282ECC3F5
 in vec4 primary_color;
 in vec2 texcoord0;
 in vec2 texcoord1;
@@ -20239,17 +19733,11 @@ last_tex_env_out.rgb = mix(fog_color.rgb, last_tex_env_out.rgb, fog_factor);
 gl_FragDepth = depth;
 color = byteround(last_tex_env_out);
 }
-// reference: B01DB68B8FE9AD28, 08F0EA6021FBA015
-// program: A0A01900FB0E2CEC, F0531050140A5884, 08F0EA6021FBA015
-// reference: D4F4BEF9870CAA91, 7BD362BEDDE071ED
-// reference: D4F4BEF913CB116A, 4982B44D494E20C9
-// shader: 8B30, B15D9DAAF43FAE2B
-
-precision highp int;
-precision highp float;
-precision highp samplerBuffer;
-precision highp usampler2D;
-precision highp uimage2D;
+// reference: B01DB68B8FE9AD28, 40EC376282ECC3F5
+// program: 1A9F70669A3C74DF, F0531050140A5884, 40EC376282ECC3F5
+// reference: D4F4BEF9870CAA91, 360B6047239AC8BE
+// reference: D4F4BEF913CB116A, 28AD7E8A860FE887
+// shader: 8B30, B8B25059FF0DB5A9
 in vec4 primary_color;
 in vec2 texcoord0;
 in vec2 texcoord1;
@@ -20415,15 +19903,9 @@ if (int(last_tex_env_out.a * 255.0) <= alphatest_ref) discard;
 gl_FragDepth = depth;
 color = byteround(last_tex_env_out);
 }
-// reference: 4609680C5B33B6B6, B15D9DAAF43FAE2B
-// program: 06F56F2630B83832, E4F72E6786B1F5DC, B15D9DAAF43FAE2B
-// shader: 8B30, C54C41482FBA5840
-
-precision highp int;
-precision highp float;
-precision highp samplerBuffer;
-precision highp usampler2D;
-precision highp uimage2D;
+// reference: 4609680C5B33B6B6, B8B25059FF0DB5A9
+// program: 36F55378B7FE8570, E4F72E6786B1F5DC, B8B25059FF0DB5A9
+// shader: 8B30, 38DFD962D633B4D6
 in vec4 primary_color;
 in vec2 texcoord0;
 in vec2 texcoord1;
@@ -20650,16 +20132,10 @@ combiner_buffer = next_combiner_buffer;
 gl_FragDepth = depth;
 color = byteround(last_tex_env_out);
 }
-// reference: 53AB07D735A125C5, C54C41482FBA5840
-// program: A0A01900FB0E2CEC, F0531050140A5884, C54C41482FBA5840
-// reference: 5291DDDB7A8E8B43, A0A01900FB0E2CEC
-// shader: 8B30, 9CA82EFDA835F070
-
-precision highp int;
-precision highp float;
-precision highp samplerBuffer;
-precision highp usampler2D;
-precision highp uimage2D;
+// reference: 53AB07D735A125C5, 38DFD962D633B4D6
+// program: 1A9F70669A3C74DF, F0531050140A5884, 38DFD962D633B4D6
+// reference: 5291DDDB7A8E8B43, 1A9F70669A3C74DF
+// shader: 8B30, F5A0E9588C42F2F5
 in vec4 primary_color;
 in vec2 texcoord0;
 in vec2 texcoord1;
@@ -20881,15 +20357,9 @@ if (int(last_tex_env_out.a * 255.0) <= alphatest_ref) discard;
 gl_FragDepth = depth;
 color = byteround(last_tex_env_out);
 }
-// reference: 6679C23EE1BA702B, 9CA82EFDA835F070
-// program: A0A01900FB0E2CEC, F0531050140A5884, 9CA82EFDA835F070
-// shader: 8B30, 55A0E7237FA8EB1C
-
-precision highp int;
-precision highp float;
-precision highp samplerBuffer;
-precision highp usampler2D;
-precision highp uimage2D;
+// reference: 6679C23EE1BA702B, F5A0E9588C42F2F5
+// program: 1A9F70669A3C74DF, F0531050140A5884, F5A0E9588C42F2F5
+// shader: 8B30, 13A3D4AE93BBFC99
 in vec4 primary_color;
 in vec2 texcoord0;
 in vec2 texcoord1;
@@ -21110,15 +20580,9 @@ combiner_buffer = next_combiner_buffer;
 gl_FragDepth = depth;
 color = byteround(last_tex_env_out);
 }
-// reference: 6679C23E0D0D9B28, 55A0E7237FA8EB1C
-// program: A0A01900FB0E2CEC, F0531050140A5884, 55A0E7237FA8EB1C
-// shader: 8B30, 84F5820A48934085
-
-precision highp int;
-precision highp float;
-precision highp samplerBuffer;
-precision highp usampler2D;
-precision highp uimage2D;
+// reference: 6679C23E0D0D9B28, 13A3D4AE93BBFC99
+// program: 1A9F70669A3C74DF, F0531050140A5884, 13A3D4AE93BBFC99
+// shader: 8B30, 5AD3578752378ED6
 in vec4 primary_color;
 in vec2 texcoord0;
 in vec2 texcoord1;
@@ -21345,16 +20809,10 @@ combiner_buffer = next_combiner_buffer;
 gl_FragDepth = depth;
 color = byteround(last_tex_env_out);
 }
-// reference: BCDEFE4BD2441041, 84F5820A48934085
-// program: A0A01900FB0E2CEC, F0531050140A5884, 84F5820A48934085
-// reference: 53AB07D711C98DFA, C54C41482FBA5840
-// shader: 8B30, 6F0D80AF89261A23
-
-precision highp int;
-precision highp float;
-precision highp samplerBuffer;
-precision highp usampler2D;
-precision highp uimage2D;
+// reference: BCDEFE4BD2441041, 5AD3578752378ED6
+// program: 1A9F70669A3C74DF, F0531050140A5884, 5AD3578752378ED6
+// reference: 53AB07D711C98DFA, 38DFD962D633B4D6
+// shader: 8B30, EE6E7C5235996A7A
 in vec4 primary_color;
 in vec2 texcoord0;
 in vec2 texcoord1;
@@ -21573,15 +21031,9 @@ combiner_buffer = next_combiner_buffer;
 gl_FragDepth = depth;
 color = byteround(last_tex_env_out);
 }
-// reference: FCF5F3F2B71B8CB8, 6F0D80AF89261A23
-// program: A0A01900FB0E2CEC, F0531050140A5884, 6F0D80AF89261A23
-// shader: 8B30, 518772330575F2FF
-
-precision highp int;
-precision highp float;
-precision highp samplerBuffer;
-precision highp usampler2D;
-precision highp uimage2D;
+// reference: FCF5F3F2B71B8CB8, EE6E7C5235996A7A
+// program: 1A9F70669A3C74DF, F0531050140A5884, EE6E7C5235996A7A
+// shader: 8B30, 69FBBDADB037851A
 in vec4 primary_color;
 in vec2 texcoord0;
 in vec2 texcoord1;
@@ -21809,15 +21261,9 @@ combiner_buffer = next_combiner_buffer;
 gl_FragDepth = depth;
 color = byteround(last_tex_env_out);
 }
-// reference: A85B9C3679D8B4E4, 518772330575F2FF
-// program: A0A01900FB0E2CEC, F0531050140A5884, 518772330575F2FF
-// shader: 8B30, 490F5010D7E700ED
-
-precision highp int;
-precision highp float;
-precision highp samplerBuffer;
-precision highp usampler2D;
-precision highp uimage2D;
+// reference: A85B9C3679D8B4E4, 69FBBDADB037851A
+// program: 1A9F70669A3C74DF, F0531050140A5884, 69FBBDADB037851A
+// shader: 8B30, 88BF62BE9280A7D3
 in vec4 primary_color;
 in vec2 texcoord0;
 in vec2 texcoord1;
@@ -22045,15 +21491,9 @@ combiner_buffer = next_combiner_buffer;
 gl_FragDepth = depth;
 color = byteround(last_tex_env_out);
 }
-// reference: 472E65AA017AA62C, 490F5010D7E700ED
-// program: A0A01900FB0E2CEC, F0531050140A5884, 490F5010D7E700ED
-// shader: 8B30, 1CBDE15E629ECCEE
-
-precision highp int;
-precision highp float;
-precision highp samplerBuffer;
-precision highp usampler2D;
-precision highp uimage2D;
+// reference: 472E65AA017AA62C, 88BF62BE9280A7D3
+// program: 1A9F70669A3C74DF, F0531050140A5884, 88BF62BE9280A7D3
+// shader: 8B30, 3B81C4D2344155A9
 in vec4 primary_color;
 in vec2 texcoord0;
 in vec2 texcoord1;
@@ -22268,15 +21708,9 @@ combiner_buffer = next_combiner_buffer;
 gl_FragDepth = depth;
 color = byteround(last_tex_env_out);
 }
-// reference: F9B60F18757EF8C7, 1CBDE15E629ECCEE
-// program: A0A01900FB0E2CEC, F0531050140A5884, 1CBDE15E629ECCEE
-// shader: 8B30, 1B402EA6B40E7F96
-
-precision highp int;
-precision highp float;
-precision highp samplerBuffer;
-precision highp usampler2D;
-precision highp uimage2D;
+// reference: F9B60F18757EF8C7, 3B81C4D2344155A9
+// program: 1A9F70669A3C74DF, F0531050140A5884, 3B81C4D2344155A9
+// shader: 8B30, 437530A3CCAFDA6B
 in vec4 primary_color;
 in vec2 texcoord0;
 in vec2 texcoord1;
@@ -22495,15 +21929,9 @@ combiner_buffer = next_combiner_buffer;
 gl_FragDepth = depth;
 color = byteround(last_tex_env_out);
 }
-// reference: 51D627409D6FD3DC, 1B402EA6B40E7F96
-// program: A0A01900FB0E2CEC, F0531050140A5884, 1B402EA6B40E7F96
-// shader: 8B30, 37681F3A21646925
-
-precision highp int;
-precision highp float;
-precision highp samplerBuffer;
-precision highp usampler2D;
-precision highp uimage2D;
+// reference: 51D627409D6FD3DC, 437530A3CCAFDA6B
+// program: 1A9F70669A3C74DF, F0531050140A5884, 437530A3CCAFDA6B
+// shader: 8B30, 8E9C9AF1BB93B66C
 in vec4 primary_color;
 in vec2 texcoord0;
 in vec2 texcoord1;
@@ -22715,15 +22143,9 @@ combiner_buffer = next_combiner_buffer;
 gl_FragDepth = depth;
 color = byteround(last_tex_env_out);
 }
-// reference: 1E224E7865E0E83B, 37681F3A21646925
-// program: A0A01900FB0E2CEC, F0531050140A5884, 37681F3A21646925
-// shader: 8B30, 805923E6FAE2938F
-
-precision highp int;
-precision highp float;
-precision highp samplerBuffer;
-precision highp usampler2D;
-precision highp uimage2D;
+// reference: 1E224E7865E0E83B, 8E9C9AF1BB93B66C
+// program: 1A9F70669A3C74DF, F0531050140A5884, 8E9C9AF1BB93B66C
+// shader: 8B30, E360EF540B3A3A6E
 in vec4 primary_color;
 in vec2 texcoord0;
 in vec2 texcoord1;
@@ -22945,15 +22367,9 @@ combiner_buffer = next_combiner_buffer;
 gl_FragDepth = depth;
 color = byteround(last_tex_env_out);
 }
-// reference: 37D3ED530D0D9B28, 805923E6FAE2938F
-// program: A0A01900FB0E2CEC, F0531050140A5884, 805923E6FAE2938F
-// shader: 8B30, 99937D257333ECE0
-
-precision highp int;
-precision highp float;
-precision highp samplerBuffer;
-precision highp usampler2D;
-precision highp uimage2D;
+// reference: 37D3ED530D0D9B28, E360EF540B3A3A6E
+// program: 1A9F70669A3C74DF, F0531050140A5884, E360EF540B3A3A6E
+// shader: 8B30, 433B73D80704A856
 in vec4 primary_color;
 in vec2 texcoord0;
 in vec2 texcoord1;
@@ -23165,17 +22581,11 @@ combiner_buffer = next_combiner_buffer;
 gl_FragDepth = depth;
 color = byteround(last_tex_env_out);
 }
-// reference: 1E9BD6BAF5B42686, 99937D257333ECE0
-// program: A0A01900FB0E2CEC, F0531050140A5884, 99937D257333ECE0
-// reference: CE312E68870CAA91, 5249043DEBC9A282
-// reference: B9BA13D0E038FAFA, 71F9AEC51BF107CA
-// shader: 8B30, 133E99755F82B988
-
-precision highp int;
-precision highp float;
-precision highp samplerBuffer;
-precision highp usampler2D;
-precision highp uimage2D;
+// reference: 1E9BD6BAF5B42686, 433B73D80704A856
+// program: 1A9F70669A3C74DF, F0531050140A5884, 433B73D80704A856
+// reference: CE312E68870CAA91, 5FF0DFE36FF570AC
+// reference: B9BA13D0E038FAFA, 7D2A336FADB43BE6
+// shader: 8B30, 21B0D7158B63FC8A
 in vec4 primary_color;
 in vec2 texcoord0;
 in vec2 texcoord1;
@@ -23384,15 +22794,9 @@ combiner_buffer = next_combiner_buffer;
 gl_FragDepth = depth;
 color = byteround(last_tex_env_out);
 }
-// reference: 949DCEAC9BC555AA, 133E99755F82B988
-// program: A0A01900FB0E2CEC, F0531050140A5884, 133E99755F82B988
-// shader: 8B30, 94C189A177E49D88
-
-precision highp int;
-precision highp float;
-precision highp samplerBuffer;
-precision highp usampler2D;
-precision highp uimage2D;
+// reference: 949DCEAC9BC555AA, 21B0D7158B63FC8A
+// program: 1A9F70669A3C74DF, F0531050140A5884, 21B0D7158B63FC8A
+// shader: 8B30, 03A41228A921F0A5
 in vec4 primary_color;
 in vec2 texcoord0;
 in vec2 texcoord1;
@@ -23553,15 +22957,9 @@ combiner_buffer = next_combiner_buffer;
 gl_FragDepth = depth;
 color = byteround(last_tex_env_out);
 }
-// reference: BB42E469A46BDFA6, 94C189A177E49D88
-// program: A0A01900FB0E2CEC, F0531050140A5884, 94C189A177E49D88
-// shader: 8B30, 90C213750A508247
-
-precision highp int;
-precision highp float;
-precision highp samplerBuffer;
-precision highp usampler2D;
-precision highp uimage2D;
+// reference: BB42E469A46BDFA6, 03A41228A921F0A5
+// program: 1A9F70669A3C74DF, F0531050140A5884, 03A41228A921F0A5
+// shader: 8B30, 650B85E95BDF84ED
 in vec4 primary_color;
 in vec2 texcoord0;
 in vec2 texcoord1;
@@ -23773,15 +23171,9 @@ combiner_buffer = next_combiner_buffer;
 gl_FragDepth = depth;
 color = byteround(last_tex_env_out);
 }
-// reference: BD95F30971118C0C, 90C213750A508247
-// program: A0A01900FB0E2CEC, F0531050140A5884, 90C213750A508247
-// shader: 8B30, 6975DAC338D5A00B
-
-precision highp int;
-precision highp float;
-precision highp samplerBuffer;
-precision highp usampler2D;
-precision highp uimage2D;
+// reference: BD95F30971118C0C, 650B85E95BDF84ED
+// program: 1A9F70669A3C74DF, F0531050140A5884, 650B85E95BDF84ED
+// shader: 8B30, 668B98D4B66B36EA
 in vec4 primary_color;
 in vec2 texcoord0;
 in vec2 texcoord1;
@@ -23943,16 +23335,10 @@ combiner_buffer = next_combiner_buffer;
 gl_FragDepth = depth;
 color = byteround(last_tex_env_out);
 }
-// reference: CE312E68F3C834A3, 6975DAC338D5A00B
-// program: A0A01900FB0E2CEC, F0531050140A5884, 6975DAC338D5A00B
-// reference: 64011D69B2B43F05, 02A7207975892E2C
-// shader: 8B30, 9ADC84700D41F6C4
-
-precision highp int;
-precision highp float;
-precision highp samplerBuffer;
-precision highp usampler2D;
-precision highp uimage2D;
+// reference: CE312E68F3C834A3, 668B98D4B66B36EA
+// program: 1A9F70669A3C74DF, F0531050140A5884, 668B98D4B66B36EA
+// reference: 64011D69B2B43F05, FEBF5EE4741D81E1
+// shader: 8B30, A63B7E4F443EF70A
 in vec4 primary_color;
 in vec2 texcoord0;
 in vec2 texcoord1;
@@ -24123,18 +23509,12 @@ combiner_buffer = next_combiner_buffer;
 gl_FragDepth = depth;
 color = byteround(last_tex_env_out);
 }
-// reference: 64011D695E03D406, 9ADC84700D41F6C4
-// program: 06F56F2630B83832, E4F72E6786B1F5DC, 9ADC84700D41F6C4
-// reference: 060565619214B262, 3907E286D9662158
-// reference: B9748374F4F32E71, 99329F09C39EADEB
-// reference: 3092B42CF4F32E71, 99329F095BF27FFC
-// shader: 8B30, A7355E952456B115
-
-precision highp int;
-precision highp float;
-precision highp samplerBuffer;
-precision highp usampler2D;
-precision highp uimage2D;
+// reference: 64011D695E03D406, A63B7E4F443EF70A
+// program: 36F55378B7FE8570, E4F72E6786B1F5DC, A63B7E4F443EF70A
+// reference: 060565619214B262, 25A54B604309F4E5
+// reference: B9748374F4F32E71, 0B2F21C78555FEAA
+// reference: 3092B42CF4F32E71, 0B2F21C7061E17BF
+// shader: 8B30, ED3CBDD769FC0DE6
 in vec4 primary_color;
 in vec2 texcoord0;
 in vec2 texcoord1;
@@ -24356,15 +23736,9 @@ combiner_buffer = next_combiner_buffer;
 gl_FragDepth = depth;
 color = byteround(last_tex_env_out);
 }
-// reference: 5572093B0D0D9B28, A7355E952456B115
-// program: A0A01900FB0E2CEC, F0531050140A5884, A7355E952456B115
-// shader: 8B30, 2A0717029ABD24CD
-
-precision highp int;
-precision highp float;
-precision highp samplerBuffer;
-precision highp usampler2D;
-precision highp uimage2D;
+// reference: 5572093B0D0D9B28, ED3CBDD769FC0DE6
+// program: 1A9F70669A3C74DF, F0531050140A5884, ED3CBDD769FC0DE6
+// shader: 8B30, 77D4EA88CD01043F
 in vec4 primary_color;
 in vec2 texcoord0;
 in vec2 texcoord1;
@@ -24529,15 +23903,9 @@ combiner_buffer = next_combiner_buffer;
 gl_FragDepth = depth;
 color = byteround(last_tex_env_out);
 }
-// reference: 44AA77D6E78F6ED8, 2A0717029ABD24CD
-// program: A0A01900FB0E2CEC, F0531050140A5884, 2A0717029ABD24CD
-// shader: 8B30, 4AA395DDA816AD1E
-
-precision highp int;
-precision highp float;
-precision highp samplerBuffer;
-precision highp usampler2D;
-precision highp uimage2D;
+// reference: 44AA77D6E78F6ED8, 77D4EA88CD01043F
+// program: 1A9F70669A3C74DF, F0531050140A5884, 77D4EA88CD01043F
+// shader: 8B30, 62BE1D34CEAF7560
 in vec4 primary_color;
 in vec2 texcoord0;
 in vec2 texcoord1;
@@ -24752,15 +24120,9 @@ combiner_buffer = next_combiner_buffer;
 gl_FragDepth = depth;
 color = byteround(last_tex_env_out);
 }
-// reference: 9B17EB70757EF8C7, 4AA395DDA816AD1E
-// program: A0A01900FB0E2CEC, F0531050140A5884, 4AA395DDA816AD1E
-// shader: 8B30, DFE32FAA186E81A6
-
-precision highp int;
-precision highp float;
-precision highp samplerBuffer;
-precision highp usampler2D;
-precision highp uimage2D;
+// reference: 9B17EB70757EF8C7, 62BE1D34CEAF7560
+// program: 1A9F70669A3C74DF, F0531050140A5884, 62BE1D34CEAF7560
+// shader: 8B30, 767C55059D6FBE18
 in vec4 primary_color;
 in vec2 texcoord0;
 in vec2 texcoord1;
@@ -24979,15 +24341,9 @@ combiner_buffer = next_combiner_buffer;
 gl_FragDepth = depth;
 color = byteround(last_tex_env_out);
 }
-// reference: 3377C3289D6FD3DC, DFE32FAA186E81A6
-// program: A0A01900FB0E2CEC, F0531050140A5884, DFE32FAA186E81A6
-// shader: 8B30, 7DC95BDDB954783D
-
-precision highp int;
-precision highp float;
-precision highp samplerBuffer;
-precision highp usampler2D;
-precision highp uimage2D;
+// reference: 3377C3289D6FD3DC, 767C55059D6FBE18
+// program: 1A9F70669A3C74DF, F0531050140A5884, 767C55059D6FBE18
+// shader: 8B30, 4D7A8B825FBF01D2
 in vec4 primary_color;
 in vec2 texcoord0;
 in vec2 texcoord1;
@@ -25199,15 +24555,9 @@ combiner_buffer = next_combiner_buffer;
 gl_FragDepth = depth;
 color = byteround(last_tex_env_out);
 }
-// reference: 7C83AA1065E0E83B, 7DC95BDDB954783D
-// program: A0A01900FB0E2CEC, F0531050140A5884, 7DC95BDDB954783D
-// shader: 8B30, 379D1FF35253515D
-
-precision highp int;
-precision highp float;
-precision highp samplerBuffer;
-precision highp usampler2D;
-precision highp uimage2D;
+// reference: 7C83AA1065E0E83B, 4D7A8B825FBF01D2
+// program: 1A9F70669A3C74DF, F0531050140A5884, 4D7A8B825FBF01D2
+// shader: 8B30, EA5FE3057E58BC23
 in vec4 primary_color;
 in vec2 texcoord0;
 in vec2 texcoord1;
@@ -25434,15 +24784,9 @@ combiner_buffer = next_combiner_buffer;
 gl_FragDepth = depth;
 color = byteround(last_tex_env_out);
 }
-// reference: 310AE3BF35A125C5, 379D1FF35253515D
-// program: A0A01900FB0E2CEC, F0531050140A5884, 379D1FF35253515D
-// shader: 8B30, D2E97B0A1E4D2457
-
-precision highp int;
-precision highp float;
-precision highp samplerBuffer;
-precision highp usampler2D;
-precision highp uimage2D;
+// reference: 310AE3BF35A125C5, EA5FE3057E58BC23
+// program: 1A9F70669A3C74DF, F0531050140A5884, EA5FE3057E58BC23
+// shader: 8B30, 072DB8402DF2697C
 in vec4 primary_color;
 in vec2 texcoord0;
 in vec2 texcoord1;
@@ -25664,15 +25008,9 @@ if (int(last_tex_env_out.a * 255.0) <= alphatest_ref) discard;
 gl_FragDepth = depth;
 color = byteround(last_tex_env_out);
 }
-// reference: 04D82656E1BA702B, D2E97B0A1E4D2457
-// program: A0A01900FB0E2CEC, F0531050140A5884, D2E97B0A1E4D2457
-// shader: 8B30, EA941186491F4BD6
-
-precision highp int;
-precision highp float;
-precision highp samplerBuffer;
-precision highp usampler2D;
-precision highp uimage2D;
+// reference: 04D82656E1BA702B, 072DB8402DF2697C
+// program: 1A9F70669A3C74DF, F0531050140A5884, 072DB8402DF2697C
+// shader: 8B30, 6EBED998D26BDA04
 in vec4 primary_color;
 in vec2 texcoord0;
 in vec2 texcoord1;
@@ -25893,15 +25231,9 @@ combiner_buffer = next_combiner_buffer;
 gl_FragDepth = depth;
 color = byteround(last_tex_env_out);
 }
-// reference: 04D826560D0D9B28, EA941186491F4BD6
-// program: A0A01900FB0E2CEC, F0531050140A5884, EA941186491F4BD6
-// shader: 8B30, A5D7CBE378925D74
-
-precision highp int;
-precision highp float;
-precision highp samplerBuffer;
-precision highp usampler2D;
-precision highp uimage2D;
+// reference: 04D826560D0D9B28, 6EBED998D26BDA04
+// program: 1A9F70669A3C74DF, F0531050140A5884, 6EBED998D26BDA04
+// shader: 8B30, D9452DD540C7A8F7
 in vec4 primary_color;
 in vec2 texcoord0;
 in vec2 texcoord1;
@@ -26128,16 +25460,10 @@ combiner_buffer = next_combiner_buffer;
 gl_FragDepth = depth;
 color = byteround(last_tex_env_out);
 }
-// reference: DE7F1A23D2441041, A5D7CBE378925D74
-// program: A0A01900FB0E2CEC, F0531050140A5884, A5D7CBE378925D74
-// reference: 310AE3BF11C98DFA, 379D1FF35253515D
-// shader: 8B30, 24C76D480323F417
-
-precision highp int;
-precision highp float;
-precision highp samplerBuffer;
-precision highp usampler2D;
-precision highp uimage2D;
+// reference: DE7F1A23D2441041, D9452DD540C7A8F7
+// program: 1A9F70669A3C74DF, F0531050140A5884, D9452DD540C7A8F7
+// reference: 310AE3BF11C98DFA, EA5FE3057E58BC23
+// shader: 8B30, DCBFB4E9D86D3AAD
 in vec4 primary_color;
 in vec2 texcoord0;
 in vec2 texcoord1;
@@ -26356,15 +25682,9 @@ combiner_buffer = next_combiner_buffer;
 gl_FragDepth = depth;
 color = byteround(last_tex_env_out);
 }
-// reference: 9E54179AB71B8CB8, 24C76D480323F417
-// program: A0A01900FB0E2CEC, F0531050140A5884, 24C76D480323F417
-// shader: 8B30, A033D576152B09BA
-
-precision highp int;
-precision highp float;
-precision highp samplerBuffer;
-precision highp usampler2D;
-precision highp uimage2D;
+// reference: 9E54179AB71B8CB8, DCBFB4E9D86D3AAD
+// program: 1A9F70669A3C74DF, F0531050140A5884, DCBFB4E9D86D3AAD
+// shader: 8B30, 9205CC82A82C4250
 in vec4 primary_color;
 in vec2 texcoord0;
 in vec2 texcoord1;
@@ -26592,15 +25912,9 @@ combiner_buffer = next_combiner_buffer;
 gl_FragDepth = depth;
 color = byteround(last_tex_env_out);
 }
-// reference: CAFA785E79D8B4E4, A033D576152B09BA
-// program: A0A01900FB0E2CEC, F0531050140A5884, A033D576152B09BA
-// shader: 8B30, 2D14EE7A4E82096B
-
-precision highp int;
-precision highp float;
-precision highp samplerBuffer;
-precision highp usampler2D;
-precision highp uimage2D;
+// reference: CAFA785E79D8B4E4, 9205CC82A82C4250
+// program: 1A9F70669A3C74DF, F0531050140A5884, 9205CC82A82C4250
+// shader: 8B30, EBE7CEE20837519D
 in vec4 primary_color;
 in vec2 texcoord0;
 in vec2 texcoord1;
@@ -26828,15 +26142,9 @@ combiner_buffer = next_combiner_buffer;
 gl_FragDepth = depth;
 color = byteround(last_tex_env_out);
 }
-// reference: 258F81C2017AA62C, 2D14EE7A4E82096B
-// program: A0A01900FB0E2CEC, F0531050140A5884, 2D14EE7A4E82096B
-// shader: 8B30, 20A72E97AF8E39F2
-
-precision highp int;
-precision highp float;
-precision highp samplerBuffer;
-precision highp usampler2D;
-precision highp uimage2D;
+// reference: 258F81C2017AA62C, EBE7CEE20837519D
+// program: 1A9F70669A3C74DF, F0531050140A5884, EBE7CEE20837519D
+// shader: 8B30, 33F2149269BE150A
 in vec4 primary_color;
 in vec2 texcoord0;
 in vec2 texcoord1;
@@ -26998,15 +26306,9 @@ combiner_buffer = next_combiner_buffer;
 gl_FragDepth = depth;
 color = byteround(last_tex_env_out);
 }
-// reference: D4F4BEF9F12B06FF, 20A72E97AF8E39F2
-// program: A0A01900FB0E2CEC, F0531050140A5884, 20A72E97AF8E39F2
-// shader: 8B30, BA463BC291B79C88
-
-precision highp int;
-precision highp float;
-precision highp samplerBuffer;
-precision highp usampler2D;
-precision highp uimage2D;
+// reference: D4F4BEF9F12B06FF, 33F2149269BE150A
+// program: 1A9F70669A3C74DF, F0531050140A5884, 33F2149269BE150A
+// shader: 8B30, 780C10C8651117B2
 in vec4 primary_color;
 in vec2 texcoord0;
 in vec2 texcoord1;
@@ -27218,15 +26520,9 @@ combiner_buffer = next_combiner_buffer;
 gl_FragDepth = depth;
 color = byteround(last_tex_env_out);
 }
-// reference: 7C3A32D2F5B42686, BA463BC291B79C88
-// program: A0A01900FB0E2CEC, F0531050140A5884, BA463BC291B79C88
-// shader: 8B30, 7A635789994EBD31
-
-precision highp int;
-precision highp float;
-precision highp samplerBuffer;
-precision highp usampler2D;
-precision highp uimage2D;
+// reference: 7C3A32D2F5B42686, 780C10C8651117B2
+// program: 1A9F70669A3C74DF, F0531050140A5884, 780C10C8651117B2
+// shader: 8B30, A0C6D56E1F6BC751
 in vec4 primary_color;
 in vec2 texcoord0;
 in vec2 texcoord1;
@@ -27435,16 +26731,10 @@ combiner_buffer = next_combiner_buffer;
 gl_FragDepth = depth;
 color = byteround(last_tex_env_out);
 }
-// reference: F63C2AC49BC555AA, 7A635789994EBD31
-// program: A0A01900FB0E2CEC, F0531050140A5884, 7A635789994EBD31
-// reference: D9E30001A46BDFA6, 94C189A177E49D88
-// shader: 8B30, 33BCF2A94C1C3064
-
-precision highp int;
-precision highp float;
-precision highp samplerBuffer;
-precision highp usampler2D;
-precision highp uimage2D;
+// reference: F63C2AC49BC555AA, A0C6D56E1F6BC751
+// program: 1A9F70669A3C74DF, F0531050140A5884, A0C6D56E1F6BC751
+// reference: D9E30001A46BDFA6, 03A41228A921F0A5
+// shader: 8B30, 844C145452EA0241
 in vec4 primary_color;
 in vec2 texcoord0;
 in vec2 texcoord1;
@@ -27656,15 +26946,9 @@ combiner_buffer = next_combiner_buffer;
 gl_FragDepth = depth;
 color = byteround(last_tex_env_out);
 }
-// reference: DF34176171118C0C, 33BCF2A94C1C3064
-// program: A0A01900FB0E2CEC, F0531050140A5884, 33BCF2A94C1C3064
-// shader: 8B30, 9003BF984D8E6760
-
-precision highp int;
-precision highp float;
-precision highp samplerBuffer;
-precision highp usampler2D;
-precision highp uimage2D;
+// reference: DF34176171118C0C, 844C145452EA0241
+// program: 1A9F70669A3C74DF, F0531050140A5884, 844C145452EA0241
+// shader: 8B30, F4F521EBD49743B3
 in vec4 primary_color;
 in vec2 texcoord0;
 in vec2 texcoord1;
@@ -27826,15 +27110,9 @@ combiner_buffer = next_combiner_buffer;
 gl_FragDepth = depth;
 color = byteround(last_tex_env_out);
 }
-// reference: CE312E68BEAA1363, 9003BF984D8E6760
-// program: A0A01900FB0E2CEC, F0531050140A5884, 9003BF984D8E6760
-// shader: 8B30, 9A2886E756372E51
-
-precision highp int;
-precision highp float;
-precision highp samplerBuffer;
-precision highp usampler2D;
-precision highp uimage2D;
+// reference: CE312E68BEAA1363, F4F521EBD49743B3
+// program: 1A9F70669A3C74DF, F0531050140A5884, F4F521EBD49743B3
+// shader: 8B30, 012369A2E36FF109
 in vec4 primary_color;
 in vec2 texcoord0;
 in vec2 texcoord1;
@@ -28001,16 +27279,10 @@ combiner_buffer = next_combiner_buffer;
 gl_FragDepth = depth;
 color = byteround(last_tex_env_out);
 }
-// reference: 722EF88E6E22590E, 9A2886E756372E51
-// program: A0A01900FB0E2CEC, F0531050140A5884, 9A2886E756372E51
-// reference: A79605A99BC555AA, 7A635789994EBD31
-// shader: 8B30, 16B35D9E19512D11
-
-precision highp int;
-precision highp float;
-precision highp samplerBuffer;
-precision highp usampler2D;
-precision highp uimage2D;
+// reference: 722EF88E6E22590E, 012369A2E36FF109
+// program: 1A9F70669A3C74DF, F0531050140A5884, 012369A2E36FF109
+// reference: A79605A99BC555AA, A0C6D56E1F6BC751
+// shader: 8B30, AAB316C322E61617
 in vec4 primary_color;
 in vec2 texcoord0;
 in vec2 texcoord1;
@@ -28241,17 +27513,11 @@ combiner_buffer = next_combiner_buffer;
 gl_FragDepth = depth;
 color = byteround(last_tex_env_out);
 }
-// reference: 2338D2BE4F2F95CC, 16B35D9E19512D11
-// program: A0A01900FB0E2CEC, F0531050140A5884, 16B35D9E19512D11
-// reference: 32E0AC53A5AD603C, 2A0717029ABD24CD
-// reference: ED5D30F5375CF623, 850BB99074BDC0F7
-// shader: 8B30, 2DBEE0D05DB3F8CF
-
-precision highp int;
-precision highp float;
-precision highp samplerBuffer;
-precision highp usampler2D;
-precision highp uimage2D;
+// reference: 2338D2BE4F2F95CC, AAB316C322E61617
+// program: 1A9F70669A3C74DF, F0531050140A5884, AAB316C322E61617
+// reference: 32E0AC53A5AD603C, 77D4EA88CD01043F
+// reference: ED5D30F5375CF623, 268E5765EF79AEE3
+// shader: 8B30, 0616F01FD82D5C3B
 in vec4 primary_color;
 in vec2 texcoord0;
 in vec2 texcoord1;
@@ -28479,15 +27745,9 @@ combiner_buffer = next_combiner_buffer;
 gl_FragDepth = depth;
 color = byteround(last_tex_env_out);
 }
-// reference: 453D18ADDF4DDD38, 2DBEE0D05DB3F8CF
-// program: A0A01900FB0E2CEC, F0531050140A5884, 2DBEE0D05DB3F8CF
-// shader: 8B30, 5FCF8C300EF3AA54
-
-precision highp int;
-precision highp float;
-precision highp samplerBuffer;
-precision highp usampler2D;
-precision highp uimage2D;
+// reference: 453D18ADDF4DDD38, 0616F01FD82D5C3B
+// program: 1A9F70669A3C74DF, F0531050140A5884, 0616F01FD82D5C3B
+// shader: 8B30, 6E2D503A8389F8E7
 in vec4 primary_color;
 in vec2 texcoord0;
 in vec2 texcoord1;
@@ -28708,15 +27968,9 @@ combiner_buffer = next_combiner_buffer;
 gl_FragDepth = depth;
 color = byteround(last_tex_env_out);
 }
-// reference: 0AC9719527C2E6DF, 5FCF8C300EF3AA54
-// program: A0A01900FB0E2CEC, F0531050140A5884, 5FCF8C300EF3AA54
-// shader: 8B30, FE1A1340348EBE10
-
-precision highp int;
-precision highp float;
-precision highp samplerBuffer;
-precision highp usampler2D;
-precision highp uimage2D;
+// reference: 0AC9719527C2E6DF, 6E2D503A8389F8E7
+// program: 1A9F70669A3C74DF, F0531050140A5884, 6E2D503A8389F8E7
+// shader: 8B30, 8F5AEED88B6EBB86
 in vec4 primary_color;
 in vec2 texcoord0;
 in vec2 texcoord1;
@@ -28952,15 +28206,9 @@ combiner_buffer = next_combiner_buffer;
 gl_FragDepth = depth;
 color = byteround(last_tex_env_out);
 }
-// reference: 4740383A77832B21, FE1A1340348EBE10
-// program: A0A01900FB0E2CEC, F0531050140A5884, FE1A1340348EBE10
-// shader: 8B30, 0541A0C4142F1082
-
-precision highp int;
-precision highp float;
-precision highp samplerBuffer;
-precision highp usampler2D;
-precision highp uimage2D;
+// reference: 4740383A77832B21, 8F5AEED88B6EBB86
+// program: 1A9F70669A3C74DF, F0531050140A5884, 8F5AEED88B6EBB86
+// shader: 8B30, 269CB3F9A9AD6F43
 in vec4 primary_color;
 in vec2 texcoord0;
 in vec2 texcoord1;
@@ -29191,15 +28439,9 @@ if (int(last_tex_env_out.a * 255.0) <= alphatest_ref) discard;
 gl_FragDepth = depth;
 color = byteround(last_tex_env_out);
 }
-// reference: 7292FDD3A3987ECF, 0541A0C4142F1082
-// program: A0A01900FB0E2CEC, F0531050140A5884, 0541A0C4142F1082
-// shader: 8B30, 6A0A401D1E0119C0
-
-precision highp int;
-precision highp float;
-precision highp samplerBuffer;
-precision highp usampler2D;
-precision highp uimage2D;
+// reference: 7292FDD3A3987ECF, 269CB3F9A9AD6F43
+// program: 1A9F70669A3C74DF, F0531050140A5884, 269CB3F9A9AD6F43
+// shader: 8B30, 1AC3FF7C483D4E75
 in vec4 primary_color;
 in vec2 texcoord0;
 in vec2 texcoord1;
@@ -29429,15 +28671,9 @@ combiner_buffer = next_combiner_buffer;
 gl_FragDepth = depth;
 color = byteround(last_tex_env_out);
 }
-// reference: 7292FDD34F2F95CC, 6A0A401D1E0119C0
-// program: A0A01900FB0E2CEC, F0531050140A5884, 6A0A401D1E0119C0
-// shader: 8B30, D07A705BC8404217
-
-precision highp int;
-precision highp float;
-precision highp samplerBuffer;
-precision highp usampler2D;
-precision highp uimage2D;
+// reference: 7292FDD34F2F95CC, 1AC3FF7C483D4E75
+// program: 1A9F70669A3C74DF, F0531050140A5884, 1AC3FF7C483D4E75
+// shader: 8B30, 521F781911C05845
 in vec4 primary_color;
 in vec2 texcoord0;
 in vec2 texcoord1;
@@ -29673,17 +28909,11 @@ combiner_buffer = next_combiner_buffer;
 gl_FragDepth = depth;
 color = byteround(last_tex_env_out);
 }
-// reference: A835C1A690661EA5, D07A705BC8404217
-// program: A0A01900FB0E2CEC, F0531050140A5884, D07A705BC8404217
-// reference: 4740383A53EB831E, FE1A1340348EBE10
-// reference: 0464230B2C0057EA, 9A2886E756372E51
-// shader: 8B30, C6BB3426224D3843
-
-precision highp int;
-precision highp float;
-precision highp samplerBuffer;
-precision highp usampler2D;
-precision highp uimage2D;
+// reference: A835C1A690661EA5, 521F781911C05845
+// program: 1A9F70669A3C74DF, F0531050140A5884, 521F781911C05845
+// reference: 4740383A53EB831E, 8F5AEED88B6EBB86
+// reference: 0464230B2C0057EA, 012369A2E36FF109
+// shader: 8B30, 6707068F4C783C70
 in vec4 primary_color;
 in vec2 texcoord0;
 in vec2 texcoord1;
@@ -29911,15 +29141,9 @@ combiner_buffer = next_combiner_buffer;
 gl_FragDepth = depth;
 color = byteround(last_tex_env_out);
 }
-// reference: E81ECC1FF539825C, C6BB3426224D3843
-// program: A0A01900FB0E2CEC, F0531050140A5884, C6BB3426224D3843
-// shader: 8B30, DFC9EADEED9D0C5B
-
-precision highp int;
-precision highp float;
-precision highp samplerBuffer;
-precision highp usampler2D;
-precision highp uimage2D;
+// reference: E81ECC1FF539825C, 6707068F4C783C70
+// program: 1A9F70669A3C74DF, F0531050140A5884, 6707068F4C783C70
+// shader: 8B30, 32EAA0F0A4956A75
 in vec4 primary_color;
 in vec2 texcoord0;
 in vec2 texcoord1;
@@ -30156,15 +29380,9 @@ combiner_buffer = next_combiner_buffer;
 gl_FragDepth = depth;
 color = byteround(last_tex_env_out);
 }
-// reference: BCB0A3DB3BFABA00, DFC9EADEED9D0C5B
-// program: A0A01900FB0E2CEC, F0531050140A5884, DFC9EADEED9D0C5B
-// shader: 8B30, 07BF5E0050CD55B8
-
-precision highp int;
-precision highp float;
-precision highp samplerBuffer;
-precision highp usampler2D;
-precision highp uimage2D;
+// reference: BCB0A3DB3BFABA00, 32EAA0F0A4956A75
+// program: 1A9F70669A3C74DF, F0531050140A5884, 32EAA0F0A4956A75
+// shader: 8B30, 66DCA7C0966DA577
 in vec4 primary_color;
 in vec2 texcoord0;
 in vec2 texcoord1;
@@ -30401,16 +29619,10 @@ combiner_buffer = next_combiner_buffer;
 gl_FragDepth = depth;
 color = byteround(last_tex_env_out);
 }
-// reference: 53C55A474358A8C8, 07BF5E0050CD55B8
-// program: A0A01900FB0E2CEC, F0531050140A5884, 07BF5E0050CD55B8
-// reference: AFA9DB84E649D142, 94C189A177E49D88
-// shader: 8B30, 885E61A139E2311C
-
-precision highp int;
-precision highp float;
-precision highp samplerBuffer;
-precision highp usampler2D;
-precision highp uimage2D;
+// reference: 53C55A474358A8C8, 66DCA7C0966DA577
+// program: 1A9F70669A3C74DF, F0531050140A5884, 66DCA7C0966DA577
+// reference: AFA9DB84E649D142, 03A41228A921F0A5
+// shader: 8B30, 57944423B0A02429
 in vec4 primary_color;
 in vec2 texcoord0;
 in vec2 texcoord1;
@@ -30631,15 +29843,9 @@ combiner_buffer = next_combiner_buffer;
 gl_FragDepth = depth;
 color = byteround(last_tex_env_out);
 }
-// reference: A97ECCE4333382E8, 885E61A139E2311C
-// program: A0A01900FB0E2CEC, F0531050140A5884, 885E61A139E2311C
-// shader: 8B30, BDFCAB3951694DF3
-
-precision highp int;
-precision highp float;
-precision highp samplerBuffer;
-precision highp usampler2D;
-precision highp uimage2D;
+// reference: A97ECCE4333382E8, 57944423B0A02429
+// program: 1A9F70669A3C74DF, F0531050140A5884, 57944423B0A02429
+// shader: 8B30, 59ED698457F53D16
 in vec4 primary_color;
 in vec2 texcoord0;
 in vec2 texcoord1;
@@ -30857,15 +30063,9 @@ combiner_buffer = next_combiner_buffer;
 gl_FragDepth = depth;
 color = byteround(last_tex_env_out);
 }
-// reference: D1DCDE2CD9E75B4E, BDFCAB3951694DF3
-// program: A0A01900FB0E2CEC, F0531050140A5884, BDFCAB3951694DF3
-// shader: 8B30, 06A3CEE87D6C4A0F
-
-precision highp int;
-precision highp float;
-precision highp samplerBuffer;
-precision highp usampler2D;
-precision highp uimage2D;
+// reference: D1DCDE2CD9E75B4E, 59ED698457F53D16
+// program: 1A9F70669A3C74DF, F0531050140A5884, 59ED698457F53D16
+// shader: 8B30, E77ECBCBEF5FBB1F
 in vec4 primary_color;
 in vec2 texcoord0;
 in vec2 texcoord1;
@@ -31092,15 +30292,9 @@ combiner_buffer = next_combiner_buffer;
 gl_FragDepth = depth;
 color = byteround(last_tex_env_out);
 }
-// reference: B9B4E372F539825C, 06A3CEE87D6C4A0F
-// program: A0A01900FB0E2CEC, F0531050140A5884, 06A3CEE87D6C4A0F
-// shader: 8B30, 6F7D606FA34DC85C
-
-precision highp int;
-precision highp float;
-precision highp samplerBuffer;
-precision highp usampler2D;
-precision highp uimage2D;
+// reference: B9B4E372F539825C, E77ECBCBEF5FBB1F
+// program: 1A9F70669A3C74DF, F0531050140A5884, E77ECBCBEF5FBB1F
+// shader: 8B30, 90D532A54B991A97
 in vec4 primary_color;
 in vec2 texcoord0;
 in vec2 texcoord1;
@@ -31321,15 +30515,9 @@ combiner_buffer = next_combiner_buffer;
 gl_FragDepth = depth;
 color = byteround(last_tex_env_out);
 }
-// reference: 0A70E957B7962862, 6F7D606FA34DC85C
-// program: A0A01900FB0E2CEC, F0531050140A5884, 6F7D606FA34DC85C
-// shader: 8B30, 2AC9C217B2AE4D97
-
-precision highp int;
-precision highp float;
-precision highp samplerBuffer;
-precision highp usampler2D;
-precision highp uimage2D;
+// reference: 0A70E957B7962862, 90D532A54B991A97
+// program: 1A9F70669A3C74DF, F0531050140A5884, 90D532A54B991A97
+// shader: 8B30, 6214A7D100EBB604
 in vec4 primary_color;
 in vec2 texcoord0;
 in vec2 texcoord1;
@@ -31551,2421 +30739,10 @@ combiner_buffer = next_combiner_buffer;
 gl_FragDepth = depth;
 color = byteround(last_tex_env_out);
 }
-// reference: F8D4E389333382E8, 2AC9C217B2AE4D97
-// program: A0A01900FB0E2CEC, F0531050140A5884, 2AC9C217B2AE4D97
-// reference: 8076F141D9E75B4E, BDFCAB3951694DF3
-// shader: 8B30, 4C0C5AD7634C9A25
-
-precision highp int;
-precision highp float;
-precision highp samplerBuffer;
-precision highp usampler2D;
-precision highp uimage2D;
-in vec4 primary_color;
-in vec2 texcoord0;
-in vec2 texcoord1;
-in vec2 texcoord2;
-in float texcoord0_w;
-in vec4 normquat;
-in vec3 view;
-
-#ifndef CITRA_GLES
-in vec4 gl_FragCoord;
-#endif // CITRA_GLES
-out vec4 color;
-
-uniform sampler2D tex0;
-uniform sampler2D tex1;
-uniform sampler2D tex2;
-uniform samplerCube tex_cube;
-uniform samplerBuffer texture_buffer_lut_lf;
-uniform samplerBuffer texture_buffer_lut_rg;
-uniform samplerBuffer texture_buffer_lut_rgba;
-
-#define NUM_TEV_STAGES 6
-#define NUM_LIGHTS 8
-#define NUM_LIGHTING_SAMPLERS 24
-
-struct LightSrc {
-    vec3 specular_0;
-    vec3 specular_1;
-    vec3 diffuse;
-    vec3 ambient;
-    vec3 position;
-    vec3 spot_direction;
-    float dist_atten_bias;
-    float dist_atten_scale;
-};
-
-layout (std140) uniform shader_data {
-    int alphatest_ref;
-    float depth_scale;
-    float depth_offset;
-    float shadow_bias_constant;
-    float shadow_bias_linear;
-    int scissor_x1;
-    int scissor_y1;
-    int scissor_x2;
-    int scissor_y2;
-    int fog_lut_offset;
-    int proctex_noise_lut_offset;
-    int proctex_color_map_offset;
-    int proctex_alpha_map_offset;
-    int proctex_lut_offset;
-    int proctex_diff_lut_offset;
-    float proctex_bias;
-    vec3 fog_color;
-    vec2 proctex_noise_f;
-    vec2 proctex_noise_a;
-    vec2 proctex_noise_p;
-    vec4 const_color[NUM_TEV_STAGES];
-    vec4 tev_combiner_buffer_color;
-    vec4 clip_coef;
-};
-
-layout (std140) uniform shader_light_data {
-    ivec4 lighting_lut_offset[NUM_LIGHTING_SAMPLERS / 4];
-    vec3 lighting_global_ambient;
-    LightSrc light_src[NUM_LIGHTS];
-    float lut_scale_d0;
-    float lut_scale_d1;
-    float lut_scale_sp;
-    float lut_scale_fr;
-    float lut_scale_rb;
-    float lut_scale_rg;
-    float lut_scale_rr;
-    int shadow_texture_bias;
-};
-
-// Rotate the vector v by the quaternion q
-vec3 quaternion_rotate(vec4 q, vec3 v) {
-    return v + 2.0 * cross(q.xyz, cross(q.xyz, v) + q.w * v);
-}
-
-float LookupLightingLUT(int lut_index, int index, float delta) {
-    vec2 entry = texelFetch(texture_buffer_lut_lf, lighting_lut_offset[lut_index >> 2][lut_index & 3] + index).rg;
-    return entry.r + entry.g * delta;
-}
-
-float LookupLightingLUTUnsigned(int lut_index, float pos) {
-    int index = clamp(int(pos * 256.0), 0, 255);
-    float delta = pos * 256.0 - float(index);
-    return LookupLightingLUT(lut_index, index, delta);
-}
-
-float LookupLightingLUTSigned(int lut_index, float pos) {
-    int index = clamp(int(pos * 128.0), -128, 127);
-    float delta = pos * 128.0 - float(index);
-    if (index < 0) index += 256;
-    return LookupLightingLUT(lut_index, index, delta);
-}
-
-float byteround(float x) {
-    return round(x * 255.0) * (1.0 / 255.0);
-}
-
-vec2 byteround(vec2 x) {
-    return round(x * 255.0) * (1.0 / 255.0);
-}
-
-vec3 byteround(vec3 x) {
-    return round(x * 255.0) * (1.0 / 255.0);
-}
-
-vec4 byteround(vec4 x) {
-    return round(x * 255.0) * (1.0 / 255.0);
-}
-
-// PICA's LOD formula for 2D textures.
-// This LOD formula is the same as the LOD lower limit defined in OpenGL.
-// f(x, y) >= max{m_u, m_v, m_w}
-// (See OpenGL 4.6 spec, 8.14.1 - Scale Factor and Level-of-Detail)
-float getLod(vec2 coord) {
-    vec2 d = max(abs(dFdx(coord)), abs(dFdy(coord)));
-    return log2(max(d.x, d.y));
-}
-
-vec4 shadowTexture(vec2 uv, float w) {
-    return vec4(1.0);
-}
-
-vec4 shadowTextureCube(vec2 uv, float w) {
-    return vec4(1.0);
-}
-
-void main() {
-vec4 rounded_primary_color = byteround(primary_color);
-vec4 primary_fragment_color = vec4(0.0);
-vec4 secondary_fragment_color = vec4(0.0);
-if (!(gl_FragCoord.x >= float(scissor_x1) && gl_FragCoord.y >= float(scissor_y1) && gl_FragCoord.x < float(scissor_x2) && gl_FragCoord.y < float(scissor_y2))) discard;
-float z_over_w = 2.0 * gl_FragCoord.z - 1.0;
-float depth = z_over_w * depth_scale + depth_offset;
-vec4 texcolor0 = textureLod(tex0, texcoord0, getLod(texcoord0 * vec2(textureSize(tex0, 0))));
-vec4 texcolor1 = textureLod(tex1, texcoord1, getLod(texcoord1 * vec2(textureSize(tex1, 0))));
-
-vec4 diffuse_sum = vec4(0.0, 0.0, 0.0, 1.0);
-vec4 specular_sum = vec4(0.0, 0.0, 0.0, 1.0);
-vec3 light_vector = vec3(0.0);
-vec3 refl_value = vec3(0.0);
-vec3 spot_dir = vec3(0.0);
-vec3 half_vector = vec3(0.0);
-float dot_product = 0.0;
-float clamp_highlights = 1.0;
-float geo_factor = 1.0;
-vec3 surface_normal = vec3(0.0, 0.0, 1.0);
-vec3 surface_tangent = vec3(1.0, 0.0, 0.0);
-vec4 normalized_normquat = normalize(normquat);
-vec3 normal = quaternion_rotate(normalized_normquat, surface_normal);
-vec3 tangent = quaternion_rotate(normalized_normquat, surface_tangent);
-vec4 shadow = vec4(1.0);
-light_vector = normalize(light_src[0].position + view);
-spot_dir = light_src[0].spot_direction;
-half_vector = normalize(view) + light_vector;
-dot_product = max(dot(light_vector, normal), 0.0);
-refl_value.r = 1.0;
-refl_value.g = refl_value.r;
-refl_value.b = refl_value.r;
-diffuse_sum.rgb += ((light_src[0].diffuse * dot_product) + light_src[0].ambient) * LookupLightingLUTUnsigned(16,clamp(light_src[0].dist_atten_scale * length(-view - light_src[0].position) + light_src[0].dist_atten_bias, 0.0, 1.0)) * 1.0;
-specular_sum.rgb += ((light_src[0].specular_0) + (light_src[0].specular_1)) * clamp_highlights * LookupLightingLUTUnsigned(16,clamp(light_src[0].dist_atten_scale * length(-view - light_src[0].position) + light_src[0].dist_atten_bias, 0.0, 1.0)) * 1.0;
-light_vector = normalize(light_src[1].position + view);
-spot_dir = light_src[1].spot_direction;
-half_vector = normalize(view) + light_vector;
-dot_product = max(dot(light_vector, normal), 0.0);
-refl_value.r = 1.0;
-refl_value.g = refl_value.r;
-refl_value.b = refl_value.r;
-diffuse_sum.rgb += ((light_src[1].diffuse * dot_product) + light_src[1].ambient) * LookupLightingLUTUnsigned(17,clamp(light_src[1].dist_atten_scale * length(-view - light_src[1].position) + light_src[1].dist_atten_bias, 0.0, 1.0)) * 1.0;
-specular_sum.rgb += ((light_src[1].specular_0) + (light_src[1].specular_1)) * clamp_highlights * LookupLightingLUTUnsigned(17,clamp(light_src[1].dist_atten_scale * length(-view - light_src[1].position) + light_src[1].dist_atten_bias, 0.0, 1.0)) * 1.0;
-light_vector = normalize(light_src[2].position + view);
-spot_dir = light_src[2].spot_direction;
-half_vector = normalize(view) + light_vector;
-dot_product = max(dot(light_vector, normal), 0.0);
-refl_value.r = 1.0;
-refl_value.g = refl_value.r;
-refl_value.b = refl_value.r;
-diffuse_sum.rgb += ((light_src[2].diffuse * dot_product) + light_src[2].ambient) * LookupLightingLUTUnsigned(18,clamp(light_src[2].dist_atten_scale * length(-view - light_src[2].position) + light_src[2].dist_atten_bias, 0.0, 1.0)) * 1.0;
-specular_sum.rgb += ((light_src[2].specular_0) + (light_src[2].specular_1)) * clamp_highlights * LookupLightingLUTUnsigned(18,clamp(light_src[2].dist_atten_scale * length(-view - light_src[2].position) + light_src[2].dist_atten_bias, 0.0, 1.0)) * 1.0;
-light_vector = normalize(light_src[3].position + view);
-spot_dir = light_src[3].spot_direction;
-half_vector = normalize(view) + light_vector;
-dot_product = max(dot(light_vector, normal), 0.0);
-refl_value.r = 1.0;
-refl_value.g = refl_value.r;
-refl_value.b = refl_value.r;
-diffuse_sum.rgb += ((light_src[3].diffuse * dot_product) + light_src[3].ambient) * LookupLightingLUTUnsigned(19,clamp(light_src[3].dist_atten_scale * length(-view - light_src[3].position) + light_src[3].dist_atten_bias, 0.0, 1.0)) * (lut_scale_sp * LookupLightingLUTUnsigned(11, max(dot(light_vector, spot_dir), 0.0)));
-specular_sum.rgb += ((light_src[3].specular_0) + (light_src[3].specular_1)) * clamp_highlights * LookupLightingLUTUnsigned(19,clamp(light_src[3].dist_atten_scale * length(-view - light_src[3].position) + light_src[3].dist_atten_bias, 0.0, 1.0)) * (lut_scale_sp * LookupLightingLUTUnsigned(11, max(dot(light_vector, spot_dir), 0.0)));
-diffuse_sum.rgb += lighting_global_ambient;
-primary_fragment_color = clamp(diffuse_sum, vec4(0.0), vec4(1.0));
-secondary_fragment_color = clamp(specular_sum, vec4(0.0), vec4(1.0));
-
-vec4 combiner_buffer = vec4(0.0);
-vec4 next_combiner_buffer = tev_combiner_buffer_color;
-vec4 last_tex_env_out = vec4(0.0);
-vec3 color_output_0 = byteround(clamp((rounded_primary_color.rgb), vec3(0.0), vec3(1.0)));
-float alpha_output_0 = byteround(clamp((rounded_primary_color.r) * (rounded_primary_color.r), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_0 * 1.0, alpha_output_0 * 2.0), vec4(0.0), vec4(1.0));
-combiner_buffer = next_combiner_buffer;
-
-vec3 color_output_1 = byteround(clamp((const_color[1].rgb) * (vec3(1.0) - last_tex_env_out.aaa) + (rounded_primary_color.rgb), vec3(0.0), vec3(1.0)));
-float alpha_output_1 = byteround(clamp((rounded_primary_color.a) * (texcolor1.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_1, alpha_output_1), vec4(0.0), vec4(1.0));
-combiner_buffer = next_combiner_buffer;
-
-vec3 color_output_2 = byteround(clamp((last_tex_env_out.rgb) * (texcolor1.rgb), vec3(0.0), vec3(1.0)));
-float alpha_output_2 = byteround(clamp((last_tex_env_out.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_2 * 2.0, alpha_output_2 * 1.0), vec4(0.0), vec4(1.0));
-combiner_buffer = next_combiner_buffer;
-
-vec3 color_output_3 = byteround(clamp((last_tex_env_out.rgb) * (primary_fragment_color.rgb), vec3(0.0), vec3(1.0)));
-float alpha_output_3 = byteround(clamp((last_tex_env_out.a) * (const_color[3].a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_3, alpha_output_3), vec4(0.0), vec4(1.0));
-combiner_buffer = next_combiner_buffer;
-
-vec3 color_output_4 = byteround(clamp(min((const_color[4].rgb) + (texcolor0.ggg), vec3(1.0)) * (last_tex_env_out.rgb), vec3(0.0), vec3(1.0)));
-float alpha_output_4 = byteround(clamp((last_tex_env_out.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_4, alpha_output_4), vec4(0.0), vec4(1.0));
-combiner_buffer = next_combiner_buffer;
-
-combiner_buffer = next_combiner_buffer;
-
-gl_FragDepth = depth;
-color = byteround(last_tex_env_out);
-}
-// reference: FD8FF2BBE1FF67E0, 4C0C5AD7634C9A25
-// program: A0A01900FB0E2CEC, F0531050140A5884, 4C0C5AD7634C9A25
-// reference: EC578C560B7D9210, 2A0717029ABD24CD
-// reference: 33EA10F0998C040F, 850BB99074BDC0F7
-// reference: 9B8A38A8719D2F14, 2DBEE0D05DB3F8CF
-// reference: D47E5190891214F3, 5FCF8C300EF3AA54
-// shader: 8B30, D576DB02B972A64A
-
-precision highp int;
-precision highp float;
-precision highp samplerBuffer;
-precision highp usampler2D;
-precision highp uimage2D;
-in vec4 primary_color;
-in vec2 texcoord0;
-in vec2 texcoord1;
-in vec2 texcoord2;
-in float texcoord0_w;
-in vec4 normquat;
-in vec3 view;
-
-#ifndef CITRA_GLES
-in vec4 gl_FragCoord;
-#endif // CITRA_GLES
-out vec4 color;
-
-uniform sampler2D tex0;
-uniform sampler2D tex1;
-uniform sampler2D tex2;
-uniform samplerCube tex_cube;
-uniform samplerBuffer texture_buffer_lut_lf;
-uniform samplerBuffer texture_buffer_lut_rg;
-uniform samplerBuffer texture_buffer_lut_rgba;
-
-#define NUM_TEV_STAGES 6
-#define NUM_LIGHTS 8
-#define NUM_LIGHTING_SAMPLERS 24
-
-struct LightSrc {
-    vec3 specular_0;
-    vec3 specular_1;
-    vec3 diffuse;
-    vec3 ambient;
-    vec3 position;
-    vec3 spot_direction;
-    float dist_atten_bias;
-    float dist_atten_scale;
-};
-
-layout (std140) uniform shader_data {
-    int alphatest_ref;
-    float depth_scale;
-    float depth_offset;
-    float shadow_bias_constant;
-    float shadow_bias_linear;
-    int scissor_x1;
-    int scissor_y1;
-    int scissor_x2;
-    int scissor_y2;
-    int fog_lut_offset;
-    int proctex_noise_lut_offset;
-    int proctex_color_map_offset;
-    int proctex_alpha_map_offset;
-    int proctex_lut_offset;
-    int proctex_diff_lut_offset;
-    float proctex_bias;
-    vec3 fog_color;
-    vec2 proctex_noise_f;
-    vec2 proctex_noise_a;
-    vec2 proctex_noise_p;
-    vec4 const_color[NUM_TEV_STAGES];
-    vec4 tev_combiner_buffer_color;
-    vec4 clip_coef;
-};
-
-layout (std140) uniform shader_light_data {
-    ivec4 lighting_lut_offset[NUM_LIGHTING_SAMPLERS / 4];
-    vec3 lighting_global_ambient;
-    LightSrc light_src[NUM_LIGHTS];
-    float lut_scale_d0;
-    float lut_scale_d1;
-    float lut_scale_sp;
-    float lut_scale_fr;
-    float lut_scale_rb;
-    float lut_scale_rg;
-    float lut_scale_rr;
-    int shadow_texture_bias;
-};
-
-// Rotate the vector v by the quaternion q
-vec3 quaternion_rotate(vec4 q, vec3 v) {
-    return v + 2.0 * cross(q.xyz, cross(q.xyz, v) + q.w * v);
-}
-
-float LookupLightingLUT(int lut_index, int index, float delta) {
-    vec2 entry = texelFetch(texture_buffer_lut_lf, lighting_lut_offset[lut_index >> 2][lut_index & 3] + index).rg;
-    return entry.r + entry.g * delta;
-}
-
-float LookupLightingLUTUnsigned(int lut_index, float pos) {
-    int index = clamp(int(pos * 256.0), 0, 255);
-    float delta = pos * 256.0 - float(index);
-    return LookupLightingLUT(lut_index, index, delta);
-}
-
-float LookupLightingLUTSigned(int lut_index, float pos) {
-    int index = clamp(int(pos * 128.0), -128, 127);
-    float delta = pos * 128.0 - float(index);
-    if (index < 0) index += 256;
-    return LookupLightingLUT(lut_index, index, delta);
-}
-
-float byteround(float x) {
-    return round(x * 255.0) * (1.0 / 255.0);
-}
-
-vec2 byteround(vec2 x) {
-    return round(x * 255.0) * (1.0 / 255.0);
-}
-
-vec3 byteround(vec3 x) {
-    return round(x * 255.0) * (1.0 / 255.0);
-}
-
-vec4 byteround(vec4 x) {
-    return round(x * 255.0) * (1.0 / 255.0);
-}
-
-// PICA's LOD formula for 2D textures.
-// This LOD formula is the same as the LOD lower limit defined in OpenGL.
-// f(x, y) >= max{m_u, m_v, m_w}
-// (See OpenGL 4.6 spec, 8.14.1 - Scale Factor and Level-of-Detail)
-float getLod(vec2 coord) {
-    vec2 d = max(abs(dFdx(coord)), abs(dFdy(coord)));
-    return log2(max(d.x, d.y));
-}
-
-vec4 shadowTexture(vec2 uv, float w) {
-    return vec4(1.0);
-}
-
-vec4 shadowTextureCube(vec2 uv, float w) {
-    return vec4(1.0);
-}
-
-void main() {
-vec4 rounded_primary_color = byteround(primary_color);
-vec4 primary_fragment_color = vec4(0.0);
-vec4 secondary_fragment_color = vec4(0.0);
-if (!(gl_FragCoord.x >= float(scissor_x1) && gl_FragCoord.y >= float(scissor_y1) && gl_FragCoord.x < float(scissor_x2) && gl_FragCoord.y < float(scissor_y2))) discard;
-float z_over_w = 2.0 * gl_FragCoord.z - 1.0;
-float depth = z_over_w * depth_scale + depth_offset;
-vec4 texcolor1 = textureLod(tex1, texcoord1, getLod(texcoord1 * vec2(textureSize(tex1, 0))));
-vec4 texcolor2 = textureLod(tex2, texcoord2, getLod(texcoord2 * vec2(textureSize(tex2, 0))));
-
-vec4 diffuse_sum = vec4(0.0, 0.0, 0.0, 1.0);
-vec4 specular_sum = vec4(0.0, 0.0, 0.0, 1.0);
-vec3 light_vector = vec3(0.0);
-vec3 refl_value = vec3(0.0);
-vec3 spot_dir = vec3(0.0);
-vec3 half_vector = vec3(0.0);
-float dot_product = 0.0;
-float clamp_highlights = 1.0;
-float geo_factor = 1.0;
-vec3 surface_normal = vec3(0.0, 0.0, 1.0);
-vec3 surface_tangent = vec3(1.0, 0.0, 0.0);
-vec4 normalized_normquat = normalize(normquat);
-vec3 normal = quaternion_rotate(normalized_normquat, surface_normal);
-vec3 tangent = quaternion_rotate(normalized_normquat, surface_tangent);
-vec4 shadow = vec4(1.0);
-light_vector = normalize(light_src[0].position + view);
-spot_dir = light_src[0].spot_direction;
-half_vector = normalize(view) + light_vector;
-dot_product = max(dot(light_vector, normal), 0.0);
-refl_value.r = 1.0;
-refl_value.g = refl_value.r;
-refl_value.b = refl_value.r;
-diffuse_sum.rgb += ((light_src[0].diffuse * dot_product) + light_src[0].ambient) * LookupLightingLUTUnsigned(16,clamp(light_src[0].dist_atten_scale * length(-view - light_src[0].position) + light_src[0].dist_atten_bias, 0.0, 1.0)) * 1.0;
-specular_sum.rgb += ((light_src[0].specular_0) + (light_src[0].specular_1)) * clamp_highlights * LookupLightingLUTUnsigned(16,clamp(light_src[0].dist_atten_scale * length(-view - light_src[0].position) + light_src[0].dist_atten_bias, 0.0, 1.0)) * 1.0;
-light_vector = normalize(light_src[1].position + view);
-spot_dir = light_src[1].spot_direction;
-half_vector = normalize(view) + light_vector;
-dot_product = max(dot(light_vector, normal), 0.0);
-refl_value.r = 1.0;
-refl_value.g = refl_value.r;
-refl_value.b = refl_value.r;
-diffuse_sum.rgb += ((light_src[1].diffuse * dot_product) + light_src[1].ambient) * LookupLightingLUTUnsigned(17,clamp(light_src[1].dist_atten_scale * length(-view - light_src[1].position) + light_src[1].dist_atten_bias, 0.0, 1.0)) * 1.0;
-specular_sum.rgb += ((light_src[1].specular_0) + (light_src[1].specular_1)) * clamp_highlights * LookupLightingLUTUnsigned(17,clamp(light_src[1].dist_atten_scale * length(-view - light_src[1].position) + light_src[1].dist_atten_bias, 0.0, 1.0)) * 1.0;
-light_vector = normalize(light_src[2].position + view);
-spot_dir = light_src[2].spot_direction;
-half_vector = normalize(view) + light_vector;
-dot_product = max(dot(light_vector, normal), 0.0);
-refl_value.r = 1.0;
-refl_value.g = refl_value.r;
-refl_value.b = refl_value.r;
-diffuse_sum.rgb += ((light_src[2].diffuse * dot_product) + light_src[2].ambient) * LookupLightingLUTUnsigned(18,clamp(light_src[2].dist_atten_scale * length(-view - light_src[2].position) + light_src[2].dist_atten_bias, 0.0, 1.0)) * 1.0;
-specular_sum.rgb += ((light_src[2].specular_0) + (light_src[2].specular_1)) * clamp_highlights * LookupLightingLUTUnsigned(18,clamp(light_src[2].dist_atten_scale * length(-view - light_src[2].position) + light_src[2].dist_atten_bias, 0.0, 1.0)) * 1.0;
-light_vector = normalize(light_src[3].position + view);
-spot_dir = light_src[3].spot_direction;
-half_vector = normalize(view) + light_vector;
-dot_product = max(dot(light_vector, normal), 0.0);
-refl_value.r = 1.0;
-refl_value.g = refl_value.r;
-refl_value.b = refl_value.r;
-diffuse_sum.rgb += ((light_src[3].diffuse * dot_product) + light_src[3].ambient) * LookupLightingLUTUnsigned(19,clamp(light_src[3].dist_atten_scale * length(-view - light_src[3].position) + light_src[3].dist_atten_bias, 0.0, 1.0)) * (lut_scale_sp * LookupLightingLUTUnsigned(11, max(dot(light_vector, spot_dir), 0.0)));
-specular_sum.rgb += ((light_src[3].specular_0) + (light_src[3].specular_1)) * clamp_highlights * LookupLightingLUTUnsigned(19,clamp(light_src[3].dist_atten_scale * length(-view - light_src[3].position) + light_src[3].dist_atten_bias, 0.0, 1.0)) * (lut_scale_sp * LookupLightingLUTUnsigned(11, max(dot(light_vector, spot_dir), 0.0)));
-diffuse_sum.rgb += lighting_global_ambient;
-primary_fragment_color = clamp(diffuse_sum, vec4(0.0), vec4(1.0));
-secondary_fragment_color = clamp(specular_sum, vec4(0.0), vec4(1.0));
-
-vec4 combiner_buffer = vec4(0.0);
-vec4 next_combiner_buffer = tev_combiner_buffer_color;
-vec4 last_tex_env_out = vec4(0.0);
-vec3 color_output_0 = byteround(clamp((const_color[0].aaa) * (texcolor2.rgb), vec3(0.0), vec3(1.0)));
-float alpha_output_0 = byteround(clamp((rounded_primary_color.r) * (rounded_primary_color.r), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_0 * 1.0, alpha_output_0 * 2.0), vec4(0.0), vec4(1.0));
-combiner_buffer = next_combiner_buffer;
-next_combiner_buffer.rgb = last_tex_env_out.rgb;
-
-vec3 color_output_1 = byteround(clamp((const_color[1].rgb) * (vec3(1.0) - last_tex_env_out.aaa) + (rounded_primary_color.rgb), vec3(0.0), vec3(1.0)));
-float alpha_output_1 = byteround(clamp((const_color[1].a) * (texcolor2.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_1, alpha_output_1), vec4(0.0), vec4(1.0));
-combiner_buffer = next_combiner_buffer;
-
-vec3 color_output_2 = byteround(clamp((last_tex_env_out.rgb) * (texcolor1.rgb) + (combiner_buffer.rgb), vec3(0.0), vec3(1.0)));
-float alpha_output_2 = byteround(clamp((last_tex_env_out.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_2 * 2.0, alpha_output_2 * 4.0), vec4(0.0), vec4(1.0));
-combiner_buffer = next_combiner_buffer;
-next_combiner_buffer.rgb = last_tex_env_out.rgb;
-
-vec3 color_output_3 = byteround(clamp((const_color[3].rgb) * (last_tex_env_out.aaa) + (primary_fragment_color.rgb) * (vec3(1.0) - (last_tex_env_out.aaa)), vec3(0.0), vec3(1.0)));
-float alpha_output_3 = byteround(clamp((last_tex_env_out.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_3, alpha_output_3), vec4(0.0), vec4(1.0));
-combiner_buffer = next_combiner_buffer;
-
-vec3 color_output_4 = byteround(clamp((combiner_buffer.rgb) * (last_tex_env_out.rgb), vec3(0.0), vec3(1.0)));
-float alpha_output_4 = byteround(clamp((const_color[4].a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_4, alpha_output_4), vec4(0.0), vec4(1.0));
-combiner_buffer = next_combiner_buffer;
-
-vec3 color_output_5 = byteround(clamp(min((const_color[5].rgb) + (shadowTexture(texcoord0, texcoord0_w).ggg), vec3(1.0)) * (last_tex_env_out.rgb), vec3(0.0), vec3(1.0)));
-float alpha_output_5 = byteround(clamp((last_tex_env_out.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_5, alpha_output_5), vec4(0.0), vec4(1.0));
-combiner_buffer = next_combiner_buffer;
-
-gl_FragDepth = depth;
-color = byteround(last_tex_env_out);
-}
-// reference: 99F7183FD953D90D, D576DB02B972A64A
-// program: A0A01900FB0E2CEC, F0531050140A5884, D576DB02B972A64A
-// shader: 8B30, C9E7E967BCC45AA5
-
-precision highp int;
-precision highp float;
-precision highp samplerBuffer;
-precision highp usampler2D;
-precision highp uimage2D;
-in vec4 primary_color;
-in vec2 texcoord0;
-in vec2 texcoord1;
-in vec2 texcoord2;
-in float texcoord0_w;
-in vec4 normquat;
-in vec3 view;
-
-#ifndef CITRA_GLES
-in vec4 gl_FragCoord;
-#endif // CITRA_GLES
-out vec4 color;
-
-uniform sampler2D tex0;
-uniform sampler2D tex1;
-uniform sampler2D tex2;
-uniform samplerCube tex_cube;
-uniform samplerBuffer texture_buffer_lut_lf;
-uniform samplerBuffer texture_buffer_lut_rg;
-uniform samplerBuffer texture_buffer_lut_rgba;
-
-#define NUM_TEV_STAGES 6
-#define NUM_LIGHTS 8
-#define NUM_LIGHTING_SAMPLERS 24
-
-struct LightSrc {
-    vec3 specular_0;
-    vec3 specular_1;
-    vec3 diffuse;
-    vec3 ambient;
-    vec3 position;
-    vec3 spot_direction;
-    float dist_atten_bias;
-    float dist_atten_scale;
-};
-
-layout (std140) uniform shader_data {
-    int alphatest_ref;
-    float depth_scale;
-    float depth_offset;
-    float shadow_bias_constant;
-    float shadow_bias_linear;
-    int scissor_x1;
-    int scissor_y1;
-    int scissor_x2;
-    int scissor_y2;
-    int fog_lut_offset;
-    int proctex_noise_lut_offset;
-    int proctex_color_map_offset;
-    int proctex_alpha_map_offset;
-    int proctex_lut_offset;
-    int proctex_diff_lut_offset;
-    float proctex_bias;
-    vec3 fog_color;
-    vec2 proctex_noise_f;
-    vec2 proctex_noise_a;
-    vec2 proctex_noise_p;
-    vec4 const_color[NUM_TEV_STAGES];
-    vec4 tev_combiner_buffer_color;
-    vec4 clip_coef;
-};
-
-layout (std140) uniform shader_light_data {
-    ivec4 lighting_lut_offset[NUM_LIGHTING_SAMPLERS / 4];
-    vec3 lighting_global_ambient;
-    LightSrc light_src[NUM_LIGHTS];
-    float lut_scale_d0;
-    float lut_scale_d1;
-    float lut_scale_sp;
-    float lut_scale_fr;
-    float lut_scale_rb;
-    float lut_scale_rg;
-    float lut_scale_rr;
-    int shadow_texture_bias;
-};
-
-// Rotate the vector v by the quaternion q
-vec3 quaternion_rotate(vec4 q, vec3 v) {
-    return v + 2.0 * cross(q.xyz, cross(q.xyz, v) + q.w * v);
-}
-
-float LookupLightingLUT(int lut_index, int index, float delta) {
-    vec2 entry = texelFetch(texture_buffer_lut_lf, lighting_lut_offset[lut_index >> 2][lut_index & 3] + index).rg;
-    return entry.r + entry.g * delta;
-}
-
-float LookupLightingLUTUnsigned(int lut_index, float pos) {
-    int index = clamp(int(pos * 256.0), 0, 255);
-    float delta = pos * 256.0 - float(index);
-    return LookupLightingLUT(lut_index, index, delta);
-}
-
-float LookupLightingLUTSigned(int lut_index, float pos) {
-    int index = clamp(int(pos * 128.0), -128, 127);
-    float delta = pos * 128.0 - float(index);
-    if (index < 0) index += 256;
-    return LookupLightingLUT(lut_index, index, delta);
-}
-
-float byteround(float x) {
-    return round(x * 255.0) * (1.0 / 255.0);
-}
-
-vec2 byteround(vec2 x) {
-    return round(x * 255.0) * (1.0 / 255.0);
-}
-
-vec3 byteround(vec3 x) {
-    return round(x * 255.0) * (1.0 / 255.0);
-}
-
-vec4 byteround(vec4 x) {
-    return round(x * 255.0) * (1.0 / 255.0);
-}
-
-// PICA's LOD formula for 2D textures.
-// This LOD formula is the same as the LOD lower limit defined in OpenGL.
-// f(x, y) >= max{m_u, m_v, m_w}
-// (See OpenGL 4.6 spec, 8.14.1 - Scale Factor and Level-of-Detail)
-float getLod(vec2 coord) {
-    vec2 d = max(abs(dFdx(coord)), abs(dFdy(coord)));
-    return log2(max(d.x, d.y));
-}
-
-vec4 shadowTexture(vec2 uv, float w) {
-    return vec4(1.0);
-}
-
-vec4 shadowTextureCube(vec2 uv, float w) {
-    return vec4(1.0);
-}
-
-void main() {
-vec4 rounded_primary_color = byteround(primary_color);
-vec4 primary_fragment_color = vec4(0.0);
-vec4 secondary_fragment_color = vec4(0.0);
-if (!(gl_FragCoord.x >= float(scissor_x1) && gl_FragCoord.y >= float(scissor_y1) && gl_FragCoord.x < float(scissor_x2) && gl_FragCoord.y < float(scissor_y2))) discard;
-float z_over_w = 2.0 * gl_FragCoord.z - 1.0;
-float depth = z_over_w * depth_scale + depth_offset;
-vec4 texcolor1 = textureLod(tex1, texcoord1, getLod(texcoord1 * vec2(textureSize(tex1, 0))));
-
-vec4 diffuse_sum = vec4(0.0, 0.0, 0.0, 1.0);
-vec4 specular_sum = vec4(0.0, 0.0, 0.0, 1.0);
-vec3 light_vector = vec3(0.0);
-vec3 refl_value = vec3(0.0);
-vec3 spot_dir = vec3(0.0);
-vec3 half_vector = vec3(0.0);
-float dot_product = 0.0;
-float clamp_highlights = 1.0;
-float geo_factor = 1.0;
-vec3 surface_normal = vec3(0.0, 0.0, 1.0);
-vec3 surface_tangent = vec3(1.0, 0.0, 0.0);
-vec4 normalized_normquat = normalize(normquat);
-vec3 normal = quaternion_rotate(normalized_normquat, surface_normal);
-vec3 tangent = quaternion_rotate(normalized_normquat, surface_tangent);
-vec4 shadow = vec4(1.0);
-light_vector = normalize(light_src[0].position + view);
-spot_dir = light_src[0].spot_direction;
-half_vector = normalize(view) + light_vector;
-dot_product = max(dot(light_vector, normal), 0.0);
-refl_value.r = 1.0;
-refl_value.g = refl_value.r;
-refl_value.b = refl_value.r;
-diffuse_sum.rgb += ((light_src[0].diffuse * dot_product) + light_src[0].ambient) * LookupLightingLUTUnsigned(16,clamp(light_src[0].dist_atten_scale * length(-view - light_src[0].position) + light_src[0].dist_atten_bias, 0.0, 1.0)) * 1.0;
-specular_sum.rgb += ((light_src[0].specular_0) + (light_src[0].specular_1)) * clamp_highlights * LookupLightingLUTUnsigned(16,clamp(light_src[0].dist_atten_scale * length(-view - light_src[0].position) + light_src[0].dist_atten_bias, 0.0, 1.0)) * 1.0;
-light_vector = normalize(light_src[1].position + view);
-spot_dir = light_src[1].spot_direction;
-half_vector = normalize(view) + light_vector;
-dot_product = max(dot(light_vector, normal), 0.0);
-refl_value.r = 1.0;
-refl_value.g = refl_value.r;
-refl_value.b = refl_value.r;
-diffuse_sum.rgb += ((light_src[1].diffuse * dot_product) + light_src[1].ambient) * LookupLightingLUTUnsigned(17,clamp(light_src[1].dist_atten_scale * length(-view - light_src[1].position) + light_src[1].dist_atten_bias, 0.0, 1.0)) * 1.0;
-specular_sum.rgb += ((light_src[1].specular_0) + (light_src[1].specular_1)) * clamp_highlights * LookupLightingLUTUnsigned(17,clamp(light_src[1].dist_atten_scale * length(-view - light_src[1].position) + light_src[1].dist_atten_bias, 0.0, 1.0)) * 1.0;
-light_vector = normalize(light_src[2].position + view);
-spot_dir = light_src[2].spot_direction;
-half_vector = normalize(view) + light_vector;
-dot_product = max(dot(light_vector, normal), 0.0);
-refl_value.r = 1.0;
-refl_value.g = refl_value.r;
-refl_value.b = refl_value.r;
-diffuse_sum.rgb += ((light_src[2].diffuse * dot_product) + light_src[2].ambient) * LookupLightingLUTUnsigned(18,clamp(light_src[2].dist_atten_scale * length(-view - light_src[2].position) + light_src[2].dist_atten_bias, 0.0, 1.0)) * 1.0;
-specular_sum.rgb += ((light_src[2].specular_0) + (light_src[2].specular_1)) * clamp_highlights * LookupLightingLUTUnsigned(18,clamp(light_src[2].dist_atten_scale * length(-view - light_src[2].position) + light_src[2].dist_atten_bias, 0.0, 1.0)) * 1.0;
-light_vector = normalize(light_src[3].position + view);
-spot_dir = light_src[3].spot_direction;
-half_vector = normalize(view) + light_vector;
-dot_product = max(dot(light_vector, normal), 0.0);
-refl_value.r = 1.0;
-refl_value.g = refl_value.r;
-refl_value.b = refl_value.r;
-diffuse_sum.rgb += ((light_src[3].diffuse * dot_product) + light_src[3].ambient) * LookupLightingLUTUnsigned(19,clamp(light_src[3].dist_atten_scale * length(-view - light_src[3].position) + light_src[3].dist_atten_bias, 0.0, 1.0)) * (lut_scale_sp * LookupLightingLUTUnsigned(11, max(dot(light_vector, spot_dir), 0.0)));
-specular_sum.rgb += ((light_src[3].specular_0) + (light_src[3].specular_1)) * clamp_highlights * LookupLightingLUTUnsigned(19,clamp(light_src[3].dist_atten_scale * length(-view - light_src[3].position) + light_src[3].dist_atten_bias, 0.0, 1.0)) * (lut_scale_sp * LookupLightingLUTUnsigned(11, max(dot(light_vector, spot_dir), 0.0)));
-diffuse_sum.rgb += lighting_global_ambient;
-primary_fragment_color = clamp(diffuse_sum, vec4(0.0), vec4(1.0));
-secondary_fragment_color = clamp(specular_sum, vec4(0.0), vec4(1.0));
-
-vec4 combiner_buffer = vec4(0.0);
-vec4 next_combiner_buffer = tev_combiner_buffer_color;
-vec4 last_tex_env_out = vec4(0.0);
-vec3 color_output_0 = byteround(clamp((rounded_primary_color.rgb), vec3(0.0), vec3(1.0)));
-float alpha_output_0 = byteround(clamp((rounded_primary_color.r) * (rounded_primary_color.r), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_0 * 1.0, alpha_output_0 * 2.0), vec4(0.0), vec4(1.0));
-combiner_buffer = next_combiner_buffer;
-
-vec3 color_output_1 = byteround(clamp((const_color[1].rgb) * (vec3(1.0) - last_tex_env_out.aaa) + (rounded_primary_color.rgb), vec3(0.0), vec3(1.0)));
-float alpha_output_1 = byteround(clamp((rounded_primary_color.a) * (texcolor1.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_1, alpha_output_1), vec4(0.0), vec4(1.0));
-combiner_buffer = next_combiner_buffer;
-
-vec3 color_output_2 = byteround(clamp((last_tex_env_out.rgb) * (texcolor1.rgb), vec3(0.0), vec3(1.0)));
-float alpha_output_2 = byteround(clamp((last_tex_env_out.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_2 * 2.0, alpha_output_2 * 1.0), vec4(0.0), vec4(1.0));
-combiner_buffer = next_combiner_buffer;
-
-vec3 color_output_3 = byteround(clamp((last_tex_env_out.rgb) * (primary_fragment_color.rgb), vec3(0.0), vec3(1.0)));
-float alpha_output_3 = byteround(clamp((last_tex_env_out.a) * (const_color[3].a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_3, alpha_output_3), vec4(0.0), vec4(1.0));
-combiner_buffer = next_combiner_buffer;
-
-vec3 color_output_4 = byteround(clamp(min((const_color[4].rgb) + (shadowTexture(texcoord0, texcoord0_w).ggg), vec3(1.0)) * (last_tex_env_out.rgb), vec3(0.0), vec3(1.0)));
-float alpha_output_4 = byteround(clamp((last_tex_env_out.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_4, alpha_output_4), vec4(0.0), vec4(1.0));
-combiner_buffer = next_combiner_buffer;
-
-combiner_buffer = next_combiner_buffer;
-
-if (int(last_tex_env_out.a * 255.0) <= alphatest_ref) discard;
-gl_FragDepth = depth;
-color = byteround(last_tex_env_out);
-}
-// reference: AC25DDD60D488CE3, C9E7E967BCC45AA5
-// program: A0A01900FB0E2CEC, F0531050140A5884, C9E7E967BCC45AA5
-// shader: 8B30, 1C4C296EF7F5DD28
-
-precision highp int;
-precision highp float;
-precision highp samplerBuffer;
-precision highp usampler2D;
-precision highp uimage2D;
-in vec4 primary_color;
-in vec2 texcoord0;
-in vec2 texcoord1;
-in vec2 texcoord2;
-in float texcoord0_w;
-in vec4 normquat;
-in vec3 view;
-
-#ifndef CITRA_GLES
-in vec4 gl_FragCoord;
-#endif // CITRA_GLES
-out vec4 color;
-
-uniform sampler2D tex0;
-uniform sampler2D tex1;
-uniform sampler2D tex2;
-uniform samplerCube tex_cube;
-uniform samplerBuffer texture_buffer_lut_lf;
-uniform samplerBuffer texture_buffer_lut_rg;
-uniform samplerBuffer texture_buffer_lut_rgba;
-
-#define NUM_TEV_STAGES 6
-#define NUM_LIGHTS 8
-#define NUM_LIGHTING_SAMPLERS 24
-
-struct LightSrc {
-    vec3 specular_0;
-    vec3 specular_1;
-    vec3 diffuse;
-    vec3 ambient;
-    vec3 position;
-    vec3 spot_direction;
-    float dist_atten_bias;
-    float dist_atten_scale;
-};
-
-layout (std140) uniform shader_data {
-    int alphatest_ref;
-    float depth_scale;
-    float depth_offset;
-    float shadow_bias_constant;
-    float shadow_bias_linear;
-    int scissor_x1;
-    int scissor_y1;
-    int scissor_x2;
-    int scissor_y2;
-    int fog_lut_offset;
-    int proctex_noise_lut_offset;
-    int proctex_color_map_offset;
-    int proctex_alpha_map_offset;
-    int proctex_lut_offset;
-    int proctex_diff_lut_offset;
-    float proctex_bias;
-    vec3 fog_color;
-    vec2 proctex_noise_f;
-    vec2 proctex_noise_a;
-    vec2 proctex_noise_p;
-    vec4 const_color[NUM_TEV_STAGES];
-    vec4 tev_combiner_buffer_color;
-    vec4 clip_coef;
-};
-
-layout (std140) uniform shader_light_data {
-    ivec4 lighting_lut_offset[NUM_LIGHTING_SAMPLERS / 4];
-    vec3 lighting_global_ambient;
-    LightSrc light_src[NUM_LIGHTS];
-    float lut_scale_d0;
-    float lut_scale_d1;
-    float lut_scale_sp;
-    float lut_scale_fr;
-    float lut_scale_rb;
-    float lut_scale_rg;
-    float lut_scale_rr;
-    int shadow_texture_bias;
-};
-
-// Rotate the vector v by the quaternion q
-vec3 quaternion_rotate(vec4 q, vec3 v) {
-    return v + 2.0 * cross(q.xyz, cross(q.xyz, v) + q.w * v);
-}
-
-float LookupLightingLUT(int lut_index, int index, float delta) {
-    vec2 entry = texelFetch(texture_buffer_lut_lf, lighting_lut_offset[lut_index >> 2][lut_index & 3] + index).rg;
-    return entry.r + entry.g * delta;
-}
-
-float LookupLightingLUTUnsigned(int lut_index, float pos) {
-    int index = clamp(int(pos * 256.0), 0, 255);
-    float delta = pos * 256.0 - float(index);
-    return LookupLightingLUT(lut_index, index, delta);
-}
-
-float LookupLightingLUTSigned(int lut_index, float pos) {
-    int index = clamp(int(pos * 128.0), -128, 127);
-    float delta = pos * 128.0 - float(index);
-    if (index < 0) index += 256;
-    return LookupLightingLUT(lut_index, index, delta);
-}
-
-float byteround(float x) {
-    return round(x * 255.0) * (1.0 / 255.0);
-}
-
-vec2 byteround(vec2 x) {
-    return round(x * 255.0) * (1.0 / 255.0);
-}
-
-vec3 byteround(vec3 x) {
-    return round(x * 255.0) * (1.0 / 255.0);
-}
-
-vec4 byteround(vec4 x) {
-    return round(x * 255.0) * (1.0 / 255.0);
-}
-
-// PICA's LOD formula for 2D textures.
-// This LOD formula is the same as the LOD lower limit defined in OpenGL.
-// f(x, y) >= max{m_u, m_v, m_w}
-// (See OpenGL 4.6 spec, 8.14.1 - Scale Factor and Level-of-Detail)
-float getLod(vec2 coord) {
-    vec2 d = max(abs(dFdx(coord)), abs(dFdy(coord)));
-    return log2(max(d.x, d.y));
-}
-
-vec4 shadowTexture(vec2 uv, float w) {
-    return vec4(1.0);
-}
-
-vec4 shadowTextureCube(vec2 uv, float w) {
-    return vec4(1.0);
-}
-
-void main() {
-vec4 rounded_primary_color = byteround(primary_color);
-vec4 primary_fragment_color = vec4(0.0);
-vec4 secondary_fragment_color = vec4(0.0);
-if (!(gl_FragCoord.x >= float(scissor_x1) && gl_FragCoord.y >= float(scissor_y1) && gl_FragCoord.x < float(scissor_x2) && gl_FragCoord.y < float(scissor_y2))) discard;
-float z_over_w = 2.0 * gl_FragCoord.z - 1.0;
-float depth = z_over_w * depth_scale + depth_offset;
-vec4 texcolor1 = textureLod(tex1, texcoord1, getLod(texcoord1 * vec2(textureSize(tex1, 0))));
-
-vec4 diffuse_sum = vec4(0.0, 0.0, 0.0, 1.0);
-vec4 specular_sum = vec4(0.0, 0.0, 0.0, 1.0);
-vec3 light_vector = vec3(0.0);
-vec3 refl_value = vec3(0.0);
-vec3 spot_dir = vec3(0.0);
-vec3 half_vector = vec3(0.0);
-float dot_product = 0.0;
-float clamp_highlights = 1.0;
-float geo_factor = 1.0;
-vec3 surface_normal = vec3(0.0, 0.0, 1.0);
-vec3 surface_tangent = vec3(1.0, 0.0, 0.0);
-vec4 normalized_normquat = normalize(normquat);
-vec3 normal = quaternion_rotate(normalized_normquat, surface_normal);
-vec3 tangent = quaternion_rotate(normalized_normquat, surface_tangent);
-vec4 shadow = vec4(1.0);
-light_vector = normalize(light_src[0].position + view);
-spot_dir = light_src[0].spot_direction;
-half_vector = normalize(view) + light_vector;
-dot_product = max(dot(light_vector, normal), 0.0);
-refl_value.r = 1.0;
-refl_value.g = refl_value.r;
-refl_value.b = refl_value.r;
-diffuse_sum.rgb += ((light_src[0].diffuse * dot_product) + light_src[0].ambient) * LookupLightingLUTUnsigned(16,clamp(light_src[0].dist_atten_scale * length(-view - light_src[0].position) + light_src[0].dist_atten_bias, 0.0, 1.0)) * 1.0;
-specular_sum.rgb += ((light_src[0].specular_0) + (light_src[0].specular_1)) * clamp_highlights * LookupLightingLUTUnsigned(16,clamp(light_src[0].dist_atten_scale * length(-view - light_src[0].position) + light_src[0].dist_atten_bias, 0.0, 1.0)) * 1.0;
-light_vector = normalize(light_src[1].position + view);
-spot_dir = light_src[1].spot_direction;
-half_vector = normalize(view) + light_vector;
-dot_product = max(dot(light_vector, normal), 0.0);
-refl_value.r = 1.0;
-refl_value.g = refl_value.r;
-refl_value.b = refl_value.r;
-diffuse_sum.rgb += ((light_src[1].diffuse * dot_product) + light_src[1].ambient) * LookupLightingLUTUnsigned(17,clamp(light_src[1].dist_atten_scale * length(-view - light_src[1].position) + light_src[1].dist_atten_bias, 0.0, 1.0)) * 1.0;
-specular_sum.rgb += ((light_src[1].specular_0) + (light_src[1].specular_1)) * clamp_highlights * LookupLightingLUTUnsigned(17,clamp(light_src[1].dist_atten_scale * length(-view - light_src[1].position) + light_src[1].dist_atten_bias, 0.0, 1.0)) * 1.0;
-light_vector = normalize(light_src[2].position + view);
-spot_dir = light_src[2].spot_direction;
-half_vector = normalize(view) + light_vector;
-dot_product = max(dot(light_vector, normal), 0.0);
-refl_value.r = 1.0;
-refl_value.g = refl_value.r;
-refl_value.b = refl_value.r;
-diffuse_sum.rgb += ((light_src[2].diffuse * dot_product) + light_src[2].ambient) * LookupLightingLUTUnsigned(18,clamp(light_src[2].dist_atten_scale * length(-view - light_src[2].position) + light_src[2].dist_atten_bias, 0.0, 1.0)) * 1.0;
-specular_sum.rgb += ((light_src[2].specular_0) + (light_src[2].specular_1)) * clamp_highlights * LookupLightingLUTUnsigned(18,clamp(light_src[2].dist_atten_scale * length(-view - light_src[2].position) + light_src[2].dist_atten_bias, 0.0, 1.0)) * 1.0;
-light_vector = normalize(light_src[3].position + view);
-spot_dir = light_src[3].spot_direction;
-half_vector = normalize(view) + light_vector;
-dot_product = max(dot(light_vector, normal), 0.0);
-refl_value.r = 1.0;
-refl_value.g = refl_value.r;
-refl_value.b = refl_value.r;
-diffuse_sum.rgb += ((light_src[3].diffuse * dot_product) + light_src[3].ambient) * LookupLightingLUTUnsigned(19,clamp(light_src[3].dist_atten_scale * length(-view - light_src[3].position) + light_src[3].dist_atten_bias, 0.0, 1.0)) * (lut_scale_sp * LookupLightingLUTUnsigned(11, max(dot(light_vector, spot_dir), 0.0)));
-specular_sum.rgb += ((light_src[3].specular_0) + (light_src[3].specular_1)) * clamp_highlights * LookupLightingLUTUnsigned(19,clamp(light_src[3].dist_atten_scale * length(-view - light_src[3].position) + light_src[3].dist_atten_bias, 0.0, 1.0)) * (lut_scale_sp * LookupLightingLUTUnsigned(11, max(dot(light_vector, spot_dir), 0.0)));
-diffuse_sum.rgb += lighting_global_ambient;
-primary_fragment_color = clamp(diffuse_sum, vec4(0.0), vec4(1.0));
-secondary_fragment_color = clamp(specular_sum, vec4(0.0), vec4(1.0));
-
-vec4 combiner_buffer = vec4(0.0);
-vec4 next_combiner_buffer = tev_combiner_buffer_color;
-vec4 last_tex_env_out = vec4(0.0);
-vec3 color_output_0 = byteround(clamp((rounded_primary_color.rgb), vec3(0.0), vec3(1.0)));
-float alpha_output_0 = byteround(clamp((rounded_primary_color.r) * (rounded_primary_color.r), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_0 * 1.0, alpha_output_0 * 2.0), vec4(0.0), vec4(1.0));
-combiner_buffer = next_combiner_buffer;
-
-vec3 color_output_1 = byteround(clamp((const_color[1].rgb) * (vec3(1.0) - last_tex_env_out.aaa) + (rounded_primary_color.rgb), vec3(0.0), vec3(1.0)));
-float alpha_output_1 = byteround(clamp((rounded_primary_color.a) * (texcolor1.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_1, alpha_output_1), vec4(0.0), vec4(1.0));
-combiner_buffer = next_combiner_buffer;
-
-vec3 color_output_2 = byteround(clamp((last_tex_env_out.rgb) * (texcolor1.rgb), vec3(0.0), vec3(1.0)));
-float alpha_output_2 = byteround(clamp((last_tex_env_out.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_2 * 2.0, alpha_output_2 * 1.0), vec4(0.0), vec4(1.0));
-combiner_buffer = next_combiner_buffer;
-
-vec3 color_output_3 = byteround(clamp((last_tex_env_out.rgb) * (primary_fragment_color.rgb), vec3(0.0), vec3(1.0)));
-float alpha_output_3 = byteround(clamp((last_tex_env_out.a) * (const_color[3].a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_3, alpha_output_3), vec4(0.0), vec4(1.0));
-combiner_buffer = next_combiner_buffer;
-
-vec3 color_output_4 = byteround(clamp(min((const_color[4].rgb) + (shadowTexture(texcoord0, texcoord0_w).ggg), vec3(1.0)) * (last_tex_env_out.rgb), vec3(0.0), vec3(1.0)));
-float alpha_output_4 = byteround(clamp((last_tex_env_out.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_4, alpha_output_4), vec4(0.0), vec4(1.0));
-combiner_buffer = next_combiner_buffer;
-
-combiner_buffer = next_combiner_buffer;
-
-gl_FragDepth = depth;
-color = byteround(last_tex_env_out);
-}
-// reference: AC25DDD6E1FF67E0, 1C4C296EF7F5DD28
-// program: A0A01900FB0E2CEC, F0531050140A5884, 1C4C296EF7F5DD28
-// shader: 8B30, BFAC0DCC3297A7A2
-
-precision highp int;
-precision highp float;
-precision highp samplerBuffer;
-precision highp usampler2D;
-precision highp uimage2D;
-in vec4 primary_color;
-in vec2 texcoord0;
-in vec2 texcoord1;
-in vec2 texcoord2;
-in float texcoord0_w;
-in vec4 normquat;
-in vec3 view;
-
-#ifndef CITRA_GLES
-in vec4 gl_FragCoord;
-#endif // CITRA_GLES
-out vec4 color;
-
-uniform sampler2D tex0;
-uniform sampler2D tex1;
-uniform sampler2D tex2;
-uniform samplerCube tex_cube;
-uniform samplerBuffer texture_buffer_lut_lf;
-uniform samplerBuffer texture_buffer_lut_rg;
-uniform samplerBuffer texture_buffer_lut_rgba;
-
-#define NUM_TEV_STAGES 6
-#define NUM_LIGHTS 8
-#define NUM_LIGHTING_SAMPLERS 24
-
-struct LightSrc {
-    vec3 specular_0;
-    vec3 specular_1;
-    vec3 diffuse;
-    vec3 ambient;
-    vec3 position;
-    vec3 spot_direction;
-    float dist_atten_bias;
-    float dist_atten_scale;
-};
-
-layout (std140) uniform shader_data {
-    int alphatest_ref;
-    float depth_scale;
-    float depth_offset;
-    float shadow_bias_constant;
-    float shadow_bias_linear;
-    int scissor_x1;
-    int scissor_y1;
-    int scissor_x2;
-    int scissor_y2;
-    int fog_lut_offset;
-    int proctex_noise_lut_offset;
-    int proctex_color_map_offset;
-    int proctex_alpha_map_offset;
-    int proctex_lut_offset;
-    int proctex_diff_lut_offset;
-    float proctex_bias;
-    vec3 fog_color;
-    vec2 proctex_noise_f;
-    vec2 proctex_noise_a;
-    vec2 proctex_noise_p;
-    vec4 const_color[NUM_TEV_STAGES];
-    vec4 tev_combiner_buffer_color;
-    vec4 clip_coef;
-};
-
-layout (std140) uniform shader_light_data {
-    ivec4 lighting_lut_offset[NUM_LIGHTING_SAMPLERS / 4];
-    vec3 lighting_global_ambient;
-    LightSrc light_src[NUM_LIGHTS];
-    float lut_scale_d0;
-    float lut_scale_d1;
-    float lut_scale_sp;
-    float lut_scale_fr;
-    float lut_scale_rb;
-    float lut_scale_rg;
-    float lut_scale_rr;
-    int shadow_texture_bias;
-};
-
-// Rotate the vector v by the quaternion q
-vec3 quaternion_rotate(vec4 q, vec3 v) {
-    return v + 2.0 * cross(q.xyz, cross(q.xyz, v) + q.w * v);
-}
-
-float LookupLightingLUT(int lut_index, int index, float delta) {
-    vec2 entry = texelFetch(texture_buffer_lut_lf, lighting_lut_offset[lut_index >> 2][lut_index & 3] + index).rg;
-    return entry.r + entry.g * delta;
-}
-
-float LookupLightingLUTUnsigned(int lut_index, float pos) {
-    int index = clamp(int(pos * 256.0), 0, 255);
-    float delta = pos * 256.0 - float(index);
-    return LookupLightingLUT(lut_index, index, delta);
-}
-
-float LookupLightingLUTSigned(int lut_index, float pos) {
-    int index = clamp(int(pos * 128.0), -128, 127);
-    float delta = pos * 128.0 - float(index);
-    if (index < 0) index += 256;
-    return LookupLightingLUT(lut_index, index, delta);
-}
-
-float byteround(float x) {
-    return round(x * 255.0) * (1.0 / 255.0);
-}
-
-vec2 byteround(vec2 x) {
-    return round(x * 255.0) * (1.0 / 255.0);
-}
-
-vec3 byteround(vec3 x) {
-    return round(x * 255.0) * (1.0 / 255.0);
-}
-
-vec4 byteround(vec4 x) {
-    return round(x * 255.0) * (1.0 / 255.0);
-}
-
-// PICA's LOD formula for 2D textures.
-// This LOD formula is the same as the LOD lower limit defined in OpenGL.
-// f(x, y) >= max{m_u, m_v, m_w}
-// (See OpenGL 4.6 spec, 8.14.1 - Scale Factor and Level-of-Detail)
-float getLod(vec2 coord) {
-    vec2 d = max(abs(dFdx(coord)), abs(dFdy(coord)));
-    return log2(max(d.x, d.y));
-}
-
-vec4 shadowTexture(vec2 uv, float w) {
-    return vec4(1.0);
-}
-
-vec4 shadowTextureCube(vec2 uv, float w) {
-    return vec4(1.0);
-}
-
-void main() {
-vec4 rounded_primary_color = byteround(primary_color);
-vec4 primary_fragment_color = vec4(0.0);
-vec4 secondary_fragment_color = vec4(0.0);
-if (!(gl_FragCoord.x >= float(scissor_x1) && gl_FragCoord.y >= float(scissor_y1) && gl_FragCoord.x < float(scissor_x2) && gl_FragCoord.y < float(scissor_y2))) discard;
-float z_over_w = 2.0 * gl_FragCoord.z - 1.0;
-float depth = z_over_w * depth_scale + depth_offset;
-vec4 texcolor1 = textureLod(tex1, texcoord1, getLod(texcoord1 * vec2(textureSize(tex1, 0))));
-vec4 texcolor2 = textureLod(tex2, texcoord2, getLod(texcoord2 * vec2(textureSize(tex2, 0))));
-
-vec4 diffuse_sum = vec4(0.0, 0.0, 0.0, 1.0);
-vec4 specular_sum = vec4(0.0, 0.0, 0.0, 1.0);
-vec3 light_vector = vec3(0.0);
-vec3 refl_value = vec3(0.0);
-vec3 spot_dir = vec3(0.0);
-vec3 half_vector = vec3(0.0);
-float dot_product = 0.0;
-float clamp_highlights = 1.0;
-float geo_factor = 1.0;
-vec3 surface_normal = vec3(0.0, 0.0, 1.0);
-vec3 surface_tangent = vec3(1.0, 0.0, 0.0);
-vec4 normalized_normquat = normalize(normquat);
-vec3 normal = quaternion_rotate(normalized_normquat, surface_normal);
-vec3 tangent = quaternion_rotate(normalized_normquat, surface_tangent);
-vec4 shadow = vec4(1.0);
-light_vector = normalize(light_src[0].position + view);
-spot_dir = light_src[0].spot_direction;
-half_vector = normalize(view) + light_vector;
-dot_product = max(dot(light_vector, normal), 0.0);
-refl_value.r = 1.0;
-refl_value.g = refl_value.r;
-refl_value.b = refl_value.r;
-diffuse_sum.rgb += ((light_src[0].diffuse * dot_product) + light_src[0].ambient) * LookupLightingLUTUnsigned(16,clamp(light_src[0].dist_atten_scale * length(-view - light_src[0].position) + light_src[0].dist_atten_bias, 0.0, 1.0)) * 1.0;
-specular_sum.rgb += ((light_src[0].specular_0) + (light_src[0].specular_1)) * clamp_highlights * LookupLightingLUTUnsigned(16,clamp(light_src[0].dist_atten_scale * length(-view - light_src[0].position) + light_src[0].dist_atten_bias, 0.0, 1.0)) * 1.0;
-light_vector = normalize(light_src[1].position + view);
-spot_dir = light_src[1].spot_direction;
-half_vector = normalize(view) + light_vector;
-dot_product = max(dot(light_vector, normal), 0.0);
-refl_value.r = 1.0;
-refl_value.g = refl_value.r;
-refl_value.b = refl_value.r;
-diffuse_sum.rgb += ((light_src[1].diffuse * dot_product) + light_src[1].ambient) * LookupLightingLUTUnsigned(17,clamp(light_src[1].dist_atten_scale * length(-view - light_src[1].position) + light_src[1].dist_atten_bias, 0.0, 1.0)) * 1.0;
-specular_sum.rgb += ((light_src[1].specular_0) + (light_src[1].specular_1)) * clamp_highlights * LookupLightingLUTUnsigned(17,clamp(light_src[1].dist_atten_scale * length(-view - light_src[1].position) + light_src[1].dist_atten_bias, 0.0, 1.0)) * 1.0;
-light_vector = normalize(light_src[2].position + view);
-spot_dir = light_src[2].spot_direction;
-half_vector = normalize(view) + light_vector;
-dot_product = max(dot(light_vector, normal), 0.0);
-refl_value.r = 1.0;
-refl_value.g = refl_value.r;
-refl_value.b = refl_value.r;
-diffuse_sum.rgb += ((light_src[2].diffuse * dot_product) + light_src[2].ambient) * LookupLightingLUTUnsigned(18,clamp(light_src[2].dist_atten_scale * length(-view - light_src[2].position) + light_src[2].dist_atten_bias, 0.0, 1.0)) * 1.0;
-specular_sum.rgb += ((light_src[2].specular_0) + (light_src[2].specular_1)) * clamp_highlights * LookupLightingLUTUnsigned(18,clamp(light_src[2].dist_atten_scale * length(-view - light_src[2].position) + light_src[2].dist_atten_bias, 0.0, 1.0)) * 1.0;
-light_vector = normalize(light_src[3].position + view);
-spot_dir = light_src[3].spot_direction;
-half_vector = normalize(view) + light_vector;
-dot_product = max(dot(light_vector, normal), 0.0);
-refl_value.r = 1.0;
-refl_value.g = refl_value.r;
-refl_value.b = refl_value.r;
-diffuse_sum.rgb += ((light_src[3].diffuse * dot_product) + light_src[3].ambient) * LookupLightingLUTUnsigned(19,clamp(light_src[3].dist_atten_scale * length(-view - light_src[3].position) + light_src[3].dist_atten_bias, 0.0, 1.0)) * (lut_scale_sp * LookupLightingLUTUnsigned(11, max(dot(light_vector, spot_dir), 0.0)));
-specular_sum.rgb += ((light_src[3].specular_0) + (light_src[3].specular_1)) * clamp_highlights * LookupLightingLUTUnsigned(19,clamp(light_src[3].dist_atten_scale * length(-view - light_src[3].position) + light_src[3].dist_atten_bias, 0.0, 1.0)) * (lut_scale_sp * LookupLightingLUTUnsigned(11, max(dot(light_vector, spot_dir), 0.0)));
-diffuse_sum.rgb += lighting_global_ambient;
-primary_fragment_color = clamp(diffuse_sum, vec4(0.0), vec4(1.0));
-secondary_fragment_color = clamp(specular_sum, vec4(0.0), vec4(1.0));
-
-vec4 combiner_buffer = vec4(0.0);
-vec4 next_combiner_buffer = tev_combiner_buffer_color;
-vec4 last_tex_env_out = vec4(0.0);
-vec3 color_output_0 = byteround(clamp((const_color[0].aaa) * (texcolor2.rgb), vec3(0.0), vec3(1.0)));
-float alpha_output_0 = byteround(clamp((rounded_primary_color.r) * (rounded_primary_color.r), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_0 * 1.0, alpha_output_0 * 2.0), vec4(0.0), vec4(1.0));
-combiner_buffer = next_combiner_buffer;
-next_combiner_buffer.rgb = last_tex_env_out.rgb;
-
-vec3 color_output_1 = byteround(clamp((const_color[1].rgb) * (vec3(1.0) - last_tex_env_out.aaa) + (rounded_primary_color.rgb), vec3(0.0), vec3(1.0)));
-float alpha_output_1 = byteround(clamp((const_color[1].a) * (texcolor2.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_1, alpha_output_1), vec4(0.0), vec4(1.0));
-combiner_buffer = next_combiner_buffer;
-
-vec3 color_output_2 = byteround(clamp((last_tex_env_out.rgb) * (texcolor1.rgb) + (combiner_buffer.rgb), vec3(0.0), vec3(1.0)));
-float alpha_output_2 = byteround(clamp((last_tex_env_out.a) * (const_color[2].a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_2 * 2.0, alpha_output_2 * 4.0), vec4(0.0), vec4(1.0));
-combiner_buffer = next_combiner_buffer;
-next_combiner_buffer.rgb = last_tex_env_out.rgb;
-
-vec3 color_output_3 = byteround(clamp((const_color[3].rgb) * (last_tex_env_out.aaa) + (primary_fragment_color.rgb) * (vec3(1.0) - (last_tex_env_out.aaa)), vec3(0.0), vec3(1.0)));
-float alpha_output_3 = byteround(clamp((last_tex_env_out.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_3, alpha_output_3), vec4(0.0), vec4(1.0));
-combiner_buffer = next_combiner_buffer;
-
-vec3 color_output_4 = byteround(clamp((combiner_buffer.rgb) * (last_tex_env_out.rgb), vec3(0.0), vec3(1.0)));
-float alpha_output_4 = byteround(clamp((const_color[4].a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_4, alpha_output_4), vec4(0.0), vec4(1.0));
-combiner_buffer = next_combiner_buffer;
-
-vec3 color_output_5 = byteround(clamp(min((const_color[5].rgb) + (shadowTexture(texcoord0, texcoord0_w).ggg), vec3(1.0)) * (last_tex_env_out.rgb), vec3(0.0), vec3(1.0)));
-float alpha_output_5 = byteround(clamp((last_tex_env_out.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_5, alpha_output_5), vec4(0.0), vec4(1.0));
-combiner_buffer = next_combiner_buffer;
-
-gl_FragDepth = depth;
-color = byteround(last_tex_env_out);
-}
-// reference: 7682E1A33EB6EC89, BFAC0DCC3297A7A2
-// program: A0A01900FB0E2CEC, F0531050140A5884, BFAC0DCC3297A7A2
-// reference: 99F7183FFD3B7132, D576DB02B972A64A
-// reference: DAD3030E82D0A5C6, 9A2886E756372E51
-// shader: 8B30, F57A8984E95280AB
-
-precision highp int;
-precision highp float;
-precision highp samplerBuffer;
-precision highp usampler2D;
-precision highp uimage2D;
-in vec4 primary_color;
-in vec2 texcoord0;
-in vec2 texcoord1;
-in vec2 texcoord2;
-in float texcoord0_w;
-in vec4 normquat;
-in vec3 view;
-
-#ifndef CITRA_GLES
-in vec4 gl_FragCoord;
-#endif // CITRA_GLES
-out vec4 color;
-
-uniform sampler2D tex0;
-uniform sampler2D tex1;
-uniform sampler2D tex2;
-uniform samplerCube tex_cube;
-uniform samplerBuffer texture_buffer_lut_lf;
-uniform samplerBuffer texture_buffer_lut_rg;
-uniform samplerBuffer texture_buffer_lut_rgba;
-
-#define NUM_TEV_STAGES 6
-#define NUM_LIGHTS 8
-#define NUM_LIGHTING_SAMPLERS 24
-
-struct LightSrc {
-    vec3 specular_0;
-    vec3 specular_1;
-    vec3 diffuse;
-    vec3 ambient;
-    vec3 position;
-    vec3 spot_direction;
-    float dist_atten_bias;
-    float dist_atten_scale;
-};
-
-layout (std140) uniform shader_data {
-    int alphatest_ref;
-    float depth_scale;
-    float depth_offset;
-    float shadow_bias_constant;
-    float shadow_bias_linear;
-    int scissor_x1;
-    int scissor_y1;
-    int scissor_x2;
-    int scissor_y2;
-    int fog_lut_offset;
-    int proctex_noise_lut_offset;
-    int proctex_color_map_offset;
-    int proctex_alpha_map_offset;
-    int proctex_lut_offset;
-    int proctex_diff_lut_offset;
-    float proctex_bias;
-    vec3 fog_color;
-    vec2 proctex_noise_f;
-    vec2 proctex_noise_a;
-    vec2 proctex_noise_p;
-    vec4 const_color[NUM_TEV_STAGES];
-    vec4 tev_combiner_buffer_color;
-    vec4 clip_coef;
-};
-
-layout (std140) uniform shader_light_data {
-    ivec4 lighting_lut_offset[NUM_LIGHTING_SAMPLERS / 4];
-    vec3 lighting_global_ambient;
-    LightSrc light_src[NUM_LIGHTS];
-    float lut_scale_d0;
-    float lut_scale_d1;
-    float lut_scale_sp;
-    float lut_scale_fr;
-    float lut_scale_rb;
-    float lut_scale_rg;
-    float lut_scale_rr;
-    int shadow_texture_bias;
-};
-
-// Rotate the vector v by the quaternion q
-vec3 quaternion_rotate(vec4 q, vec3 v) {
-    return v + 2.0 * cross(q.xyz, cross(q.xyz, v) + q.w * v);
-}
-
-float LookupLightingLUT(int lut_index, int index, float delta) {
-    vec2 entry = texelFetch(texture_buffer_lut_lf, lighting_lut_offset[lut_index >> 2][lut_index & 3] + index).rg;
-    return entry.r + entry.g * delta;
-}
-
-float LookupLightingLUTUnsigned(int lut_index, float pos) {
-    int index = clamp(int(pos * 256.0), 0, 255);
-    float delta = pos * 256.0 - float(index);
-    return LookupLightingLUT(lut_index, index, delta);
-}
-
-float LookupLightingLUTSigned(int lut_index, float pos) {
-    int index = clamp(int(pos * 128.0), -128, 127);
-    float delta = pos * 128.0 - float(index);
-    if (index < 0) index += 256;
-    return LookupLightingLUT(lut_index, index, delta);
-}
-
-float byteround(float x) {
-    return round(x * 255.0) * (1.0 / 255.0);
-}
-
-vec2 byteround(vec2 x) {
-    return round(x * 255.0) * (1.0 / 255.0);
-}
-
-vec3 byteround(vec3 x) {
-    return round(x * 255.0) * (1.0 / 255.0);
-}
-
-vec4 byteround(vec4 x) {
-    return round(x * 255.0) * (1.0 / 255.0);
-}
-
-// PICA's LOD formula for 2D textures.
-// This LOD formula is the same as the LOD lower limit defined in OpenGL.
-// f(x, y) >= max{m_u, m_v, m_w}
-// (See OpenGL 4.6 spec, 8.14.1 - Scale Factor and Level-of-Detail)
-float getLod(vec2 coord) {
-    vec2 d = max(abs(dFdx(coord)), abs(dFdy(coord)));
-    return log2(max(d.x, d.y));
-}
-
-vec4 shadowTexture(vec2 uv, float w) {
-    return vec4(1.0);
-}
-
-vec4 shadowTextureCube(vec2 uv, float w) {
-    return vec4(1.0);
-}
-
-void main() {
-vec4 rounded_primary_color = byteround(primary_color);
-vec4 primary_fragment_color = vec4(0.0);
-vec4 secondary_fragment_color = vec4(0.0);
-if (!(gl_FragCoord.x >= float(scissor_x1) && gl_FragCoord.y >= float(scissor_y1) && gl_FragCoord.x < float(scissor_x2) && gl_FragCoord.y < float(scissor_y2))) discard;
-float z_over_w = 2.0 * gl_FragCoord.z - 1.0;
-float depth = z_over_w * depth_scale + depth_offset;
-vec4 texcolor1 = textureLod(tex1, texcoord1, getLod(texcoord1 * vec2(textureSize(tex1, 0))));
-
-vec4 diffuse_sum = vec4(0.0, 0.0, 0.0, 1.0);
-vec4 specular_sum = vec4(0.0, 0.0, 0.0, 1.0);
-vec3 light_vector = vec3(0.0);
-vec3 refl_value = vec3(0.0);
-vec3 spot_dir = vec3(0.0);
-vec3 half_vector = vec3(0.0);
-float dot_product = 0.0;
-float clamp_highlights = 1.0;
-float geo_factor = 1.0;
-vec3 surface_normal = vec3(0.0, 0.0, 1.0);
-vec3 surface_tangent = vec3(1.0, 0.0, 0.0);
-vec4 normalized_normquat = normalize(normquat);
-vec3 normal = quaternion_rotate(normalized_normquat, surface_normal);
-vec3 tangent = quaternion_rotate(normalized_normquat, surface_tangent);
-vec4 shadow = vec4(1.0);
-light_vector = normalize(light_src[0].position + view);
-spot_dir = light_src[0].spot_direction;
-half_vector = normalize(view) + light_vector;
-dot_product = max(dot(light_vector, normal), 0.0);
-refl_value.r = 1.0;
-refl_value.g = refl_value.r;
-refl_value.b = refl_value.r;
-diffuse_sum.rgb += ((light_src[0].diffuse * dot_product) + light_src[0].ambient) * LookupLightingLUTUnsigned(16,clamp(light_src[0].dist_atten_scale * length(-view - light_src[0].position) + light_src[0].dist_atten_bias, 0.0, 1.0)) * 1.0;
-specular_sum.rgb += ((light_src[0].specular_0) + (light_src[0].specular_1)) * clamp_highlights * LookupLightingLUTUnsigned(16,clamp(light_src[0].dist_atten_scale * length(-view - light_src[0].position) + light_src[0].dist_atten_bias, 0.0, 1.0)) * 1.0;
-light_vector = normalize(light_src[1].position + view);
-spot_dir = light_src[1].spot_direction;
-half_vector = normalize(view) + light_vector;
-dot_product = max(dot(light_vector, normal), 0.0);
-refl_value.r = 1.0;
-refl_value.g = refl_value.r;
-refl_value.b = refl_value.r;
-diffuse_sum.rgb += ((light_src[1].diffuse * dot_product) + light_src[1].ambient) * LookupLightingLUTUnsigned(17,clamp(light_src[1].dist_atten_scale * length(-view - light_src[1].position) + light_src[1].dist_atten_bias, 0.0, 1.0)) * 1.0;
-specular_sum.rgb += ((light_src[1].specular_0) + (light_src[1].specular_1)) * clamp_highlights * LookupLightingLUTUnsigned(17,clamp(light_src[1].dist_atten_scale * length(-view - light_src[1].position) + light_src[1].dist_atten_bias, 0.0, 1.0)) * 1.0;
-light_vector = normalize(light_src[2].position + view);
-spot_dir = light_src[2].spot_direction;
-half_vector = normalize(view) + light_vector;
-dot_product = max(dot(light_vector, normal), 0.0);
-refl_value.r = 1.0;
-refl_value.g = refl_value.r;
-refl_value.b = refl_value.r;
-diffuse_sum.rgb += ((light_src[2].diffuse * dot_product) + light_src[2].ambient) * LookupLightingLUTUnsigned(18,clamp(light_src[2].dist_atten_scale * length(-view - light_src[2].position) + light_src[2].dist_atten_bias, 0.0, 1.0)) * 1.0;
-specular_sum.rgb += ((light_src[2].specular_0) + (light_src[2].specular_1)) * clamp_highlights * LookupLightingLUTUnsigned(18,clamp(light_src[2].dist_atten_scale * length(-view - light_src[2].position) + light_src[2].dist_atten_bias, 0.0, 1.0)) * 1.0;
-light_vector = normalize(light_src[3].position + view);
-spot_dir = light_src[3].spot_direction;
-half_vector = normalize(view) + light_vector;
-dot_product = max(dot(light_vector, normal), 0.0);
-refl_value.r = 1.0;
-refl_value.g = refl_value.r;
-refl_value.b = refl_value.r;
-diffuse_sum.rgb += ((light_src[3].diffuse * dot_product) + light_src[3].ambient) * LookupLightingLUTUnsigned(19,clamp(light_src[3].dist_atten_scale * length(-view - light_src[3].position) + light_src[3].dist_atten_bias, 0.0, 1.0)) * (lut_scale_sp * LookupLightingLUTUnsigned(11, max(dot(light_vector, spot_dir), 0.0)));
-specular_sum.rgb += ((light_src[3].specular_0) + (light_src[3].specular_1)) * clamp_highlights * LookupLightingLUTUnsigned(19,clamp(light_src[3].dist_atten_scale * length(-view - light_src[3].position) + light_src[3].dist_atten_bias, 0.0, 1.0)) * (lut_scale_sp * LookupLightingLUTUnsigned(11, max(dot(light_vector, spot_dir), 0.0)));
-diffuse_sum.rgb += lighting_global_ambient;
-primary_fragment_color = clamp(diffuse_sum, vec4(0.0), vec4(1.0));
-secondary_fragment_color = clamp(specular_sum, vec4(0.0), vec4(1.0));
-
-vec4 combiner_buffer = vec4(0.0);
-vec4 next_combiner_buffer = tev_combiner_buffer_color;
-vec4 last_tex_env_out = vec4(0.0);
-vec3 color_output_0 = byteround(clamp((rounded_primary_color.rgb) * (texcolor1.rgb), vec3(0.0), vec3(1.0)));
-float alpha_output_0 = byteround(clamp((rounded_primary_color.a) * (texcolor1.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_0 * 2.0, alpha_output_0 * 1.0), vec4(0.0), vec4(1.0));
-combiner_buffer = next_combiner_buffer;
-
-vec3 color_output_1 = byteround(clamp((last_tex_env_out.rgb) * (primary_fragment_color.rgb), vec3(0.0), vec3(1.0)));
-float alpha_output_1 = byteround(clamp((last_tex_env_out.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_1, alpha_output_1), vec4(0.0), vec4(1.0));
-combiner_buffer = next_combiner_buffer;
-
-vec3 color_output_2 = byteround(clamp((last_tex_env_out.rgb), vec3(0.0), vec3(1.0)));
-float alpha_output_2 = byteround(clamp((last_tex_env_out.a) * (const_color[2].a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_2, alpha_output_2), vec4(0.0), vec4(1.0));
-combiner_buffer = next_combiner_buffer;
-
-vec3 color_output_3 = byteround(clamp(min((const_color[3].rgb) + (shadowTexture(texcoord0, texcoord0_w).ggg), vec3(1.0)) * (last_tex_env_out.rgb), vec3(0.0), vec3(1.0)));
-float alpha_output_3 = byteround(clamp((last_tex_env_out.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_3, alpha_output_3), vec4(0.0), vec4(1.0));
-combiner_buffer = next_combiner_buffer;
-
-combiner_buffer = next_combiner_buffer;
-
-combiner_buffer = next_combiner_buffer;
-
-gl_FragDepth = depth;
-color = byteround(last_tex_env_out);
-}
-// reference: 6703C3775BE97070, F57A8984E95280AB
-// program: A0A01900FB0E2CEC, F0531050140A5884, F57A8984E95280AB
-// shader: 8B30, 7C652C3794AF591E
-
-precision highp int;
-precision highp float;
-precision highp samplerBuffer;
-precision highp usampler2D;
-precision highp uimage2D;
-in vec4 primary_color;
-in vec2 texcoord0;
-in vec2 texcoord1;
-in vec2 texcoord2;
-in float texcoord0_w;
-in vec4 normquat;
-in vec3 view;
-
-#ifndef CITRA_GLES
-in vec4 gl_FragCoord;
-#endif // CITRA_GLES
-out vec4 color;
-
-uniform sampler2D tex0;
-uniform sampler2D tex1;
-uniform sampler2D tex2;
-uniform samplerCube tex_cube;
-uniform samplerBuffer texture_buffer_lut_lf;
-uniform samplerBuffer texture_buffer_lut_rg;
-uniform samplerBuffer texture_buffer_lut_rgba;
-
-#define NUM_TEV_STAGES 6
-#define NUM_LIGHTS 8
-#define NUM_LIGHTING_SAMPLERS 24
-
-struct LightSrc {
-    vec3 specular_0;
-    vec3 specular_1;
-    vec3 diffuse;
-    vec3 ambient;
-    vec3 position;
-    vec3 spot_direction;
-    float dist_atten_bias;
-    float dist_atten_scale;
-};
-
-layout (std140) uniform shader_data {
-    int alphatest_ref;
-    float depth_scale;
-    float depth_offset;
-    float shadow_bias_constant;
-    float shadow_bias_linear;
-    int scissor_x1;
-    int scissor_y1;
-    int scissor_x2;
-    int scissor_y2;
-    int fog_lut_offset;
-    int proctex_noise_lut_offset;
-    int proctex_color_map_offset;
-    int proctex_alpha_map_offset;
-    int proctex_lut_offset;
-    int proctex_diff_lut_offset;
-    float proctex_bias;
-    vec3 fog_color;
-    vec2 proctex_noise_f;
-    vec2 proctex_noise_a;
-    vec2 proctex_noise_p;
-    vec4 const_color[NUM_TEV_STAGES];
-    vec4 tev_combiner_buffer_color;
-    vec4 clip_coef;
-};
-
-layout (std140) uniform shader_light_data {
-    ivec4 lighting_lut_offset[NUM_LIGHTING_SAMPLERS / 4];
-    vec3 lighting_global_ambient;
-    LightSrc light_src[NUM_LIGHTS];
-    float lut_scale_d0;
-    float lut_scale_d1;
-    float lut_scale_sp;
-    float lut_scale_fr;
-    float lut_scale_rb;
-    float lut_scale_rg;
-    float lut_scale_rr;
-    int shadow_texture_bias;
-};
-
-// Rotate the vector v by the quaternion q
-vec3 quaternion_rotate(vec4 q, vec3 v) {
-    return v + 2.0 * cross(q.xyz, cross(q.xyz, v) + q.w * v);
-}
-
-float LookupLightingLUT(int lut_index, int index, float delta) {
-    vec2 entry = texelFetch(texture_buffer_lut_lf, lighting_lut_offset[lut_index >> 2][lut_index & 3] + index).rg;
-    return entry.r + entry.g * delta;
-}
-
-float LookupLightingLUTUnsigned(int lut_index, float pos) {
-    int index = clamp(int(pos * 256.0), 0, 255);
-    float delta = pos * 256.0 - float(index);
-    return LookupLightingLUT(lut_index, index, delta);
-}
-
-float LookupLightingLUTSigned(int lut_index, float pos) {
-    int index = clamp(int(pos * 128.0), -128, 127);
-    float delta = pos * 128.0 - float(index);
-    if (index < 0) index += 256;
-    return LookupLightingLUT(lut_index, index, delta);
-}
-
-float byteround(float x) {
-    return round(x * 255.0) * (1.0 / 255.0);
-}
-
-vec2 byteround(vec2 x) {
-    return round(x * 255.0) * (1.0 / 255.0);
-}
-
-vec3 byteround(vec3 x) {
-    return round(x * 255.0) * (1.0 / 255.0);
-}
-
-vec4 byteround(vec4 x) {
-    return round(x * 255.0) * (1.0 / 255.0);
-}
-
-// PICA's LOD formula for 2D textures.
-// This LOD formula is the same as the LOD lower limit defined in OpenGL.
-// f(x, y) >= max{m_u, m_v, m_w}
-// (See OpenGL 4.6 spec, 8.14.1 - Scale Factor and Level-of-Detail)
-float getLod(vec2 coord) {
-    vec2 d = max(abs(dFdx(coord)), abs(dFdy(coord)));
-    return log2(max(d.x, d.y));
-}
-
-vec4 shadowTexture(vec2 uv, float w) {
-    return vec4(1.0);
-}
-
-vec4 shadowTextureCube(vec2 uv, float w) {
-    return vec4(1.0);
-}
-
-void main() {
-vec4 rounded_primary_color = byteround(primary_color);
-vec4 primary_fragment_color = vec4(0.0);
-vec4 secondary_fragment_color = vec4(0.0);
-if (!(gl_FragCoord.x >= float(scissor_x1) && gl_FragCoord.y >= float(scissor_y1) && gl_FragCoord.x < float(scissor_x2) && gl_FragCoord.y < float(scissor_y2))) discard;
-float z_over_w = 2.0 * gl_FragCoord.z - 1.0;
-float depth = z_over_w * depth_scale + depth_offset;
-vec4 texcolor0 = textureLod(tex0, texcoord0, getLod(texcoord0 * vec2(textureSize(tex0, 0))));
-vec4 texcolor1 = textureLod(tex1, texcoord1, getLod(texcoord1 * vec2(textureSize(tex1, 0))));
-
-vec4 diffuse_sum = vec4(0.0, 0.0, 0.0, 1.0);
-vec4 specular_sum = vec4(0.0, 0.0, 0.0, 1.0);
-vec3 light_vector = vec3(0.0);
-vec3 refl_value = vec3(0.0);
-vec3 spot_dir = vec3(0.0);
-vec3 half_vector = vec3(0.0);
-float dot_product = 0.0;
-float clamp_highlights = 1.0;
-float geo_factor = 1.0;
-vec3 surface_normal = vec3(0.0, 0.0, 1.0);
-vec3 surface_tangent = vec3(1.0, 0.0, 0.0);
-vec4 normalized_normquat = normalize(normquat);
-vec3 normal = quaternion_rotate(normalized_normquat, surface_normal);
-vec3 tangent = quaternion_rotate(normalized_normquat, surface_tangent);
-vec4 shadow = vec4(1.0);
-light_vector = normalize(light_src[0].position + view);
-spot_dir = light_src[0].spot_direction;
-half_vector = normalize(view) + light_vector;
-dot_product = max(dot(light_vector, normal), 0.0);
-refl_value.r = 1.0;
-refl_value.g = refl_value.r;
-refl_value.b = refl_value.r;
-diffuse_sum.rgb += ((light_src[0].diffuse * dot_product) + light_src[0].ambient) * LookupLightingLUTUnsigned(16,clamp(light_src[0].dist_atten_scale * length(-view - light_src[0].position) + light_src[0].dist_atten_bias, 0.0, 1.0)) * 1.0;
-specular_sum.rgb += ((light_src[0].specular_0) + (light_src[0].specular_1)) * clamp_highlights * LookupLightingLUTUnsigned(16,clamp(light_src[0].dist_atten_scale * length(-view - light_src[0].position) + light_src[0].dist_atten_bias, 0.0, 1.0)) * 1.0;
-light_vector = normalize(light_src[1].position + view);
-spot_dir = light_src[1].spot_direction;
-half_vector = normalize(view) + light_vector;
-dot_product = max(dot(light_vector, normal), 0.0);
-refl_value.r = 1.0;
-refl_value.g = refl_value.r;
-refl_value.b = refl_value.r;
-diffuse_sum.rgb += ((light_src[1].diffuse * dot_product) + light_src[1].ambient) * LookupLightingLUTUnsigned(17,clamp(light_src[1].dist_atten_scale * length(-view - light_src[1].position) + light_src[1].dist_atten_bias, 0.0, 1.0)) * 1.0;
-specular_sum.rgb += ((light_src[1].specular_0) + (light_src[1].specular_1)) * clamp_highlights * LookupLightingLUTUnsigned(17,clamp(light_src[1].dist_atten_scale * length(-view - light_src[1].position) + light_src[1].dist_atten_bias, 0.0, 1.0)) * 1.0;
-light_vector = normalize(light_src[2].position + view);
-spot_dir = light_src[2].spot_direction;
-half_vector = normalize(view) + light_vector;
-dot_product = max(dot(light_vector, normal), 0.0);
-refl_value.r = 1.0;
-refl_value.g = refl_value.r;
-refl_value.b = refl_value.r;
-diffuse_sum.rgb += ((light_src[2].diffuse * dot_product) + light_src[2].ambient) * LookupLightingLUTUnsigned(18,clamp(light_src[2].dist_atten_scale * length(-view - light_src[2].position) + light_src[2].dist_atten_bias, 0.0, 1.0)) * 1.0;
-specular_sum.rgb += ((light_src[2].specular_0) + (light_src[2].specular_1)) * clamp_highlights * LookupLightingLUTUnsigned(18,clamp(light_src[2].dist_atten_scale * length(-view - light_src[2].position) + light_src[2].dist_atten_bias, 0.0, 1.0)) * 1.0;
-light_vector = normalize(light_src[3].position + view);
-spot_dir = light_src[3].spot_direction;
-half_vector = normalize(view) + light_vector;
-dot_product = max(dot(light_vector, normal), 0.0);
-refl_value.r = 1.0;
-refl_value.g = refl_value.r;
-refl_value.b = refl_value.r;
-diffuse_sum.rgb += ((light_src[3].diffuse * dot_product) + light_src[3].ambient) * LookupLightingLUTUnsigned(19,clamp(light_src[3].dist_atten_scale * length(-view - light_src[3].position) + light_src[3].dist_atten_bias, 0.0, 1.0)) * (lut_scale_sp * LookupLightingLUTUnsigned(11, max(dot(light_vector, spot_dir), 0.0)));
-specular_sum.rgb += ((light_src[3].specular_0) + (light_src[3].specular_1)) * clamp_highlights * LookupLightingLUTUnsigned(19,clamp(light_src[3].dist_atten_scale * length(-view - light_src[3].position) + light_src[3].dist_atten_bias, 0.0, 1.0)) * (lut_scale_sp * LookupLightingLUTUnsigned(11, max(dot(light_vector, spot_dir), 0.0)));
-diffuse_sum.rgb += lighting_global_ambient;
-primary_fragment_color = clamp(diffuse_sum, vec4(0.0), vec4(1.0));
-secondary_fragment_color = clamp(specular_sum, vec4(0.0), vec4(1.0));
-
-vec4 combiner_buffer = vec4(0.0);
-vec4 next_combiner_buffer = tev_combiner_buffer_color;
-vec4 last_tex_env_out = vec4(0.0);
-vec3 color_output_0 = byteround(clamp((rounded_primary_color.rgb) * (texcolor1.rgb), vec3(0.0), vec3(1.0)));
-float alpha_output_0 = byteround(clamp((rounded_primary_color.a) * (texcolor1.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_0 * 2.0, alpha_output_0 * 1.0), vec4(0.0), vec4(1.0));
-combiner_buffer = next_combiner_buffer;
-
-vec3 color_output_1 = byteround(clamp((last_tex_env_out.rgb) * (primary_fragment_color.rgb), vec3(0.0), vec3(1.0)));
-float alpha_output_1 = byteround(clamp((last_tex_env_out.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_1, alpha_output_1), vec4(0.0), vec4(1.0));
-combiner_buffer = next_combiner_buffer;
-
-vec3 color_output_2 = byteround(clamp((last_tex_env_out.rgb), vec3(0.0), vec3(1.0)));
-float alpha_output_2 = byteround(clamp((last_tex_env_out.a) * (const_color[2].a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_2, alpha_output_2), vec4(0.0), vec4(1.0));
-combiner_buffer = next_combiner_buffer;
-
-vec3 color_output_3 = byteround(clamp(min((const_color[3].rgb) + (texcolor0.ggg), vec3(1.0)) * (last_tex_env_out.rgb), vec3(0.0), vec3(1.0)));
-float alpha_output_3 = byteround(clamp((last_tex_env_out.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_3, alpha_output_3), vec4(0.0), vec4(1.0));
-combiner_buffer = next_combiner_buffer;
-
-combiner_buffer = next_combiner_buffer;
-
-combiner_buffer = next_combiner_buffer;
-
-gl_FragDepth = depth;
-color = byteround(last_tex_env_out);
-}
-// reference: 36A9EC1A5BE97070, 7C652C3794AF591E
-// program: A0A01900FB0E2CEC, F0531050140A5884, 7C652C3794AF591E
-// shader: 8B30, CE75EB8D3A20D766
-
-precision highp int;
-precision highp float;
-precision highp samplerBuffer;
-precision highp usampler2D;
-precision highp uimage2D;
-in vec4 primary_color;
-in vec2 texcoord0;
-in vec2 texcoord1;
-in vec2 texcoord2;
-in float texcoord0_w;
-in vec4 normquat;
-in vec3 view;
-
-#ifndef CITRA_GLES
-in vec4 gl_FragCoord;
-#endif // CITRA_GLES
-out vec4 color;
-
-uniform sampler2D tex0;
-uniform sampler2D tex1;
-uniform sampler2D tex2;
-uniform samplerCube tex_cube;
-uniform samplerBuffer texture_buffer_lut_lf;
-uniform samplerBuffer texture_buffer_lut_rg;
-uniform samplerBuffer texture_buffer_lut_rgba;
-
-#define NUM_TEV_STAGES 6
-#define NUM_LIGHTS 8
-#define NUM_LIGHTING_SAMPLERS 24
-
-struct LightSrc {
-    vec3 specular_0;
-    vec3 specular_1;
-    vec3 diffuse;
-    vec3 ambient;
-    vec3 position;
-    vec3 spot_direction;
-    float dist_atten_bias;
-    float dist_atten_scale;
-};
-
-layout (std140) uniform shader_data {
-    int alphatest_ref;
-    float depth_scale;
-    float depth_offset;
-    float shadow_bias_constant;
-    float shadow_bias_linear;
-    int scissor_x1;
-    int scissor_y1;
-    int scissor_x2;
-    int scissor_y2;
-    int fog_lut_offset;
-    int proctex_noise_lut_offset;
-    int proctex_color_map_offset;
-    int proctex_alpha_map_offset;
-    int proctex_lut_offset;
-    int proctex_diff_lut_offset;
-    float proctex_bias;
-    vec3 fog_color;
-    vec2 proctex_noise_f;
-    vec2 proctex_noise_a;
-    vec2 proctex_noise_p;
-    vec4 const_color[NUM_TEV_STAGES];
-    vec4 tev_combiner_buffer_color;
-    vec4 clip_coef;
-};
-
-layout (std140) uniform shader_light_data {
-    ivec4 lighting_lut_offset[NUM_LIGHTING_SAMPLERS / 4];
-    vec3 lighting_global_ambient;
-    LightSrc light_src[NUM_LIGHTS];
-    float lut_scale_d0;
-    float lut_scale_d1;
-    float lut_scale_sp;
-    float lut_scale_fr;
-    float lut_scale_rb;
-    float lut_scale_rg;
-    float lut_scale_rr;
-    int shadow_texture_bias;
-};
-
-// Rotate the vector v by the quaternion q
-vec3 quaternion_rotate(vec4 q, vec3 v) {
-    return v + 2.0 * cross(q.xyz, cross(q.xyz, v) + q.w * v);
-}
-
-float LookupLightingLUT(int lut_index, int index, float delta) {
-    vec2 entry = texelFetch(texture_buffer_lut_lf, lighting_lut_offset[lut_index >> 2][lut_index & 3] + index).rg;
-    return entry.r + entry.g * delta;
-}
-
-float LookupLightingLUTUnsigned(int lut_index, float pos) {
-    int index = clamp(int(pos * 256.0), 0, 255);
-    float delta = pos * 256.0 - float(index);
-    return LookupLightingLUT(lut_index, index, delta);
-}
-
-float LookupLightingLUTSigned(int lut_index, float pos) {
-    int index = clamp(int(pos * 128.0), -128, 127);
-    float delta = pos * 128.0 - float(index);
-    if (index < 0) index += 256;
-    return LookupLightingLUT(lut_index, index, delta);
-}
-
-float byteround(float x) {
-    return round(x * 255.0) * (1.0 / 255.0);
-}
-
-vec2 byteround(vec2 x) {
-    return round(x * 255.0) * (1.0 / 255.0);
-}
-
-vec3 byteround(vec3 x) {
-    return round(x * 255.0) * (1.0 / 255.0);
-}
-
-vec4 byteround(vec4 x) {
-    return round(x * 255.0) * (1.0 / 255.0);
-}
-
-// PICA's LOD formula for 2D textures.
-// This LOD formula is the same as the LOD lower limit defined in OpenGL.
-// f(x, y) >= max{m_u, m_v, m_w}
-// (See OpenGL 4.6 spec, 8.14.1 - Scale Factor and Level-of-Detail)
-float getLod(vec2 coord) {
-    vec2 d = max(abs(dFdx(coord)), abs(dFdy(coord)));
-    return log2(max(d.x, d.y));
-}
-
-vec4 shadowTexture(vec2 uv, float w) {
-    return vec4(1.0);
-}
-
-vec4 shadowTextureCube(vec2 uv, float w) {
-    return vec4(1.0);
-}
-
-void main() {
-vec4 rounded_primary_color = byteround(primary_color);
-vec4 primary_fragment_color = vec4(0.0);
-vec4 secondary_fragment_color = vec4(0.0);
-if (!(gl_FragCoord.x >= float(scissor_x1) && gl_FragCoord.y >= float(scissor_y1) && gl_FragCoord.x < float(scissor_x2) && gl_FragCoord.y < float(scissor_y2))) discard;
-float z_over_w = 2.0 * gl_FragCoord.z - 1.0;
-float depth = z_over_w * depth_scale + depth_offset;
-vec4 texcolor0 = textureLod(tex0, texcoord0, getLod(texcoord0 * vec2(textureSize(tex0, 0))));
-vec4 texcolor1 = textureLod(tex1, texcoord1, getLod(texcoord1 * vec2(textureSize(tex1, 0))));
-
-vec4 diffuse_sum = vec4(0.0, 0.0, 0.0, 1.0);
-vec4 specular_sum = vec4(0.0, 0.0, 0.0, 1.0);
-vec3 light_vector = vec3(0.0);
-vec3 refl_value = vec3(0.0);
-vec3 spot_dir = vec3(0.0);
-vec3 half_vector = vec3(0.0);
-float dot_product = 0.0;
-float clamp_highlights = 1.0;
-float geo_factor = 1.0;
-vec3 surface_normal = vec3(0.0, 0.0, 1.0);
-vec3 surface_tangent = vec3(1.0, 0.0, 0.0);
-vec4 normalized_normquat = normalize(normquat);
-vec3 normal = quaternion_rotate(normalized_normquat, surface_normal);
-vec3 tangent = quaternion_rotate(normalized_normquat, surface_tangent);
-vec4 shadow = vec4(1.0);
-light_vector = normalize(light_src[0].position + view);
-spot_dir = light_src[0].spot_direction;
-half_vector = normalize(view) + light_vector;
-dot_product = max(dot(light_vector, normal), 0.0);
-refl_value.r = 1.0;
-refl_value.g = refl_value.r;
-refl_value.b = refl_value.r;
-diffuse_sum.rgb += ((light_src[0].diffuse * dot_product) + light_src[0].ambient) * LookupLightingLUTUnsigned(16,clamp(light_src[0].dist_atten_scale * length(-view - light_src[0].position) + light_src[0].dist_atten_bias, 0.0, 1.0)) * 1.0;
-specular_sum.rgb += ((light_src[0].specular_0) + (light_src[0].specular_1)) * clamp_highlights * LookupLightingLUTUnsigned(16,clamp(light_src[0].dist_atten_scale * length(-view - light_src[0].position) + light_src[0].dist_atten_bias, 0.0, 1.0)) * 1.0;
-light_vector = normalize(light_src[1].position + view);
-spot_dir = light_src[1].spot_direction;
-half_vector = normalize(view) + light_vector;
-dot_product = max(dot(light_vector, normal), 0.0);
-refl_value.r = 1.0;
-refl_value.g = refl_value.r;
-refl_value.b = refl_value.r;
-diffuse_sum.rgb += ((light_src[1].diffuse * dot_product) + light_src[1].ambient) * LookupLightingLUTUnsigned(17,clamp(light_src[1].dist_atten_scale * length(-view - light_src[1].position) + light_src[1].dist_atten_bias, 0.0, 1.0)) * 1.0;
-specular_sum.rgb += ((light_src[1].specular_0) + (light_src[1].specular_1)) * clamp_highlights * LookupLightingLUTUnsigned(17,clamp(light_src[1].dist_atten_scale * length(-view - light_src[1].position) + light_src[1].dist_atten_bias, 0.0, 1.0)) * 1.0;
-light_vector = normalize(light_src[2].position + view);
-spot_dir = light_src[2].spot_direction;
-half_vector = normalize(view) + light_vector;
-dot_product = max(dot(light_vector, normal), 0.0);
-refl_value.r = 1.0;
-refl_value.g = refl_value.r;
-refl_value.b = refl_value.r;
-diffuse_sum.rgb += ((light_src[2].diffuse * dot_product) + light_src[2].ambient) * LookupLightingLUTUnsigned(18,clamp(light_src[2].dist_atten_scale * length(-view - light_src[2].position) + light_src[2].dist_atten_bias, 0.0, 1.0)) * 1.0;
-specular_sum.rgb += ((light_src[2].specular_0) + (light_src[2].specular_1)) * clamp_highlights * LookupLightingLUTUnsigned(18,clamp(light_src[2].dist_atten_scale * length(-view - light_src[2].position) + light_src[2].dist_atten_bias, 0.0, 1.0)) * 1.0;
-light_vector = normalize(light_src[3].position + view);
-spot_dir = light_src[3].spot_direction;
-half_vector = normalize(view) + light_vector;
-dot_product = max(dot(light_vector, normal), 0.0);
-refl_value.r = 1.0;
-refl_value.g = refl_value.r;
-refl_value.b = refl_value.r;
-diffuse_sum.rgb += ((light_src[3].diffuse * dot_product) + light_src[3].ambient) * LookupLightingLUTUnsigned(19,clamp(light_src[3].dist_atten_scale * length(-view - light_src[3].position) + light_src[3].dist_atten_bias, 0.0, 1.0)) * (lut_scale_sp * LookupLightingLUTUnsigned(11, max(dot(light_vector, spot_dir), 0.0)));
-specular_sum.rgb += ((light_src[3].specular_0) + (light_src[3].specular_1)) * clamp_highlights * LookupLightingLUTUnsigned(19,clamp(light_src[3].dist_atten_scale * length(-view - light_src[3].position) + light_src[3].dist_atten_bias, 0.0, 1.0)) * (lut_scale_sp * LookupLightingLUTUnsigned(11, max(dot(light_vector, spot_dir), 0.0)));
-diffuse_sum.rgb += lighting_global_ambient;
-primary_fragment_color = clamp(diffuse_sum, vec4(0.0), vec4(1.0));
-secondary_fragment_color = clamp(specular_sum, vec4(0.0), vec4(1.0));
-
-vec4 combiner_buffer = vec4(0.0);
-vec4 next_combiner_buffer = tev_combiner_buffer_color;
-vec4 last_tex_env_out = vec4(0.0);
-vec3 color_output_0 = byteround(clamp((texcolor1.rgb) * (rounded_primary_color.rgb), vec3(0.0), vec3(1.0)));
-float alpha_output_0 = byteround(clamp((texcolor1.g) * (texcolor1.g), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_0, alpha_output_0), vec4(0.0), vec4(1.0));
-combiner_buffer = next_combiner_buffer;
-next_combiner_buffer.rgb = last_tex_env_out.rgb;
-
-vec3 color_output_1 = byteround(clamp((const_color[1].rgb) + (primary_fragment_color.rgb), vec3(0.0), vec3(1.0)));
-float alpha_output_1 = byteround(clamp((last_tex_env_out.a) * (rounded_primary_color.r), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_1, alpha_output_1), vec4(0.0), vec4(1.0));
-combiner_buffer = next_combiner_buffer;
-next_combiner_buffer.a = last_tex_env_out.a;
-
-vec3 color_output_2 = byteround(clamp((last_tex_env_out.rgb) * (combiner_buffer.rgb), vec3(0.0), vec3(1.0)));
-float alpha_output_2 = byteround(clamp((const_color[2].a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_2, alpha_output_2), vec4(0.0), vec4(1.0));
-combiner_buffer = next_combiner_buffer;
-next_combiner_buffer.rgb = last_tex_env_out.rgb;
-
-vec3 color_output_3 = byteround(clamp((combiner_buffer.aaa) * (const_color[3].rgb), vec3(0.0), vec3(1.0)));
-float alpha_output_3 = byteround(clamp((last_tex_env_out.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_3, alpha_output_3), vec4(0.0), vec4(1.0));
-combiner_buffer = next_combiner_buffer;
-
-vec3 color_output_4 = byteround(clamp((last_tex_env_out.rgb) + (combiner_buffer.rgb), vec3(0.0), vec3(1.0)));
-float alpha_output_4 = byteround(clamp((last_tex_env_out.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_4, alpha_output_4), vec4(0.0), vec4(1.0));
-combiner_buffer = next_combiner_buffer;
-
-vec3 color_output_5 = byteround(clamp(min((const_color[5].rgb) + (texcolor0.ggg), vec3(1.0)) * (last_tex_env_out.rgb), vec3(0.0), vec3(1.0)));
-float alpha_output_5 = byteround(clamp((last_tex_env_out.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_5, alpha_output_5), vec4(0.0), vec4(1.0));
-combiner_buffer = next_combiner_buffer;
-
-gl_FragDepth = depth;
-color = byteround(last_tex_env_out);
-}
-// reference: 620783DE952A482C, CE75EB8D3A20D766
-// program: A0A01900FB0E2CEC, F0531050140A5884, CE75EB8D3A20D766
-// shader: 8B30, 0217239A1464EEBF
-
-precision highp int;
-precision highp float;
-precision highp samplerBuffer;
-precision highp usampler2D;
-precision highp uimage2D;
-in vec4 primary_color;
-in vec2 texcoord0;
-in vec2 texcoord1;
-in vec2 texcoord2;
-in float texcoord0_w;
-in vec4 normquat;
-in vec3 view;
-
-#ifndef CITRA_GLES
-in vec4 gl_FragCoord;
-#endif // CITRA_GLES
-out vec4 color;
-
-uniform sampler2D tex0;
-uniform sampler2D tex1;
-uniform sampler2D tex2;
-uniform samplerCube tex_cube;
-uniform samplerBuffer texture_buffer_lut_lf;
-uniform samplerBuffer texture_buffer_lut_rg;
-uniform samplerBuffer texture_buffer_lut_rgba;
-
-#define NUM_TEV_STAGES 6
-#define NUM_LIGHTS 8
-#define NUM_LIGHTING_SAMPLERS 24
-
-struct LightSrc {
-    vec3 specular_0;
-    vec3 specular_1;
-    vec3 diffuse;
-    vec3 ambient;
-    vec3 position;
-    vec3 spot_direction;
-    float dist_atten_bias;
-    float dist_atten_scale;
-};
-
-layout (std140) uniform shader_data {
-    int alphatest_ref;
-    float depth_scale;
-    float depth_offset;
-    float shadow_bias_constant;
-    float shadow_bias_linear;
-    int scissor_x1;
-    int scissor_y1;
-    int scissor_x2;
-    int scissor_y2;
-    int fog_lut_offset;
-    int proctex_noise_lut_offset;
-    int proctex_color_map_offset;
-    int proctex_alpha_map_offset;
-    int proctex_lut_offset;
-    int proctex_diff_lut_offset;
-    float proctex_bias;
-    vec3 fog_color;
-    vec2 proctex_noise_f;
-    vec2 proctex_noise_a;
-    vec2 proctex_noise_p;
-    vec4 const_color[NUM_TEV_STAGES];
-    vec4 tev_combiner_buffer_color;
-    vec4 clip_coef;
-};
-
-layout (std140) uniform shader_light_data {
-    ivec4 lighting_lut_offset[NUM_LIGHTING_SAMPLERS / 4];
-    vec3 lighting_global_ambient;
-    LightSrc light_src[NUM_LIGHTS];
-    float lut_scale_d0;
-    float lut_scale_d1;
-    float lut_scale_sp;
-    float lut_scale_fr;
-    float lut_scale_rb;
-    float lut_scale_rg;
-    float lut_scale_rr;
-    int shadow_texture_bias;
-};
-
-// Rotate the vector v by the quaternion q
-vec3 quaternion_rotate(vec4 q, vec3 v) {
-    return v + 2.0 * cross(q.xyz, cross(q.xyz, v) + q.w * v);
-}
-
-float LookupLightingLUT(int lut_index, int index, float delta) {
-    vec2 entry = texelFetch(texture_buffer_lut_lf, lighting_lut_offset[lut_index >> 2][lut_index & 3] + index).rg;
-    return entry.r + entry.g * delta;
-}
-
-float LookupLightingLUTUnsigned(int lut_index, float pos) {
-    int index = clamp(int(pos * 256.0), 0, 255);
-    float delta = pos * 256.0 - float(index);
-    return LookupLightingLUT(lut_index, index, delta);
-}
-
-float LookupLightingLUTSigned(int lut_index, float pos) {
-    int index = clamp(int(pos * 128.0), -128, 127);
-    float delta = pos * 128.0 - float(index);
-    if (index < 0) index += 256;
-    return LookupLightingLUT(lut_index, index, delta);
-}
-
-float byteround(float x) {
-    return round(x * 255.0) * (1.0 / 255.0);
-}
-
-vec2 byteround(vec2 x) {
-    return round(x * 255.0) * (1.0 / 255.0);
-}
-
-vec3 byteround(vec3 x) {
-    return round(x * 255.0) * (1.0 / 255.0);
-}
-
-vec4 byteround(vec4 x) {
-    return round(x * 255.0) * (1.0 / 255.0);
-}
-
-// PICA's LOD formula for 2D textures.
-// This LOD formula is the same as the LOD lower limit defined in OpenGL.
-// f(x, y) >= max{m_u, m_v, m_w}
-// (See OpenGL 4.6 spec, 8.14.1 - Scale Factor and Level-of-Detail)
-float getLod(vec2 coord) {
-    vec2 d = max(abs(dFdx(coord)), abs(dFdy(coord)));
-    return log2(max(d.x, d.y));
-}
-
-vec4 shadowTexture(vec2 uv, float w) {
-    return vec4(1.0);
-}
-
-vec4 shadowTextureCube(vec2 uv, float w) {
-    return vec4(1.0);
-}
-
-void main() {
-vec4 rounded_primary_color = byteround(primary_color);
-vec4 primary_fragment_color = vec4(0.0);
-vec4 secondary_fragment_color = vec4(0.0);
-if (!(gl_FragCoord.x >= float(scissor_x1) && gl_FragCoord.y >= float(scissor_y1) && gl_FragCoord.x < float(scissor_x2) && gl_FragCoord.y < float(scissor_y2))) discard;
-float z_over_w = 2.0 * gl_FragCoord.z - 1.0;
-float depth = z_over_w * depth_scale + depth_offset;
-vec4 texcolor0 = textureLod(tex0, texcoord0, getLod(texcoord0 * vec2(textureSize(tex0, 0))));
-vec4 texcolor1 = textureLod(tex1, texcoord1, getLod(texcoord1 * vec2(textureSize(tex1, 0))));
-
-vec4 diffuse_sum = vec4(0.0, 0.0, 0.0, 1.0);
-vec4 specular_sum = vec4(0.0, 0.0, 0.0, 1.0);
-vec3 light_vector = vec3(0.0);
-vec3 refl_value = vec3(0.0);
-vec3 spot_dir = vec3(0.0);
-vec3 half_vector = vec3(0.0);
-float dot_product = 0.0;
-float clamp_highlights = 1.0;
-float geo_factor = 1.0;
-vec3 surface_normal = vec3(0.0, 0.0, 1.0);
-vec3 surface_tangent = vec3(1.0, 0.0, 0.0);
-vec4 normalized_normquat = normalize(normquat);
-vec3 normal = quaternion_rotate(normalized_normquat, surface_normal);
-vec3 tangent = quaternion_rotate(normalized_normquat, surface_tangent);
-vec4 shadow = vec4(1.0);
-light_vector = normalize(light_src[0].position + view);
-spot_dir = light_src[0].spot_direction;
-half_vector = normalize(view) + light_vector;
-dot_product = max(dot(light_vector, normal), 0.0);
-refl_value.r = 1.0;
-refl_value.g = refl_value.r;
-refl_value.b = refl_value.r;
-diffuse_sum.rgb += ((light_src[0].diffuse * dot_product) + light_src[0].ambient) * LookupLightingLUTUnsigned(16,clamp(light_src[0].dist_atten_scale * length(-view - light_src[0].position) + light_src[0].dist_atten_bias, 0.0, 1.0)) * 1.0;
-specular_sum.rgb += ((light_src[0].specular_0) + (light_src[0].specular_1)) * clamp_highlights * LookupLightingLUTUnsigned(16,clamp(light_src[0].dist_atten_scale * length(-view - light_src[0].position) + light_src[0].dist_atten_bias, 0.0, 1.0)) * 1.0;
-light_vector = normalize(light_src[1].position + view);
-spot_dir = light_src[1].spot_direction;
-half_vector = normalize(view) + light_vector;
-dot_product = max(dot(light_vector, normal), 0.0);
-refl_value.r = 1.0;
-refl_value.g = refl_value.r;
-refl_value.b = refl_value.r;
-diffuse_sum.rgb += ((light_src[1].diffuse * dot_product) + light_src[1].ambient) * LookupLightingLUTUnsigned(17,clamp(light_src[1].dist_atten_scale * length(-view - light_src[1].position) + light_src[1].dist_atten_bias, 0.0, 1.0)) * 1.0;
-specular_sum.rgb += ((light_src[1].specular_0) + (light_src[1].specular_1)) * clamp_highlights * LookupLightingLUTUnsigned(17,clamp(light_src[1].dist_atten_scale * length(-view - light_src[1].position) + light_src[1].dist_atten_bias, 0.0, 1.0)) * 1.0;
-light_vector = normalize(light_src[2].position + view);
-spot_dir = light_src[2].spot_direction;
-half_vector = normalize(view) + light_vector;
-dot_product = max(dot(light_vector, normal), 0.0);
-refl_value.r = 1.0;
-refl_value.g = refl_value.r;
-refl_value.b = refl_value.r;
-diffuse_sum.rgb += ((light_src[2].diffuse * dot_product) + light_src[2].ambient) * LookupLightingLUTUnsigned(18,clamp(light_src[2].dist_atten_scale * length(-view - light_src[2].position) + light_src[2].dist_atten_bias, 0.0, 1.0)) * 1.0;
-specular_sum.rgb += ((light_src[2].specular_0) + (light_src[2].specular_1)) * clamp_highlights * LookupLightingLUTUnsigned(18,clamp(light_src[2].dist_atten_scale * length(-view - light_src[2].position) + light_src[2].dist_atten_bias, 0.0, 1.0)) * 1.0;
-light_vector = normalize(light_src[3].position + view);
-spot_dir = light_src[3].spot_direction;
-half_vector = normalize(view) + light_vector;
-dot_product = max(dot(light_vector, normal), 0.0);
-refl_value.r = 1.0;
-refl_value.g = refl_value.r;
-refl_value.b = refl_value.r;
-diffuse_sum.rgb += ((light_src[3].diffuse * dot_product) + light_src[3].ambient) * LookupLightingLUTUnsigned(19,clamp(light_src[3].dist_atten_scale * length(-view - light_src[3].position) + light_src[3].dist_atten_bias, 0.0, 1.0)) * (lut_scale_sp * LookupLightingLUTUnsigned(11, max(dot(light_vector, spot_dir), 0.0)));
-specular_sum.rgb += ((light_src[3].specular_0) + (light_src[3].specular_1)) * clamp_highlights * LookupLightingLUTUnsigned(19,clamp(light_src[3].dist_atten_scale * length(-view - light_src[3].position) + light_src[3].dist_atten_bias, 0.0, 1.0)) * (lut_scale_sp * LookupLightingLUTUnsigned(11, max(dot(light_vector, spot_dir), 0.0)));
-diffuse_sum.rgb += lighting_global_ambient;
-primary_fragment_color = clamp(diffuse_sum, vec4(0.0), vec4(1.0));
-secondary_fragment_color = clamp(specular_sum, vec4(0.0), vec4(1.0));
-
-vec4 combiner_buffer = vec4(0.0);
-vec4 next_combiner_buffer = tev_combiner_buffer_color;
-vec4 last_tex_env_out = vec4(0.0);
-vec3 color_output_0 = byteround(clamp((texcolor1.rgb) * (rounded_primary_color.rgb), vec3(0.0), vec3(1.0)));
-float alpha_output_0 = byteround(clamp((texcolor1.g) * (texcolor1.g), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_0, alpha_output_0), vec4(0.0), vec4(1.0));
-combiner_buffer = next_combiner_buffer;
-next_combiner_buffer.rgb = last_tex_env_out.rgb;
-
-vec3 color_output_1 = byteround(clamp((const_color[1].rgb) + (primary_fragment_color.rgb), vec3(0.0), vec3(1.0)));
-float alpha_output_1 = byteround(clamp((last_tex_env_out.a) * (rounded_primary_color.r), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_1, alpha_output_1), vec4(0.0), vec4(1.0));
-combiner_buffer = next_combiner_buffer;
-next_combiner_buffer.a = last_tex_env_out.a;
-
-vec3 color_output_2 = byteround(clamp((last_tex_env_out.rgb) * (combiner_buffer.rgb), vec3(0.0), vec3(1.0)));
-float alpha_output_2 = byteround(clamp((last_tex_env_out.a) * (const_color[2].a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_2, alpha_output_2), vec4(0.0), vec4(1.0));
-combiner_buffer = next_combiner_buffer;
-next_combiner_buffer.rgb = last_tex_env_out.rgb;
-
-vec3 color_output_3 = byteround(clamp((combiner_buffer.aaa) * (const_color[3].rgb), vec3(0.0), vec3(1.0)));
-float alpha_output_3 = byteround(clamp((last_tex_env_out.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_3, alpha_output_3), vec4(0.0), vec4(1.0));
-combiner_buffer = next_combiner_buffer;
-
-vec3 color_output_4 = byteround(clamp((last_tex_env_out.rgb) + (combiner_buffer.rgb), vec3(0.0), vec3(1.0)));
-float alpha_output_4 = byteround(clamp((last_tex_env_out.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_4, alpha_output_4), vec4(0.0), vec4(1.0));
-combiner_buffer = next_combiner_buffer;
-
-vec3 color_output_5 = byteround(clamp(min((const_color[5].rgb) + (texcolor0.ggg), vec3(1.0)) * (last_tex_env_out.rgb), vec3(0.0), vec3(1.0)));
-float alpha_output_5 = byteround(clamp((last_tex_env_out.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_5, alpha_output_5), vec4(0.0), vec4(1.0));
-combiner_buffer = next_combiner_buffer;
-
-gl_FragDepth = depth;
-color = byteround(last_tex_env_out);
-}
-// reference: 8D727A42ED885AE4, 0217239A1464EEBF
-// program: A0A01900FB0E2CEC, F0531050140A5884, 0217239A1464EEBF
-// shader: 8B30, DE1B20491CF896AA
-
-precision highp int;
-precision highp float;
-precision highp samplerBuffer;
-precision highp usampler2D;
-precision highp uimage2D;
-in vec4 primary_color;
-in vec2 texcoord0;
-in vec2 texcoord1;
-in vec2 texcoord2;
-in float texcoord0_w;
-in vec4 normquat;
-in vec3 view;
-
-#ifndef CITRA_GLES
-in vec4 gl_FragCoord;
-#endif // CITRA_GLES
-out vec4 color;
-
-uniform sampler2D tex0;
-uniform sampler2D tex1;
-uniform sampler2D tex2;
-uniform samplerCube tex_cube;
-uniform samplerBuffer texture_buffer_lut_lf;
-uniform samplerBuffer texture_buffer_lut_rg;
-uniform samplerBuffer texture_buffer_lut_rgba;
-
-#define NUM_TEV_STAGES 6
-#define NUM_LIGHTS 8
-#define NUM_LIGHTING_SAMPLERS 24
-
-struct LightSrc {
-    vec3 specular_0;
-    vec3 specular_1;
-    vec3 diffuse;
-    vec3 ambient;
-    vec3 position;
-    vec3 spot_direction;
-    float dist_atten_bias;
-    float dist_atten_scale;
-};
-
-layout (std140) uniform shader_data {
-    int alphatest_ref;
-    float depth_scale;
-    float depth_offset;
-    float shadow_bias_constant;
-    float shadow_bias_linear;
-    int scissor_x1;
-    int scissor_y1;
-    int scissor_x2;
-    int scissor_y2;
-    int fog_lut_offset;
-    int proctex_noise_lut_offset;
-    int proctex_color_map_offset;
-    int proctex_alpha_map_offset;
-    int proctex_lut_offset;
-    int proctex_diff_lut_offset;
-    float proctex_bias;
-    vec3 fog_color;
-    vec2 proctex_noise_f;
-    vec2 proctex_noise_a;
-    vec2 proctex_noise_p;
-    vec4 const_color[NUM_TEV_STAGES];
-    vec4 tev_combiner_buffer_color;
-    vec4 clip_coef;
-};
-
-layout (std140) uniform shader_light_data {
-    ivec4 lighting_lut_offset[NUM_LIGHTING_SAMPLERS / 4];
-    vec3 lighting_global_ambient;
-    LightSrc light_src[NUM_LIGHTS];
-    float lut_scale_d0;
-    float lut_scale_d1;
-    float lut_scale_sp;
-    float lut_scale_fr;
-    float lut_scale_rb;
-    float lut_scale_rg;
-    float lut_scale_rr;
-    int shadow_texture_bias;
-};
-
-// Rotate the vector v by the quaternion q
-vec3 quaternion_rotate(vec4 q, vec3 v) {
-    return v + 2.0 * cross(q.xyz, cross(q.xyz, v) + q.w * v);
-}
-
-float LookupLightingLUT(int lut_index, int index, float delta) {
-    vec2 entry = texelFetch(texture_buffer_lut_lf, lighting_lut_offset[lut_index >> 2][lut_index & 3] + index).rg;
-    return entry.r + entry.g * delta;
-}
-
-float LookupLightingLUTUnsigned(int lut_index, float pos) {
-    int index = clamp(int(pos * 256.0), 0, 255);
-    float delta = pos * 256.0 - float(index);
-    return LookupLightingLUT(lut_index, index, delta);
-}
-
-float LookupLightingLUTSigned(int lut_index, float pos) {
-    int index = clamp(int(pos * 128.0), -128, 127);
-    float delta = pos * 128.0 - float(index);
-    if (index < 0) index += 256;
-    return LookupLightingLUT(lut_index, index, delta);
-}
-
-float byteround(float x) {
-    return round(x * 255.0) * (1.0 / 255.0);
-}
-
-vec2 byteround(vec2 x) {
-    return round(x * 255.0) * (1.0 / 255.0);
-}
-
-vec3 byteround(vec3 x) {
-    return round(x * 255.0) * (1.0 / 255.0);
-}
-
-vec4 byteround(vec4 x) {
-    return round(x * 255.0) * (1.0 / 255.0);
-}
-
-// PICA's LOD formula for 2D textures.
-// This LOD formula is the same as the LOD lower limit defined in OpenGL.
-// f(x, y) >= max{m_u, m_v, m_w}
-// (See OpenGL 4.6 spec, 8.14.1 - Scale Factor and Level-of-Detail)
-float getLod(vec2 coord) {
-    vec2 d = max(abs(dFdx(coord)), abs(dFdy(coord)));
-    return log2(max(d.x, d.y));
-}
-
-vec4 shadowTexture(vec2 uv, float w) {
-    return vec4(1.0);
-}
-
-vec4 shadowTextureCube(vec2 uv, float w) {
-    return vec4(1.0);
-}
-
-void main() {
-vec4 rounded_primary_color = byteround(primary_color);
-vec4 primary_fragment_color = vec4(0.0);
-vec4 secondary_fragment_color = vec4(0.0);
-if (!(gl_FragCoord.x >= float(scissor_x1) && gl_FragCoord.y >= float(scissor_y1) && gl_FragCoord.x < float(scissor_x2) && gl_FragCoord.y < float(scissor_y2))) discard;
-float z_over_w = 2.0 * gl_FragCoord.z - 1.0;
-float depth = z_over_w * depth_scale + depth_offset;
-vec4 texcolor0 = textureLod(tex0, texcoord0, getLod(texcoord0 * vec2(textureSize(tex0, 0))));
-
-vec4 diffuse_sum = vec4(0.0, 0.0, 0.0, 1.0);
-vec4 specular_sum = vec4(0.0, 0.0, 0.0, 1.0);
-vec3 light_vector = vec3(0.0);
-vec3 refl_value = vec3(0.0);
-vec3 spot_dir = vec3(0.0);
-vec3 half_vector = vec3(0.0);
-float dot_product = 0.0;
-float clamp_highlights = 1.0;
-float geo_factor = 1.0;
-vec3 surface_normal = vec3(0.0, 0.0, 1.0);
-vec3 surface_tangent = vec3(1.0, 0.0, 0.0);
-vec4 normalized_normquat = normalize(normquat);
-vec3 normal = quaternion_rotate(normalized_normquat, surface_normal);
-vec3 tangent = quaternion_rotate(normalized_normquat, surface_tangent);
-vec4 shadow = vec4(1.0);
-light_vector = normalize(light_src[0].position + view);
-spot_dir = light_src[0].spot_direction;
-half_vector = normalize(view) + light_vector;
-dot_product = max(dot(light_vector, normal), 0.0);
-refl_value.r = 1.0;
-refl_value.g = refl_value.r;
-refl_value.b = refl_value.r;
-diffuse_sum.rgb += ((light_src[0].diffuse * dot_product) + light_src[0].ambient) * LookupLightingLUTUnsigned(16,clamp(light_src[0].dist_atten_scale * length(-view - light_src[0].position) + light_src[0].dist_atten_bias, 0.0, 1.0)) * 1.0;
-specular_sum.rgb += ((light_src[0].specular_0) + (light_src[0].specular_1)) * clamp_highlights * LookupLightingLUTUnsigned(16,clamp(light_src[0].dist_atten_scale * length(-view - light_src[0].position) + light_src[0].dist_atten_bias, 0.0, 1.0)) * 1.0;
-light_vector = normalize(light_src[1].position + view);
-spot_dir = light_src[1].spot_direction;
-half_vector = normalize(view) + light_vector;
-dot_product = max(dot(light_vector, normal), 0.0);
-refl_value.r = 1.0;
-refl_value.g = refl_value.r;
-refl_value.b = refl_value.r;
-diffuse_sum.rgb += ((light_src[1].diffuse * dot_product) + light_src[1].ambient) * LookupLightingLUTUnsigned(17,clamp(light_src[1].dist_atten_scale * length(-view - light_src[1].position) + light_src[1].dist_atten_bias, 0.0, 1.0)) * 1.0;
-specular_sum.rgb += ((light_src[1].specular_0) + (light_src[1].specular_1)) * clamp_highlights * LookupLightingLUTUnsigned(17,clamp(light_src[1].dist_atten_scale * length(-view - light_src[1].position) + light_src[1].dist_atten_bias, 0.0, 1.0)) * 1.0;
-light_vector = normalize(light_src[2].position + view);
-spot_dir = light_src[2].spot_direction;
-half_vector = normalize(view) + light_vector;
-dot_product = max(dot(light_vector, normal), 0.0);
-refl_value.r = 1.0;
-refl_value.g = refl_value.r;
-refl_value.b = refl_value.r;
-diffuse_sum.rgb += ((light_src[2].diffuse * dot_product) + light_src[2].ambient) * LookupLightingLUTUnsigned(18,clamp(light_src[2].dist_atten_scale * length(-view - light_src[2].position) + light_src[2].dist_atten_bias, 0.0, 1.0)) * 1.0;
-specular_sum.rgb += ((light_src[2].specular_0) + (light_src[2].specular_1)) * clamp_highlights * LookupLightingLUTUnsigned(18,clamp(light_src[2].dist_atten_scale * length(-view - light_src[2].position) + light_src[2].dist_atten_bias, 0.0, 1.0)) * 1.0;
-light_vector = normalize(light_src[3].position + view);
-spot_dir = light_src[3].spot_direction;
-half_vector = normalize(view) + light_vector;
-dot_product = max(dot(light_vector, normal), 0.0);
-refl_value.r = 1.0;
-refl_value.g = refl_value.r;
-refl_value.b = refl_value.r;
-diffuse_sum.rgb += ((light_src[3].diffuse * dot_product) + light_src[3].ambient) * LookupLightingLUTUnsigned(19,clamp(light_src[3].dist_atten_scale * length(-view - light_src[3].position) + light_src[3].dist_atten_bias, 0.0, 1.0)) * (lut_scale_sp * LookupLightingLUTUnsigned(11, max(dot(light_vector, spot_dir), 0.0)));
-specular_sum.rgb += ((light_src[3].specular_0) + (light_src[3].specular_1)) * clamp_highlights * LookupLightingLUTUnsigned(19,clamp(light_src[3].dist_atten_scale * length(-view - light_src[3].position) + light_src[3].dist_atten_bias, 0.0, 1.0)) * (lut_scale_sp * LookupLightingLUTUnsigned(11, max(dot(light_vector, spot_dir), 0.0)));
-diffuse_sum.rgb += lighting_global_ambient;
-primary_fragment_color = clamp(diffuse_sum, vec4(0.0), vec4(1.0));
-secondary_fragment_color = clamp(specular_sum, vec4(0.0), vec4(1.0));
-
-vec4 combiner_buffer = vec4(0.0);
-vec4 next_combiner_buffer = tev_combiner_buffer_color;
-vec4 last_tex_env_out = vec4(0.0);
-vec3 color_output_0 = byteround(clamp((texcolor0.rgb) * (const_color[0].rgb), vec3(0.0), vec3(1.0)));
-float alpha_output_0 = byteround(clamp((texcolor0.a) * (const_color[0].a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_0, alpha_output_0), vec4(0.0), vec4(1.0));
-combiner_buffer = next_combiner_buffer;
-
-vec3 color_output_1 = byteround(clamp((last_tex_env_out.rgb) * (primary_fragment_color.rgb), vec3(0.0), vec3(1.0)));
-float alpha_output_1 = byteround(clamp((last_tex_env_out.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_1, alpha_output_1), vec4(0.0), vec4(1.0));
-combiner_buffer = next_combiner_buffer;
-
-combiner_buffer = next_combiner_buffer;
-
-combiner_buffer = next_combiner_buffer;
-
-combiner_buffer = next_combiner_buffer;
-
-combiner_buffer = next_combiner_buffer;
-
-gl_FragDepth = depth;
-color = byteround(last_tex_env_out);
-}
-// reference: D4C7C9521946DA4E, DE1B20491CF896AA
-// program: A0A01900FB0E2CEC, F0531050140A5884, DE1B20491CF896AA
-// reference: 2663C38C9DE370C4, 2AC9C217B2AE4D97
-// reference: 5EC1D1447737A962, BDFCAB3951694DF3
-// reference: 711EFB814899236E, 94C189A177E49D88
-// reference: 77C9ECE19DE370C4, 885E61A139E2311C
-// reference: 0F6BFE297737A962, BDFCAB3951694DF3
-// shader: 8B30, 9003BF981A5BFBA5
-
-precision highp int;
-precision highp float;
-precision highp samplerBuffer;
-precision highp usampler2D;
-precision highp uimage2D;
+// reference: F8D4E389333382E8, 6214A7D100EBB604
+// program: 1A9F70669A3C74DF, F0531050140A5884, 6214A7D100EBB604
+// reference: 8076F141D9E75B4E, 59ED698457F53D16
+// shader: 8B30, F4F521EB40852B43
 in vec4 primary_color;
 in vec2 texcoord0;
 in vec2 texcoord1;
@@ -34127,15 +30904,10 @@ combiner_buffer = next_combiner_buffer;
 gl_FragDepth = depth;
 color = byteround(last_tex_env_out);
 }
-// reference: 690008D2BEAA1363, 9003BF981A5BFBA5
-// program: A0A01900FB0E2CEC, F0531050140A5884, 9003BF981A5BFBA5
-// shader: 8B30, 5501DA8241917293
-
-precision highp int;
-precision highp float;
-precision highp samplerBuffer;
-precision highp usampler2D;
-precision highp uimage2D;
+// reference: 690008D2BEAA1363, F4F521EB40852B43
+// program: 1A9F70669A3C74DF, F0531050140A5884, F4F521EB40852B43
+// reference: 149E760004BAC7A3, 36F55378B7FE8570
+// shader: 8B30, 032F2A28C57AEA7D
 in vec4 primary_color;
 in vec2 texcoord0;
 in vec2 texcoord1;
@@ -34353,3295 +31125,9 @@ combiner_buffer = next_combiner_buffer;
 gl_FragDepth = depth;
 color = byteround(last_tex_env_out);
 }
-// reference: CFFE38F7B71B8CB8, 5501DA8241917293
-// program: A0A01900FB0E2CEC, F0531050140A5884, 5501DA8241917293
-// shader: 8B30, D0F80245B74D3F2A
-
-precision highp int;
-precision highp float;
-precision highp samplerBuffer;
-precision highp usampler2D;
-precision highp uimage2D;
-in vec4 primary_color;
-in vec2 texcoord0;
-in vec2 texcoord1;
-in vec2 texcoord2;
-in float texcoord0_w;
-in vec4 normquat;
-in vec3 view;
-
-#ifndef CITRA_GLES
-in vec4 gl_FragCoord;
-#endif // CITRA_GLES
-out vec4 color;
-
-uniform sampler2D tex0;
-uniform sampler2D tex1;
-uniform sampler2D tex2;
-uniform samplerCube tex_cube;
-uniform samplerBuffer texture_buffer_lut_lf;
-uniform samplerBuffer texture_buffer_lut_rg;
-uniform samplerBuffer texture_buffer_lut_rgba;
-
-#define NUM_TEV_STAGES 6
-#define NUM_LIGHTS 8
-#define NUM_LIGHTING_SAMPLERS 24
-
-struct LightSrc {
-    vec3 specular_0;
-    vec3 specular_1;
-    vec3 diffuse;
-    vec3 ambient;
-    vec3 position;
-    vec3 spot_direction;
-    float dist_atten_bias;
-    float dist_atten_scale;
-};
-
-layout (std140) uniform shader_data {
-    int alphatest_ref;
-    float depth_scale;
-    float depth_offset;
-    float shadow_bias_constant;
-    float shadow_bias_linear;
-    int scissor_x1;
-    int scissor_y1;
-    int scissor_x2;
-    int scissor_y2;
-    int fog_lut_offset;
-    int proctex_noise_lut_offset;
-    int proctex_color_map_offset;
-    int proctex_alpha_map_offset;
-    int proctex_lut_offset;
-    int proctex_diff_lut_offset;
-    float proctex_bias;
-    vec3 fog_color;
-    vec2 proctex_noise_f;
-    vec2 proctex_noise_a;
-    vec2 proctex_noise_p;
-    vec4 const_color[NUM_TEV_STAGES];
-    vec4 tev_combiner_buffer_color;
-    vec4 clip_coef;
-};
-
-layout (std140) uniform shader_light_data {
-    ivec4 lighting_lut_offset[NUM_LIGHTING_SAMPLERS / 4];
-    vec3 lighting_global_ambient;
-    LightSrc light_src[NUM_LIGHTS];
-    float lut_scale_d0;
-    float lut_scale_d1;
-    float lut_scale_sp;
-    float lut_scale_fr;
-    float lut_scale_rb;
-    float lut_scale_rg;
-    float lut_scale_rr;
-    int shadow_texture_bias;
-};
-
-// Rotate the vector v by the quaternion q
-vec3 quaternion_rotate(vec4 q, vec3 v) {
-    return v + 2.0 * cross(q.xyz, cross(q.xyz, v) + q.w * v);
-}
-
-float LookupLightingLUT(int lut_index, int index, float delta) {
-    vec2 entry = texelFetch(texture_buffer_lut_lf, lighting_lut_offset[lut_index >> 2][lut_index & 3] + index).rg;
-    return entry.r + entry.g * delta;
-}
-
-float LookupLightingLUTUnsigned(int lut_index, float pos) {
-    int index = clamp(int(pos * 256.0), 0, 255);
-    float delta = pos * 256.0 - float(index);
-    return LookupLightingLUT(lut_index, index, delta);
-}
-
-float LookupLightingLUTSigned(int lut_index, float pos) {
-    int index = clamp(int(pos * 128.0), -128, 127);
-    float delta = pos * 128.0 - float(index);
-    if (index < 0) index += 256;
-    return LookupLightingLUT(lut_index, index, delta);
-}
-
-float byteround(float x) {
-    return round(x * 255.0) * (1.0 / 255.0);
-}
-
-vec2 byteround(vec2 x) {
-    return round(x * 255.0) * (1.0 / 255.0);
-}
-
-vec3 byteround(vec3 x) {
-    return round(x * 255.0) * (1.0 / 255.0);
-}
-
-vec4 byteround(vec4 x) {
-    return round(x * 255.0) * (1.0 / 255.0);
-}
-
-// PICA's LOD formula for 2D textures.
-// This LOD formula is the same as the LOD lower limit defined in OpenGL.
-// f(x, y) >= max{m_u, m_v, m_w}
-// (See OpenGL 4.6 spec, 8.14.1 - Scale Factor and Level-of-Detail)
-float getLod(vec2 coord) {
-    vec2 d = max(abs(dFdx(coord)), abs(dFdy(coord)));
-    return log2(max(d.x, d.y));
-}
-
-vec4 shadowTexture(vec2 uv, float w) {
-    return vec4(1.0);
-}
-
-vec4 shadowTextureCube(vec2 uv, float w) {
-    return vec4(1.0);
-}
-
-void main() {
-vec4 rounded_primary_color = byteround(primary_color);
-vec4 primary_fragment_color = vec4(0.0);
-vec4 secondary_fragment_color = vec4(0.0);
-if (!(gl_FragCoord.x >= float(scissor_x1) && gl_FragCoord.y >= float(scissor_y1) && gl_FragCoord.x < float(scissor_x2) && gl_FragCoord.y < float(scissor_y2))) discard;
-float z_over_w = 2.0 * gl_FragCoord.z - 1.0;
-float depth = z_over_w * depth_scale + depth_offset;
-vec4 texcolor0 = textureLod(tex0, texcoord0, getLod(texcoord0 * vec2(textureSize(tex0, 0))));
-vec4 texcolor1 = textureLod(tex1, texcoord1, getLod(texcoord1 * vec2(textureSize(tex1, 0))));
-
-vec4 diffuse_sum = vec4(0.0, 0.0, 0.0, 1.0);
-vec4 specular_sum = vec4(0.0, 0.0, 0.0, 1.0);
-vec3 light_vector = vec3(0.0);
-vec3 refl_value = vec3(0.0);
-vec3 spot_dir = vec3(0.0);
-vec3 half_vector = vec3(0.0);
-float dot_product = 0.0;
-float clamp_highlights = 1.0;
-float geo_factor = 1.0;
-vec3 surface_normal = vec3(0.0, 0.0, 1.0);
-vec3 surface_tangent = vec3(1.0, 0.0, 0.0);
-vec4 normalized_normquat = normalize(normquat);
-vec3 normal = quaternion_rotate(normalized_normquat, surface_normal);
-vec3 tangent = quaternion_rotate(normalized_normquat, surface_tangent);
-vec4 shadow = vec4(1.0);
-light_vector = normalize(light_src[0].position + view);
-spot_dir = light_src[0].spot_direction;
-half_vector = normalize(view) + light_vector;
-dot_product = max(dot(light_vector, normal), 0.0);
-refl_value.r = 1.0;
-refl_value.g = refl_value.r;
-refl_value.b = refl_value.r;
-diffuse_sum.rgb += ((light_src[0].diffuse * dot_product) + light_src[0].ambient) * LookupLightingLUTUnsigned(16,clamp(light_src[0].dist_atten_scale * length(-view - light_src[0].position) + light_src[0].dist_atten_bias, 0.0, 1.0)) * 1.0;
-specular_sum.rgb += ((light_src[0].specular_0) + (light_src[0].specular_1)) * clamp_highlights * LookupLightingLUTUnsigned(16,clamp(light_src[0].dist_atten_scale * length(-view - light_src[0].position) + light_src[0].dist_atten_bias, 0.0, 1.0)) * 1.0;
-light_vector = normalize(light_src[1].position + view);
-spot_dir = light_src[1].spot_direction;
-half_vector = normalize(view) + light_vector;
-dot_product = max(dot(light_vector, normal), 0.0);
-refl_value.r = 1.0;
-refl_value.g = refl_value.r;
-refl_value.b = refl_value.r;
-diffuse_sum.rgb += ((light_src[1].diffuse * dot_product) + light_src[1].ambient) * LookupLightingLUTUnsigned(17,clamp(light_src[1].dist_atten_scale * length(-view - light_src[1].position) + light_src[1].dist_atten_bias, 0.0, 1.0)) * 1.0;
-specular_sum.rgb += ((light_src[1].specular_0) + (light_src[1].specular_1)) * clamp_highlights * LookupLightingLUTUnsigned(17,clamp(light_src[1].dist_atten_scale * length(-view - light_src[1].position) + light_src[1].dist_atten_bias, 0.0, 1.0)) * 1.0;
-diffuse_sum.rgb += lighting_global_ambient;
-primary_fragment_color = clamp(diffuse_sum, vec4(0.0), vec4(1.0));
-secondary_fragment_color = clamp(specular_sum, vec4(0.0), vec4(1.0));
-
-vec4 combiner_buffer = vec4(0.0);
-vec4 next_combiner_buffer = tev_combiner_buffer_color;
-vec4 last_tex_env_out = vec4(0.0);
-vec3 color_output_0 = byteround(clamp((rounded_primary_color.rgb), vec3(0.0), vec3(1.0)));
-float alpha_output_0 = byteround(clamp((rounded_primary_color.r) * (rounded_primary_color.r), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_0 * 1.0, alpha_output_0 * 2.0), vec4(0.0), vec4(1.0));
-combiner_buffer = next_combiner_buffer;
-
-vec3 color_output_1 = byteround(clamp((const_color[1].rgb) * (vec3(1.0) - last_tex_env_out.aaa) + (rounded_primary_color.rgb), vec3(0.0), vec3(1.0)));
-float alpha_output_1 = byteround(clamp((rounded_primary_color.a) * (texcolor1.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_1, alpha_output_1), vec4(0.0), vec4(1.0));
-combiner_buffer = next_combiner_buffer;
-
-vec3 color_output_2 = byteround(clamp((last_tex_env_out.rgb) * (texcolor1.rgb), vec3(0.0), vec3(1.0)));
-float alpha_output_2 = byteround(clamp((last_tex_env_out.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_2 * 2.0, alpha_output_2 * 1.0), vec4(0.0), vec4(1.0));
-combiner_buffer = next_combiner_buffer;
-
-vec3 color_output_3 = byteround(clamp((last_tex_env_out.rgb) * (primary_fragment_color.rgb), vec3(0.0), vec3(1.0)));
-float alpha_output_3 = byteround(clamp((last_tex_env_out.a) * (const_color[3].a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_3, alpha_output_3), vec4(0.0), vec4(1.0));
-combiner_buffer = next_combiner_buffer;
-
-vec3 color_output_4 = byteround(clamp(min((const_color[4].rgb) + (texcolor0.ggg), vec3(1.0)) * (last_tex_env_out.rgb), vec3(0.0), vec3(1.0)));
-float alpha_output_4 = byteround(clamp((last_tex_env_out.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_4, alpha_output_4), vec4(0.0), vec4(1.0));
-combiner_buffer = next_combiner_buffer;
-
-combiner_buffer = next_combiner_buffer;
-
-gl_FragDepth = depth;
-color = byteround(last_tex_env_out);
-}
-// reference: 4A655CFED389DBF1, D0F80245B74D3F2A
-// program: A0A01900FB0E2CEC, F0531050140A5884, D0F80245B74D3F2A
-// reference: 5BBD2213390B2E01, 2A0717029ABD24CD
-// shader: 8B30, 2E3C39411D30E6DE
-
-precision highp int;
-precision highp float;
-precision highp samplerBuffer;
-precision highp usampler2D;
-precision highp uimage2D;
-in vec4 primary_color;
-in vec2 texcoord0;
-in vec2 texcoord1;
-in vec2 texcoord2;
-in float texcoord0_w;
-in vec4 normquat;
-in vec3 view;
-
-#ifndef CITRA_GLES
-in vec4 gl_FragCoord;
-#endif // CITRA_GLES
-out vec4 color;
-
-uniform sampler2D tex0;
-uniform sampler2D tex1;
-uniform sampler2D tex2;
-uniform samplerCube tex_cube;
-uniform samplerBuffer texture_buffer_lut_lf;
-uniform samplerBuffer texture_buffer_lut_rg;
-uniform samplerBuffer texture_buffer_lut_rgba;
-
-#define NUM_TEV_STAGES 6
-#define NUM_LIGHTS 8
-#define NUM_LIGHTING_SAMPLERS 24
-
-struct LightSrc {
-    vec3 specular_0;
-    vec3 specular_1;
-    vec3 diffuse;
-    vec3 ambient;
-    vec3 position;
-    vec3 spot_direction;
-    float dist_atten_bias;
-    float dist_atten_scale;
-};
-
-layout (std140) uniform shader_data {
-    int alphatest_ref;
-    float depth_scale;
-    float depth_offset;
-    float shadow_bias_constant;
-    float shadow_bias_linear;
-    int scissor_x1;
-    int scissor_y1;
-    int scissor_x2;
-    int scissor_y2;
-    int fog_lut_offset;
-    int proctex_noise_lut_offset;
-    int proctex_color_map_offset;
-    int proctex_alpha_map_offset;
-    int proctex_lut_offset;
-    int proctex_diff_lut_offset;
-    float proctex_bias;
-    vec3 fog_color;
-    vec2 proctex_noise_f;
-    vec2 proctex_noise_a;
-    vec2 proctex_noise_p;
-    vec4 const_color[NUM_TEV_STAGES];
-    vec4 tev_combiner_buffer_color;
-    vec4 clip_coef;
-};
-
-layout (std140) uniform shader_light_data {
-    ivec4 lighting_lut_offset[NUM_LIGHTING_SAMPLERS / 4];
-    vec3 lighting_global_ambient;
-    LightSrc light_src[NUM_LIGHTS];
-    float lut_scale_d0;
-    float lut_scale_d1;
-    float lut_scale_sp;
-    float lut_scale_fr;
-    float lut_scale_rb;
-    float lut_scale_rg;
-    float lut_scale_rr;
-    int shadow_texture_bias;
-};
-
-// Rotate the vector v by the quaternion q
-vec3 quaternion_rotate(vec4 q, vec3 v) {
-    return v + 2.0 * cross(q.xyz, cross(q.xyz, v) + q.w * v);
-}
-
-float LookupLightingLUT(int lut_index, int index, float delta) {
-    vec2 entry = texelFetch(texture_buffer_lut_lf, lighting_lut_offset[lut_index >> 2][lut_index & 3] + index).rg;
-    return entry.r + entry.g * delta;
-}
-
-float LookupLightingLUTUnsigned(int lut_index, float pos) {
-    int index = clamp(int(pos * 256.0), 0, 255);
-    float delta = pos * 256.0 - float(index);
-    return LookupLightingLUT(lut_index, index, delta);
-}
-
-float LookupLightingLUTSigned(int lut_index, float pos) {
-    int index = clamp(int(pos * 128.0), -128, 127);
-    float delta = pos * 128.0 - float(index);
-    if (index < 0) index += 256;
-    return LookupLightingLUT(lut_index, index, delta);
-}
-
-float byteround(float x) {
-    return round(x * 255.0) * (1.0 / 255.0);
-}
-
-vec2 byteround(vec2 x) {
-    return round(x * 255.0) * (1.0 / 255.0);
-}
-
-vec3 byteround(vec3 x) {
-    return round(x * 255.0) * (1.0 / 255.0);
-}
-
-vec4 byteround(vec4 x) {
-    return round(x * 255.0) * (1.0 / 255.0);
-}
-
-// PICA's LOD formula for 2D textures.
-// This LOD formula is the same as the LOD lower limit defined in OpenGL.
-// f(x, y) >= max{m_u, m_v, m_w}
-// (See OpenGL 4.6 spec, 8.14.1 - Scale Factor and Level-of-Detail)
-float getLod(vec2 coord) {
-    vec2 d = max(abs(dFdx(coord)), abs(dFdy(coord)));
-    return log2(max(d.x, d.y));
-}
-
-vec4 shadowTexture(vec2 uv, float w) {
-    return vec4(1.0);
-}
-
-vec4 shadowTextureCube(vec2 uv, float w) {
-    return vec4(1.0);
-}
-
-void main() {
-vec4 rounded_primary_color = byteround(primary_color);
-vec4 primary_fragment_color = vec4(0.0);
-vec4 secondary_fragment_color = vec4(0.0);
-if (!(gl_FragCoord.x >= float(scissor_x1) && gl_FragCoord.y >= float(scissor_y1) && gl_FragCoord.x < float(scissor_x2) && gl_FragCoord.y < float(scissor_y2))) discard;
-float z_over_w = 2.0 * gl_FragCoord.z - 1.0;
-float depth = z_over_w * depth_scale + depth_offset;
-vec4 texcolor0 = textureLod(tex0, texcoord0, getLod(texcoord0 * vec2(textureSize(tex0, 0))));
-
-vec4 diffuse_sum = vec4(0.0, 0.0, 0.0, 1.0);
-vec4 specular_sum = vec4(0.0, 0.0, 0.0, 1.0);
-vec3 light_vector = vec3(0.0);
-vec3 refl_value = vec3(0.0);
-vec3 spot_dir = vec3(0.0);
-vec3 half_vector = vec3(0.0);
-float dot_product = 0.0;
-float clamp_highlights = 1.0;
-float geo_factor = 1.0;
-vec3 surface_normal = vec3(0.0, 0.0, 1.0);
-vec3 surface_tangent = vec3(1.0, 0.0, 0.0);
-vec4 normalized_normquat = normalize(normquat);
-vec3 normal = quaternion_rotate(normalized_normquat, surface_normal);
-vec3 tangent = quaternion_rotate(normalized_normquat, surface_tangent);
-vec4 shadow = vec4(1.0);
-light_vector = normalize(light_src[0].position + view);
-spot_dir = light_src[0].spot_direction;
-half_vector = normalize(view) + light_vector;
-dot_product = max(dot(light_vector, normal), 0.0);
-refl_value.r = 1.0;
-refl_value.g = refl_value.r;
-refl_value.b = refl_value.r;
-diffuse_sum.rgb += ((light_src[0].diffuse * dot_product) + light_src[0].ambient) * LookupLightingLUTUnsigned(16,clamp(light_src[0].dist_atten_scale * length(-view - light_src[0].position) + light_src[0].dist_atten_bias, 0.0, 1.0)) * 1.0;
-specular_sum.rgb += (((lut_scale_d0 * LookupLightingLUTSigned(0, dot(normal, normalize(half_vector)))) * light_src[0].specular_0) + ((lut_scale_d1 * LookupLightingLUTSigned(1, dot(normal, normalize(view)))) * light_src[0].specular_1)) * clamp_highlights * LookupLightingLUTUnsigned(16,clamp(light_src[0].dist_atten_scale * length(-view - light_src[0].position) + light_src[0].dist_atten_bias, 0.0, 1.0)) * 1.0;
-light_vector = normalize(light_src[1].position + view);
-spot_dir = light_src[1].spot_direction;
-half_vector = normalize(view) + light_vector;
-dot_product = max(dot(light_vector, normal), 0.0);
-refl_value.r = 1.0;
-refl_value.g = refl_value.r;
-refl_value.b = refl_value.r;
-diffuse_sum.rgb += ((light_src[1].diffuse * dot_product) + light_src[1].ambient) * LookupLightingLUTUnsigned(17,clamp(light_src[1].dist_atten_scale * length(-view - light_src[1].position) + light_src[1].dist_atten_bias, 0.0, 1.0)) * 1.0;
-specular_sum.rgb += (((lut_scale_d0 * LookupLightingLUTSigned(0, dot(normal, normalize(half_vector)))) * light_src[1].specular_0) + ((lut_scale_d1 * LookupLightingLUTSigned(1, dot(normal, normalize(view)))) * light_src[1].specular_1)) * clamp_highlights * LookupLightingLUTUnsigned(17,clamp(light_src[1].dist_atten_scale * length(-view - light_src[1].position) + light_src[1].dist_atten_bias, 0.0, 1.0)) * 1.0;
-diffuse_sum.rgb += lighting_global_ambient;
-primary_fragment_color = clamp(diffuse_sum, vec4(0.0), vec4(1.0));
-secondary_fragment_color = clamp(specular_sum, vec4(0.0), vec4(1.0));
-
-vec4 combiner_buffer = vec4(0.0);
-vec4 next_combiner_buffer = tev_combiner_buffer_color;
-vec4 last_tex_env_out = vec4(0.0);
-vec3 color_output_0 = byteround(clamp((primary_fragment_color.rgb) * (texcolor0.rgb), vec3(0.0), vec3(1.0)));
-float alpha_output_0 = byteround(clamp((rounded_primary_color.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_0, alpha_output_0), vec4(0.0), vec4(1.0));
-combiner_buffer = next_combiner_buffer;
-
-vec3 color_output_1 = byteround(clamp((const_color[1].rgb) * (secondary_fragment_color.rgb) + (last_tex_env_out.rgb), vec3(0.0), vec3(1.0)));
-float alpha_output_1 = byteround(clamp((last_tex_env_out.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_1, alpha_output_1), vec4(0.0), vec4(1.0));
-combiner_buffer = next_combiner_buffer;
-
-vec3 color_output_2 = byteround(clamp((last_tex_env_out.rgb), vec3(0.0), vec3(1.0)));
-float alpha_output_2 = byteround(clamp((last_tex_env_out.a) * (const_color[2].a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_2, alpha_output_2), vec4(0.0), vec4(1.0));
-combiner_buffer = next_combiner_buffer;
-
-combiner_buffer = next_combiner_buffer;
-
-combiner_buffer = next_combiner_buffer;
-
-combiner_buffer = next_combiner_buffer;
-
-gl_FragDepth = depth;
-color = byteround(last_tex_env_out);
-}
-// reference: 8400BEB5ABFAB81E, 2E3C39411D30E6DE
-// program: A0A01900FB0E2CEC, F0531050140A5884, 2E3C39411D30E6DE
-// shader: 8B30, 09CDE1E07F7E20B5
-
-precision highp int;
-precision highp float;
-precision highp samplerBuffer;
-precision highp usampler2D;
-precision highp uimage2D;
-in vec4 primary_color;
-in vec2 texcoord0;
-in vec2 texcoord1;
-in vec2 texcoord2;
-in float texcoord0_w;
-in vec4 normquat;
-in vec3 view;
-
-#ifndef CITRA_GLES
-in vec4 gl_FragCoord;
-#endif // CITRA_GLES
-out vec4 color;
-
-uniform sampler2D tex0;
-uniform sampler2D tex1;
-uniform sampler2D tex2;
-uniform samplerCube tex_cube;
-uniform samplerBuffer texture_buffer_lut_lf;
-uniform samplerBuffer texture_buffer_lut_rg;
-uniform samplerBuffer texture_buffer_lut_rgba;
-
-#define NUM_TEV_STAGES 6
-#define NUM_LIGHTS 8
-#define NUM_LIGHTING_SAMPLERS 24
-
-struct LightSrc {
-    vec3 specular_0;
-    vec3 specular_1;
-    vec3 diffuse;
-    vec3 ambient;
-    vec3 position;
-    vec3 spot_direction;
-    float dist_atten_bias;
-    float dist_atten_scale;
-};
-
-layout (std140) uniform shader_data {
-    int alphatest_ref;
-    float depth_scale;
-    float depth_offset;
-    float shadow_bias_constant;
-    float shadow_bias_linear;
-    int scissor_x1;
-    int scissor_y1;
-    int scissor_x2;
-    int scissor_y2;
-    int fog_lut_offset;
-    int proctex_noise_lut_offset;
-    int proctex_color_map_offset;
-    int proctex_alpha_map_offset;
-    int proctex_lut_offset;
-    int proctex_diff_lut_offset;
-    float proctex_bias;
-    vec3 fog_color;
-    vec2 proctex_noise_f;
-    vec2 proctex_noise_a;
-    vec2 proctex_noise_p;
-    vec4 const_color[NUM_TEV_STAGES];
-    vec4 tev_combiner_buffer_color;
-    vec4 clip_coef;
-};
-
-layout (std140) uniform shader_light_data {
-    ivec4 lighting_lut_offset[NUM_LIGHTING_SAMPLERS / 4];
-    vec3 lighting_global_ambient;
-    LightSrc light_src[NUM_LIGHTS];
-    float lut_scale_d0;
-    float lut_scale_d1;
-    float lut_scale_sp;
-    float lut_scale_fr;
-    float lut_scale_rb;
-    float lut_scale_rg;
-    float lut_scale_rr;
-    int shadow_texture_bias;
-};
-
-// Rotate the vector v by the quaternion q
-vec3 quaternion_rotate(vec4 q, vec3 v) {
-    return v + 2.0 * cross(q.xyz, cross(q.xyz, v) + q.w * v);
-}
-
-float LookupLightingLUT(int lut_index, int index, float delta) {
-    vec2 entry = texelFetch(texture_buffer_lut_lf, lighting_lut_offset[lut_index >> 2][lut_index & 3] + index).rg;
-    return entry.r + entry.g * delta;
-}
-
-float LookupLightingLUTUnsigned(int lut_index, float pos) {
-    int index = clamp(int(pos * 256.0), 0, 255);
-    float delta = pos * 256.0 - float(index);
-    return LookupLightingLUT(lut_index, index, delta);
-}
-
-float LookupLightingLUTSigned(int lut_index, float pos) {
-    int index = clamp(int(pos * 128.0), -128, 127);
-    float delta = pos * 128.0 - float(index);
-    if (index < 0) index += 256;
-    return LookupLightingLUT(lut_index, index, delta);
-}
-
-float byteround(float x) {
-    return round(x * 255.0) * (1.0 / 255.0);
-}
-
-vec2 byteround(vec2 x) {
-    return round(x * 255.0) * (1.0 / 255.0);
-}
-
-vec3 byteround(vec3 x) {
-    return round(x * 255.0) * (1.0 / 255.0);
-}
-
-vec4 byteround(vec4 x) {
-    return round(x * 255.0) * (1.0 / 255.0);
-}
-
-// PICA's LOD formula for 2D textures.
-// This LOD formula is the same as the LOD lower limit defined in OpenGL.
-// f(x, y) >= max{m_u, m_v, m_w}
-// (See OpenGL 4.6 spec, 8.14.1 - Scale Factor and Level-of-Detail)
-float getLod(vec2 coord) {
-    vec2 d = max(abs(dFdx(coord)), abs(dFdy(coord)));
-    return log2(max(d.x, d.y));
-}
-
-vec4 shadowTexture(vec2 uv, float w) {
-    return vec4(1.0);
-}
-
-vec4 shadowTextureCube(vec2 uv, float w) {
-    return vec4(1.0);
-}
-
-void main() {
-vec4 rounded_primary_color = byteround(primary_color);
-vec4 primary_fragment_color = vec4(0.0);
-vec4 secondary_fragment_color = vec4(0.0);
-if (!(gl_FragCoord.x >= float(scissor_x1) && gl_FragCoord.y >= float(scissor_y1) && gl_FragCoord.x < float(scissor_x2) && gl_FragCoord.y < float(scissor_y2))) discard;
-float z_over_w = 2.0 * gl_FragCoord.z - 1.0;
-float depth = z_over_w * depth_scale + depth_offset;
-vec4 texcolor0 = textureLod(tex0, texcoord0, getLod(texcoord0 * vec2(textureSize(tex0, 0))));
-vec4 texcolor1 = textureLod(tex1, texcoord1, getLod(texcoord1 * vec2(textureSize(tex1, 0))));
-
-vec4 diffuse_sum = vec4(0.0, 0.0, 0.0, 1.0);
-vec4 specular_sum = vec4(0.0, 0.0, 0.0, 1.0);
-vec3 light_vector = vec3(0.0);
-vec3 refl_value = vec3(0.0);
-vec3 spot_dir = vec3(0.0);
-vec3 half_vector = vec3(0.0);
-float dot_product = 0.0;
-float clamp_highlights = 1.0;
-float geo_factor = 1.0;
-vec3 surface_normal = vec3(0.0, 0.0, 1.0);
-vec3 surface_tangent = vec3(1.0, 0.0, 0.0);
-vec4 normalized_normquat = normalize(normquat);
-vec3 normal = quaternion_rotate(normalized_normquat, surface_normal);
-vec3 tangent = quaternion_rotate(normalized_normquat, surface_tangent);
-vec4 shadow = vec4(1.0);
-light_vector = normalize(light_src[0].position + view);
-spot_dir = light_src[0].spot_direction;
-half_vector = normalize(view) + light_vector;
-dot_product = max(dot(light_vector, normal), 0.0);
-refl_value.r = 1.0;
-refl_value.g = refl_value.r;
-refl_value.b = refl_value.r;
-diffuse_sum.rgb += ((light_src[0].diffuse * dot_product) + light_src[0].ambient) * LookupLightingLUTUnsigned(16,clamp(light_src[0].dist_atten_scale * length(-view - light_src[0].position) + light_src[0].dist_atten_bias, 0.0, 1.0)) * 1.0;
-specular_sum.rgb += (((lut_scale_d0 * LookupLightingLUTSigned(0, dot(normal, normalize(half_vector)))) * light_src[0].specular_0) + ((lut_scale_d1 * LookupLightingLUTSigned(1, dot(normal, normalize(view)))) * light_src[0].specular_1)) * clamp_highlights * LookupLightingLUTUnsigned(16,clamp(light_src[0].dist_atten_scale * length(-view - light_src[0].position) + light_src[0].dist_atten_bias, 0.0, 1.0)) * 1.0;
-light_vector = normalize(light_src[1].position + view);
-spot_dir = light_src[1].spot_direction;
-half_vector = normalize(view) + light_vector;
-dot_product = max(dot(light_vector, normal), 0.0);
-refl_value.r = 1.0;
-refl_value.g = refl_value.r;
-refl_value.b = refl_value.r;
-diffuse_sum.rgb += ((light_src[1].diffuse * dot_product) + light_src[1].ambient) * LookupLightingLUTUnsigned(17,clamp(light_src[1].dist_atten_scale * length(-view - light_src[1].position) + light_src[1].dist_atten_bias, 0.0, 1.0)) * 1.0;
-specular_sum.rgb += (((lut_scale_d0 * LookupLightingLUTSigned(0, dot(normal, normalize(half_vector)))) * light_src[1].specular_0) + ((lut_scale_d1 * LookupLightingLUTSigned(1, dot(normal, normalize(view)))) * light_src[1].specular_1)) * clamp_highlights * LookupLightingLUTUnsigned(17,clamp(light_src[1].dist_atten_scale * length(-view - light_src[1].position) + light_src[1].dist_atten_bias, 0.0, 1.0)) * 1.0;
-diffuse_sum.rgb += lighting_global_ambient;
-primary_fragment_color = clamp(diffuse_sum, vec4(0.0), vec4(1.0));
-secondary_fragment_color = clamp(specular_sum, vec4(0.0), vec4(1.0));
-
-vec4 combiner_buffer = vec4(0.0);
-vec4 next_combiner_buffer = tev_combiner_buffer_color;
-vec4 last_tex_env_out = vec4(0.0);
-vec3 color_output_0 = byteround(clamp((primary_fragment_color.rgb) * (texcolor0.rgb), vec3(0.0), vec3(1.0)));
-float alpha_output_0 = byteround(clamp((rounded_primary_color.a) * (const_color[0].a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_0, alpha_output_0), vec4(0.0), vec4(1.0));
-combiner_buffer = next_combiner_buffer;
-
-vec3 color_output_1 = byteround(clamp(min((texcolor0.aaa) + (texcolor1.rgb), vec3(1.0)) * (last_tex_env_out.rgb), vec3(0.0), vec3(1.0)));
-float alpha_output_1 = byteround(clamp((last_tex_env_out.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_1, alpha_output_1), vec4(0.0), vec4(1.0));
-combiner_buffer = next_combiner_buffer;
-
-vec3 color_output_2 = byteround(clamp((const_color[2].rgb) * (secondary_fragment_color.rgb) + (last_tex_env_out.rgb), vec3(0.0), vec3(1.0)));
-float alpha_output_2 = byteround(clamp((last_tex_env_out.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_2, alpha_output_2), vec4(0.0), vec4(1.0));
-combiner_buffer = next_combiner_buffer;
-
-vec3 color_output_3 = byteround(clamp((last_tex_env_out.rgb), vec3(0.0), vec3(1.0)));
-float alpha_output_3 = byteround(clamp((last_tex_env_out.a) * (const_color[3].a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_3, alpha_output_3), vec4(0.0), vec4(1.0));
-combiner_buffer = next_combiner_buffer;
-
-combiner_buffer = next_combiner_buffer;
-
-combiner_buffer = next_combiner_buffer;
-
-gl_FragDepth = depth;
-color = byteround(last_tex_env_out);
-}
-// reference: 2C6096ED43EB9305, 09CDE1E07F7E20B5
-// program: A0A01900FB0E2CEC, F0531050140A5884, 09CDE1E07F7E20B5
-// shader: 8B30, E02490D844985C76
-
-precision highp int;
-precision highp float;
-precision highp samplerBuffer;
-precision highp usampler2D;
-precision highp uimage2D;
-in vec4 primary_color;
-in vec2 texcoord0;
-in vec2 texcoord1;
-in vec2 texcoord2;
-in float texcoord0_w;
-in vec4 normquat;
-in vec3 view;
-
-#ifndef CITRA_GLES
-in vec4 gl_FragCoord;
-#endif // CITRA_GLES
-out vec4 color;
-
-uniform sampler2D tex0;
-uniform sampler2D tex1;
-uniform sampler2D tex2;
-uniform samplerCube tex_cube;
-uniform samplerBuffer texture_buffer_lut_lf;
-uniform samplerBuffer texture_buffer_lut_rg;
-uniform samplerBuffer texture_buffer_lut_rgba;
-
-#define NUM_TEV_STAGES 6
-#define NUM_LIGHTS 8
-#define NUM_LIGHTING_SAMPLERS 24
-
-struct LightSrc {
-    vec3 specular_0;
-    vec3 specular_1;
-    vec3 diffuse;
-    vec3 ambient;
-    vec3 position;
-    vec3 spot_direction;
-    float dist_atten_bias;
-    float dist_atten_scale;
-};
-
-layout (std140) uniform shader_data {
-    int alphatest_ref;
-    float depth_scale;
-    float depth_offset;
-    float shadow_bias_constant;
-    float shadow_bias_linear;
-    int scissor_x1;
-    int scissor_y1;
-    int scissor_x2;
-    int scissor_y2;
-    int fog_lut_offset;
-    int proctex_noise_lut_offset;
-    int proctex_color_map_offset;
-    int proctex_alpha_map_offset;
-    int proctex_lut_offset;
-    int proctex_diff_lut_offset;
-    float proctex_bias;
-    vec3 fog_color;
-    vec2 proctex_noise_f;
-    vec2 proctex_noise_a;
-    vec2 proctex_noise_p;
-    vec4 const_color[NUM_TEV_STAGES];
-    vec4 tev_combiner_buffer_color;
-    vec4 clip_coef;
-};
-
-layout (std140) uniform shader_light_data {
-    ivec4 lighting_lut_offset[NUM_LIGHTING_SAMPLERS / 4];
-    vec3 lighting_global_ambient;
-    LightSrc light_src[NUM_LIGHTS];
-    float lut_scale_d0;
-    float lut_scale_d1;
-    float lut_scale_sp;
-    float lut_scale_fr;
-    float lut_scale_rb;
-    float lut_scale_rg;
-    float lut_scale_rr;
-    int shadow_texture_bias;
-};
-
-// Rotate the vector v by the quaternion q
-vec3 quaternion_rotate(vec4 q, vec3 v) {
-    return v + 2.0 * cross(q.xyz, cross(q.xyz, v) + q.w * v);
-}
-
-float LookupLightingLUT(int lut_index, int index, float delta) {
-    vec2 entry = texelFetch(texture_buffer_lut_lf, lighting_lut_offset[lut_index >> 2][lut_index & 3] + index).rg;
-    return entry.r + entry.g * delta;
-}
-
-float LookupLightingLUTUnsigned(int lut_index, float pos) {
-    int index = clamp(int(pos * 256.0), 0, 255);
-    float delta = pos * 256.0 - float(index);
-    return LookupLightingLUT(lut_index, index, delta);
-}
-
-float LookupLightingLUTSigned(int lut_index, float pos) {
-    int index = clamp(int(pos * 128.0), -128, 127);
-    float delta = pos * 128.0 - float(index);
-    if (index < 0) index += 256;
-    return LookupLightingLUT(lut_index, index, delta);
-}
-
-float byteround(float x) {
-    return round(x * 255.0) * (1.0 / 255.0);
-}
-
-vec2 byteround(vec2 x) {
-    return round(x * 255.0) * (1.0 / 255.0);
-}
-
-vec3 byteround(vec3 x) {
-    return round(x * 255.0) * (1.0 / 255.0);
-}
-
-vec4 byteround(vec4 x) {
-    return round(x * 255.0) * (1.0 / 255.0);
-}
-
-// PICA's LOD formula for 2D textures.
-// This LOD formula is the same as the LOD lower limit defined in OpenGL.
-// f(x, y) >= max{m_u, m_v, m_w}
-// (See OpenGL 4.6 spec, 8.14.1 - Scale Factor and Level-of-Detail)
-float getLod(vec2 coord) {
-    vec2 d = max(abs(dFdx(coord)), abs(dFdy(coord)));
-    return log2(max(d.x, d.y));
-}
-
-vec4 shadowTexture(vec2 uv, float w) {
-    return vec4(1.0);
-}
-
-vec4 shadowTextureCube(vec2 uv, float w) {
-    return vec4(1.0);
-}
-
-void main() {
-vec4 rounded_primary_color = byteround(primary_color);
-vec4 primary_fragment_color = vec4(0.0);
-vec4 secondary_fragment_color = vec4(0.0);
-if (!(gl_FragCoord.x >= float(scissor_x1) && gl_FragCoord.y >= float(scissor_y1) && gl_FragCoord.x < float(scissor_x2) && gl_FragCoord.y < float(scissor_y2))) discard;
-float z_over_w = 2.0 * gl_FragCoord.z - 1.0;
-float depth = z_over_w * depth_scale + depth_offset;
-vec4 texcolor0 = textureLod(tex0, texcoord0, getLod(texcoord0 * vec2(textureSize(tex0, 0))));
-
-vec4 diffuse_sum = vec4(0.0, 0.0, 0.0, 1.0);
-vec4 specular_sum = vec4(0.0, 0.0, 0.0, 1.0);
-vec3 light_vector = vec3(0.0);
-vec3 refl_value = vec3(0.0);
-vec3 spot_dir = vec3(0.0);
-vec3 half_vector = vec3(0.0);
-float dot_product = 0.0;
-float clamp_highlights = 1.0;
-float geo_factor = 1.0;
-vec3 surface_normal = vec3(0.0, 0.0, 1.0);
-vec3 surface_tangent = vec3(1.0, 0.0, 0.0);
-vec4 normalized_normquat = normalize(normquat);
-vec3 normal = quaternion_rotate(normalized_normquat, surface_normal);
-vec3 tangent = quaternion_rotate(normalized_normquat, surface_tangent);
-vec4 shadow = vec4(1.0);
-light_vector = normalize(light_src[0].position + view);
-spot_dir = light_src[0].spot_direction;
-half_vector = normalize(view) + light_vector;
-dot_product = max(dot(light_vector, normal), 0.0);
-refl_value.r = 1.0;
-refl_value.g = refl_value.r;
-refl_value.b = refl_value.r;
-diffuse_sum.rgb += ((light_src[0].diffuse * dot_product) + light_src[0].ambient) * LookupLightingLUTUnsigned(16,clamp(light_src[0].dist_atten_scale * length(-view - light_src[0].position) + light_src[0].dist_atten_bias, 0.0, 1.0)) * 1.0;
-specular_sum.rgb += (((lut_scale_d0 * LookupLightingLUTSigned(0, dot(normal, normalize(half_vector)))) * light_src[0].specular_0) + ((lut_scale_d1 * LookupLightingLUTSigned(1, dot(normal, normalize(view)))) * light_src[0].specular_1)) * clamp_highlights * LookupLightingLUTUnsigned(16,clamp(light_src[0].dist_atten_scale * length(-view - light_src[0].position) + light_src[0].dist_atten_bias, 0.0, 1.0)) * 1.0;
-light_vector = normalize(light_src[1].position + view);
-spot_dir = light_src[1].spot_direction;
-half_vector = normalize(view) + light_vector;
-dot_product = max(dot(light_vector, normal), 0.0);
-refl_value.r = 1.0;
-refl_value.g = refl_value.r;
-refl_value.b = refl_value.r;
-diffuse_sum.rgb += ((light_src[1].diffuse * dot_product) + light_src[1].ambient) * LookupLightingLUTUnsigned(17,clamp(light_src[1].dist_atten_scale * length(-view - light_src[1].position) + light_src[1].dist_atten_bias, 0.0, 1.0)) * 1.0;
-specular_sum.rgb += (((lut_scale_d0 * LookupLightingLUTSigned(0, dot(normal, normalize(half_vector)))) * light_src[1].specular_0) + ((lut_scale_d1 * LookupLightingLUTSigned(1, dot(normal, normalize(view)))) * light_src[1].specular_1)) * clamp_highlights * LookupLightingLUTUnsigned(17,clamp(light_src[1].dist_atten_scale * length(-view - light_src[1].position) + light_src[1].dist_atten_bias, 0.0, 1.0)) * 1.0;
-diffuse_sum.rgb += lighting_global_ambient;
-primary_fragment_color = clamp(diffuse_sum, vec4(0.0), vec4(1.0));
-secondary_fragment_color = clamp(specular_sum, vec4(0.0), vec4(1.0));
-
-vec4 combiner_buffer = vec4(0.0);
-vec4 next_combiner_buffer = tev_combiner_buffer_color;
-vec4 last_tex_env_out = vec4(0.0);
-vec3 color_output_0 = byteround(clamp((primary_fragment_color.rgb) * (texcolor0.rgb), vec3(0.0), vec3(1.0)));
-float alpha_output_0 = byteround(clamp((rounded_primary_color.a) * (texcolor0.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_0, alpha_output_0), vec4(0.0), vec4(1.0));
-combiner_buffer = next_combiner_buffer;
-
-vec3 color_output_1 = byteround(clamp((texcolor0.aaa) * (secondary_fragment_color.rgb) + (last_tex_env_out.rgb), vec3(0.0), vec3(1.0)));
-float alpha_output_1 = byteround(clamp((last_tex_env_out.a) * (const_color[1].a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_1, alpha_output_1), vec4(0.0), vec4(1.0));
-combiner_buffer = next_combiner_buffer;
-
-combiner_buffer = next_combiner_buffer;
-
-combiner_buffer = next_combiner_buffer;
-
-combiner_buffer = next_combiner_buffer;
-
-combiner_buffer = next_combiner_buffer;
-
-gl_FragDepth = depth;
-color = byteround(last_tex_env_out);
-}
-// reference: 6394FFD5BB64A8E2, E02490D844985C76
-// program: A0A01900FB0E2CEC, F0531050140A5884, E02490D844985C76
-// shader: 8B30, 658CD27A5BCC8B36
-
-precision highp int;
-precision highp float;
-precision highp samplerBuffer;
-precision highp usampler2D;
-precision highp uimage2D;
-in vec4 primary_color;
-in vec2 texcoord0;
-in vec2 texcoord1;
-in vec2 texcoord2;
-in float texcoord0_w;
-in vec4 normquat;
-in vec3 view;
-
-#ifndef CITRA_GLES
-in vec4 gl_FragCoord;
-#endif // CITRA_GLES
-out vec4 color;
-
-uniform sampler2D tex0;
-uniform sampler2D tex1;
-uniform sampler2D tex2;
-uniform samplerCube tex_cube;
-uniform samplerBuffer texture_buffer_lut_lf;
-uniform samplerBuffer texture_buffer_lut_rg;
-uniform samplerBuffer texture_buffer_lut_rgba;
-
-#define NUM_TEV_STAGES 6
-#define NUM_LIGHTS 8
-#define NUM_LIGHTING_SAMPLERS 24
-
-struct LightSrc {
-    vec3 specular_0;
-    vec3 specular_1;
-    vec3 diffuse;
-    vec3 ambient;
-    vec3 position;
-    vec3 spot_direction;
-    float dist_atten_bias;
-    float dist_atten_scale;
-};
-
-layout (std140) uniform shader_data {
-    int alphatest_ref;
-    float depth_scale;
-    float depth_offset;
-    float shadow_bias_constant;
-    float shadow_bias_linear;
-    int scissor_x1;
-    int scissor_y1;
-    int scissor_x2;
-    int scissor_y2;
-    int fog_lut_offset;
-    int proctex_noise_lut_offset;
-    int proctex_color_map_offset;
-    int proctex_alpha_map_offset;
-    int proctex_lut_offset;
-    int proctex_diff_lut_offset;
-    float proctex_bias;
-    vec3 fog_color;
-    vec2 proctex_noise_f;
-    vec2 proctex_noise_a;
-    vec2 proctex_noise_p;
-    vec4 const_color[NUM_TEV_STAGES];
-    vec4 tev_combiner_buffer_color;
-    vec4 clip_coef;
-};
-
-layout (std140) uniform shader_light_data {
-    ivec4 lighting_lut_offset[NUM_LIGHTING_SAMPLERS / 4];
-    vec3 lighting_global_ambient;
-    LightSrc light_src[NUM_LIGHTS];
-    float lut_scale_d0;
-    float lut_scale_d1;
-    float lut_scale_sp;
-    float lut_scale_fr;
-    float lut_scale_rb;
-    float lut_scale_rg;
-    float lut_scale_rr;
-    int shadow_texture_bias;
-};
-
-// Rotate the vector v by the quaternion q
-vec3 quaternion_rotate(vec4 q, vec3 v) {
-    return v + 2.0 * cross(q.xyz, cross(q.xyz, v) + q.w * v);
-}
-
-float LookupLightingLUT(int lut_index, int index, float delta) {
-    vec2 entry = texelFetch(texture_buffer_lut_lf, lighting_lut_offset[lut_index >> 2][lut_index & 3] + index).rg;
-    return entry.r + entry.g * delta;
-}
-
-float LookupLightingLUTUnsigned(int lut_index, float pos) {
-    int index = clamp(int(pos * 256.0), 0, 255);
-    float delta = pos * 256.0 - float(index);
-    return LookupLightingLUT(lut_index, index, delta);
-}
-
-float LookupLightingLUTSigned(int lut_index, float pos) {
-    int index = clamp(int(pos * 128.0), -128, 127);
-    float delta = pos * 128.0 - float(index);
-    if (index < 0) index += 256;
-    return LookupLightingLUT(lut_index, index, delta);
-}
-
-float byteround(float x) {
-    return round(x * 255.0) * (1.0 / 255.0);
-}
-
-vec2 byteround(vec2 x) {
-    return round(x * 255.0) * (1.0 / 255.0);
-}
-
-vec3 byteround(vec3 x) {
-    return round(x * 255.0) * (1.0 / 255.0);
-}
-
-vec4 byteround(vec4 x) {
-    return round(x * 255.0) * (1.0 / 255.0);
-}
-
-// PICA's LOD formula for 2D textures.
-// This LOD formula is the same as the LOD lower limit defined in OpenGL.
-// f(x, y) >= max{m_u, m_v, m_w}
-// (See OpenGL 4.6 spec, 8.14.1 - Scale Factor and Level-of-Detail)
-float getLod(vec2 coord) {
-    vec2 d = max(abs(dFdx(coord)), abs(dFdy(coord)));
-    return log2(max(d.x, d.y));
-}
-
-vec4 shadowTexture(vec2 uv, float w) {
-    return vec4(1.0);
-}
-
-vec4 shadowTextureCube(vec2 uv, float w) {
-    return vec4(1.0);
-}
-
-void main() {
-vec4 rounded_primary_color = byteround(primary_color);
-vec4 primary_fragment_color = vec4(0.0);
-vec4 secondary_fragment_color = vec4(0.0);
-if (!(gl_FragCoord.x >= float(scissor_x1) && gl_FragCoord.y >= float(scissor_y1) && gl_FragCoord.x < float(scissor_x2) && gl_FragCoord.y < float(scissor_y2))) discard;
-float z_over_w = 2.0 * gl_FragCoord.z - 1.0;
-float depth = z_over_w * depth_scale + depth_offset;
-vec4 texcolor1 = textureLod(tex1, texcoord1, getLod(texcoord1 * vec2(textureSize(tex1, 0))));
-vec4 texcolor2 = textureLod(tex2, texcoord2, getLod(texcoord2 * vec2(textureSize(tex2, 0))));
-
-vec4 diffuse_sum = vec4(0.0, 0.0, 0.0, 1.0);
-vec4 specular_sum = vec4(0.0, 0.0, 0.0, 1.0);
-vec3 light_vector = vec3(0.0);
-vec3 refl_value = vec3(0.0);
-vec3 spot_dir = vec3(0.0);
-vec3 half_vector = vec3(0.0);
-float dot_product = 0.0;
-float clamp_highlights = 1.0;
-float geo_factor = 1.0;
-vec3 surface_normal = vec3(0.0, 0.0, 1.0);
-vec3 surface_tangent = vec3(1.0, 0.0, 0.0);
-vec4 normalized_normquat = normalize(normquat);
-vec3 normal = quaternion_rotate(normalized_normquat, surface_normal);
-vec3 tangent = quaternion_rotate(normalized_normquat, surface_tangent);
-vec4 shadow = vec4(1.0);
-light_vector = normalize(light_src[0].position + view);
-spot_dir = light_src[0].spot_direction;
-half_vector = normalize(view) + light_vector;
-dot_product = max(dot(light_vector, normal), 0.0);
-refl_value.r = 1.0;
-refl_value.g = refl_value.r;
-refl_value.b = refl_value.r;
-diffuse_sum.rgb += ((light_src[0].diffuse * dot_product) + light_src[0].ambient) * LookupLightingLUTUnsigned(16,clamp(light_src[0].dist_atten_scale * length(-view - light_src[0].position) + light_src[0].dist_atten_bias, 0.0, 1.0)) * 1.0;
-specular_sum.rgb += ((light_src[0].specular_0) + (light_src[0].specular_1)) * clamp_highlights * LookupLightingLUTUnsigned(16,clamp(light_src[0].dist_atten_scale * length(-view - light_src[0].position) + light_src[0].dist_atten_bias, 0.0, 1.0)) * 1.0;
-light_vector = normalize(light_src[1].position + view);
-spot_dir = light_src[1].spot_direction;
-half_vector = normalize(view) + light_vector;
-dot_product = max(dot(light_vector, normal), 0.0);
-refl_value.r = 1.0;
-refl_value.g = refl_value.r;
-refl_value.b = refl_value.r;
-diffuse_sum.rgb += ((light_src[1].diffuse * dot_product) + light_src[1].ambient) * LookupLightingLUTUnsigned(17,clamp(light_src[1].dist_atten_scale * length(-view - light_src[1].position) + light_src[1].dist_atten_bias, 0.0, 1.0)) * 1.0;
-specular_sum.rgb += ((light_src[1].specular_0) + (light_src[1].specular_1)) * clamp_highlights * LookupLightingLUTUnsigned(17,clamp(light_src[1].dist_atten_scale * length(-view - light_src[1].position) + light_src[1].dist_atten_bias, 0.0, 1.0)) * 1.0;
-diffuse_sum.rgb += lighting_global_ambient;
-primary_fragment_color = clamp(diffuse_sum, vec4(0.0), vec4(1.0));
-secondary_fragment_color = clamp(specular_sum, vec4(0.0), vec4(1.0));
-
-vec4 combiner_buffer = vec4(0.0);
-vec4 next_combiner_buffer = tev_combiner_buffer_color;
-vec4 last_tex_env_out = vec4(0.0);
-vec3 color_output_0 = byteround(clamp((const_color[0].aaa) * (texcolor2.rgb), vec3(0.0), vec3(1.0)));
-float alpha_output_0 = byteround(clamp((rounded_primary_color.r) * (rounded_primary_color.r), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_0 * 1.0, alpha_output_0 * 2.0), vec4(0.0), vec4(1.0));
-combiner_buffer = next_combiner_buffer;
-next_combiner_buffer.rgb = last_tex_env_out.rgb;
-
-vec3 color_output_1 = byteround(clamp((const_color[1].rgb) * (vec3(1.0) - last_tex_env_out.aaa) + (rounded_primary_color.rgb), vec3(0.0), vec3(1.0)));
-float alpha_output_1 = byteround(clamp((const_color[1].a) * (texcolor2.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_1, alpha_output_1), vec4(0.0), vec4(1.0));
-combiner_buffer = next_combiner_buffer;
-
-vec3 color_output_2 = byteround(clamp((last_tex_env_out.rgb) * (texcolor1.rgb) + (combiner_buffer.rgb), vec3(0.0), vec3(1.0)));
-float alpha_output_2 = byteround(clamp((last_tex_env_out.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_2 * 2.0, alpha_output_2 * 4.0), vec4(0.0), vec4(1.0));
-combiner_buffer = next_combiner_buffer;
-next_combiner_buffer.rgb = last_tex_env_out.rgb;
-
-vec3 color_output_3 = byteround(clamp((const_color[3].rgb) * (last_tex_env_out.aaa) + (primary_fragment_color.rgb) * (vec3(1.0) - (last_tex_env_out.aaa)), vec3(0.0), vec3(1.0)));
-float alpha_output_3 = byteround(clamp((last_tex_env_out.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_3, alpha_output_3), vec4(0.0), vec4(1.0));
-combiner_buffer = next_combiner_buffer;
-
-vec3 color_output_4 = byteround(clamp((combiner_buffer.rgb) * (last_tex_env_out.rgb), vec3(0.0), vec3(1.0)));
-float alpha_output_4 = byteround(clamp((const_color[4].a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_4, alpha_output_4), vec4(0.0), vec4(1.0));
-combiner_buffer = next_combiner_buffer;
-
-vec3 color_output_5 = byteround(clamp(min((const_color[5].rgb) + (shadowTexture(texcoord0, texcoord0_w).ggg), vec3(1.0)) * (last_tex_env_out.rgb), vec3(0.0), vec3(1.0)));
-float alpha_output_5 = byteround(clamp((last_tex_env_out.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_5, alpha_output_5), vec4(0.0), vec4(1.0));
-combiner_buffer = next_combiner_buffer;
-
-gl_FragDepth = depth;
-color = byteround(last_tex_env_out);
-}
-// reference: 2E1DB67AEB25651C, 658CD27A5BCC8B36
-// program: A0A01900FB0E2CEC, F0531050140A5884, 658CD27A5BCC8B36
-// shader: 8B30, 19AE7FAE88513F17
-
-precision highp int;
-precision highp float;
-precision highp samplerBuffer;
-precision highp usampler2D;
-precision highp uimage2D;
-in vec4 primary_color;
-in vec2 texcoord0;
-in vec2 texcoord1;
-in vec2 texcoord2;
-in float texcoord0_w;
-in vec4 normquat;
-in vec3 view;
-
-#ifndef CITRA_GLES
-in vec4 gl_FragCoord;
-#endif // CITRA_GLES
-out vec4 color;
-
-uniform sampler2D tex0;
-uniform sampler2D tex1;
-uniform sampler2D tex2;
-uniform samplerCube tex_cube;
-uniform samplerBuffer texture_buffer_lut_lf;
-uniform samplerBuffer texture_buffer_lut_rg;
-uniform samplerBuffer texture_buffer_lut_rgba;
-
-#define NUM_TEV_STAGES 6
-#define NUM_LIGHTS 8
-#define NUM_LIGHTING_SAMPLERS 24
-
-struct LightSrc {
-    vec3 specular_0;
-    vec3 specular_1;
-    vec3 diffuse;
-    vec3 ambient;
-    vec3 position;
-    vec3 spot_direction;
-    float dist_atten_bias;
-    float dist_atten_scale;
-};
-
-layout (std140) uniform shader_data {
-    int alphatest_ref;
-    float depth_scale;
-    float depth_offset;
-    float shadow_bias_constant;
-    float shadow_bias_linear;
-    int scissor_x1;
-    int scissor_y1;
-    int scissor_x2;
-    int scissor_y2;
-    int fog_lut_offset;
-    int proctex_noise_lut_offset;
-    int proctex_color_map_offset;
-    int proctex_alpha_map_offset;
-    int proctex_lut_offset;
-    int proctex_diff_lut_offset;
-    float proctex_bias;
-    vec3 fog_color;
-    vec2 proctex_noise_f;
-    vec2 proctex_noise_a;
-    vec2 proctex_noise_p;
-    vec4 const_color[NUM_TEV_STAGES];
-    vec4 tev_combiner_buffer_color;
-    vec4 clip_coef;
-};
-
-layout (std140) uniform shader_light_data {
-    ivec4 lighting_lut_offset[NUM_LIGHTING_SAMPLERS / 4];
-    vec3 lighting_global_ambient;
-    LightSrc light_src[NUM_LIGHTS];
-    float lut_scale_d0;
-    float lut_scale_d1;
-    float lut_scale_sp;
-    float lut_scale_fr;
-    float lut_scale_rb;
-    float lut_scale_rg;
-    float lut_scale_rr;
-    int shadow_texture_bias;
-};
-
-// Rotate the vector v by the quaternion q
-vec3 quaternion_rotate(vec4 q, vec3 v) {
-    return v + 2.0 * cross(q.xyz, cross(q.xyz, v) + q.w * v);
-}
-
-float LookupLightingLUT(int lut_index, int index, float delta) {
-    vec2 entry = texelFetch(texture_buffer_lut_lf, lighting_lut_offset[lut_index >> 2][lut_index & 3] + index).rg;
-    return entry.r + entry.g * delta;
-}
-
-float LookupLightingLUTUnsigned(int lut_index, float pos) {
-    int index = clamp(int(pos * 256.0), 0, 255);
-    float delta = pos * 256.0 - float(index);
-    return LookupLightingLUT(lut_index, index, delta);
-}
-
-float LookupLightingLUTSigned(int lut_index, float pos) {
-    int index = clamp(int(pos * 128.0), -128, 127);
-    float delta = pos * 128.0 - float(index);
-    if (index < 0) index += 256;
-    return LookupLightingLUT(lut_index, index, delta);
-}
-
-float byteround(float x) {
-    return round(x * 255.0) * (1.0 / 255.0);
-}
-
-vec2 byteround(vec2 x) {
-    return round(x * 255.0) * (1.0 / 255.0);
-}
-
-vec3 byteround(vec3 x) {
-    return round(x * 255.0) * (1.0 / 255.0);
-}
-
-vec4 byteround(vec4 x) {
-    return round(x * 255.0) * (1.0 / 255.0);
-}
-
-// PICA's LOD formula for 2D textures.
-// This LOD formula is the same as the LOD lower limit defined in OpenGL.
-// f(x, y) >= max{m_u, m_v, m_w}
-// (See OpenGL 4.6 spec, 8.14.1 - Scale Factor and Level-of-Detail)
-float getLod(vec2 coord) {
-    vec2 d = max(abs(dFdx(coord)), abs(dFdy(coord)));
-    return log2(max(d.x, d.y));
-}
-
-vec4 shadowTexture(vec2 uv, float w) {
-    return vec4(1.0);
-}
-
-vec4 shadowTextureCube(vec2 uv, float w) {
-    return vec4(1.0);
-}
-
-void main() {
-vec4 rounded_primary_color = byteround(primary_color);
-vec4 primary_fragment_color = vec4(0.0);
-vec4 secondary_fragment_color = vec4(0.0);
-if (!(gl_FragCoord.x >= float(scissor_x1) && gl_FragCoord.y >= float(scissor_y1) && gl_FragCoord.x < float(scissor_x2) && gl_FragCoord.y < float(scissor_y2))) discard;
-float z_over_w = 2.0 * gl_FragCoord.z - 1.0;
-float depth = z_over_w * depth_scale + depth_offset;
-vec4 texcolor1 = textureLod(tex1, texcoord1, getLod(texcoord1 * vec2(textureSize(tex1, 0))));
-
-vec4 diffuse_sum = vec4(0.0, 0.0, 0.0, 1.0);
-vec4 specular_sum = vec4(0.0, 0.0, 0.0, 1.0);
-vec3 light_vector = vec3(0.0);
-vec3 refl_value = vec3(0.0);
-vec3 spot_dir = vec3(0.0);
-vec3 half_vector = vec3(0.0);
-float dot_product = 0.0;
-float clamp_highlights = 1.0;
-float geo_factor = 1.0;
-vec3 surface_normal = vec3(0.0, 0.0, 1.0);
-vec3 surface_tangent = vec3(1.0, 0.0, 0.0);
-vec4 normalized_normquat = normalize(normquat);
-vec3 normal = quaternion_rotate(normalized_normquat, surface_normal);
-vec3 tangent = quaternion_rotate(normalized_normquat, surface_tangent);
-vec4 shadow = vec4(1.0);
-light_vector = normalize(light_src[0].position + view);
-spot_dir = light_src[0].spot_direction;
-half_vector = normalize(view) + light_vector;
-dot_product = max(dot(light_vector, normal), 0.0);
-refl_value.r = 1.0;
-refl_value.g = refl_value.r;
-refl_value.b = refl_value.r;
-diffuse_sum.rgb += ((light_src[0].diffuse * dot_product) + light_src[0].ambient) * LookupLightingLUTUnsigned(16,clamp(light_src[0].dist_atten_scale * length(-view - light_src[0].position) + light_src[0].dist_atten_bias, 0.0, 1.0)) * 1.0;
-specular_sum.rgb += ((light_src[0].specular_0) + (light_src[0].specular_1)) * clamp_highlights * LookupLightingLUTUnsigned(16,clamp(light_src[0].dist_atten_scale * length(-view - light_src[0].position) + light_src[0].dist_atten_bias, 0.0, 1.0)) * 1.0;
-light_vector = normalize(light_src[1].position + view);
-spot_dir = light_src[1].spot_direction;
-half_vector = normalize(view) + light_vector;
-dot_product = max(dot(light_vector, normal), 0.0);
-refl_value.r = 1.0;
-refl_value.g = refl_value.r;
-refl_value.b = refl_value.r;
-diffuse_sum.rgb += ((light_src[1].diffuse * dot_product) + light_src[1].ambient) * LookupLightingLUTUnsigned(17,clamp(light_src[1].dist_atten_scale * length(-view - light_src[1].position) + light_src[1].dist_atten_bias, 0.0, 1.0)) * 1.0;
-specular_sum.rgb += ((light_src[1].specular_0) + (light_src[1].specular_1)) * clamp_highlights * LookupLightingLUTUnsigned(17,clamp(light_src[1].dist_atten_scale * length(-view - light_src[1].position) + light_src[1].dist_atten_bias, 0.0, 1.0)) * 1.0;
-diffuse_sum.rgb += lighting_global_ambient;
-primary_fragment_color = clamp(diffuse_sum, vec4(0.0), vec4(1.0));
-secondary_fragment_color = clamp(specular_sum, vec4(0.0), vec4(1.0));
-
-vec4 combiner_buffer = vec4(0.0);
-vec4 next_combiner_buffer = tev_combiner_buffer_color;
-vec4 last_tex_env_out = vec4(0.0);
-vec3 color_output_0 = byteround(clamp((rounded_primary_color.rgb), vec3(0.0), vec3(1.0)));
-float alpha_output_0 = byteround(clamp((rounded_primary_color.r) * (rounded_primary_color.r), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_0 * 1.0, alpha_output_0 * 2.0), vec4(0.0), vec4(1.0));
-combiner_buffer = next_combiner_buffer;
-
-vec3 color_output_1 = byteround(clamp((const_color[1].rgb) * (vec3(1.0) - last_tex_env_out.aaa) + (rounded_primary_color.rgb), vec3(0.0), vec3(1.0)));
-float alpha_output_1 = byteround(clamp((rounded_primary_color.a) * (texcolor1.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_1, alpha_output_1), vec4(0.0), vec4(1.0));
-combiner_buffer = next_combiner_buffer;
-
-vec3 color_output_2 = byteround(clamp((last_tex_env_out.rgb) * (texcolor1.rgb), vec3(0.0), vec3(1.0)));
-float alpha_output_2 = byteround(clamp((last_tex_env_out.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_2 * 2.0, alpha_output_2 * 1.0), vec4(0.0), vec4(1.0));
-combiner_buffer = next_combiner_buffer;
-
-vec3 color_output_3 = byteround(clamp((last_tex_env_out.rgb) * (primary_fragment_color.rgb), vec3(0.0), vec3(1.0)));
-float alpha_output_3 = byteround(clamp((last_tex_env_out.a) * (const_color[3].a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_3, alpha_output_3), vec4(0.0), vec4(1.0));
-combiner_buffer = next_combiner_buffer;
-
-vec3 color_output_4 = byteround(clamp(min((const_color[4].rgb) + (shadowTexture(texcoord0, texcoord0_w).ggg), vec3(1.0)) * (last_tex_env_out.rgb), vec3(0.0), vec3(1.0)));
-float alpha_output_4 = byteround(clamp((last_tex_env_out.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_4, alpha_output_4), vec4(0.0), vec4(1.0));
-combiner_buffer = next_combiner_buffer;
-
-combiner_buffer = next_combiner_buffer;
-
-if (int(last_tex_env_out.a * 255.0) <= alphatest_ref) discard;
-gl_FragDepth = depth;
-color = byteround(last_tex_env_out);
-}
-// reference: 1BCF73933F3E30F2, 19AE7FAE88513F17
-// program: A0A01900FB0E2CEC, F0531050140A5884, 19AE7FAE88513F17
-// shader: 8B30, 3DABDE1A92AEBEC2
-
-precision highp int;
-precision highp float;
-precision highp samplerBuffer;
-precision highp usampler2D;
-precision highp uimage2D;
-in vec4 primary_color;
-in vec2 texcoord0;
-in vec2 texcoord1;
-in vec2 texcoord2;
-in float texcoord0_w;
-in vec4 normquat;
-in vec3 view;
-
-#ifndef CITRA_GLES
-in vec4 gl_FragCoord;
-#endif // CITRA_GLES
-out vec4 color;
-
-uniform sampler2D tex0;
-uniform sampler2D tex1;
-uniform sampler2D tex2;
-uniform samplerCube tex_cube;
-uniform samplerBuffer texture_buffer_lut_lf;
-uniform samplerBuffer texture_buffer_lut_rg;
-uniform samplerBuffer texture_buffer_lut_rgba;
-
-#define NUM_TEV_STAGES 6
-#define NUM_LIGHTS 8
-#define NUM_LIGHTING_SAMPLERS 24
-
-struct LightSrc {
-    vec3 specular_0;
-    vec3 specular_1;
-    vec3 diffuse;
-    vec3 ambient;
-    vec3 position;
-    vec3 spot_direction;
-    float dist_atten_bias;
-    float dist_atten_scale;
-};
-
-layout (std140) uniform shader_data {
-    int alphatest_ref;
-    float depth_scale;
-    float depth_offset;
-    float shadow_bias_constant;
-    float shadow_bias_linear;
-    int scissor_x1;
-    int scissor_y1;
-    int scissor_x2;
-    int scissor_y2;
-    int fog_lut_offset;
-    int proctex_noise_lut_offset;
-    int proctex_color_map_offset;
-    int proctex_alpha_map_offset;
-    int proctex_lut_offset;
-    int proctex_diff_lut_offset;
-    float proctex_bias;
-    vec3 fog_color;
-    vec2 proctex_noise_f;
-    vec2 proctex_noise_a;
-    vec2 proctex_noise_p;
-    vec4 const_color[NUM_TEV_STAGES];
-    vec4 tev_combiner_buffer_color;
-    vec4 clip_coef;
-};
-
-layout (std140) uniform shader_light_data {
-    ivec4 lighting_lut_offset[NUM_LIGHTING_SAMPLERS / 4];
-    vec3 lighting_global_ambient;
-    LightSrc light_src[NUM_LIGHTS];
-    float lut_scale_d0;
-    float lut_scale_d1;
-    float lut_scale_sp;
-    float lut_scale_fr;
-    float lut_scale_rb;
-    float lut_scale_rg;
-    float lut_scale_rr;
-    int shadow_texture_bias;
-};
-
-// Rotate the vector v by the quaternion q
-vec3 quaternion_rotate(vec4 q, vec3 v) {
-    return v + 2.0 * cross(q.xyz, cross(q.xyz, v) + q.w * v);
-}
-
-float LookupLightingLUT(int lut_index, int index, float delta) {
-    vec2 entry = texelFetch(texture_buffer_lut_lf, lighting_lut_offset[lut_index >> 2][lut_index & 3] + index).rg;
-    return entry.r + entry.g * delta;
-}
-
-float LookupLightingLUTUnsigned(int lut_index, float pos) {
-    int index = clamp(int(pos * 256.0), 0, 255);
-    float delta = pos * 256.0 - float(index);
-    return LookupLightingLUT(lut_index, index, delta);
-}
-
-float LookupLightingLUTSigned(int lut_index, float pos) {
-    int index = clamp(int(pos * 128.0), -128, 127);
-    float delta = pos * 128.0 - float(index);
-    if (index < 0) index += 256;
-    return LookupLightingLUT(lut_index, index, delta);
-}
-
-float byteround(float x) {
-    return round(x * 255.0) * (1.0 / 255.0);
-}
-
-vec2 byteround(vec2 x) {
-    return round(x * 255.0) * (1.0 / 255.0);
-}
-
-vec3 byteround(vec3 x) {
-    return round(x * 255.0) * (1.0 / 255.0);
-}
-
-vec4 byteround(vec4 x) {
-    return round(x * 255.0) * (1.0 / 255.0);
-}
-
-// PICA's LOD formula for 2D textures.
-// This LOD formula is the same as the LOD lower limit defined in OpenGL.
-// f(x, y) >= max{m_u, m_v, m_w}
-// (See OpenGL 4.6 spec, 8.14.1 - Scale Factor and Level-of-Detail)
-float getLod(vec2 coord) {
-    vec2 d = max(abs(dFdx(coord)), abs(dFdy(coord)));
-    return log2(max(d.x, d.y));
-}
-
-vec4 shadowTexture(vec2 uv, float w) {
-    return vec4(1.0);
-}
-
-vec4 shadowTextureCube(vec2 uv, float w) {
-    return vec4(1.0);
-}
-
-void main() {
-vec4 rounded_primary_color = byteround(primary_color);
-vec4 primary_fragment_color = vec4(0.0);
-vec4 secondary_fragment_color = vec4(0.0);
-if (!(gl_FragCoord.x >= float(scissor_x1) && gl_FragCoord.y >= float(scissor_y1) && gl_FragCoord.x < float(scissor_x2) && gl_FragCoord.y < float(scissor_y2))) discard;
-float z_over_w = 2.0 * gl_FragCoord.z - 1.0;
-float depth = z_over_w * depth_scale + depth_offset;
-vec4 texcolor1 = textureLod(tex1, texcoord1, getLod(texcoord1 * vec2(textureSize(tex1, 0))));
-
-vec4 diffuse_sum = vec4(0.0, 0.0, 0.0, 1.0);
-vec4 specular_sum = vec4(0.0, 0.0, 0.0, 1.0);
-vec3 light_vector = vec3(0.0);
-vec3 refl_value = vec3(0.0);
-vec3 spot_dir = vec3(0.0);
-vec3 half_vector = vec3(0.0);
-float dot_product = 0.0;
-float clamp_highlights = 1.0;
-float geo_factor = 1.0;
-vec3 surface_normal = vec3(0.0, 0.0, 1.0);
-vec3 surface_tangent = vec3(1.0, 0.0, 0.0);
-vec4 normalized_normquat = normalize(normquat);
-vec3 normal = quaternion_rotate(normalized_normquat, surface_normal);
-vec3 tangent = quaternion_rotate(normalized_normquat, surface_tangent);
-vec4 shadow = vec4(1.0);
-light_vector = normalize(light_src[0].position + view);
-spot_dir = light_src[0].spot_direction;
-half_vector = normalize(view) + light_vector;
-dot_product = max(dot(light_vector, normal), 0.0);
-refl_value.r = 1.0;
-refl_value.g = refl_value.r;
-refl_value.b = refl_value.r;
-diffuse_sum.rgb += ((light_src[0].diffuse * dot_product) + light_src[0].ambient) * LookupLightingLUTUnsigned(16,clamp(light_src[0].dist_atten_scale * length(-view - light_src[0].position) + light_src[0].dist_atten_bias, 0.0, 1.0)) * 1.0;
-specular_sum.rgb += ((light_src[0].specular_0) + (light_src[0].specular_1)) * clamp_highlights * LookupLightingLUTUnsigned(16,clamp(light_src[0].dist_atten_scale * length(-view - light_src[0].position) + light_src[0].dist_atten_bias, 0.0, 1.0)) * 1.0;
-light_vector = normalize(light_src[1].position + view);
-spot_dir = light_src[1].spot_direction;
-half_vector = normalize(view) + light_vector;
-dot_product = max(dot(light_vector, normal), 0.0);
-refl_value.r = 1.0;
-refl_value.g = refl_value.r;
-refl_value.b = refl_value.r;
-diffuse_sum.rgb += ((light_src[1].diffuse * dot_product) + light_src[1].ambient) * LookupLightingLUTUnsigned(17,clamp(light_src[1].dist_atten_scale * length(-view - light_src[1].position) + light_src[1].dist_atten_bias, 0.0, 1.0)) * 1.0;
-specular_sum.rgb += ((light_src[1].specular_0) + (light_src[1].specular_1)) * clamp_highlights * LookupLightingLUTUnsigned(17,clamp(light_src[1].dist_atten_scale * length(-view - light_src[1].position) + light_src[1].dist_atten_bias, 0.0, 1.0)) * 1.0;
-diffuse_sum.rgb += lighting_global_ambient;
-primary_fragment_color = clamp(diffuse_sum, vec4(0.0), vec4(1.0));
-secondary_fragment_color = clamp(specular_sum, vec4(0.0), vec4(1.0));
-
-vec4 combiner_buffer = vec4(0.0);
-vec4 next_combiner_buffer = tev_combiner_buffer_color;
-vec4 last_tex_env_out = vec4(0.0);
-vec3 color_output_0 = byteround(clamp((rounded_primary_color.rgb), vec3(0.0), vec3(1.0)));
-float alpha_output_0 = byteround(clamp((rounded_primary_color.r) * (rounded_primary_color.r), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_0 * 1.0, alpha_output_0 * 2.0), vec4(0.0), vec4(1.0));
-combiner_buffer = next_combiner_buffer;
-
-vec3 color_output_1 = byteround(clamp((const_color[1].rgb) * (vec3(1.0) - last_tex_env_out.aaa) + (rounded_primary_color.rgb), vec3(0.0), vec3(1.0)));
-float alpha_output_1 = byteround(clamp((rounded_primary_color.a) * (texcolor1.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_1, alpha_output_1), vec4(0.0), vec4(1.0));
-combiner_buffer = next_combiner_buffer;
-
-vec3 color_output_2 = byteround(clamp((last_tex_env_out.rgb) * (texcolor1.rgb), vec3(0.0), vec3(1.0)));
-float alpha_output_2 = byteround(clamp((last_tex_env_out.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_2 * 2.0, alpha_output_2 * 1.0), vec4(0.0), vec4(1.0));
-combiner_buffer = next_combiner_buffer;
-
-vec3 color_output_3 = byteround(clamp((last_tex_env_out.rgb) * (primary_fragment_color.rgb), vec3(0.0), vec3(1.0)));
-float alpha_output_3 = byteround(clamp((last_tex_env_out.a) * (const_color[3].a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_3, alpha_output_3), vec4(0.0), vec4(1.0));
-combiner_buffer = next_combiner_buffer;
-
-vec3 color_output_4 = byteround(clamp(min((const_color[4].rgb) + (shadowTexture(texcoord0, texcoord0_w).ggg), vec3(1.0)) * (last_tex_env_out.rgb), vec3(0.0), vec3(1.0)));
-float alpha_output_4 = byteround(clamp((last_tex_env_out.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_4, alpha_output_4), vec4(0.0), vec4(1.0));
-combiner_buffer = next_combiner_buffer;
-
-combiner_buffer = next_combiner_buffer;
-
-gl_FragDepth = depth;
-color = byteround(last_tex_env_out);
-}
-// reference: 1BCF7393D389DBF1, 3DABDE1A92AEBEC2
-// program: A0A01900FB0E2CEC, F0531050140A5884, 3DABDE1A92AEBEC2
-// shader: 8B30, 54072AB9EEDA34B9
-
-precision highp int;
-precision highp float;
-precision highp samplerBuffer;
-precision highp usampler2D;
-precision highp uimage2D;
-in vec4 primary_color;
-in vec2 texcoord0;
-in vec2 texcoord1;
-in vec2 texcoord2;
-in float texcoord0_w;
-in vec4 normquat;
-in vec3 view;
-
-#ifndef CITRA_GLES
-in vec4 gl_FragCoord;
-#endif // CITRA_GLES
-out vec4 color;
-
-uniform sampler2D tex0;
-uniform sampler2D tex1;
-uniform sampler2D tex2;
-uniform samplerCube tex_cube;
-uniform samplerBuffer texture_buffer_lut_lf;
-uniform samplerBuffer texture_buffer_lut_rg;
-uniform samplerBuffer texture_buffer_lut_rgba;
-
-#define NUM_TEV_STAGES 6
-#define NUM_LIGHTS 8
-#define NUM_LIGHTING_SAMPLERS 24
-
-struct LightSrc {
-    vec3 specular_0;
-    vec3 specular_1;
-    vec3 diffuse;
-    vec3 ambient;
-    vec3 position;
-    vec3 spot_direction;
-    float dist_atten_bias;
-    float dist_atten_scale;
-};
-
-layout (std140) uniform shader_data {
-    int alphatest_ref;
-    float depth_scale;
-    float depth_offset;
-    float shadow_bias_constant;
-    float shadow_bias_linear;
-    int scissor_x1;
-    int scissor_y1;
-    int scissor_x2;
-    int scissor_y2;
-    int fog_lut_offset;
-    int proctex_noise_lut_offset;
-    int proctex_color_map_offset;
-    int proctex_alpha_map_offset;
-    int proctex_lut_offset;
-    int proctex_diff_lut_offset;
-    float proctex_bias;
-    vec3 fog_color;
-    vec2 proctex_noise_f;
-    vec2 proctex_noise_a;
-    vec2 proctex_noise_p;
-    vec4 const_color[NUM_TEV_STAGES];
-    vec4 tev_combiner_buffer_color;
-    vec4 clip_coef;
-};
-
-layout (std140) uniform shader_light_data {
-    ivec4 lighting_lut_offset[NUM_LIGHTING_SAMPLERS / 4];
-    vec3 lighting_global_ambient;
-    LightSrc light_src[NUM_LIGHTS];
-    float lut_scale_d0;
-    float lut_scale_d1;
-    float lut_scale_sp;
-    float lut_scale_fr;
-    float lut_scale_rb;
-    float lut_scale_rg;
-    float lut_scale_rr;
-    int shadow_texture_bias;
-};
-
-// Rotate the vector v by the quaternion q
-vec3 quaternion_rotate(vec4 q, vec3 v) {
-    return v + 2.0 * cross(q.xyz, cross(q.xyz, v) + q.w * v);
-}
-
-float LookupLightingLUT(int lut_index, int index, float delta) {
-    vec2 entry = texelFetch(texture_buffer_lut_lf, lighting_lut_offset[lut_index >> 2][lut_index & 3] + index).rg;
-    return entry.r + entry.g * delta;
-}
-
-float LookupLightingLUTUnsigned(int lut_index, float pos) {
-    int index = clamp(int(pos * 256.0), 0, 255);
-    float delta = pos * 256.0 - float(index);
-    return LookupLightingLUT(lut_index, index, delta);
-}
-
-float LookupLightingLUTSigned(int lut_index, float pos) {
-    int index = clamp(int(pos * 128.0), -128, 127);
-    float delta = pos * 128.0 - float(index);
-    if (index < 0) index += 256;
-    return LookupLightingLUT(lut_index, index, delta);
-}
-
-float byteround(float x) {
-    return round(x * 255.0) * (1.0 / 255.0);
-}
-
-vec2 byteround(vec2 x) {
-    return round(x * 255.0) * (1.0 / 255.0);
-}
-
-vec3 byteround(vec3 x) {
-    return round(x * 255.0) * (1.0 / 255.0);
-}
-
-vec4 byteround(vec4 x) {
-    return round(x * 255.0) * (1.0 / 255.0);
-}
-
-// PICA's LOD formula for 2D textures.
-// This LOD formula is the same as the LOD lower limit defined in OpenGL.
-// f(x, y) >= max{m_u, m_v, m_w}
-// (See OpenGL 4.6 spec, 8.14.1 - Scale Factor and Level-of-Detail)
-float getLod(vec2 coord) {
-    vec2 d = max(abs(dFdx(coord)), abs(dFdy(coord)));
-    return log2(max(d.x, d.y));
-}
-
-vec4 shadowTexture(vec2 uv, float w) {
-    return vec4(1.0);
-}
-
-vec4 shadowTextureCube(vec2 uv, float w) {
-    return vec4(1.0);
-}
-
-void main() {
-vec4 rounded_primary_color = byteround(primary_color);
-vec4 primary_fragment_color = vec4(0.0);
-vec4 secondary_fragment_color = vec4(0.0);
-if (!(gl_FragCoord.x >= float(scissor_x1) && gl_FragCoord.y >= float(scissor_y1) && gl_FragCoord.x < float(scissor_x2) && gl_FragCoord.y < float(scissor_y2))) discard;
-float z_over_w = 2.0 * gl_FragCoord.z - 1.0;
-float depth = z_over_w * depth_scale + depth_offset;
-vec4 texcolor1 = textureLod(tex1, texcoord1, getLod(texcoord1 * vec2(textureSize(tex1, 0))));
-vec4 texcolor2 = textureLod(tex2, texcoord2, getLod(texcoord2 * vec2(textureSize(tex2, 0))));
-
-vec4 diffuse_sum = vec4(0.0, 0.0, 0.0, 1.0);
-vec4 specular_sum = vec4(0.0, 0.0, 0.0, 1.0);
-vec3 light_vector = vec3(0.0);
-vec3 refl_value = vec3(0.0);
-vec3 spot_dir = vec3(0.0);
-vec3 half_vector = vec3(0.0);
-float dot_product = 0.0;
-float clamp_highlights = 1.0;
-float geo_factor = 1.0;
-vec3 surface_normal = vec3(0.0, 0.0, 1.0);
-vec3 surface_tangent = vec3(1.0, 0.0, 0.0);
-vec4 normalized_normquat = normalize(normquat);
-vec3 normal = quaternion_rotate(normalized_normquat, surface_normal);
-vec3 tangent = quaternion_rotate(normalized_normquat, surface_tangent);
-vec4 shadow = vec4(1.0);
-light_vector = normalize(light_src[0].position + view);
-spot_dir = light_src[0].spot_direction;
-half_vector = normalize(view) + light_vector;
-dot_product = max(dot(light_vector, normal), 0.0);
-refl_value.r = 1.0;
-refl_value.g = refl_value.r;
-refl_value.b = refl_value.r;
-diffuse_sum.rgb += ((light_src[0].diffuse * dot_product) + light_src[0].ambient) * LookupLightingLUTUnsigned(16,clamp(light_src[0].dist_atten_scale * length(-view - light_src[0].position) + light_src[0].dist_atten_bias, 0.0, 1.0)) * 1.0;
-specular_sum.rgb += ((light_src[0].specular_0) + (light_src[0].specular_1)) * clamp_highlights * LookupLightingLUTUnsigned(16,clamp(light_src[0].dist_atten_scale * length(-view - light_src[0].position) + light_src[0].dist_atten_bias, 0.0, 1.0)) * 1.0;
-light_vector = normalize(light_src[1].position + view);
-spot_dir = light_src[1].spot_direction;
-half_vector = normalize(view) + light_vector;
-dot_product = max(dot(light_vector, normal), 0.0);
-refl_value.r = 1.0;
-refl_value.g = refl_value.r;
-refl_value.b = refl_value.r;
-diffuse_sum.rgb += ((light_src[1].diffuse * dot_product) + light_src[1].ambient) * LookupLightingLUTUnsigned(17,clamp(light_src[1].dist_atten_scale * length(-view - light_src[1].position) + light_src[1].dist_atten_bias, 0.0, 1.0)) * 1.0;
-specular_sum.rgb += ((light_src[1].specular_0) + (light_src[1].specular_1)) * clamp_highlights * LookupLightingLUTUnsigned(17,clamp(light_src[1].dist_atten_scale * length(-view - light_src[1].position) + light_src[1].dist_atten_bias, 0.0, 1.0)) * 1.0;
-diffuse_sum.rgb += lighting_global_ambient;
-primary_fragment_color = clamp(diffuse_sum, vec4(0.0), vec4(1.0));
-secondary_fragment_color = clamp(specular_sum, vec4(0.0), vec4(1.0));
-
-vec4 combiner_buffer = vec4(0.0);
-vec4 next_combiner_buffer = tev_combiner_buffer_color;
-vec4 last_tex_env_out = vec4(0.0);
-vec3 color_output_0 = byteround(clamp((const_color[0].aaa) * (texcolor2.rgb), vec3(0.0), vec3(1.0)));
-float alpha_output_0 = byteround(clamp((rounded_primary_color.r) * (rounded_primary_color.r), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_0 * 1.0, alpha_output_0 * 2.0), vec4(0.0), vec4(1.0));
-combiner_buffer = next_combiner_buffer;
-next_combiner_buffer.rgb = last_tex_env_out.rgb;
-
-vec3 color_output_1 = byteround(clamp((const_color[1].rgb) * (vec3(1.0) - last_tex_env_out.aaa) + (rounded_primary_color.rgb), vec3(0.0), vec3(1.0)));
-float alpha_output_1 = byteround(clamp((const_color[1].a) * (texcolor2.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_1, alpha_output_1), vec4(0.0), vec4(1.0));
-combiner_buffer = next_combiner_buffer;
-
-vec3 color_output_2 = byteround(clamp((last_tex_env_out.rgb) * (texcolor1.rgb) + (combiner_buffer.rgb), vec3(0.0), vec3(1.0)));
-float alpha_output_2 = byteround(clamp((last_tex_env_out.a) * (const_color[2].a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_2 * 2.0, alpha_output_2 * 4.0), vec4(0.0), vec4(1.0));
-combiner_buffer = next_combiner_buffer;
-next_combiner_buffer.rgb = last_tex_env_out.rgb;
-
-vec3 color_output_3 = byteround(clamp((const_color[3].rgb) * (last_tex_env_out.aaa) + (primary_fragment_color.rgb) * (vec3(1.0) - (last_tex_env_out.aaa)), vec3(0.0), vec3(1.0)));
-float alpha_output_3 = byteround(clamp((last_tex_env_out.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_3, alpha_output_3), vec4(0.0), vec4(1.0));
-combiner_buffer = next_combiner_buffer;
-
-vec3 color_output_4 = byteround(clamp((combiner_buffer.rgb) * (last_tex_env_out.rgb), vec3(0.0), vec3(1.0)));
-float alpha_output_4 = byteround(clamp((const_color[4].a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_4, alpha_output_4), vec4(0.0), vec4(1.0));
-combiner_buffer = next_combiner_buffer;
-
-vec3 color_output_5 = byteround(clamp(min((const_color[5].rgb) + (shadowTexture(texcoord0, texcoord0_w).ggg), vec3(1.0)) * (last_tex_env_out.rgb), vec3(0.0), vec3(1.0)));
-float alpha_output_5 = byteround(clamp((last_tex_env_out.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_5, alpha_output_5), vec4(0.0), vec4(1.0));
-combiner_buffer = next_combiner_buffer;
-
-gl_FragDepth = depth;
-color = byteround(last_tex_env_out);
-}
-// reference: C1684FE60CC05098, 54072AB9EEDA34B9
-// program: A0A01900FB0E2CEC, F0531050140A5884, 54072AB9EEDA34B9
-// reference: 2E1DB67ACF4DCD23, 658CD27A5BCC8B36
-// shader: 8B30, C71149A46B88C3A4
-
-precision highp int;
-precision highp float;
-precision highp samplerBuffer;
-precision highp usampler2D;
-precision highp uimage2D;
-in vec4 primary_color;
-in vec2 texcoord0;
-in vec2 texcoord1;
-in vec2 texcoord2;
-in float texcoord0_w;
-in vec4 normquat;
-in vec3 view;
-
-#ifndef CITRA_GLES
-in vec4 gl_FragCoord;
-#endif // CITRA_GLES
-out vec4 color;
-
-uniform sampler2D tex0;
-uniform sampler2D tex1;
-uniform sampler2D tex2;
-uniform samplerCube tex_cube;
-uniform samplerBuffer texture_buffer_lut_lf;
-uniform samplerBuffer texture_buffer_lut_rg;
-uniform samplerBuffer texture_buffer_lut_rgba;
-
-#define NUM_TEV_STAGES 6
-#define NUM_LIGHTS 8
-#define NUM_LIGHTING_SAMPLERS 24
-
-struct LightSrc {
-    vec3 specular_0;
-    vec3 specular_1;
-    vec3 diffuse;
-    vec3 ambient;
-    vec3 position;
-    vec3 spot_direction;
-    float dist_atten_bias;
-    float dist_atten_scale;
-};
-
-layout (std140) uniform shader_data {
-    int alphatest_ref;
-    float depth_scale;
-    float depth_offset;
-    float shadow_bias_constant;
-    float shadow_bias_linear;
-    int scissor_x1;
-    int scissor_y1;
-    int scissor_x2;
-    int scissor_y2;
-    int fog_lut_offset;
-    int proctex_noise_lut_offset;
-    int proctex_color_map_offset;
-    int proctex_alpha_map_offset;
-    int proctex_lut_offset;
-    int proctex_diff_lut_offset;
-    float proctex_bias;
-    vec3 fog_color;
-    vec2 proctex_noise_f;
-    vec2 proctex_noise_a;
-    vec2 proctex_noise_p;
-    vec4 const_color[NUM_TEV_STAGES];
-    vec4 tev_combiner_buffer_color;
-    vec4 clip_coef;
-};
-
-layout (std140) uniform shader_light_data {
-    ivec4 lighting_lut_offset[NUM_LIGHTING_SAMPLERS / 4];
-    vec3 lighting_global_ambient;
-    LightSrc light_src[NUM_LIGHTS];
-    float lut_scale_d0;
-    float lut_scale_d1;
-    float lut_scale_sp;
-    float lut_scale_fr;
-    float lut_scale_rb;
-    float lut_scale_rg;
-    float lut_scale_rr;
-    int shadow_texture_bias;
-};
-
-// Rotate the vector v by the quaternion q
-vec3 quaternion_rotate(vec4 q, vec3 v) {
-    return v + 2.0 * cross(q.xyz, cross(q.xyz, v) + q.w * v);
-}
-
-float LookupLightingLUT(int lut_index, int index, float delta) {
-    vec2 entry = texelFetch(texture_buffer_lut_lf, lighting_lut_offset[lut_index >> 2][lut_index & 3] + index).rg;
-    return entry.r + entry.g * delta;
-}
-
-float LookupLightingLUTUnsigned(int lut_index, float pos) {
-    int index = clamp(int(pos * 256.0), 0, 255);
-    float delta = pos * 256.0 - float(index);
-    return LookupLightingLUT(lut_index, index, delta);
-}
-
-float LookupLightingLUTSigned(int lut_index, float pos) {
-    int index = clamp(int(pos * 128.0), -128, 127);
-    float delta = pos * 128.0 - float(index);
-    if (index < 0) index += 256;
-    return LookupLightingLUT(lut_index, index, delta);
-}
-
-float byteround(float x) {
-    return round(x * 255.0) * (1.0 / 255.0);
-}
-
-vec2 byteround(vec2 x) {
-    return round(x * 255.0) * (1.0 / 255.0);
-}
-
-vec3 byteround(vec3 x) {
-    return round(x * 255.0) * (1.0 / 255.0);
-}
-
-vec4 byteround(vec4 x) {
-    return round(x * 255.0) * (1.0 / 255.0);
-}
-
-// PICA's LOD formula for 2D textures.
-// This LOD formula is the same as the LOD lower limit defined in OpenGL.
-// f(x, y) >= max{m_u, m_v, m_w}
-// (See OpenGL 4.6 spec, 8.14.1 - Scale Factor and Level-of-Detail)
-float getLod(vec2 coord) {
-    vec2 d = max(abs(dFdx(coord)), abs(dFdy(coord)));
-    return log2(max(d.x, d.y));
-}
-
-vec4 shadowTexture(vec2 uv, float w) {
-    return vec4(1.0);
-}
-
-vec4 shadowTextureCube(vec2 uv, float w) {
-    return vec4(1.0);
-}
-
-void main() {
-vec4 rounded_primary_color = byteround(primary_color);
-vec4 primary_fragment_color = vec4(0.0);
-vec4 secondary_fragment_color = vec4(0.0);
-if (!(gl_FragCoord.x >= float(scissor_x1) && gl_FragCoord.y >= float(scissor_y1) && gl_FragCoord.x < float(scissor_x2) && gl_FragCoord.y < float(scissor_y2))) discard;
-float z_over_w = 2.0 * gl_FragCoord.z - 1.0;
-float depth = z_over_w * depth_scale + depth_offset;
-vec4 texcolor1 = textureLod(tex1, texcoord1, getLod(texcoord1 * vec2(textureSize(tex1, 0))));
-
-vec4 diffuse_sum = vec4(0.0, 0.0, 0.0, 1.0);
-vec4 specular_sum = vec4(0.0, 0.0, 0.0, 1.0);
-vec3 light_vector = vec3(0.0);
-vec3 refl_value = vec3(0.0);
-vec3 spot_dir = vec3(0.0);
-vec3 half_vector = vec3(0.0);
-float dot_product = 0.0;
-float clamp_highlights = 1.0;
-float geo_factor = 1.0;
-vec3 surface_normal = vec3(0.0, 0.0, 1.0);
-vec3 surface_tangent = vec3(1.0, 0.0, 0.0);
-vec4 normalized_normquat = normalize(normquat);
-vec3 normal = quaternion_rotate(normalized_normquat, surface_normal);
-vec3 tangent = quaternion_rotate(normalized_normquat, surface_tangent);
-vec4 shadow = vec4(1.0);
-light_vector = normalize(light_src[0].position + view);
-spot_dir = light_src[0].spot_direction;
-half_vector = normalize(view) + light_vector;
-dot_product = max(dot(light_vector, normal), 0.0);
-refl_value.r = 1.0;
-refl_value.g = refl_value.r;
-refl_value.b = refl_value.r;
-diffuse_sum.rgb += ((light_src[0].diffuse * dot_product) + light_src[0].ambient) * LookupLightingLUTUnsigned(16,clamp(light_src[0].dist_atten_scale * length(-view - light_src[0].position) + light_src[0].dist_atten_bias, 0.0, 1.0)) * 1.0;
-specular_sum.rgb += ((light_src[0].specular_0) + (light_src[0].specular_1)) * clamp_highlights * LookupLightingLUTUnsigned(16,clamp(light_src[0].dist_atten_scale * length(-view - light_src[0].position) + light_src[0].dist_atten_bias, 0.0, 1.0)) * 1.0;
-light_vector = normalize(light_src[1].position + view);
-spot_dir = light_src[1].spot_direction;
-half_vector = normalize(view) + light_vector;
-dot_product = max(dot(light_vector, normal), 0.0);
-refl_value.r = 1.0;
-refl_value.g = refl_value.r;
-refl_value.b = refl_value.r;
-diffuse_sum.rgb += ((light_src[1].diffuse * dot_product) + light_src[1].ambient) * LookupLightingLUTUnsigned(17,clamp(light_src[1].dist_atten_scale * length(-view - light_src[1].position) + light_src[1].dist_atten_bias, 0.0, 1.0)) * 1.0;
-specular_sum.rgb += ((light_src[1].specular_0) + (light_src[1].specular_1)) * clamp_highlights * LookupLightingLUTUnsigned(17,clamp(light_src[1].dist_atten_scale * length(-view - light_src[1].position) + light_src[1].dist_atten_bias, 0.0, 1.0)) * 1.0;
-diffuse_sum.rgb += lighting_global_ambient;
-primary_fragment_color = clamp(diffuse_sum, vec4(0.0), vec4(1.0));
-secondary_fragment_color = clamp(specular_sum, vec4(0.0), vec4(1.0));
-
-vec4 combiner_buffer = vec4(0.0);
-vec4 next_combiner_buffer = tev_combiner_buffer_color;
-vec4 last_tex_env_out = vec4(0.0);
-vec3 color_output_0 = byteround(clamp((rounded_primary_color.rgb) * (texcolor1.rgb), vec3(0.0), vec3(1.0)));
-float alpha_output_0 = byteround(clamp((rounded_primary_color.a) * (texcolor1.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_0 * 2.0, alpha_output_0 * 1.0), vec4(0.0), vec4(1.0));
-combiner_buffer = next_combiner_buffer;
-
-vec3 color_output_1 = byteround(clamp((last_tex_env_out.rgb) * (primary_fragment_color.rgb), vec3(0.0), vec3(1.0)));
-float alpha_output_1 = byteround(clamp((last_tex_env_out.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_1, alpha_output_1), vec4(0.0), vec4(1.0));
-combiner_buffer = next_combiner_buffer;
-
-vec3 color_output_2 = byteround(clamp((last_tex_env_out.rgb), vec3(0.0), vec3(1.0)));
-float alpha_output_2 = byteround(clamp((last_tex_env_out.a) * (const_color[2].a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_2, alpha_output_2), vec4(0.0), vec4(1.0));
-combiner_buffer = next_combiner_buffer;
-
-vec3 color_output_3 = byteround(clamp(min((const_color[3].rgb) + (shadowTexture(texcoord0, texcoord0_w).ggg), vec3(1.0)) * (last_tex_env_out.rgb), vec3(0.0), vec3(1.0)));
-float alpha_output_3 = byteround(clamp((last_tex_env_out.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_3, alpha_output_3), vec4(0.0), vec4(1.0));
-combiner_buffer = next_combiner_buffer;
-
-combiner_buffer = next_combiner_buffer;
-
-combiner_buffer = next_combiner_buffer;
-
-gl_FragDepth = depth;
-color = byteround(last_tex_env_out);
-}
-// reference: D0E96D32699FCC61, C71149A46B88C3A4
-// program: A0A01900FB0E2CEC, F0531050140A5884, C71149A46B88C3A4
-// shader: 8B30, E7ABAC1D01E98D1B
-
-precision highp int;
-precision highp float;
-precision highp samplerBuffer;
-precision highp usampler2D;
-precision highp uimage2D;
-in vec4 primary_color;
-in vec2 texcoord0;
-in vec2 texcoord1;
-in vec2 texcoord2;
-in float texcoord0_w;
-in vec4 normquat;
-in vec3 view;
-
-#ifndef CITRA_GLES
-in vec4 gl_FragCoord;
-#endif // CITRA_GLES
-out vec4 color;
-
-uniform sampler2D tex0;
-uniform sampler2D tex1;
-uniform sampler2D tex2;
-uniform samplerCube tex_cube;
-uniform samplerBuffer texture_buffer_lut_lf;
-uniform samplerBuffer texture_buffer_lut_rg;
-uniform samplerBuffer texture_buffer_lut_rgba;
-
-#define NUM_TEV_STAGES 6
-#define NUM_LIGHTS 8
-#define NUM_LIGHTING_SAMPLERS 24
-
-struct LightSrc {
-    vec3 specular_0;
-    vec3 specular_1;
-    vec3 diffuse;
-    vec3 ambient;
-    vec3 position;
-    vec3 spot_direction;
-    float dist_atten_bias;
-    float dist_atten_scale;
-};
-
-layout (std140) uniform shader_data {
-    int alphatest_ref;
-    float depth_scale;
-    float depth_offset;
-    float shadow_bias_constant;
-    float shadow_bias_linear;
-    int scissor_x1;
-    int scissor_y1;
-    int scissor_x2;
-    int scissor_y2;
-    int fog_lut_offset;
-    int proctex_noise_lut_offset;
-    int proctex_color_map_offset;
-    int proctex_alpha_map_offset;
-    int proctex_lut_offset;
-    int proctex_diff_lut_offset;
-    float proctex_bias;
-    vec3 fog_color;
-    vec2 proctex_noise_f;
-    vec2 proctex_noise_a;
-    vec2 proctex_noise_p;
-    vec4 const_color[NUM_TEV_STAGES];
-    vec4 tev_combiner_buffer_color;
-    vec4 clip_coef;
-};
-
-layout (std140) uniform shader_light_data {
-    ivec4 lighting_lut_offset[NUM_LIGHTING_SAMPLERS / 4];
-    vec3 lighting_global_ambient;
-    LightSrc light_src[NUM_LIGHTS];
-    float lut_scale_d0;
-    float lut_scale_d1;
-    float lut_scale_sp;
-    float lut_scale_fr;
-    float lut_scale_rb;
-    float lut_scale_rg;
-    float lut_scale_rr;
-    int shadow_texture_bias;
-};
-
-// Rotate the vector v by the quaternion q
-vec3 quaternion_rotate(vec4 q, vec3 v) {
-    return v + 2.0 * cross(q.xyz, cross(q.xyz, v) + q.w * v);
-}
-
-float LookupLightingLUT(int lut_index, int index, float delta) {
-    vec2 entry = texelFetch(texture_buffer_lut_lf, lighting_lut_offset[lut_index >> 2][lut_index & 3] + index).rg;
-    return entry.r + entry.g * delta;
-}
-
-float LookupLightingLUTUnsigned(int lut_index, float pos) {
-    int index = clamp(int(pos * 256.0), 0, 255);
-    float delta = pos * 256.0 - float(index);
-    return LookupLightingLUT(lut_index, index, delta);
-}
-
-float LookupLightingLUTSigned(int lut_index, float pos) {
-    int index = clamp(int(pos * 128.0), -128, 127);
-    float delta = pos * 128.0 - float(index);
-    if (index < 0) index += 256;
-    return LookupLightingLUT(lut_index, index, delta);
-}
-
-float byteround(float x) {
-    return round(x * 255.0) * (1.0 / 255.0);
-}
-
-vec2 byteround(vec2 x) {
-    return round(x * 255.0) * (1.0 / 255.0);
-}
-
-vec3 byteround(vec3 x) {
-    return round(x * 255.0) * (1.0 / 255.0);
-}
-
-vec4 byteround(vec4 x) {
-    return round(x * 255.0) * (1.0 / 255.0);
-}
-
-// PICA's LOD formula for 2D textures.
-// This LOD formula is the same as the LOD lower limit defined in OpenGL.
-// f(x, y) >= max{m_u, m_v, m_w}
-// (See OpenGL 4.6 spec, 8.14.1 - Scale Factor and Level-of-Detail)
-float getLod(vec2 coord) {
-    vec2 d = max(abs(dFdx(coord)), abs(dFdy(coord)));
-    return log2(max(d.x, d.y));
-}
-
-vec4 shadowTexture(vec2 uv, float w) {
-    return vec4(1.0);
-}
-
-vec4 shadowTextureCube(vec2 uv, float w) {
-    return vec4(1.0);
-}
-
-void main() {
-vec4 rounded_primary_color = byteround(primary_color);
-vec4 primary_fragment_color = vec4(0.0);
-vec4 secondary_fragment_color = vec4(0.0);
-if (!(gl_FragCoord.x >= float(scissor_x1) && gl_FragCoord.y >= float(scissor_y1) && gl_FragCoord.x < float(scissor_x2) && gl_FragCoord.y < float(scissor_y2))) discard;
-float z_over_w = 2.0 * gl_FragCoord.z - 1.0;
-float depth = z_over_w * depth_scale + depth_offset;
-vec4 texcolor0 = textureLod(tex0, texcoord0, getLod(texcoord0 * vec2(textureSize(tex0, 0))));
-vec4 texcolor1 = textureLod(tex1, texcoord1, getLod(texcoord1 * vec2(textureSize(tex1, 0))));
-
-vec4 diffuse_sum = vec4(0.0, 0.0, 0.0, 1.0);
-vec4 specular_sum = vec4(0.0, 0.0, 0.0, 1.0);
-vec3 light_vector = vec3(0.0);
-vec3 refl_value = vec3(0.0);
-vec3 spot_dir = vec3(0.0);
-vec3 half_vector = vec3(0.0);
-float dot_product = 0.0;
-float clamp_highlights = 1.0;
-float geo_factor = 1.0;
-vec3 surface_normal = vec3(0.0, 0.0, 1.0);
-vec3 surface_tangent = vec3(1.0, 0.0, 0.0);
-vec4 normalized_normquat = normalize(normquat);
-vec3 normal = quaternion_rotate(normalized_normquat, surface_normal);
-vec3 tangent = quaternion_rotate(normalized_normquat, surface_tangent);
-vec4 shadow = vec4(1.0);
-light_vector = normalize(light_src[0].position + view);
-spot_dir = light_src[0].spot_direction;
-half_vector = normalize(view) + light_vector;
-dot_product = max(dot(light_vector, normal), 0.0);
-refl_value.r = 1.0;
-refl_value.g = refl_value.r;
-refl_value.b = refl_value.r;
-diffuse_sum.rgb += ((light_src[0].diffuse * dot_product) + light_src[0].ambient) * LookupLightingLUTUnsigned(16,clamp(light_src[0].dist_atten_scale * length(-view - light_src[0].position) + light_src[0].dist_atten_bias, 0.0, 1.0)) * 1.0;
-specular_sum.rgb += ((light_src[0].specular_0) + (light_src[0].specular_1)) * clamp_highlights * LookupLightingLUTUnsigned(16,clamp(light_src[0].dist_atten_scale * length(-view - light_src[0].position) + light_src[0].dist_atten_bias, 0.0, 1.0)) * 1.0;
-light_vector = normalize(light_src[1].position + view);
-spot_dir = light_src[1].spot_direction;
-half_vector = normalize(view) + light_vector;
-dot_product = max(dot(light_vector, normal), 0.0);
-refl_value.r = 1.0;
-refl_value.g = refl_value.r;
-refl_value.b = refl_value.r;
-diffuse_sum.rgb += ((light_src[1].diffuse * dot_product) + light_src[1].ambient) * LookupLightingLUTUnsigned(17,clamp(light_src[1].dist_atten_scale * length(-view - light_src[1].position) + light_src[1].dist_atten_bias, 0.0, 1.0)) * 1.0;
-specular_sum.rgb += ((light_src[1].specular_0) + (light_src[1].specular_1)) * clamp_highlights * LookupLightingLUTUnsigned(17,clamp(light_src[1].dist_atten_scale * length(-view - light_src[1].position) + light_src[1].dist_atten_bias, 0.0, 1.0)) * 1.0;
-diffuse_sum.rgb += lighting_global_ambient;
-primary_fragment_color = clamp(diffuse_sum, vec4(0.0), vec4(1.0));
-secondary_fragment_color = clamp(specular_sum, vec4(0.0), vec4(1.0));
-
-vec4 combiner_buffer = vec4(0.0);
-vec4 next_combiner_buffer = tev_combiner_buffer_color;
-vec4 last_tex_env_out = vec4(0.0);
-vec3 color_output_0 = byteround(clamp((rounded_primary_color.rgb) * (texcolor1.rgb), vec3(0.0), vec3(1.0)));
-float alpha_output_0 = byteround(clamp((rounded_primary_color.a) * (texcolor1.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_0 * 2.0, alpha_output_0 * 1.0), vec4(0.0), vec4(1.0));
-combiner_buffer = next_combiner_buffer;
-
-vec3 color_output_1 = byteround(clamp((last_tex_env_out.rgb) * (primary_fragment_color.rgb), vec3(0.0), vec3(1.0)));
-float alpha_output_1 = byteround(clamp((last_tex_env_out.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_1, alpha_output_1), vec4(0.0), vec4(1.0));
-combiner_buffer = next_combiner_buffer;
-
-vec3 color_output_2 = byteround(clamp((last_tex_env_out.rgb), vec3(0.0), vec3(1.0)));
-float alpha_output_2 = byteround(clamp((last_tex_env_out.a) * (const_color[2].a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_2, alpha_output_2), vec4(0.0), vec4(1.0));
-combiner_buffer = next_combiner_buffer;
-
-vec3 color_output_3 = byteround(clamp(min((const_color[3].rgb) + (texcolor0.ggg), vec3(1.0)) * (last_tex_env_out.rgb), vec3(0.0), vec3(1.0)));
-float alpha_output_3 = byteround(clamp((last_tex_env_out.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_3, alpha_output_3), vec4(0.0), vec4(1.0));
-combiner_buffer = next_combiner_buffer;
-
-combiner_buffer = next_combiner_buffer;
-
-combiner_buffer = next_combiner_buffer;
-
-gl_FragDepth = depth;
-color = byteround(last_tex_env_out);
-}
-// reference: 8143425F699FCC61, E7ABAC1D01E98D1B
-// program: A0A01900FB0E2CEC, F0531050140A5884, E7ABAC1D01E98D1B
-// shader: 8B30, 1F2BCF975B02FD11
-
-precision highp int;
-precision highp float;
-precision highp samplerBuffer;
-precision highp usampler2D;
-precision highp uimage2D;
-in vec4 primary_color;
-in vec2 texcoord0;
-in vec2 texcoord1;
-in vec2 texcoord2;
-in float texcoord0_w;
-in vec4 normquat;
-in vec3 view;
-
-#ifndef CITRA_GLES
-in vec4 gl_FragCoord;
-#endif // CITRA_GLES
-out vec4 color;
-
-uniform sampler2D tex0;
-uniform sampler2D tex1;
-uniform sampler2D tex2;
-uniform samplerCube tex_cube;
-uniform samplerBuffer texture_buffer_lut_lf;
-uniform samplerBuffer texture_buffer_lut_rg;
-uniform samplerBuffer texture_buffer_lut_rgba;
-
-#define NUM_TEV_STAGES 6
-#define NUM_LIGHTS 8
-#define NUM_LIGHTING_SAMPLERS 24
-
-struct LightSrc {
-    vec3 specular_0;
-    vec3 specular_1;
-    vec3 diffuse;
-    vec3 ambient;
-    vec3 position;
-    vec3 spot_direction;
-    float dist_atten_bias;
-    float dist_atten_scale;
-};
-
-layout (std140) uniform shader_data {
-    int alphatest_ref;
-    float depth_scale;
-    float depth_offset;
-    float shadow_bias_constant;
-    float shadow_bias_linear;
-    int scissor_x1;
-    int scissor_y1;
-    int scissor_x2;
-    int scissor_y2;
-    int fog_lut_offset;
-    int proctex_noise_lut_offset;
-    int proctex_color_map_offset;
-    int proctex_alpha_map_offset;
-    int proctex_lut_offset;
-    int proctex_diff_lut_offset;
-    float proctex_bias;
-    vec3 fog_color;
-    vec2 proctex_noise_f;
-    vec2 proctex_noise_a;
-    vec2 proctex_noise_p;
-    vec4 const_color[NUM_TEV_STAGES];
-    vec4 tev_combiner_buffer_color;
-    vec4 clip_coef;
-};
-
-layout (std140) uniform shader_light_data {
-    ivec4 lighting_lut_offset[NUM_LIGHTING_SAMPLERS / 4];
-    vec3 lighting_global_ambient;
-    LightSrc light_src[NUM_LIGHTS];
-    float lut_scale_d0;
-    float lut_scale_d1;
-    float lut_scale_sp;
-    float lut_scale_fr;
-    float lut_scale_rb;
-    float lut_scale_rg;
-    float lut_scale_rr;
-    int shadow_texture_bias;
-};
-
-// Rotate the vector v by the quaternion q
-vec3 quaternion_rotate(vec4 q, vec3 v) {
-    return v + 2.0 * cross(q.xyz, cross(q.xyz, v) + q.w * v);
-}
-
-float LookupLightingLUT(int lut_index, int index, float delta) {
-    vec2 entry = texelFetch(texture_buffer_lut_lf, lighting_lut_offset[lut_index >> 2][lut_index & 3] + index).rg;
-    return entry.r + entry.g * delta;
-}
-
-float LookupLightingLUTUnsigned(int lut_index, float pos) {
-    int index = clamp(int(pos * 256.0), 0, 255);
-    float delta = pos * 256.0 - float(index);
-    return LookupLightingLUT(lut_index, index, delta);
-}
-
-float LookupLightingLUTSigned(int lut_index, float pos) {
-    int index = clamp(int(pos * 128.0), -128, 127);
-    float delta = pos * 128.0 - float(index);
-    if (index < 0) index += 256;
-    return LookupLightingLUT(lut_index, index, delta);
-}
-
-float byteround(float x) {
-    return round(x * 255.0) * (1.0 / 255.0);
-}
-
-vec2 byteround(vec2 x) {
-    return round(x * 255.0) * (1.0 / 255.0);
-}
-
-vec3 byteround(vec3 x) {
-    return round(x * 255.0) * (1.0 / 255.0);
-}
-
-vec4 byteround(vec4 x) {
-    return round(x * 255.0) * (1.0 / 255.0);
-}
-
-// PICA's LOD formula for 2D textures.
-// This LOD formula is the same as the LOD lower limit defined in OpenGL.
-// f(x, y) >= max{m_u, m_v, m_w}
-// (See OpenGL 4.6 spec, 8.14.1 - Scale Factor and Level-of-Detail)
-float getLod(vec2 coord) {
-    vec2 d = max(abs(dFdx(coord)), abs(dFdy(coord)));
-    return log2(max(d.x, d.y));
-}
-
-vec4 shadowTexture(vec2 uv, float w) {
-    return vec4(1.0);
-}
-
-vec4 shadowTextureCube(vec2 uv, float w) {
-    return vec4(1.0);
-}
-
-void main() {
-vec4 rounded_primary_color = byteround(primary_color);
-vec4 primary_fragment_color = vec4(0.0);
-vec4 secondary_fragment_color = vec4(0.0);
-if (!(gl_FragCoord.x >= float(scissor_x1) && gl_FragCoord.y >= float(scissor_y1) && gl_FragCoord.x < float(scissor_x2) && gl_FragCoord.y < float(scissor_y2))) discard;
-float z_over_w = 2.0 * gl_FragCoord.z - 1.0;
-float depth = z_over_w * depth_scale + depth_offset;
-vec4 texcolor0 = textureLod(tex0, texcoord0, getLod(texcoord0 * vec2(textureSize(tex0, 0))));
-vec4 texcolor1 = textureLod(tex1, texcoord1, getLod(texcoord1 * vec2(textureSize(tex1, 0))));
-
-vec4 diffuse_sum = vec4(0.0, 0.0, 0.0, 1.0);
-vec4 specular_sum = vec4(0.0, 0.0, 0.0, 1.0);
-vec3 light_vector = vec3(0.0);
-vec3 refl_value = vec3(0.0);
-vec3 spot_dir = vec3(0.0);
-vec3 half_vector = vec3(0.0);
-float dot_product = 0.0;
-float clamp_highlights = 1.0;
-float geo_factor = 1.0;
-vec3 surface_normal = vec3(0.0, 0.0, 1.0);
-vec3 surface_tangent = vec3(1.0, 0.0, 0.0);
-vec4 normalized_normquat = normalize(normquat);
-vec3 normal = quaternion_rotate(normalized_normquat, surface_normal);
-vec3 tangent = quaternion_rotate(normalized_normquat, surface_tangent);
-vec4 shadow = vec4(1.0);
-light_vector = normalize(light_src[0].position + view);
-spot_dir = light_src[0].spot_direction;
-half_vector = normalize(view) + light_vector;
-dot_product = max(dot(light_vector, normal), 0.0);
-refl_value.r = 1.0;
-refl_value.g = refl_value.r;
-refl_value.b = refl_value.r;
-diffuse_sum.rgb += ((light_src[0].diffuse * dot_product) + light_src[0].ambient) * LookupLightingLUTUnsigned(16,clamp(light_src[0].dist_atten_scale * length(-view - light_src[0].position) + light_src[0].dist_atten_bias, 0.0, 1.0)) * 1.0;
-specular_sum.rgb += ((light_src[0].specular_0) + (light_src[0].specular_1)) * clamp_highlights * LookupLightingLUTUnsigned(16,clamp(light_src[0].dist_atten_scale * length(-view - light_src[0].position) + light_src[0].dist_atten_bias, 0.0, 1.0)) * 1.0;
-light_vector = normalize(light_src[1].position + view);
-spot_dir = light_src[1].spot_direction;
-half_vector = normalize(view) + light_vector;
-dot_product = max(dot(light_vector, normal), 0.0);
-refl_value.r = 1.0;
-refl_value.g = refl_value.r;
-refl_value.b = refl_value.r;
-diffuse_sum.rgb += ((light_src[1].diffuse * dot_product) + light_src[1].ambient) * LookupLightingLUTUnsigned(17,clamp(light_src[1].dist_atten_scale * length(-view - light_src[1].position) + light_src[1].dist_atten_bias, 0.0, 1.0)) * 1.0;
-specular_sum.rgb += ((light_src[1].specular_0) + (light_src[1].specular_1)) * clamp_highlights * LookupLightingLUTUnsigned(17,clamp(light_src[1].dist_atten_scale * length(-view - light_src[1].position) + light_src[1].dist_atten_bias, 0.0, 1.0)) * 1.0;
-diffuse_sum.rgb += lighting_global_ambient;
-primary_fragment_color = clamp(diffuse_sum, vec4(0.0), vec4(1.0));
-secondary_fragment_color = clamp(specular_sum, vec4(0.0), vec4(1.0));
-
-vec4 combiner_buffer = vec4(0.0);
-vec4 next_combiner_buffer = tev_combiner_buffer_color;
-vec4 last_tex_env_out = vec4(0.0);
-vec3 color_output_0 = byteround(clamp((texcolor1.rgb) * (rounded_primary_color.rgb), vec3(0.0), vec3(1.0)));
-float alpha_output_0 = byteround(clamp((texcolor1.g) * (texcolor1.g), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_0, alpha_output_0), vec4(0.0), vec4(1.0));
-combiner_buffer = next_combiner_buffer;
-next_combiner_buffer.rgb = last_tex_env_out.rgb;
-
-vec3 color_output_1 = byteround(clamp((const_color[1].rgb) + (primary_fragment_color.rgb), vec3(0.0), vec3(1.0)));
-float alpha_output_1 = byteround(clamp((last_tex_env_out.a) * (rounded_primary_color.r), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_1, alpha_output_1), vec4(0.0), vec4(1.0));
-combiner_buffer = next_combiner_buffer;
-next_combiner_buffer.a = last_tex_env_out.a;
-
-vec3 color_output_2 = byteround(clamp((last_tex_env_out.rgb) * (combiner_buffer.rgb), vec3(0.0), vec3(1.0)));
-float alpha_output_2 = byteround(clamp((const_color[2].a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_2, alpha_output_2), vec4(0.0), vec4(1.0));
-combiner_buffer = next_combiner_buffer;
-next_combiner_buffer.rgb = last_tex_env_out.rgb;
-
-vec3 color_output_3 = byteround(clamp((combiner_buffer.aaa) * (const_color[3].rgb), vec3(0.0), vec3(1.0)));
-float alpha_output_3 = byteround(clamp((last_tex_env_out.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_3, alpha_output_3), vec4(0.0), vec4(1.0));
-combiner_buffer = next_combiner_buffer;
-
-vec3 color_output_4 = byteround(clamp((last_tex_env_out.rgb) + (combiner_buffer.rgb), vec3(0.0), vec3(1.0)));
-float alpha_output_4 = byteround(clamp((last_tex_env_out.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_4, alpha_output_4), vec4(0.0), vec4(1.0));
-combiner_buffer = next_combiner_buffer;
-
-vec3 color_output_5 = byteround(clamp(min((const_color[5].rgb) + (texcolor0.ggg), vec3(1.0)) * (last_tex_env_out.rgb), vec3(0.0), vec3(1.0)));
-float alpha_output_5 = byteround(clamp((last_tex_env_out.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_5, alpha_output_5), vec4(0.0), vec4(1.0));
-combiner_buffer = next_combiner_buffer;
-
-gl_FragDepth = depth;
-color = byteround(last_tex_env_out);
-}
-// reference: D5ED2D9BA75CF43D, 1F2BCF975B02FD11
-// program: A0A01900FB0E2CEC, F0531050140A5884, 1F2BCF975B02FD11
-// shader: 8B30, 13D5D93704E09893
-
-precision highp int;
-precision highp float;
-precision highp samplerBuffer;
-precision highp usampler2D;
-precision highp uimage2D;
-in vec4 primary_color;
-in vec2 texcoord0;
-in vec2 texcoord1;
-in vec2 texcoord2;
-in float texcoord0_w;
-in vec4 normquat;
-in vec3 view;
-
-#ifndef CITRA_GLES
-in vec4 gl_FragCoord;
-#endif // CITRA_GLES
-out vec4 color;
-
-uniform sampler2D tex0;
-uniform sampler2D tex1;
-uniform sampler2D tex2;
-uniform samplerCube tex_cube;
-uniform samplerBuffer texture_buffer_lut_lf;
-uniform samplerBuffer texture_buffer_lut_rg;
-uniform samplerBuffer texture_buffer_lut_rgba;
-
-#define NUM_TEV_STAGES 6
-#define NUM_LIGHTS 8
-#define NUM_LIGHTING_SAMPLERS 24
-
-struct LightSrc {
-    vec3 specular_0;
-    vec3 specular_1;
-    vec3 diffuse;
-    vec3 ambient;
-    vec3 position;
-    vec3 spot_direction;
-    float dist_atten_bias;
-    float dist_atten_scale;
-};
-
-layout (std140) uniform shader_data {
-    int alphatest_ref;
-    float depth_scale;
-    float depth_offset;
-    float shadow_bias_constant;
-    float shadow_bias_linear;
-    int scissor_x1;
-    int scissor_y1;
-    int scissor_x2;
-    int scissor_y2;
-    int fog_lut_offset;
-    int proctex_noise_lut_offset;
-    int proctex_color_map_offset;
-    int proctex_alpha_map_offset;
-    int proctex_lut_offset;
-    int proctex_diff_lut_offset;
-    float proctex_bias;
-    vec3 fog_color;
-    vec2 proctex_noise_f;
-    vec2 proctex_noise_a;
-    vec2 proctex_noise_p;
-    vec4 const_color[NUM_TEV_STAGES];
-    vec4 tev_combiner_buffer_color;
-    vec4 clip_coef;
-};
-
-layout (std140) uniform shader_light_data {
-    ivec4 lighting_lut_offset[NUM_LIGHTING_SAMPLERS / 4];
-    vec3 lighting_global_ambient;
-    LightSrc light_src[NUM_LIGHTS];
-    float lut_scale_d0;
-    float lut_scale_d1;
-    float lut_scale_sp;
-    float lut_scale_fr;
-    float lut_scale_rb;
-    float lut_scale_rg;
-    float lut_scale_rr;
-    int shadow_texture_bias;
-};
-
-// Rotate the vector v by the quaternion q
-vec3 quaternion_rotate(vec4 q, vec3 v) {
-    return v + 2.0 * cross(q.xyz, cross(q.xyz, v) + q.w * v);
-}
-
-float LookupLightingLUT(int lut_index, int index, float delta) {
-    vec2 entry = texelFetch(texture_buffer_lut_lf, lighting_lut_offset[lut_index >> 2][lut_index & 3] + index).rg;
-    return entry.r + entry.g * delta;
-}
-
-float LookupLightingLUTUnsigned(int lut_index, float pos) {
-    int index = clamp(int(pos * 256.0), 0, 255);
-    float delta = pos * 256.0 - float(index);
-    return LookupLightingLUT(lut_index, index, delta);
-}
-
-float LookupLightingLUTSigned(int lut_index, float pos) {
-    int index = clamp(int(pos * 128.0), -128, 127);
-    float delta = pos * 128.0 - float(index);
-    if (index < 0) index += 256;
-    return LookupLightingLUT(lut_index, index, delta);
-}
-
-float byteround(float x) {
-    return round(x * 255.0) * (1.0 / 255.0);
-}
-
-vec2 byteround(vec2 x) {
-    return round(x * 255.0) * (1.0 / 255.0);
-}
-
-vec3 byteround(vec3 x) {
-    return round(x * 255.0) * (1.0 / 255.0);
-}
-
-vec4 byteround(vec4 x) {
-    return round(x * 255.0) * (1.0 / 255.0);
-}
-
-// PICA's LOD formula for 2D textures.
-// This LOD formula is the same as the LOD lower limit defined in OpenGL.
-// f(x, y) >= max{m_u, m_v, m_w}
-// (See OpenGL 4.6 spec, 8.14.1 - Scale Factor and Level-of-Detail)
-float getLod(vec2 coord) {
-    vec2 d = max(abs(dFdx(coord)), abs(dFdy(coord)));
-    return log2(max(d.x, d.y));
-}
-
-vec4 shadowTexture(vec2 uv, float w) {
-    return vec4(1.0);
-}
-
-vec4 shadowTextureCube(vec2 uv, float w) {
-    return vec4(1.0);
-}
-
-void main() {
-vec4 rounded_primary_color = byteround(primary_color);
-vec4 primary_fragment_color = vec4(0.0);
-vec4 secondary_fragment_color = vec4(0.0);
-if (!(gl_FragCoord.x >= float(scissor_x1) && gl_FragCoord.y >= float(scissor_y1) && gl_FragCoord.x < float(scissor_x2) && gl_FragCoord.y < float(scissor_y2))) discard;
-float z_over_w = 2.0 * gl_FragCoord.z - 1.0;
-float depth = z_over_w * depth_scale + depth_offset;
-vec4 texcolor0 = textureLod(tex0, texcoord0, getLod(texcoord0 * vec2(textureSize(tex0, 0))));
-vec4 texcolor1 = textureLod(tex1, texcoord1, getLod(texcoord1 * vec2(textureSize(tex1, 0))));
-
-vec4 diffuse_sum = vec4(0.0, 0.0, 0.0, 1.0);
-vec4 specular_sum = vec4(0.0, 0.0, 0.0, 1.0);
-vec3 light_vector = vec3(0.0);
-vec3 refl_value = vec3(0.0);
-vec3 spot_dir = vec3(0.0);
-vec3 half_vector = vec3(0.0);
-float dot_product = 0.0;
-float clamp_highlights = 1.0;
-float geo_factor = 1.0;
-vec3 surface_normal = vec3(0.0, 0.0, 1.0);
-vec3 surface_tangent = vec3(1.0, 0.0, 0.0);
-vec4 normalized_normquat = normalize(normquat);
-vec3 normal = quaternion_rotate(normalized_normquat, surface_normal);
-vec3 tangent = quaternion_rotate(normalized_normquat, surface_tangent);
-vec4 shadow = vec4(1.0);
-light_vector = normalize(light_src[0].position + view);
-spot_dir = light_src[0].spot_direction;
-half_vector = normalize(view) + light_vector;
-dot_product = max(dot(light_vector, normal), 0.0);
-refl_value.r = 1.0;
-refl_value.g = refl_value.r;
-refl_value.b = refl_value.r;
-diffuse_sum.rgb += ((light_src[0].diffuse * dot_product) + light_src[0].ambient) * LookupLightingLUTUnsigned(16,clamp(light_src[0].dist_atten_scale * length(-view - light_src[0].position) + light_src[0].dist_atten_bias, 0.0, 1.0)) * 1.0;
-specular_sum.rgb += ((light_src[0].specular_0) + (light_src[0].specular_1)) * clamp_highlights * LookupLightingLUTUnsigned(16,clamp(light_src[0].dist_atten_scale * length(-view - light_src[0].position) + light_src[0].dist_atten_bias, 0.0, 1.0)) * 1.0;
-light_vector = normalize(light_src[1].position + view);
-spot_dir = light_src[1].spot_direction;
-half_vector = normalize(view) + light_vector;
-dot_product = max(dot(light_vector, normal), 0.0);
-refl_value.r = 1.0;
-refl_value.g = refl_value.r;
-refl_value.b = refl_value.r;
-diffuse_sum.rgb += ((light_src[1].diffuse * dot_product) + light_src[1].ambient) * LookupLightingLUTUnsigned(17,clamp(light_src[1].dist_atten_scale * length(-view - light_src[1].position) + light_src[1].dist_atten_bias, 0.0, 1.0)) * 1.0;
-specular_sum.rgb += ((light_src[1].specular_0) + (light_src[1].specular_1)) * clamp_highlights * LookupLightingLUTUnsigned(17,clamp(light_src[1].dist_atten_scale * length(-view - light_src[1].position) + light_src[1].dist_atten_bias, 0.0, 1.0)) * 1.0;
-diffuse_sum.rgb += lighting_global_ambient;
-primary_fragment_color = clamp(diffuse_sum, vec4(0.0), vec4(1.0));
-secondary_fragment_color = clamp(specular_sum, vec4(0.0), vec4(1.0));
-
-vec4 combiner_buffer = vec4(0.0);
-vec4 next_combiner_buffer = tev_combiner_buffer_color;
-vec4 last_tex_env_out = vec4(0.0);
-vec3 color_output_0 = byteround(clamp((texcolor1.rgb) * (rounded_primary_color.rgb), vec3(0.0), vec3(1.0)));
-float alpha_output_0 = byteround(clamp((texcolor1.g) * (texcolor1.g), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_0, alpha_output_0), vec4(0.0), vec4(1.0));
-combiner_buffer = next_combiner_buffer;
-next_combiner_buffer.rgb = last_tex_env_out.rgb;
-
-vec3 color_output_1 = byteround(clamp((const_color[1].rgb) + (primary_fragment_color.rgb), vec3(0.0), vec3(1.0)));
-float alpha_output_1 = byteround(clamp((last_tex_env_out.a) * (rounded_primary_color.r), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_1, alpha_output_1), vec4(0.0), vec4(1.0));
-combiner_buffer = next_combiner_buffer;
-next_combiner_buffer.a = last_tex_env_out.a;
-
-vec3 color_output_2 = byteround(clamp((last_tex_env_out.rgb) * (combiner_buffer.rgb), vec3(0.0), vec3(1.0)));
-float alpha_output_2 = byteround(clamp((last_tex_env_out.a) * (const_color[2].a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_2, alpha_output_2), vec4(0.0), vec4(1.0));
-combiner_buffer = next_combiner_buffer;
-next_combiner_buffer.rgb = last_tex_env_out.rgb;
-
-vec3 color_output_3 = byteround(clamp((combiner_buffer.aaa) * (const_color[3].rgb), vec3(0.0), vec3(1.0)));
-float alpha_output_3 = byteround(clamp((last_tex_env_out.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_3, alpha_output_3), vec4(0.0), vec4(1.0));
-combiner_buffer = next_combiner_buffer;
-
-vec3 color_output_4 = byteround(clamp((last_tex_env_out.rgb) + (combiner_buffer.rgb), vec3(0.0), vec3(1.0)));
-float alpha_output_4 = byteround(clamp((last_tex_env_out.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_4, alpha_output_4), vec4(0.0), vec4(1.0));
-combiner_buffer = next_combiner_buffer;
-
-vec3 color_output_5 = byteround(clamp(min((const_color[5].rgb) + (texcolor0.ggg), vec3(1.0)) * (last_tex_env_out.rgb), vec3(0.0), vec3(1.0)));
-float alpha_output_5 = byteround(clamp((last_tex_env_out.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_5, alpha_output_5), vec4(0.0), vec4(1.0));
-combiner_buffer = next_combiner_buffer;
-
-gl_FragDepth = depth;
-color = byteround(last_tex_env_out);
-}
-// reference: 3A98D407DFFEE6F5, 13D5D93704E09893
-// program: A0A01900FB0E2CEC, F0531050140A5884, 13D5D93704E09893
-// shader: 8B30, 020CFCE3FAE6E585
-
-precision highp int;
-precision highp float;
-precision highp samplerBuffer;
-precision highp usampler2D;
-precision highp uimage2D;
-in vec4 primary_color;
-in vec2 texcoord0;
-in vec2 texcoord1;
-in vec2 texcoord2;
-in float texcoord0_w;
-in vec4 normquat;
-in vec3 view;
-
-#ifndef CITRA_GLES
-in vec4 gl_FragCoord;
-#endif // CITRA_GLES
-out vec4 color;
-
-uniform sampler2D tex0;
-uniform sampler2D tex1;
-uniform sampler2D tex2;
-uniform samplerCube tex_cube;
-uniform samplerBuffer texture_buffer_lut_lf;
-uniform samplerBuffer texture_buffer_lut_rg;
-uniform samplerBuffer texture_buffer_lut_rgba;
-
-#define NUM_TEV_STAGES 6
-#define NUM_LIGHTS 8
-#define NUM_LIGHTING_SAMPLERS 24
-
-struct LightSrc {
-    vec3 specular_0;
-    vec3 specular_1;
-    vec3 diffuse;
-    vec3 ambient;
-    vec3 position;
-    vec3 spot_direction;
-    float dist_atten_bias;
-    float dist_atten_scale;
-};
-
-layout (std140) uniform shader_data {
-    int alphatest_ref;
-    float depth_scale;
-    float depth_offset;
-    float shadow_bias_constant;
-    float shadow_bias_linear;
-    int scissor_x1;
-    int scissor_y1;
-    int scissor_x2;
-    int scissor_y2;
-    int fog_lut_offset;
-    int proctex_noise_lut_offset;
-    int proctex_color_map_offset;
-    int proctex_alpha_map_offset;
-    int proctex_lut_offset;
-    int proctex_diff_lut_offset;
-    float proctex_bias;
-    vec3 fog_color;
-    vec2 proctex_noise_f;
-    vec2 proctex_noise_a;
-    vec2 proctex_noise_p;
-    vec4 const_color[NUM_TEV_STAGES];
-    vec4 tev_combiner_buffer_color;
-    vec4 clip_coef;
-};
-
-layout (std140) uniform shader_light_data {
-    ivec4 lighting_lut_offset[NUM_LIGHTING_SAMPLERS / 4];
-    vec3 lighting_global_ambient;
-    LightSrc light_src[NUM_LIGHTS];
-    float lut_scale_d0;
-    float lut_scale_d1;
-    float lut_scale_sp;
-    float lut_scale_fr;
-    float lut_scale_rb;
-    float lut_scale_rg;
-    float lut_scale_rr;
-    int shadow_texture_bias;
-};
-
-// Rotate the vector v by the quaternion q
-vec3 quaternion_rotate(vec4 q, vec3 v) {
-    return v + 2.0 * cross(q.xyz, cross(q.xyz, v) + q.w * v);
-}
-
-float LookupLightingLUT(int lut_index, int index, float delta) {
-    vec2 entry = texelFetch(texture_buffer_lut_lf, lighting_lut_offset[lut_index >> 2][lut_index & 3] + index).rg;
-    return entry.r + entry.g * delta;
-}
-
-float LookupLightingLUTUnsigned(int lut_index, float pos) {
-    int index = clamp(int(pos * 256.0), 0, 255);
-    float delta = pos * 256.0 - float(index);
-    return LookupLightingLUT(lut_index, index, delta);
-}
-
-float LookupLightingLUTSigned(int lut_index, float pos) {
-    int index = clamp(int(pos * 128.0), -128, 127);
-    float delta = pos * 128.0 - float(index);
-    if (index < 0) index += 256;
-    return LookupLightingLUT(lut_index, index, delta);
-}
-
-float byteround(float x) {
-    return round(x * 255.0) * (1.0 / 255.0);
-}
-
-vec2 byteround(vec2 x) {
-    return round(x * 255.0) * (1.0 / 255.0);
-}
-
-vec3 byteround(vec3 x) {
-    return round(x * 255.0) * (1.0 / 255.0);
-}
-
-vec4 byteround(vec4 x) {
-    return round(x * 255.0) * (1.0 / 255.0);
-}
-
-// PICA's LOD formula for 2D textures.
-// This LOD formula is the same as the LOD lower limit defined in OpenGL.
-// f(x, y) >= max{m_u, m_v, m_w}
-// (See OpenGL 4.6 spec, 8.14.1 - Scale Factor and Level-of-Detail)
-float getLod(vec2 coord) {
-    vec2 d = max(abs(dFdx(coord)), abs(dFdy(coord)));
-    return log2(max(d.x, d.y));
-}
-
-vec4 shadowTexture(vec2 uv, float w) {
-    return vec4(1.0);
-}
-
-vec4 shadowTextureCube(vec2 uv, float w) {
-    return vec4(1.0);
-}
-
-void main() {
-vec4 rounded_primary_color = byteround(primary_color);
-vec4 primary_fragment_color = vec4(0.0);
-vec4 secondary_fragment_color = vec4(0.0);
-if (!(gl_FragCoord.x >= float(scissor_x1) && gl_FragCoord.y >= float(scissor_y1) && gl_FragCoord.x < float(scissor_x2) && gl_FragCoord.y < float(scissor_y2))) discard;
-float z_over_w = 2.0 * gl_FragCoord.z - 1.0;
-float depth = z_over_w * depth_scale + depth_offset;
-vec4 texcolor0 = textureLod(tex0, texcoord0, getLod(texcoord0 * vec2(textureSize(tex0, 0))));
-
-vec4 diffuse_sum = vec4(0.0, 0.0, 0.0, 1.0);
-vec4 specular_sum = vec4(0.0, 0.0, 0.0, 1.0);
-vec3 light_vector = vec3(0.0);
-vec3 refl_value = vec3(0.0);
-vec3 spot_dir = vec3(0.0);
-vec3 half_vector = vec3(0.0);
-float dot_product = 0.0;
-float clamp_highlights = 1.0;
-float geo_factor = 1.0;
-vec3 surface_normal = vec3(0.0, 0.0, 1.0);
-vec3 surface_tangent = vec3(1.0, 0.0, 0.0);
-vec4 normalized_normquat = normalize(normquat);
-vec3 normal = quaternion_rotate(normalized_normquat, surface_normal);
-vec3 tangent = quaternion_rotate(normalized_normquat, surface_tangent);
-vec4 shadow = vec4(1.0);
-light_vector = normalize(light_src[0].position + view);
-spot_dir = light_src[0].spot_direction;
-half_vector = normalize(view) + light_vector;
-dot_product = max(dot(light_vector, normal), 0.0);
-refl_value.r = 1.0;
-refl_value.g = refl_value.r;
-refl_value.b = refl_value.r;
-diffuse_sum.rgb += ((light_src[0].diffuse * dot_product) + light_src[0].ambient) * LookupLightingLUTUnsigned(16,clamp(light_src[0].dist_atten_scale * length(-view - light_src[0].position) + light_src[0].dist_atten_bias, 0.0, 1.0)) * 1.0;
-specular_sum.rgb += ((light_src[0].specular_0) + (light_src[0].specular_1)) * clamp_highlights * LookupLightingLUTUnsigned(16,clamp(light_src[0].dist_atten_scale * length(-view - light_src[0].position) + light_src[0].dist_atten_bias, 0.0, 1.0)) * 1.0;
-light_vector = normalize(light_src[1].position + view);
-spot_dir = light_src[1].spot_direction;
-half_vector = normalize(view) + light_vector;
-dot_product = max(dot(light_vector, normal), 0.0);
-refl_value.r = 1.0;
-refl_value.g = refl_value.r;
-refl_value.b = refl_value.r;
-diffuse_sum.rgb += ((light_src[1].diffuse * dot_product) + light_src[1].ambient) * LookupLightingLUTUnsigned(17,clamp(light_src[1].dist_atten_scale * length(-view - light_src[1].position) + light_src[1].dist_atten_bias, 0.0, 1.0)) * 1.0;
-specular_sum.rgb += ((light_src[1].specular_0) + (light_src[1].specular_1)) * clamp_highlights * LookupLightingLUTUnsigned(17,clamp(light_src[1].dist_atten_scale * length(-view - light_src[1].position) + light_src[1].dist_atten_bias, 0.0, 1.0)) * 1.0;
-diffuse_sum.rgb += lighting_global_ambient;
-primary_fragment_color = clamp(diffuse_sum, vec4(0.0), vec4(1.0));
-secondary_fragment_color = clamp(specular_sum, vec4(0.0), vec4(1.0));
-
-vec4 combiner_buffer = vec4(0.0);
-vec4 next_combiner_buffer = tev_combiner_buffer_color;
-vec4 last_tex_env_out = vec4(0.0);
-vec3 color_output_0 = byteround(clamp((texcolor0.rgb) * (const_color[0].rgb), vec3(0.0), vec3(1.0)));
-float alpha_output_0 = byteround(clamp((texcolor0.a) * (const_color[0].a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_0, alpha_output_0), vec4(0.0), vec4(1.0));
-combiner_buffer = next_combiner_buffer;
-
-vec3 color_output_1 = byteround(clamp((last_tex_env_out.rgb) * (primary_fragment_color.rgb), vec3(0.0), vec3(1.0)));
-float alpha_output_1 = byteround(clamp((last_tex_env_out.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_1, alpha_output_1), vec4(0.0), vec4(1.0));
-combiner_buffer = next_combiner_buffer;
-
-combiner_buffer = next_combiner_buffer;
-
-combiner_buffer = next_combiner_buffer;
-
-combiner_buffer = next_combiner_buffer;
-
-combiner_buffer = next_combiner_buffer;
-
-gl_FragDepth = depth;
-color = byteround(last_tex_env_out);
-}
-// reference: 632D67172B30665F, 020CFCE3FAE6E585
-// program: A0A01900FB0E2CEC, F0531050140A5884, 020CFCE3FAE6E585
-// shader: 8B30, CD9305B17F6B7421
-
-precision highp int;
-precision highp float;
-precision highp samplerBuffer;
-precision highp usampler2D;
-precision highp uimage2D;
-in vec4 primary_color;
-in vec2 texcoord0;
-in vec2 texcoord1;
-in vec2 texcoord2;
-in float texcoord0_w;
-in vec4 normquat;
-in vec3 view;
-
-#ifndef CITRA_GLES
-in vec4 gl_FragCoord;
-#endif // CITRA_GLES
-out vec4 color;
-
-uniform sampler2D tex0;
-uniform sampler2D tex1;
-uniform sampler2D tex2;
-uniform samplerCube tex_cube;
-uniform samplerBuffer texture_buffer_lut_lf;
-uniform samplerBuffer texture_buffer_lut_rg;
-uniform samplerBuffer texture_buffer_lut_rgba;
-
-#define NUM_TEV_STAGES 6
-#define NUM_LIGHTS 8
-#define NUM_LIGHTING_SAMPLERS 24
-
-struct LightSrc {
-    vec3 specular_0;
-    vec3 specular_1;
-    vec3 diffuse;
-    vec3 ambient;
-    vec3 position;
-    vec3 spot_direction;
-    float dist_atten_bias;
-    float dist_atten_scale;
-};
-
-layout (std140) uniform shader_data {
-    int alphatest_ref;
-    float depth_scale;
-    float depth_offset;
-    float shadow_bias_constant;
-    float shadow_bias_linear;
-    int scissor_x1;
-    int scissor_y1;
-    int scissor_x2;
-    int scissor_y2;
-    int fog_lut_offset;
-    int proctex_noise_lut_offset;
-    int proctex_color_map_offset;
-    int proctex_alpha_map_offset;
-    int proctex_lut_offset;
-    int proctex_diff_lut_offset;
-    float proctex_bias;
-    vec3 fog_color;
-    vec2 proctex_noise_f;
-    vec2 proctex_noise_a;
-    vec2 proctex_noise_p;
-    vec4 const_color[NUM_TEV_STAGES];
-    vec4 tev_combiner_buffer_color;
-    vec4 clip_coef;
-};
-
-layout (std140) uniform shader_light_data {
-    ivec4 lighting_lut_offset[NUM_LIGHTING_SAMPLERS / 4];
-    vec3 lighting_global_ambient;
-    LightSrc light_src[NUM_LIGHTS];
-    float lut_scale_d0;
-    float lut_scale_d1;
-    float lut_scale_sp;
-    float lut_scale_fr;
-    float lut_scale_rb;
-    float lut_scale_rg;
-    float lut_scale_rr;
-    int shadow_texture_bias;
-};
-
-// Rotate the vector v by the quaternion q
-vec3 quaternion_rotate(vec4 q, vec3 v) {
-    return v + 2.0 * cross(q.xyz, cross(q.xyz, v) + q.w * v);
-}
-
-float LookupLightingLUT(int lut_index, int index, float delta) {
-    vec2 entry = texelFetch(texture_buffer_lut_lf, lighting_lut_offset[lut_index >> 2][lut_index & 3] + index).rg;
-    return entry.r + entry.g * delta;
-}
-
-float LookupLightingLUTUnsigned(int lut_index, float pos) {
-    int index = clamp(int(pos * 256.0), 0, 255);
-    float delta = pos * 256.0 - float(index);
-    return LookupLightingLUT(lut_index, index, delta);
-}
-
-float LookupLightingLUTSigned(int lut_index, float pos) {
-    int index = clamp(int(pos * 128.0), -128, 127);
-    float delta = pos * 128.0 - float(index);
-    if (index < 0) index += 256;
-    return LookupLightingLUT(lut_index, index, delta);
-}
-
-float byteround(float x) {
-    return round(x * 255.0) * (1.0 / 255.0);
-}
-
-vec2 byteround(vec2 x) {
-    return round(x * 255.0) * (1.0 / 255.0);
-}
-
-vec3 byteround(vec3 x) {
-    return round(x * 255.0) * (1.0 / 255.0);
-}
-
-vec4 byteround(vec4 x) {
-    return round(x * 255.0) * (1.0 / 255.0);
-}
-
-// PICA's LOD formula for 2D textures.
-// This LOD formula is the same as the LOD lower limit defined in OpenGL.
-// f(x, y) >= max{m_u, m_v, m_w}
-// (See OpenGL 4.6 spec, 8.14.1 - Scale Factor and Level-of-Detail)
-float getLod(vec2 coord) {
-    vec2 d = max(abs(dFdx(coord)), abs(dFdy(coord)));
-    return log2(max(d.x, d.y));
-}
-
-vec4 shadowTexture(vec2 uv, float w) {
-    return vec4(1.0);
-}
-
-vec4 shadowTextureCube(vec2 uv, float w) {
-    return vec4(1.0);
-}
-
-void main() {
-vec4 rounded_primary_color = byteround(primary_color);
-vec4 primary_fragment_color = vec4(0.0);
-vec4 secondary_fragment_color = vec4(0.0);
-if (!(gl_FragCoord.x >= float(scissor_x1) && gl_FragCoord.y >= float(scissor_y1) && gl_FragCoord.x < float(scissor_x2) && gl_FragCoord.y < float(scissor_y2))) discard;
-float z_over_w = 2.0 * gl_FragCoord.z - 1.0;
-float depth = z_over_w * depth_scale + depth_offset;
-
-vec4 diffuse_sum = vec4(0.0, 0.0, 0.0, 1.0);
-vec4 specular_sum = vec4(0.0, 0.0, 0.0, 1.0);
-vec3 light_vector = vec3(0.0);
-vec3 refl_value = vec3(0.0);
-vec3 spot_dir = vec3(0.0);
-vec3 half_vector = vec3(0.0);
-float dot_product = 0.0;
-float clamp_highlights = 1.0;
-float geo_factor = 1.0;
-vec3 surface_normal = vec3(0.0, 0.0, 1.0);
-vec3 surface_tangent = vec3(1.0, 0.0, 0.0);
-vec4 normalized_normquat = normalize(normquat);
-vec3 normal = quaternion_rotate(normalized_normquat, surface_normal);
-vec3 tangent = quaternion_rotate(normalized_normquat, surface_tangent);
-vec4 shadow = vec4(1.0);
-light_vector = normalize(light_src[0].position + view);
-spot_dir = light_src[0].spot_direction;
-half_vector = normalize(view) + light_vector;
-dot_product = max(dot(light_vector, normal), 0.0);
-refl_value.r = 1.0;
-refl_value.g = refl_value.r;
-refl_value.b = refl_value.r;
-diffuse_sum.rgb += ((light_src[0].diffuse * dot_product) + light_src[0].ambient) * LookupLightingLUTUnsigned(16,clamp(light_src[0].dist_atten_scale * length(-view - light_src[0].position) + light_src[0].dist_atten_bias, 0.0, 1.0)) * 1.0;
-specular_sum.rgb += ((light_src[0].specular_0) + (light_src[0].specular_1)) * clamp_highlights * LookupLightingLUTUnsigned(16,clamp(light_src[0].dist_atten_scale * length(-view - light_src[0].position) + light_src[0].dist_atten_bias, 0.0, 1.0)) * 1.0;
-light_vector = normalize(light_src[1].position + view);
-spot_dir = light_src[1].spot_direction;
-half_vector = normalize(view) + light_vector;
-dot_product = max(dot(light_vector, normal), 0.0);
-refl_value.r = 1.0;
-refl_value.g = refl_value.r;
-refl_value.b = refl_value.r;
-specular_sum.a = (lut_scale_fr * LookupLightingLUTUnsigned(3, max(dot(normal, normalize(view)), 0.0)));
-diffuse_sum.rgb += ((light_src[1].diffuse * dot_product) + light_src[1].ambient) * LookupLightingLUTUnsigned(17,clamp(light_src[1].dist_atten_scale * length(-view - light_src[1].position) + light_src[1].dist_atten_bias, 0.0, 1.0)) * 1.0;
-specular_sum.rgb += ((light_src[1].specular_0) + (light_src[1].specular_1)) * clamp_highlights * LookupLightingLUTUnsigned(17,clamp(light_src[1].dist_atten_scale * length(-view - light_src[1].position) + light_src[1].dist_atten_bias, 0.0, 1.0)) * 1.0;
-diffuse_sum.rgb += lighting_global_ambient;
-primary_fragment_color = clamp(diffuse_sum, vec4(0.0), vec4(1.0));
-secondary_fragment_color = clamp(specular_sum, vec4(0.0), vec4(1.0));
-
-vec4 combiner_buffer = vec4(0.0);
-vec4 next_combiner_buffer = tev_combiner_buffer_color;
-vec4 last_tex_env_out = vec4(0.0);
-vec3 color_output_0 = byteround(clamp((const_color[0].rgb), vec3(0.0), vec3(1.0)));
-float alpha_output_0 = byteround(clamp((secondary_fragment_color.a) * (const_color[0].a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_0, alpha_output_0), vec4(0.0), vec4(1.0));
-combiner_buffer = next_combiner_buffer;
-
-combiner_buffer = next_combiner_buffer;
-
-combiner_buffer = next_combiner_buffer;
-
-combiner_buffer = next_combiner_buffer;
-
-combiner_buffer = next_combiner_buffer;
-
-combiner_buffer = next_combiner_buffer;
-
-gl_FragDepth = depth;
-color = byteround(last_tex_env_out);
-}
-// reference: E92B7F0145411573, CD9305B17F6B7421
-// program: A0A01900FB0E2CEC, F0531050140A5884, CD9305B17F6B7421
-// reference: C6F455C47AEF9F7F, 94C189A177E49D88
-// shader: 8B30, 8A966AC06B90646C
-
-precision highp int;
-precision highp float;
-precision highp samplerBuffer;
-precision highp usampler2D;
-precision highp uimage2D;
-in vec4 primary_color;
-in vec2 texcoord0;
-in vec2 texcoord1;
-in vec2 texcoord2;
-in float texcoord0_w;
-in vec4 normquat;
-in vec3 view;
-
-#ifndef CITRA_GLES
-in vec4 gl_FragCoord;
-#endif // CITRA_GLES
-out vec4 color;
-
-uniform sampler2D tex0;
-uniform sampler2D tex1;
-uniform sampler2D tex2;
-uniform samplerCube tex_cube;
-uniform samplerBuffer texture_buffer_lut_lf;
-uniform samplerBuffer texture_buffer_lut_rg;
-uniform samplerBuffer texture_buffer_lut_rgba;
-
-#define NUM_TEV_STAGES 6
-#define NUM_LIGHTS 8
-#define NUM_LIGHTING_SAMPLERS 24
-
-struct LightSrc {
-    vec3 specular_0;
-    vec3 specular_1;
-    vec3 diffuse;
-    vec3 ambient;
-    vec3 position;
-    vec3 spot_direction;
-    float dist_atten_bias;
-    float dist_atten_scale;
-};
-
-layout (std140) uniform shader_data {
-    int alphatest_ref;
-    float depth_scale;
-    float depth_offset;
-    float shadow_bias_constant;
-    float shadow_bias_linear;
-    int scissor_x1;
-    int scissor_y1;
-    int scissor_x2;
-    int scissor_y2;
-    int fog_lut_offset;
-    int proctex_noise_lut_offset;
-    int proctex_color_map_offset;
-    int proctex_alpha_map_offset;
-    int proctex_lut_offset;
-    int proctex_diff_lut_offset;
-    float proctex_bias;
-    vec3 fog_color;
-    vec2 proctex_noise_f;
-    vec2 proctex_noise_a;
-    vec2 proctex_noise_p;
-    vec4 const_color[NUM_TEV_STAGES];
-    vec4 tev_combiner_buffer_color;
-    vec4 clip_coef;
-};
-
-layout (std140) uniform shader_light_data {
-    ivec4 lighting_lut_offset[NUM_LIGHTING_SAMPLERS / 4];
-    vec3 lighting_global_ambient;
-    LightSrc light_src[NUM_LIGHTS];
-    float lut_scale_d0;
-    float lut_scale_d1;
-    float lut_scale_sp;
-    float lut_scale_fr;
-    float lut_scale_rb;
-    float lut_scale_rg;
-    float lut_scale_rr;
-    int shadow_texture_bias;
-};
-
-// Rotate the vector v by the quaternion q
-vec3 quaternion_rotate(vec4 q, vec3 v) {
-    return v + 2.0 * cross(q.xyz, cross(q.xyz, v) + q.w * v);
-}
-
-float LookupLightingLUT(int lut_index, int index, float delta) {
-    vec2 entry = texelFetch(texture_buffer_lut_lf, lighting_lut_offset[lut_index >> 2][lut_index & 3] + index).rg;
-    return entry.r + entry.g * delta;
-}
-
-float LookupLightingLUTUnsigned(int lut_index, float pos) {
-    int index = clamp(int(pos * 256.0), 0, 255);
-    float delta = pos * 256.0 - float(index);
-    return LookupLightingLUT(lut_index, index, delta);
-}
-
-float LookupLightingLUTSigned(int lut_index, float pos) {
-    int index = clamp(int(pos * 128.0), -128, 127);
-    float delta = pos * 128.0 - float(index);
-    if (index < 0) index += 256;
-    return LookupLightingLUT(lut_index, index, delta);
-}
-
-float byteround(float x) {
-    return round(x * 255.0) * (1.0 / 255.0);
-}
-
-vec2 byteround(vec2 x) {
-    return round(x * 255.0) * (1.0 / 255.0);
-}
-
-vec3 byteround(vec3 x) {
-    return round(x * 255.0) * (1.0 / 255.0);
-}
-
-vec4 byteround(vec4 x) {
-    return round(x * 255.0) * (1.0 / 255.0);
-}
-
-// PICA's LOD formula for 2D textures.
-// This LOD formula is the same as the LOD lower limit defined in OpenGL.
-// f(x, y) >= max{m_u, m_v, m_w}
-// (See OpenGL 4.6 spec, 8.14.1 - Scale Factor and Level-of-Detail)
-float getLod(vec2 coord) {
-    vec2 d = max(abs(dFdx(coord)), abs(dFdy(coord)));
-    return log2(max(d.x, d.y));
-}
-
-vec4 shadowTexture(vec2 uv, float w) {
-    return vec4(1.0);
-}
-
-vec4 shadowTextureCube(vec2 uv, float w) {
-    return vec4(1.0);
-}
-
-void main() {
-vec4 rounded_primary_color = byteround(primary_color);
-vec4 primary_fragment_color = vec4(0.0);
-vec4 secondary_fragment_color = vec4(0.0);
-if (!(gl_FragCoord.x >= float(scissor_x1) && gl_FragCoord.y >= float(scissor_y1) && gl_FragCoord.x < float(scissor_x2) && gl_FragCoord.y < float(scissor_y2))) discard;
-float z_over_w = 2.0 * gl_FragCoord.z - 1.0;
-float depth = z_over_w * depth_scale + depth_offset;
-
-vec4 diffuse_sum = vec4(0.0, 0.0, 0.0, 1.0);
-vec4 specular_sum = vec4(0.0, 0.0, 0.0, 1.0);
-vec3 light_vector = vec3(0.0);
-vec3 refl_value = vec3(0.0);
-vec3 spot_dir = vec3(0.0);
-vec3 half_vector = vec3(0.0);
-float dot_product = 0.0;
-float clamp_highlights = 1.0;
-float geo_factor = 1.0;
-vec3 surface_normal = vec3(0.0, 0.0, 1.0);
-vec3 surface_tangent = vec3(1.0, 0.0, 0.0);
-vec4 normalized_normquat = normalize(normquat);
-vec3 normal = quaternion_rotate(normalized_normquat, surface_normal);
-vec3 tangent = quaternion_rotate(normalized_normquat, surface_tangent);
-vec4 shadow = vec4(1.0);
-light_vector = normalize(light_src[0].position + view);
-spot_dir = light_src[0].spot_direction;
-half_vector = normalize(view) + light_vector;
-dot_product = max(dot(light_vector, normal), 0.0);
-refl_value.r = 1.0;
-refl_value.g = refl_value.r;
-refl_value.b = refl_value.r;
-diffuse_sum.rgb += ((light_src[0].diffuse * dot_product) + light_src[0].ambient) * LookupLightingLUTUnsigned(16,clamp(light_src[0].dist_atten_scale * length(-view - light_src[0].position) + light_src[0].dist_atten_bias, 0.0, 1.0)) * 1.0;
-specular_sum.rgb += ((light_src[0].specular_0) + (light_src[0].specular_1)) * clamp_highlights * LookupLightingLUTUnsigned(16,clamp(light_src[0].dist_atten_scale * length(-view - light_src[0].position) + light_src[0].dist_atten_bias, 0.0, 1.0)) * 1.0;
-light_vector = normalize(light_src[1].position + view);
-spot_dir = light_src[1].spot_direction;
-half_vector = normalize(view) + light_vector;
-dot_product = max(dot(light_vector, normal), 0.0);
-refl_value.r = 1.0;
-refl_value.g = refl_value.r;
-refl_value.b = refl_value.r;
-specular_sum.a = (lut_scale_fr * LookupLightingLUTUnsigned(3, max(dot(normal, normalize(view)), 0.0)));
-diffuse_sum.rgb += ((light_src[1].diffuse * dot_product) + light_src[1].ambient) * LookupLightingLUTUnsigned(17,clamp(light_src[1].dist_atten_scale * length(-view - light_src[1].position) + light_src[1].dist_atten_bias, 0.0, 1.0)) * 1.0;
-specular_sum.rgb += ((light_src[1].specular_0) + (light_src[1].specular_1)) * clamp_highlights * LookupLightingLUTUnsigned(17,clamp(light_src[1].dist_atten_scale * length(-view - light_src[1].position) + light_src[1].dist_atten_bias, 0.0, 1.0)) * 1.0;
-diffuse_sum.rgb += lighting_global_ambient;
-primary_fragment_color = clamp(diffuse_sum, vec4(0.0), vec4(1.0));
-secondary_fragment_color = clamp(specular_sum, vec4(0.0), vec4(1.0));
-
-vec4 combiner_buffer = vec4(0.0);
-vec4 next_combiner_buffer = tev_combiner_buffer_color;
-vec4 last_tex_env_out = vec4(0.0);
-vec3 color_output_0 = byteround(clamp((const_color[0].rgb), vec3(0.0), vec3(1.0)));
-float alpha_output_0 = byteround(clamp((secondary_fragment_color.a) * (const_color[0].a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_0, alpha_output_0), vec4(0.0), vec4(1.0));
-combiner_buffer = next_combiner_buffer;
-
-vec3 color_output_1 = byteround(clamp((last_tex_env_out.rgb), vec3(0.0), vec3(1.0)));
-float alpha_output_1 = byteround(clamp((last_tex_env_out.a) * (const_color[1].a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_1, alpha_output_1), vec4(0.0), vec4(1.0));
-combiner_buffer = next_combiner_buffer;
-
-combiner_buffer = next_combiner_buffer;
-
-combiner_buffer = next_combiner_buffer;
-
-combiner_buffer = next_combiner_buffer;
-
-combiner_buffer = next_combiner_buffer;
-
-gl_FragDepth = depth;
-color = byteround(last_tex_env_out);
-}
-// reference: C02342A4AF95CCD5, 8A966AC06B90646C
-// program: A0A01900FB0E2CEC, F0531050140A5884, 8A966AC06B90646C
-// reference: 149E760004BAC7A3, 06F56F2630B83832
-// shader: 8B30, 3D12DE8DF19A3FC8
-
-precision highp int;
-precision highp float;
-precision highp samplerBuffer;
-precision highp usampler2D;
-precision highp uimage2D;
+// reference: CFFE38F7B71B8CB8, 032F2A28C57AEA7D
+// program: 1A9F70669A3C74DF, F0531050140A5884, 032F2A28C57AEA7D
+// shader: 8B30, 20DB0BE4E22704F0
 in vec4 primary_color;
 in vec2 texcoord0;
 in vec2 texcoord1;
@@ -37854,15 +31340,9 @@ combiner_buffer = next_combiner_buffer;
 gl_FragDepth = depth;
 color = byteround(last_tex_env_out);
 }
-// reference: 8E9E380C71118C0C, 3D12DE8DF19A3FC8
-// program: A0A01900FB0E2CEC, F0531050140A5884, 3D12DE8DF19A3FC8
-// shader: 8B30, A34D693765927B1B
-
-precision highp int;
-precision highp float;
-precision highp samplerBuffer;
-precision highp usampler2D;
-precision highp uimage2D;
+// reference: 8E9E380C71118C0C, 20DB0BE4E22704F0
+// program: 1A9F70669A3C74DF, F0531050140A5884, 20DB0BE4E22704F0
+// shader: 8B30, 13DDF84376B3A14A
 in vec4 primary_color;
 in vec2 texcoord0;
 in vec2 texcoord1;
@@ -38024,15 +31504,9 @@ combiner_buffer = next_combiner_buffer;
 gl_FragDepth = depth;
 color = byteround(last_tex_env_out);
 }
-// reference: CE312E68B7018FC6, A34D693765927B1B
-// program: A0A01900FB0E2CEC, F0531050140A5884, A34D693765927B1B
-// shader: 8B30, 3346CCC8755588F2
-
-precision highp int;
-precision highp float;
-precision highp samplerBuffer;
-precision highp usampler2D;
-precision highp uimage2D;
+// reference: CE312E68B7018FC6, 13DDF84376B3A14A
+// program: 1A9F70669A3C74DF, F0531050140A5884, 13DDF84376B3A14A
+// shader: 8B30, 8E29018D903644D6
 in vec4 primary_color;
 in vec2 texcoord0;
 in vec2 texcoord1;
@@ -38194,15 +31668,9 @@ combiner_buffer = next_combiner_buffer;
 gl_FragDepth = depth;
 color = byteround(last_tex_env_out);
 }
-// reference: CE312E68D87BD1CD, 3346CCC8755588F2
-// program: A0A01900FB0E2CEC, F0531050140A5884, 3346CCC8755588F2
-// shader: 8B30, 9BEFD8DDFC2E8C06
-
-precision highp int;
-precision highp float;
-precision highp samplerBuffer;
-precision highp usampler2D;
-precision highp uimage2D;
+// reference: CE312E68D87BD1CD, 8E29018D903644D6
+// program: 1A9F70669A3C74DF, F0531050140A5884, 8E29018D903644D6
+// shader: 8B30, 828B405F1B8414E6
 in vec4 primary_color;
 in vec2 texcoord0;
 in vec2 texcoord1;
@@ -38342,7 +31810,7 @@ vec4 secondary_fragment_color = vec4(0.0);
 if (!(gl_FragCoord.x >= float(scissor_x1) && gl_FragCoord.y >= float(scissor_y1) && gl_FragCoord.x < float(scissor_x2) && gl_FragCoord.y < float(scissor_y2))) discard;
 float z_over_w = 2.0 * gl_FragCoord.z - 1.0;
 float depth = z_over_w * depth_scale + depth_offset;
-vec4 texcolor0 = textureLod(tex0, texcoord0, getLod(texcoord0 * vec2(textureSize(tex0, 0))));
+vec4 texcolor1 = textureLod(tex1, texcoord1, getLod(texcoord1 * vec2(textureSize(tex1, 0))));
 
 vec4 diffuse_sum = vec4(0.0, 0.0, 0.0, 1.0);
 vec4 specular_sum = vec4(0.0, 0.0, 0.0, 1.0);
@@ -38375,9 +31843,26 @@ dot_product = max(dot(light_vector, normal), 0.0);
 refl_value.r = 1.0;
 refl_value.g = refl_value.r;
 refl_value.b = refl_value.r;
-specular_sum.a = (lut_scale_fr * LookupLightingLUTUnsigned(3, max(dot(normal, normalize(view)), 0.0)));
 diffuse_sum.rgb += ((light_src[1].diffuse * dot_product) + light_src[1].ambient) * LookupLightingLUTUnsigned(17,clamp(light_src[1].dist_atten_scale * length(-view - light_src[1].position) + light_src[1].dist_atten_bias, 0.0, 1.0)) * 1.0;
 specular_sum.rgb += ((light_src[1].specular_0) + (light_src[1].specular_1)) * clamp_highlights * LookupLightingLUTUnsigned(17,clamp(light_src[1].dist_atten_scale * length(-view - light_src[1].position) + light_src[1].dist_atten_bias, 0.0, 1.0)) * 1.0;
+light_vector = normalize(light_src[2].position + view);
+spot_dir = light_src[2].spot_direction;
+half_vector = normalize(view) + light_vector;
+dot_product = max(dot(light_vector, normal), 0.0);
+refl_value.r = 1.0;
+refl_value.g = refl_value.r;
+refl_value.b = refl_value.r;
+diffuse_sum.rgb += ((light_src[2].diffuse * dot_product) + light_src[2].ambient) * LookupLightingLUTUnsigned(18,clamp(light_src[2].dist_atten_scale * length(-view - light_src[2].position) + light_src[2].dist_atten_bias, 0.0, 1.0)) * 1.0;
+specular_sum.rgb += ((light_src[2].specular_0) + (light_src[2].specular_1)) * clamp_highlights * LookupLightingLUTUnsigned(18,clamp(light_src[2].dist_atten_scale * length(-view - light_src[2].position) + light_src[2].dist_atten_bias, 0.0, 1.0)) * 1.0;
+light_vector = normalize(light_src[3].position + view);
+spot_dir = light_src[3].spot_direction;
+half_vector = normalize(view) + light_vector;
+dot_product = max(dot(light_vector, normal), 0.0);
+refl_value.r = 1.0;
+refl_value.g = refl_value.r;
+refl_value.b = refl_value.r;
+diffuse_sum.rgb += ((light_src[3].diffuse * dot_product) + light_src[3].ambient) * LookupLightingLUTUnsigned(19,clamp(light_src[3].dist_atten_scale * length(-view - light_src[3].position) + light_src[3].dist_atten_bias, 0.0, 1.0)) * 1.0;
+specular_sum.rgb += ((light_src[3].specular_0) + (light_src[3].specular_1)) * clamp_highlights * LookupLightingLUTUnsigned(19,clamp(light_src[3].dist_atten_scale * length(-view - light_src[3].position) + light_src[3].dist_atten_bias, 0.0, 1.0)) * 1.0;
 diffuse_sum.rgb += lighting_global_ambient;
 primary_fragment_color = clamp(diffuse_sum, vec4(0.0), vec4(1.0));
 secondary_fragment_color = clamp(specular_sum, vec4(0.0), vec4(1.0));
@@ -38385,18 +31870,24 @@ secondary_fragment_color = clamp(specular_sum, vec4(0.0), vec4(1.0));
 vec4 combiner_buffer = vec4(0.0);
 vec4 next_combiner_buffer = tev_combiner_buffer_color;
 vec4 last_tex_env_out = vec4(0.0);
-vec3 color_output_0 = byteround(clamp((const_color[0].rgb), vec3(0.0), vec3(1.0)));
-float alpha_output_0 = byteround(clamp((secondary_fragment_color.a) * (const_color[0].a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_0, alpha_output_0), vec4(0.0), vec4(1.0));
+vec3 color_output_0 = byteround(clamp((rounded_primary_color.rgb) * (texcolor1.rgb), vec3(0.0), vec3(1.0)));
+float alpha_output_0 = byteround(clamp((rounded_primary_color.a) * (texcolor1.a), 0.0, 1.0));
+last_tex_env_out = clamp(vec4(color_output_0 * 2.0, alpha_output_0 * 1.0), vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 
-vec3 color_output_1 = byteround(clamp((last_tex_env_out.rgb), vec3(0.0), vec3(1.0)));
-float alpha_output_1 = byteround(clamp((last_tex_env_out.a) * (const_color[1].a), 0.0, 1.0));
+vec3 color_output_1 = byteround(clamp((last_tex_env_out.rgb) * (primary_fragment_color.rgb), vec3(0.0), vec3(1.0)));
+float alpha_output_1 = byteround(clamp((last_tex_env_out.a), 0.0, 1.0));
 last_tex_env_out = clamp(vec4(color_output_1, alpha_output_1), vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 
+vec3 color_output_2 = byteround(clamp((last_tex_env_out.rgb), vec3(0.0), vec3(1.0)));
+float alpha_output_2 = byteround(clamp((last_tex_env_out.a) * (const_color[2].a), 0.0, 1.0));
+last_tex_env_out = clamp(vec4(color_output_2, alpha_output_2), vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 
+vec3 color_output_3 = byteround(clamp(min((const_color[3].rgb) + (shadowTexture(texcoord0, texcoord0_w).ggg), vec3(1.0)) * (last_tex_env_out.rgb), vec3(0.0), vec3(1.0)));
+float alpha_output_3 = byteround(clamp((last_tex_env_out.a), 0.0, 1.0));
+last_tex_env_out = clamp(vec4(color_output_3, alpha_output_3), vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 
 combiner_buffer = next_combiner_buffer;
@@ -38406,15 +31897,9 @@ combiner_buffer = next_combiner_buffer;
 gl_FragDepth = depth;
 color = byteround(last_tex_env_out);
 }
-// reference: 91896DC9AF95CCD5, 9BEFD8DDFC2E8C06
-// program: A0A01900FB0E2CEC, F0531050140A5884, 9BEFD8DDFC2E8C06
-// shader: 8B30, DAA48C639187E6E1
-
-precision highp int;
-precision highp float;
-precision highp samplerBuffer;
-precision highp usampler2D;
-precision highp uimage2D;
+// reference: B9B4E3725BE97070, 828B405F1B8414E6
+// program: 1A9F70669A3C74DF, F0531050140A5884, 828B405F1B8414E6
+// shader: 8B30, FE44FAA5B0D70862
 in vec4 primary_color;
 in vec2 texcoord0;
 in vec2 texcoord1;
@@ -38645,250 +32130,9 @@ combiner_buffer = next_combiner_buffer;
 gl_FragDepth = depth;
 color = byteround(last_tex_env_out);
 }
-// reference: A5BDA613BEA455E1, DAA48C639187E6E1
-// program: A0A01900FB0E2CEC, F0531050140A5884, DAA48C639187E6E1
-// shader: 8B30, 8D1D21573E6F1C6A
-
-precision highp int;
-precision highp float;
-precision highp samplerBuffer;
-precision highp usampler2D;
-precision highp uimage2D;
-in vec4 primary_color;
-in vec2 texcoord0;
-in vec2 texcoord1;
-in vec2 texcoord2;
-in float texcoord0_w;
-in vec4 normquat;
-in vec3 view;
-
-#ifndef CITRA_GLES
-in vec4 gl_FragCoord;
-#endif // CITRA_GLES
-out vec4 color;
-
-uniform sampler2D tex0;
-uniform sampler2D tex1;
-uniform sampler2D tex2;
-uniform samplerCube tex_cube;
-uniform samplerBuffer texture_buffer_lut_lf;
-uniform samplerBuffer texture_buffer_lut_rg;
-uniform samplerBuffer texture_buffer_lut_rgba;
-
-#define NUM_TEV_STAGES 6
-#define NUM_LIGHTS 8
-#define NUM_LIGHTING_SAMPLERS 24
-
-struct LightSrc {
-    vec3 specular_0;
-    vec3 specular_1;
-    vec3 diffuse;
-    vec3 ambient;
-    vec3 position;
-    vec3 spot_direction;
-    float dist_atten_bias;
-    float dist_atten_scale;
-};
-
-layout (std140) uniform shader_data {
-    int alphatest_ref;
-    float depth_scale;
-    float depth_offset;
-    float shadow_bias_constant;
-    float shadow_bias_linear;
-    int scissor_x1;
-    int scissor_y1;
-    int scissor_x2;
-    int scissor_y2;
-    int fog_lut_offset;
-    int proctex_noise_lut_offset;
-    int proctex_color_map_offset;
-    int proctex_alpha_map_offset;
-    int proctex_lut_offset;
-    int proctex_diff_lut_offset;
-    float proctex_bias;
-    vec3 fog_color;
-    vec2 proctex_noise_f;
-    vec2 proctex_noise_a;
-    vec2 proctex_noise_p;
-    vec4 const_color[NUM_TEV_STAGES];
-    vec4 tev_combiner_buffer_color;
-    vec4 clip_coef;
-};
-
-layout (std140) uniform shader_light_data {
-    ivec4 lighting_lut_offset[NUM_LIGHTING_SAMPLERS / 4];
-    vec3 lighting_global_ambient;
-    LightSrc light_src[NUM_LIGHTS];
-    float lut_scale_d0;
-    float lut_scale_d1;
-    float lut_scale_sp;
-    float lut_scale_fr;
-    float lut_scale_rb;
-    float lut_scale_rg;
-    float lut_scale_rr;
-    int shadow_texture_bias;
-};
-
-// Rotate the vector v by the quaternion q
-vec3 quaternion_rotate(vec4 q, vec3 v) {
-    return v + 2.0 * cross(q.xyz, cross(q.xyz, v) + q.w * v);
-}
-
-float LookupLightingLUT(int lut_index, int index, float delta) {
-    vec2 entry = texelFetch(texture_buffer_lut_lf, lighting_lut_offset[lut_index >> 2][lut_index & 3] + index).rg;
-    return entry.r + entry.g * delta;
-}
-
-float LookupLightingLUTUnsigned(int lut_index, float pos) {
-    int index = clamp(int(pos * 256.0), 0, 255);
-    float delta = pos * 256.0 - float(index);
-    return LookupLightingLUT(lut_index, index, delta);
-}
-
-float LookupLightingLUTSigned(int lut_index, float pos) {
-    int index = clamp(int(pos * 128.0), -128, 127);
-    float delta = pos * 128.0 - float(index);
-    if (index < 0) index += 256;
-    return LookupLightingLUT(lut_index, index, delta);
-}
-
-float byteround(float x) {
-    return round(x * 255.0) * (1.0 / 255.0);
-}
-
-vec2 byteround(vec2 x) {
-    return round(x * 255.0) * (1.0 / 255.0);
-}
-
-vec3 byteround(vec3 x) {
-    return round(x * 255.0) * (1.0 / 255.0);
-}
-
-vec4 byteround(vec4 x) {
-    return round(x * 255.0) * (1.0 / 255.0);
-}
-
-// PICA's LOD formula for 2D textures.
-// This LOD formula is the same as the LOD lower limit defined in OpenGL.
-// f(x, y) >= max{m_u, m_v, m_w}
-// (See OpenGL 4.6 spec, 8.14.1 - Scale Factor and Level-of-Detail)
-float getLod(vec2 coord) {
-    vec2 d = max(abs(dFdx(coord)), abs(dFdy(coord)));
-    return log2(max(d.x, d.y));
-}
-
-vec4 shadowTexture(vec2 uv, float w) {
-    return vec4(1.0);
-}
-
-vec4 shadowTextureCube(vec2 uv, float w) {
-    return vec4(1.0);
-}
-
-void main() {
-vec4 rounded_primary_color = byteround(primary_color);
-vec4 primary_fragment_color = vec4(0.0);
-vec4 secondary_fragment_color = vec4(0.0);
-if (!(gl_FragCoord.x >= float(scissor_x1) && gl_FragCoord.y >= float(scissor_y1) && gl_FragCoord.x < float(scissor_x2) && gl_FragCoord.y < float(scissor_y2))) discard;
-float z_over_w = 2.0 * gl_FragCoord.z - 1.0;
-float depth = z_over_w * depth_scale + depth_offset;
-vec4 texcolor1 = textureLod(tex1, texcoord1, getLod(texcoord1 * vec2(textureSize(tex1, 0))));
-
-vec4 diffuse_sum = vec4(0.0, 0.0, 0.0, 1.0);
-vec4 specular_sum = vec4(0.0, 0.0, 0.0, 1.0);
-vec3 light_vector = vec3(0.0);
-vec3 refl_value = vec3(0.0);
-vec3 spot_dir = vec3(0.0);
-vec3 half_vector = vec3(0.0);
-float dot_product = 0.0;
-float clamp_highlights = 1.0;
-float geo_factor = 1.0;
-vec3 surface_normal = vec3(0.0, 0.0, 1.0);
-vec3 surface_tangent = vec3(1.0, 0.0, 0.0);
-vec4 normalized_normquat = normalize(normquat);
-vec3 normal = quaternion_rotate(normalized_normquat, surface_normal);
-vec3 tangent = quaternion_rotate(normalized_normquat, surface_tangent);
-vec4 shadow = vec4(1.0);
-light_vector = normalize(light_src[0].position + view);
-spot_dir = light_src[0].spot_direction;
-half_vector = normalize(view) + light_vector;
-dot_product = max(dot(light_vector, normal), 0.0);
-refl_value.r = 1.0;
-refl_value.g = refl_value.r;
-refl_value.b = refl_value.r;
-diffuse_sum.rgb += ((light_src[0].diffuse * dot_product) + light_src[0].ambient) * LookupLightingLUTUnsigned(16,clamp(light_src[0].dist_atten_scale * length(-view - light_src[0].position) + light_src[0].dist_atten_bias, 0.0, 1.0)) * 1.0;
-specular_sum.rgb += ((light_src[0].specular_0) + (light_src[0].specular_1)) * clamp_highlights * LookupLightingLUTUnsigned(16,clamp(light_src[0].dist_atten_scale * length(-view - light_src[0].position) + light_src[0].dist_atten_bias, 0.0, 1.0)) * 1.0;
-light_vector = normalize(light_src[1].position + view);
-spot_dir = light_src[1].spot_direction;
-half_vector = normalize(view) + light_vector;
-dot_product = max(dot(light_vector, normal), 0.0);
-refl_value.r = 1.0;
-refl_value.g = refl_value.r;
-refl_value.b = refl_value.r;
-diffuse_sum.rgb += ((light_src[1].diffuse * dot_product) + light_src[1].ambient) * LookupLightingLUTUnsigned(17,clamp(light_src[1].dist_atten_scale * length(-view - light_src[1].position) + light_src[1].dist_atten_bias, 0.0, 1.0)) * 1.0;
-specular_sum.rgb += ((light_src[1].specular_0) + (light_src[1].specular_1)) * clamp_highlights * LookupLightingLUTUnsigned(17,clamp(light_src[1].dist_atten_scale * length(-view - light_src[1].position) + light_src[1].dist_atten_bias, 0.0, 1.0)) * 1.0;
-light_vector = normalize(light_src[2].position + view);
-spot_dir = light_src[2].spot_direction;
-half_vector = normalize(view) + light_vector;
-dot_product = max(dot(light_vector, normal), 0.0);
-refl_value.r = 1.0;
-refl_value.g = refl_value.r;
-refl_value.b = refl_value.r;
-diffuse_sum.rgb += ((light_src[2].diffuse * dot_product) + light_src[2].ambient) * LookupLightingLUTUnsigned(18,clamp(light_src[2].dist_atten_scale * length(-view - light_src[2].position) + light_src[2].dist_atten_bias, 0.0, 1.0)) * 1.0;
-specular_sum.rgb += ((light_src[2].specular_0) + (light_src[2].specular_1)) * clamp_highlights * LookupLightingLUTUnsigned(18,clamp(light_src[2].dist_atten_scale * length(-view - light_src[2].position) + light_src[2].dist_atten_bias, 0.0, 1.0)) * 1.0;
-light_vector = normalize(light_src[3].position + view);
-spot_dir = light_src[3].spot_direction;
-half_vector = normalize(view) + light_vector;
-dot_product = max(dot(light_vector, normal), 0.0);
-refl_value.r = 1.0;
-refl_value.g = refl_value.r;
-refl_value.b = refl_value.r;
-diffuse_sum.rgb += ((light_src[3].diffuse * dot_product) + light_src[3].ambient) * LookupLightingLUTUnsigned(19,clamp(light_src[3].dist_atten_scale * length(-view - light_src[3].position) + light_src[3].dist_atten_bias, 0.0, 1.0)) * 1.0;
-specular_sum.rgb += ((light_src[3].specular_0) + (light_src[3].specular_1)) * clamp_highlights * LookupLightingLUTUnsigned(19,clamp(light_src[3].dist_atten_scale * length(-view - light_src[3].position) + light_src[3].dist_atten_bias, 0.0, 1.0)) * 1.0;
-diffuse_sum.rgb += lighting_global_ambient;
-primary_fragment_color = clamp(diffuse_sum, vec4(0.0), vec4(1.0));
-secondary_fragment_color = clamp(specular_sum, vec4(0.0), vec4(1.0));
-
-vec4 combiner_buffer = vec4(0.0);
-vec4 next_combiner_buffer = tev_combiner_buffer_color;
-vec4 last_tex_env_out = vec4(0.0);
-vec3 color_output_0 = byteround(clamp((rounded_primary_color.rgb) * (texcolor1.rgb), vec3(0.0), vec3(1.0)));
-float alpha_output_0 = byteround(clamp((rounded_primary_color.a) * (texcolor1.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_0 * 2.0, alpha_output_0 * 1.0), vec4(0.0), vec4(1.0));
-combiner_buffer = next_combiner_buffer;
-
-vec3 color_output_1 = byteround(clamp((last_tex_env_out.rgb) * (primary_fragment_color.rgb), vec3(0.0), vec3(1.0)));
-float alpha_output_1 = byteround(clamp((last_tex_env_out.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_1, alpha_output_1), vec4(0.0), vec4(1.0));
-combiner_buffer = next_combiner_buffer;
-
-vec3 color_output_2 = byteround(clamp((last_tex_env_out.rgb), vec3(0.0), vec3(1.0)));
-float alpha_output_2 = byteround(clamp((last_tex_env_out.a) * (const_color[2].a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_2, alpha_output_2), vec4(0.0), vec4(1.0));
-combiner_buffer = next_combiner_buffer;
-
-vec3 color_output_3 = byteround(clamp(min((const_color[3].rgb) + (shadowTexture(texcoord0, texcoord0_w).ggg), vec3(1.0)) * (last_tex_env_out.rgb), vec3(0.0), vec3(1.0)));
-float alpha_output_3 = byteround(clamp((last_tex_env_out.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_3, alpha_output_3), vec4(0.0), vec4(1.0));
-combiner_buffer = next_combiner_buffer;
-
-combiner_buffer = next_combiner_buffer;
-
-combiner_buffer = next_combiner_buffer;
-
-gl_FragDepth = depth;
-color = byteround(last_tex_env_out);
-}
-// reference: B9B4E3725BE97070, 8D1D21573E6F1C6A
-// program: A0A01900FB0E2CEC, F0531050140A5884, 8D1D21573E6F1C6A
-// shader: 8B30, AD6D5FE39D75CD00
-
-precision highp int;
-precision highp float;
-precision highp samplerBuffer;
-precision highp usampler2D;
-precision highp uimage2D;
+// reference: A5BDA613BEA455E1, FE44FAA5B0D70862
+// program: 1A9F70669A3C74DF, F0531050140A5884, FE44FAA5B0D70862
+// shader: 8B30, EBBFB8BCF400B20D
 in vec4 primary_color;
 in vec2 texcoord0;
 in vec2 texcoord1;
@@ -39109,15 +32353,9 @@ combiner_buffer = next_combiner_buffer;
 gl_FragDepth = depth;
 color = byteround(last_tex_env_out);
 }
-// reference: 5578963C3CEFB8A3, AD6D5FE39D75CD00
-// program: A0A01900FB0E2CEC, F0531050140A5884, AD6D5FE39D75CD00
-// shader: 8B30, C3B789EC7346086A
-
-precision highp int;
-precision highp float;
-precision highp samplerBuffer;
-precision highp usampler2D;
-precision highp uimage2D;
+// reference: 5578963C3CEFB8A3, EBBFB8BCF400B20D
+// program: 1A9F70669A3C74DF, F0531050140A5884, EBBFB8BCF400B20D
+// shader: 8B30, 2581E9AC570696AA
 in vec4 primary_color;
 in vec2 texcoord0;
 in vec2 texcoord1;
@@ -39341,15 +32579,9 @@ combiner_buffer = next_combiner_buffer;
 gl_FragDepth = depth;
 color = byteround(last_tex_env_out);
 }
-// reference: 7E79A52E0CE29DF4, C3B789EC7346086A
-// program: A0A01900FB0E2CEC, F0531050140A5884, C3B789EC7346086A
-// shader: 8B30, 745194D9372DE0E8
-
-precision highp int;
-precision highp float;
-precision highp samplerBuffer;
-precision highp usampler2D;
-precision highp uimage2D;
+// reference: 7E79A52E0CE29DF4, 2581E9AC570696AA
+// program: 1A9F70669A3C74DF, F0531050140A5884, 2581E9AC570696AA
+// shader: 8B30, 41873F7C811DD5FA
 in vec4 primary_color;
 in vec2 texcoord0;
 in vec2 texcoord1;
@@ -39549,15 +32781,9 @@ combiner_buffer = next_combiner_buffer;
 gl_FragDepth = depth;
 color = byteround(last_tex_env_out);
 }
-// reference: 96202165CF33812C, 745194D9372DE0E8
-// program: A0A01900FB0E2CEC, F0531050140A5884, 745194D9372DE0E8
-// shader: 8B30, B843A426AF4C1A8A
-
-precision highp int;
-precision highp float;
-precision highp samplerBuffer;
-precision highp usampler2D;
-precision highp uimage2D;
+// reference: 96202165CF33812C, 41873F7C811DD5FA
+// program: 1A9F70669A3C74DF, F0531050140A5884, 41873F7C811DD5FA
+// shader: 8B30, 558304DE2DD3F091
 in vec4 primary_color;
 in vec2 texcoord0;
 in vec2 texcoord1;
@@ -39760,15 +32986,9 @@ combiner_buffer = next_combiner_buffer;
 gl_FragDepth = depth;
 color = byteround(last_tex_env_out);
 }
-// reference: 5D063FC4752596BC, B843A426AF4C1A8A
-// program: A0A01900FB0E2CEC, F0531050140A5884, B843A426AF4C1A8A
-// shader: 8B30, F2302DA8B74717F7
-
-precision highp int;
-precision highp float;
-precision highp samplerBuffer;
-precision highp usampler2D;
-precision highp uimage2D;
+// reference: 5D063FC4752596BC, 558304DE2DD3F091
+// program: 1A9F70669A3C74DF, F0531050140A5884, 558304DE2DD3F091
+// shader: 8B30, 6E7D4C0BE7920789
 in vec4 primary_color;
 in vec2 texcoord0;
 in vec2 texcoord1;
@@ -39969,15 +33189,9 @@ combiner_buffer = next_combiner_buffer;
 gl_FragDepth = depth;
 color = byteround(last_tex_env_out);
 }
-// reference: C78A0E08CF33812C, F2302DA8B74717F7
-// program: A0A01900FB0E2CEC, F0531050140A5884, F2302DA8B74717F7
-// shader: 8B30, 6921915E31DB39C3
-
-precision highp int;
-precision highp float;
-precision highp samplerBuffer;
-precision highp usampler2D;
-precision highp uimage2D;
+// reference: C78A0E08CF33812C, 6E7D4C0BE7920789
+// program: 1A9F70669A3C74DF, F0531050140A5884, 6E7D4C0BE7920789
+// shader: 8B30, CE3AFA13D070DAF1
 in vec4 primary_color;
 in vec2 texcoord0;
 in vec2 texcoord1;
@@ -40174,15 +33388,9 @@ combiner_buffer = next_combiner_buffer;
 gl_FragDepth = depth;
 color = byteround(last_tex_env_out);
 }
-// reference: C2C9F2E20D56F553, 6921915E31DB39C3
-// program: A0A01900FB0E2CEC, F0531050140A5884, 6921915E31DB39C3
-// shader: 8B30, 230DE0C32F12460F
-
-precision highp int;
-precision highp float;
-precision highp samplerBuffer;
-precision highp usampler2D;
-precision highp uimage2D;
+// reference: C2C9F2E20D56F553, CE3AFA13D070DAF1
+// program: 1A9F70669A3C74DF, F0531050140A5884, CE3AFA13D070DAF1
+// shader: 8B30, 3B582436E6532BF5
 in vec4 primary_color;
 in vec2 texcoord0;
 in vec2 texcoord1;
@@ -40383,15 +33591,9 @@ combiner_buffer = next_combiner_buffer;
 gl_FragDepth = depth;
 color = byteround(last_tex_env_out);
 }
-// reference: 6AA9DABAE547DE48, 230DE0C32F12460F
-// program: A0A01900FB0E2CEC, F0531050140A5884, 230DE0C32F12460F
-// shader: 8B30, CD72A0CA66A52745
-
-precision highp int;
-precision highp float;
-precision highp samplerBuffer;
-precision highp usampler2D;
-precision highp uimage2D;
+// reference: 6AA9DABAE547DE48, 3B582436E6532BF5
+// program: 1A9F70669A3C74DF, F0531050140A5884, 3B582436E6532BF5
+// shader: 8B30, A03DD51B3F456D28
 in vec4 primary_color;
 in vec2 texcoord0;
 in vec2 texcoord1;
@@ -40585,15 +33787,10 @@ combiner_buffer = next_combiner_buffer;
 gl_FragDepth = depth;
 color = byteround(last_tex_env_out);
 }
-// reference: 255DB3821DC8E5AF, CD72A0CA66A52745
-// program: A0A01900FB0E2CEC, F0531050140A5884, CD72A0CA66A52745
-// shader: 8B30, F157A14DDDE2D1B3
-
-precision highp int;
-precision highp float;
-precision highp samplerBuffer;
-precision highp usampler2D;
-precision highp uimage2D;
+// reference: 255DB3821DC8E5AF, A03DD51B3F456D28
+// program: 1A9F70669A3C74DF, F0531050140A5884, A03DD51B3F456D28
+// reference: 0CAC10A9752596BC, 7633E11BC8B25C9D
+// shader: 8B30, 12763838276BA107
 in vec4 primary_color;
 in vec2 texcoord0;
 in vec2 texcoord1;
@@ -40787,16 +33984,1859 @@ combiner_buffer = next_combiner_buffer;
 gl_FragDepth = depth;
 color = byteround(last_tex_env_out);
 }
-// reference: 25E42B408D9C2B12, F157A14DDDE2D1B3
-// program: A0A01900FB0E2CEC, F0531050140A5884, F157A14DDDE2D1B3
-// reference: 0CAC10A9752596BC, E5DF22D9178E1D89
-// shader: 8B30, 3C8B6230979289A1
+// reference: 25E42B408D9C2B12, 12763838276BA107
+// program: 1A9F70669A3C74DF, F0531050140A5884, 12763838276BA107
+// shader: 8B30, 66FD092C04EC6A2C
+in vec4 primary_color;
+in vec2 texcoord0;
+in vec2 texcoord1;
+in vec2 texcoord2;
+in float texcoord0_w;
+in vec4 normquat;
+in vec3 view;
 
-precision highp int;
-precision highp float;
-precision highp samplerBuffer;
-precision highp usampler2D;
-precision highp uimage2D;
+#ifndef CITRA_GLES
+in vec4 gl_FragCoord;
+#endif // CITRA_GLES
+out vec4 color;
+
+uniform sampler2D tex0;
+uniform sampler2D tex1;
+uniform sampler2D tex2;
+uniform samplerCube tex_cube;
+uniform samplerBuffer texture_buffer_lut_lf;
+uniform samplerBuffer texture_buffer_lut_rg;
+uniform samplerBuffer texture_buffer_lut_rgba;
+
+#define NUM_TEV_STAGES 6
+#define NUM_LIGHTS 8
+#define NUM_LIGHTING_SAMPLERS 24
+
+struct LightSrc {
+    vec3 specular_0;
+    vec3 specular_1;
+    vec3 diffuse;
+    vec3 ambient;
+    vec3 position;
+    vec3 spot_direction;
+    float dist_atten_bias;
+    float dist_atten_scale;
+};
+
+layout (std140) uniform shader_data {
+    int alphatest_ref;
+    float depth_scale;
+    float depth_offset;
+    float shadow_bias_constant;
+    float shadow_bias_linear;
+    int scissor_x1;
+    int scissor_y1;
+    int scissor_x2;
+    int scissor_y2;
+    int fog_lut_offset;
+    int proctex_noise_lut_offset;
+    int proctex_color_map_offset;
+    int proctex_alpha_map_offset;
+    int proctex_lut_offset;
+    int proctex_diff_lut_offset;
+    float proctex_bias;
+    vec3 fog_color;
+    vec2 proctex_noise_f;
+    vec2 proctex_noise_a;
+    vec2 proctex_noise_p;
+    vec4 const_color[NUM_TEV_STAGES];
+    vec4 tev_combiner_buffer_color;
+    vec4 clip_coef;
+};
+
+layout (std140) uniform shader_light_data {
+    ivec4 lighting_lut_offset[NUM_LIGHTING_SAMPLERS / 4];
+    vec3 lighting_global_ambient;
+    LightSrc light_src[NUM_LIGHTS];
+    float lut_scale_d0;
+    float lut_scale_d1;
+    float lut_scale_sp;
+    float lut_scale_fr;
+    float lut_scale_rb;
+    float lut_scale_rg;
+    float lut_scale_rr;
+    int shadow_texture_bias;
+};
+
+// Rotate the vector v by the quaternion q
+vec3 quaternion_rotate(vec4 q, vec3 v) {
+    return v + 2.0 * cross(q.xyz, cross(q.xyz, v) + q.w * v);
+}
+
+float LookupLightingLUT(int lut_index, int index, float delta) {
+    vec2 entry = texelFetch(texture_buffer_lut_lf, lighting_lut_offset[lut_index >> 2][lut_index & 3] + index).rg;
+    return entry.r + entry.g * delta;
+}
+
+float LookupLightingLUTUnsigned(int lut_index, float pos) {
+    int index = clamp(int(pos * 256.0), 0, 255);
+    float delta = pos * 256.0 - float(index);
+    return LookupLightingLUT(lut_index, index, delta);
+}
+
+float LookupLightingLUTSigned(int lut_index, float pos) {
+    int index = clamp(int(pos * 128.0), -128, 127);
+    float delta = pos * 128.0 - float(index);
+    if (index < 0) index += 256;
+    return LookupLightingLUT(lut_index, index, delta);
+}
+
+float byteround(float x) {
+    return round(x * 255.0) * (1.0 / 255.0);
+}
+
+vec2 byteround(vec2 x) {
+    return round(x * 255.0) * (1.0 / 255.0);
+}
+
+vec3 byteround(vec3 x) {
+    return round(x * 255.0) * (1.0 / 255.0);
+}
+
+vec4 byteround(vec4 x) {
+    return round(x * 255.0) * (1.0 / 255.0);
+}
+
+// PICA's LOD formula for 2D textures.
+// This LOD formula is the same as the LOD lower limit defined in OpenGL.
+// f(x, y) >= max{m_u, m_v, m_w}
+// (See OpenGL 4.6 spec, 8.14.1 - Scale Factor and Level-of-Detail)
+float getLod(vec2 coord) {
+    vec2 d = max(abs(dFdx(coord)), abs(dFdy(coord)));
+    return log2(max(d.x, d.y));
+}
+
+vec4 shadowTexture(vec2 uv, float w) {
+    return vec4(1.0);
+}
+
+vec4 shadowTextureCube(vec2 uv, float w) {
+    return vec4(1.0);
+}
+
+void main() {
+vec4 rounded_primary_color = byteround(primary_color);
+vec4 primary_fragment_color = vec4(0.0);
+vec4 secondary_fragment_color = vec4(0.0);
+if (!(gl_FragCoord.x >= float(scissor_x1) && gl_FragCoord.y >= float(scissor_y1) && gl_FragCoord.x < float(scissor_x2) && gl_FragCoord.y < float(scissor_y2))) discard;
+float z_over_w = 2.0 * gl_FragCoord.z - 1.0;
+float depth = z_over_w * depth_scale + depth_offset;
+vec4 texcolor1 = textureLod(tex1, texcoord1, getLod(texcoord1 * vec2(textureSize(tex1, 0))));
+
+vec4 diffuse_sum = vec4(0.0, 0.0, 0.0, 1.0);
+vec4 specular_sum = vec4(0.0, 0.0, 0.0, 1.0);
+vec3 light_vector = vec3(0.0);
+vec3 refl_value = vec3(0.0);
+vec3 spot_dir = vec3(0.0);
+vec3 half_vector = vec3(0.0);
+float dot_product = 0.0;
+float clamp_highlights = 1.0;
+float geo_factor = 1.0;
+vec3 surface_normal = vec3(0.0, 0.0, 1.0);
+vec3 surface_tangent = vec3(1.0, 0.0, 0.0);
+vec4 normalized_normquat = normalize(normquat);
+vec3 normal = quaternion_rotate(normalized_normquat, surface_normal);
+vec3 tangent = quaternion_rotate(normalized_normquat, surface_tangent);
+vec4 shadow = vec4(1.0);
+light_vector = normalize(light_src[0].position + view);
+spot_dir = light_src[0].spot_direction;
+half_vector = normalize(view) + light_vector;
+dot_product = max(dot(light_vector, normal), 0.0);
+refl_value.r = 1.0;
+refl_value.g = refl_value.r;
+refl_value.b = refl_value.r;
+diffuse_sum.rgb += ((light_src[0].diffuse * dot_product) + light_src[0].ambient) * LookupLightingLUTUnsigned(16,clamp(light_src[0].dist_atten_scale * length(-view - light_src[0].position) + light_src[0].dist_atten_bias, 0.0, 1.0)) * 1.0;
+specular_sum.rgb += ((light_src[0].specular_0) + (light_src[0].specular_1)) * clamp_highlights * LookupLightingLUTUnsigned(16,clamp(light_src[0].dist_atten_scale * length(-view - light_src[0].position) + light_src[0].dist_atten_bias, 0.0, 1.0)) * 1.0;
+light_vector = normalize(light_src[1].position + view);
+spot_dir = light_src[1].spot_direction;
+half_vector = normalize(view) + light_vector;
+dot_product = max(dot(light_vector, normal), 0.0);
+refl_value.r = 1.0;
+refl_value.g = refl_value.r;
+refl_value.b = refl_value.r;
+diffuse_sum.rgb += ((light_src[1].diffuse * dot_product) + light_src[1].ambient) * LookupLightingLUTUnsigned(17,clamp(light_src[1].dist_atten_scale * length(-view - light_src[1].position) + light_src[1].dist_atten_bias, 0.0, 1.0)) * 1.0;
+specular_sum.rgb += ((light_src[1].specular_0) + (light_src[1].specular_1)) * clamp_highlights * LookupLightingLUTUnsigned(17,clamp(light_src[1].dist_atten_scale * length(-view - light_src[1].position) + light_src[1].dist_atten_bias, 0.0, 1.0)) * 1.0;
+diffuse_sum.rgb += lighting_global_ambient;
+primary_fragment_color = clamp(diffuse_sum, vec4(0.0), vec4(1.0));
+secondary_fragment_color = clamp(specular_sum, vec4(0.0), vec4(1.0));
+
+vec4 combiner_buffer = vec4(0.0);
+vec4 next_combiner_buffer = tev_combiner_buffer_color;
+vec4 last_tex_env_out = vec4(0.0);
+vec3 color_output_0 = byteround(clamp((rounded_primary_color.rgb) * (texcolor1.rgb), vec3(0.0), vec3(1.0)));
+float alpha_output_0 = byteround(clamp((rounded_primary_color.a) * (texcolor1.a), 0.0, 1.0));
+last_tex_env_out = clamp(vec4(color_output_0 * 2.0, alpha_output_0 * 1.0), vec4(0.0), vec4(1.0));
+combiner_buffer = next_combiner_buffer;
+
+vec3 color_output_1 = byteround(clamp((last_tex_env_out.rgb) * (primary_fragment_color.rgb), vec3(0.0), vec3(1.0)));
+float alpha_output_1 = byteround(clamp((last_tex_env_out.a), 0.0, 1.0));
+last_tex_env_out = clamp(vec4(color_output_1, alpha_output_1), vec4(0.0), vec4(1.0));
+combiner_buffer = next_combiner_buffer;
+
+vec3 color_output_2 = byteround(clamp((last_tex_env_out.rgb), vec3(0.0), vec3(1.0)));
+float alpha_output_2 = byteround(clamp((last_tex_env_out.a) * (const_color[2].a), 0.0, 1.0));
+last_tex_env_out = clamp(vec4(color_output_2, alpha_output_2), vec4(0.0), vec4(1.0));
+combiner_buffer = next_combiner_buffer;
+
+vec3 color_output_3 = byteround(clamp(min((const_color[3].rgb) + (shadowTexture(texcoord0, texcoord0_w).ggg), vec3(1.0)) * (last_tex_env_out.rgb), vec3(0.0), vec3(1.0)));
+float alpha_output_3 = byteround(clamp((last_tex_env_out.a), 0.0, 1.0));
+last_tex_env_out = clamp(vec4(color_output_3, alpha_output_3), vec4(0.0), vec4(1.0));
+combiner_buffer = next_combiner_buffer;
+
+combiner_buffer = next_combiner_buffer;
+
+combiner_buffer = next_combiner_buffer;
+
+gl_FragDepth = depth;
+color = byteround(last_tex_env_out);
+}
+// reference: D0E96D32699FCC61, 66FD092C04EC6A2C
+// program: 1A9F70669A3C74DF, F0531050140A5884, 66FD092C04EC6A2C
+// shader: 8B30, C0CC0487245FA746
+in vec4 primary_color;
+in vec2 texcoord0;
+in vec2 texcoord1;
+in vec2 texcoord2;
+in float texcoord0_w;
+in vec4 normquat;
+in vec3 view;
+
+#ifndef CITRA_GLES
+in vec4 gl_FragCoord;
+#endif // CITRA_GLES
+out vec4 color;
+
+uniform sampler2D tex0;
+uniform sampler2D tex1;
+uniform sampler2D tex2;
+uniform samplerCube tex_cube;
+uniform samplerBuffer texture_buffer_lut_lf;
+uniform samplerBuffer texture_buffer_lut_rg;
+uniform samplerBuffer texture_buffer_lut_rgba;
+
+#define NUM_TEV_STAGES 6
+#define NUM_LIGHTS 8
+#define NUM_LIGHTING_SAMPLERS 24
+
+struct LightSrc {
+    vec3 specular_0;
+    vec3 specular_1;
+    vec3 diffuse;
+    vec3 ambient;
+    vec3 position;
+    vec3 spot_direction;
+    float dist_atten_bias;
+    float dist_atten_scale;
+};
+
+layout (std140) uniform shader_data {
+    int alphatest_ref;
+    float depth_scale;
+    float depth_offset;
+    float shadow_bias_constant;
+    float shadow_bias_linear;
+    int scissor_x1;
+    int scissor_y1;
+    int scissor_x2;
+    int scissor_y2;
+    int fog_lut_offset;
+    int proctex_noise_lut_offset;
+    int proctex_color_map_offset;
+    int proctex_alpha_map_offset;
+    int proctex_lut_offset;
+    int proctex_diff_lut_offset;
+    float proctex_bias;
+    vec3 fog_color;
+    vec2 proctex_noise_f;
+    vec2 proctex_noise_a;
+    vec2 proctex_noise_p;
+    vec4 const_color[NUM_TEV_STAGES];
+    vec4 tev_combiner_buffer_color;
+    vec4 clip_coef;
+};
+
+layout (std140) uniform shader_light_data {
+    ivec4 lighting_lut_offset[NUM_LIGHTING_SAMPLERS / 4];
+    vec3 lighting_global_ambient;
+    LightSrc light_src[NUM_LIGHTS];
+    float lut_scale_d0;
+    float lut_scale_d1;
+    float lut_scale_sp;
+    float lut_scale_fr;
+    float lut_scale_rb;
+    float lut_scale_rg;
+    float lut_scale_rr;
+    int shadow_texture_bias;
+};
+
+// Rotate the vector v by the quaternion q
+vec3 quaternion_rotate(vec4 q, vec3 v) {
+    return v + 2.0 * cross(q.xyz, cross(q.xyz, v) + q.w * v);
+}
+
+float LookupLightingLUT(int lut_index, int index, float delta) {
+    vec2 entry = texelFetch(texture_buffer_lut_lf, lighting_lut_offset[lut_index >> 2][lut_index & 3] + index).rg;
+    return entry.r + entry.g * delta;
+}
+
+float LookupLightingLUTUnsigned(int lut_index, float pos) {
+    int index = clamp(int(pos * 256.0), 0, 255);
+    float delta = pos * 256.0 - float(index);
+    return LookupLightingLUT(lut_index, index, delta);
+}
+
+float LookupLightingLUTSigned(int lut_index, float pos) {
+    int index = clamp(int(pos * 128.0), -128, 127);
+    float delta = pos * 128.0 - float(index);
+    if (index < 0) index += 256;
+    return LookupLightingLUT(lut_index, index, delta);
+}
+
+float byteround(float x) {
+    return round(x * 255.0) * (1.0 / 255.0);
+}
+
+vec2 byteround(vec2 x) {
+    return round(x * 255.0) * (1.0 / 255.0);
+}
+
+vec3 byteround(vec3 x) {
+    return round(x * 255.0) * (1.0 / 255.0);
+}
+
+vec4 byteround(vec4 x) {
+    return round(x * 255.0) * (1.0 / 255.0);
+}
+
+// PICA's LOD formula for 2D textures.
+// This LOD formula is the same as the LOD lower limit defined in OpenGL.
+// f(x, y) >= max{m_u, m_v, m_w}
+// (See OpenGL 4.6 spec, 8.14.1 - Scale Factor and Level-of-Detail)
+float getLod(vec2 coord) {
+    vec2 d = max(abs(dFdx(coord)), abs(dFdy(coord)));
+    return log2(max(d.x, d.y));
+}
+
+vec4 shadowTexture(vec2 uv, float w) {
+    return vec4(1.0);
+}
+
+vec4 shadowTextureCube(vec2 uv, float w) {
+    return vec4(1.0);
+}
+
+void main() {
+vec4 rounded_primary_color = byteround(primary_color);
+vec4 primary_fragment_color = vec4(0.0);
+vec4 secondary_fragment_color = vec4(0.0);
+if (!(gl_FragCoord.x >= float(scissor_x1) && gl_FragCoord.y >= float(scissor_y1) && gl_FragCoord.x < float(scissor_x2) && gl_FragCoord.y < float(scissor_y2))) discard;
+float z_over_w = 2.0 * gl_FragCoord.z - 1.0;
+float depth = z_over_w * depth_scale + depth_offset;
+vec4 texcolor1 = textureLod(tex1, texcoord1, getLod(texcoord1 * vec2(textureSize(tex1, 0))));
+
+vec4 diffuse_sum = vec4(0.0, 0.0, 0.0, 1.0);
+vec4 specular_sum = vec4(0.0, 0.0, 0.0, 1.0);
+vec3 light_vector = vec3(0.0);
+vec3 refl_value = vec3(0.0);
+vec3 spot_dir = vec3(0.0);
+vec3 half_vector = vec3(0.0);
+float dot_product = 0.0;
+float clamp_highlights = 1.0;
+float geo_factor = 1.0;
+vec3 surface_normal = vec3(0.0, 0.0, 1.0);
+vec3 surface_tangent = vec3(1.0, 0.0, 0.0);
+vec4 normalized_normquat = normalize(normquat);
+vec3 normal = quaternion_rotate(normalized_normquat, surface_normal);
+vec3 tangent = quaternion_rotate(normalized_normquat, surface_tangent);
+vec4 shadow = vec4(1.0);
+light_vector = normalize(light_src[0].position + view);
+spot_dir = light_src[0].spot_direction;
+half_vector = normalize(view) + light_vector;
+dot_product = max(dot(light_vector, normal), 0.0);
+refl_value.r = 1.0;
+refl_value.g = refl_value.r;
+refl_value.b = refl_value.r;
+diffuse_sum.rgb += ((light_src[0].diffuse * dot_product) + light_src[0].ambient) * LookupLightingLUTUnsigned(16,clamp(light_src[0].dist_atten_scale * length(-view - light_src[0].position) + light_src[0].dist_atten_bias, 0.0, 1.0)) * 1.0;
+specular_sum.rgb += ((light_src[0].specular_0) + (light_src[0].specular_1)) * clamp_highlights * LookupLightingLUTUnsigned(16,clamp(light_src[0].dist_atten_scale * length(-view - light_src[0].position) + light_src[0].dist_atten_bias, 0.0, 1.0)) * 1.0;
+light_vector = normalize(light_src[1].position + view);
+spot_dir = light_src[1].spot_direction;
+half_vector = normalize(view) + light_vector;
+dot_product = max(dot(light_vector, normal), 0.0);
+refl_value.r = 1.0;
+refl_value.g = refl_value.r;
+refl_value.b = refl_value.r;
+diffuse_sum.rgb += ((light_src[1].diffuse * dot_product) + light_src[1].ambient) * LookupLightingLUTUnsigned(17,clamp(light_src[1].dist_atten_scale * length(-view - light_src[1].position) + light_src[1].dist_atten_bias, 0.0, 1.0)) * 1.0;
+specular_sum.rgb += ((light_src[1].specular_0) + (light_src[1].specular_1)) * clamp_highlights * LookupLightingLUTUnsigned(17,clamp(light_src[1].dist_atten_scale * length(-view - light_src[1].position) + light_src[1].dist_atten_bias, 0.0, 1.0)) * 1.0;
+diffuse_sum.rgb += lighting_global_ambient;
+primary_fragment_color = clamp(diffuse_sum, vec4(0.0), vec4(1.0));
+secondary_fragment_color = clamp(specular_sum, vec4(0.0), vec4(1.0));
+
+vec4 combiner_buffer = vec4(0.0);
+vec4 next_combiner_buffer = tev_combiner_buffer_color;
+vec4 last_tex_env_out = vec4(0.0);
+vec3 color_output_0 = byteround(clamp((rounded_primary_color.rgb), vec3(0.0), vec3(1.0)));
+float alpha_output_0 = byteround(clamp((rounded_primary_color.r) * (rounded_primary_color.r), 0.0, 1.0));
+last_tex_env_out = clamp(vec4(color_output_0 * 1.0, alpha_output_0 * 2.0), vec4(0.0), vec4(1.0));
+combiner_buffer = next_combiner_buffer;
+
+vec3 color_output_1 = byteround(clamp((const_color[1].rgb) * (vec3(1.0) - last_tex_env_out.aaa) + (rounded_primary_color.rgb), vec3(0.0), vec3(1.0)));
+float alpha_output_1 = byteround(clamp((rounded_primary_color.a) * (texcolor1.a), 0.0, 1.0));
+last_tex_env_out = clamp(vec4(color_output_1, alpha_output_1), vec4(0.0), vec4(1.0));
+combiner_buffer = next_combiner_buffer;
+
+vec3 color_output_2 = byteround(clamp((last_tex_env_out.rgb) * (texcolor1.rgb), vec3(0.0), vec3(1.0)));
+float alpha_output_2 = byteround(clamp((last_tex_env_out.a), 0.0, 1.0));
+last_tex_env_out = clamp(vec4(color_output_2 * 2.0, alpha_output_2 * 1.0), vec4(0.0), vec4(1.0));
+combiner_buffer = next_combiner_buffer;
+
+vec3 color_output_3 = byteround(clamp((last_tex_env_out.rgb) * (primary_fragment_color.rgb), vec3(0.0), vec3(1.0)));
+float alpha_output_3 = byteround(clamp((last_tex_env_out.a) * (const_color[3].a), 0.0, 1.0));
+last_tex_env_out = clamp(vec4(color_output_3, alpha_output_3), vec4(0.0), vec4(1.0));
+combiner_buffer = next_combiner_buffer;
+
+vec3 color_output_4 = byteround(clamp(min((const_color[4].rgb) + (shadowTexture(texcoord0, texcoord0_w).ggg), vec3(1.0)) * (last_tex_env_out.rgb), vec3(0.0), vec3(1.0)));
+float alpha_output_4 = byteround(clamp((last_tex_env_out.a), 0.0, 1.0));
+last_tex_env_out = clamp(vec4(color_output_4, alpha_output_4), vec4(0.0), vec4(1.0));
+combiner_buffer = next_combiner_buffer;
+
+combiner_buffer = next_combiner_buffer;
+
+gl_FragDepth = depth;
+color = byteround(last_tex_env_out);
+}
+// reference: 1BCF7393D389DBF1, C0CC0487245FA746
+// program: 1A9F70669A3C74DF, F0531050140A5884, C0CC0487245FA746
+// shader: 8B30, 1869C98257F5EE6E
+in vec4 primary_color;
+in vec2 texcoord0;
+in vec2 texcoord1;
+in vec2 texcoord2;
+in float texcoord0_w;
+in vec4 normquat;
+in vec3 view;
+
+#ifndef CITRA_GLES
+in vec4 gl_FragCoord;
+#endif // CITRA_GLES
+out vec4 color;
+
+uniform sampler2D tex0;
+uniform sampler2D tex1;
+uniform sampler2D tex2;
+uniform samplerCube tex_cube;
+uniform samplerBuffer texture_buffer_lut_lf;
+uniform samplerBuffer texture_buffer_lut_rg;
+uniform samplerBuffer texture_buffer_lut_rgba;
+
+#define NUM_TEV_STAGES 6
+#define NUM_LIGHTS 8
+#define NUM_LIGHTING_SAMPLERS 24
+
+struct LightSrc {
+    vec3 specular_0;
+    vec3 specular_1;
+    vec3 diffuse;
+    vec3 ambient;
+    vec3 position;
+    vec3 spot_direction;
+    float dist_atten_bias;
+    float dist_atten_scale;
+};
+
+layout (std140) uniform shader_data {
+    int alphatest_ref;
+    float depth_scale;
+    float depth_offset;
+    float shadow_bias_constant;
+    float shadow_bias_linear;
+    int scissor_x1;
+    int scissor_y1;
+    int scissor_x2;
+    int scissor_y2;
+    int fog_lut_offset;
+    int proctex_noise_lut_offset;
+    int proctex_color_map_offset;
+    int proctex_alpha_map_offset;
+    int proctex_lut_offset;
+    int proctex_diff_lut_offset;
+    float proctex_bias;
+    vec3 fog_color;
+    vec2 proctex_noise_f;
+    vec2 proctex_noise_a;
+    vec2 proctex_noise_p;
+    vec4 const_color[NUM_TEV_STAGES];
+    vec4 tev_combiner_buffer_color;
+    vec4 clip_coef;
+};
+
+layout (std140) uniform shader_light_data {
+    ivec4 lighting_lut_offset[NUM_LIGHTING_SAMPLERS / 4];
+    vec3 lighting_global_ambient;
+    LightSrc light_src[NUM_LIGHTS];
+    float lut_scale_d0;
+    float lut_scale_d1;
+    float lut_scale_sp;
+    float lut_scale_fr;
+    float lut_scale_rb;
+    float lut_scale_rg;
+    float lut_scale_rr;
+    int shadow_texture_bias;
+};
+
+// Rotate the vector v by the quaternion q
+vec3 quaternion_rotate(vec4 q, vec3 v) {
+    return v + 2.0 * cross(q.xyz, cross(q.xyz, v) + q.w * v);
+}
+
+float LookupLightingLUT(int lut_index, int index, float delta) {
+    vec2 entry = texelFetch(texture_buffer_lut_lf, lighting_lut_offset[lut_index >> 2][lut_index & 3] + index).rg;
+    return entry.r + entry.g * delta;
+}
+
+float LookupLightingLUTUnsigned(int lut_index, float pos) {
+    int index = clamp(int(pos * 256.0), 0, 255);
+    float delta = pos * 256.0 - float(index);
+    return LookupLightingLUT(lut_index, index, delta);
+}
+
+float LookupLightingLUTSigned(int lut_index, float pos) {
+    int index = clamp(int(pos * 128.0), -128, 127);
+    float delta = pos * 128.0 - float(index);
+    if (index < 0) index += 256;
+    return LookupLightingLUT(lut_index, index, delta);
+}
+
+float byteround(float x) {
+    return round(x * 255.0) * (1.0 / 255.0);
+}
+
+vec2 byteround(vec2 x) {
+    return round(x * 255.0) * (1.0 / 255.0);
+}
+
+vec3 byteround(vec3 x) {
+    return round(x * 255.0) * (1.0 / 255.0);
+}
+
+vec4 byteround(vec4 x) {
+    return round(x * 255.0) * (1.0 / 255.0);
+}
+
+// PICA's LOD formula for 2D textures.
+// This LOD formula is the same as the LOD lower limit defined in OpenGL.
+// f(x, y) >= max{m_u, m_v, m_w}
+// (See OpenGL 4.6 spec, 8.14.1 - Scale Factor and Level-of-Detail)
+float getLod(vec2 coord) {
+    vec2 d = max(abs(dFdx(coord)), abs(dFdy(coord)));
+    return log2(max(d.x, d.y));
+}
+
+vec4 shadowTexture(vec2 uv, float w) {
+    return vec4(1.0);
+}
+
+vec4 shadowTextureCube(vec2 uv, float w) {
+    return vec4(1.0);
+}
+
+void main() {
+vec4 rounded_primary_color = byteround(primary_color);
+vec4 primary_fragment_color = vec4(0.0);
+vec4 secondary_fragment_color = vec4(0.0);
+if (!(gl_FragCoord.x >= float(scissor_x1) && gl_FragCoord.y >= float(scissor_y1) && gl_FragCoord.x < float(scissor_x2) && gl_FragCoord.y < float(scissor_y2))) discard;
+float z_over_w = 2.0 * gl_FragCoord.z - 1.0;
+float depth = z_over_w * depth_scale + depth_offset;
+vec4 texcolor0 = textureLod(tex0, texcoord0, getLod(texcoord0 * vec2(textureSize(tex0, 0))));
+vec4 texcolor1 = textureLod(tex1, texcoord1, getLod(texcoord1 * vec2(textureSize(tex1, 0))));
+
+vec4 diffuse_sum = vec4(0.0, 0.0, 0.0, 1.0);
+vec4 specular_sum = vec4(0.0, 0.0, 0.0, 1.0);
+vec3 light_vector = vec3(0.0);
+vec3 refl_value = vec3(0.0);
+vec3 spot_dir = vec3(0.0);
+vec3 half_vector = vec3(0.0);
+float dot_product = 0.0;
+float clamp_highlights = 1.0;
+float geo_factor = 1.0;
+vec3 surface_normal = vec3(0.0, 0.0, 1.0);
+vec3 surface_tangent = vec3(1.0, 0.0, 0.0);
+vec4 normalized_normquat = normalize(normquat);
+vec3 normal = quaternion_rotate(normalized_normquat, surface_normal);
+vec3 tangent = quaternion_rotate(normalized_normquat, surface_tangent);
+vec4 shadow = vec4(1.0);
+light_vector = normalize(light_src[0].position + view);
+spot_dir = light_src[0].spot_direction;
+half_vector = normalize(view) + light_vector;
+dot_product = max(dot(light_vector, normal), 0.0);
+refl_value.r = 1.0;
+refl_value.g = refl_value.r;
+refl_value.b = refl_value.r;
+diffuse_sum.rgb += ((light_src[0].diffuse * dot_product) + light_src[0].ambient) * LookupLightingLUTUnsigned(16,clamp(light_src[0].dist_atten_scale * length(-view - light_src[0].position) + light_src[0].dist_atten_bias, 0.0, 1.0)) * 1.0;
+specular_sum.rgb += ((light_src[0].specular_0) + (light_src[0].specular_1)) * clamp_highlights * LookupLightingLUTUnsigned(16,clamp(light_src[0].dist_atten_scale * length(-view - light_src[0].position) + light_src[0].dist_atten_bias, 0.0, 1.0)) * 1.0;
+light_vector = normalize(light_src[1].position + view);
+spot_dir = light_src[1].spot_direction;
+half_vector = normalize(view) + light_vector;
+dot_product = max(dot(light_vector, normal), 0.0);
+refl_value.r = 1.0;
+refl_value.g = refl_value.r;
+refl_value.b = refl_value.r;
+diffuse_sum.rgb += ((light_src[1].diffuse * dot_product) + light_src[1].ambient) * LookupLightingLUTUnsigned(17,clamp(light_src[1].dist_atten_scale * length(-view - light_src[1].position) + light_src[1].dist_atten_bias, 0.0, 1.0)) * 1.0;
+specular_sum.rgb += ((light_src[1].specular_0) + (light_src[1].specular_1)) * clamp_highlights * LookupLightingLUTUnsigned(17,clamp(light_src[1].dist_atten_scale * length(-view - light_src[1].position) + light_src[1].dist_atten_bias, 0.0, 1.0)) * 1.0;
+diffuse_sum.rgb += lighting_global_ambient;
+primary_fragment_color = clamp(diffuse_sum, vec4(0.0), vec4(1.0));
+secondary_fragment_color = clamp(specular_sum, vec4(0.0), vec4(1.0));
+
+vec4 combiner_buffer = vec4(0.0);
+vec4 next_combiner_buffer = tev_combiner_buffer_color;
+vec4 last_tex_env_out = vec4(0.0);
+vec3 color_output_0 = byteround(clamp((rounded_primary_color.rgb) * (texcolor1.rgb), vec3(0.0), vec3(1.0)));
+float alpha_output_0 = byteround(clamp((rounded_primary_color.a) * (texcolor1.a), 0.0, 1.0));
+last_tex_env_out = clamp(vec4(color_output_0 * 2.0, alpha_output_0 * 1.0), vec4(0.0), vec4(1.0));
+combiner_buffer = next_combiner_buffer;
+
+vec3 color_output_1 = byteround(clamp((last_tex_env_out.rgb) * (primary_fragment_color.rgb), vec3(0.0), vec3(1.0)));
+float alpha_output_1 = byteround(clamp((last_tex_env_out.a), 0.0, 1.0));
+last_tex_env_out = clamp(vec4(color_output_1, alpha_output_1), vec4(0.0), vec4(1.0));
+combiner_buffer = next_combiner_buffer;
+
+vec3 color_output_2 = byteround(clamp((last_tex_env_out.rgb), vec3(0.0), vec3(1.0)));
+float alpha_output_2 = byteround(clamp((last_tex_env_out.a) * (const_color[2].a), 0.0, 1.0));
+last_tex_env_out = clamp(vec4(color_output_2, alpha_output_2), vec4(0.0), vec4(1.0));
+combiner_buffer = next_combiner_buffer;
+
+vec3 color_output_3 = byteround(clamp(min((const_color[3].rgb) + (texcolor0.ggg), vec3(1.0)) * (last_tex_env_out.rgb), vec3(0.0), vec3(1.0)));
+float alpha_output_3 = byteround(clamp((last_tex_env_out.a), 0.0, 1.0));
+last_tex_env_out = clamp(vec4(color_output_3, alpha_output_3), vec4(0.0), vec4(1.0));
+combiner_buffer = next_combiner_buffer;
+
+combiner_buffer = next_combiner_buffer;
+
+combiner_buffer = next_combiner_buffer;
+
+gl_FragDepth = depth;
+color = byteround(last_tex_env_out);
+}
+// reference: 8143425F699FCC61, 1869C98257F5EE6E
+// program: 1A9F70669A3C74DF, F0531050140A5884, 1869C98257F5EE6E
+// shader: 8B30, AD6BB00ADE270B64
+in vec4 primary_color;
+in vec2 texcoord0;
+in vec2 texcoord1;
+in vec2 texcoord2;
+in float texcoord0_w;
+in vec4 normquat;
+in vec3 view;
+
+#ifndef CITRA_GLES
+in vec4 gl_FragCoord;
+#endif // CITRA_GLES
+out vec4 color;
+
+uniform sampler2D tex0;
+uniform sampler2D tex1;
+uniform sampler2D tex2;
+uniform samplerCube tex_cube;
+uniform samplerBuffer texture_buffer_lut_lf;
+uniform samplerBuffer texture_buffer_lut_rg;
+uniform samplerBuffer texture_buffer_lut_rgba;
+
+#define NUM_TEV_STAGES 6
+#define NUM_LIGHTS 8
+#define NUM_LIGHTING_SAMPLERS 24
+
+struct LightSrc {
+    vec3 specular_0;
+    vec3 specular_1;
+    vec3 diffuse;
+    vec3 ambient;
+    vec3 position;
+    vec3 spot_direction;
+    float dist_atten_bias;
+    float dist_atten_scale;
+};
+
+layout (std140) uniform shader_data {
+    int alphatest_ref;
+    float depth_scale;
+    float depth_offset;
+    float shadow_bias_constant;
+    float shadow_bias_linear;
+    int scissor_x1;
+    int scissor_y1;
+    int scissor_x2;
+    int scissor_y2;
+    int fog_lut_offset;
+    int proctex_noise_lut_offset;
+    int proctex_color_map_offset;
+    int proctex_alpha_map_offset;
+    int proctex_lut_offset;
+    int proctex_diff_lut_offset;
+    float proctex_bias;
+    vec3 fog_color;
+    vec2 proctex_noise_f;
+    vec2 proctex_noise_a;
+    vec2 proctex_noise_p;
+    vec4 const_color[NUM_TEV_STAGES];
+    vec4 tev_combiner_buffer_color;
+    vec4 clip_coef;
+};
+
+layout (std140) uniform shader_light_data {
+    ivec4 lighting_lut_offset[NUM_LIGHTING_SAMPLERS / 4];
+    vec3 lighting_global_ambient;
+    LightSrc light_src[NUM_LIGHTS];
+    float lut_scale_d0;
+    float lut_scale_d1;
+    float lut_scale_sp;
+    float lut_scale_fr;
+    float lut_scale_rb;
+    float lut_scale_rg;
+    float lut_scale_rr;
+    int shadow_texture_bias;
+};
+
+// Rotate the vector v by the quaternion q
+vec3 quaternion_rotate(vec4 q, vec3 v) {
+    return v + 2.0 * cross(q.xyz, cross(q.xyz, v) + q.w * v);
+}
+
+float LookupLightingLUT(int lut_index, int index, float delta) {
+    vec2 entry = texelFetch(texture_buffer_lut_lf, lighting_lut_offset[lut_index >> 2][lut_index & 3] + index).rg;
+    return entry.r + entry.g * delta;
+}
+
+float LookupLightingLUTUnsigned(int lut_index, float pos) {
+    int index = clamp(int(pos * 256.0), 0, 255);
+    float delta = pos * 256.0 - float(index);
+    return LookupLightingLUT(lut_index, index, delta);
+}
+
+float LookupLightingLUTSigned(int lut_index, float pos) {
+    int index = clamp(int(pos * 128.0), -128, 127);
+    float delta = pos * 128.0 - float(index);
+    if (index < 0) index += 256;
+    return LookupLightingLUT(lut_index, index, delta);
+}
+
+float byteround(float x) {
+    return round(x * 255.0) * (1.0 / 255.0);
+}
+
+vec2 byteround(vec2 x) {
+    return round(x * 255.0) * (1.0 / 255.0);
+}
+
+vec3 byteround(vec3 x) {
+    return round(x * 255.0) * (1.0 / 255.0);
+}
+
+vec4 byteround(vec4 x) {
+    return round(x * 255.0) * (1.0 / 255.0);
+}
+
+// PICA's LOD formula for 2D textures.
+// This LOD formula is the same as the LOD lower limit defined in OpenGL.
+// f(x, y) >= max{m_u, m_v, m_w}
+// (See OpenGL 4.6 spec, 8.14.1 - Scale Factor and Level-of-Detail)
+float getLod(vec2 coord) {
+    vec2 d = max(abs(dFdx(coord)), abs(dFdy(coord)));
+    return log2(max(d.x, d.y));
+}
+
+vec4 shadowTexture(vec2 uv, float w) {
+    return vec4(1.0);
+}
+
+vec4 shadowTextureCube(vec2 uv, float w) {
+    return vec4(1.0);
+}
+
+void main() {
+vec4 rounded_primary_color = byteround(primary_color);
+vec4 primary_fragment_color = vec4(0.0);
+vec4 secondary_fragment_color = vec4(0.0);
+if (!(gl_FragCoord.x >= float(scissor_x1) && gl_FragCoord.y >= float(scissor_y1) && gl_FragCoord.x < float(scissor_x2) && gl_FragCoord.y < float(scissor_y2))) discard;
+float z_over_w = 2.0 * gl_FragCoord.z - 1.0;
+float depth = z_over_w * depth_scale + depth_offset;
+vec4 texcolor0 = textureLod(tex0, texcoord0, getLod(texcoord0 * vec2(textureSize(tex0, 0))));
+
+vec4 diffuse_sum = vec4(0.0, 0.0, 0.0, 1.0);
+vec4 specular_sum = vec4(0.0, 0.0, 0.0, 1.0);
+vec3 light_vector = vec3(0.0);
+vec3 refl_value = vec3(0.0);
+vec3 spot_dir = vec3(0.0);
+vec3 half_vector = vec3(0.0);
+float dot_product = 0.0;
+float clamp_highlights = 1.0;
+float geo_factor = 1.0;
+vec3 surface_normal = vec3(0.0, 0.0, 1.0);
+vec3 surface_tangent = vec3(1.0, 0.0, 0.0);
+vec4 normalized_normquat = normalize(normquat);
+vec3 normal = quaternion_rotate(normalized_normquat, surface_normal);
+vec3 tangent = quaternion_rotate(normalized_normquat, surface_tangent);
+vec4 shadow = vec4(1.0);
+light_vector = normalize(light_src[0].position + view);
+spot_dir = light_src[0].spot_direction;
+half_vector = normalize(view) + light_vector;
+dot_product = max(dot(light_vector, normal), 0.0);
+refl_value.r = 1.0;
+refl_value.g = refl_value.r;
+refl_value.b = refl_value.r;
+diffuse_sum.rgb += ((light_src[0].diffuse * dot_product) + light_src[0].ambient) * LookupLightingLUTUnsigned(16,clamp(light_src[0].dist_atten_scale * length(-view - light_src[0].position) + light_src[0].dist_atten_bias, 0.0, 1.0)) * 1.0;
+specular_sum.rgb += (((lut_scale_d0 * LookupLightingLUTSigned(0, dot(normal, normalize(half_vector)))) * light_src[0].specular_0) + ((lut_scale_d1 * LookupLightingLUTSigned(1, dot(normal, normalize(view)))) * light_src[0].specular_1)) * clamp_highlights * LookupLightingLUTUnsigned(16,clamp(light_src[0].dist_atten_scale * length(-view - light_src[0].position) + light_src[0].dist_atten_bias, 0.0, 1.0)) * 1.0;
+light_vector = normalize(light_src[1].position + view);
+spot_dir = light_src[1].spot_direction;
+half_vector = normalize(view) + light_vector;
+dot_product = max(dot(light_vector, normal), 0.0);
+refl_value.r = 1.0;
+refl_value.g = refl_value.r;
+refl_value.b = refl_value.r;
+diffuse_sum.rgb += ((light_src[1].diffuse * dot_product) + light_src[1].ambient) * LookupLightingLUTUnsigned(17,clamp(light_src[1].dist_atten_scale * length(-view - light_src[1].position) + light_src[1].dist_atten_bias, 0.0, 1.0)) * 1.0;
+specular_sum.rgb += (((lut_scale_d0 * LookupLightingLUTSigned(0, dot(normal, normalize(half_vector)))) * light_src[1].specular_0) + ((lut_scale_d1 * LookupLightingLUTSigned(1, dot(normal, normalize(view)))) * light_src[1].specular_1)) * clamp_highlights * LookupLightingLUTUnsigned(17,clamp(light_src[1].dist_atten_scale * length(-view - light_src[1].position) + light_src[1].dist_atten_bias, 0.0, 1.0)) * 1.0;
+diffuse_sum.rgb += lighting_global_ambient;
+primary_fragment_color = clamp(diffuse_sum, vec4(0.0), vec4(1.0));
+secondary_fragment_color = clamp(specular_sum, vec4(0.0), vec4(1.0));
+
+vec4 combiner_buffer = vec4(0.0);
+vec4 next_combiner_buffer = tev_combiner_buffer_color;
+vec4 last_tex_env_out = vec4(0.0);
+vec3 color_output_0 = byteround(clamp((primary_fragment_color.rgb) * (texcolor0.rgb), vec3(0.0), vec3(1.0)));
+float alpha_output_0 = byteround(clamp((rounded_primary_color.a), 0.0, 1.0));
+last_tex_env_out = clamp(vec4(color_output_0, alpha_output_0), vec4(0.0), vec4(1.0));
+combiner_buffer = next_combiner_buffer;
+
+vec3 color_output_1 = byteround(clamp((const_color[1].rgb) * (secondary_fragment_color.rgb) + (last_tex_env_out.rgb), vec3(0.0), vec3(1.0)));
+float alpha_output_1 = byteround(clamp((last_tex_env_out.a), 0.0, 1.0));
+last_tex_env_out = clamp(vec4(color_output_1, alpha_output_1), vec4(0.0), vec4(1.0));
+combiner_buffer = next_combiner_buffer;
+
+vec3 color_output_2 = byteround(clamp((last_tex_env_out.rgb), vec3(0.0), vec3(1.0)));
+float alpha_output_2 = byteround(clamp((last_tex_env_out.a) * (const_color[2].a), 0.0, 1.0));
+last_tex_env_out = clamp(vec4(color_output_2, alpha_output_2), vec4(0.0), vec4(1.0));
+combiner_buffer = next_combiner_buffer;
+
+combiner_buffer = next_combiner_buffer;
+
+combiner_buffer = next_combiner_buffer;
+
+combiner_buffer = next_combiner_buffer;
+
+gl_FragDepth = depth;
+color = byteround(last_tex_env_out);
+}
+// reference: 8400BEB5ABFAB81E, AD6BB00ADE270B64
+// program: 1A9F70669A3C74DF, F0531050140A5884, AD6BB00ADE270B64
+// shader: 8B30, 82ECE96A2E1F82D5
+in vec4 primary_color;
+in vec2 texcoord0;
+in vec2 texcoord1;
+in vec2 texcoord2;
+in float texcoord0_w;
+in vec4 normquat;
+in vec3 view;
+
+#ifndef CITRA_GLES
+in vec4 gl_FragCoord;
+#endif // CITRA_GLES
+out vec4 color;
+
+uniform sampler2D tex0;
+uniform sampler2D tex1;
+uniform sampler2D tex2;
+uniform samplerCube tex_cube;
+uniform samplerBuffer texture_buffer_lut_lf;
+uniform samplerBuffer texture_buffer_lut_rg;
+uniform samplerBuffer texture_buffer_lut_rgba;
+
+#define NUM_TEV_STAGES 6
+#define NUM_LIGHTS 8
+#define NUM_LIGHTING_SAMPLERS 24
+
+struct LightSrc {
+    vec3 specular_0;
+    vec3 specular_1;
+    vec3 diffuse;
+    vec3 ambient;
+    vec3 position;
+    vec3 spot_direction;
+    float dist_atten_bias;
+    float dist_atten_scale;
+};
+
+layout (std140) uniform shader_data {
+    int alphatest_ref;
+    float depth_scale;
+    float depth_offset;
+    float shadow_bias_constant;
+    float shadow_bias_linear;
+    int scissor_x1;
+    int scissor_y1;
+    int scissor_x2;
+    int scissor_y2;
+    int fog_lut_offset;
+    int proctex_noise_lut_offset;
+    int proctex_color_map_offset;
+    int proctex_alpha_map_offset;
+    int proctex_lut_offset;
+    int proctex_diff_lut_offset;
+    float proctex_bias;
+    vec3 fog_color;
+    vec2 proctex_noise_f;
+    vec2 proctex_noise_a;
+    vec2 proctex_noise_p;
+    vec4 const_color[NUM_TEV_STAGES];
+    vec4 tev_combiner_buffer_color;
+    vec4 clip_coef;
+};
+
+layout (std140) uniform shader_light_data {
+    ivec4 lighting_lut_offset[NUM_LIGHTING_SAMPLERS / 4];
+    vec3 lighting_global_ambient;
+    LightSrc light_src[NUM_LIGHTS];
+    float lut_scale_d0;
+    float lut_scale_d1;
+    float lut_scale_sp;
+    float lut_scale_fr;
+    float lut_scale_rb;
+    float lut_scale_rg;
+    float lut_scale_rr;
+    int shadow_texture_bias;
+};
+
+// Rotate the vector v by the quaternion q
+vec3 quaternion_rotate(vec4 q, vec3 v) {
+    return v + 2.0 * cross(q.xyz, cross(q.xyz, v) + q.w * v);
+}
+
+float LookupLightingLUT(int lut_index, int index, float delta) {
+    vec2 entry = texelFetch(texture_buffer_lut_lf, lighting_lut_offset[lut_index >> 2][lut_index & 3] + index).rg;
+    return entry.r + entry.g * delta;
+}
+
+float LookupLightingLUTUnsigned(int lut_index, float pos) {
+    int index = clamp(int(pos * 256.0), 0, 255);
+    float delta = pos * 256.0 - float(index);
+    return LookupLightingLUT(lut_index, index, delta);
+}
+
+float LookupLightingLUTSigned(int lut_index, float pos) {
+    int index = clamp(int(pos * 128.0), -128, 127);
+    float delta = pos * 128.0 - float(index);
+    if (index < 0) index += 256;
+    return LookupLightingLUT(lut_index, index, delta);
+}
+
+float byteround(float x) {
+    return round(x * 255.0) * (1.0 / 255.0);
+}
+
+vec2 byteround(vec2 x) {
+    return round(x * 255.0) * (1.0 / 255.0);
+}
+
+vec3 byteround(vec3 x) {
+    return round(x * 255.0) * (1.0 / 255.0);
+}
+
+vec4 byteround(vec4 x) {
+    return round(x * 255.0) * (1.0 / 255.0);
+}
+
+// PICA's LOD formula for 2D textures.
+// This LOD formula is the same as the LOD lower limit defined in OpenGL.
+// f(x, y) >= max{m_u, m_v, m_w}
+// (See OpenGL 4.6 spec, 8.14.1 - Scale Factor and Level-of-Detail)
+float getLod(vec2 coord) {
+    vec2 d = max(abs(dFdx(coord)), abs(dFdy(coord)));
+    return log2(max(d.x, d.y));
+}
+
+vec4 shadowTexture(vec2 uv, float w) {
+    return vec4(1.0);
+}
+
+vec4 shadowTextureCube(vec2 uv, float w) {
+    return vec4(1.0);
+}
+
+void main() {
+vec4 rounded_primary_color = byteround(primary_color);
+vec4 primary_fragment_color = vec4(0.0);
+vec4 secondary_fragment_color = vec4(0.0);
+if (!(gl_FragCoord.x >= float(scissor_x1) && gl_FragCoord.y >= float(scissor_y1) && gl_FragCoord.x < float(scissor_x2) && gl_FragCoord.y < float(scissor_y2))) discard;
+float z_over_w = 2.0 * gl_FragCoord.z - 1.0;
+float depth = z_over_w * depth_scale + depth_offset;
+vec4 texcolor0 = textureLod(tex0, texcoord0, getLod(texcoord0 * vec2(textureSize(tex0, 0))));
+vec4 texcolor1 = textureLod(tex1, texcoord1, getLod(texcoord1 * vec2(textureSize(tex1, 0))));
+
+vec4 diffuse_sum = vec4(0.0, 0.0, 0.0, 1.0);
+vec4 specular_sum = vec4(0.0, 0.0, 0.0, 1.0);
+vec3 light_vector = vec3(0.0);
+vec3 refl_value = vec3(0.0);
+vec3 spot_dir = vec3(0.0);
+vec3 half_vector = vec3(0.0);
+float dot_product = 0.0;
+float clamp_highlights = 1.0;
+float geo_factor = 1.0;
+vec3 surface_normal = vec3(0.0, 0.0, 1.0);
+vec3 surface_tangent = vec3(1.0, 0.0, 0.0);
+vec4 normalized_normquat = normalize(normquat);
+vec3 normal = quaternion_rotate(normalized_normquat, surface_normal);
+vec3 tangent = quaternion_rotate(normalized_normquat, surface_tangent);
+vec4 shadow = vec4(1.0);
+light_vector = normalize(light_src[0].position + view);
+spot_dir = light_src[0].spot_direction;
+half_vector = normalize(view) + light_vector;
+dot_product = max(dot(light_vector, normal), 0.0);
+refl_value.r = 1.0;
+refl_value.g = refl_value.r;
+refl_value.b = refl_value.r;
+diffuse_sum.rgb += ((light_src[0].diffuse * dot_product) + light_src[0].ambient) * LookupLightingLUTUnsigned(16,clamp(light_src[0].dist_atten_scale * length(-view - light_src[0].position) + light_src[0].dist_atten_bias, 0.0, 1.0)) * 1.0;
+specular_sum.rgb += (((lut_scale_d0 * LookupLightingLUTSigned(0, dot(normal, normalize(half_vector)))) * light_src[0].specular_0) + ((lut_scale_d1 * LookupLightingLUTSigned(1, dot(normal, normalize(view)))) * light_src[0].specular_1)) * clamp_highlights * LookupLightingLUTUnsigned(16,clamp(light_src[0].dist_atten_scale * length(-view - light_src[0].position) + light_src[0].dist_atten_bias, 0.0, 1.0)) * 1.0;
+light_vector = normalize(light_src[1].position + view);
+spot_dir = light_src[1].spot_direction;
+half_vector = normalize(view) + light_vector;
+dot_product = max(dot(light_vector, normal), 0.0);
+refl_value.r = 1.0;
+refl_value.g = refl_value.r;
+refl_value.b = refl_value.r;
+diffuse_sum.rgb += ((light_src[1].diffuse * dot_product) + light_src[1].ambient) * LookupLightingLUTUnsigned(17,clamp(light_src[1].dist_atten_scale * length(-view - light_src[1].position) + light_src[1].dist_atten_bias, 0.0, 1.0)) * 1.0;
+specular_sum.rgb += (((lut_scale_d0 * LookupLightingLUTSigned(0, dot(normal, normalize(half_vector)))) * light_src[1].specular_0) + ((lut_scale_d1 * LookupLightingLUTSigned(1, dot(normal, normalize(view)))) * light_src[1].specular_1)) * clamp_highlights * LookupLightingLUTUnsigned(17,clamp(light_src[1].dist_atten_scale * length(-view - light_src[1].position) + light_src[1].dist_atten_bias, 0.0, 1.0)) * 1.0;
+diffuse_sum.rgb += lighting_global_ambient;
+primary_fragment_color = clamp(diffuse_sum, vec4(0.0), vec4(1.0));
+secondary_fragment_color = clamp(specular_sum, vec4(0.0), vec4(1.0));
+
+vec4 combiner_buffer = vec4(0.0);
+vec4 next_combiner_buffer = tev_combiner_buffer_color;
+vec4 last_tex_env_out = vec4(0.0);
+vec3 color_output_0 = byteround(clamp((primary_fragment_color.rgb) * (texcolor0.rgb), vec3(0.0), vec3(1.0)));
+float alpha_output_0 = byteround(clamp((rounded_primary_color.a) * (const_color[0].a), 0.0, 1.0));
+last_tex_env_out = clamp(vec4(color_output_0, alpha_output_0), vec4(0.0), vec4(1.0));
+combiner_buffer = next_combiner_buffer;
+
+vec3 color_output_1 = byteround(clamp(min((texcolor0.aaa) + (texcolor1.rgb), vec3(1.0)) * (last_tex_env_out.rgb), vec3(0.0), vec3(1.0)));
+float alpha_output_1 = byteround(clamp((last_tex_env_out.a), 0.0, 1.0));
+last_tex_env_out = clamp(vec4(color_output_1, alpha_output_1), vec4(0.0), vec4(1.0));
+combiner_buffer = next_combiner_buffer;
+
+vec3 color_output_2 = byteround(clamp((const_color[2].rgb) * (secondary_fragment_color.rgb) + (last_tex_env_out.rgb), vec3(0.0), vec3(1.0)));
+float alpha_output_2 = byteround(clamp((last_tex_env_out.a), 0.0, 1.0));
+last_tex_env_out = clamp(vec4(color_output_2, alpha_output_2), vec4(0.0), vec4(1.0));
+combiner_buffer = next_combiner_buffer;
+
+vec3 color_output_3 = byteround(clamp((last_tex_env_out.rgb), vec3(0.0), vec3(1.0)));
+float alpha_output_3 = byteround(clamp((last_tex_env_out.a) * (const_color[3].a), 0.0, 1.0));
+last_tex_env_out = clamp(vec4(color_output_3, alpha_output_3), vec4(0.0), vec4(1.0));
+combiner_buffer = next_combiner_buffer;
+
+combiner_buffer = next_combiner_buffer;
+
+combiner_buffer = next_combiner_buffer;
+
+gl_FragDepth = depth;
+color = byteround(last_tex_env_out);
+}
+// reference: 2C6096ED43EB9305, 82ECE96A2E1F82D5
+// program: 1A9F70669A3C74DF, F0531050140A5884, 82ECE96A2E1F82D5
+// shader: 8B30, C469D9BC6E32244C
+in vec4 primary_color;
+in vec2 texcoord0;
+in vec2 texcoord1;
+in vec2 texcoord2;
+in float texcoord0_w;
+in vec4 normquat;
+in vec3 view;
+
+#ifndef CITRA_GLES
+in vec4 gl_FragCoord;
+#endif // CITRA_GLES
+out vec4 color;
+
+uniform sampler2D tex0;
+uniform sampler2D tex1;
+uniform sampler2D tex2;
+uniform samplerCube tex_cube;
+uniform samplerBuffer texture_buffer_lut_lf;
+uniform samplerBuffer texture_buffer_lut_rg;
+uniform samplerBuffer texture_buffer_lut_rgba;
+
+#define NUM_TEV_STAGES 6
+#define NUM_LIGHTS 8
+#define NUM_LIGHTING_SAMPLERS 24
+
+struct LightSrc {
+    vec3 specular_0;
+    vec3 specular_1;
+    vec3 diffuse;
+    vec3 ambient;
+    vec3 position;
+    vec3 spot_direction;
+    float dist_atten_bias;
+    float dist_atten_scale;
+};
+
+layout (std140) uniform shader_data {
+    int alphatest_ref;
+    float depth_scale;
+    float depth_offset;
+    float shadow_bias_constant;
+    float shadow_bias_linear;
+    int scissor_x1;
+    int scissor_y1;
+    int scissor_x2;
+    int scissor_y2;
+    int fog_lut_offset;
+    int proctex_noise_lut_offset;
+    int proctex_color_map_offset;
+    int proctex_alpha_map_offset;
+    int proctex_lut_offset;
+    int proctex_diff_lut_offset;
+    float proctex_bias;
+    vec3 fog_color;
+    vec2 proctex_noise_f;
+    vec2 proctex_noise_a;
+    vec2 proctex_noise_p;
+    vec4 const_color[NUM_TEV_STAGES];
+    vec4 tev_combiner_buffer_color;
+    vec4 clip_coef;
+};
+
+layout (std140) uniform shader_light_data {
+    ivec4 lighting_lut_offset[NUM_LIGHTING_SAMPLERS / 4];
+    vec3 lighting_global_ambient;
+    LightSrc light_src[NUM_LIGHTS];
+    float lut_scale_d0;
+    float lut_scale_d1;
+    float lut_scale_sp;
+    float lut_scale_fr;
+    float lut_scale_rb;
+    float lut_scale_rg;
+    float lut_scale_rr;
+    int shadow_texture_bias;
+};
+
+// Rotate the vector v by the quaternion q
+vec3 quaternion_rotate(vec4 q, vec3 v) {
+    return v + 2.0 * cross(q.xyz, cross(q.xyz, v) + q.w * v);
+}
+
+float LookupLightingLUT(int lut_index, int index, float delta) {
+    vec2 entry = texelFetch(texture_buffer_lut_lf, lighting_lut_offset[lut_index >> 2][lut_index & 3] + index).rg;
+    return entry.r + entry.g * delta;
+}
+
+float LookupLightingLUTUnsigned(int lut_index, float pos) {
+    int index = clamp(int(pos * 256.0), 0, 255);
+    float delta = pos * 256.0 - float(index);
+    return LookupLightingLUT(lut_index, index, delta);
+}
+
+float LookupLightingLUTSigned(int lut_index, float pos) {
+    int index = clamp(int(pos * 128.0), -128, 127);
+    float delta = pos * 128.0 - float(index);
+    if (index < 0) index += 256;
+    return LookupLightingLUT(lut_index, index, delta);
+}
+
+float byteround(float x) {
+    return round(x * 255.0) * (1.0 / 255.0);
+}
+
+vec2 byteround(vec2 x) {
+    return round(x * 255.0) * (1.0 / 255.0);
+}
+
+vec3 byteround(vec3 x) {
+    return round(x * 255.0) * (1.0 / 255.0);
+}
+
+vec4 byteround(vec4 x) {
+    return round(x * 255.0) * (1.0 / 255.0);
+}
+
+// PICA's LOD formula for 2D textures.
+// This LOD formula is the same as the LOD lower limit defined in OpenGL.
+// f(x, y) >= max{m_u, m_v, m_w}
+// (See OpenGL 4.6 spec, 8.14.1 - Scale Factor and Level-of-Detail)
+float getLod(vec2 coord) {
+    vec2 d = max(abs(dFdx(coord)), abs(dFdy(coord)));
+    return log2(max(d.x, d.y));
+}
+
+vec4 shadowTexture(vec2 uv, float w) {
+    return vec4(1.0);
+}
+
+vec4 shadowTextureCube(vec2 uv, float w) {
+    return vec4(1.0);
+}
+
+void main() {
+vec4 rounded_primary_color = byteround(primary_color);
+vec4 primary_fragment_color = vec4(0.0);
+vec4 secondary_fragment_color = vec4(0.0);
+if (!(gl_FragCoord.x >= float(scissor_x1) && gl_FragCoord.y >= float(scissor_y1) && gl_FragCoord.x < float(scissor_x2) && gl_FragCoord.y < float(scissor_y2))) discard;
+float z_over_w = 2.0 * gl_FragCoord.z - 1.0;
+float depth = z_over_w * depth_scale + depth_offset;
+vec4 texcolor0 = textureLod(tex0, texcoord0, getLod(texcoord0 * vec2(textureSize(tex0, 0))));
+
+vec4 diffuse_sum = vec4(0.0, 0.0, 0.0, 1.0);
+vec4 specular_sum = vec4(0.0, 0.0, 0.0, 1.0);
+vec3 light_vector = vec3(0.0);
+vec3 refl_value = vec3(0.0);
+vec3 spot_dir = vec3(0.0);
+vec3 half_vector = vec3(0.0);
+float dot_product = 0.0;
+float clamp_highlights = 1.0;
+float geo_factor = 1.0;
+vec3 surface_normal = vec3(0.0, 0.0, 1.0);
+vec3 surface_tangent = vec3(1.0, 0.0, 0.0);
+vec4 normalized_normquat = normalize(normquat);
+vec3 normal = quaternion_rotate(normalized_normquat, surface_normal);
+vec3 tangent = quaternion_rotate(normalized_normquat, surface_tangent);
+vec4 shadow = vec4(1.0);
+light_vector = normalize(light_src[0].position + view);
+spot_dir = light_src[0].spot_direction;
+half_vector = normalize(view) + light_vector;
+dot_product = max(dot(light_vector, normal), 0.0);
+refl_value.r = 1.0;
+refl_value.g = refl_value.r;
+refl_value.b = refl_value.r;
+diffuse_sum.rgb += ((light_src[0].diffuse * dot_product) + light_src[0].ambient) * LookupLightingLUTUnsigned(16,clamp(light_src[0].dist_atten_scale * length(-view - light_src[0].position) + light_src[0].dist_atten_bias, 0.0, 1.0)) * 1.0;
+specular_sum.rgb += (((lut_scale_d0 * LookupLightingLUTSigned(0, dot(normal, normalize(half_vector)))) * light_src[0].specular_0) + ((lut_scale_d1 * LookupLightingLUTSigned(1, dot(normal, normalize(view)))) * light_src[0].specular_1)) * clamp_highlights * LookupLightingLUTUnsigned(16,clamp(light_src[0].dist_atten_scale * length(-view - light_src[0].position) + light_src[0].dist_atten_bias, 0.0, 1.0)) * 1.0;
+light_vector = normalize(light_src[1].position + view);
+spot_dir = light_src[1].spot_direction;
+half_vector = normalize(view) + light_vector;
+dot_product = max(dot(light_vector, normal), 0.0);
+refl_value.r = 1.0;
+refl_value.g = refl_value.r;
+refl_value.b = refl_value.r;
+diffuse_sum.rgb += ((light_src[1].diffuse * dot_product) + light_src[1].ambient) * LookupLightingLUTUnsigned(17,clamp(light_src[1].dist_atten_scale * length(-view - light_src[1].position) + light_src[1].dist_atten_bias, 0.0, 1.0)) * 1.0;
+specular_sum.rgb += (((lut_scale_d0 * LookupLightingLUTSigned(0, dot(normal, normalize(half_vector)))) * light_src[1].specular_0) + ((lut_scale_d1 * LookupLightingLUTSigned(1, dot(normal, normalize(view)))) * light_src[1].specular_1)) * clamp_highlights * LookupLightingLUTUnsigned(17,clamp(light_src[1].dist_atten_scale * length(-view - light_src[1].position) + light_src[1].dist_atten_bias, 0.0, 1.0)) * 1.0;
+diffuse_sum.rgb += lighting_global_ambient;
+primary_fragment_color = clamp(diffuse_sum, vec4(0.0), vec4(1.0));
+secondary_fragment_color = clamp(specular_sum, vec4(0.0), vec4(1.0));
+
+vec4 combiner_buffer = vec4(0.0);
+vec4 next_combiner_buffer = tev_combiner_buffer_color;
+vec4 last_tex_env_out = vec4(0.0);
+vec3 color_output_0 = byteround(clamp((primary_fragment_color.rgb) * (texcolor0.rgb), vec3(0.0), vec3(1.0)));
+float alpha_output_0 = byteround(clamp((rounded_primary_color.a) * (texcolor0.a), 0.0, 1.0));
+last_tex_env_out = clamp(vec4(color_output_0, alpha_output_0), vec4(0.0), vec4(1.0));
+combiner_buffer = next_combiner_buffer;
+
+vec3 color_output_1 = byteround(clamp((texcolor0.aaa) * (secondary_fragment_color.rgb) + (last_tex_env_out.rgb), vec3(0.0), vec3(1.0)));
+float alpha_output_1 = byteround(clamp((last_tex_env_out.a) * (const_color[1].a), 0.0, 1.0));
+last_tex_env_out = clamp(vec4(color_output_1, alpha_output_1), vec4(0.0), vec4(1.0));
+combiner_buffer = next_combiner_buffer;
+
+combiner_buffer = next_combiner_buffer;
+
+combiner_buffer = next_combiner_buffer;
+
+combiner_buffer = next_combiner_buffer;
+
+combiner_buffer = next_combiner_buffer;
+
+gl_FragDepth = depth;
+color = byteround(last_tex_env_out);
+}
+// reference: 6394FFD5BB64A8E2, C469D9BC6E32244C
+// program: 1A9F70669A3C74DF, F0531050140A5884, C469D9BC6E32244C
+// shader: 8B30, D0E85787107506CA
+in vec4 primary_color;
+in vec2 texcoord0;
+in vec2 texcoord1;
+in vec2 texcoord2;
+in float texcoord0_w;
+in vec4 normquat;
+in vec3 view;
+
+#ifndef CITRA_GLES
+in vec4 gl_FragCoord;
+#endif // CITRA_GLES
+out vec4 color;
+
+uniform sampler2D tex0;
+uniform sampler2D tex1;
+uniform sampler2D tex2;
+uniform samplerCube tex_cube;
+uniform samplerBuffer texture_buffer_lut_lf;
+uniform samplerBuffer texture_buffer_lut_rg;
+uniform samplerBuffer texture_buffer_lut_rgba;
+
+#define NUM_TEV_STAGES 6
+#define NUM_LIGHTS 8
+#define NUM_LIGHTING_SAMPLERS 24
+
+struct LightSrc {
+    vec3 specular_0;
+    vec3 specular_1;
+    vec3 diffuse;
+    vec3 ambient;
+    vec3 position;
+    vec3 spot_direction;
+    float dist_atten_bias;
+    float dist_atten_scale;
+};
+
+layout (std140) uniform shader_data {
+    int alphatest_ref;
+    float depth_scale;
+    float depth_offset;
+    float shadow_bias_constant;
+    float shadow_bias_linear;
+    int scissor_x1;
+    int scissor_y1;
+    int scissor_x2;
+    int scissor_y2;
+    int fog_lut_offset;
+    int proctex_noise_lut_offset;
+    int proctex_color_map_offset;
+    int proctex_alpha_map_offset;
+    int proctex_lut_offset;
+    int proctex_diff_lut_offset;
+    float proctex_bias;
+    vec3 fog_color;
+    vec2 proctex_noise_f;
+    vec2 proctex_noise_a;
+    vec2 proctex_noise_p;
+    vec4 const_color[NUM_TEV_STAGES];
+    vec4 tev_combiner_buffer_color;
+    vec4 clip_coef;
+};
+
+layout (std140) uniform shader_light_data {
+    ivec4 lighting_lut_offset[NUM_LIGHTING_SAMPLERS / 4];
+    vec3 lighting_global_ambient;
+    LightSrc light_src[NUM_LIGHTS];
+    float lut_scale_d0;
+    float lut_scale_d1;
+    float lut_scale_sp;
+    float lut_scale_fr;
+    float lut_scale_rb;
+    float lut_scale_rg;
+    float lut_scale_rr;
+    int shadow_texture_bias;
+};
+
+// Rotate the vector v by the quaternion q
+vec3 quaternion_rotate(vec4 q, vec3 v) {
+    return v + 2.0 * cross(q.xyz, cross(q.xyz, v) + q.w * v);
+}
+
+float LookupLightingLUT(int lut_index, int index, float delta) {
+    vec2 entry = texelFetch(texture_buffer_lut_lf, lighting_lut_offset[lut_index >> 2][lut_index & 3] + index).rg;
+    return entry.r + entry.g * delta;
+}
+
+float LookupLightingLUTUnsigned(int lut_index, float pos) {
+    int index = clamp(int(pos * 256.0), 0, 255);
+    float delta = pos * 256.0 - float(index);
+    return LookupLightingLUT(lut_index, index, delta);
+}
+
+float LookupLightingLUTSigned(int lut_index, float pos) {
+    int index = clamp(int(pos * 128.0), -128, 127);
+    float delta = pos * 128.0 - float(index);
+    if (index < 0) index += 256;
+    return LookupLightingLUT(lut_index, index, delta);
+}
+
+float byteround(float x) {
+    return round(x * 255.0) * (1.0 / 255.0);
+}
+
+vec2 byteround(vec2 x) {
+    return round(x * 255.0) * (1.0 / 255.0);
+}
+
+vec3 byteround(vec3 x) {
+    return round(x * 255.0) * (1.0 / 255.0);
+}
+
+vec4 byteround(vec4 x) {
+    return round(x * 255.0) * (1.0 / 255.0);
+}
+
+// PICA's LOD formula for 2D textures.
+// This LOD formula is the same as the LOD lower limit defined in OpenGL.
+// f(x, y) >= max{m_u, m_v, m_w}
+// (See OpenGL 4.6 spec, 8.14.1 - Scale Factor and Level-of-Detail)
+float getLod(vec2 coord) {
+    vec2 d = max(abs(dFdx(coord)), abs(dFdy(coord)));
+    return log2(max(d.x, d.y));
+}
+
+vec4 shadowTexture(vec2 uv, float w) {
+    return vec4(1.0);
+}
+
+vec4 shadowTextureCube(vec2 uv, float w) {
+    return vec4(1.0);
+}
+
+void main() {
+vec4 rounded_primary_color = byteround(primary_color);
+vec4 primary_fragment_color = vec4(0.0);
+vec4 secondary_fragment_color = vec4(0.0);
+if (!(gl_FragCoord.x >= float(scissor_x1) && gl_FragCoord.y >= float(scissor_y1) && gl_FragCoord.x < float(scissor_x2) && gl_FragCoord.y < float(scissor_y2))) discard;
+float z_over_w = 2.0 * gl_FragCoord.z - 1.0;
+float depth = z_over_w * depth_scale + depth_offset;
+vec4 texcolor0 = textureLod(tex0, texcoord0, getLod(texcoord0 * vec2(textureSize(tex0, 0))));
+vec4 texcolor1 = textureLod(tex1, texcoord1, getLod(texcoord1 * vec2(textureSize(tex1, 0))));
+
+vec4 diffuse_sum = vec4(0.0, 0.0, 0.0, 1.0);
+vec4 specular_sum = vec4(0.0, 0.0, 0.0, 1.0);
+vec3 light_vector = vec3(0.0);
+vec3 refl_value = vec3(0.0);
+vec3 spot_dir = vec3(0.0);
+vec3 half_vector = vec3(0.0);
+float dot_product = 0.0;
+float clamp_highlights = 1.0;
+float geo_factor = 1.0;
+vec3 surface_normal = vec3(0.0, 0.0, 1.0);
+vec3 surface_tangent = vec3(1.0, 0.0, 0.0);
+vec4 normalized_normquat = normalize(normquat);
+vec3 normal = quaternion_rotate(normalized_normquat, surface_normal);
+vec3 tangent = quaternion_rotate(normalized_normquat, surface_tangent);
+vec4 shadow = vec4(1.0);
+light_vector = normalize(light_src[0].position + view);
+spot_dir = light_src[0].spot_direction;
+half_vector = normalize(view) + light_vector;
+dot_product = max(dot(light_vector, normal), 0.0);
+refl_value.r = 1.0;
+refl_value.g = refl_value.r;
+refl_value.b = refl_value.r;
+diffuse_sum.rgb += ((light_src[0].diffuse * dot_product) + light_src[0].ambient) * LookupLightingLUTUnsigned(16,clamp(light_src[0].dist_atten_scale * length(-view - light_src[0].position) + light_src[0].dist_atten_bias, 0.0, 1.0)) * 1.0;
+specular_sum.rgb += ((light_src[0].specular_0) + (light_src[0].specular_1)) * clamp_highlights * LookupLightingLUTUnsigned(16,clamp(light_src[0].dist_atten_scale * length(-view - light_src[0].position) + light_src[0].dist_atten_bias, 0.0, 1.0)) * 1.0;
+light_vector = normalize(light_src[1].position + view);
+spot_dir = light_src[1].spot_direction;
+half_vector = normalize(view) + light_vector;
+dot_product = max(dot(light_vector, normal), 0.0);
+refl_value.r = 1.0;
+refl_value.g = refl_value.r;
+refl_value.b = refl_value.r;
+diffuse_sum.rgb += ((light_src[1].diffuse * dot_product) + light_src[1].ambient) * LookupLightingLUTUnsigned(17,clamp(light_src[1].dist_atten_scale * length(-view - light_src[1].position) + light_src[1].dist_atten_bias, 0.0, 1.0)) * 1.0;
+specular_sum.rgb += ((light_src[1].specular_0) + (light_src[1].specular_1)) * clamp_highlights * LookupLightingLUTUnsigned(17,clamp(light_src[1].dist_atten_scale * length(-view - light_src[1].position) + light_src[1].dist_atten_bias, 0.0, 1.0)) * 1.0;
+diffuse_sum.rgb += lighting_global_ambient;
+primary_fragment_color = clamp(diffuse_sum, vec4(0.0), vec4(1.0));
+secondary_fragment_color = clamp(specular_sum, vec4(0.0), vec4(1.0));
+
+vec4 combiner_buffer = vec4(0.0);
+vec4 next_combiner_buffer = tev_combiner_buffer_color;
+vec4 last_tex_env_out = vec4(0.0);
+vec3 color_output_0 = byteround(clamp((rounded_primary_color.rgb), vec3(0.0), vec3(1.0)));
+float alpha_output_0 = byteround(clamp((rounded_primary_color.r) * (rounded_primary_color.r), 0.0, 1.0));
+last_tex_env_out = clamp(vec4(color_output_0 * 1.0, alpha_output_0 * 2.0), vec4(0.0), vec4(1.0));
+combiner_buffer = next_combiner_buffer;
+
+vec3 color_output_1 = byteround(clamp((const_color[1].rgb) * (vec3(1.0) - last_tex_env_out.aaa) + (rounded_primary_color.rgb), vec3(0.0), vec3(1.0)));
+float alpha_output_1 = byteround(clamp((rounded_primary_color.a) * (texcolor1.a), 0.0, 1.0));
+last_tex_env_out = clamp(vec4(color_output_1, alpha_output_1), vec4(0.0), vec4(1.0));
+combiner_buffer = next_combiner_buffer;
+
+vec3 color_output_2 = byteround(clamp((last_tex_env_out.rgb) * (texcolor1.rgb), vec3(0.0), vec3(1.0)));
+float alpha_output_2 = byteround(clamp((last_tex_env_out.a), 0.0, 1.0));
+last_tex_env_out = clamp(vec4(color_output_2 * 2.0, alpha_output_2 * 1.0), vec4(0.0), vec4(1.0));
+combiner_buffer = next_combiner_buffer;
+
+vec3 color_output_3 = byteround(clamp((last_tex_env_out.rgb) * (primary_fragment_color.rgb), vec3(0.0), vec3(1.0)));
+float alpha_output_3 = byteround(clamp((last_tex_env_out.a) * (const_color[3].a), 0.0, 1.0));
+last_tex_env_out = clamp(vec4(color_output_3, alpha_output_3), vec4(0.0), vec4(1.0));
+combiner_buffer = next_combiner_buffer;
+
+vec3 color_output_4 = byteround(clamp(min((const_color[4].rgb) + (texcolor0.ggg), vec3(1.0)) * (last_tex_env_out.rgb), vec3(0.0), vec3(1.0)));
+float alpha_output_4 = byteround(clamp((last_tex_env_out.a), 0.0, 1.0));
+last_tex_env_out = clamp(vec4(color_output_4, alpha_output_4), vec4(0.0), vec4(1.0));
+combiner_buffer = next_combiner_buffer;
+
+combiner_buffer = next_combiner_buffer;
+
+gl_FragDepth = depth;
+color = byteround(last_tex_env_out);
+}
+// reference: 4A655CFED389DBF1, D0E85787107506CA
+// program: 1A9F70669A3C74DF, F0531050140A5884, D0E85787107506CA
+// shader: 8B30, 81E3FC8565F0FBE3
+in vec4 primary_color;
+in vec2 texcoord0;
+in vec2 texcoord1;
+in vec2 texcoord2;
+in float texcoord0_w;
+in vec4 normquat;
+in vec3 view;
+
+#ifndef CITRA_GLES
+in vec4 gl_FragCoord;
+#endif // CITRA_GLES
+out vec4 color;
+
+uniform sampler2D tex0;
+uniform sampler2D tex1;
+uniform sampler2D tex2;
+uniform samplerCube tex_cube;
+uniform samplerBuffer texture_buffer_lut_lf;
+uniform samplerBuffer texture_buffer_lut_rg;
+uniform samplerBuffer texture_buffer_lut_rgba;
+
+#define NUM_TEV_STAGES 6
+#define NUM_LIGHTS 8
+#define NUM_LIGHTING_SAMPLERS 24
+
+struct LightSrc {
+    vec3 specular_0;
+    vec3 specular_1;
+    vec3 diffuse;
+    vec3 ambient;
+    vec3 position;
+    vec3 spot_direction;
+    float dist_atten_bias;
+    float dist_atten_scale;
+};
+
+layout (std140) uniform shader_data {
+    int alphatest_ref;
+    float depth_scale;
+    float depth_offset;
+    float shadow_bias_constant;
+    float shadow_bias_linear;
+    int scissor_x1;
+    int scissor_y1;
+    int scissor_x2;
+    int scissor_y2;
+    int fog_lut_offset;
+    int proctex_noise_lut_offset;
+    int proctex_color_map_offset;
+    int proctex_alpha_map_offset;
+    int proctex_lut_offset;
+    int proctex_diff_lut_offset;
+    float proctex_bias;
+    vec3 fog_color;
+    vec2 proctex_noise_f;
+    vec2 proctex_noise_a;
+    vec2 proctex_noise_p;
+    vec4 const_color[NUM_TEV_STAGES];
+    vec4 tev_combiner_buffer_color;
+    vec4 clip_coef;
+};
+
+layout (std140) uniform shader_light_data {
+    ivec4 lighting_lut_offset[NUM_LIGHTING_SAMPLERS / 4];
+    vec3 lighting_global_ambient;
+    LightSrc light_src[NUM_LIGHTS];
+    float lut_scale_d0;
+    float lut_scale_d1;
+    float lut_scale_sp;
+    float lut_scale_fr;
+    float lut_scale_rb;
+    float lut_scale_rg;
+    float lut_scale_rr;
+    int shadow_texture_bias;
+};
+
+// Rotate the vector v by the quaternion q
+vec3 quaternion_rotate(vec4 q, vec3 v) {
+    return v + 2.0 * cross(q.xyz, cross(q.xyz, v) + q.w * v);
+}
+
+float LookupLightingLUT(int lut_index, int index, float delta) {
+    vec2 entry = texelFetch(texture_buffer_lut_lf, lighting_lut_offset[lut_index >> 2][lut_index & 3] + index).rg;
+    return entry.r + entry.g * delta;
+}
+
+float LookupLightingLUTUnsigned(int lut_index, float pos) {
+    int index = clamp(int(pos * 256.0), 0, 255);
+    float delta = pos * 256.0 - float(index);
+    return LookupLightingLUT(lut_index, index, delta);
+}
+
+float LookupLightingLUTSigned(int lut_index, float pos) {
+    int index = clamp(int(pos * 128.0), -128, 127);
+    float delta = pos * 128.0 - float(index);
+    if (index < 0) index += 256;
+    return LookupLightingLUT(lut_index, index, delta);
+}
+
+float byteround(float x) {
+    return round(x * 255.0) * (1.0 / 255.0);
+}
+
+vec2 byteround(vec2 x) {
+    return round(x * 255.0) * (1.0 / 255.0);
+}
+
+vec3 byteround(vec3 x) {
+    return round(x * 255.0) * (1.0 / 255.0);
+}
+
+vec4 byteround(vec4 x) {
+    return round(x * 255.0) * (1.0 / 255.0);
+}
+
+// PICA's LOD formula for 2D textures.
+// This LOD formula is the same as the LOD lower limit defined in OpenGL.
+// f(x, y) >= max{m_u, m_v, m_w}
+// (See OpenGL 4.6 spec, 8.14.1 - Scale Factor and Level-of-Detail)
+float getLod(vec2 coord) {
+    vec2 d = max(abs(dFdx(coord)), abs(dFdy(coord)));
+    return log2(max(d.x, d.y));
+}
+
+vec4 shadowTexture(vec2 uv, float w) {
+    return vec4(1.0);
+}
+
+vec4 shadowTextureCube(vec2 uv, float w) {
+    return vec4(1.0);
+}
+
+void main() {
+vec4 rounded_primary_color = byteround(primary_color);
+vec4 primary_fragment_color = vec4(0.0);
+vec4 secondary_fragment_color = vec4(0.0);
+if (!(gl_FragCoord.x >= float(scissor_x1) && gl_FragCoord.y >= float(scissor_y1) && gl_FragCoord.x < float(scissor_x2) && gl_FragCoord.y < float(scissor_y2))) discard;
+float z_over_w = 2.0 * gl_FragCoord.z - 1.0;
+float depth = z_over_w * depth_scale + depth_offset;
+vec4 texcolor0 = textureLod(tex0, texcoord0, getLod(texcoord0 * vec2(textureSize(tex0, 0))));
+
+vec4 diffuse_sum = vec4(0.0, 0.0, 0.0, 1.0);
+vec4 specular_sum = vec4(0.0, 0.0, 0.0, 1.0);
+vec3 light_vector = vec3(0.0);
+vec3 refl_value = vec3(0.0);
+vec3 spot_dir = vec3(0.0);
+vec3 half_vector = vec3(0.0);
+float dot_product = 0.0;
+float clamp_highlights = 1.0;
+float geo_factor = 1.0;
+vec3 surface_normal = vec3(0.0, 0.0, 1.0);
+vec3 surface_tangent = vec3(1.0, 0.0, 0.0);
+vec4 normalized_normquat = normalize(normquat);
+vec3 normal = quaternion_rotate(normalized_normquat, surface_normal);
+vec3 tangent = quaternion_rotate(normalized_normquat, surface_tangent);
+vec4 shadow = vec4(1.0);
+light_vector = normalize(light_src[0].position + view);
+spot_dir = light_src[0].spot_direction;
+half_vector = normalize(view) + light_vector;
+dot_product = max(dot(light_vector, normal), 0.0);
+refl_value.r = 1.0;
+refl_value.g = refl_value.r;
+refl_value.b = refl_value.r;
+diffuse_sum.rgb += ((light_src[0].diffuse * dot_product) + light_src[0].ambient) * LookupLightingLUTUnsigned(16,clamp(light_src[0].dist_atten_scale * length(-view - light_src[0].position) + light_src[0].dist_atten_bias, 0.0, 1.0)) * 1.0;
+specular_sum.rgb += ((light_src[0].specular_0) + (light_src[0].specular_1)) * clamp_highlights * LookupLightingLUTUnsigned(16,clamp(light_src[0].dist_atten_scale * length(-view - light_src[0].position) + light_src[0].dist_atten_bias, 0.0, 1.0)) * 1.0;
+light_vector = normalize(light_src[1].position + view);
+spot_dir = light_src[1].spot_direction;
+half_vector = normalize(view) + light_vector;
+dot_product = max(dot(light_vector, normal), 0.0);
+refl_value.r = 1.0;
+refl_value.g = refl_value.r;
+refl_value.b = refl_value.r;
+diffuse_sum.rgb += ((light_src[1].diffuse * dot_product) + light_src[1].ambient) * LookupLightingLUTUnsigned(17,clamp(light_src[1].dist_atten_scale * length(-view - light_src[1].position) + light_src[1].dist_atten_bias, 0.0, 1.0)) * 1.0;
+specular_sum.rgb += ((light_src[1].specular_0) + (light_src[1].specular_1)) * clamp_highlights * LookupLightingLUTUnsigned(17,clamp(light_src[1].dist_atten_scale * length(-view - light_src[1].position) + light_src[1].dist_atten_bias, 0.0, 1.0)) * 1.0;
+diffuse_sum.rgb += lighting_global_ambient;
+primary_fragment_color = clamp(diffuse_sum, vec4(0.0), vec4(1.0));
+secondary_fragment_color = clamp(specular_sum, vec4(0.0), vec4(1.0));
+
+vec4 combiner_buffer = vec4(0.0);
+vec4 next_combiner_buffer = tev_combiner_buffer_color;
+vec4 last_tex_env_out = vec4(0.0);
+vec3 color_output_0 = byteround(clamp((texcolor0.rgb) * (const_color[0].rgb), vec3(0.0), vec3(1.0)));
+float alpha_output_0 = byteround(clamp((texcolor0.a) * (const_color[0].a), 0.0, 1.0));
+last_tex_env_out = clamp(vec4(color_output_0, alpha_output_0), vec4(0.0), vec4(1.0));
+combiner_buffer = next_combiner_buffer;
+
+vec3 color_output_1 = byteround(clamp((last_tex_env_out.rgb) * (primary_fragment_color.rgb), vec3(0.0), vec3(1.0)));
+float alpha_output_1 = byteround(clamp((last_tex_env_out.a), 0.0, 1.0));
+last_tex_env_out = clamp(vec4(color_output_1, alpha_output_1), vec4(0.0), vec4(1.0));
+combiner_buffer = next_combiner_buffer;
+
+combiner_buffer = next_combiner_buffer;
+
+combiner_buffer = next_combiner_buffer;
+
+combiner_buffer = next_combiner_buffer;
+
+combiner_buffer = next_combiner_buffer;
+
+gl_FragDepth = depth;
+color = byteround(last_tex_env_out);
+}
+// reference: 632D67172B30665F, 81E3FC8565F0FBE3
+// program: 1A9F70669A3C74DF, F0531050140A5884, 81E3FC8565F0FBE3
+// program: 36F55378B7FE8570, E4F72E6786B1F5DC, F4F521EBD49743B3
+// shader: 8B30, 3D67130E9F33CB4D
+in vec4 primary_color;
+in vec2 texcoord0;
+in vec2 texcoord1;
+in vec2 texcoord2;
+in float texcoord0_w;
+in vec4 normquat;
+in vec3 view;
+
+#ifndef CITRA_GLES
+in vec4 gl_FragCoord;
+#endif // CITRA_GLES
+out vec4 color;
+
+uniform sampler2D tex0;
+uniform sampler2D tex1;
+uniform sampler2D tex2;
+uniform samplerCube tex_cube;
+uniform samplerBuffer texture_buffer_lut_lf;
+uniform samplerBuffer texture_buffer_lut_rg;
+uniform samplerBuffer texture_buffer_lut_rgba;
+
+#define NUM_TEV_STAGES 6
+#define NUM_LIGHTS 8
+#define NUM_LIGHTING_SAMPLERS 24
+
+struct LightSrc {
+    vec3 specular_0;
+    vec3 specular_1;
+    vec3 diffuse;
+    vec3 ambient;
+    vec3 position;
+    vec3 spot_direction;
+    float dist_atten_bias;
+    float dist_atten_scale;
+};
+
+layout (std140) uniform shader_data {
+    int alphatest_ref;
+    float depth_scale;
+    float depth_offset;
+    float shadow_bias_constant;
+    float shadow_bias_linear;
+    int scissor_x1;
+    int scissor_y1;
+    int scissor_x2;
+    int scissor_y2;
+    int fog_lut_offset;
+    int proctex_noise_lut_offset;
+    int proctex_color_map_offset;
+    int proctex_alpha_map_offset;
+    int proctex_lut_offset;
+    int proctex_diff_lut_offset;
+    float proctex_bias;
+    vec3 fog_color;
+    vec2 proctex_noise_f;
+    vec2 proctex_noise_a;
+    vec2 proctex_noise_p;
+    vec4 const_color[NUM_TEV_STAGES];
+    vec4 tev_combiner_buffer_color;
+    vec4 clip_coef;
+};
+
+layout (std140) uniform shader_light_data {
+    ivec4 lighting_lut_offset[NUM_LIGHTING_SAMPLERS / 4];
+    vec3 lighting_global_ambient;
+    LightSrc light_src[NUM_LIGHTS];
+    float lut_scale_d0;
+    float lut_scale_d1;
+    float lut_scale_sp;
+    float lut_scale_fr;
+    float lut_scale_rb;
+    float lut_scale_rg;
+    float lut_scale_rr;
+    int shadow_texture_bias;
+};
+
+// Rotate the vector v by the quaternion q
+vec3 quaternion_rotate(vec4 q, vec3 v) {
+    return v + 2.0 * cross(q.xyz, cross(q.xyz, v) + q.w * v);
+}
+
+float LookupLightingLUT(int lut_index, int index, float delta) {
+    vec2 entry = texelFetch(texture_buffer_lut_lf, lighting_lut_offset[lut_index >> 2][lut_index & 3] + index).rg;
+    return entry.r + entry.g * delta;
+}
+
+float LookupLightingLUTUnsigned(int lut_index, float pos) {
+    int index = clamp(int(pos * 256.0), 0, 255);
+    float delta = pos * 256.0 - float(index);
+    return LookupLightingLUT(lut_index, index, delta);
+}
+
+float LookupLightingLUTSigned(int lut_index, float pos) {
+    int index = clamp(int(pos * 128.0), -128, 127);
+    float delta = pos * 128.0 - float(index);
+    if (index < 0) index += 256;
+    return LookupLightingLUT(lut_index, index, delta);
+}
+
+float byteround(float x) {
+    return round(x * 255.0) * (1.0 / 255.0);
+}
+
+vec2 byteround(vec2 x) {
+    return round(x * 255.0) * (1.0 / 255.0);
+}
+
+vec3 byteround(vec3 x) {
+    return round(x * 255.0) * (1.0 / 255.0);
+}
+
+vec4 byteround(vec4 x) {
+    return round(x * 255.0) * (1.0 / 255.0);
+}
+
+// PICA's LOD formula for 2D textures.
+// This LOD formula is the same as the LOD lower limit defined in OpenGL.
+// f(x, y) >= max{m_u, m_v, m_w}
+// (See OpenGL 4.6 spec, 8.14.1 - Scale Factor and Level-of-Detail)
+float getLod(vec2 coord) {
+    vec2 d = max(abs(dFdx(coord)), abs(dFdy(coord)));
+    return log2(max(d.x, d.y));
+}
+
+vec4 shadowTexture(vec2 uv, float w) {
+    return vec4(1.0);
+}
+
+vec4 shadowTextureCube(vec2 uv, float w) {
+    return vec4(1.0);
+}
+
+void main() {
+vec4 rounded_primary_color = byteround(primary_color);
+vec4 primary_fragment_color = vec4(0.0);
+vec4 secondary_fragment_color = vec4(0.0);
+if (!(gl_FragCoord.x >= float(scissor_x1) && gl_FragCoord.y >= float(scissor_y1) && gl_FragCoord.x < float(scissor_x2) && gl_FragCoord.y < float(scissor_y2))) discard;
+float z_over_w = 2.0 * gl_FragCoord.z - 1.0;
+float depth = z_over_w * depth_scale + depth_offset;
+vec4 texcolor0 = textureLod(tex0, texcoord0, getLod(texcoord0 * vec2(textureSize(tex0, 0))));
+vec4 combiner_buffer = vec4(0.0);
+vec4 next_combiner_buffer = tev_combiner_buffer_color;
+vec4 last_tex_env_out = vec4(0.0);
+vec3 color_output_0 = byteround(clamp((texcolor0.rgb) * (rounded_primary_color.rgb), vec3(0.0), vec3(1.0)));
+float alpha_output_0 = byteround(clamp((texcolor0.a) * (rounded_primary_color.a), 0.0, 1.0));
+last_tex_env_out = clamp(vec4(color_output_0, alpha_output_0), vec4(0.0), vec4(1.0));
+combiner_buffer = next_combiner_buffer;
+
+vec3 color_output_1 = byteround(clamp((vec3(1.0) - texcolor0.rgb) * (const_color[1].rgb) + (last_tex_env_out.rgb), vec3(0.0), vec3(1.0)));
+float alpha_output_1 = byteround(clamp((last_tex_env_out.a), 0.0, 1.0));
+last_tex_env_out = clamp(vec4(color_output_1, alpha_output_1), vec4(0.0), vec4(1.0));
+combiner_buffer = next_combiner_buffer;
+
+combiner_buffer = next_combiner_buffer;
+
+combiner_buffer = next_combiner_buffer;
+
+combiner_buffer = next_combiner_buffer;
+
+combiner_buffer = next_combiner_buffer;
+
+gl_FragDepth = depth;
+color = byteround(last_tex_env_out);
+}
+// reference: 7D3C2251531A8188, 3D67130E9F33CB4D
+// program: 36F55378B7FE8570, E4F72E6786B1F5DC, 3D67130E9F33CB4D
+// shader: 8B30, A3083AD577756731
 in vec4 primary_color;
 in vec2 texcoord0;
 in vec2 texcoord1;
@@ -41014,15 +36054,9 @@ combiner_buffer = next_combiner_buffer;
 gl_FragDepth = depth;
 color = byteround(last_tex_env_out);
 }
-// reference: AD5FDC9FB71B8CB8, 3C8B6230979289A1
-// program: A0A01900FB0E2CEC, F0531050140A5884, 3C8B6230979289A1
-// shader: 8B30, 6B0EBAAB9DE01B3D
-
-precision highp int;
-precision highp float;
-precision highp samplerBuffer;
-precision highp usampler2D;
-precision highp uimage2D;
+// reference: AD5FDC9FB71B8CB8, A3083AD577756731
+// program: 1A9F70669A3C74DF, F0531050140A5884, A3083AD577756731
+// shader: 8B30, 1E26772ED39D8D18
 in vec4 primary_color;
 in vec2 texcoord0;
 in vec2 texcoord1;
@@ -41184,249 +36218,10 @@ combiner_buffer = next_combiner_buffer;
 gl_FragDepth = depth;
 color = byteround(last_tex_env_out);
 }
-// reference: 77E52FD66EA413FD, 6B0EBAAB9DE01B3D
-// program: A0A01900FB0E2CEC, F0531050140A5884, 6B0EBAAB9DE01B3D
-// shader: 8B30, 9A5BFD3C0555337A
-
-precision highp int;
-precision highp float;
-precision highp samplerBuffer;
-precision highp usampler2D;
-precision highp uimage2D;
-in vec4 primary_color;
-in vec2 texcoord0;
-in vec2 texcoord1;
-in vec2 texcoord2;
-in float texcoord0_w;
-in vec4 normquat;
-in vec3 view;
-
-#ifndef CITRA_GLES
-in vec4 gl_FragCoord;
-#endif // CITRA_GLES
-out vec4 color;
-
-uniform sampler2D tex0;
-uniform sampler2D tex1;
-uniform sampler2D tex2;
-uniform samplerCube tex_cube;
-uniform samplerBuffer texture_buffer_lut_lf;
-uniform samplerBuffer texture_buffer_lut_rg;
-uniform samplerBuffer texture_buffer_lut_rgba;
-
-#define NUM_TEV_STAGES 6
-#define NUM_LIGHTS 8
-#define NUM_LIGHTING_SAMPLERS 24
-
-struct LightSrc {
-    vec3 specular_0;
-    vec3 specular_1;
-    vec3 diffuse;
-    vec3 ambient;
-    vec3 position;
-    vec3 spot_direction;
-    float dist_atten_bias;
-    float dist_atten_scale;
-};
-
-layout (std140) uniform shader_data {
-    int alphatest_ref;
-    float depth_scale;
-    float depth_offset;
-    float shadow_bias_constant;
-    float shadow_bias_linear;
-    int scissor_x1;
-    int scissor_y1;
-    int scissor_x2;
-    int scissor_y2;
-    int fog_lut_offset;
-    int proctex_noise_lut_offset;
-    int proctex_color_map_offset;
-    int proctex_alpha_map_offset;
-    int proctex_lut_offset;
-    int proctex_diff_lut_offset;
-    float proctex_bias;
-    vec3 fog_color;
-    vec2 proctex_noise_f;
-    vec2 proctex_noise_a;
-    vec2 proctex_noise_p;
-    vec4 const_color[NUM_TEV_STAGES];
-    vec4 tev_combiner_buffer_color;
-    vec4 clip_coef;
-};
-
-layout (std140) uniform shader_light_data {
-    ivec4 lighting_lut_offset[NUM_LIGHTING_SAMPLERS / 4];
-    vec3 lighting_global_ambient;
-    LightSrc light_src[NUM_LIGHTS];
-    float lut_scale_d0;
-    float lut_scale_d1;
-    float lut_scale_sp;
-    float lut_scale_fr;
-    float lut_scale_rb;
-    float lut_scale_rg;
-    float lut_scale_rr;
-    int shadow_texture_bias;
-};
-
-// Rotate the vector v by the quaternion q
-vec3 quaternion_rotate(vec4 q, vec3 v) {
-    return v + 2.0 * cross(q.xyz, cross(q.xyz, v) + q.w * v);
-}
-
-float LookupLightingLUT(int lut_index, int index, float delta) {
-    vec2 entry = texelFetch(texture_buffer_lut_lf, lighting_lut_offset[lut_index >> 2][lut_index & 3] + index).rg;
-    return entry.r + entry.g * delta;
-}
-
-float LookupLightingLUTUnsigned(int lut_index, float pos) {
-    int index = clamp(int(pos * 256.0), 0, 255);
-    float delta = pos * 256.0 - float(index);
-    return LookupLightingLUT(lut_index, index, delta);
-}
-
-float LookupLightingLUTSigned(int lut_index, float pos) {
-    int index = clamp(int(pos * 128.0), -128, 127);
-    float delta = pos * 128.0 - float(index);
-    if (index < 0) index += 256;
-    return LookupLightingLUT(lut_index, index, delta);
-}
-
-float byteround(float x) {
-    return round(x * 255.0) * (1.0 / 255.0);
-}
-
-vec2 byteround(vec2 x) {
-    return round(x * 255.0) * (1.0 / 255.0);
-}
-
-vec3 byteround(vec3 x) {
-    return round(x * 255.0) * (1.0 / 255.0);
-}
-
-vec4 byteround(vec4 x) {
-    return round(x * 255.0) * (1.0 / 255.0);
-}
-
-// PICA's LOD formula for 2D textures.
-// This LOD formula is the same as the LOD lower limit defined in OpenGL.
-// f(x, y) >= max{m_u, m_v, m_w}
-// (See OpenGL 4.6 spec, 8.14.1 - Scale Factor and Level-of-Detail)
-float getLod(vec2 coord) {
-    vec2 d = max(abs(dFdx(coord)), abs(dFdy(coord)));
-    return log2(max(d.x, d.y));
-}
-
-vec4 shadowTexture(vec2 uv, float w) {
-    return vec4(1.0);
-}
-
-vec4 shadowTextureCube(vec2 uv, float w) {
-    return vec4(1.0);
-}
-
-void main() {
-vec4 rounded_primary_color = byteround(primary_color);
-vec4 primary_fragment_color = vec4(0.0);
-vec4 secondary_fragment_color = vec4(0.0);
-if (!(gl_FragCoord.x >= float(scissor_x1) && gl_FragCoord.y >= float(scissor_y1) && gl_FragCoord.x < float(scissor_x2) && gl_FragCoord.y < float(scissor_y2))) discard;
-float z_over_w = 2.0 * gl_FragCoord.z - 1.0;
-float depth = z_over_w * depth_scale + depth_offset;
-vec4 texcolor0 = textureLod(tex0, texcoord0, getLod(texcoord0 * vec2(textureSize(tex0, 0))));
-vec4 texcolor1 = textureLod(tex1, texcoord1, getLod(texcoord1 * vec2(textureSize(tex1, 0))));
-
-vec4 diffuse_sum = vec4(0.0, 0.0, 0.0, 1.0);
-vec4 specular_sum = vec4(0.0, 0.0, 0.0, 1.0);
-vec3 light_vector = vec3(0.0);
-vec3 refl_value = vec3(0.0);
-vec3 spot_dir = vec3(0.0);
-vec3 half_vector = vec3(0.0);
-float dot_product = 0.0;
-float clamp_highlights = 1.0;
-float geo_factor = 1.0;
-vec3 surface_normal = vec3(0.0, 0.0, 1.0);
-vec3 surface_tangent = vec3(1.0, 0.0, 0.0);
-vec4 normalized_normquat = normalize(normquat);
-vec3 normal = quaternion_rotate(normalized_normquat, surface_normal);
-vec3 tangent = quaternion_rotate(normalized_normquat, surface_tangent);
-vec4 shadow = vec4(1.0);
-light_vector = normalize(light_src[0].position + view);
-spot_dir = light_src[0].spot_direction;
-half_vector = normalize(view) + light_vector;
-dot_product = max(dot(light_vector, normal), 0.0);
-refl_value.r = 1.0;
-refl_value.g = refl_value.r;
-refl_value.b = refl_value.r;
-diffuse_sum.rgb += ((light_src[0].diffuse * dot_product) + light_src[0].ambient) * LookupLightingLUTUnsigned(16,clamp(light_src[0].dist_atten_scale * length(-view - light_src[0].position) + light_src[0].dist_atten_bias, 0.0, 1.0)) * 1.0;
-specular_sum.rgb += ((light_src[0].specular_0) + (light_src[0].specular_1)) * clamp_highlights * LookupLightingLUTUnsigned(16,clamp(light_src[0].dist_atten_scale * length(-view - light_src[0].position) + light_src[0].dist_atten_bias, 0.0, 1.0)) * 1.0;
-light_vector = normalize(light_src[1].position + view);
-spot_dir = light_src[1].spot_direction;
-half_vector = normalize(view) + light_vector;
-dot_product = max(dot(light_vector, normal), 0.0);
-refl_value.r = 1.0;
-refl_value.g = refl_value.r;
-refl_value.b = refl_value.r;
-diffuse_sum.rgb += ((light_src[1].diffuse * dot_product) + light_src[1].ambient) * LookupLightingLUTUnsigned(17,clamp(light_src[1].dist_atten_scale * length(-view - light_src[1].position) + light_src[1].dist_atten_bias, 0.0, 1.0)) * 1.0;
-specular_sum.rgb += ((light_src[1].specular_0) + (light_src[1].specular_1)) * clamp_highlights * LookupLightingLUTUnsigned(17,clamp(light_src[1].dist_atten_scale * length(-view - light_src[1].position) + light_src[1].dist_atten_bias, 0.0, 1.0)) * 1.0;
-light_vector = normalize(light_src[2].position + view);
-spot_dir = light_src[2].spot_direction;
-half_vector = normalize(view) + light_vector;
-dot_product = max(dot(light_vector, normal), 0.0);
-refl_value.r = 1.0;
-refl_value.g = refl_value.r;
-refl_value.b = refl_value.r;
-diffuse_sum.rgb += ((light_src[2].diffuse * dot_product) + light_src[2].ambient) * LookupLightingLUTUnsigned(18,clamp(light_src[2].dist_atten_scale * length(-view - light_src[2].position) + light_src[2].dist_atten_bias, 0.0, 1.0)) * 1.0;
-specular_sum.rgb += ((light_src[2].specular_0) + (light_src[2].specular_1)) * clamp_highlights * LookupLightingLUTUnsigned(18,clamp(light_src[2].dist_atten_scale * length(-view - light_src[2].position) + light_src[2].dist_atten_bias, 0.0, 1.0)) * 1.0;
-diffuse_sum.rgb += lighting_global_ambient;
-primary_fragment_color = clamp(diffuse_sum, vec4(0.0), vec4(1.0));
-secondary_fragment_color = clamp(specular_sum, vec4(0.0), vec4(1.0));
-
-vec4 combiner_buffer = vec4(0.0);
-vec4 next_combiner_buffer = tev_combiner_buffer_color;
-vec4 last_tex_env_out = vec4(0.0);
-vec3 color_output_0 = byteround(clamp((rounded_primary_color.rgb), vec3(0.0), vec3(1.0)));
-float alpha_output_0 = byteround(clamp((rounded_primary_color.r) * (rounded_primary_color.r), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_0 * 1.0, alpha_output_0 * 2.0), vec4(0.0), vec4(1.0));
-combiner_buffer = next_combiner_buffer;
-
-vec3 color_output_1 = byteround(clamp((const_color[1].rgb) * (vec3(1.0) - last_tex_env_out.aaa) + (rounded_primary_color.rgb), vec3(0.0), vec3(1.0)));
-float alpha_output_1 = byteround(clamp((rounded_primary_color.a) * (texcolor1.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_1, alpha_output_1), vec4(0.0), vec4(1.0));
-combiner_buffer = next_combiner_buffer;
-
-vec3 color_output_2 = byteround(clamp((last_tex_env_out.rgb) * (texcolor1.rgb), vec3(0.0), vec3(1.0)));
-float alpha_output_2 = byteround(clamp((last_tex_env_out.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_2 * 2.0, alpha_output_2 * 1.0), vec4(0.0), vec4(1.0));
-combiner_buffer = next_combiner_buffer;
-
-vec3 color_output_3 = byteround(clamp((last_tex_env_out.rgb) * (primary_fragment_color.rgb), vec3(0.0), vec3(1.0)));
-float alpha_output_3 = byteround(clamp((last_tex_env_out.a) * (const_color[3].a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_3, alpha_output_3), vec4(0.0), vec4(1.0));
-combiner_buffer = next_combiner_buffer;
-
-vec3 color_output_4 = byteround(clamp(min((const_color[4].rgb) + (texcolor0.ggg), vec3(1.0)) * (last_tex_env_out.rgb), vec3(0.0), vec3(1.0)));
-float alpha_output_4 = byteround(clamp((last_tex_env_out.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_4, alpha_output_4), vec4(0.0), vec4(1.0));
-combiner_buffer = next_combiner_buffer;
-
-combiner_buffer = next_combiner_buffer;
-
-gl_FragDepth = depth;
-color = byteround(last_tex_env_out);
-}
-// reference: 5572093BE1FF67E0, 9A5BFD3C0555337A
-// program: A0A01900FB0E2CEC, F0531050140A5884, 9A5BFD3C0555337A
-// reference: 44AA77D60B7D9210, 2A0717029ABD24CD
-// reference: 9B17EB70998C040F, 4AA395DDA816AD1E
-// reference: 3377C328719D2F14, DFE32FAA186E81A6
-// reference: 7C83AA10891214F3, 7DC95BDDB954783D
-// shader: 8B30, 66CD5CEF1BB93352
-
-precision highp int;
-precision highp float;
-precision highp samplerBuffer;
-precision highp usampler2D;
-precision highp uimage2D;
+// reference: 77E52FD66EA413FD, 1E26772ED39D8D18
+// program: 1A9F70669A3C74DF, F0531050140A5884, 1E26772ED39D8D18
+// reference: 5BBD2213390B2E01, 77D4EA88CD01043F
+// shader: 8B30, FBAF95FC427F6BA5
 in vec4 primary_color;
 in vec2 texcoord0;
 in vec2 texcoord1;
@@ -41602,15 +36397,6 @@ refl_value.g = refl_value.r;
 refl_value.b = refl_value.r;
 diffuse_sum.rgb += ((light_src[1].diffuse * dot_product) + light_src[1].ambient) * LookupLightingLUTUnsigned(17,clamp(light_src[1].dist_atten_scale * length(-view - light_src[1].position) + light_src[1].dist_atten_bias, 0.0, 1.0)) * 1.0;
 specular_sum.rgb += ((light_src[1].specular_0) + (light_src[1].specular_1)) * clamp_highlights * LookupLightingLUTUnsigned(17,clamp(light_src[1].dist_atten_scale * length(-view - light_src[1].position) + light_src[1].dist_atten_bias, 0.0, 1.0)) * 1.0;
-light_vector = normalize(light_src[2].position + view);
-spot_dir = light_src[2].spot_direction;
-half_vector = normalize(view) + light_vector;
-dot_product = max(dot(light_vector, normal), 0.0);
-refl_value.r = 1.0;
-refl_value.g = refl_value.r;
-refl_value.b = refl_value.r;
-diffuse_sum.rgb += ((light_src[2].diffuse * dot_product) + light_src[2].ambient) * LookupLightingLUTUnsigned(18,clamp(light_src[2].dist_atten_scale * length(-view - light_src[2].position) + light_src[2].dist_atten_bias, 0.0, 1.0)) * 1.0;
-specular_sum.rgb += ((light_src[2].specular_0) + (light_src[2].specular_1)) * clamp_highlights * LookupLightingLUTUnsigned(18,clamp(light_src[2].dist_atten_scale * length(-view - light_src[2].position) + light_src[2].dist_atten_bias, 0.0, 1.0)) * 1.0;
 diffuse_sum.rgb += lighting_global_ambient;
 primary_fragment_color = clamp(diffuse_sum, vec4(0.0), vec4(1.0));
 secondary_fragment_color = clamp(specular_sum, vec4(0.0), vec4(1.0));
@@ -41653,15 +36439,9 @@ combiner_buffer = next_combiner_buffer;
 gl_FragDepth = depth;
 color = byteround(last_tex_env_out);
 }
-// reference: 310AE3BFD953D90D, 66CD5CEF1BB93352
-// program: A0A01900FB0E2CEC, F0531050140A5884, 66CD5CEF1BB93352
-// shader: 8B30, 7276BA1FE2F4DFAE
-
-precision highp int;
-precision highp float;
-precision highp samplerBuffer;
-precision highp usampler2D;
-precision highp uimage2D;
+// reference: 2E1DB67AEB25651C, FBAF95FC427F6BA5
+// program: 1A9F70669A3C74DF, F0531050140A5884, FBAF95FC427F6BA5
+// shader: 8B30, 13523CC495A708FD
 in vec4 primary_color;
 in vec2 texcoord0;
 in vec2 texcoord1;
@@ -41836,15 +36616,6 @@ refl_value.g = refl_value.r;
 refl_value.b = refl_value.r;
 diffuse_sum.rgb += ((light_src[1].diffuse * dot_product) + light_src[1].ambient) * LookupLightingLUTUnsigned(17,clamp(light_src[1].dist_atten_scale * length(-view - light_src[1].position) + light_src[1].dist_atten_bias, 0.0, 1.0)) * 1.0;
 specular_sum.rgb += ((light_src[1].specular_0) + (light_src[1].specular_1)) * clamp_highlights * LookupLightingLUTUnsigned(17,clamp(light_src[1].dist_atten_scale * length(-view - light_src[1].position) + light_src[1].dist_atten_bias, 0.0, 1.0)) * 1.0;
-light_vector = normalize(light_src[2].position + view);
-spot_dir = light_src[2].spot_direction;
-half_vector = normalize(view) + light_vector;
-dot_product = max(dot(light_vector, normal), 0.0);
-refl_value.r = 1.0;
-refl_value.g = refl_value.r;
-refl_value.b = refl_value.r;
-diffuse_sum.rgb += ((light_src[2].diffuse * dot_product) + light_src[2].ambient) * LookupLightingLUTUnsigned(18,clamp(light_src[2].dist_atten_scale * length(-view - light_src[2].position) + light_src[2].dist_atten_bias, 0.0, 1.0)) * 1.0;
-specular_sum.rgb += ((light_src[2].specular_0) + (light_src[2].specular_1)) * clamp_highlights * LookupLightingLUTUnsigned(18,clamp(light_src[2].dist_atten_scale * length(-view - light_src[2].position) + light_src[2].dist_atten_bias, 0.0, 1.0)) * 1.0;
 diffuse_sum.rgb += lighting_global_ambient;
 primary_fragment_color = clamp(diffuse_sum, vec4(0.0), vec4(1.0));
 secondary_fragment_color = clamp(specular_sum, vec4(0.0), vec4(1.0));
@@ -41883,244 +36654,9 @@ if (int(last_tex_env_out.a * 255.0) <= alphatest_ref) discard;
 gl_FragDepth = depth;
 color = byteround(last_tex_env_out);
 }
-// reference: 04D826560D488CE3, 7276BA1FE2F4DFAE
-// program: A0A01900FB0E2CEC, F0531050140A5884, 7276BA1FE2F4DFAE
-// shader: 8B30, 22333BA19FE29875
-
-precision highp int;
-precision highp float;
-precision highp samplerBuffer;
-precision highp usampler2D;
-precision highp uimage2D;
-in vec4 primary_color;
-in vec2 texcoord0;
-in vec2 texcoord1;
-in vec2 texcoord2;
-in float texcoord0_w;
-in vec4 normquat;
-in vec3 view;
-
-#ifndef CITRA_GLES
-in vec4 gl_FragCoord;
-#endif // CITRA_GLES
-out vec4 color;
-
-uniform sampler2D tex0;
-uniform sampler2D tex1;
-uniform sampler2D tex2;
-uniform samplerCube tex_cube;
-uniform samplerBuffer texture_buffer_lut_lf;
-uniform samplerBuffer texture_buffer_lut_rg;
-uniform samplerBuffer texture_buffer_lut_rgba;
-
-#define NUM_TEV_STAGES 6
-#define NUM_LIGHTS 8
-#define NUM_LIGHTING_SAMPLERS 24
-
-struct LightSrc {
-    vec3 specular_0;
-    vec3 specular_1;
-    vec3 diffuse;
-    vec3 ambient;
-    vec3 position;
-    vec3 spot_direction;
-    float dist_atten_bias;
-    float dist_atten_scale;
-};
-
-layout (std140) uniform shader_data {
-    int alphatest_ref;
-    float depth_scale;
-    float depth_offset;
-    float shadow_bias_constant;
-    float shadow_bias_linear;
-    int scissor_x1;
-    int scissor_y1;
-    int scissor_x2;
-    int scissor_y2;
-    int fog_lut_offset;
-    int proctex_noise_lut_offset;
-    int proctex_color_map_offset;
-    int proctex_alpha_map_offset;
-    int proctex_lut_offset;
-    int proctex_diff_lut_offset;
-    float proctex_bias;
-    vec3 fog_color;
-    vec2 proctex_noise_f;
-    vec2 proctex_noise_a;
-    vec2 proctex_noise_p;
-    vec4 const_color[NUM_TEV_STAGES];
-    vec4 tev_combiner_buffer_color;
-    vec4 clip_coef;
-};
-
-layout (std140) uniform shader_light_data {
-    ivec4 lighting_lut_offset[NUM_LIGHTING_SAMPLERS / 4];
-    vec3 lighting_global_ambient;
-    LightSrc light_src[NUM_LIGHTS];
-    float lut_scale_d0;
-    float lut_scale_d1;
-    float lut_scale_sp;
-    float lut_scale_fr;
-    float lut_scale_rb;
-    float lut_scale_rg;
-    float lut_scale_rr;
-    int shadow_texture_bias;
-};
-
-// Rotate the vector v by the quaternion q
-vec3 quaternion_rotate(vec4 q, vec3 v) {
-    return v + 2.0 * cross(q.xyz, cross(q.xyz, v) + q.w * v);
-}
-
-float LookupLightingLUT(int lut_index, int index, float delta) {
-    vec2 entry = texelFetch(texture_buffer_lut_lf, lighting_lut_offset[lut_index >> 2][lut_index & 3] + index).rg;
-    return entry.r + entry.g * delta;
-}
-
-float LookupLightingLUTUnsigned(int lut_index, float pos) {
-    int index = clamp(int(pos * 256.0), 0, 255);
-    float delta = pos * 256.0 - float(index);
-    return LookupLightingLUT(lut_index, index, delta);
-}
-
-float LookupLightingLUTSigned(int lut_index, float pos) {
-    int index = clamp(int(pos * 128.0), -128, 127);
-    float delta = pos * 128.0 - float(index);
-    if (index < 0) index += 256;
-    return LookupLightingLUT(lut_index, index, delta);
-}
-
-float byteround(float x) {
-    return round(x * 255.0) * (1.0 / 255.0);
-}
-
-vec2 byteround(vec2 x) {
-    return round(x * 255.0) * (1.0 / 255.0);
-}
-
-vec3 byteround(vec3 x) {
-    return round(x * 255.0) * (1.0 / 255.0);
-}
-
-vec4 byteround(vec4 x) {
-    return round(x * 255.0) * (1.0 / 255.0);
-}
-
-// PICA's LOD formula for 2D textures.
-// This LOD formula is the same as the LOD lower limit defined in OpenGL.
-// f(x, y) >= max{m_u, m_v, m_w}
-// (See OpenGL 4.6 spec, 8.14.1 - Scale Factor and Level-of-Detail)
-float getLod(vec2 coord) {
-    vec2 d = max(abs(dFdx(coord)), abs(dFdy(coord)));
-    return log2(max(d.x, d.y));
-}
-
-vec4 shadowTexture(vec2 uv, float w) {
-    return vec4(1.0);
-}
-
-vec4 shadowTextureCube(vec2 uv, float w) {
-    return vec4(1.0);
-}
-
-void main() {
-vec4 rounded_primary_color = byteround(primary_color);
-vec4 primary_fragment_color = vec4(0.0);
-vec4 secondary_fragment_color = vec4(0.0);
-if (!(gl_FragCoord.x >= float(scissor_x1) && gl_FragCoord.y >= float(scissor_y1) && gl_FragCoord.x < float(scissor_x2) && gl_FragCoord.y < float(scissor_y2))) discard;
-float z_over_w = 2.0 * gl_FragCoord.z - 1.0;
-float depth = z_over_w * depth_scale + depth_offset;
-vec4 texcolor1 = textureLod(tex1, texcoord1, getLod(texcoord1 * vec2(textureSize(tex1, 0))));
-
-vec4 diffuse_sum = vec4(0.0, 0.0, 0.0, 1.0);
-vec4 specular_sum = vec4(0.0, 0.0, 0.0, 1.0);
-vec3 light_vector = vec3(0.0);
-vec3 refl_value = vec3(0.0);
-vec3 spot_dir = vec3(0.0);
-vec3 half_vector = vec3(0.0);
-float dot_product = 0.0;
-float clamp_highlights = 1.0;
-float geo_factor = 1.0;
-vec3 surface_normal = vec3(0.0, 0.0, 1.0);
-vec3 surface_tangent = vec3(1.0, 0.0, 0.0);
-vec4 normalized_normquat = normalize(normquat);
-vec3 normal = quaternion_rotate(normalized_normquat, surface_normal);
-vec3 tangent = quaternion_rotate(normalized_normquat, surface_tangent);
-vec4 shadow = vec4(1.0);
-light_vector = normalize(light_src[0].position + view);
-spot_dir = light_src[0].spot_direction;
-half_vector = normalize(view) + light_vector;
-dot_product = max(dot(light_vector, normal), 0.0);
-refl_value.r = 1.0;
-refl_value.g = refl_value.r;
-refl_value.b = refl_value.r;
-diffuse_sum.rgb += ((light_src[0].diffuse * dot_product) + light_src[0].ambient) * LookupLightingLUTUnsigned(16,clamp(light_src[0].dist_atten_scale * length(-view - light_src[0].position) + light_src[0].dist_atten_bias, 0.0, 1.0)) * 1.0;
-specular_sum.rgb += ((light_src[0].specular_0) + (light_src[0].specular_1)) * clamp_highlights * LookupLightingLUTUnsigned(16,clamp(light_src[0].dist_atten_scale * length(-view - light_src[0].position) + light_src[0].dist_atten_bias, 0.0, 1.0)) * 1.0;
-light_vector = normalize(light_src[1].position + view);
-spot_dir = light_src[1].spot_direction;
-half_vector = normalize(view) + light_vector;
-dot_product = max(dot(light_vector, normal), 0.0);
-refl_value.r = 1.0;
-refl_value.g = refl_value.r;
-refl_value.b = refl_value.r;
-diffuse_sum.rgb += ((light_src[1].diffuse * dot_product) + light_src[1].ambient) * LookupLightingLUTUnsigned(17,clamp(light_src[1].dist_atten_scale * length(-view - light_src[1].position) + light_src[1].dist_atten_bias, 0.0, 1.0)) * 1.0;
-specular_sum.rgb += ((light_src[1].specular_0) + (light_src[1].specular_1)) * clamp_highlights * LookupLightingLUTUnsigned(17,clamp(light_src[1].dist_atten_scale * length(-view - light_src[1].position) + light_src[1].dist_atten_bias, 0.0, 1.0)) * 1.0;
-light_vector = normalize(light_src[2].position + view);
-spot_dir = light_src[2].spot_direction;
-half_vector = normalize(view) + light_vector;
-dot_product = max(dot(light_vector, normal), 0.0);
-refl_value.r = 1.0;
-refl_value.g = refl_value.r;
-refl_value.b = refl_value.r;
-diffuse_sum.rgb += ((light_src[2].diffuse * dot_product) + light_src[2].ambient) * LookupLightingLUTUnsigned(18,clamp(light_src[2].dist_atten_scale * length(-view - light_src[2].position) + light_src[2].dist_atten_bias, 0.0, 1.0)) * 1.0;
-specular_sum.rgb += ((light_src[2].specular_0) + (light_src[2].specular_1)) * clamp_highlights * LookupLightingLUTUnsigned(18,clamp(light_src[2].dist_atten_scale * length(-view - light_src[2].position) + light_src[2].dist_atten_bias, 0.0, 1.0)) * 1.0;
-diffuse_sum.rgb += lighting_global_ambient;
-primary_fragment_color = clamp(diffuse_sum, vec4(0.0), vec4(1.0));
-secondary_fragment_color = clamp(specular_sum, vec4(0.0), vec4(1.0));
-
-vec4 combiner_buffer = vec4(0.0);
-vec4 next_combiner_buffer = tev_combiner_buffer_color;
-vec4 last_tex_env_out = vec4(0.0);
-vec3 color_output_0 = byteround(clamp((rounded_primary_color.rgb), vec3(0.0), vec3(1.0)));
-float alpha_output_0 = byteround(clamp((rounded_primary_color.r) * (rounded_primary_color.r), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_0 * 1.0, alpha_output_0 * 2.0), vec4(0.0), vec4(1.0));
-combiner_buffer = next_combiner_buffer;
-
-vec3 color_output_1 = byteround(clamp((const_color[1].rgb) * (vec3(1.0) - last_tex_env_out.aaa) + (rounded_primary_color.rgb), vec3(0.0), vec3(1.0)));
-float alpha_output_1 = byteround(clamp((rounded_primary_color.a) * (texcolor1.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_1, alpha_output_1), vec4(0.0), vec4(1.0));
-combiner_buffer = next_combiner_buffer;
-
-vec3 color_output_2 = byteround(clamp((last_tex_env_out.rgb) * (texcolor1.rgb), vec3(0.0), vec3(1.0)));
-float alpha_output_2 = byteround(clamp((last_tex_env_out.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_2 * 2.0, alpha_output_2 * 1.0), vec4(0.0), vec4(1.0));
-combiner_buffer = next_combiner_buffer;
-
-vec3 color_output_3 = byteround(clamp((last_tex_env_out.rgb) * (primary_fragment_color.rgb), vec3(0.0), vec3(1.0)));
-float alpha_output_3 = byteround(clamp((last_tex_env_out.a) * (const_color[3].a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_3, alpha_output_3), vec4(0.0), vec4(1.0));
-combiner_buffer = next_combiner_buffer;
-
-vec3 color_output_4 = byteround(clamp(min((const_color[4].rgb) + (shadowTexture(texcoord0, texcoord0_w).ggg), vec3(1.0)) * (last_tex_env_out.rgb), vec3(0.0), vec3(1.0)));
-float alpha_output_4 = byteround(clamp((last_tex_env_out.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_4, alpha_output_4), vec4(0.0), vec4(1.0));
-combiner_buffer = next_combiner_buffer;
-
-combiner_buffer = next_combiner_buffer;
-
-gl_FragDepth = depth;
-color = byteround(last_tex_env_out);
-}
-// reference: 04D82656E1FF67E0, 22333BA19FE29875
-// program: A0A01900FB0E2CEC, F0531050140A5884, 22333BA19FE29875
-// shader: 8B30, 36BBD335D2A993F8
-
-precision highp int;
-precision highp float;
-precision highp samplerBuffer;
-precision highp usampler2D;
-precision highp uimage2D;
+// reference: 1BCF73933F3E30F2, 13523CC495A708FD
+// program: 1A9F70669A3C74DF, F0531050140A5884, 13523CC495A708FD
+// shader: 8B30, B3A483655EE02648
 in vec4 primary_color;
 in vec2 texcoord0;
 in vec2 texcoord1;
@@ -42296,15 +36832,6 @@ refl_value.g = refl_value.r;
 refl_value.b = refl_value.r;
 diffuse_sum.rgb += ((light_src[1].diffuse * dot_product) + light_src[1].ambient) * LookupLightingLUTUnsigned(17,clamp(light_src[1].dist_atten_scale * length(-view - light_src[1].position) + light_src[1].dist_atten_bias, 0.0, 1.0)) * 1.0;
 specular_sum.rgb += ((light_src[1].specular_0) + (light_src[1].specular_1)) * clamp_highlights * LookupLightingLUTUnsigned(17,clamp(light_src[1].dist_atten_scale * length(-view - light_src[1].position) + light_src[1].dist_atten_bias, 0.0, 1.0)) * 1.0;
-light_vector = normalize(light_src[2].position + view);
-spot_dir = light_src[2].spot_direction;
-half_vector = normalize(view) + light_vector;
-dot_product = max(dot(light_vector, normal), 0.0);
-refl_value.r = 1.0;
-refl_value.g = refl_value.r;
-refl_value.b = refl_value.r;
-diffuse_sum.rgb += ((light_src[2].diffuse * dot_product) + light_src[2].ambient) * LookupLightingLUTUnsigned(18,clamp(light_src[2].dist_atten_scale * length(-view - light_src[2].position) + light_src[2].dist_atten_bias, 0.0, 1.0)) * 1.0;
-specular_sum.rgb += ((light_src[2].specular_0) + (light_src[2].specular_1)) * clamp_highlights * LookupLightingLUTUnsigned(18,clamp(light_src[2].dist_atten_scale * length(-view - light_src[2].position) + light_src[2].dist_atten_bias, 0.0, 1.0)) * 1.0;
 diffuse_sum.rgb += lighting_global_ambient;
 primary_fragment_color = clamp(diffuse_sum, vec4(0.0), vec4(1.0));
 secondary_fragment_color = clamp(specular_sum, vec4(0.0), vec4(1.0));
@@ -42347,16 +36874,10 @@ combiner_buffer = next_combiner_buffer;
 gl_FragDepth = depth;
 color = byteround(last_tex_env_out);
 }
-// reference: DE7F1A233EB6EC89, 36BBD335D2A993F8
-// program: A0A01900FB0E2CEC, F0531050140A5884, 36BBD335D2A993F8
-// reference: 310AE3BFFD3B7132, 66CD5CEF1BB93352
-// shader: 8B30, 05B551A19C42D7DC
-
-precision highp int;
-precision highp float;
-precision highp samplerBuffer;
-precision highp usampler2D;
-precision highp uimage2D;
+// reference: C1684FE60CC05098, B3A483655EE02648
+// program: 1A9F70669A3C74DF, F0531050140A5884, B3A483655EE02648
+// reference: 2E1DB67ACF4DCD23, FBAF95FC427F6BA5
+// shader: 8B30, E6649D4285494D65
 in vec4 primary_color;
 in vec2 texcoord0;
 in vec2 texcoord1;
@@ -42532,242 +37053,6 @@ refl_value.g = refl_value.r;
 refl_value.b = refl_value.r;
 diffuse_sum.rgb += ((light_src[1].diffuse * dot_product) + light_src[1].ambient) * LookupLightingLUTUnsigned(17,clamp(light_src[1].dist_atten_scale * length(-view - light_src[1].position) + light_src[1].dist_atten_bias, 0.0, 1.0)) * 1.0;
 specular_sum.rgb += ((light_src[1].specular_0) + (light_src[1].specular_1)) * clamp_highlights * LookupLightingLUTUnsigned(17,clamp(light_src[1].dist_atten_scale * length(-view - light_src[1].position) + light_src[1].dist_atten_bias, 0.0, 1.0)) * 1.0;
-light_vector = normalize(light_src[2].position + view);
-spot_dir = light_src[2].spot_direction;
-half_vector = normalize(view) + light_vector;
-dot_product = max(dot(light_vector, normal), 0.0);
-refl_value.r = 1.0;
-refl_value.g = refl_value.r;
-refl_value.b = refl_value.r;
-diffuse_sum.rgb += ((light_src[2].diffuse * dot_product) + light_src[2].ambient) * LookupLightingLUTUnsigned(18,clamp(light_src[2].dist_atten_scale * length(-view - light_src[2].position) + light_src[2].dist_atten_bias, 0.0, 1.0)) * 1.0;
-specular_sum.rgb += ((light_src[2].specular_0) + (light_src[2].specular_1)) * clamp_highlights * LookupLightingLUTUnsigned(18,clamp(light_src[2].dist_atten_scale * length(-view - light_src[2].position) + light_src[2].dist_atten_bias, 0.0, 1.0)) * 1.0;
-diffuse_sum.rgb += lighting_global_ambient;
-primary_fragment_color = clamp(diffuse_sum, vec4(0.0), vec4(1.0));
-secondary_fragment_color = clamp(specular_sum, vec4(0.0), vec4(1.0));
-
-vec4 combiner_buffer = vec4(0.0);
-vec4 next_combiner_buffer = tev_combiner_buffer_color;
-vec4 last_tex_env_out = vec4(0.0);
-vec3 color_output_0 = byteround(clamp((rounded_primary_color.rgb) * (texcolor1.rgb), vec3(0.0), vec3(1.0)));
-float alpha_output_0 = byteround(clamp((rounded_primary_color.a) * (texcolor1.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_0 * 2.0, alpha_output_0 * 1.0), vec4(0.0), vec4(1.0));
-combiner_buffer = next_combiner_buffer;
-
-vec3 color_output_1 = byteround(clamp((last_tex_env_out.rgb) * (primary_fragment_color.rgb), vec3(0.0), vec3(1.0)));
-float alpha_output_1 = byteround(clamp((last_tex_env_out.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_1, alpha_output_1), vec4(0.0), vec4(1.0));
-combiner_buffer = next_combiner_buffer;
-
-vec3 color_output_2 = byteround(clamp((last_tex_env_out.rgb), vec3(0.0), vec3(1.0)));
-float alpha_output_2 = byteround(clamp((last_tex_env_out.a) * (const_color[2].a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_2, alpha_output_2), vec4(0.0), vec4(1.0));
-combiner_buffer = next_combiner_buffer;
-
-vec3 color_output_3 = byteround(clamp(min((const_color[3].rgb) + (texcolor0.ggg), vec3(1.0)) * (last_tex_env_out.rgb), vec3(0.0), vec3(1.0)));
-float alpha_output_3 = byteround(clamp((last_tex_env_out.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_3, alpha_output_3), vec4(0.0), vec4(1.0));
-combiner_buffer = next_combiner_buffer;
-
-combiner_buffer = next_combiner_buffer;
-
-combiner_buffer = next_combiner_buffer;
-
-gl_FragDepth = depth;
-color = byteround(last_tex_env_out);
-}
-// reference: 9E54179A5BE97070, 05B551A19C42D7DC
-// program: A0A01900FB0E2CEC, F0531050140A5884, 05B551A19C42D7DC
-// shader: 8B30, 7EFE1B2F3ED9A5C4
-
-precision highp int;
-precision highp float;
-precision highp samplerBuffer;
-precision highp usampler2D;
-precision highp uimage2D;
-in vec4 primary_color;
-in vec2 texcoord0;
-in vec2 texcoord1;
-in vec2 texcoord2;
-in float texcoord0_w;
-in vec4 normquat;
-in vec3 view;
-
-#ifndef CITRA_GLES
-in vec4 gl_FragCoord;
-#endif // CITRA_GLES
-out vec4 color;
-
-uniform sampler2D tex0;
-uniform sampler2D tex1;
-uniform sampler2D tex2;
-uniform samplerCube tex_cube;
-uniform samplerBuffer texture_buffer_lut_lf;
-uniform samplerBuffer texture_buffer_lut_rg;
-uniform samplerBuffer texture_buffer_lut_rgba;
-
-#define NUM_TEV_STAGES 6
-#define NUM_LIGHTS 8
-#define NUM_LIGHTING_SAMPLERS 24
-
-struct LightSrc {
-    vec3 specular_0;
-    vec3 specular_1;
-    vec3 diffuse;
-    vec3 ambient;
-    vec3 position;
-    vec3 spot_direction;
-    float dist_atten_bias;
-    float dist_atten_scale;
-};
-
-layout (std140) uniform shader_data {
-    int alphatest_ref;
-    float depth_scale;
-    float depth_offset;
-    float shadow_bias_constant;
-    float shadow_bias_linear;
-    int scissor_x1;
-    int scissor_y1;
-    int scissor_x2;
-    int scissor_y2;
-    int fog_lut_offset;
-    int proctex_noise_lut_offset;
-    int proctex_color_map_offset;
-    int proctex_alpha_map_offset;
-    int proctex_lut_offset;
-    int proctex_diff_lut_offset;
-    float proctex_bias;
-    vec3 fog_color;
-    vec2 proctex_noise_f;
-    vec2 proctex_noise_a;
-    vec2 proctex_noise_p;
-    vec4 const_color[NUM_TEV_STAGES];
-    vec4 tev_combiner_buffer_color;
-    vec4 clip_coef;
-};
-
-layout (std140) uniform shader_light_data {
-    ivec4 lighting_lut_offset[NUM_LIGHTING_SAMPLERS / 4];
-    vec3 lighting_global_ambient;
-    LightSrc light_src[NUM_LIGHTS];
-    float lut_scale_d0;
-    float lut_scale_d1;
-    float lut_scale_sp;
-    float lut_scale_fr;
-    float lut_scale_rb;
-    float lut_scale_rg;
-    float lut_scale_rr;
-    int shadow_texture_bias;
-};
-
-// Rotate the vector v by the quaternion q
-vec3 quaternion_rotate(vec4 q, vec3 v) {
-    return v + 2.0 * cross(q.xyz, cross(q.xyz, v) + q.w * v);
-}
-
-float LookupLightingLUT(int lut_index, int index, float delta) {
-    vec2 entry = texelFetch(texture_buffer_lut_lf, lighting_lut_offset[lut_index >> 2][lut_index & 3] + index).rg;
-    return entry.r + entry.g * delta;
-}
-
-float LookupLightingLUTUnsigned(int lut_index, float pos) {
-    int index = clamp(int(pos * 256.0), 0, 255);
-    float delta = pos * 256.0 - float(index);
-    return LookupLightingLUT(lut_index, index, delta);
-}
-
-float LookupLightingLUTSigned(int lut_index, float pos) {
-    int index = clamp(int(pos * 128.0), -128, 127);
-    float delta = pos * 128.0 - float(index);
-    if (index < 0) index += 256;
-    return LookupLightingLUT(lut_index, index, delta);
-}
-
-float byteround(float x) {
-    return round(x * 255.0) * (1.0 / 255.0);
-}
-
-vec2 byteround(vec2 x) {
-    return round(x * 255.0) * (1.0 / 255.0);
-}
-
-vec3 byteround(vec3 x) {
-    return round(x * 255.0) * (1.0 / 255.0);
-}
-
-vec4 byteround(vec4 x) {
-    return round(x * 255.0) * (1.0 / 255.0);
-}
-
-// PICA's LOD formula for 2D textures.
-// This LOD formula is the same as the LOD lower limit defined in OpenGL.
-// f(x, y) >= max{m_u, m_v, m_w}
-// (See OpenGL 4.6 spec, 8.14.1 - Scale Factor and Level-of-Detail)
-float getLod(vec2 coord) {
-    vec2 d = max(abs(dFdx(coord)), abs(dFdy(coord)));
-    return log2(max(d.x, d.y));
-}
-
-vec4 shadowTexture(vec2 uv, float w) {
-    return vec4(1.0);
-}
-
-vec4 shadowTextureCube(vec2 uv, float w) {
-    return vec4(1.0);
-}
-
-void main() {
-vec4 rounded_primary_color = byteround(primary_color);
-vec4 primary_fragment_color = vec4(0.0);
-vec4 secondary_fragment_color = vec4(0.0);
-if (!(gl_FragCoord.x >= float(scissor_x1) && gl_FragCoord.y >= float(scissor_y1) && gl_FragCoord.x < float(scissor_x2) && gl_FragCoord.y < float(scissor_y2))) discard;
-float z_over_w = 2.0 * gl_FragCoord.z - 1.0;
-float depth = z_over_w * depth_scale + depth_offset;
-vec4 texcolor0 = textureLod(tex0, texcoord0, getLod(texcoord0 * vec2(textureSize(tex0, 0))));
-vec4 texcolor1 = textureLod(tex1, texcoord1, getLod(texcoord1 * vec2(textureSize(tex1, 0))));
-
-vec4 diffuse_sum = vec4(0.0, 0.0, 0.0, 1.0);
-vec4 specular_sum = vec4(0.0, 0.0, 0.0, 1.0);
-vec3 light_vector = vec3(0.0);
-vec3 refl_value = vec3(0.0);
-vec3 spot_dir = vec3(0.0);
-vec3 half_vector = vec3(0.0);
-float dot_product = 0.0;
-float clamp_highlights = 1.0;
-float geo_factor = 1.0;
-vec3 surface_normal = vec3(0.0, 0.0, 1.0);
-vec3 surface_tangent = vec3(1.0, 0.0, 0.0);
-vec4 normalized_normquat = normalize(normquat);
-vec3 normal = quaternion_rotate(normalized_normquat, surface_normal);
-vec3 tangent = quaternion_rotate(normalized_normquat, surface_tangent);
-vec4 shadow = vec4(1.0);
-light_vector = normalize(light_src[0].position + view);
-spot_dir = light_src[0].spot_direction;
-half_vector = normalize(view) + light_vector;
-dot_product = max(dot(light_vector, normal), 0.0);
-refl_value.r = 1.0;
-refl_value.g = refl_value.r;
-refl_value.b = refl_value.r;
-diffuse_sum.rgb += ((light_src[0].diffuse * dot_product) + light_src[0].ambient) * LookupLightingLUTUnsigned(16,clamp(light_src[0].dist_atten_scale * length(-view - light_src[0].position) + light_src[0].dist_atten_bias, 0.0, 1.0)) * 1.0;
-specular_sum.rgb += ((light_src[0].specular_0) + (light_src[0].specular_1)) * clamp_highlights * LookupLightingLUTUnsigned(16,clamp(light_src[0].dist_atten_scale * length(-view - light_src[0].position) + light_src[0].dist_atten_bias, 0.0, 1.0)) * 1.0;
-light_vector = normalize(light_src[1].position + view);
-spot_dir = light_src[1].spot_direction;
-half_vector = normalize(view) + light_vector;
-dot_product = max(dot(light_vector, normal), 0.0);
-refl_value.r = 1.0;
-refl_value.g = refl_value.r;
-refl_value.b = refl_value.r;
-diffuse_sum.rgb += ((light_src[1].diffuse * dot_product) + light_src[1].ambient) * LookupLightingLUTUnsigned(17,clamp(light_src[1].dist_atten_scale * length(-view - light_src[1].position) + light_src[1].dist_atten_bias, 0.0, 1.0)) * 1.0;
-specular_sum.rgb += ((light_src[1].specular_0) + (light_src[1].specular_1)) * clamp_highlights * LookupLightingLUTUnsigned(17,clamp(light_src[1].dist_atten_scale * length(-view - light_src[1].position) + light_src[1].dist_atten_bias, 0.0, 1.0)) * 1.0;
-light_vector = normalize(light_src[2].position + view);
-spot_dir = light_src[2].spot_direction;
-half_vector = normalize(view) + light_vector;
-dot_product = max(dot(light_vector, normal), 0.0);
-refl_value.r = 1.0;
-refl_value.g = refl_value.r;
-refl_value.b = refl_value.r;
-diffuse_sum.rgb += ((light_src[2].diffuse * dot_product) + light_src[2].ambient) * LookupLightingLUTUnsigned(18,clamp(light_src[2].dist_atten_scale * length(-view - light_src[2].position) + light_src[2].dist_atten_bias, 0.0, 1.0)) * 1.0;
-specular_sum.rgb += ((light_src[2].specular_0) + (light_src[2].specular_1)) * clamp_highlights * LookupLightingLUTUnsigned(18,clamp(light_src[2].dist_atten_scale * length(-view - light_src[2].position) + light_src[2].dist_atten_bias, 0.0, 1.0)) * 1.0;
 diffuse_sum.rgb += lighting_global_ambient;
 primary_fragment_color = clamp(diffuse_sum, vec4(0.0), vec4(1.0));
 secondary_fragment_color = clamp(specular_sum, vec4(0.0), vec4(1.0));
@@ -42811,15 +37096,9 @@ combiner_buffer = next_combiner_buffer;
 gl_FragDepth = depth;
 color = byteround(last_tex_env_out);
 }
-// reference: CAFA785E952A482C, 7EFE1B2F3ED9A5C4
-// program: A0A01900FB0E2CEC, F0531050140A5884, 7EFE1B2F3ED9A5C4
-// shader: 8B30, A126A70CD4CF6121
-
-precision highp int;
-precision highp float;
-precision highp samplerBuffer;
-precision highp usampler2D;
-precision highp uimage2D;
+// reference: D5ED2D9BA75CF43D, E6649D4285494D65
+// program: 1A9F70669A3C74DF, F0531050140A5884, E6649D4285494D65
+// shader: 8B30, 9E4B95E725F2F2C8
 in vec4 primary_color;
 in vec2 texcoord0;
 in vec2 texcoord1;
@@ -42995,15 +37274,6 @@ refl_value.g = refl_value.r;
 refl_value.b = refl_value.r;
 diffuse_sum.rgb += ((light_src[1].diffuse * dot_product) + light_src[1].ambient) * LookupLightingLUTUnsigned(17,clamp(light_src[1].dist_atten_scale * length(-view - light_src[1].position) + light_src[1].dist_atten_bias, 0.0, 1.0)) * 1.0;
 specular_sum.rgb += ((light_src[1].specular_0) + (light_src[1].specular_1)) * clamp_highlights * LookupLightingLUTUnsigned(17,clamp(light_src[1].dist_atten_scale * length(-view - light_src[1].position) + light_src[1].dist_atten_bias, 0.0, 1.0)) * 1.0;
-light_vector = normalize(light_src[2].position + view);
-spot_dir = light_src[2].spot_direction;
-half_vector = normalize(view) + light_vector;
-dot_product = max(dot(light_vector, normal), 0.0);
-refl_value.r = 1.0;
-refl_value.g = refl_value.r;
-refl_value.b = refl_value.r;
-diffuse_sum.rgb += ((light_src[2].diffuse * dot_product) + light_src[2].ambient) * LookupLightingLUTUnsigned(18,clamp(light_src[2].dist_atten_scale * length(-view - light_src[2].position) + light_src[2].dist_atten_bias, 0.0, 1.0)) * 1.0;
-specular_sum.rgb += ((light_src[2].specular_0) + (light_src[2].specular_1)) * clamp_highlights * LookupLightingLUTUnsigned(18,clamp(light_src[2].dist_atten_scale * length(-view - light_src[2].position) + light_src[2].dist_atten_bias, 0.0, 1.0)) * 1.0;
 diffuse_sum.rgb += lighting_global_ambient;
 primary_fragment_color = clamp(diffuse_sum, vec4(0.0), vec4(1.0));
 secondary_fragment_color = clamp(specular_sum, vec4(0.0), vec4(1.0));
@@ -43047,15 +37317,9 @@ combiner_buffer = next_combiner_buffer;
 gl_FragDepth = depth;
 color = byteround(last_tex_env_out);
 }
-// reference: 258F81C2ED885AE4, A126A70CD4CF6121
-// program: A0A01900FB0E2CEC, F0531050140A5884, A126A70CD4CF6121
-// shader: 8B30, B3DD35D93181717C
-
-precision highp int;
-precision highp float;
-precision highp samplerBuffer;
-precision highp usampler2D;
-precision highp uimage2D;
+// reference: 3A98D407DFFEE6F5, 9E4B95E725F2F2C8
+// program: 1A9F70669A3C74DF, F0531050140A5884, 9E4B95E725F2F2C8
+// shader: 8B30, 9ED9EC3618CDBD9E
 in vec4 primary_color;
 in vec2 texcoord0;
 in vec2 texcoord1;
@@ -43195,7 +37459,6 @@ vec4 secondary_fragment_color = vec4(0.0);
 if (!(gl_FragCoord.x >= float(scissor_x1) && gl_FragCoord.y >= float(scissor_y1) && gl_FragCoord.x < float(scissor_x2) && gl_FragCoord.y < float(scissor_y2))) discard;
 float z_over_w = 2.0 * gl_FragCoord.z - 1.0;
 float depth = z_over_w * depth_scale + depth_offset;
-vec4 texcolor0 = textureLod(tex0, texcoord0, getLod(texcoord0 * vec2(textureSize(tex0, 0))));
 
 vec4 diffuse_sum = vec4(0.0, 0.0, 0.0, 1.0);
 vec4 specular_sum = vec4(0.0, 0.0, 0.0, 1.0);
@@ -43228,17 +37491,9 @@ dot_product = max(dot(light_vector, normal), 0.0);
 refl_value.r = 1.0;
 refl_value.g = refl_value.r;
 refl_value.b = refl_value.r;
+specular_sum.a = (lut_scale_fr * LookupLightingLUTUnsigned(3, max(dot(normal, normalize(view)), 0.0)));
 diffuse_sum.rgb += ((light_src[1].diffuse * dot_product) + light_src[1].ambient) * LookupLightingLUTUnsigned(17,clamp(light_src[1].dist_atten_scale * length(-view - light_src[1].position) + light_src[1].dist_atten_bias, 0.0, 1.0)) * 1.0;
 specular_sum.rgb += ((light_src[1].specular_0) + (light_src[1].specular_1)) * clamp_highlights * LookupLightingLUTUnsigned(17,clamp(light_src[1].dist_atten_scale * length(-view - light_src[1].position) + light_src[1].dist_atten_bias, 0.0, 1.0)) * 1.0;
-light_vector = normalize(light_src[2].position + view);
-spot_dir = light_src[2].spot_direction;
-half_vector = normalize(view) + light_vector;
-dot_product = max(dot(light_vector, normal), 0.0);
-refl_value.r = 1.0;
-refl_value.g = refl_value.r;
-refl_value.b = refl_value.r;
-diffuse_sum.rgb += ((light_src[2].diffuse * dot_product) + light_src[2].ambient) * LookupLightingLUTUnsigned(18,clamp(light_src[2].dist_atten_scale * length(-view - light_src[2].position) + light_src[2].dist_atten_bias, 0.0, 1.0)) * 1.0;
-specular_sum.rgb += ((light_src[2].specular_0) + (light_src[2].specular_1)) * clamp_highlights * LookupLightingLUTUnsigned(18,clamp(light_src[2].dist_atten_scale * length(-view - light_src[2].position) + light_src[2].dist_atten_bias, 0.0, 1.0)) * 1.0;
 diffuse_sum.rgb += lighting_global_ambient;
 primary_fragment_color = clamp(diffuse_sum, vec4(0.0), vec4(1.0));
 secondary_fragment_color = clamp(specular_sum, vec4(0.0), vec4(1.0));
@@ -43246,13 +37501,216 @@ secondary_fragment_color = clamp(specular_sum, vec4(0.0), vec4(1.0));
 vec4 combiner_buffer = vec4(0.0);
 vec4 next_combiner_buffer = tev_combiner_buffer_color;
 vec4 last_tex_env_out = vec4(0.0);
-vec3 color_output_0 = byteround(clamp((texcolor0.rgb) * (const_color[0].rgb), vec3(0.0), vec3(1.0)));
-float alpha_output_0 = byteround(clamp((texcolor0.a) * (const_color[0].a), 0.0, 1.0));
+vec3 color_output_0 = byteround(clamp((const_color[0].rgb), vec3(0.0), vec3(1.0)));
+float alpha_output_0 = byteround(clamp((secondary_fragment_color.a) * (const_color[0].a), 0.0, 1.0));
 last_tex_env_out = clamp(vec4(color_output_0, alpha_output_0), vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 
-vec3 color_output_1 = byteround(clamp((last_tex_env_out.rgb) * (primary_fragment_color.rgb), vec3(0.0), vec3(1.0)));
-float alpha_output_1 = byteround(clamp((last_tex_env_out.a), 0.0, 1.0));
+combiner_buffer = next_combiner_buffer;
+
+combiner_buffer = next_combiner_buffer;
+
+combiner_buffer = next_combiner_buffer;
+
+combiner_buffer = next_combiner_buffer;
+
+combiner_buffer = next_combiner_buffer;
+
+gl_FragDepth = depth;
+color = byteround(last_tex_env_out);
+}
+// reference: E92B7F0145411573, 9ED9EC3618CDBD9E
+// program: 1A9F70669A3C74DF, F0531050140A5884, 9ED9EC3618CDBD9E
+// reference: C6F455C47AEF9F7F, 03A41228A921F0A5
+// shader: 8B30, F5FCEB373537E559
+in vec4 primary_color;
+in vec2 texcoord0;
+in vec2 texcoord1;
+in vec2 texcoord2;
+in float texcoord0_w;
+in vec4 normquat;
+in vec3 view;
+
+#ifndef CITRA_GLES
+in vec4 gl_FragCoord;
+#endif // CITRA_GLES
+out vec4 color;
+
+uniform sampler2D tex0;
+uniform sampler2D tex1;
+uniform sampler2D tex2;
+uniform samplerCube tex_cube;
+uniform samplerBuffer texture_buffer_lut_lf;
+uniform samplerBuffer texture_buffer_lut_rg;
+uniform samplerBuffer texture_buffer_lut_rgba;
+
+#define NUM_TEV_STAGES 6
+#define NUM_LIGHTS 8
+#define NUM_LIGHTING_SAMPLERS 24
+
+struct LightSrc {
+    vec3 specular_0;
+    vec3 specular_1;
+    vec3 diffuse;
+    vec3 ambient;
+    vec3 position;
+    vec3 spot_direction;
+    float dist_atten_bias;
+    float dist_atten_scale;
+};
+
+layout (std140) uniform shader_data {
+    int alphatest_ref;
+    float depth_scale;
+    float depth_offset;
+    float shadow_bias_constant;
+    float shadow_bias_linear;
+    int scissor_x1;
+    int scissor_y1;
+    int scissor_x2;
+    int scissor_y2;
+    int fog_lut_offset;
+    int proctex_noise_lut_offset;
+    int proctex_color_map_offset;
+    int proctex_alpha_map_offset;
+    int proctex_lut_offset;
+    int proctex_diff_lut_offset;
+    float proctex_bias;
+    vec3 fog_color;
+    vec2 proctex_noise_f;
+    vec2 proctex_noise_a;
+    vec2 proctex_noise_p;
+    vec4 const_color[NUM_TEV_STAGES];
+    vec4 tev_combiner_buffer_color;
+    vec4 clip_coef;
+};
+
+layout (std140) uniform shader_light_data {
+    ivec4 lighting_lut_offset[NUM_LIGHTING_SAMPLERS / 4];
+    vec3 lighting_global_ambient;
+    LightSrc light_src[NUM_LIGHTS];
+    float lut_scale_d0;
+    float lut_scale_d1;
+    float lut_scale_sp;
+    float lut_scale_fr;
+    float lut_scale_rb;
+    float lut_scale_rg;
+    float lut_scale_rr;
+    int shadow_texture_bias;
+};
+
+// Rotate the vector v by the quaternion q
+vec3 quaternion_rotate(vec4 q, vec3 v) {
+    return v + 2.0 * cross(q.xyz, cross(q.xyz, v) + q.w * v);
+}
+
+float LookupLightingLUT(int lut_index, int index, float delta) {
+    vec2 entry = texelFetch(texture_buffer_lut_lf, lighting_lut_offset[lut_index >> 2][lut_index & 3] + index).rg;
+    return entry.r + entry.g * delta;
+}
+
+float LookupLightingLUTUnsigned(int lut_index, float pos) {
+    int index = clamp(int(pos * 256.0), 0, 255);
+    float delta = pos * 256.0 - float(index);
+    return LookupLightingLUT(lut_index, index, delta);
+}
+
+float LookupLightingLUTSigned(int lut_index, float pos) {
+    int index = clamp(int(pos * 128.0), -128, 127);
+    float delta = pos * 128.0 - float(index);
+    if (index < 0) index += 256;
+    return LookupLightingLUT(lut_index, index, delta);
+}
+
+float byteround(float x) {
+    return round(x * 255.0) * (1.0 / 255.0);
+}
+
+vec2 byteround(vec2 x) {
+    return round(x * 255.0) * (1.0 / 255.0);
+}
+
+vec3 byteround(vec3 x) {
+    return round(x * 255.0) * (1.0 / 255.0);
+}
+
+vec4 byteround(vec4 x) {
+    return round(x * 255.0) * (1.0 / 255.0);
+}
+
+// PICA's LOD formula for 2D textures.
+// This LOD formula is the same as the LOD lower limit defined in OpenGL.
+// f(x, y) >= max{m_u, m_v, m_w}
+// (See OpenGL 4.6 spec, 8.14.1 - Scale Factor and Level-of-Detail)
+float getLod(vec2 coord) {
+    vec2 d = max(abs(dFdx(coord)), abs(dFdy(coord)));
+    return log2(max(d.x, d.y));
+}
+
+vec4 shadowTexture(vec2 uv, float w) {
+    return vec4(1.0);
+}
+
+vec4 shadowTextureCube(vec2 uv, float w) {
+    return vec4(1.0);
+}
+
+void main() {
+vec4 rounded_primary_color = byteround(primary_color);
+vec4 primary_fragment_color = vec4(0.0);
+vec4 secondary_fragment_color = vec4(0.0);
+if (!(gl_FragCoord.x >= float(scissor_x1) && gl_FragCoord.y >= float(scissor_y1) && gl_FragCoord.x < float(scissor_x2) && gl_FragCoord.y < float(scissor_y2))) discard;
+float z_over_w = 2.0 * gl_FragCoord.z - 1.0;
+float depth = z_over_w * depth_scale + depth_offset;
+
+vec4 diffuse_sum = vec4(0.0, 0.0, 0.0, 1.0);
+vec4 specular_sum = vec4(0.0, 0.0, 0.0, 1.0);
+vec3 light_vector = vec3(0.0);
+vec3 refl_value = vec3(0.0);
+vec3 spot_dir = vec3(0.0);
+vec3 half_vector = vec3(0.0);
+float dot_product = 0.0;
+float clamp_highlights = 1.0;
+float geo_factor = 1.0;
+vec3 surface_normal = vec3(0.0, 0.0, 1.0);
+vec3 surface_tangent = vec3(1.0, 0.0, 0.0);
+vec4 normalized_normquat = normalize(normquat);
+vec3 normal = quaternion_rotate(normalized_normquat, surface_normal);
+vec3 tangent = quaternion_rotate(normalized_normquat, surface_tangent);
+vec4 shadow = vec4(1.0);
+light_vector = normalize(light_src[0].position + view);
+spot_dir = light_src[0].spot_direction;
+half_vector = normalize(view) + light_vector;
+dot_product = max(dot(light_vector, normal), 0.0);
+refl_value.r = 1.0;
+refl_value.g = refl_value.r;
+refl_value.b = refl_value.r;
+diffuse_sum.rgb += ((light_src[0].diffuse * dot_product) + light_src[0].ambient) * LookupLightingLUTUnsigned(16,clamp(light_src[0].dist_atten_scale * length(-view - light_src[0].position) + light_src[0].dist_atten_bias, 0.0, 1.0)) * 1.0;
+specular_sum.rgb += ((light_src[0].specular_0) + (light_src[0].specular_1)) * clamp_highlights * LookupLightingLUTUnsigned(16,clamp(light_src[0].dist_atten_scale * length(-view - light_src[0].position) + light_src[0].dist_atten_bias, 0.0, 1.0)) * 1.0;
+light_vector = normalize(light_src[1].position + view);
+spot_dir = light_src[1].spot_direction;
+half_vector = normalize(view) + light_vector;
+dot_product = max(dot(light_vector, normal), 0.0);
+refl_value.r = 1.0;
+refl_value.g = refl_value.r;
+refl_value.b = refl_value.r;
+specular_sum.a = (lut_scale_fr * LookupLightingLUTUnsigned(3, max(dot(normal, normalize(view)), 0.0)));
+diffuse_sum.rgb += ((light_src[1].diffuse * dot_product) + light_src[1].ambient) * LookupLightingLUTUnsigned(17,clamp(light_src[1].dist_atten_scale * length(-view - light_src[1].position) + light_src[1].dist_atten_bias, 0.0, 1.0)) * 1.0;
+specular_sum.rgb += ((light_src[1].specular_0) + (light_src[1].specular_1)) * clamp_highlights * LookupLightingLUTUnsigned(17,clamp(light_src[1].dist_atten_scale * length(-view - light_src[1].position) + light_src[1].dist_atten_bias, 0.0, 1.0)) * 1.0;
+diffuse_sum.rgb += lighting_global_ambient;
+primary_fragment_color = clamp(diffuse_sum, vec4(0.0), vec4(1.0));
+secondary_fragment_color = clamp(specular_sum, vec4(0.0), vec4(1.0));
+
+vec4 combiner_buffer = vec4(0.0);
+vec4 next_combiner_buffer = tev_combiner_buffer_color;
+vec4 last_tex_env_out = vec4(0.0);
+vec3 color_output_0 = byteround(clamp((const_color[0].rgb), vec3(0.0), vec3(1.0)));
+float alpha_output_0 = byteround(clamp((secondary_fragment_color.a) * (const_color[0].a), 0.0, 1.0));
+last_tex_env_out = clamp(vec4(color_output_0, alpha_output_0), vec4(0.0), vec4(1.0));
+combiner_buffer = next_combiner_buffer;
+
+vec3 color_output_1 = byteround(clamp((last_tex_env_out.rgb), vec3(0.0), vec3(1.0)));
+float alpha_output_1 = byteround(clamp((last_tex_env_out.a) * (const_color[1].a), 0.0, 1.0));
 last_tex_env_out = clamp(vec4(color_output_1, alpha_output_1), vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 
@@ -43267,18 +37725,9 @@ combiner_buffer = next_combiner_buffer;
 gl_FragDepth = depth;
 color = byteround(last_tex_env_out);
 }
-// reference: 7C3A32D21946DA4E, B3DD35D93181717C
-// program: A0A01900FB0E2CEC, F0531050140A5884, B3DD35D93181717C
-// reference: F63C2AC47737A962, 7A635789994EBD31
-// reference: D9E300014899236E, 94C189A177E49D88
-// reference: DF3417619DE370C4, 33BCF2A94C1C3064
-// shader: 8B30, 8EADB53DCC1103F8
-
-precision highp int;
-precision highp float;
-precision highp samplerBuffer;
-precision highp usampler2D;
-precision highp uimage2D;
+// reference: C02342A4AF95CCD5, F5FCEB373537E559
+// program: 1A9F70669A3C74DF, F0531050140A5884, F5FCEB373537E559
+// shader: 8B30, FBF0F49EE78D3F9C
 in vec4 primary_color;
 in vec2 texcoord0;
 in vec2 texcoord1;
@@ -43476,15 +37925,2043 @@ combiner_buffer = next_combiner_buffer;
 gl_FragDepth = depth;
 color = byteround(last_tex_env_out);
 }
-// reference: 6CD8E1FFC60C6537, 8EADB53DCC1103F8
-// program: A0A01900FB0E2CEC, F0531050140A5884, 8EADB53DCC1103F8
-// shader: 8B30, E2F230B0AA9AB9A6
+// reference: 6CD8E1FFC60C6537, FBF0F49EE78D3F9C
+// program: 1A9F70669A3C74DF, F0531050140A5884, FBF0F49EE78D3F9C
+// shader: 8B30, 58F724D157B49FBA
+in vec4 primary_color;
+in vec2 texcoord0;
+in vec2 texcoord1;
+in vec2 texcoord2;
+in float texcoord0_w;
+in vec4 normquat;
+in vec3 view;
 
-precision highp int;
-precision highp float;
-precision highp samplerBuffer;
-precision highp usampler2D;
-precision highp uimage2D;
+#ifndef CITRA_GLES
+in vec4 gl_FragCoord;
+#endif // CITRA_GLES
+out vec4 color;
+
+uniform sampler2D tex0;
+uniform sampler2D tex1;
+uniform sampler2D tex2;
+uniform samplerCube tex_cube;
+uniform samplerBuffer texture_buffer_lut_lf;
+uniform samplerBuffer texture_buffer_lut_rg;
+uniform samplerBuffer texture_buffer_lut_rgba;
+
+#define NUM_TEV_STAGES 6
+#define NUM_LIGHTS 8
+#define NUM_LIGHTING_SAMPLERS 24
+
+struct LightSrc {
+    vec3 specular_0;
+    vec3 specular_1;
+    vec3 diffuse;
+    vec3 ambient;
+    vec3 position;
+    vec3 spot_direction;
+    float dist_atten_bias;
+    float dist_atten_scale;
+};
+
+layout (std140) uniform shader_data {
+    int alphatest_ref;
+    float depth_scale;
+    float depth_offset;
+    float shadow_bias_constant;
+    float shadow_bias_linear;
+    int scissor_x1;
+    int scissor_y1;
+    int scissor_x2;
+    int scissor_y2;
+    int fog_lut_offset;
+    int proctex_noise_lut_offset;
+    int proctex_color_map_offset;
+    int proctex_alpha_map_offset;
+    int proctex_lut_offset;
+    int proctex_diff_lut_offset;
+    float proctex_bias;
+    vec3 fog_color;
+    vec2 proctex_noise_f;
+    vec2 proctex_noise_a;
+    vec2 proctex_noise_p;
+    vec4 const_color[NUM_TEV_STAGES];
+    vec4 tev_combiner_buffer_color;
+    vec4 clip_coef;
+};
+
+layout (std140) uniform shader_light_data {
+    ivec4 lighting_lut_offset[NUM_LIGHTING_SAMPLERS / 4];
+    vec3 lighting_global_ambient;
+    LightSrc light_src[NUM_LIGHTS];
+    float lut_scale_d0;
+    float lut_scale_d1;
+    float lut_scale_sp;
+    float lut_scale_fr;
+    float lut_scale_rb;
+    float lut_scale_rg;
+    float lut_scale_rr;
+    int shadow_texture_bias;
+};
+
+// Rotate the vector v by the quaternion q
+vec3 quaternion_rotate(vec4 q, vec3 v) {
+    return v + 2.0 * cross(q.xyz, cross(q.xyz, v) + q.w * v);
+}
+
+float LookupLightingLUT(int lut_index, int index, float delta) {
+    vec2 entry = texelFetch(texture_buffer_lut_lf, lighting_lut_offset[lut_index >> 2][lut_index & 3] + index).rg;
+    return entry.r + entry.g * delta;
+}
+
+float LookupLightingLUTUnsigned(int lut_index, float pos) {
+    int index = clamp(int(pos * 256.0), 0, 255);
+    float delta = pos * 256.0 - float(index);
+    return LookupLightingLUT(lut_index, index, delta);
+}
+
+float LookupLightingLUTSigned(int lut_index, float pos) {
+    int index = clamp(int(pos * 128.0), -128, 127);
+    float delta = pos * 128.0 - float(index);
+    if (index < 0) index += 256;
+    return LookupLightingLUT(lut_index, index, delta);
+}
+
+float byteround(float x) {
+    return round(x * 255.0) * (1.0 / 255.0);
+}
+
+vec2 byteround(vec2 x) {
+    return round(x * 255.0) * (1.0 / 255.0);
+}
+
+vec3 byteround(vec3 x) {
+    return round(x * 255.0) * (1.0 / 255.0);
+}
+
+vec4 byteround(vec4 x) {
+    return round(x * 255.0) * (1.0 / 255.0);
+}
+
+// PICA's LOD formula for 2D textures.
+// This LOD formula is the same as the LOD lower limit defined in OpenGL.
+// f(x, y) >= max{m_u, m_v, m_w}
+// (See OpenGL 4.6 spec, 8.14.1 - Scale Factor and Level-of-Detail)
+float getLod(vec2 coord) {
+    vec2 d = max(abs(dFdx(coord)), abs(dFdy(coord)));
+    return log2(max(d.x, d.y));
+}
+
+vec4 shadowTexture(vec2 uv, float w) {
+    return vec4(1.0);
+}
+
+vec4 shadowTextureCube(vec2 uv, float w) {
+    return vec4(1.0);
+}
+
+void main() {
+vec4 rounded_primary_color = byteround(primary_color);
+vec4 primary_fragment_color = vec4(0.0);
+vec4 secondary_fragment_color = vec4(0.0);
+if (!(gl_FragCoord.x >= float(scissor_x1) && gl_FragCoord.y >= float(scissor_y1) && gl_FragCoord.x < float(scissor_x2) && gl_FragCoord.y < float(scissor_y2))) discard;
+float z_over_w = 2.0 * gl_FragCoord.z - 1.0;
+float depth = z_over_w * depth_scale + depth_offset;
+vec4 texcolor0 = textureLod(tex0, texcoord0, getLod(texcoord0 * vec2(textureSize(tex0, 0))));
+vec4 texcolor1 = textureLod(tex1, texcoord1, getLod(texcoord1 * vec2(textureSize(tex1, 0))));
+
+vec4 diffuse_sum = vec4(0.0, 0.0, 0.0, 1.0);
+vec4 specular_sum = vec4(0.0, 0.0, 0.0, 1.0);
+vec3 light_vector = vec3(0.0);
+vec3 refl_value = vec3(0.0);
+vec3 spot_dir = vec3(0.0);
+vec3 half_vector = vec3(0.0);
+float dot_product = 0.0;
+float clamp_highlights = 1.0;
+float geo_factor = 1.0;
+vec3 surface_normal = vec3(0.0, 0.0, 1.0);
+vec3 surface_tangent = vec3(1.0, 0.0, 0.0);
+vec4 normalized_normquat = normalize(normquat);
+vec3 normal = quaternion_rotate(normalized_normquat, surface_normal);
+vec3 tangent = quaternion_rotate(normalized_normquat, surface_tangent);
+vec4 shadow = vec4(1.0);
+light_vector = normalize(light_src[0].position + view);
+spot_dir = light_src[0].spot_direction;
+half_vector = normalize(view) + light_vector;
+dot_product = max(dot(light_vector, normal), 0.0);
+refl_value.r = 1.0;
+refl_value.g = refl_value.r;
+refl_value.b = refl_value.r;
+diffuse_sum.rgb += ((light_src[0].diffuse * dot_product) + light_src[0].ambient) * LookupLightingLUTUnsigned(16,clamp(light_src[0].dist_atten_scale * length(-view - light_src[0].position) + light_src[0].dist_atten_bias, 0.0, 1.0)) * 1.0;
+specular_sum.rgb += ((light_src[0].specular_0) + (light_src[0].specular_1)) * clamp_highlights * LookupLightingLUTUnsigned(16,clamp(light_src[0].dist_atten_scale * length(-view - light_src[0].position) + light_src[0].dist_atten_bias, 0.0, 1.0)) * 1.0;
+light_vector = normalize(light_src[1].position + view);
+spot_dir = light_src[1].spot_direction;
+half_vector = normalize(view) + light_vector;
+dot_product = max(dot(light_vector, normal), 0.0);
+refl_value.r = 1.0;
+refl_value.g = refl_value.r;
+refl_value.b = refl_value.r;
+diffuse_sum.rgb += ((light_src[1].diffuse * dot_product) + light_src[1].ambient) * LookupLightingLUTUnsigned(17,clamp(light_src[1].dist_atten_scale * length(-view - light_src[1].position) + light_src[1].dist_atten_bias, 0.0, 1.0)) * 1.0;
+specular_sum.rgb += ((light_src[1].specular_0) + (light_src[1].specular_1)) * clamp_highlights * LookupLightingLUTUnsigned(17,clamp(light_src[1].dist_atten_scale * length(-view - light_src[1].position) + light_src[1].dist_atten_bias, 0.0, 1.0)) * 1.0;
+light_vector = normalize(light_src[2].position + view);
+spot_dir = light_src[2].spot_direction;
+half_vector = normalize(view) + light_vector;
+dot_product = max(dot(light_vector, normal), 0.0);
+refl_value.r = 1.0;
+refl_value.g = refl_value.r;
+refl_value.b = refl_value.r;
+diffuse_sum.rgb += ((light_src[2].diffuse * dot_product) + light_src[2].ambient) * LookupLightingLUTUnsigned(18,clamp(light_src[2].dist_atten_scale * length(-view - light_src[2].position) + light_src[2].dist_atten_bias, 0.0, 1.0)) * 1.0;
+specular_sum.rgb += ((light_src[2].specular_0) + (light_src[2].specular_1)) * clamp_highlights * LookupLightingLUTUnsigned(18,clamp(light_src[2].dist_atten_scale * length(-view - light_src[2].position) + light_src[2].dist_atten_bias, 0.0, 1.0)) * 1.0;
+diffuse_sum.rgb += lighting_global_ambient;
+primary_fragment_color = clamp(diffuse_sum, vec4(0.0), vec4(1.0));
+secondary_fragment_color = clamp(specular_sum, vec4(0.0), vec4(1.0));
+
+vec4 combiner_buffer = vec4(0.0);
+vec4 next_combiner_buffer = tev_combiner_buffer_color;
+vec4 last_tex_env_out = vec4(0.0);
+vec3 color_output_0 = byteround(clamp((rounded_primary_color.rgb), vec3(0.0), vec3(1.0)));
+float alpha_output_0 = byteround(clamp((rounded_primary_color.r) * (rounded_primary_color.r), 0.0, 1.0));
+last_tex_env_out = clamp(vec4(color_output_0 * 1.0, alpha_output_0 * 2.0), vec4(0.0), vec4(1.0));
+combiner_buffer = next_combiner_buffer;
+
+vec3 color_output_1 = byteround(clamp((const_color[1].rgb) * (vec3(1.0) - last_tex_env_out.aaa) + (rounded_primary_color.rgb), vec3(0.0), vec3(1.0)));
+float alpha_output_1 = byteround(clamp((rounded_primary_color.a) * (texcolor1.a), 0.0, 1.0));
+last_tex_env_out = clamp(vec4(color_output_1, alpha_output_1), vec4(0.0), vec4(1.0));
+combiner_buffer = next_combiner_buffer;
+
+vec3 color_output_2 = byteround(clamp((last_tex_env_out.rgb) * (texcolor1.rgb), vec3(0.0), vec3(1.0)));
+float alpha_output_2 = byteround(clamp((last_tex_env_out.a), 0.0, 1.0));
+last_tex_env_out = clamp(vec4(color_output_2 * 2.0, alpha_output_2 * 1.0), vec4(0.0), vec4(1.0));
+combiner_buffer = next_combiner_buffer;
+
+vec3 color_output_3 = byteround(clamp((last_tex_env_out.rgb) * (primary_fragment_color.rgb), vec3(0.0), vec3(1.0)));
+float alpha_output_3 = byteround(clamp((last_tex_env_out.a) * (const_color[3].a), 0.0, 1.0));
+last_tex_env_out = clamp(vec4(color_output_3, alpha_output_3), vec4(0.0), vec4(1.0));
+combiner_buffer = next_combiner_buffer;
+
+vec3 color_output_4 = byteround(clamp(min((const_color[4].rgb) + (texcolor0.ggg), vec3(1.0)) * (last_tex_env_out.rgb), vec3(0.0), vec3(1.0)));
+float alpha_output_4 = byteround(clamp((last_tex_env_out.a), 0.0, 1.0));
+last_tex_env_out = clamp(vec4(color_output_4, alpha_output_4), vec4(0.0), vec4(1.0));
+combiner_buffer = next_combiner_buffer;
+
+combiner_buffer = next_combiner_buffer;
+
+gl_FragDepth = depth;
+color = byteround(last_tex_env_out);
+}
+// reference: 5572093BE1FF67E0, 58F724D157B49FBA
+// program: 1A9F70669A3C74DF, F0531050140A5884, 58F724D157B49FBA
+// reference: 44AA77D60B7D9210, 77D4EA88CD01043F
+// reference: 9B17EB70998C040F, 62BE1D34CEAF7560
+// reference: 3377C328719D2F14, 767C55059D6FBE18
+// reference: 7C83AA10891214F3, 4D7A8B825FBF01D2
+// shader: 8B30, 8E1025921709B4DA
+in vec4 primary_color;
+in vec2 texcoord0;
+in vec2 texcoord1;
+in vec2 texcoord2;
+in float texcoord0_w;
+in vec4 normquat;
+in vec3 view;
+
+#ifndef CITRA_GLES
+in vec4 gl_FragCoord;
+#endif // CITRA_GLES
+out vec4 color;
+
+uniform sampler2D tex0;
+uniform sampler2D tex1;
+uniform sampler2D tex2;
+uniform samplerCube tex_cube;
+uniform samplerBuffer texture_buffer_lut_lf;
+uniform samplerBuffer texture_buffer_lut_rg;
+uniform samplerBuffer texture_buffer_lut_rgba;
+
+#define NUM_TEV_STAGES 6
+#define NUM_LIGHTS 8
+#define NUM_LIGHTING_SAMPLERS 24
+
+struct LightSrc {
+    vec3 specular_0;
+    vec3 specular_1;
+    vec3 diffuse;
+    vec3 ambient;
+    vec3 position;
+    vec3 spot_direction;
+    float dist_atten_bias;
+    float dist_atten_scale;
+};
+
+layout (std140) uniform shader_data {
+    int alphatest_ref;
+    float depth_scale;
+    float depth_offset;
+    float shadow_bias_constant;
+    float shadow_bias_linear;
+    int scissor_x1;
+    int scissor_y1;
+    int scissor_x2;
+    int scissor_y2;
+    int fog_lut_offset;
+    int proctex_noise_lut_offset;
+    int proctex_color_map_offset;
+    int proctex_alpha_map_offset;
+    int proctex_lut_offset;
+    int proctex_diff_lut_offset;
+    float proctex_bias;
+    vec3 fog_color;
+    vec2 proctex_noise_f;
+    vec2 proctex_noise_a;
+    vec2 proctex_noise_p;
+    vec4 const_color[NUM_TEV_STAGES];
+    vec4 tev_combiner_buffer_color;
+    vec4 clip_coef;
+};
+
+layout (std140) uniform shader_light_data {
+    ivec4 lighting_lut_offset[NUM_LIGHTING_SAMPLERS / 4];
+    vec3 lighting_global_ambient;
+    LightSrc light_src[NUM_LIGHTS];
+    float lut_scale_d0;
+    float lut_scale_d1;
+    float lut_scale_sp;
+    float lut_scale_fr;
+    float lut_scale_rb;
+    float lut_scale_rg;
+    float lut_scale_rr;
+    int shadow_texture_bias;
+};
+
+// Rotate the vector v by the quaternion q
+vec3 quaternion_rotate(vec4 q, vec3 v) {
+    return v + 2.0 * cross(q.xyz, cross(q.xyz, v) + q.w * v);
+}
+
+float LookupLightingLUT(int lut_index, int index, float delta) {
+    vec2 entry = texelFetch(texture_buffer_lut_lf, lighting_lut_offset[lut_index >> 2][lut_index & 3] + index).rg;
+    return entry.r + entry.g * delta;
+}
+
+float LookupLightingLUTUnsigned(int lut_index, float pos) {
+    int index = clamp(int(pos * 256.0), 0, 255);
+    float delta = pos * 256.0 - float(index);
+    return LookupLightingLUT(lut_index, index, delta);
+}
+
+float LookupLightingLUTSigned(int lut_index, float pos) {
+    int index = clamp(int(pos * 128.0), -128, 127);
+    float delta = pos * 128.0 - float(index);
+    if (index < 0) index += 256;
+    return LookupLightingLUT(lut_index, index, delta);
+}
+
+float byteround(float x) {
+    return round(x * 255.0) * (1.0 / 255.0);
+}
+
+vec2 byteround(vec2 x) {
+    return round(x * 255.0) * (1.0 / 255.0);
+}
+
+vec3 byteround(vec3 x) {
+    return round(x * 255.0) * (1.0 / 255.0);
+}
+
+vec4 byteround(vec4 x) {
+    return round(x * 255.0) * (1.0 / 255.0);
+}
+
+// PICA's LOD formula for 2D textures.
+// This LOD formula is the same as the LOD lower limit defined in OpenGL.
+// f(x, y) >= max{m_u, m_v, m_w}
+// (See OpenGL 4.6 spec, 8.14.1 - Scale Factor and Level-of-Detail)
+float getLod(vec2 coord) {
+    vec2 d = max(abs(dFdx(coord)), abs(dFdy(coord)));
+    return log2(max(d.x, d.y));
+}
+
+vec4 shadowTexture(vec2 uv, float w) {
+    return vec4(1.0);
+}
+
+vec4 shadowTextureCube(vec2 uv, float w) {
+    return vec4(1.0);
+}
+
+void main() {
+vec4 rounded_primary_color = byteround(primary_color);
+vec4 primary_fragment_color = vec4(0.0);
+vec4 secondary_fragment_color = vec4(0.0);
+if (!(gl_FragCoord.x >= float(scissor_x1) && gl_FragCoord.y >= float(scissor_y1) && gl_FragCoord.x < float(scissor_x2) && gl_FragCoord.y < float(scissor_y2))) discard;
+float z_over_w = 2.0 * gl_FragCoord.z - 1.0;
+float depth = z_over_w * depth_scale + depth_offset;
+vec4 texcolor1 = textureLod(tex1, texcoord1, getLod(texcoord1 * vec2(textureSize(tex1, 0))));
+vec4 texcolor2 = textureLod(tex2, texcoord2, getLod(texcoord2 * vec2(textureSize(tex2, 0))));
+
+vec4 diffuse_sum = vec4(0.0, 0.0, 0.0, 1.0);
+vec4 specular_sum = vec4(0.0, 0.0, 0.0, 1.0);
+vec3 light_vector = vec3(0.0);
+vec3 refl_value = vec3(0.0);
+vec3 spot_dir = vec3(0.0);
+vec3 half_vector = vec3(0.0);
+float dot_product = 0.0;
+float clamp_highlights = 1.0;
+float geo_factor = 1.0;
+vec3 surface_normal = vec3(0.0, 0.0, 1.0);
+vec3 surface_tangent = vec3(1.0, 0.0, 0.0);
+vec4 normalized_normquat = normalize(normquat);
+vec3 normal = quaternion_rotate(normalized_normquat, surface_normal);
+vec3 tangent = quaternion_rotate(normalized_normquat, surface_tangent);
+vec4 shadow = vec4(1.0);
+light_vector = normalize(light_src[0].position + view);
+spot_dir = light_src[0].spot_direction;
+half_vector = normalize(view) + light_vector;
+dot_product = max(dot(light_vector, normal), 0.0);
+refl_value.r = 1.0;
+refl_value.g = refl_value.r;
+refl_value.b = refl_value.r;
+diffuse_sum.rgb += ((light_src[0].diffuse * dot_product) + light_src[0].ambient) * LookupLightingLUTUnsigned(16,clamp(light_src[0].dist_atten_scale * length(-view - light_src[0].position) + light_src[0].dist_atten_bias, 0.0, 1.0)) * 1.0;
+specular_sum.rgb += ((light_src[0].specular_0) + (light_src[0].specular_1)) * clamp_highlights * LookupLightingLUTUnsigned(16,clamp(light_src[0].dist_atten_scale * length(-view - light_src[0].position) + light_src[0].dist_atten_bias, 0.0, 1.0)) * 1.0;
+light_vector = normalize(light_src[1].position + view);
+spot_dir = light_src[1].spot_direction;
+half_vector = normalize(view) + light_vector;
+dot_product = max(dot(light_vector, normal), 0.0);
+refl_value.r = 1.0;
+refl_value.g = refl_value.r;
+refl_value.b = refl_value.r;
+diffuse_sum.rgb += ((light_src[1].diffuse * dot_product) + light_src[1].ambient) * LookupLightingLUTUnsigned(17,clamp(light_src[1].dist_atten_scale * length(-view - light_src[1].position) + light_src[1].dist_atten_bias, 0.0, 1.0)) * 1.0;
+specular_sum.rgb += ((light_src[1].specular_0) + (light_src[1].specular_1)) * clamp_highlights * LookupLightingLUTUnsigned(17,clamp(light_src[1].dist_atten_scale * length(-view - light_src[1].position) + light_src[1].dist_atten_bias, 0.0, 1.0)) * 1.0;
+light_vector = normalize(light_src[2].position + view);
+spot_dir = light_src[2].spot_direction;
+half_vector = normalize(view) + light_vector;
+dot_product = max(dot(light_vector, normal), 0.0);
+refl_value.r = 1.0;
+refl_value.g = refl_value.r;
+refl_value.b = refl_value.r;
+diffuse_sum.rgb += ((light_src[2].diffuse * dot_product) + light_src[2].ambient) * LookupLightingLUTUnsigned(18,clamp(light_src[2].dist_atten_scale * length(-view - light_src[2].position) + light_src[2].dist_atten_bias, 0.0, 1.0)) * 1.0;
+specular_sum.rgb += ((light_src[2].specular_0) + (light_src[2].specular_1)) * clamp_highlights * LookupLightingLUTUnsigned(18,clamp(light_src[2].dist_atten_scale * length(-view - light_src[2].position) + light_src[2].dist_atten_bias, 0.0, 1.0)) * 1.0;
+diffuse_sum.rgb += lighting_global_ambient;
+primary_fragment_color = clamp(diffuse_sum, vec4(0.0), vec4(1.0));
+secondary_fragment_color = clamp(specular_sum, vec4(0.0), vec4(1.0));
+
+vec4 combiner_buffer = vec4(0.0);
+vec4 next_combiner_buffer = tev_combiner_buffer_color;
+vec4 last_tex_env_out = vec4(0.0);
+vec3 color_output_0 = byteround(clamp((const_color[0].aaa) * (texcolor2.rgb), vec3(0.0), vec3(1.0)));
+float alpha_output_0 = byteround(clamp((rounded_primary_color.r) * (rounded_primary_color.r), 0.0, 1.0));
+last_tex_env_out = clamp(vec4(color_output_0 * 1.0, alpha_output_0 * 2.0), vec4(0.0), vec4(1.0));
+combiner_buffer = next_combiner_buffer;
+next_combiner_buffer.rgb = last_tex_env_out.rgb;
+
+vec3 color_output_1 = byteround(clamp((const_color[1].rgb) * (vec3(1.0) - last_tex_env_out.aaa) + (rounded_primary_color.rgb), vec3(0.0), vec3(1.0)));
+float alpha_output_1 = byteround(clamp((const_color[1].a) * (texcolor2.a), 0.0, 1.0));
+last_tex_env_out = clamp(vec4(color_output_1, alpha_output_1), vec4(0.0), vec4(1.0));
+combiner_buffer = next_combiner_buffer;
+
+vec3 color_output_2 = byteround(clamp((last_tex_env_out.rgb) * (texcolor1.rgb) + (combiner_buffer.rgb), vec3(0.0), vec3(1.0)));
+float alpha_output_2 = byteround(clamp((last_tex_env_out.a), 0.0, 1.0));
+last_tex_env_out = clamp(vec4(color_output_2 * 2.0, alpha_output_2 * 4.0), vec4(0.0), vec4(1.0));
+combiner_buffer = next_combiner_buffer;
+next_combiner_buffer.rgb = last_tex_env_out.rgb;
+
+vec3 color_output_3 = byteround(clamp((const_color[3].rgb) * (last_tex_env_out.aaa) + (primary_fragment_color.rgb) * (vec3(1.0) - (last_tex_env_out.aaa)), vec3(0.0), vec3(1.0)));
+float alpha_output_3 = byteround(clamp((last_tex_env_out.a), 0.0, 1.0));
+last_tex_env_out = clamp(vec4(color_output_3, alpha_output_3), vec4(0.0), vec4(1.0));
+combiner_buffer = next_combiner_buffer;
+
+vec3 color_output_4 = byteround(clamp((combiner_buffer.rgb) * (last_tex_env_out.rgb), vec3(0.0), vec3(1.0)));
+float alpha_output_4 = byteround(clamp((const_color[4].a), 0.0, 1.0));
+last_tex_env_out = clamp(vec4(color_output_4, alpha_output_4), vec4(0.0), vec4(1.0));
+combiner_buffer = next_combiner_buffer;
+
+vec3 color_output_5 = byteround(clamp(min((const_color[5].rgb) + (shadowTexture(texcoord0, texcoord0_w).ggg), vec3(1.0)) * (last_tex_env_out.rgb), vec3(0.0), vec3(1.0)));
+float alpha_output_5 = byteround(clamp((last_tex_env_out.a), 0.0, 1.0));
+last_tex_env_out = clamp(vec4(color_output_5, alpha_output_5), vec4(0.0), vec4(1.0));
+combiner_buffer = next_combiner_buffer;
+
+gl_FragDepth = depth;
+color = byteround(last_tex_env_out);
+}
+// reference: 310AE3BFD953D90D, 8E1025921709B4DA
+// program: 1A9F70669A3C74DF, F0531050140A5884, 8E1025921709B4DA
+// shader: 8B30, 3EA2BC4F4A2F343B
+in vec4 primary_color;
+in vec2 texcoord0;
+in vec2 texcoord1;
+in vec2 texcoord2;
+in float texcoord0_w;
+in vec4 normquat;
+in vec3 view;
+
+#ifndef CITRA_GLES
+in vec4 gl_FragCoord;
+#endif // CITRA_GLES
+out vec4 color;
+
+uniform sampler2D tex0;
+uniform sampler2D tex1;
+uniform sampler2D tex2;
+uniform samplerCube tex_cube;
+uniform samplerBuffer texture_buffer_lut_lf;
+uniform samplerBuffer texture_buffer_lut_rg;
+uniform samplerBuffer texture_buffer_lut_rgba;
+
+#define NUM_TEV_STAGES 6
+#define NUM_LIGHTS 8
+#define NUM_LIGHTING_SAMPLERS 24
+
+struct LightSrc {
+    vec3 specular_0;
+    vec3 specular_1;
+    vec3 diffuse;
+    vec3 ambient;
+    vec3 position;
+    vec3 spot_direction;
+    float dist_atten_bias;
+    float dist_atten_scale;
+};
+
+layout (std140) uniform shader_data {
+    int alphatest_ref;
+    float depth_scale;
+    float depth_offset;
+    float shadow_bias_constant;
+    float shadow_bias_linear;
+    int scissor_x1;
+    int scissor_y1;
+    int scissor_x2;
+    int scissor_y2;
+    int fog_lut_offset;
+    int proctex_noise_lut_offset;
+    int proctex_color_map_offset;
+    int proctex_alpha_map_offset;
+    int proctex_lut_offset;
+    int proctex_diff_lut_offset;
+    float proctex_bias;
+    vec3 fog_color;
+    vec2 proctex_noise_f;
+    vec2 proctex_noise_a;
+    vec2 proctex_noise_p;
+    vec4 const_color[NUM_TEV_STAGES];
+    vec4 tev_combiner_buffer_color;
+    vec4 clip_coef;
+};
+
+layout (std140) uniform shader_light_data {
+    ivec4 lighting_lut_offset[NUM_LIGHTING_SAMPLERS / 4];
+    vec3 lighting_global_ambient;
+    LightSrc light_src[NUM_LIGHTS];
+    float lut_scale_d0;
+    float lut_scale_d1;
+    float lut_scale_sp;
+    float lut_scale_fr;
+    float lut_scale_rb;
+    float lut_scale_rg;
+    float lut_scale_rr;
+    int shadow_texture_bias;
+};
+
+// Rotate the vector v by the quaternion q
+vec3 quaternion_rotate(vec4 q, vec3 v) {
+    return v + 2.0 * cross(q.xyz, cross(q.xyz, v) + q.w * v);
+}
+
+float LookupLightingLUT(int lut_index, int index, float delta) {
+    vec2 entry = texelFetch(texture_buffer_lut_lf, lighting_lut_offset[lut_index >> 2][lut_index & 3] + index).rg;
+    return entry.r + entry.g * delta;
+}
+
+float LookupLightingLUTUnsigned(int lut_index, float pos) {
+    int index = clamp(int(pos * 256.0), 0, 255);
+    float delta = pos * 256.0 - float(index);
+    return LookupLightingLUT(lut_index, index, delta);
+}
+
+float LookupLightingLUTSigned(int lut_index, float pos) {
+    int index = clamp(int(pos * 128.0), -128, 127);
+    float delta = pos * 128.0 - float(index);
+    if (index < 0) index += 256;
+    return LookupLightingLUT(lut_index, index, delta);
+}
+
+float byteround(float x) {
+    return round(x * 255.0) * (1.0 / 255.0);
+}
+
+vec2 byteround(vec2 x) {
+    return round(x * 255.0) * (1.0 / 255.0);
+}
+
+vec3 byteround(vec3 x) {
+    return round(x * 255.0) * (1.0 / 255.0);
+}
+
+vec4 byteround(vec4 x) {
+    return round(x * 255.0) * (1.0 / 255.0);
+}
+
+// PICA's LOD formula for 2D textures.
+// This LOD formula is the same as the LOD lower limit defined in OpenGL.
+// f(x, y) >= max{m_u, m_v, m_w}
+// (See OpenGL 4.6 spec, 8.14.1 - Scale Factor and Level-of-Detail)
+float getLod(vec2 coord) {
+    vec2 d = max(abs(dFdx(coord)), abs(dFdy(coord)));
+    return log2(max(d.x, d.y));
+}
+
+vec4 shadowTexture(vec2 uv, float w) {
+    return vec4(1.0);
+}
+
+vec4 shadowTextureCube(vec2 uv, float w) {
+    return vec4(1.0);
+}
+
+void main() {
+vec4 rounded_primary_color = byteround(primary_color);
+vec4 primary_fragment_color = vec4(0.0);
+vec4 secondary_fragment_color = vec4(0.0);
+if (!(gl_FragCoord.x >= float(scissor_x1) && gl_FragCoord.y >= float(scissor_y1) && gl_FragCoord.x < float(scissor_x2) && gl_FragCoord.y < float(scissor_y2))) discard;
+float z_over_w = 2.0 * gl_FragCoord.z - 1.0;
+float depth = z_over_w * depth_scale + depth_offset;
+vec4 texcolor1 = textureLod(tex1, texcoord1, getLod(texcoord1 * vec2(textureSize(tex1, 0))));
+
+vec4 diffuse_sum = vec4(0.0, 0.0, 0.0, 1.0);
+vec4 specular_sum = vec4(0.0, 0.0, 0.0, 1.0);
+vec3 light_vector = vec3(0.0);
+vec3 refl_value = vec3(0.0);
+vec3 spot_dir = vec3(0.0);
+vec3 half_vector = vec3(0.0);
+float dot_product = 0.0;
+float clamp_highlights = 1.0;
+float geo_factor = 1.0;
+vec3 surface_normal = vec3(0.0, 0.0, 1.0);
+vec3 surface_tangent = vec3(1.0, 0.0, 0.0);
+vec4 normalized_normquat = normalize(normquat);
+vec3 normal = quaternion_rotate(normalized_normquat, surface_normal);
+vec3 tangent = quaternion_rotate(normalized_normquat, surface_tangent);
+vec4 shadow = vec4(1.0);
+light_vector = normalize(light_src[0].position + view);
+spot_dir = light_src[0].spot_direction;
+half_vector = normalize(view) + light_vector;
+dot_product = max(dot(light_vector, normal), 0.0);
+refl_value.r = 1.0;
+refl_value.g = refl_value.r;
+refl_value.b = refl_value.r;
+diffuse_sum.rgb += ((light_src[0].diffuse * dot_product) + light_src[0].ambient) * LookupLightingLUTUnsigned(16,clamp(light_src[0].dist_atten_scale * length(-view - light_src[0].position) + light_src[0].dist_atten_bias, 0.0, 1.0)) * 1.0;
+specular_sum.rgb += ((light_src[0].specular_0) + (light_src[0].specular_1)) * clamp_highlights * LookupLightingLUTUnsigned(16,clamp(light_src[0].dist_atten_scale * length(-view - light_src[0].position) + light_src[0].dist_atten_bias, 0.0, 1.0)) * 1.0;
+light_vector = normalize(light_src[1].position + view);
+spot_dir = light_src[1].spot_direction;
+half_vector = normalize(view) + light_vector;
+dot_product = max(dot(light_vector, normal), 0.0);
+refl_value.r = 1.0;
+refl_value.g = refl_value.r;
+refl_value.b = refl_value.r;
+diffuse_sum.rgb += ((light_src[1].diffuse * dot_product) + light_src[1].ambient) * LookupLightingLUTUnsigned(17,clamp(light_src[1].dist_atten_scale * length(-view - light_src[1].position) + light_src[1].dist_atten_bias, 0.0, 1.0)) * 1.0;
+specular_sum.rgb += ((light_src[1].specular_0) + (light_src[1].specular_1)) * clamp_highlights * LookupLightingLUTUnsigned(17,clamp(light_src[1].dist_atten_scale * length(-view - light_src[1].position) + light_src[1].dist_atten_bias, 0.0, 1.0)) * 1.0;
+light_vector = normalize(light_src[2].position + view);
+spot_dir = light_src[2].spot_direction;
+half_vector = normalize(view) + light_vector;
+dot_product = max(dot(light_vector, normal), 0.0);
+refl_value.r = 1.0;
+refl_value.g = refl_value.r;
+refl_value.b = refl_value.r;
+diffuse_sum.rgb += ((light_src[2].diffuse * dot_product) + light_src[2].ambient) * LookupLightingLUTUnsigned(18,clamp(light_src[2].dist_atten_scale * length(-view - light_src[2].position) + light_src[2].dist_atten_bias, 0.0, 1.0)) * 1.0;
+specular_sum.rgb += ((light_src[2].specular_0) + (light_src[2].specular_1)) * clamp_highlights * LookupLightingLUTUnsigned(18,clamp(light_src[2].dist_atten_scale * length(-view - light_src[2].position) + light_src[2].dist_atten_bias, 0.0, 1.0)) * 1.0;
+diffuse_sum.rgb += lighting_global_ambient;
+primary_fragment_color = clamp(diffuse_sum, vec4(0.0), vec4(1.0));
+secondary_fragment_color = clamp(specular_sum, vec4(0.0), vec4(1.0));
+
+vec4 combiner_buffer = vec4(0.0);
+vec4 next_combiner_buffer = tev_combiner_buffer_color;
+vec4 last_tex_env_out = vec4(0.0);
+vec3 color_output_0 = byteround(clamp((rounded_primary_color.rgb), vec3(0.0), vec3(1.0)));
+float alpha_output_0 = byteround(clamp((rounded_primary_color.r) * (rounded_primary_color.r), 0.0, 1.0));
+last_tex_env_out = clamp(vec4(color_output_0 * 1.0, alpha_output_0 * 2.0), vec4(0.0), vec4(1.0));
+combiner_buffer = next_combiner_buffer;
+
+vec3 color_output_1 = byteround(clamp((const_color[1].rgb) * (vec3(1.0) - last_tex_env_out.aaa) + (rounded_primary_color.rgb), vec3(0.0), vec3(1.0)));
+float alpha_output_1 = byteround(clamp((rounded_primary_color.a) * (texcolor1.a), 0.0, 1.0));
+last_tex_env_out = clamp(vec4(color_output_1, alpha_output_1), vec4(0.0), vec4(1.0));
+combiner_buffer = next_combiner_buffer;
+
+vec3 color_output_2 = byteround(clamp((last_tex_env_out.rgb) * (texcolor1.rgb), vec3(0.0), vec3(1.0)));
+float alpha_output_2 = byteround(clamp((last_tex_env_out.a), 0.0, 1.0));
+last_tex_env_out = clamp(vec4(color_output_2 * 2.0, alpha_output_2 * 1.0), vec4(0.0), vec4(1.0));
+combiner_buffer = next_combiner_buffer;
+
+vec3 color_output_3 = byteround(clamp((last_tex_env_out.rgb) * (primary_fragment_color.rgb), vec3(0.0), vec3(1.0)));
+float alpha_output_3 = byteround(clamp((last_tex_env_out.a) * (const_color[3].a), 0.0, 1.0));
+last_tex_env_out = clamp(vec4(color_output_3, alpha_output_3), vec4(0.0), vec4(1.0));
+combiner_buffer = next_combiner_buffer;
+
+vec3 color_output_4 = byteround(clamp(min((const_color[4].rgb) + (shadowTexture(texcoord0, texcoord0_w).ggg), vec3(1.0)) * (last_tex_env_out.rgb), vec3(0.0), vec3(1.0)));
+float alpha_output_4 = byteround(clamp((last_tex_env_out.a), 0.0, 1.0));
+last_tex_env_out = clamp(vec4(color_output_4, alpha_output_4), vec4(0.0), vec4(1.0));
+combiner_buffer = next_combiner_buffer;
+
+combiner_buffer = next_combiner_buffer;
+
+if (int(last_tex_env_out.a * 255.0) <= alphatest_ref) discard;
+gl_FragDepth = depth;
+color = byteround(last_tex_env_out);
+}
+// reference: 04D826560D488CE3, 3EA2BC4F4A2F343B
+// program: 1A9F70669A3C74DF, F0531050140A5884, 3EA2BC4F4A2F343B
+// shader: 8B30, B079EEFF2F528244
+in vec4 primary_color;
+in vec2 texcoord0;
+in vec2 texcoord1;
+in vec2 texcoord2;
+in float texcoord0_w;
+in vec4 normquat;
+in vec3 view;
+
+#ifndef CITRA_GLES
+in vec4 gl_FragCoord;
+#endif // CITRA_GLES
+out vec4 color;
+
+uniform sampler2D tex0;
+uniform sampler2D tex1;
+uniform sampler2D tex2;
+uniform samplerCube tex_cube;
+uniform samplerBuffer texture_buffer_lut_lf;
+uniform samplerBuffer texture_buffer_lut_rg;
+uniform samplerBuffer texture_buffer_lut_rgba;
+
+#define NUM_TEV_STAGES 6
+#define NUM_LIGHTS 8
+#define NUM_LIGHTING_SAMPLERS 24
+
+struct LightSrc {
+    vec3 specular_0;
+    vec3 specular_1;
+    vec3 diffuse;
+    vec3 ambient;
+    vec3 position;
+    vec3 spot_direction;
+    float dist_atten_bias;
+    float dist_atten_scale;
+};
+
+layout (std140) uniform shader_data {
+    int alphatest_ref;
+    float depth_scale;
+    float depth_offset;
+    float shadow_bias_constant;
+    float shadow_bias_linear;
+    int scissor_x1;
+    int scissor_y1;
+    int scissor_x2;
+    int scissor_y2;
+    int fog_lut_offset;
+    int proctex_noise_lut_offset;
+    int proctex_color_map_offset;
+    int proctex_alpha_map_offset;
+    int proctex_lut_offset;
+    int proctex_diff_lut_offset;
+    float proctex_bias;
+    vec3 fog_color;
+    vec2 proctex_noise_f;
+    vec2 proctex_noise_a;
+    vec2 proctex_noise_p;
+    vec4 const_color[NUM_TEV_STAGES];
+    vec4 tev_combiner_buffer_color;
+    vec4 clip_coef;
+};
+
+layout (std140) uniform shader_light_data {
+    ivec4 lighting_lut_offset[NUM_LIGHTING_SAMPLERS / 4];
+    vec3 lighting_global_ambient;
+    LightSrc light_src[NUM_LIGHTS];
+    float lut_scale_d0;
+    float lut_scale_d1;
+    float lut_scale_sp;
+    float lut_scale_fr;
+    float lut_scale_rb;
+    float lut_scale_rg;
+    float lut_scale_rr;
+    int shadow_texture_bias;
+};
+
+// Rotate the vector v by the quaternion q
+vec3 quaternion_rotate(vec4 q, vec3 v) {
+    return v + 2.0 * cross(q.xyz, cross(q.xyz, v) + q.w * v);
+}
+
+float LookupLightingLUT(int lut_index, int index, float delta) {
+    vec2 entry = texelFetch(texture_buffer_lut_lf, lighting_lut_offset[lut_index >> 2][lut_index & 3] + index).rg;
+    return entry.r + entry.g * delta;
+}
+
+float LookupLightingLUTUnsigned(int lut_index, float pos) {
+    int index = clamp(int(pos * 256.0), 0, 255);
+    float delta = pos * 256.0 - float(index);
+    return LookupLightingLUT(lut_index, index, delta);
+}
+
+float LookupLightingLUTSigned(int lut_index, float pos) {
+    int index = clamp(int(pos * 128.0), -128, 127);
+    float delta = pos * 128.0 - float(index);
+    if (index < 0) index += 256;
+    return LookupLightingLUT(lut_index, index, delta);
+}
+
+float byteround(float x) {
+    return round(x * 255.0) * (1.0 / 255.0);
+}
+
+vec2 byteround(vec2 x) {
+    return round(x * 255.0) * (1.0 / 255.0);
+}
+
+vec3 byteround(vec3 x) {
+    return round(x * 255.0) * (1.0 / 255.0);
+}
+
+vec4 byteround(vec4 x) {
+    return round(x * 255.0) * (1.0 / 255.0);
+}
+
+// PICA's LOD formula for 2D textures.
+// This LOD formula is the same as the LOD lower limit defined in OpenGL.
+// f(x, y) >= max{m_u, m_v, m_w}
+// (See OpenGL 4.6 spec, 8.14.1 - Scale Factor and Level-of-Detail)
+float getLod(vec2 coord) {
+    vec2 d = max(abs(dFdx(coord)), abs(dFdy(coord)));
+    return log2(max(d.x, d.y));
+}
+
+vec4 shadowTexture(vec2 uv, float w) {
+    return vec4(1.0);
+}
+
+vec4 shadowTextureCube(vec2 uv, float w) {
+    return vec4(1.0);
+}
+
+void main() {
+vec4 rounded_primary_color = byteround(primary_color);
+vec4 primary_fragment_color = vec4(0.0);
+vec4 secondary_fragment_color = vec4(0.0);
+if (!(gl_FragCoord.x >= float(scissor_x1) && gl_FragCoord.y >= float(scissor_y1) && gl_FragCoord.x < float(scissor_x2) && gl_FragCoord.y < float(scissor_y2))) discard;
+float z_over_w = 2.0 * gl_FragCoord.z - 1.0;
+float depth = z_over_w * depth_scale + depth_offset;
+vec4 texcolor1 = textureLod(tex1, texcoord1, getLod(texcoord1 * vec2(textureSize(tex1, 0))));
+
+vec4 diffuse_sum = vec4(0.0, 0.0, 0.0, 1.0);
+vec4 specular_sum = vec4(0.0, 0.0, 0.0, 1.0);
+vec3 light_vector = vec3(0.0);
+vec3 refl_value = vec3(0.0);
+vec3 spot_dir = vec3(0.0);
+vec3 half_vector = vec3(0.0);
+float dot_product = 0.0;
+float clamp_highlights = 1.0;
+float geo_factor = 1.0;
+vec3 surface_normal = vec3(0.0, 0.0, 1.0);
+vec3 surface_tangent = vec3(1.0, 0.0, 0.0);
+vec4 normalized_normquat = normalize(normquat);
+vec3 normal = quaternion_rotate(normalized_normquat, surface_normal);
+vec3 tangent = quaternion_rotate(normalized_normquat, surface_tangent);
+vec4 shadow = vec4(1.0);
+light_vector = normalize(light_src[0].position + view);
+spot_dir = light_src[0].spot_direction;
+half_vector = normalize(view) + light_vector;
+dot_product = max(dot(light_vector, normal), 0.0);
+refl_value.r = 1.0;
+refl_value.g = refl_value.r;
+refl_value.b = refl_value.r;
+diffuse_sum.rgb += ((light_src[0].diffuse * dot_product) + light_src[0].ambient) * LookupLightingLUTUnsigned(16,clamp(light_src[0].dist_atten_scale * length(-view - light_src[0].position) + light_src[0].dist_atten_bias, 0.0, 1.0)) * 1.0;
+specular_sum.rgb += ((light_src[0].specular_0) + (light_src[0].specular_1)) * clamp_highlights * LookupLightingLUTUnsigned(16,clamp(light_src[0].dist_atten_scale * length(-view - light_src[0].position) + light_src[0].dist_atten_bias, 0.0, 1.0)) * 1.0;
+light_vector = normalize(light_src[1].position + view);
+spot_dir = light_src[1].spot_direction;
+half_vector = normalize(view) + light_vector;
+dot_product = max(dot(light_vector, normal), 0.0);
+refl_value.r = 1.0;
+refl_value.g = refl_value.r;
+refl_value.b = refl_value.r;
+diffuse_sum.rgb += ((light_src[1].diffuse * dot_product) + light_src[1].ambient) * LookupLightingLUTUnsigned(17,clamp(light_src[1].dist_atten_scale * length(-view - light_src[1].position) + light_src[1].dist_atten_bias, 0.0, 1.0)) * 1.0;
+specular_sum.rgb += ((light_src[1].specular_0) + (light_src[1].specular_1)) * clamp_highlights * LookupLightingLUTUnsigned(17,clamp(light_src[1].dist_atten_scale * length(-view - light_src[1].position) + light_src[1].dist_atten_bias, 0.0, 1.0)) * 1.0;
+light_vector = normalize(light_src[2].position + view);
+spot_dir = light_src[2].spot_direction;
+half_vector = normalize(view) + light_vector;
+dot_product = max(dot(light_vector, normal), 0.0);
+refl_value.r = 1.0;
+refl_value.g = refl_value.r;
+refl_value.b = refl_value.r;
+diffuse_sum.rgb += ((light_src[2].diffuse * dot_product) + light_src[2].ambient) * LookupLightingLUTUnsigned(18,clamp(light_src[2].dist_atten_scale * length(-view - light_src[2].position) + light_src[2].dist_atten_bias, 0.0, 1.0)) * 1.0;
+specular_sum.rgb += ((light_src[2].specular_0) + (light_src[2].specular_1)) * clamp_highlights * LookupLightingLUTUnsigned(18,clamp(light_src[2].dist_atten_scale * length(-view - light_src[2].position) + light_src[2].dist_atten_bias, 0.0, 1.0)) * 1.0;
+diffuse_sum.rgb += lighting_global_ambient;
+primary_fragment_color = clamp(diffuse_sum, vec4(0.0), vec4(1.0));
+secondary_fragment_color = clamp(specular_sum, vec4(0.0), vec4(1.0));
+
+vec4 combiner_buffer = vec4(0.0);
+vec4 next_combiner_buffer = tev_combiner_buffer_color;
+vec4 last_tex_env_out = vec4(0.0);
+vec3 color_output_0 = byteround(clamp((rounded_primary_color.rgb), vec3(0.0), vec3(1.0)));
+float alpha_output_0 = byteround(clamp((rounded_primary_color.r) * (rounded_primary_color.r), 0.0, 1.0));
+last_tex_env_out = clamp(vec4(color_output_0 * 1.0, alpha_output_0 * 2.0), vec4(0.0), vec4(1.0));
+combiner_buffer = next_combiner_buffer;
+
+vec3 color_output_1 = byteround(clamp((const_color[1].rgb) * (vec3(1.0) - last_tex_env_out.aaa) + (rounded_primary_color.rgb), vec3(0.0), vec3(1.0)));
+float alpha_output_1 = byteround(clamp((rounded_primary_color.a) * (texcolor1.a), 0.0, 1.0));
+last_tex_env_out = clamp(vec4(color_output_1, alpha_output_1), vec4(0.0), vec4(1.0));
+combiner_buffer = next_combiner_buffer;
+
+vec3 color_output_2 = byteround(clamp((last_tex_env_out.rgb) * (texcolor1.rgb), vec3(0.0), vec3(1.0)));
+float alpha_output_2 = byteround(clamp((last_tex_env_out.a), 0.0, 1.0));
+last_tex_env_out = clamp(vec4(color_output_2 * 2.0, alpha_output_2 * 1.0), vec4(0.0), vec4(1.0));
+combiner_buffer = next_combiner_buffer;
+
+vec3 color_output_3 = byteround(clamp((last_tex_env_out.rgb) * (primary_fragment_color.rgb), vec3(0.0), vec3(1.0)));
+float alpha_output_3 = byteround(clamp((last_tex_env_out.a) * (const_color[3].a), 0.0, 1.0));
+last_tex_env_out = clamp(vec4(color_output_3, alpha_output_3), vec4(0.0), vec4(1.0));
+combiner_buffer = next_combiner_buffer;
+
+vec3 color_output_4 = byteround(clamp(min((const_color[4].rgb) + (shadowTexture(texcoord0, texcoord0_w).ggg), vec3(1.0)) * (last_tex_env_out.rgb), vec3(0.0), vec3(1.0)));
+float alpha_output_4 = byteround(clamp((last_tex_env_out.a), 0.0, 1.0));
+last_tex_env_out = clamp(vec4(color_output_4, alpha_output_4), vec4(0.0), vec4(1.0));
+combiner_buffer = next_combiner_buffer;
+
+combiner_buffer = next_combiner_buffer;
+
+gl_FragDepth = depth;
+color = byteround(last_tex_env_out);
+}
+// reference: 04D82656E1FF67E0, B079EEFF2F528244
+// program: 1A9F70669A3C74DF, F0531050140A5884, B079EEFF2F528244
+// shader: 8B30, 61B6E5625E137897
+in vec4 primary_color;
+in vec2 texcoord0;
+in vec2 texcoord1;
+in vec2 texcoord2;
+in float texcoord0_w;
+in vec4 normquat;
+in vec3 view;
+
+#ifndef CITRA_GLES
+in vec4 gl_FragCoord;
+#endif // CITRA_GLES
+out vec4 color;
+
+uniform sampler2D tex0;
+uniform sampler2D tex1;
+uniform sampler2D tex2;
+uniform samplerCube tex_cube;
+uniform samplerBuffer texture_buffer_lut_lf;
+uniform samplerBuffer texture_buffer_lut_rg;
+uniform samplerBuffer texture_buffer_lut_rgba;
+
+#define NUM_TEV_STAGES 6
+#define NUM_LIGHTS 8
+#define NUM_LIGHTING_SAMPLERS 24
+
+struct LightSrc {
+    vec3 specular_0;
+    vec3 specular_1;
+    vec3 diffuse;
+    vec3 ambient;
+    vec3 position;
+    vec3 spot_direction;
+    float dist_atten_bias;
+    float dist_atten_scale;
+};
+
+layout (std140) uniform shader_data {
+    int alphatest_ref;
+    float depth_scale;
+    float depth_offset;
+    float shadow_bias_constant;
+    float shadow_bias_linear;
+    int scissor_x1;
+    int scissor_y1;
+    int scissor_x2;
+    int scissor_y2;
+    int fog_lut_offset;
+    int proctex_noise_lut_offset;
+    int proctex_color_map_offset;
+    int proctex_alpha_map_offset;
+    int proctex_lut_offset;
+    int proctex_diff_lut_offset;
+    float proctex_bias;
+    vec3 fog_color;
+    vec2 proctex_noise_f;
+    vec2 proctex_noise_a;
+    vec2 proctex_noise_p;
+    vec4 const_color[NUM_TEV_STAGES];
+    vec4 tev_combiner_buffer_color;
+    vec4 clip_coef;
+};
+
+layout (std140) uniform shader_light_data {
+    ivec4 lighting_lut_offset[NUM_LIGHTING_SAMPLERS / 4];
+    vec3 lighting_global_ambient;
+    LightSrc light_src[NUM_LIGHTS];
+    float lut_scale_d0;
+    float lut_scale_d1;
+    float lut_scale_sp;
+    float lut_scale_fr;
+    float lut_scale_rb;
+    float lut_scale_rg;
+    float lut_scale_rr;
+    int shadow_texture_bias;
+};
+
+// Rotate the vector v by the quaternion q
+vec3 quaternion_rotate(vec4 q, vec3 v) {
+    return v + 2.0 * cross(q.xyz, cross(q.xyz, v) + q.w * v);
+}
+
+float LookupLightingLUT(int lut_index, int index, float delta) {
+    vec2 entry = texelFetch(texture_buffer_lut_lf, lighting_lut_offset[lut_index >> 2][lut_index & 3] + index).rg;
+    return entry.r + entry.g * delta;
+}
+
+float LookupLightingLUTUnsigned(int lut_index, float pos) {
+    int index = clamp(int(pos * 256.0), 0, 255);
+    float delta = pos * 256.0 - float(index);
+    return LookupLightingLUT(lut_index, index, delta);
+}
+
+float LookupLightingLUTSigned(int lut_index, float pos) {
+    int index = clamp(int(pos * 128.0), -128, 127);
+    float delta = pos * 128.0 - float(index);
+    if (index < 0) index += 256;
+    return LookupLightingLUT(lut_index, index, delta);
+}
+
+float byteround(float x) {
+    return round(x * 255.0) * (1.0 / 255.0);
+}
+
+vec2 byteround(vec2 x) {
+    return round(x * 255.0) * (1.0 / 255.0);
+}
+
+vec3 byteround(vec3 x) {
+    return round(x * 255.0) * (1.0 / 255.0);
+}
+
+vec4 byteround(vec4 x) {
+    return round(x * 255.0) * (1.0 / 255.0);
+}
+
+// PICA's LOD formula for 2D textures.
+// This LOD formula is the same as the LOD lower limit defined in OpenGL.
+// f(x, y) >= max{m_u, m_v, m_w}
+// (See OpenGL 4.6 spec, 8.14.1 - Scale Factor and Level-of-Detail)
+float getLod(vec2 coord) {
+    vec2 d = max(abs(dFdx(coord)), abs(dFdy(coord)));
+    return log2(max(d.x, d.y));
+}
+
+vec4 shadowTexture(vec2 uv, float w) {
+    return vec4(1.0);
+}
+
+vec4 shadowTextureCube(vec2 uv, float w) {
+    return vec4(1.0);
+}
+
+void main() {
+vec4 rounded_primary_color = byteround(primary_color);
+vec4 primary_fragment_color = vec4(0.0);
+vec4 secondary_fragment_color = vec4(0.0);
+if (!(gl_FragCoord.x >= float(scissor_x1) && gl_FragCoord.y >= float(scissor_y1) && gl_FragCoord.x < float(scissor_x2) && gl_FragCoord.y < float(scissor_y2))) discard;
+float z_over_w = 2.0 * gl_FragCoord.z - 1.0;
+float depth = z_over_w * depth_scale + depth_offset;
+vec4 texcolor1 = textureLod(tex1, texcoord1, getLod(texcoord1 * vec2(textureSize(tex1, 0))));
+vec4 texcolor2 = textureLod(tex2, texcoord2, getLod(texcoord2 * vec2(textureSize(tex2, 0))));
+
+vec4 diffuse_sum = vec4(0.0, 0.0, 0.0, 1.0);
+vec4 specular_sum = vec4(0.0, 0.0, 0.0, 1.0);
+vec3 light_vector = vec3(0.0);
+vec3 refl_value = vec3(0.0);
+vec3 spot_dir = vec3(0.0);
+vec3 half_vector = vec3(0.0);
+float dot_product = 0.0;
+float clamp_highlights = 1.0;
+float geo_factor = 1.0;
+vec3 surface_normal = vec3(0.0, 0.0, 1.0);
+vec3 surface_tangent = vec3(1.0, 0.0, 0.0);
+vec4 normalized_normquat = normalize(normquat);
+vec3 normal = quaternion_rotate(normalized_normquat, surface_normal);
+vec3 tangent = quaternion_rotate(normalized_normquat, surface_tangent);
+vec4 shadow = vec4(1.0);
+light_vector = normalize(light_src[0].position + view);
+spot_dir = light_src[0].spot_direction;
+half_vector = normalize(view) + light_vector;
+dot_product = max(dot(light_vector, normal), 0.0);
+refl_value.r = 1.0;
+refl_value.g = refl_value.r;
+refl_value.b = refl_value.r;
+diffuse_sum.rgb += ((light_src[0].diffuse * dot_product) + light_src[0].ambient) * LookupLightingLUTUnsigned(16,clamp(light_src[0].dist_atten_scale * length(-view - light_src[0].position) + light_src[0].dist_atten_bias, 0.0, 1.0)) * 1.0;
+specular_sum.rgb += ((light_src[0].specular_0) + (light_src[0].specular_1)) * clamp_highlights * LookupLightingLUTUnsigned(16,clamp(light_src[0].dist_atten_scale * length(-view - light_src[0].position) + light_src[0].dist_atten_bias, 0.0, 1.0)) * 1.0;
+light_vector = normalize(light_src[1].position + view);
+spot_dir = light_src[1].spot_direction;
+half_vector = normalize(view) + light_vector;
+dot_product = max(dot(light_vector, normal), 0.0);
+refl_value.r = 1.0;
+refl_value.g = refl_value.r;
+refl_value.b = refl_value.r;
+diffuse_sum.rgb += ((light_src[1].diffuse * dot_product) + light_src[1].ambient) * LookupLightingLUTUnsigned(17,clamp(light_src[1].dist_atten_scale * length(-view - light_src[1].position) + light_src[1].dist_atten_bias, 0.0, 1.0)) * 1.0;
+specular_sum.rgb += ((light_src[1].specular_0) + (light_src[1].specular_1)) * clamp_highlights * LookupLightingLUTUnsigned(17,clamp(light_src[1].dist_atten_scale * length(-view - light_src[1].position) + light_src[1].dist_atten_bias, 0.0, 1.0)) * 1.0;
+light_vector = normalize(light_src[2].position + view);
+spot_dir = light_src[2].spot_direction;
+half_vector = normalize(view) + light_vector;
+dot_product = max(dot(light_vector, normal), 0.0);
+refl_value.r = 1.0;
+refl_value.g = refl_value.r;
+refl_value.b = refl_value.r;
+diffuse_sum.rgb += ((light_src[2].diffuse * dot_product) + light_src[2].ambient) * LookupLightingLUTUnsigned(18,clamp(light_src[2].dist_atten_scale * length(-view - light_src[2].position) + light_src[2].dist_atten_bias, 0.0, 1.0)) * 1.0;
+specular_sum.rgb += ((light_src[2].specular_0) + (light_src[2].specular_1)) * clamp_highlights * LookupLightingLUTUnsigned(18,clamp(light_src[2].dist_atten_scale * length(-view - light_src[2].position) + light_src[2].dist_atten_bias, 0.0, 1.0)) * 1.0;
+diffuse_sum.rgb += lighting_global_ambient;
+primary_fragment_color = clamp(diffuse_sum, vec4(0.0), vec4(1.0));
+secondary_fragment_color = clamp(specular_sum, vec4(0.0), vec4(1.0));
+
+vec4 combiner_buffer = vec4(0.0);
+vec4 next_combiner_buffer = tev_combiner_buffer_color;
+vec4 last_tex_env_out = vec4(0.0);
+vec3 color_output_0 = byteround(clamp((const_color[0].aaa) * (texcolor2.rgb), vec3(0.0), vec3(1.0)));
+float alpha_output_0 = byteround(clamp((rounded_primary_color.r) * (rounded_primary_color.r), 0.0, 1.0));
+last_tex_env_out = clamp(vec4(color_output_0 * 1.0, alpha_output_0 * 2.0), vec4(0.0), vec4(1.0));
+combiner_buffer = next_combiner_buffer;
+next_combiner_buffer.rgb = last_tex_env_out.rgb;
+
+vec3 color_output_1 = byteround(clamp((const_color[1].rgb) * (vec3(1.0) - last_tex_env_out.aaa) + (rounded_primary_color.rgb), vec3(0.0), vec3(1.0)));
+float alpha_output_1 = byteround(clamp((const_color[1].a) * (texcolor2.a), 0.0, 1.0));
+last_tex_env_out = clamp(vec4(color_output_1, alpha_output_1), vec4(0.0), vec4(1.0));
+combiner_buffer = next_combiner_buffer;
+
+vec3 color_output_2 = byteround(clamp((last_tex_env_out.rgb) * (texcolor1.rgb) + (combiner_buffer.rgb), vec3(0.0), vec3(1.0)));
+float alpha_output_2 = byteround(clamp((last_tex_env_out.a) * (const_color[2].a), 0.0, 1.0));
+last_tex_env_out = clamp(vec4(color_output_2 * 2.0, alpha_output_2 * 4.0), vec4(0.0), vec4(1.0));
+combiner_buffer = next_combiner_buffer;
+next_combiner_buffer.rgb = last_tex_env_out.rgb;
+
+vec3 color_output_3 = byteround(clamp((const_color[3].rgb) * (last_tex_env_out.aaa) + (primary_fragment_color.rgb) * (vec3(1.0) - (last_tex_env_out.aaa)), vec3(0.0), vec3(1.0)));
+float alpha_output_3 = byteround(clamp((last_tex_env_out.a), 0.0, 1.0));
+last_tex_env_out = clamp(vec4(color_output_3, alpha_output_3), vec4(0.0), vec4(1.0));
+combiner_buffer = next_combiner_buffer;
+
+vec3 color_output_4 = byteround(clamp((combiner_buffer.rgb) * (last_tex_env_out.rgb), vec3(0.0), vec3(1.0)));
+float alpha_output_4 = byteround(clamp((const_color[4].a), 0.0, 1.0));
+last_tex_env_out = clamp(vec4(color_output_4, alpha_output_4), vec4(0.0), vec4(1.0));
+combiner_buffer = next_combiner_buffer;
+
+vec3 color_output_5 = byteround(clamp(min((const_color[5].rgb) + (shadowTexture(texcoord0, texcoord0_w).ggg), vec3(1.0)) * (last_tex_env_out.rgb), vec3(0.0), vec3(1.0)));
+float alpha_output_5 = byteround(clamp((last_tex_env_out.a), 0.0, 1.0));
+last_tex_env_out = clamp(vec4(color_output_5, alpha_output_5), vec4(0.0), vec4(1.0));
+combiner_buffer = next_combiner_buffer;
+
+gl_FragDepth = depth;
+color = byteround(last_tex_env_out);
+}
+// reference: DE7F1A233EB6EC89, 61B6E5625E137897
+// program: 1A9F70669A3C74DF, F0531050140A5884, 61B6E5625E137897
+// reference: 310AE3BFFD3B7132, 8E1025921709B4DA
+// shader: 8B30, 70C54A216004B1BD
+in vec4 primary_color;
+in vec2 texcoord0;
+in vec2 texcoord1;
+in vec2 texcoord2;
+in float texcoord0_w;
+in vec4 normquat;
+in vec3 view;
+
+#ifndef CITRA_GLES
+in vec4 gl_FragCoord;
+#endif // CITRA_GLES
+out vec4 color;
+
+uniform sampler2D tex0;
+uniform sampler2D tex1;
+uniform sampler2D tex2;
+uniform samplerCube tex_cube;
+uniform samplerBuffer texture_buffer_lut_lf;
+uniform samplerBuffer texture_buffer_lut_rg;
+uniform samplerBuffer texture_buffer_lut_rgba;
+
+#define NUM_TEV_STAGES 6
+#define NUM_LIGHTS 8
+#define NUM_LIGHTING_SAMPLERS 24
+
+struct LightSrc {
+    vec3 specular_0;
+    vec3 specular_1;
+    vec3 diffuse;
+    vec3 ambient;
+    vec3 position;
+    vec3 spot_direction;
+    float dist_atten_bias;
+    float dist_atten_scale;
+};
+
+layout (std140) uniform shader_data {
+    int alphatest_ref;
+    float depth_scale;
+    float depth_offset;
+    float shadow_bias_constant;
+    float shadow_bias_linear;
+    int scissor_x1;
+    int scissor_y1;
+    int scissor_x2;
+    int scissor_y2;
+    int fog_lut_offset;
+    int proctex_noise_lut_offset;
+    int proctex_color_map_offset;
+    int proctex_alpha_map_offset;
+    int proctex_lut_offset;
+    int proctex_diff_lut_offset;
+    float proctex_bias;
+    vec3 fog_color;
+    vec2 proctex_noise_f;
+    vec2 proctex_noise_a;
+    vec2 proctex_noise_p;
+    vec4 const_color[NUM_TEV_STAGES];
+    vec4 tev_combiner_buffer_color;
+    vec4 clip_coef;
+};
+
+layout (std140) uniform shader_light_data {
+    ivec4 lighting_lut_offset[NUM_LIGHTING_SAMPLERS / 4];
+    vec3 lighting_global_ambient;
+    LightSrc light_src[NUM_LIGHTS];
+    float lut_scale_d0;
+    float lut_scale_d1;
+    float lut_scale_sp;
+    float lut_scale_fr;
+    float lut_scale_rb;
+    float lut_scale_rg;
+    float lut_scale_rr;
+    int shadow_texture_bias;
+};
+
+// Rotate the vector v by the quaternion q
+vec3 quaternion_rotate(vec4 q, vec3 v) {
+    return v + 2.0 * cross(q.xyz, cross(q.xyz, v) + q.w * v);
+}
+
+float LookupLightingLUT(int lut_index, int index, float delta) {
+    vec2 entry = texelFetch(texture_buffer_lut_lf, lighting_lut_offset[lut_index >> 2][lut_index & 3] + index).rg;
+    return entry.r + entry.g * delta;
+}
+
+float LookupLightingLUTUnsigned(int lut_index, float pos) {
+    int index = clamp(int(pos * 256.0), 0, 255);
+    float delta = pos * 256.0 - float(index);
+    return LookupLightingLUT(lut_index, index, delta);
+}
+
+float LookupLightingLUTSigned(int lut_index, float pos) {
+    int index = clamp(int(pos * 128.0), -128, 127);
+    float delta = pos * 128.0 - float(index);
+    if (index < 0) index += 256;
+    return LookupLightingLUT(lut_index, index, delta);
+}
+
+float byteround(float x) {
+    return round(x * 255.0) * (1.0 / 255.0);
+}
+
+vec2 byteround(vec2 x) {
+    return round(x * 255.0) * (1.0 / 255.0);
+}
+
+vec3 byteround(vec3 x) {
+    return round(x * 255.0) * (1.0 / 255.0);
+}
+
+vec4 byteround(vec4 x) {
+    return round(x * 255.0) * (1.0 / 255.0);
+}
+
+// PICA's LOD formula for 2D textures.
+// This LOD formula is the same as the LOD lower limit defined in OpenGL.
+// f(x, y) >= max{m_u, m_v, m_w}
+// (See OpenGL 4.6 spec, 8.14.1 - Scale Factor and Level-of-Detail)
+float getLod(vec2 coord) {
+    vec2 d = max(abs(dFdx(coord)), abs(dFdy(coord)));
+    return log2(max(d.x, d.y));
+}
+
+vec4 shadowTexture(vec2 uv, float w) {
+    return vec4(1.0);
+}
+
+vec4 shadowTextureCube(vec2 uv, float w) {
+    return vec4(1.0);
+}
+
+void main() {
+vec4 rounded_primary_color = byteround(primary_color);
+vec4 primary_fragment_color = vec4(0.0);
+vec4 secondary_fragment_color = vec4(0.0);
+if (!(gl_FragCoord.x >= float(scissor_x1) && gl_FragCoord.y >= float(scissor_y1) && gl_FragCoord.x < float(scissor_x2) && gl_FragCoord.y < float(scissor_y2))) discard;
+float z_over_w = 2.0 * gl_FragCoord.z - 1.0;
+float depth = z_over_w * depth_scale + depth_offset;
+vec4 texcolor0 = textureLod(tex0, texcoord0, getLod(texcoord0 * vec2(textureSize(tex0, 0))));
+vec4 texcolor1 = textureLod(tex1, texcoord1, getLod(texcoord1 * vec2(textureSize(tex1, 0))));
+
+vec4 diffuse_sum = vec4(0.0, 0.0, 0.0, 1.0);
+vec4 specular_sum = vec4(0.0, 0.0, 0.0, 1.0);
+vec3 light_vector = vec3(0.0);
+vec3 refl_value = vec3(0.0);
+vec3 spot_dir = vec3(0.0);
+vec3 half_vector = vec3(0.0);
+float dot_product = 0.0;
+float clamp_highlights = 1.0;
+float geo_factor = 1.0;
+vec3 surface_normal = vec3(0.0, 0.0, 1.0);
+vec3 surface_tangent = vec3(1.0, 0.0, 0.0);
+vec4 normalized_normquat = normalize(normquat);
+vec3 normal = quaternion_rotate(normalized_normquat, surface_normal);
+vec3 tangent = quaternion_rotate(normalized_normquat, surface_tangent);
+vec4 shadow = vec4(1.0);
+light_vector = normalize(light_src[0].position + view);
+spot_dir = light_src[0].spot_direction;
+half_vector = normalize(view) + light_vector;
+dot_product = max(dot(light_vector, normal), 0.0);
+refl_value.r = 1.0;
+refl_value.g = refl_value.r;
+refl_value.b = refl_value.r;
+diffuse_sum.rgb += ((light_src[0].diffuse * dot_product) + light_src[0].ambient) * LookupLightingLUTUnsigned(16,clamp(light_src[0].dist_atten_scale * length(-view - light_src[0].position) + light_src[0].dist_atten_bias, 0.0, 1.0)) * 1.0;
+specular_sum.rgb += ((light_src[0].specular_0) + (light_src[0].specular_1)) * clamp_highlights * LookupLightingLUTUnsigned(16,clamp(light_src[0].dist_atten_scale * length(-view - light_src[0].position) + light_src[0].dist_atten_bias, 0.0, 1.0)) * 1.0;
+light_vector = normalize(light_src[1].position + view);
+spot_dir = light_src[1].spot_direction;
+half_vector = normalize(view) + light_vector;
+dot_product = max(dot(light_vector, normal), 0.0);
+refl_value.r = 1.0;
+refl_value.g = refl_value.r;
+refl_value.b = refl_value.r;
+diffuse_sum.rgb += ((light_src[1].diffuse * dot_product) + light_src[1].ambient) * LookupLightingLUTUnsigned(17,clamp(light_src[1].dist_atten_scale * length(-view - light_src[1].position) + light_src[1].dist_atten_bias, 0.0, 1.0)) * 1.0;
+specular_sum.rgb += ((light_src[1].specular_0) + (light_src[1].specular_1)) * clamp_highlights * LookupLightingLUTUnsigned(17,clamp(light_src[1].dist_atten_scale * length(-view - light_src[1].position) + light_src[1].dist_atten_bias, 0.0, 1.0)) * 1.0;
+light_vector = normalize(light_src[2].position + view);
+spot_dir = light_src[2].spot_direction;
+half_vector = normalize(view) + light_vector;
+dot_product = max(dot(light_vector, normal), 0.0);
+refl_value.r = 1.0;
+refl_value.g = refl_value.r;
+refl_value.b = refl_value.r;
+diffuse_sum.rgb += ((light_src[2].diffuse * dot_product) + light_src[2].ambient) * LookupLightingLUTUnsigned(18,clamp(light_src[2].dist_atten_scale * length(-view - light_src[2].position) + light_src[2].dist_atten_bias, 0.0, 1.0)) * 1.0;
+specular_sum.rgb += ((light_src[2].specular_0) + (light_src[2].specular_1)) * clamp_highlights * LookupLightingLUTUnsigned(18,clamp(light_src[2].dist_atten_scale * length(-view - light_src[2].position) + light_src[2].dist_atten_bias, 0.0, 1.0)) * 1.0;
+diffuse_sum.rgb += lighting_global_ambient;
+primary_fragment_color = clamp(diffuse_sum, vec4(0.0), vec4(1.0));
+secondary_fragment_color = clamp(specular_sum, vec4(0.0), vec4(1.0));
+
+vec4 combiner_buffer = vec4(0.0);
+vec4 next_combiner_buffer = tev_combiner_buffer_color;
+vec4 last_tex_env_out = vec4(0.0);
+vec3 color_output_0 = byteround(clamp((rounded_primary_color.rgb) * (texcolor1.rgb), vec3(0.0), vec3(1.0)));
+float alpha_output_0 = byteround(clamp((rounded_primary_color.a) * (texcolor1.a), 0.0, 1.0));
+last_tex_env_out = clamp(vec4(color_output_0 * 2.0, alpha_output_0 * 1.0), vec4(0.0), vec4(1.0));
+combiner_buffer = next_combiner_buffer;
+
+vec3 color_output_1 = byteround(clamp((last_tex_env_out.rgb) * (primary_fragment_color.rgb), vec3(0.0), vec3(1.0)));
+float alpha_output_1 = byteround(clamp((last_tex_env_out.a), 0.0, 1.0));
+last_tex_env_out = clamp(vec4(color_output_1, alpha_output_1), vec4(0.0), vec4(1.0));
+combiner_buffer = next_combiner_buffer;
+
+vec3 color_output_2 = byteround(clamp((last_tex_env_out.rgb), vec3(0.0), vec3(1.0)));
+float alpha_output_2 = byteround(clamp((last_tex_env_out.a) * (const_color[2].a), 0.0, 1.0));
+last_tex_env_out = clamp(vec4(color_output_2, alpha_output_2), vec4(0.0), vec4(1.0));
+combiner_buffer = next_combiner_buffer;
+
+vec3 color_output_3 = byteround(clamp(min((const_color[3].rgb) + (texcolor0.ggg), vec3(1.0)) * (last_tex_env_out.rgb), vec3(0.0), vec3(1.0)));
+float alpha_output_3 = byteround(clamp((last_tex_env_out.a), 0.0, 1.0));
+last_tex_env_out = clamp(vec4(color_output_3, alpha_output_3), vec4(0.0), vec4(1.0));
+combiner_buffer = next_combiner_buffer;
+
+combiner_buffer = next_combiner_buffer;
+
+combiner_buffer = next_combiner_buffer;
+
+gl_FragDepth = depth;
+color = byteround(last_tex_env_out);
+}
+// reference: 9E54179A5BE97070, 70C54A216004B1BD
+// program: 1A9F70669A3C74DF, F0531050140A5884, 70C54A216004B1BD
+// shader: 8B30, FB5409E6D8C5A608
+in vec4 primary_color;
+in vec2 texcoord0;
+in vec2 texcoord1;
+in vec2 texcoord2;
+in float texcoord0_w;
+in vec4 normquat;
+in vec3 view;
+
+#ifndef CITRA_GLES
+in vec4 gl_FragCoord;
+#endif // CITRA_GLES
+out vec4 color;
+
+uniform sampler2D tex0;
+uniform sampler2D tex1;
+uniform sampler2D tex2;
+uniform samplerCube tex_cube;
+uniform samplerBuffer texture_buffer_lut_lf;
+uniform samplerBuffer texture_buffer_lut_rg;
+uniform samplerBuffer texture_buffer_lut_rgba;
+
+#define NUM_TEV_STAGES 6
+#define NUM_LIGHTS 8
+#define NUM_LIGHTING_SAMPLERS 24
+
+struct LightSrc {
+    vec3 specular_0;
+    vec3 specular_1;
+    vec3 diffuse;
+    vec3 ambient;
+    vec3 position;
+    vec3 spot_direction;
+    float dist_atten_bias;
+    float dist_atten_scale;
+};
+
+layout (std140) uniform shader_data {
+    int alphatest_ref;
+    float depth_scale;
+    float depth_offset;
+    float shadow_bias_constant;
+    float shadow_bias_linear;
+    int scissor_x1;
+    int scissor_y1;
+    int scissor_x2;
+    int scissor_y2;
+    int fog_lut_offset;
+    int proctex_noise_lut_offset;
+    int proctex_color_map_offset;
+    int proctex_alpha_map_offset;
+    int proctex_lut_offset;
+    int proctex_diff_lut_offset;
+    float proctex_bias;
+    vec3 fog_color;
+    vec2 proctex_noise_f;
+    vec2 proctex_noise_a;
+    vec2 proctex_noise_p;
+    vec4 const_color[NUM_TEV_STAGES];
+    vec4 tev_combiner_buffer_color;
+    vec4 clip_coef;
+};
+
+layout (std140) uniform shader_light_data {
+    ivec4 lighting_lut_offset[NUM_LIGHTING_SAMPLERS / 4];
+    vec3 lighting_global_ambient;
+    LightSrc light_src[NUM_LIGHTS];
+    float lut_scale_d0;
+    float lut_scale_d1;
+    float lut_scale_sp;
+    float lut_scale_fr;
+    float lut_scale_rb;
+    float lut_scale_rg;
+    float lut_scale_rr;
+    int shadow_texture_bias;
+};
+
+// Rotate the vector v by the quaternion q
+vec3 quaternion_rotate(vec4 q, vec3 v) {
+    return v + 2.0 * cross(q.xyz, cross(q.xyz, v) + q.w * v);
+}
+
+float LookupLightingLUT(int lut_index, int index, float delta) {
+    vec2 entry = texelFetch(texture_buffer_lut_lf, lighting_lut_offset[lut_index >> 2][lut_index & 3] + index).rg;
+    return entry.r + entry.g * delta;
+}
+
+float LookupLightingLUTUnsigned(int lut_index, float pos) {
+    int index = clamp(int(pos * 256.0), 0, 255);
+    float delta = pos * 256.0 - float(index);
+    return LookupLightingLUT(lut_index, index, delta);
+}
+
+float LookupLightingLUTSigned(int lut_index, float pos) {
+    int index = clamp(int(pos * 128.0), -128, 127);
+    float delta = pos * 128.0 - float(index);
+    if (index < 0) index += 256;
+    return LookupLightingLUT(lut_index, index, delta);
+}
+
+float byteround(float x) {
+    return round(x * 255.0) * (1.0 / 255.0);
+}
+
+vec2 byteround(vec2 x) {
+    return round(x * 255.0) * (1.0 / 255.0);
+}
+
+vec3 byteround(vec3 x) {
+    return round(x * 255.0) * (1.0 / 255.0);
+}
+
+vec4 byteround(vec4 x) {
+    return round(x * 255.0) * (1.0 / 255.0);
+}
+
+// PICA's LOD formula for 2D textures.
+// This LOD formula is the same as the LOD lower limit defined in OpenGL.
+// f(x, y) >= max{m_u, m_v, m_w}
+// (See OpenGL 4.6 spec, 8.14.1 - Scale Factor and Level-of-Detail)
+float getLod(vec2 coord) {
+    vec2 d = max(abs(dFdx(coord)), abs(dFdy(coord)));
+    return log2(max(d.x, d.y));
+}
+
+vec4 shadowTexture(vec2 uv, float w) {
+    return vec4(1.0);
+}
+
+vec4 shadowTextureCube(vec2 uv, float w) {
+    return vec4(1.0);
+}
+
+void main() {
+vec4 rounded_primary_color = byteround(primary_color);
+vec4 primary_fragment_color = vec4(0.0);
+vec4 secondary_fragment_color = vec4(0.0);
+if (!(gl_FragCoord.x >= float(scissor_x1) && gl_FragCoord.y >= float(scissor_y1) && gl_FragCoord.x < float(scissor_x2) && gl_FragCoord.y < float(scissor_y2))) discard;
+float z_over_w = 2.0 * gl_FragCoord.z - 1.0;
+float depth = z_over_w * depth_scale + depth_offset;
+vec4 texcolor0 = textureLod(tex0, texcoord0, getLod(texcoord0 * vec2(textureSize(tex0, 0))));
+vec4 texcolor1 = textureLod(tex1, texcoord1, getLod(texcoord1 * vec2(textureSize(tex1, 0))));
+
+vec4 diffuse_sum = vec4(0.0, 0.0, 0.0, 1.0);
+vec4 specular_sum = vec4(0.0, 0.0, 0.0, 1.0);
+vec3 light_vector = vec3(0.0);
+vec3 refl_value = vec3(0.0);
+vec3 spot_dir = vec3(0.0);
+vec3 half_vector = vec3(0.0);
+float dot_product = 0.0;
+float clamp_highlights = 1.0;
+float geo_factor = 1.0;
+vec3 surface_normal = vec3(0.0, 0.0, 1.0);
+vec3 surface_tangent = vec3(1.0, 0.0, 0.0);
+vec4 normalized_normquat = normalize(normquat);
+vec3 normal = quaternion_rotate(normalized_normquat, surface_normal);
+vec3 tangent = quaternion_rotate(normalized_normquat, surface_tangent);
+vec4 shadow = vec4(1.0);
+light_vector = normalize(light_src[0].position + view);
+spot_dir = light_src[0].spot_direction;
+half_vector = normalize(view) + light_vector;
+dot_product = max(dot(light_vector, normal), 0.0);
+refl_value.r = 1.0;
+refl_value.g = refl_value.r;
+refl_value.b = refl_value.r;
+diffuse_sum.rgb += ((light_src[0].diffuse * dot_product) + light_src[0].ambient) * LookupLightingLUTUnsigned(16,clamp(light_src[0].dist_atten_scale * length(-view - light_src[0].position) + light_src[0].dist_atten_bias, 0.0, 1.0)) * 1.0;
+specular_sum.rgb += ((light_src[0].specular_0) + (light_src[0].specular_1)) * clamp_highlights * LookupLightingLUTUnsigned(16,clamp(light_src[0].dist_atten_scale * length(-view - light_src[0].position) + light_src[0].dist_atten_bias, 0.0, 1.0)) * 1.0;
+light_vector = normalize(light_src[1].position + view);
+spot_dir = light_src[1].spot_direction;
+half_vector = normalize(view) + light_vector;
+dot_product = max(dot(light_vector, normal), 0.0);
+refl_value.r = 1.0;
+refl_value.g = refl_value.r;
+refl_value.b = refl_value.r;
+diffuse_sum.rgb += ((light_src[1].diffuse * dot_product) + light_src[1].ambient) * LookupLightingLUTUnsigned(17,clamp(light_src[1].dist_atten_scale * length(-view - light_src[1].position) + light_src[1].dist_atten_bias, 0.0, 1.0)) * 1.0;
+specular_sum.rgb += ((light_src[1].specular_0) + (light_src[1].specular_1)) * clamp_highlights * LookupLightingLUTUnsigned(17,clamp(light_src[1].dist_atten_scale * length(-view - light_src[1].position) + light_src[1].dist_atten_bias, 0.0, 1.0)) * 1.0;
+light_vector = normalize(light_src[2].position + view);
+spot_dir = light_src[2].spot_direction;
+half_vector = normalize(view) + light_vector;
+dot_product = max(dot(light_vector, normal), 0.0);
+refl_value.r = 1.0;
+refl_value.g = refl_value.r;
+refl_value.b = refl_value.r;
+diffuse_sum.rgb += ((light_src[2].diffuse * dot_product) + light_src[2].ambient) * LookupLightingLUTUnsigned(18,clamp(light_src[2].dist_atten_scale * length(-view - light_src[2].position) + light_src[2].dist_atten_bias, 0.0, 1.0)) * 1.0;
+specular_sum.rgb += ((light_src[2].specular_0) + (light_src[2].specular_1)) * clamp_highlights * LookupLightingLUTUnsigned(18,clamp(light_src[2].dist_atten_scale * length(-view - light_src[2].position) + light_src[2].dist_atten_bias, 0.0, 1.0)) * 1.0;
+diffuse_sum.rgb += lighting_global_ambient;
+primary_fragment_color = clamp(diffuse_sum, vec4(0.0), vec4(1.0));
+secondary_fragment_color = clamp(specular_sum, vec4(0.0), vec4(1.0));
+
+vec4 combiner_buffer = vec4(0.0);
+vec4 next_combiner_buffer = tev_combiner_buffer_color;
+vec4 last_tex_env_out = vec4(0.0);
+vec3 color_output_0 = byteround(clamp((texcolor1.rgb) * (rounded_primary_color.rgb), vec3(0.0), vec3(1.0)));
+float alpha_output_0 = byteround(clamp((texcolor1.g) * (texcolor1.g), 0.0, 1.0));
+last_tex_env_out = clamp(vec4(color_output_0, alpha_output_0), vec4(0.0), vec4(1.0));
+combiner_buffer = next_combiner_buffer;
+next_combiner_buffer.rgb = last_tex_env_out.rgb;
+
+vec3 color_output_1 = byteround(clamp((const_color[1].rgb) + (primary_fragment_color.rgb), vec3(0.0), vec3(1.0)));
+float alpha_output_1 = byteround(clamp((last_tex_env_out.a) * (rounded_primary_color.r), 0.0, 1.0));
+last_tex_env_out = clamp(vec4(color_output_1, alpha_output_1), vec4(0.0), vec4(1.0));
+combiner_buffer = next_combiner_buffer;
+next_combiner_buffer.a = last_tex_env_out.a;
+
+vec3 color_output_2 = byteround(clamp((last_tex_env_out.rgb) * (combiner_buffer.rgb), vec3(0.0), vec3(1.0)));
+float alpha_output_2 = byteround(clamp((const_color[2].a), 0.0, 1.0));
+last_tex_env_out = clamp(vec4(color_output_2, alpha_output_2), vec4(0.0), vec4(1.0));
+combiner_buffer = next_combiner_buffer;
+next_combiner_buffer.rgb = last_tex_env_out.rgb;
+
+vec3 color_output_3 = byteround(clamp((combiner_buffer.aaa) * (const_color[3].rgb), vec3(0.0), vec3(1.0)));
+float alpha_output_3 = byteround(clamp((last_tex_env_out.a), 0.0, 1.0));
+last_tex_env_out = clamp(vec4(color_output_3, alpha_output_3), vec4(0.0), vec4(1.0));
+combiner_buffer = next_combiner_buffer;
+
+vec3 color_output_4 = byteround(clamp((last_tex_env_out.rgb) + (combiner_buffer.rgb), vec3(0.0), vec3(1.0)));
+float alpha_output_4 = byteround(clamp((last_tex_env_out.a), 0.0, 1.0));
+last_tex_env_out = clamp(vec4(color_output_4, alpha_output_4), vec4(0.0), vec4(1.0));
+combiner_buffer = next_combiner_buffer;
+
+vec3 color_output_5 = byteround(clamp(min((const_color[5].rgb) + (texcolor0.ggg), vec3(1.0)) * (last_tex_env_out.rgb), vec3(0.0), vec3(1.0)));
+float alpha_output_5 = byteround(clamp((last_tex_env_out.a), 0.0, 1.0));
+last_tex_env_out = clamp(vec4(color_output_5, alpha_output_5), vec4(0.0), vec4(1.0));
+combiner_buffer = next_combiner_buffer;
+
+gl_FragDepth = depth;
+color = byteround(last_tex_env_out);
+}
+// reference: CAFA785E952A482C, FB5409E6D8C5A608
+// program: 1A9F70669A3C74DF, F0531050140A5884, FB5409E6D8C5A608
+// shader: 8B30, 810C425D29358013
+in vec4 primary_color;
+in vec2 texcoord0;
+in vec2 texcoord1;
+in vec2 texcoord2;
+in float texcoord0_w;
+in vec4 normquat;
+in vec3 view;
+
+#ifndef CITRA_GLES
+in vec4 gl_FragCoord;
+#endif // CITRA_GLES
+out vec4 color;
+
+uniform sampler2D tex0;
+uniform sampler2D tex1;
+uniform sampler2D tex2;
+uniform samplerCube tex_cube;
+uniform samplerBuffer texture_buffer_lut_lf;
+uniform samplerBuffer texture_buffer_lut_rg;
+uniform samplerBuffer texture_buffer_lut_rgba;
+
+#define NUM_TEV_STAGES 6
+#define NUM_LIGHTS 8
+#define NUM_LIGHTING_SAMPLERS 24
+
+struct LightSrc {
+    vec3 specular_0;
+    vec3 specular_1;
+    vec3 diffuse;
+    vec3 ambient;
+    vec3 position;
+    vec3 spot_direction;
+    float dist_atten_bias;
+    float dist_atten_scale;
+};
+
+layout (std140) uniform shader_data {
+    int alphatest_ref;
+    float depth_scale;
+    float depth_offset;
+    float shadow_bias_constant;
+    float shadow_bias_linear;
+    int scissor_x1;
+    int scissor_y1;
+    int scissor_x2;
+    int scissor_y2;
+    int fog_lut_offset;
+    int proctex_noise_lut_offset;
+    int proctex_color_map_offset;
+    int proctex_alpha_map_offset;
+    int proctex_lut_offset;
+    int proctex_diff_lut_offset;
+    float proctex_bias;
+    vec3 fog_color;
+    vec2 proctex_noise_f;
+    vec2 proctex_noise_a;
+    vec2 proctex_noise_p;
+    vec4 const_color[NUM_TEV_STAGES];
+    vec4 tev_combiner_buffer_color;
+    vec4 clip_coef;
+};
+
+layout (std140) uniform shader_light_data {
+    ivec4 lighting_lut_offset[NUM_LIGHTING_SAMPLERS / 4];
+    vec3 lighting_global_ambient;
+    LightSrc light_src[NUM_LIGHTS];
+    float lut_scale_d0;
+    float lut_scale_d1;
+    float lut_scale_sp;
+    float lut_scale_fr;
+    float lut_scale_rb;
+    float lut_scale_rg;
+    float lut_scale_rr;
+    int shadow_texture_bias;
+};
+
+// Rotate the vector v by the quaternion q
+vec3 quaternion_rotate(vec4 q, vec3 v) {
+    return v + 2.0 * cross(q.xyz, cross(q.xyz, v) + q.w * v);
+}
+
+float LookupLightingLUT(int lut_index, int index, float delta) {
+    vec2 entry = texelFetch(texture_buffer_lut_lf, lighting_lut_offset[lut_index >> 2][lut_index & 3] + index).rg;
+    return entry.r + entry.g * delta;
+}
+
+float LookupLightingLUTUnsigned(int lut_index, float pos) {
+    int index = clamp(int(pos * 256.0), 0, 255);
+    float delta = pos * 256.0 - float(index);
+    return LookupLightingLUT(lut_index, index, delta);
+}
+
+float LookupLightingLUTSigned(int lut_index, float pos) {
+    int index = clamp(int(pos * 128.0), -128, 127);
+    float delta = pos * 128.0 - float(index);
+    if (index < 0) index += 256;
+    return LookupLightingLUT(lut_index, index, delta);
+}
+
+float byteround(float x) {
+    return round(x * 255.0) * (1.0 / 255.0);
+}
+
+vec2 byteround(vec2 x) {
+    return round(x * 255.0) * (1.0 / 255.0);
+}
+
+vec3 byteround(vec3 x) {
+    return round(x * 255.0) * (1.0 / 255.0);
+}
+
+vec4 byteround(vec4 x) {
+    return round(x * 255.0) * (1.0 / 255.0);
+}
+
+// PICA's LOD formula for 2D textures.
+// This LOD formula is the same as the LOD lower limit defined in OpenGL.
+// f(x, y) >= max{m_u, m_v, m_w}
+// (See OpenGL 4.6 spec, 8.14.1 - Scale Factor and Level-of-Detail)
+float getLod(vec2 coord) {
+    vec2 d = max(abs(dFdx(coord)), abs(dFdy(coord)));
+    return log2(max(d.x, d.y));
+}
+
+vec4 shadowTexture(vec2 uv, float w) {
+    return vec4(1.0);
+}
+
+vec4 shadowTextureCube(vec2 uv, float w) {
+    return vec4(1.0);
+}
+
+void main() {
+vec4 rounded_primary_color = byteround(primary_color);
+vec4 primary_fragment_color = vec4(0.0);
+vec4 secondary_fragment_color = vec4(0.0);
+if (!(gl_FragCoord.x >= float(scissor_x1) && gl_FragCoord.y >= float(scissor_y1) && gl_FragCoord.x < float(scissor_x2) && gl_FragCoord.y < float(scissor_y2))) discard;
+float z_over_w = 2.0 * gl_FragCoord.z - 1.0;
+float depth = z_over_w * depth_scale + depth_offset;
+vec4 texcolor0 = textureLod(tex0, texcoord0, getLod(texcoord0 * vec2(textureSize(tex0, 0))));
+vec4 texcolor1 = textureLod(tex1, texcoord1, getLod(texcoord1 * vec2(textureSize(tex1, 0))));
+
+vec4 diffuse_sum = vec4(0.0, 0.0, 0.0, 1.0);
+vec4 specular_sum = vec4(0.0, 0.0, 0.0, 1.0);
+vec3 light_vector = vec3(0.0);
+vec3 refl_value = vec3(0.0);
+vec3 spot_dir = vec3(0.0);
+vec3 half_vector = vec3(0.0);
+float dot_product = 0.0;
+float clamp_highlights = 1.0;
+float geo_factor = 1.0;
+vec3 surface_normal = vec3(0.0, 0.0, 1.0);
+vec3 surface_tangent = vec3(1.0, 0.0, 0.0);
+vec4 normalized_normquat = normalize(normquat);
+vec3 normal = quaternion_rotate(normalized_normquat, surface_normal);
+vec3 tangent = quaternion_rotate(normalized_normquat, surface_tangent);
+vec4 shadow = vec4(1.0);
+light_vector = normalize(light_src[0].position + view);
+spot_dir = light_src[0].spot_direction;
+half_vector = normalize(view) + light_vector;
+dot_product = max(dot(light_vector, normal), 0.0);
+refl_value.r = 1.0;
+refl_value.g = refl_value.r;
+refl_value.b = refl_value.r;
+diffuse_sum.rgb += ((light_src[0].diffuse * dot_product) + light_src[0].ambient) * LookupLightingLUTUnsigned(16,clamp(light_src[0].dist_atten_scale * length(-view - light_src[0].position) + light_src[0].dist_atten_bias, 0.0, 1.0)) * 1.0;
+specular_sum.rgb += ((light_src[0].specular_0) + (light_src[0].specular_1)) * clamp_highlights * LookupLightingLUTUnsigned(16,clamp(light_src[0].dist_atten_scale * length(-view - light_src[0].position) + light_src[0].dist_atten_bias, 0.0, 1.0)) * 1.0;
+light_vector = normalize(light_src[1].position + view);
+spot_dir = light_src[1].spot_direction;
+half_vector = normalize(view) + light_vector;
+dot_product = max(dot(light_vector, normal), 0.0);
+refl_value.r = 1.0;
+refl_value.g = refl_value.r;
+refl_value.b = refl_value.r;
+diffuse_sum.rgb += ((light_src[1].diffuse * dot_product) + light_src[1].ambient) * LookupLightingLUTUnsigned(17,clamp(light_src[1].dist_atten_scale * length(-view - light_src[1].position) + light_src[1].dist_atten_bias, 0.0, 1.0)) * 1.0;
+specular_sum.rgb += ((light_src[1].specular_0) + (light_src[1].specular_1)) * clamp_highlights * LookupLightingLUTUnsigned(17,clamp(light_src[1].dist_atten_scale * length(-view - light_src[1].position) + light_src[1].dist_atten_bias, 0.0, 1.0)) * 1.0;
+light_vector = normalize(light_src[2].position + view);
+spot_dir = light_src[2].spot_direction;
+half_vector = normalize(view) + light_vector;
+dot_product = max(dot(light_vector, normal), 0.0);
+refl_value.r = 1.0;
+refl_value.g = refl_value.r;
+refl_value.b = refl_value.r;
+diffuse_sum.rgb += ((light_src[2].diffuse * dot_product) + light_src[2].ambient) * LookupLightingLUTUnsigned(18,clamp(light_src[2].dist_atten_scale * length(-view - light_src[2].position) + light_src[2].dist_atten_bias, 0.0, 1.0)) * 1.0;
+specular_sum.rgb += ((light_src[2].specular_0) + (light_src[2].specular_1)) * clamp_highlights * LookupLightingLUTUnsigned(18,clamp(light_src[2].dist_atten_scale * length(-view - light_src[2].position) + light_src[2].dist_atten_bias, 0.0, 1.0)) * 1.0;
+diffuse_sum.rgb += lighting_global_ambient;
+primary_fragment_color = clamp(diffuse_sum, vec4(0.0), vec4(1.0));
+secondary_fragment_color = clamp(specular_sum, vec4(0.0), vec4(1.0));
+
+vec4 combiner_buffer = vec4(0.0);
+vec4 next_combiner_buffer = tev_combiner_buffer_color;
+vec4 last_tex_env_out = vec4(0.0);
+vec3 color_output_0 = byteround(clamp((texcolor1.rgb) * (rounded_primary_color.rgb), vec3(0.0), vec3(1.0)));
+float alpha_output_0 = byteround(clamp((texcolor1.g) * (texcolor1.g), 0.0, 1.0));
+last_tex_env_out = clamp(vec4(color_output_0, alpha_output_0), vec4(0.0), vec4(1.0));
+combiner_buffer = next_combiner_buffer;
+next_combiner_buffer.rgb = last_tex_env_out.rgb;
+
+vec3 color_output_1 = byteround(clamp((const_color[1].rgb) + (primary_fragment_color.rgb), vec3(0.0), vec3(1.0)));
+float alpha_output_1 = byteround(clamp((last_tex_env_out.a) * (rounded_primary_color.r), 0.0, 1.0));
+last_tex_env_out = clamp(vec4(color_output_1, alpha_output_1), vec4(0.0), vec4(1.0));
+combiner_buffer = next_combiner_buffer;
+next_combiner_buffer.a = last_tex_env_out.a;
+
+vec3 color_output_2 = byteround(clamp((last_tex_env_out.rgb) * (combiner_buffer.rgb), vec3(0.0), vec3(1.0)));
+float alpha_output_2 = byteround(clamp((last_tex_env_out.a) * (const_color[2].a), 0.0, 1.0));
+last_tex_env_out = clamp(vec4(color_output_2, alpha_output_2), vec4(0.0), vec4(1.0));
+combiner_buffer = next_combiner_buffer;
+next_combiner_buffer.rgb = last_tex_env_out.rgb;
+
+vec3 color_output_3 = byteround(clamp((combiner_buffer.aaa) * (const_color[3].rgb), vec3(0.0), vec3(1.0)));
+float alpha_output_3 = byteround(clamp((last_tex_env_out.a), 0.0, 1.0));
+last_tex_env_out = clamp(vec4(color_output_3, alpha_output_3), vec4(0.0), vec4(1.0));
+combiner_buffer = next_combiner_buffer;
+
+vec3 color_output_4 = byteround(clamp((last_tex_env_out.rgb) + (combiner_buffer.rgb), vec3(0.0), vec3(1.0)));
+float alpha_output_4 = byteround(clamp((last_tex_env_out.a), 0.0, 1.0));
+last_tex_env_out = clamp(vec4(color_output_4, alpha_output_4), vec4(0.0), vec4(1.0));
+combiner_buffer = next_combiner_buffer;
+
+vec3 color_output_5 = byteround(clamp(min((const_color[5].rgb) + (texcolor0.ggg), vec3(1.0)) * (last_tex_env_out.rgb), vec3(0.0), vec3(1.0)));
+float alpha_output_5 = byteround(clamp((last_tex_env_out.a), 0.0, 1.0));
+last_tex_env_out = clamp(vec4(color_output_5, alpha_output_5), vec4(0.0), vec4(1.0));
+combiner_buffer = next_combiner_buffer;
+
+gl_FragDepth = depth;
+color = byteround(last_tex_env_out);
+}
+// reference: 258F81C2ED885AE4, 810C425D29358013
+// program: 1A9F70669A3C74DF, F0531050140A5884, 810C425D29358013
+// shader: 8B30, 7CC9A39352A7CB91
+in vec4 primary_color;
+in vec2 texcoord0;
+in vec2 texcoord1;
+in vec2 texcoord2;
+in float texcoord0_w;
+in vec4 normquat;
+in vec3 view;
+
+#ifndef CITRA_GLES
+in vec4 gl_FragCoord;
+#endif // CITRA_GLES
+out vec4 color;
+
+uniform sampler2D tex0;
+uniform sampler2D tex1;
+uniform sampler2D tex2;
+uniform samplerCube tex_cube;
+uniform samplerBuffer texture_buffer_lut_lf;
+uniform samplerBuffer texture_buffer_lut_rg;
+uniform samplerBuffer texture_buffer_lut_rgba;
+
+#define NUM_TEV_STAGES 6
+#define NUM_LIGHTS 8
+#define NUM_LIGHTING_SAMPLERS 24
+
+struct LightSrc {
+    vec3 specular_0;
+    vec3 specular_1;
+    vec3 diffuse;
+    vec3 ambient;
+    vec3 position;
+    vec3 spot_direction;
+    float dist_atten_bias;
+    float dist_atten_scale;
+};
+
+layout (std140) uniform shader_data {
+    int alphatest_ref;
+    float depth_scale;
+    float depth_offset;
+    float shadow_bias_constant;
+    float shadow_bias_linear;
+    int scissor_x1;
+    int scissor_y1;
+    int scissor_x2;
+    int scissor_y2;
+    int fog_lut_offset;
+    int proctex_noise_lut_offset;
+    int proctex_color_map_offset;
+    int proctex_alpha_map_offset;
+    int proctex_lut_offset;
+    int proctex_diff_lut_offset;
+    float proctex_bias;
+    vec3 fog_color;
+    vec2 proctex_noise_f;
+    vec2 proctex_noise_a;
+    vec2 proctex_noise_p;
+    vec4 const_color[NUM_TEV_STAGES];
+    vec4 tev_combiner_buffer_color;
+    vec4 clip_coef;
+};
+
+layout (std140) uniform shader_light_data {
+    ivec4 lighting_lut_offset[NUM_LIGHTING_SAMPLERS / 4];
+    vec3 lighting_global_ambient;
+    LightSrc light_src[NUM_LIGHTS];
+    float lut_scale_d0;
+    float lut_scale_d1;
+    float lut_scale_sp;
+    float lut_scale_fr;
+    float lut_scale_rb;
+    float lut_scale_rg;
+    float lut_scale_rr;
+    int shadow_texture_bias;
+};
+
+// Rotate the vector v by the quaternion q
+vec3 quaternion_rotate(vec4 q, vec3 v) {
+    return v + 2.0 * cross(q.xyz, cross(q.xyz, v) + q.w * v);
+}
+
+float LookupLightingLUT(int lut_index, int index, float delta) {
+    vec2 entry = texelFetch(texture_buffer_lut_lf, lighting_lut_offset[lut_index >> 2][lut_index & 3] + index).rg;
+    return entry.r + entry.g * delta;
+}
+
+float LookupLightingLUTUnsigned(int lut_index, float pos) {
+    int index = clamp(int(pos * 256.0), 0, 255);
+    float delta = pos * 256.0 - float(index);
+    return LookupLightingLUT(lut_index, index, delta);
+}
+
+float LookupLightingLUTSigned(int lut_index, float pos) {
+    int index = clamp(int(pos * 128.0), -128, 127);
+    float delta = pos * 128.0 - float(index);
+    if (index < 0) index += 256;
+    return LookupLightingLUT(lut_index, index, delta);
+}
+
+float byteround(float x) {
+    return round(x * 255.0) * (1.0 / 255.0);
+}
+
+vec2 byteround(vec2 x) {
+    return round(x * 255.0) * (1.0 / 255.0);
+}
+
+vec3 byteround(vec3 x) {
+    return round(x * 255.0) * (1.0 / 255.0);
+}
+
+vec4 byteround(vec4 x) {
+    return round(x * 255.0) * (1.0 / 255.0);
+}
+
+// PICA's LOD formula for 2D textures.
+// This LOD formula is the same as the LOD lower limit defined in OpenGL.
+// f(x, y) >= max{m_u, m_v, m_w}
+// (See OpenGL 4.6 spec, 8.14.1 - Scale Factor and Level-of-Detail)
+float getLod(vec2 coord) {
+    vec2 d = max(abs(dFdx(coord)), abs(dFdy(coord)));
+    return log2(max(d.x, d.y));
+}
+
+vec4 shadowTexture(vec2 uv, float w) {
+    return vec4(1.0);
+}
+
+vec4 shadowTextureCube(vec2 uv, float w) {
+    return vec4(1.0);
+}
+
+void main() {
+vec4 rounded_primary_color = byteround(primary_color);
+vec4 primary_fragment_color = vec4(0.0);
+vec4 secondary_fragment_color = vec4(0.0);
+if (!(gl_FragCoord.x >= float(scissor_x1) && gl_FragCoord.y >= float(scissor_y1) && gl_FragCoord.x < float(scissor_x2) && gl_FragCoord.y < float(scissor_y2))) discard;
+float z_over_w = 2.0 * gl_FragCoord.z - 1.0;
+float depth = z_over_w * depth_scale + depth_offset;
+vec4 texcolor0 = textureLod(tex0, texcoord0, getLod(texcoord0 * vec2(textureSize(tex0, 0))));
+
+vec4 diffuse_sum = vec4(0.0, 0.0, 0.0, 1.0);
+vec4 specular_sum = vec4(0.0, 0.0, 0.0, 1.0);
+vec3 light_vector = vec3(0.0);
+vec3 refl_value = vec3(0.0);
+vec3 spot_dir = vec3(0.0);
+vec3 half_vector = vec3(0.0);
+float dot_product = 0.0;
+float clamp_highlights = 1.0;
+float geo_factor = 1.0;
+vec3 surface_normal = vec3(0.0, 0.0, 1.0);
+vec3 surface_tangent = vec3(1.0, 0.0, 0.0);
+vec4 normalized_normquat = normalize(normquat);
+vec3 normal = quaternion_rotate(normalized_normquat, surface_normal);
+vec3 tangent = quaternion_rotate(normalized_normquat, surface_tangent);
+vec4 shadow = vec4(1.0);
+light_vector = normalize(light_src[0].position + view);
+spot_dir = light_src[0].spot_direction;
+half_vector = normalize(view) + light_vector;
+dot_product = max(dot(light_vector, normal), 0.0);
+refl_value.r = 1.0;
+refl_value.g = refl_value.r;
+refl_value.b = refl_value.r;
+diffuse_sum.rgb += ((light_src[0].diffuse * dot_product) + light_src[0].ambient) * LookupLightingLUTUnsigned(16,clamp(light_src[0].dist_atten_scale * length(-view - light_src[0].position) + light_src[0].dist_atten_bias, 0.0, 1.0)) * 1.0;
+specular_sum.rgb += ((light_src[0].specular_0) + (light_src[0].specular_1)) * clamp_highlights * LookupLightingLUTUnsigned(16,clamp(light_src[0].dist_atten_scale * length(-view - light_src[0].position) + light_src[0].dist_atten_bias, 0.0, 1.0)) * 1.0;
+light_vector = normalize(light_src[1].position + view);
+spot_dir = light_src[1].spot_direction;
+half_vector = normalize(view) + light_vector;
+dot_product = max(dot(light_vector, normal), 0.0);
+refl_value.r = 1.0;
+refl_value.g = refl_value.r;
+refl_value.b = refl_value.r;
+diffuse_sum.rgb += ((light_src[1].diffuse * dot_product) + light_src[1].ambient) * LookupLightingLUTUnsigned(17,clamp(light_src[1].dist_atten_scale * length(-view - light_src[1].position) + light_src[1].dist_atten_bias, 0.0, 1.0)) * 1.0;
+specular_sum.rgb += ((light_src[1].specular_0) + (light_src[1].specular_1)) * clamp_highlights * LookupLightingLUTUnsigned(17,clamp(light_src[1].dist_atten_scale * length(-view - light_src[1].position) + light_src[1].dist_atten_bias, 0.0, 1.0)) * 1.0;
+light_vector = normalize(light_src[2].position + view);
+spot_dir = light_src[2].spot_direction;
+half_vector = normalize(view) + light_vector;
+dot_product = max(dot(light_vector, normal), 0.0);
+refl_value.r = 1.0;
+refl_value.g = refl_value.r;
+refl_value.b = refl_value.r;
+diffuse_sum.rgb += ((light_src[2].diffuse * dot_product) + light_src[2].ambient) * LookupLightingLUTUnsigned(18,clamp(light_src[2].dist_atten_scale * length(-view - light_src[2].position) + light_src[2].dist_atten_bias, 0.0, 1.0)) * 1.0;
+specular_sum.rgb += ((light_src[2].specular_0) + (light_src[2].specular_1)) * clamp_highlights * LookupLightingLUTUnsigned(18,clamp(light_src[2].dist_atten_scale * length(-view - light_src[2].position) + light_src[2].dist_atten_bias, 0.0, 1.0)) * 1.0;
+diffuse_sum.rgb += lighting_global_ambient;
+primary_fragment_color = clamp(diffuse_sum, vec4(0.0), vec4(1.0));
+secondary_fragment_color = clamp(specular_sum, vec4(0.0), vec4(1.0));
+
+vec4 combiner_buffer = vec4(0.0);
+vec4 next_combiner_buffer = tev_combiner_buffer_color;
+vec4 last_tex_env_out = vec4(0.0);
+vec3 color_output_0 = byteround(clamp((texcolor0.rgb) * (const_color[0].rgb), vec3(0.0), vec3(1.0)));
+float alpha_output_0 = byteround(clamp((texcolor0.a) * (const_color[0].a), 0.0, 1.0));
+last_tex_env_out = clamp(vec4(color_output_0, alpha_output_0), vec4(0.0), vec4(1.0));
+combiner_buffer = next_combiner_buffer;
+
+vec3 color_output_1 = byteround(clamp((last_tex_env_out.rgb) * (primary_fragment_color.rgb), vec3(0.0), vec3(1.0)));
+float alpha_output_1 = byteround(clamp((last_tex_env_out.a), 0.0, 1.0));
+last_tex_env_out = clamp(vec4(color_output_1, alpha_output_1), vec4(0.0), vec4(1.0));
+combiner_buffer = next_combiner_buffer;
+
+combiner_buffer = next_combiner_buffer;
+
+combiner_buffer = next_combiner_buffer;
+
+combiner_buffer = next_combiner_buffer;
+
+combiner_buffer = next_combiner_buffer;
+
+gl_FragDepth = depth;
+color = byteround(last_tex_env_out);
+}
+// reference: 7C3A32D21946DA4E, 7CC9A39352A7CB91
+// program: 1A9F70669A3C74DF, F0531050140A5884, 7CC9A39352A7CB91
+// reference: F63C2AC47737A962, A0C6D56E1F6BC751
+// reference: D9E300014899236E, 03A41228A921F0A5
+// reference: DF3417619DE370C4, 844C145452EA0241
+// reference: 6D39AD4BB0A619D7, 012369A2E36FF109
+// reference: B881506C45411573, 9ED9EC3618CDBD9E
+// shader: 8B30, 854C3EA64AFD813F
 in vec4 primary_color;
 in vec2 texcoord0;
 in vec2 texcoord1;
@@ -43715,19 +40192,13 @@ combiner_buffer = next_combiner_buffer;
 gl_FragDepth = depth;
 color = byteround(last_tex_env_out);
 }
-// reference: 2338D2BEE1FF67E0, E2F230B0AA9AB9A6
-// program: A0A01900FB0E2CEC, F0531050140A5884, E2F230B0AA9AB9A6
-// reference: 32E0AC530B7D9210, 2A0717029ABD24CD
-// reference: ED5D30F5998C040F, 850BB99074BDC0F7
-// reference: 453D18AD719D2F14, 2DBEE0D05DB3F8CF
-// reference: 0AC97195891214F3, 5FCF8C300EF3AA54
-// shader: 8B30, 5DDB3521D81594B0
-
-precision highp int;
-precision highp float;
-precision highp samplerBuffer;
-precision highp usampler2D;
-precision highp uimage2D;
+// reference: 2338D2BEE1FF67E0, 854C3EA64AFD813F
+// program: 1A9F70669A3C74DF, F0531050140A5884, 854C3EA64AFD813F
+// reference: 32E0AC530B7D9210, 77D4EA88CD01043F
+// reference: ED5D30F5998C040F, 268E5765EF79AEE3
+// reference: 453D18AD719D2F14, 0616F01FD82D5C3B
+// reference: 0AC97195891214F3, 6E2D503A8389F8E7
+// shader: 8B30, E3DD070731EFCFAD
 in vec4 primary_color;
 in vec2 texcoord0;
 in vec2 texcoord1;
@@ -43963,15 +40434,9 @@ combiner_buffer = next_combiner_buffer;
 gl_FragDepth = depth;
 color = byteround(last_tex_env_out);
 }
-// reference: 4740383AD953D90D, 5DDB3521D81594B0
-// program: A0A01900FB0E2CEC, F0531050140A5884, 5DDB3521D81594B0
-// shader: 8B30, 84462B9624261EE0
-
-precision highp int;
-precision highp float;
-precision highp samplerBuffer;
-precision highp usampler2D;
-precision highp uimage2D;
+// reference: 4740383AD953D90D, E3DD070731EFCFAD
+// program: 1A9F70669A3C74DF, F0531050140A5884, E3DD070731EFCFAD
+// shader: 8B30, D41BB2BA2C96F813
 in vec4 primary_color;
 in vec2 texcoord0;
 in vec2 texcoord1;
@@ -44202,15 +40667,9 @@ if (int(last_tex_env_out.a * 255.0) <= alphatest_ref) discard;
 gl_FragDepth = depth;
 color = byteround(last_tex_env_out);
 }
-// reference: 7292FDD30D488CE3, 84462B9624261EE0
-// program: A0A01900FB0E2CEC, F0531050140A5884, 84462B9624261EE0
-// shader: 8B30, D0FBC41C955DE6AA
-
-precision highp int;
-precision highp float;
-precision highp samplerBuffer;
-precision highp usampler2D;
-precision highp uimage2D;
+// reference: 7292FDD30D488CE3, D41BB2BA2C96F813
+// program: 1A9F70669A3C74DF, F0531050140A5884, D41BB2BA2C96F813
+// shader: 8B30, D09BCDBE475C2D7F
 in vec4 primary_color;
 in vec2 texcoord0;
 in vec2 texcoord1;
@@ -44440,15 +40899,9 @@ combiner_buffer = next_combiner_buffer;
 gl_FragDepth = depth;
 color = byteround(last_tex_env_out);
 }
-// reference: 7292FDD3E1FF67E0, D0FBC41C955DE6AA
-// program: A0A01900FB0E2CEC, F0531050140A5884, D0FBC41C955DE6AA
-// shader: 8B30, 76ED8F89303F999E
-
-precision highp int;
-precision highp float;
-precision highp samplerBuffer;
-precision highp usampler2D;
-precision highp uimage2D;
+// reference: 7292FDD3E1FF67E0, D09BCDBE475C2D7F
+// program: 1A9F70669A3C74DF, F0531050140A5884, D09BCDBE475C2D7F
+// shader: 8B30, 565D6385F821CB2F
 in vec4 primary_color;
 in vec2 texcoord0;
 in vec2 texcoord1;
@@ -44684,16 +41137,11 @@ combiner_buffer = next_combiner_buffer;
 gl_FragDepth = depth;
 color = byteround(last_tex_env_out);
 }
-// reference: A835C1A63EB6EC89, 76ED8F89303F999E
-// program: A0A01900FB0E2CEC, F0531050140A5884, 76ED8F89303F999E
-// reference: 4740383AFD3B7132, 5DDB3521D81594B0
-// shader: 8B30, DF0A86D0FD4D1AAF
-
-precision highp int;
-precision highp float;
-precision highp samplerBuffer;
-precision highp usampler2D;
-precision highp uimage2D;
+// reference: A835C1A63EB6EC89, 565D6385F821CB2F
+// program: 1A9F70669A3C74DF, F0531050140A5884, 565D6385F821CB2F
+// reference: 4740383AFD3B7132, E3DD070731EFCFAD
+// reference: 0464230B82D0A5C6, 012369A2E36FF109
+// shader: 8B30, 56DB095CA8130E9B
 in vec4 primary_color;
 in vec2 texcoord0;
 in vec2 texcoord1;
@@ -44921,15 +41369,9 @@ combiner_buffer = next_combiner_buffer;
 gl_FragDepth = depth;
 color = byteround(last_tex_env_out);
 }
-// reference: E81ECC1F5BE97070, DF0A86D0FD4D1AAF
-// program: A0A01900FB0E2CEC, F0531050140A5884, DF0A86D0FD4D1AAF
-// shader: 8B30, CF7EA759E0874746
-
-precision highp int;
-precision highp float;
-precision highp samplerBuffer;
-precision highp usampler2D;
-precision highp uimage2D;
+// reference: E81ECC1F5BE97070, 56DB095CA8130E9B
+// program: 1A9F70669A3C74DF, F0531050140A5884, 56DB095CA8130E9B
+// shader: 8B30, 1EC65D2E7C286301
 in vec4 primary_color;
 in vec2 texcoord0;
 in vec2 texcoord1;
@@ -45166,15 +41608,9 @@ combiner_buffer = next_combiner_buffer;
 gl_FragDepth = depth;
 color = byteround(last_tex_env_out);
 }
-// reference: BCB0A3DB952A482C, CF7EA759E0874746
-// program: A0A01900FB0E2CEC, F0531050140A5884, CF7EA759E0874746
-// shader: 8B30, 53B9E2CAC2795563
-
-precision highp int;
-precision highp float;
-precision highp samplerBuffer;
-precision highp usampler2D;
-precision highp uimage2D;
+// reference: BCB0A3DB952A482C, 1EC65D2E7C286301
+// program: 1A9F70669A3C74DF, F0531050140A5884, 1EC65D2E7C286301
+// shader: 8B30, B0D482FA43B5F95B
 in vec4 primary_color;
 in vec2 texcoord0;
 in vec2 texcoord1;
@@ -45411,15 +41847,9 @@ combiner_buffer = next_combiner_buffer;
 gl_FragDepth = depth;
 color = byteround(last_tex_env_out);
 }
-// reference: 53C55A47ED885AE4, 53B9E2CAC2795563
-// program: A0A01900FB0E2CEC, F0531050140A5884, 53B9E2CAC2795563
-// shader: 8B30, 0EAC6261A57B7FA7
-
-precision highp int;
-precision highp float;
-precision highp samplerBuffer;
-precision highp usampler2D;
-precision highp uimage2D;
+// reference: 53C55A47ED885AE4, B0D482FA43B5F95B
+// program: 1A9F70669A3C74DF, F0531050140A5884, B0D482FA43B5F95B
+// shader: 8B30, 903A3488AE660587
 in vec4 primary_color;
 in vec2 texcoord0;
 in vec2 texcoord1;
@@ -45640,248 +42070,12 @@ combiner_buffer = next_combiner_buffer;
 gl_FragDepth = depth;
 color = byteround(last_tex_env_out);
 }
-// reference: 0A70E9571946DA4E, 0EAC6261A57B7FA7
-// program: A0A01900FB0E2CEC, F0531050140A5884, 0EAC6261A57B7FA7
-// reference: 8076F1417737A962, BDFCAB3951694DF3
-// reference: AFA9DB844899236E, 94C189A177E49D88
-// reference: A97ECCE49DE370C4, 885E61A139E2311C
-// reference: 722EF88E82D0A5C6, 9A2886E756372E51
-// shader: 8B30, 87758E049571B8E3
-
-precision highp int;
-precision highp float;
-precision highp samplerBuffer;
-precision highp usampler2D;
-precision highp uimage2D;
-in vec4 primary_color;
-in vec2 texcoord0;
-in vec2 texcoord1;
-in vec2 texcoord2;
-in float texcoord0_w;
-in vec4 normquat;
-in vec3 view;
-
-#ifndef CITRA_GLES
-in vec4 gl_FragCoord;
-#endif // CITRA_GLES
-out vec4 color;
-
-uniform sampler2D tex0;
-uniform sampler2D tex1;
-uniform sampler2D tex2;
-uniform samplerCube tex_cube;
-uniform samplerBuffer texture_buffer_lut_lf;
-uniform samplerBuffer texture_buffer_lut_rg;
-uniform samplerBuffer texture_buffer_lut_rgba;
-
-#define NUM_TEV_STAGES 6
-#define NUM_LIGHTS 8
-#define NUM_LIGHTING_SAMPLERS 24
-
-struct LightSrc {
-    vec3 specular_0;
-    vec3 specular_1;
-    vec3 diffuse;
-    vec3 ambient;
-    vec3 position;
-    vec3 spot_direction;
-    float dist_atten_bias;
-    float dist_atten_scale;
-};
-
-layout (std140) uniform shader_data {
-    int alphatest_ref;
-    float depth_scale;
-    float depth_offset;
-    float shadow_bias_constant;
-    float shadow_bias_linear;
-    int scissor_x1;
-    int scissor_y1;
-    int scissor_x2;
-    int scissor_y2;
-    int fog_lut_offset;
-    int proctex_noise_lut_offset;
-    int proctex_color_map_offset;
-    int proctex_alpha_map_offset;
-    int proctex_lut_offset;
-    int proctex_diff_lut_offset;
-    float proctex_bias;
-    vec3 fog_color;
-    vec2 proctex_noise_f;
-    vec2 proctex_noise_a;
-    vec2 proctex_noise_p;
-    vec4 const_color[NUM_TEV_STAGES];
-    vec4 tev_combiner_buffer_color;
-    vec4 clip_coef;
-};
-
-layout (std140) uniform shader_light_data {
-    ivec4 lighting_lut_offset[NUM_LIGHTING_SAMPLERS / 4];
-    vec3 lighting_global_ambient;
-    LightSrc light_src[NUM_LIGHTS];
-    float lut_scale_d0;
-    float lut_scale_d1;
-    float lut_scale_sp;
-    float lut_scale_fr;
-    float lut_scale_rb;
-    float lut_scale_rg;
-    float lut_scale_rr;
-    int shadow_texture_bias;
-};
-
-// Rotate the vector v by the quaternion q
-vec3 quaternion_rotate(vec4 q, vec3 v) {
-    return v + 2.0 * cross(q.xyz, cross(q.xyz, v) + q.w * v);
-}
-
-float LookupLightingLUT(int lut_index, int index, float delta) {
-    vec2 entry = texelFetch(texture_buffer_lut_lf, lighting_lut_offset[lut_index >> 2][lut_index & 3] + index).rg;
-    return entry.r + entry.g * delta;
-}
-
-float LookupLightingLUTUnsigned(int lut_index, float pos) {
-    int index = clamp(int(pos * 256.0), 0, 255);
-    float delta = pos * 256.0 - float(index);
-    return LookupLightingLUT(lut_index, index, delta);
-}
-
-float LookupLightingLUTSigned(int lut_index, float pos) {
-    int index = clamp(int(pos * 128.0), -128, 127);
-    float delta = pos * 128.0 - float(index);
-    if (index < 0) index += 256;
-    return LookupLightingLUT(lut_index, index, delta);
-}
-
-float byteround(float x) {
-    return round(x * 255.0) * (1.0 / 255.0);
-}
-
-vec2 byteround(vec2 x) {
-    return round(x * 255.0) * (1.0 / 255.0);
-}
-
-vec3 byteround(vec3 x) {
-    return round(x * 255.0) * (1.0 / 255.0);
-}
-
-vec4 byteround(vec4 x) {
-    return round(x * 255.0) * (1.0 / 255.0);
-}
-
-// PICA's LOD formula for 2D textures.
-// This LOD formula is the same as the LOD lower limit defined in OpenGL.
-// f(x, y) >= max{m_u, m_v, m_w}
-// (See OpenGL 4.6 spec, 8.14.1 - Scale Factor and Level-of-Detail)
-float getLod(vec2 coord) {
-    vec2 d = max(abs(dFdx(coord)), abs(dFdy(coord)));
-    return log2(max(d.x, d.y));
-}
-
-vec4 shadowTexture(vec2 uv, float w) {
-    return vec4(1.0);
-}
-
-vec4 shadowTextureCube(vec2 uv, float w) {
-    return vec4(1.0);
-}
-
-void main() {
-vec4 rounded_primary_color = byteround(primary_color);
-vec4 primary_fragment_color = vec4(0.0);
-vec4 secondary_fragment_color = vec4(0.0);
-if (!(gl_FragCoord.x >= float(scissor_x1) && gl_FragCoord.y >= float(scissor_y1) && gl_FragCoord.x < float(scissor_x2) && gl_FragCoord.y < float(scissor_y2))) discard;
-float z_over_w = 2.0 * gl_FragCoord.z - 1.0;
-float depth = z_over_w * depth_scale + depth_offset;
-vec4 texcolor1 = textureLod(tex1, texcoord1, getLod(texcoord1 * vec2(textureSize(tex1, 0))));
-
-vec4 diffuse_sum = vec4(0.0, 0.0, 0.0, 1.0);
-vec4 specular_sum = vec4(0.0, 0.0, 0.0, 1.0);
-vec3 light_vector = vec3(0.0);
-vec3 refl_value = vec3(0.0);
-vec3 spot_dir = vec3(0.0);
-vec3 half_vector = vec3(0.0);
-float dot_product = 0.0;
-float clamp_highlights = 1.0;
-float geo_factor = 1.0;
-vec3 surface_normal = vec3(0.0, 0.0, 1.0);
-vec3 surface_tangent = vec3(1.0, 0.0, 0.0);
-vec4 normalized_normquat = normalize(normquat);
-vec3 normal = quaternion_rotate(normalized_normquat, surface_normal);
-vec3 tangent = quaternion_rotate(normalized_normquat, surface_tangent);
-vec4 shadow = vec4(1.0);
-light_vector = normalize(light_src[0].position + view);
-spot_dir = light_src[0].spot_direction;
-half_vector = normalize(view) + light_vector;
-dot_product = max(dot(light_vector, normal), 0.0);
-refl_value.r = 1.0;
-refl_value.g = refl_value.r;
-refl_value.b = refl_value.r;
-diffuse_sum.rgb += ((light_src[0].diffuse * dot_product) + light_src[0].ambient) * LookupLightingLUTUnsigned(16,clamp(light_src[0].dist_atten_scale * length(-view - light_src[0].position) + light_src[0].dist_atten_bias, 0.0, 1.0)) * 1.0;
-specular_sum.rgb += ((light_src[0].specular_0) + (light_src[0].specular_1)) * clamp_highlights * LookupLightingLUTUnsigned(16,clamp(light_src[0].dist_atten_scale * length(-view - light_src[0].position) + light_src[0].dist_atten_bias, 0.0, 1.0)) * 1.0;
-light_vector = normalize(light_src[1].position + view);
-spot_dir = light_src[1].spot_direction;
-half_vector = normalize(view) + light_vector;
-dot_product = max(dot(light_vector, normal), 0.0);
-refl_value.r = 1.0;
-refl_value.g = refl_value.r;
-refl_value.b = refl_value.r;
-diffuse_sum.rgb += ((light_src[1].diffuse * dot_product) + light_src[1].ambient) * LookupLightingLUTUnsigned(17,clamp(light_src[1].dist_atten_scale * length(-view - light_src[1].position) + light_src[1].dist_atten_bias, 0.0, 1.0)) * 1.0;
-specular_sum.rgb += ((light_src[1].specular_0) + (light_src[1].specular_1)) * clamp_highlights * LookupLightingLUTUnsigned(17,clamp(light_src[1].dist_atten_scale * length(-view - light_src[1].position) + light_src[1].dist_atten_bias, 0.0, 1.0)) * 1.0;
-light_vector = normalize(light_src[2].position + view);
-spot_dir = light_src[2].spot_direction;
-half_vector = normalize(view) + light_vector;
-dot_product = max(dot(light_vector, normal), 0.0);
-refl_value.r = 1.0;
-refl_value.g = refl_value.r;
-refl_value.b = refl_value.r;
-diffuse_sum.rgb += ((light_src[2].diffuse * dot_product) + light_src[2].ambient) * LookupLightingLUTUnsigned(18,clamp(light_src[2].dist_atten_scale * length(-view - light_src[2].position) + light_src[2].dist_atten_bias, 0.0, 1.0)) * 1.0;
-specular_sum.rgb += ((light_src[2].specular_0) + (light_src[2].specular_1)) * clamp_highlights * LookupLightingLUTUnsigned(18,clamp(light_src[2].dist_atten_scale * length(-view - light_src[2].position) + light_src[2].dist_atten_bias, 0.0, 1.0)) * 1.0;
-diffuse_sum.rgb += lighting_global_ambient;
-primary_fragment_color = clamp(diffuse_sum, vec4(0.0), vec4(1.0));
-secondary_fragment_color = clamp(specular_sum, vec4(0.0), vec4(1.0));
-
-vec4 combiner_buffer = vec4(0.0);
-vec4 next_combiner_buffer = tev_combiner_buffer_color;
-vec4 last_tex_env_out = vec4(0.0);
-vec3 color_output_0 = byteround(clamp((rounded_primary_color.rgb) * (texcolor1.rgb), vec3(0.0), vec3(1.0)));
-float alpha_output_0 = byteround(clamp((rounded_primary_color.a) * (texcolor1.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_0 * 2.0, alpha_output_0 * 1.0), vec4(0.0), vec4(1.0));
-combiner_buffer = next_combiner_buffer;
-
-vec3 color_output_1 = byteround(clamp((last_tex_env_out.rgb) * (primary_fragment_color.rgb), vec3(0.0), vec3(1.0)));
-float alpha_output_1 = byteround(clamp((last_tex_env_out.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_1, alpha_output_1), vec4(0.0), vec4(1.0));
-combiner_buffer = next_combiner_buffer;
-
-vec3 color_output_2 = byteround(clamp((last_tex_env_out.rgb), vec3(0.0), vec3(1.0)));
-float alpha_output_2 = byteround(clamp((last_tex_env_out.a) * (const_color[2].a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_2, alpha_output_2), vec4(0.0), vec4(1.0));
-combiner_buffer = next_combiner_buffer;
-
-vec3 color_output_3 = byteround(clamp(min((const_color[3].rgb) + (shadowTexture(texcoord0, texcoord0_w).ggg), vec3(1.0)) * (last_tex_env_out.rgb), vec3(0.0), vec3(1.0)));
-float alpha_output_3 = byteround(clamp((last_tex_env_out.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_3, alpha_output_3), vec4(0.0), vec4(1.0));
-combiner_buffer = next_combiner_buffer;
-
-combiner_buffer = next_combiner_buffer;
-
-combiner_buffer = next_combiner_buffer;
-
-gl_FragDepth = depth;
-color = byteround(last_tex_env_out);
-}
-// reference: CFFE38F75BE97070, 87758E049571B8E3
-// program: A0A01900FB0E2CEC, F0531050140A5884, 87758E049571B8E3
-// reference: A79605A97737A962, 7A635789994EBD31
-// reference: 0464230B82D0A5C6, 9A2886E756372E51
-// reference: D1DCDE2C7737A962, BDFCAB3951694DF3
-// shader: 8B30, 42DA11B0CC8BE706
-
-precision highp int;
-precision highp float;
-precision highp samplerBuffer;
-precision highp usampler2D;
-precision highp uimage2D;
+// reference: 0A70E9571946DA4E, 903A3488AE660587
+// program: 1A9F70669A3C74DF, F0531050140A5884, 903A3488AE660587
+// reference: D1DCDE2C7737A962, 59ED698457F53D16
+// reference: A97ECCE49DE370C4, 57944423B0A02429
+// reference: AFA9DB844899236E, 03A41228A921F0A5
+// shader: 8B30, 0B1A168AB848D74B
 in vec4 primary_color;
 in vec2 texcoord0;
 in vec2 texcoord1;
@@ -46022,19 +42216,70 @@ if (!(gl_FragCoord.x >= float(scissor_x1) && gl_FragCoord.y >= float(scissor_y1)
 float z_over_w = 2.0 * gl_FragCoord.z - 1.0;
 float depth = z_over_w * depth_scale + depth_offset;
 vec4 texcolor0 = textureLod(tex0, texcoord0, getLod(texcoord0 * vec2(textureSize(tex0, 0))));
+vec4 texcolor1 = textureLod(tex1, texcoord1, getLod(texcoord1 * vec2(textureSize(tex1, 0))));
+
+vec4 diffuse_sum = vec4(0.0, 0.0, 0.0, 1.0);
+vec4 specular_sum = vec4(0.0, 0.0, 0.0, 1.0);
+vec3 light_vector = vec3(0.0);
+vec3 refl_value = vec3(0.0);
+vec3 spot_dir = vec3(0.0);
+vec3 half_vector = vec3(0.0);
+float dot_product = 0.0;
+float clamp_highlights = 1.0;
+float geo_factor = 1.0;
+vec3 surface_normal = vec3(0.0, 0.0, 1.0);
+vec3 surface_tangent = vec3(1.0, 0.0, 0.0);
+vec4 normalized_normquat = normalize(normquat);
+vec3 normal = quaternion_rotate(normalized_normquat, surface_normal);
+vec3 tangent = quaternion_rotate(normalized_normquat, surface_tangent);
+vec4 shadow = vec4(1.0);
+light_vector = normalize(light_src[0].position + view);
+spot_dir = light_src[0].spot_direction;
+half_vector = normalize(view) + light_vector;
+dot_product = max(dot(light_vector, normal), 0.0);
+refl_value.r = 1.0;
+refl_value.g = refl_value.r;
+refl_value.b = refl_value.r;
+diffuse_sum.rgb += ((light_src[0].diffuse * dot_product) + light_src[0].ambient) * LookupLightingLUTUnsigned(16,clamp(light_src[0].dist_atten_scale * length(-view - light_src[0].position) + light_src[0].dist_atten_bias, 0.0, 1.0)) * 1.0;
+specular_sum.rgb += (((lut_scale_d0 * LookupLightingLUTUnsigned(0, max(dot(normal, normalize(view)), 0.0))) * light_src[0].specular_0) + ((lut_scale_d1 * LookupLightingLUTUnsigned(1, max(dot(normal, normalize(view)), 0.0))) * light_src[0].specular_1)) * clamp_highlights * LookupLightingLUTUnsigned(16,clamp(light_src[0].dist_atten_scale * length(-view - light_src[0].position) + light_src[0].dist_atten_bias, 0.0, 1.0)) * 1.0;
+light_vector = normalize(light_src[1].position + view);
+spot_dir = light_src[1].spot_direction;
+half_vector = normalize(view) + light_vector;
+dot_product = max(dot(light_vector, normal), 0.0);
+refl_value.r = 1.0;
+refl_value.g = refl_value.r;
+refl_value.b = refl_value.r;
+diffuse_sum.rgb += ((light_src[1].diffuse * dot_product) + light_src[1].ambient) * LookupLightingLUTUnsigned(17,clamp(light_src[1].dist_atten_scale * length(-view - light_src[1].position) + light_src[1].dist_atten_bias, 0.0, 1.0)) * 1.0;
+specular_sum.rgb += (((lut_scale_d0 * LookupLightingLUTUnsigned(0, max(dot(normal, normalize(view)), 0.0))) * light_src[1].specular_0) + ((lut_scale_d1 * LookupLightingLUTUnsigned(1, max(dot(normal, normalize(view)), 0.0))) * light_src[1].specular_1)) * clamp_highlights * LookupLightingLUTUnsigned(17,clamp(light_src[1].dist_atten_scale * length(-view - light_src[1].position) + light_src[1].dist_atten_bias, 0.0, 1.0)) * 1.0;
+light_vector = normalize(light_src[2].position + view);
+spot_dir = light_src[2].spot_direction;
+half_vector = normalize(view) + light_vector;
+dot_product = max(dot(light_vector, normal), 0.0);
+refl_value.r = 1.0;
+refl_value.g = refl_value.r;
+refl_value.b = refl_value.r;
+diffuse_sum.rgb += ((light_src[2].diffuse * dot_product) + light_src[2].ambient) * LookupLightingLUTUnsigned(18,clamp(light_src[2].dist_atten_scale * length(-view - light_src[2].position) + light_src[2].dist_atten_bias, 0.0, 1.0)) * 1.0;
+specular_sum.rgb += (((lut_scale_d0 * LookupLightingLUTUnsigned(0, max(dot(normal, normalize(view)), 0.0))) * light_src[2].specular_0) + ((lut_scale_d1 * LookupLightingLUTUnsigned(1, max(dot(normal, normalize(view)), 0.0))) * light_src[2].specular_1)) * clamp_highlights * LookupLightingLUTUnsigned(18,clamp(light_src[2].dist_atten_scale * length(-view - light_src[2].position) + light_src[2].dist_atten_bias, 0.0, 1.0)) * 1.0;
+diffuse_sum.rgb += lighting_global_ambient;
+primary_fragment_color = clamp(diffuse_sum, vec4(0.0), vec4(1.0));
+secondary_fragment_color = clamp(specular_sum, vec4(0.0), vec4(1.0));
+
 vec4 combiner_buffer = vec4(0.0);
 vec4 next_combiner_buffer = tev_combiner_buffer_color;
 vec4 last_tex_env_out = vec4(0.0);
-vec3 color_output_0 = byteround(clamp((texcolor0.rgb) * (rounded_primary_color.rgb), vec3(0.0), vec3(1.0)));
-float alpha_output_0 = byteround(clamp((texcolor0.a) * (rounded_primary_color.a), 0.0, 1.0));
+vec3 color_output_0 = byteround(clamp((primary_fragment_color.rgb) * (texcolor0.rgb), vec3(0.0), vec3(1.0)));
+float alpha_output_0 = byteround(clamp((rounded_primary_color.a), 0.0, 1.0));
 last_tex_env_out = clamp(vec4(color_output_0, alpha_output_0), vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 
-vec3 color_output_1 = byteround(clamp((vec3(1.0) - texcolor0.rgb) * (const_color[1].rgb) + (last_tex_env_out.rgb), vec3(0.0), vec3(1.0)));
+vec3 color_output_1 = byteround(clamp((texcolor0.rgb) * (texcolor1.rrr) + (last_tex_env_out.rgb), vec3(0.0), vec3(1.0)));
 float alpha_output_1 = byteround(clamp((last_tex_env_out.a), 0.0, 1.0));
 last_tex_env_out = clamp(vec4(color_output_1, alpha_output_1), vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 
+vec3 color_output_2 = byteround(clamp((texcolor0.rgb) * (secondary_fragment_color.rgb) + (last_tex_env_out.rgb), vec3(0.0), vec3(1.0)));
+float alpha_output_2 = byteround(clamp((last_tex_env_out.a) * (const_color[2].a), 0.0, 1.0));
+last_tex_env_out = clamp(vec4(color_output_2, alpha_output_2), vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 
 combiner_buffer = next_combiner_buffer;
@@ -46046,15 +42291,9 @@ combiner_buffer = next_combiner_buffer;
 gl_FragDepth = depth;
 color = byteround(last_tex_env_out);
 }
-// reference: 7D3C2251531A8188, 42DA11B0CC8BE706
-// program: 06F56F2630B83832, E4F72E6786B1F5DC, 42DA11B0CC8BE706
-// shader: 8B30, 5D83B7D989107021
-
-precision highp int;
-precision highp float;
-precision highp samplerBuffer;
-precision highp usampler2D;
-precision highp uimage2D;
+// reference: 2EBB2AEC4EF10C7E, 0B1A168AB848D74B
+// program: 1A9F70669A3C74DF, F0531050140A5884, 0B1A168AB848D74B
+// shader: 8B30, C6B0A1231278E590
 in vec4 primary_color;
 in vec2 texcoord0;
 in vec2 texcoord1;
@@ -46279,17 +42518,9 @@ combiner_buffer = next_combiner_buffer;
 gl_FragDepth = depth;
 color = byteround(last_tex_env_out);
 }
-// reference: 58F1F1694EF10C7E, 5D83B7D989107021
-// program: A0A01900FB0E2CEC, F0531050140A5884, 5D83B7D989107021
-// reference: 8646D16C4EF10C7E, 5D83B7D989107021
-// reference: 58F1F169E021FE52, 5D83B7D989107021
-// shader: 8B30, CAE7BA4C42BD6C39
-
-precision highp int;
-precision highp float;
-precision highp samplerBuffer;
-precision highp usampler2D;
-precision highp uimage2D;
+// reference: 58F1F169E021FE52, C6B0A1231278E590
+// program: 1A9F70669A3C74DF, F0531050140A5884, C6B0A1231278E590
+// shader: 8B30, 22DB7774170248F0
 in vec4 primary_color;
 in vec2 texcoord0;
 in vec2 texcoord1;
@@ -46465,6 +42696,420 @@ refl_value.g = refl_value.r;
 refl_value.b = refl_value.r;
 diffuse_sum.rgb += ((light_src[1].diffuse * dot_product) + light_src[1].ambient) * LookupLightingLUTUnsigned(17,clamp(light_src[1].dist_atten_scale * length(-view - light_src[1].position) + light_src[1].dist_atten_bias, 0.0, 1.0)) * 1.0;
 specular_sum.rgb += (((lut_scale_d0 * LookupLightingLUTUnsigned(0, max(dot(normal, normalize(view)), 0.0))) * light_src[1].specular_0) + ((lut_scale_d1 * LookupLightingLUTUnsigned(1, max(dot(normal, normalize(view)), 0.0))) * light_src[1].specular_1)) * clamp_highlights * LookupLightingLUTUnsigned(17,clamp(light_src[1].dist_atten_scale * length(-view - light_src[1].position) + light_src[1].dist_atten_bias, 0.0, 1.0)) * 1.0;
+diffuse_sum.rgb += lighting_global_ambient;
+primary_fragment_color = clamp(diffuse_sum, vec4(0.0), vec4(1.0));
+secondary_fragment_color = clamp(specular_sum, vec4(0.0), vec4(1.0));
+
+vec4 combiner_buffer = vec4(0.0);
+vec4 next_combiner_buffer = tev_combiner_buffer_color;
+vec4 last_tex_env_out = vec4(0.0);
+vec3 color_output_0 = byteround(clamp((primary_fragment_color.rgb) * (texcolor0.rgb), vec3(0.0), vec3(1.0)));
+float alpha_output_0 = byteround(clamp((rounded_primary_color.a), 0.0, 1.0));
+last_tex_env_out = clamp(vec4(color_output_0, alpha_output_0), vec4(0.0), vec4(1.0));
+combiner_buffer = next_combiner_buffer;
+
+vec3 color_output_1 = byteround(clamp((texcolor0.rgb) * (texcolor1.rrr) + (last_tex_env_out.rgb), vec3(0.0), vec3(1.0)));
+float alpha_output_1 = byteround(clamp((last_tex_env_out.a), 0.0, 1.0));
+last_tex_env_out = clamp(vec4(color_output_1, alpha_output_1), vec4(0.0), vec4(1.0));
+combiner_buffer = next_combiner_buffer;
+
+vec3 color_output_2 = byteround(clamp((texcolor0.rgb) * (secondary_fragment_color.rgb) + (last_tex_env_out.rgb), vec3(0.0), vec3(1.0)));
+float alpha_output_2 = byteround(clamp((last_tex_env_out.a) * (const_color[2].a), 0.0, 1.0));
+last_tex_env_out = clamp(vec4(color_output_2, alpha_output_2), vec4(0.0), vec4(1.0));
+combiner_buffer = next_combiner_buffer;
+
+combiner_buffer = next_combiner_buffer;
+
+combiner_buffer = next_combiner_buffer;
+
+combiner_buffer = next_combiner_buffer;
+
+gl_FragDepth = depth;
+color = byteround(last_tex_env_out);
+}
+// reference: 31AC7F297C87B06F, 22DB7774170248F0
+// program: 1A9F70669A3C74DF, F0531050140A5884, 22DB7774170248F0
+// shader: 8B30, 1710F31655623CD6
+in vec4 primary_color;
+in vec2 texcoord0;
+in vec2 texcoord1;
+in vec2 texcoord2;
+in float texcoord0_w;
+in vec4 normquat;
+in vec3 view;
+
+#ifndef CITRA_GLES
+in vec4 gl_FragCoord;
+#endif // CITRA_GLES
+out vec4 color;
+
+uniform sampler2D tex0;
+uniform sampler2D tex1;
+uniform sampler2D tex2;
+uniform samplerCube tex_cube;
+uniform samplerBuffer texture_buffer_lut_lf;
+uniform samplerBuffer texture_buffer_lut_rg;
+uniform samplerBuffer texture_buffer_lut_rgba;
+
+#define NUM_TEV_STAGES 6
+#define NUM_LIGHTS 8
+#define NUM_LIGHTING_SAMPLERS 24
+
+struct LightSrc {
+    vec3 specular_0;
+    vec3 specular_1;
+    vec3 diffuse;
+    vec3 ambient;
+    vec3 position;
+    vec3 spot_direction;
+    float dist_atten_bias;
+    float dist_atten_scale;
+};
+
+layout (std140) uniform shader_data {
+    int alphatest_ref;
+    float depth_scale;
+    float depth_offset;
+    float shadow_bias_constant;
+    float shadow_bias_linear;
+    int scissor_x1;
+    int scissor_y1;
+    int scissor_x2;
+    int scissor_y2;
+    int fog_lut_offset;
+    int proctex_noise_lut_offset;
+    int proctex_color_map_offset;
+    int proctex_alpha_map_offset;
+    int proctex_lut_offset;
+    int proctex_diff_lut_offset;
+    float proctex_bias;
+    vec3 fog_color;
+    vec2 proctex_noise_f;
+    vec2 proctex_noise_a;
+    vec2 proctex_noise_p;
+    vec4 const_color[NUM_TEV_STAGES];
+    vec4 tev_combiner_buffer_color;
+    vec4 clip_coef;
+};
+
+layout (std140) uniform shader_light_data {
+    ivec4 lighting_lut_offset[NUM_LIGHTING_SAMPLERS / 4];
+    vec3 lighting_global_ambient;
+    LightSrc light_src[NUM_LIGHTS];
+    float lut_scale_d0;
+    float lut_scale_d1;
+    float lut_scale_sp;
+    float lut_scale_fr;
+    float lut_scale_rb;
+    float lut_scale_rg;
+    float lut_scale_rr;
+    int shadow_texture_bias;
+};
+
+// Rotate the vector v by the quaternion q
+vec3 quaternion_rotate(vec4 q, vec3 v) {
+    return v + 2.0 * cross(q.xyz, cross(q.xyz, v) + q.w * v);
+}
+
+float LookupLightingLUT(int lut_index, int index, float delta) {
+    vec2 entry = texelFetch(texture_buffer_lut_lf, lighting_lut_offset[lut_index >> 2][lut_index & 3] + index).rg;
+    return entry.r + entry.g * delta;
+}
+
+float LookupLightingLUTUnsigned(int lut_index, float pos) {
+    int index = clamp(int(pos * 256.0), 0, 255);
+    float delta = pos * 256.0 - float(index);
+    return LookupLightingLUT(lut_index, index, delta);
+}
+
+float LookupLightingLUTSigned(int lut_index, float pos) {
+    int index = clamp(int(pos * 128.0), -128, 127);
+    float delta = pos * 128.0 - float(index);
+    if (index < 0) index += 256;
+    return LookupLightingLUT(lut_index, index, delta);
+}
+
+float byteround(float x) {
+    return round(x * 255.0) * (1.0 / 255.0);
+}
+
+vec2 byteround(vec2 x) {
+    return round(x * 255.0) * (1.0 / 255.0);
+}
+
+vec3 byteround(vec3 x) {
+    return round(x * 255.0) * (1.0 / 255.0);
+}
+
+vec4 byteround(vec4 x) {
+    return round(x * 255.0) * (1.0 / 255.0);
+}
+
+// PICA's LOD formula for 2D textures.
+// This LOD formula is the same as the LOD lower limit defined in OpenGL.
+// f(x, y) >= max{m_u, m_v, m_w}
+// (See OpenGL 4.6 spec, 8.14.1 - Scale Factor and Level-of-Detail)
+float getLod(vec2 coord) {
+    vec2 d = max(abs(dFdx(coord)), abs(dFdy(coord)));
+    return log2(max(d.x, d.y));
+}
+
+vec4 shadowTexture(vec2 uv, float w) {
+    return vec4(1.0);
+}
+
+vec4 shadowTextureCube(vec2 uv, float w) {
+    return vec4(1.0);
+}
+
+void main() {
+vec4 rounded_primary_color = byteround(primary_color);
+vec4 primary_fragment_color = vec4(0.0);
+vec4 secondary_fragment_color = vec4(0.0);
+if (!(gl_FragCoord.x >= float(scissor_x1) && gl_FragCoord.y >= float(scissor_y1) && gl_FragCoord.x < float(scissor_x2) && gl_FragCoord.y < float(scissor_y2))) discard;
+float z_over_w = 2.0 * gl_FragCoord.z - 1.0;
+float depth = z_over_w * depth_scale + depth_offset;
+vec4 texcolor0 = textureLod(tex0, texcoord0, getLod(texcoord0 * vec2(textureSize(tex0, 0))));
+
+vec4 diffuse_sum = vec4(0.0, 0.0, 0.0, 1.0);
+vec4 specular_sum = vec4(0.0, 0.0, 0.0, 1.0);
+vec3 light_vector = vec3(0.0);
+vec3 refl_value = vec3(0.0);
+vec3 spot_dir = vec3(0.0);
+vec3 half_vector = vec3(0.0);
+float dot_product = 0.0;
+float clamp_highlights = 1.0;
+float geo_factor = 1.0;
+vec3 surface_normal = vec3(0.0, 0.0, 1.0);
+vec3 surface_tangent = vec3(1.0, 0.0, 0.0);
+vec4 normalized_normquat = normalize(normquat);
+vec3 normal = quaternion_rotate(normalized_normquat, surface_normal);
+vec3 tangent = quaternion_rotate(normalized_normquat, surface_tangent);
+vec4 shadow = vec4(1.0);
+light_vector = normalize(light_src[0].position + view);
+spot_dir = light_src[0].spot_direction;
+half_vector = normalize(view) + light_vector;
+dot_product = max(dot(light_vector, normal), 0.0);
+refl_value.r = 1.0;
+refl_value.g = refl_value.r;
+refl_value.b = refl_value.r;
+diffuse_sum.rgb += ((light_src[0].diffuse * dot_product) + light_src[0].ambient) * LookupLightingLUTUnsigned(16,clamp(light_src[0].dist_atten_scale * length(-view - light_src[0].position) + light_src[0].dist_atten_bias, 0.0, 1.0)) * 1.0;
+specular_sum.rgb += ((light_src[0].specular_0) + (light_src[0].specular_1)) * clamp_highlights * LookupLightingLUTUnsigned(16,clamp(light_src[0].dist_atten_scale * length(-view - light_src[0].position) + light_src[0].dist_atten_bias, 0.0, 1.0)) * 1.0;
+light_vector = normalize(light_src[1].position + view);
+spot_dir = light_src[1].spot_direction;
+half_vector = normalize(view) + light_vector;
+dot_product = max(dot(light_vector, normal), 0.0);
+refl_value.r = 1.0;
+refl_value.g = refl_value.r;
+refl_value.b = refl_value.r;
+specular_sum.a = (lut_scale_fr * LookupLightingLUTUnsigned(3, max(dot(normal, normalize(view)), 0.0)));
+diffuse_sum.rgb += ((light_src[1].diffuse * dot_product) + light_src[1].ambient) * LookupLightingLUTUnsigned(17,clamp(light_src[1].dist_atten_scale * length(-view - light_src[1].position) + light_src[1].dist_atten_bias, 0.0, 1.0)) * 1.0;
+specular_sum.rgb += ((light_src[1].specular_0) + (light_src[1].specular_1)) * clamp_highlights * LookupLightingLUTUnsigned(17,clamp(light_src[1].dist_atten_scale * length(-view - light_src[1].position) + light_src[1].dist_atten_bias, 0.0, 1.0)) * 1.0;
+diffuse_sum.rgb += lighting_global_ambient;
+primary_fragment_color = clamp(diffuse_sum, vec4(0.0), vec4(1.0));
+secondary_fragment_color = clamp(specular_sum, vec4(0.0), vec4(1.0));
+
+vec4 combiner_buffer = vec4(0.0);
+vec4 next_combiner_buffer = tev_combiner_buffer_color;
+vec4 last_tex_env_out = vec4(0.0);
+vec3 color_output_0 = byteround(clamp((const_color[0].rgb), vec3(0.0), vec3(1.0)));
+float alpha_output_0 = byteround(clamp((secondary_fragment_color.a) * (const_color[0].a), 0.0, 1.0));
+last_tex_env_out = clamp(vec4(color_output_0, alpha_output_0), vec4(0.0), vec4(1.0));
+combiner_buffer = next_combiner_buffer;
+
+vec3 color_output_1 = byteround(clamp((last_tex_env_out.rgb), vec3(0.0), vec3(1.0)));
+float alpha_output_1 = byteround(clamp((last_tex_env_out.a) * (const_color[1].a), 0.0, 1.0));
+last_tex_env_out = clamp(vec4(color_output_1, alpha_output_1), vec4(0.0), vec4(1.0));
+combiner_buffer = next_combiner_buffer;
+
+combiner_buffer = next_combiner_buffer;
+
+combiner_buffer = next_combiner_buffer;
+
+combiner_buffer = next_combiner_buffer;
+
+combiner_buffer = next_combiner_buffer;
+
+gl_FragDepth = depth;
+color = byteround(last_tex_env_out);
+}
+// reference: 91896DC9AF95CCD5, 1710F31655623CD6
+// program: 1A9F70669A3C74DF, F0531050140A5884, 1710F31655623CD6
+// shader: 8B30, 4171E2C9EB234B41
+in vec4 primary_color;
+in vec2 texcoord0;
+in vec2 texcoord1;
+in vec2 texcoord2;
+in float texcoord0_w;
+in vec4 normquat;
+in vec3 view;
+
+#ifndef CITRA_GLES
+in vec4 gl_FragCoord;
+#endif // CITRA_GLES
+out vec4 color;
+
+uniform sampler2D tex0;
+uniform sampler2D tex1;
+uniform sampler2D tex2;
+uniform samplerCube tex_cube;
+uniform samplerBuffer texture_buffer_lut_lf;
+uniform samplerBuffer texture_buffer_lut_rg;
+uniform samplerBuffer texture_buffer_lut_rgba;
+
+#define NUM_TEV_STAGES 6
+#define NUM_LIGHTS 8
+#define NUM_LIGHTING_SAMPLERS 24
+
+struct LightSrc {
+    vec3 specular_0;
+    vec3 specular_1;
+    vec3 diffuse;
+    vec3 ambient;
+    vec3 position;
+    vec3 spot_direction;
+    float dist_atten_bias;
+    float dist_atten_scale;
+};
+
+layout (std140) uniform shader_data {
+    int alphatest_ref;
+    float depth_scale;
+    float depth_offset;
+    float shadow_bias_constant;
+    float shadow_bias_linear;
+    int scissor_x1;
+    int scissor_y1;
+    int scissor_x2;
+    int scissor_y2;
+    int fog_lut_offset;
+    int proctex_noise_lut_offset;
+    int proctex_color_map_offset;
+    int proctex_alpha_map_offset;
+    int proctex_lut_offset;
+    int proctex_diff_lut_offset;
+    float proctex_bias;
+    vec3 fog_color;
+    vec2 proctex_noise_f;
+    vec2 proctex_noise_a;
+    vec2 proctex_noise_p;
+    vec4 const_color[NUM_TEV_STAGES];
+    vec4 tev_combiner_buffer_color;
+    vec4 clip_coef;
+};
+
+layout (std140) uniform shader_light_data {
+    ivec4 lighting_lut_offset[NUM_LIGHTING_SAMPLERS / 4];
+    vec3 lighting_global_ambient;
+    LightSrc light_src[NUM_LIGHTS];
+    float lut_scale_d0;
+    float lut_scale_d1;
+    float lut_scale_sp;
+    float lut_scale_fr;
+    float lut_scale_rb;
+    float lut_scale_rg;
+    float lut_scale_rr;
+    int shadow_texture_bias;
+};
+
+// Rotate the vector v by the quaternion q
+vec3 quaternion_rotate(vec4 q, vec3 v) {
+    return v + 2.0 * cross(q.xyz, cross(q.xyz, v) + q.w * v);
+}
+
+float LookupLightingLUT(int lut_index, int index, float delta) {
+    vec2 entry = texelFetch(texture_buffer_lut_lf, lighting_lut_offset[lut_index >> 2][lut_index & 3] + index).rg;
+    return entry.r + entry.g * delta;
+}
+
+float LookupLightingLUTUnsigned(int lut_index, float pos) {
+    int index = clamp(int(pos * 256.0), 0, 255);
+    float delta = pos * 256.0 - float(index);
+    return LookupLightingLUT(lut_index, index, delta);
+}
+
+float LookupLightingLUTSigned(int lut_index, float pos) {
+    int index = clamp(int(pos * 128.0), -128, 127);
+    float delta = pos * 128.0 - float(index);
+    if (index < 0) index += 256;
+    return LookupLightingLUT(lut_index, index, delta);
+}
+
+float byteround(float x) {
+    return round(x * 255.0) * (1.0 / 255.0);
+}
+
+vec2 byteround(vec2 x) {
+    return round(x * 255.0) * (1.0 / 255.0);
+}
+
+vec3 byteround(vec3 x) {
+    return round(x * 255.0) * (1.0 / 255.0);
+}
+
+vec4 byteround(vec4 x) {
+    return round(x * 255.0) * (1.0 / 255.0);
+}
+
+// PICA's LOD formula for 2D textures.
+// This LOD formula is the same as the LOD lower limit defined in OpenGL.
+// f(x, y) >= max{m_u, m_v, m_w}
+// (See OpenGL 4.6 spec, 8.14.1 - Scale Factor and Level-of-Detail)
+float getLod(vec2 coord) {
+    vec2 d = max(abs(dFdx(coord)), abs(dFdy(coord)));
+    return log2(max(d.x, d.y));
+}
+
+vec4 shadowTexture(vec2 uv, float w) {
+    return vec4(1.0);
+}
+
+vec4 shadowTextureCube(vec2 uv, float w) {
+    return vec4(1.0);
+}
+
+void main() {
+vec4 rounded_primary_color = byteround(primary_color);
+vec4 primary_fragment_color = vec4(0.0);
+vec4 secondary_fragment_color = vec4(0.0);
+if (!(gl_FragCoord.x >= float(scissor_x1) && gl_FragCoord.y >= float(scissor_y1) && gl_FragCoord.x < float(scissor_x2) && gl_FragCoord.y < float(scissor_y2))) discard;
+float z_over_w = 2.0 * gl_FragCoord.z - 1.0;
+float depth = z_over_w * depth_scale + depth_offset;
+vec4 texcolor1 = textureLod(tex1, texcoord1, getLod(texcoord1 * vec2(textureSize(tex1, 0))));
+
+vec4 diffuse_sum = vec4(0.0, 0.0, 0.0, 1.0);
+vec4 specular_sum = vec4(0.0, 0.0, 0.0, 1.0);
+vec3 light_vector = vec3(0.0);
+vec3 refl_value = vec3(0.0);
+vec3 spot_dir = vec3(0.0);
+vec3 half_vector = vec3(0.0);
+float dot_product = 0.0;
+float clamp_highlights = 1.0;
+float geo_factor = 1.0;
+vec3 surface_normal = vec3(0.0, 0.0, 1.0);
+vec3 surface_tangent = vec3(1.0, 0.0, 0.0);
+vec4 normalized_normquat = normalize(normquat);
+vec3 normal = quaternion_rotate(normalized_normquat, surface_normal);
+vec3 tangent = quaternion_rotate(normalized_normquat, surface_tangent);
+vec4 shadow = vec4(1.0);
+light_vector = normalize(light_src[0].position + view);
+spot_dir = light_src[0].spot_direction;
+half_vector = normalize(view) + light_vector;
+dot_product = max(dot(light_vector, normal), 0.0);
+refl_value.r = 1.0;
+refl_value.g = refl_value.r;
+refl_value.b = refl_value.r;
+diffuse_sum.rgb += ((light_src[0].diffuse * dot_product) + light_src[0].ambient) * LookupLightingLUTUnsigned(16,clamp(light_src[0].dist_atten_scale * length(-view - light_src[0].position) + light_src[0].dist_atten_bias, 0.0, 1.0)) * 1.0;
+specular_sum.rgb += ((light_src[0].specular_0) + (light_src[0].specular_1)) * clamp_highlights * LookupLightingLUTUnsigned(16,clamp(light_src[0].dist_atten_scale * length(-view - light_src[0].position) + light_src[0].dist_atten_bias, 0.0, 1.0)) * 1.0;
+light_vector = normalize(light_src[1].position + view);
+spot_dir = light_src[1].spot_direction;
+half_vector = normalize(view) + light_vector;
+dot_product = max(dot(light_vector, normal), 0.0);
+refl_value.r = 1.0;
+refl_value.g = refl_value.r;
+refl_value.b = refl_value.r;
+diffuse_sum.rgb += ((light_src[1].diffuse * dot_product) + light_src[1].ambient) * LookupLightingLUTUnsigned(17,clamp(light_src[1].dist_atten_scale * length(-view - light_src[1].position) + light_src[1].dist_atten_bias, 0.0, 1.0)) * 1.0;
+specular_sum.rgb += ((light_src[1].specular_0) + (light_src[1].specular_1)) * clamp_highlights * LookupLightingLUTUnsigned(17,clamp(light_src[1].dist_atten_scale * length(-view - light_src[1].position) + light_src[1].dist_atten_bias, 0.0, 1.0)) * 1.0;
 light_vector = normalize(light_src[2].position + view);
 spot_dir = light_src[2].spot_direction;
 half_vector = normalize(view) + light_vector;
@@ -46473,7 +43118,7 @@ refl_value.r = 1.0;
 refl_value.g = refl_value.r;
 refl_value.b = refl_value.r;
 diffuse_sum.rgb += ((light_src[2].diffuse * dot_product) + light_src[2].ambient) * LookupLightingLUTUnsigned(18,clamp(light_src[2].dist_atten_scale * length(-view - light_src[2].position) + light_src[2].dist_atten_bias, 0.0, 1.0)) * 1.0;
-specular_sum.rgb += (((lut_scale_d0 * LookupLightingLUTUnsigned(0, max(dot(normal, normalize(view)), 0.0))) * light_src[2].specular_0) + ((lut_scale_d1 * LookupLightingLUTUnsigned(1, max(dot(normal, normalize(view)), 0.0))) * light_src[2].specular_1)) * clamp_highlights * LookupLightingLUTUnsigned(18,clamp(light_src[2].dist_atten_scale * length(-view - light_src[2].position) + light_src[2].dist_atten_bias, 0.0, 1.0)) * 1.0;
+specular_sum.rgb += ((light_src[2].specular_0) + (light_src[2].specular_1)) * clamp_highlights * LookupLightingLUTUnsigned(18,clamp(light_src[2].dist_atten_scale * length(-view - light_src[2].position) + light_src[2].dist_atten_bias, 0.0, 1.0)) * 1.0;
 diffuse_sum.rgb += lighting_global_ambient;
 primary_fragment_color = clamp(diffuse_sum, vec4(0.0), vec4(1.0));
 secondary_fragment_color = clamp(specular_sum, vec4(0.0), vec4(1.0));
@@ -46481,21 +43126,24 @@ secondary_fragment_color = clamp(specular_sum, vec4(0.0), vec4(1.0));
 vec4 combiner_buffer = vec4(0.0);
 vec4 next_combiner_buffer = tev_combiner_buffer_color;
 vec4 last_tex_env_out = vec4(0.0);
-vec3 color_output_0 = byteround(clamp((primary_fragment_color.rgb) * (texcolor0.rgb), vec3(0.0), vec3(1.0)));
-float alpha_output_0 = byteround(clamp((rounded_primary_color.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_0, alpha_output_0), vec4(0.0), vec4(1.0));
+vec3 color_output_0 = byteround(clamp((rounded_primary_color.rgb) * (texcolor1.rgb), vec3(0.0), vec3(1.0)));
+float alpha_output_0 = byteround(clamp((rounded_primary_color.a) * (texcolor1.a), 0.0, 1.0));
+last_tex_env_out = clamp(vec4(color_output_0 * 2.0, alpha_output_0 * 1.0), vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 
-vec3 color_output_1 = byteround(clamp((texcolor0.rgb) * (texcolor1.rrr) + (last_tex_env_out.rgb), vec3(0.0), vec3(1.0)));
+vec3 color_output_1 = byteround(clamp((last_tex_env_out.rgb) * (primary_fragment_color.rgb), vec3(0.0), vec3(1.0)));
 float alpha_output_1 = byteround(clamp((last_tex_env_out.a), 0.0, 1.0));
 last_tex_env_out = clamp(vec4(color_output_1, alpha_output_1), vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 
-vec3 color_output_2 = byteround(clamp((texcolor0.rgb) * (secondary_fragment_color.rgb) + (last_tex_env_out.rgb), vec3(0.0), vec3(1.0)));
+vec3 color_output_2 = byteround(clamp((last_tex_env_out.rgb), vec3(0.0), vec3(1.0)));
 float alpha_output_2 = byteround(clamp((last_tex_env_out.a) * (const_color[2].a), 0.0, 1.0));
 last_tex_env_out = clamp(vec4(color_output_2, alpha_output_2), vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 
+vec3 color_output_3 = byteround(clamp(min((const_color[3].rgb) + (shadowTexture(texcoord0, texcoord0_w).ggg), vec3(1.0)) * (last_tex_env_out.rgb), vec3(0.0), vec3(1.0)));
+float alpha_output_3 = byteround(clamp((last_tex_env_out.a), 0.0, 1.0));
+last_tex_env_out = clamp(vec4(color_output_3, alpha_output_3), vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 
 combiner_buffer = next_combiner_buffer;
@@ -46505,15 +43153,10 @@ combiner_buffer = next_combiner_buffer;
 gl_FragDepth = depth;
 color = byteround(last_tex_env_out);
 }
-// reference: 2EBB2AEC4EF10C7E, CAE7BA4C42BD6C39
-// program: A0A01900FB0E2CEC, F0531050140A5884, CAE7BA4C42BD6C39
-// shader: 8B30, E723E94A2F5839F4
-
-precision highp int;
-precision highp float;
-precision highp samplerBuffer;
-precision highp usampler2D;
-precision highp uimage2D;
+// reference: CFFE38F75BE97070, 4171E2C9EB234B41
+// program: 1A9F70669A3C74DF, F0531050140A5884, 4171E2C9EB234B41
+// reference: 8E9E380C9DE370C4, 20DB0BE4E22704F0
+// shader: 8B30, D50D2C53C2F14D7B
 in vec4 primary_color;
 in vec2 texcoord0;
 in vec2 texcoord1;
@@ -46679,7 +43322,7 @@ refl_value.r = 1.0;
 refl_value.g = refl_value.r;
 refl_value.b = refl_value.r;
 diffuse_sum.rgb += ((light_src[0].diffuse * dot_product) + light_src[0].ambient) * LookupLightingLUTUnsigned(16,clamp(light_src[0].dist_atten_scale * length(-view - light_src[0].position) + light_src[0].dist_atten_bias, 0.0, 1.0)) * 1.0;
-specular_sum.rgb += (((lut_scale_d0 * LookupLightingLUTUnsigned(0, max(dot(normal, normalize(view)), 0.0))) * light_src[0].specular_0) + ((lut_scale_d1 * LookupLightingLUTUnsigned(1, max(dot(normal, normalize(view)), 0.0))) * light_src[0].specular_1)) * clamp_highlights * LookupLightingLUTUnsigned(16,clamp(light_src[0].dist_atten_scale * length(-view - light_src[0].position) + light_src[0].dist_atten_bias, 0.0, 1.0)) * 1.0;
+specular_sum.rgb += ((light_src[0].specular_0) + (light_src[0].specular_1)) * clamp_highlights * LookupLightingLUTUnsigned(16,clamp(light_src[0].dist_atten_scale * length(-view - light_src[0].position) + light_src[0].dist_atten_bias, 0.0, 1.0)) * 1.0;
 light_vector = normalize(light_src[1].position + view);
 spot_dir = light_src[1].spot_direction;
 half_vector = normalize(view) + light_vector;
@@ -46688,7 +43331,25 @@ refl_value.r = 1.0;
 refl_value.g = refl_value.r;
 refl_value.b = refl_value.r;
 diffuse_sum.rgb += ((light_src[1].diffuse * dot_product) + light_src[1].ambient) * LookupLightingLUTUnsigned(17,clamp(light_src[1].dist_atten_scale * length(-view - light_src[1].position) + light_src[1].dist_atten_bias, 0.0, 1.0)) * 1.0;
-specular_sum.rgb += (((lut_scale_d0 * LookupLightingLUTUnsigned(0, max(dot(normal, normalize(view)), 0.0))) * light_src[1].specular_0) + ((lut_scale_d1 * LookupLightingLUTUnsigned(1, max(dot(normal, normalize(view)), 0.0))) * light_src[1].specular_1)) * clamp_highlights * LookupLightingLUTUnsigned(17,clamp(light_src[1].dist_atten_scale * length(-view - light_src[1].position) + light_src[1].dist_atten_bias, 0.0, 1.0)) * 1.0;
+specular_sum.rgb += ((light_src[1].specular_0) + (light_src[1].specular_1)) * clamp_highlights * LookupLightingLUTUnsigned(17,clamp(light_src[1].dist_atten_scale * length(-view - light_src[1].position) + light_src[1].dist_atten_bias, 0.0, 1.0)) * 1.0;
+light_vector = normalize(light_src[2].position + view);
+spot_dir = light_src[2].spot_direction;
+half_vector = normalize(view) + light_vector;
+dot_product = max(dot(light_vector, normal), 0.0);
+refl_value.r = 1.0;
+refl_value.g = refl_value.r;
+refl_value.b = refl_value.r;
+diffuse_sum.rgb += ((light_src[2].diffuse * dot_product) + light_src[2].ambient) * LookupLightingLUTUnsigned(18,clamp(light_src[2].dist_atten_scale * length(-view - light_src[2].position) + light_src[2].dist_atten_bias, 0.0, 1.0)) * 1.0;
+specular_sum.rgb += ((light_src[2].specular_0) + (light_src[2].specular_1)) * clamp_highlights * LookupLightingLUTUnsigned(18,clamp(light_src[2].dist_atten_scale * length(-view - light_src[2].position) + light_src[2].dist_atten_bias, 0.0, 1.0)) * 1.0;
+light_vector = normalize(light_src[3].position + view);
+spot_dir = light_src[3].spot_direction;
+half_vector = normalize(view) + light_vector;
+dot_product = max(dot(light_vector, normal), 0.0);
+refl_value.r = 1.0;
+refl_value.g = refl_value.r;
+refl_value.b = refl_value.r;
+diffuse_sum.rgb += ((light_src[3].diffuse * dot_product) + light_src[3].ambient) * LookupLightingLUTUnsigned(19,clamp(light_src[3].dist_atten_scale * length(-view - light_src[3].position) + light_src[3].dist_atten_bias, 0.0, 1.0)) * (lut_scale_sp * LookupLightingLUTUnsigned(11, max(dot(light_vector, spot_dir), 0.0)));
+specular_sum.rgb += ((light_src[3].specular_0) + (light_src[3].specular_1)) * clamp_highlights * LookupLightingLUTUnsigned(19,clamp(light_src[3].dist_atten_scale * length(-view - light_src[3].position) + light_src[3].dist_atten_bias, 0.0, 1.0)) * (lut_scale_sp * LookupLightingLUTUnsigned(11, max(dot(light_vector, spot_dir), 0.0)));
 diffuse_sum.rgb += lighting_global_ambient;
 primary_fragment_color = clamp(diffuse_sum, vec4(0.0), vec4(1.0));
 secondary_fragment_color = clamp(specular_sum, vec4(0.0), vec4(1.0));
@@ -46696,23 +43357,29 @@ secondary_fragment_color = clamp(specular_sum, vec4(0.0), vec4(1.0));
 vec4 combiner_buffer = vec4(0.0);
 vec4 next_combiner_buffer = tev_combiner_buffer_color;
 vec4 last_tex_env_out = vec4(0.0);
-vec3 color_output_0 = byteround(clamp((primary_fragment_color.rgb) * (texcolor0.rgb), vec3(0.0), vec3(1.0)));
-float alpha_output_0 = byteround(clamp((rounded_primary_color.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_0, alpha_output_0), vec4(0.0), vec4(1.0));
+vec3 color_output_0 = byteround(clamp((rounded_primary_color.rgb), vec3(0.0), vec3(1.0)));
+float alpha_output_0 = byteround(clamp((rounded_primary_color.r) * (rounded_primary_color.r), 0.0, 1.0));
+last_tex_env_out = clamp(vec4(color_output_0 * 1.0, alpha_output_0 * 2.0), vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 
-vec3 color_output_1 = byteround(clamp((texcolor0.rgb) * (texcolor1.rrr) + (last_tex_env_out.rgb), vec3(0.0), vec3(1.0)));
-float alpha_output_1 = byteround(clamp((last_tex_env_out.a), 0.0, 1.0));
+vec3 color_output_1 = byteround(clamp((const_color[1].rgb) * (vec3(1.0) - last_tex_env_out.aaa) + (rounded_primary_color.rgb), vec3(0.0), vec3(1.0)));
+float alpha_output_1 = byteround(clamp((rounded_primary_color.a) * (texcolor1.a), 0.0, 1.0));
 last_tex_env_out = clamp(vec4(color_output_1, alpha_output_1), vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 
-vec3 color_output_2 = byteround(clamp((texcolor0.rgb) * (secondary_fragment_color.rgb) + (last_tex_env_out.rgb), vec3(0.0), vec3(1.0)));
-float alpha_output_2 = byteround(clamp((last_tex_env_out.a) * (const_color[2].a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_2, alpha_output_2), vec4(0.0), vec4(1.0));
+vec3 color_output_2 = byteround(clamp((last_tex_env_out.rgb) * (texcolor1.rgb), vec3(0.0), vec3(1.0)));
+float alpha_output_2 = byteround(clamp((last_tex_env_out.a), 0.0, 1.0));
+last_tex_env_out = clamp(vec4(color_output_2 * 2.0, alpha_output_2 * 1.0), vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 
+vec3 color_output_3 = byteround(clamp((last_tex_env_out.rgb) * (primary_fragment_color.rgb), vec3(0.0), vec3(1.0)));
+float alpha_output_3 = byteround(clamp((last_tex_env_out.a) * (const_color[3].a), 0.0, 1.0));
+last_tex_env_out = clamp(vec4(color_output_3, alpha_output_3), vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 
+vec3 color_output_4 = byteround(clamp(min((const_color[4].rgb) + (texcolor0.ggg), vec3(1.0)) * (last_tex_env_out.rgb), vec3(0.0), vec3(1.0)));
+float alpha_output_4 = byteround(clamp((last_tex_env_out.a), 0.0, 1.0));
+last_tex_env_out = clamp(vec4(color_output_4, alpha_output_4), vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 
 combiner_buffer = next_combiner_buffer;
@@ -46720,17 +43387,13 @@ combiner_buffer = next_combiner_buffer;
 gl_FragDepth = depth;
 color = byteround(last_tex_env_out);
 }
-// reference: 31AC7F297C87B06F, E723E94A2F5839F4
-// program: A0A01900FB0E2CEC, F0531050140A5884, E723E94A2F5839F4
-// reference: 8E9E380C9DE370C4, 3D12DE8DF19A3FC8
-// reference: 1D746E449FA7634C, 2A0717029ABD24CD
-// shader: 8B30, 57BBB0D68287094E
-
-precision highp int;
-precision highp float;
-precision highp samplerBuffer;
-precision highp usampler2D;
-precision highp uimage2D;
+// reference: FD8FF2BBE1FF67E0, D50D2C53C2F14D7B
+// program: 1A9F70669A3C74DF, F0531050140A5884, D50D2C53C2F14D7B
+// reference: EC578C560B7D9210, 77D4EA88CD01043F
+// reference: 33EA10F0998C040F, 268E5765EF79AEE3
+// reference: 9B8A38A8719D2F14, 0616F01FD82D5C3B
+// reference: D47E5190891214F3, 6E2D503A8389F8E7
+// shader: 8B30, FD374B7BAC3C5D18
 in vec4 primary_color;
 in vec2 texcoord0;
 in vec2 texcoord1;
@@ -46888,15 +43551,42 @@ vec4 normalized_normquat = normalize(normquat);
 vec3 normal = quaternion_rotate(normalized_normquat, surface_normal);
 vec3 tangent = quaternion_rotate(normalized_normquat, surface_tangent);
 vec4 shadow = vec4(1.0);
-light_vector = normalize(light_src[0].position);
+light_vector = normalize(light_src[0].position + view);
 spot_dir = light_src[0].spot_direction;
 half_vector = normalize(view) + light_vector;
 dot_product = max(dot(light_vector, normal), 0.0);
 refl_value.r = 1.0;
 refl_value.g = refl_value.r;
 refl_value.b = refl_value.r;
-diffuse_sum.rgb += ((light_src[0].diffuse * dot_product) + light_src[0].ambient) * 1.0;
-specular_sum.rgb += ((light_src[0].specular_0) + (light_src[0].specular_1)) * clamp_highlights * 1.0;
+diffuse_sum.rgb += ((light_src[0].diffuse * dot_product) + light_src[0].ambient) * LookupLightingLUTUnsigned(16,clamp(light_src[0].dist_atten_scale * length(-view - light_src[0].position) + light_src[0].dist_atten_bias, 0.0, 1.0)) * 1.0;
+specular_sum.rgb += ((light_src[0].specular_0) + (light_src[0].specular_1)) * clamp_highlights * LookupLightingLUTUnsigned(16,clamp(light_src[0].dist_atten_scale * length(-view - light_src[0].position) + light_src[0].dist_atten_bias, 0.0, 1.0)) * 1.0;
+light_vector = normalize(light_src[1].position + view);
+spot_dir = light_src[1].spot_direction;
+half_vector = normalize(view) + light_vector;
+dot_product = max(dot(light_vector, normal), 0.0);
+refl_value.r = 1.0;
+refl_value.g = refl_value.r;
+refl_value.b = refl_value.r;
+diffuse_sum.rgb += ((light_src[1].diffuse * dot_product) + light_src[1].ambient) * LookupLightingLUTUnsigned(17,clamp(light_src[1].dist_atten_scale * length(-view - light_src[1].position) + light_src[1].dist_atten_bias, 0.0, 1.0)) * 1.0;
+specular_sum.rgb += ((light_src[1].specular_0) + (light_src[1].specular_1)) * clamp_highlights * LookupLightingLUTUnsigned(17,clamp(light_src[1].dist_atten_scale * length(-view - light_src[1].position) + light_src[1].dist_atten_bias, 0.0, 1.0)) * 1.0;
+light_vector = normalize(light_src[2].position + view);
+spot_dir = light_src[2].spot_direction;
+half_vector = normalize(view) + light_vector;
+dot_product = max(dot(light_vector, normal), 0.0);
+refl_value.r = 1.0;
+refl_value.g = refl_value.r;
+refl_value.b = refl_value.r;
+diffuse_sum.rgb += ((light_src[2].diffuse * dot_product) + light_src[2].ambient) * LookupLightingLUTUnsigned(18,clamp(light_src[2].dist_atten_scale * length(-view - light_src[2].position) + light_src[2].dist_atten_bias, 0.0, 1.0)) * 1.0;
+specular_sum.rgb += ((light_src[2].specular_0) + (light_src[2].specular_1)) * clamp_highlights * LookupLightingLUTUnsigned(18,clamp(light_src[2].dist_atten_scale * length(-view - light_src[2].position) + light_src[2].dist_atten_bias, 0.0, 1.0)) * 1.0;
+light_vector = normalize(light_src[3].position + view);
+spot_dir = light_src[3].spot_direction;
+half_vector = normalize(view) + light_vector;
+dot_product = max(dot(light_vector, normal), 0.0);
+refl_value.r = 1.0;
+refl_value.g = refl_value.r;
+refl_value.b = refl_value.r;
+diffuse_sum.rgb += ((light_src[3].diffuse * dot_product) + light_src[3].ambient) * LookupLightingLUTUnsigned(19,clamp(light_src[3].dist_atten_scale * length(-view - light_src[3].position) + light_src[3].dist_atten_bias, 0.0, 1.0)) * (lut_scale_sp * LookupLightingLUTUnsigned(11, max(dot(light_vector, spot_dir), 0.0)));
+specular_sum.rgb += ((light_src[3].specular_0) + (light_src[3].specular_1)) * clamp_highlights * LookupLightingLUTUnsigned(19,clamp(light_src[3].dist_atten_scale * length(-view - light_src[3].position) + light_src[3].dist_atten_bias, 0.0, 1.0)) * (lut_scale_sp * LookupLightingLUTUnsigned(11, max(dot(light_vector, spot_dir), 0.0)));
 diffuse_sum.rgb += lighting_global_ambient;
 primary_fragment_color = clamp(diffuse_sum, vec4(0.0), vec4(1.0));
 secondary_fragment_color = clamp(specular_sum, vec4(0.0), vec4(1.0));
@@ -46939,15 +43629,9 @@ combiner_buffer = next_combiner_buffer;
 gl_FragDepth = depth;
 color = byteround(last_tex_env_out);
 }
-// reference: 68D4FA2D4D892851, 57BBB0D68287094E
-// program: A0A01900FB0E2CEC, F0531050140A5884, 57BBB0D68287094E
-// shader: 8B30, BBB8CAE79A50270B
-
-precision highp int;
-precision highp float;
-precision highp samplerBuffer;
-precision highp usampler2D;
-precision highp uimage2D;
+// reference: 99F7183FD953D90D, FD374B7BAC3C5D18
+// program: 1A9F70669A3C74DF, F0531050140A5884, FD374B7BAC3C5D18
+// shader: 8B30, BA70842F92F0E183
 in vec4 primary_color;
 in vec2 texcoord0;
 in vec2 texcoord1;
@@ -47104,15 +43788,42 @@ vec4 normalized_normquat = normalize(normquat);
 vec3 normal = quaternion_rotate(normalized_normquat, surface_normal);
 vec3 tangent = quaternion_rotate(normalized_normquat, surface_tangent);
 vec4 shadow = vec4(1.0);
-light_vector = normalize(light_src[0].position);
+light_vector = normalize(light_src[0].position + view);
 spot_dir = light_src[0].spot_direction;
 half_vector = normalize(view) + light_vector;
 dot_product = max(dot(light_vector, normal), 0.0);
 refl_value.r = 1.0;
 refl_value.g = refl_value.r;
 refl_value.b = refl_value.r;
-diffuse_sum.rgb += ((light_src[0].diffuse * dot_product) + light_src[0].ambient) * 1.0;
-specular_sum.rgb += ((light_src[0].specular_0) + (light_src[0].specular_1)) * clamp_highlights * 1.0;
+diffuse_sum.rgb += ((light_src[0].diffuse * dot_product) + light_src[0].ambient) * LookupLightingLUTUnsigned(16,clamp(light_src[0].dist_atten_scale * length(-view - light_src[0].position) + light_src[0].dist_atten_bias, 0.0, 1.0)) * 1.0;
+specular_sum.rgb += ((light_src[0].specular_0) + (light_src[0].specular_1)) * clamp_highlights * LookupLightingLUTUnsigned(16,clamp(light_src[0].dist_atten_scale * length(-view - light_src[0].position) + light_src[0].dist_atten_bias, 0.0, 1.0)) * 1.0;
+light_vector = normalize(light_src[1].position + view);
+spot_dir = light_src[1].spot_direction;
+half_vector = normalize(view) + light_vector;
+dot_product = max(dot(light_vector, normal), 0.0);
+refl_value.r = 1.0;
+refl_value.g = refl_value.r;
+refl_value.b = refl_value.r;
+diffuse_sum.rgb += ((light_src[1].diffuse * dot_product) + light_src[1].ambient) * LookupLightingLUTUnsigned(17,clamp(light_src[1].dist_atten_scale * length(-view - light_src[1].position) + light_src[1].dist_atten_bias, 0.0, 1.0)) * 1.0;
+specular_sum.rgb += ((light_src[1].specular_0) + (light_src[1].specular_1)) * clamp_highlights * LookupLightingLUTUnsigned(17,clamp(light_src[1].dist_atten_scale * length(-view - light_src[1].position) + light_src[1].dist_atten_bias, 0.0, 1.0)) * 1.0;
+light_vector = normalize(light_src[2].position + view);
+spot_dir = light_src[2].spot_direction;
+half_vector = normalize(view) + light_vector;
+dot_product = max(dot(light_vector, normal), 0.0);
+refl_value.r = 1.0;
+refl_value.g = refl_value.r;
+refl_value.b = refl_value.r;
+diffuse_sum.rgb += ((light_src[2].diffuse * dot_product) + light_src[2].ambient) * LookupLightingLUTUnsigned(18,clamp(light_src[2].dist_atten_scale * length(-view - light_src[2].position) + light_src[2].dist_atten_bias, 0.0, 1.0)) * 1.0;
+specular_sum.rgb += ((light_src[2].specular_0) + (light_src[2].specular_1)) * clamp_highlights * LookupLightingLUTUnsigned(18,clamp(light_src[2].dist_atten_scale * length(-view - light_src[2].position) + light_src[2].dist_atten_bias, 0.0, 1.0)) * 1.0;
+light_vector = normalize(light_src[3].position + view);
+spot_dir = light_src[3].spot_direction;
+half_vector = normalize(view) + light_vector;
+dot_product = max(dot(light_vector, normal), 0.0);
+refl_value.r = 1.0;
+refl_value.g = refl_value.r;
+refl_value.b = refl_value.r;
+diffuse_sum.rgb += ((light_src[3].diffuse * dot_product) + light_src[3].ambient) * LookupLightingLUTUnsigned(19,clamp(light_src[3].dist_atten_scale * length(-view - light_src[3].position) + light_src[3].dist_atten_bias, 0.0, 1.0)) * (lut_scale_sp * LookupLightingLUTUnsigned(11, max(dot(light_vector, spot_dir), 0.0)));
+specular_sum.rgb += ((light_src[3].specular_0) + (light_src[3].specular_1)) * clamp_highlights * LookupLightingLUTUnsigned(19,clamp(light_src[3].dist_atten_scale * length(-view - light_src[3].position) + light_src[3].dist_atten_bias, 0.0, 1.0)) * (lut_scale_sp * LookupLightingLUTUnsigned(11, max(dot(light_vector, spot_dir), 0.0)));
 diffuse_sum.rgb += lighting_global_ambient;
 primary_fragment_color = clamp(diffuse_sum, vec4(0.0), vec4(1.0));
 secondary_fragment_color = clamp(specular_sum, vec4(0.0), vec4(1.0));
@@ -47151,15 +43862,241 @@ if (int(last_tex_env_out.a * 255.0) <= alphatest_ref) discard;
 gl_FragDepth = depth;
 color = byteround(last_tex_env_out);
 }
-// reference: 5D063FC499927DBF, BBB8CAE79A50270B
-// program: A0A01900FB0E2CEC, F0531050140A5884, BBB8CAE79A50270B
-// shader: 8B30, 5F011DE5153D8592
+// reference: AC25DDD60D488CE3, BA70842F92F0E183
+// program: 1A9F70669A3C74DF, F0531050140A5884, BA70842F92F0E183
+// shader: 8B30, 360611747ED82460
+in vec4 primary_color;
+in vec2 texcoord0;
+in vec2 texcoord1;
+in vec2 texcoord2;
+in float texcoord0_w;
+in vec4 normquat;
+in vec3 view;
 
-precision highp int;
-precision highp float;
-precision highp samplerBuffer;
-precision highp usampler2D;
-precision highp uimage2D;
+#ifndef CITRA_GLES
+in vec4 gl_FragCoord;
+#endif // CITRA_GLES
+out vec4 color;
+
+uniform sampler2D tex0;
+uniform sampler2D tex1;
+uniform sampler2D tex2;
+uniform samplerCube tex_cube;
+uniform samplerBuffer texture_buffer_lut_lf;
+uniform samplerBuffer texture_buffer_lut_rg;
+uniform samplerBuffer texture_buffer_lut_rgba;
+
+#define NUM_TEV_STAGES 6
+#define NUM_LIGHTS 8
+#define NUM_LIGHTING_SAMPLERS 24
+
+struct LightSrc {
+    vec3 specular_0;
+    vec3 specular_1;
+    vec3 diffuse;
+    vec3 ambient;
+    vec3 position;
+    vec3 spot_direction;
+    float dist_atten_bias;
+    float dist_atten_scale;
+};
+
+layout (std140) uniform shader_data {
+    int alphatest_ref;
+    float depth_scale;
+    float depth_offset;
+    float shadow_bias_constant;
+    float shadow_bias_linear;
+    int scissor_x1;
+    int scissor_y1;
+    int scissor_x2;
+    int scissor_y2;
+    int fog_lut_offset;
+    int proctex_noise_lut_offset;
+    int proctex_color_map_offset;
+    int proctex_alpha_map_offset;
+    int proctex_lut_offset;
+    int proctex_diff_lut_offset;
+    float proctex_bias;
+    vec3 fog_color;
+    vec2 proctex_noise_f;
+    vec2 proctex_noise_a;
+    vec2 proctex_noise_p;
+    vec4 const_color[NUM_TEV_STAGES];
+    vec4 tev_combiner_buffer_color;
+    vec4 clip_coef;
+};
+
+layout (std140) uniform shader_light_data {
+    ivec4 lighting_lut_offset[NUM_LIGHTING_SAMPLERS / 4];
+    vec3 lighting_global_ambient;
+    LightSrc light_src[NUM_LIGHTS];
+    float lut_scale_d0;
+    float lut_scale_d1;
+    float lut_scale_sp;
+    float lut_scale_fr;
+    float lut_scale_rb;
+    float lut_scale_rg;
+    float lut_scale_rr;
+    int shadow_texture_bias;
+};
+
+// Rotate the vector v by the quaternion q
+vec3 quaternion_rotate(vec4 q, vec3 v) {
+    return v + 2.0 * cross(q.xyz, cross(q.xyz, v) + q.w * v);
+}
+
+float LookupLightingLUT(int lut_index, int index, float delta) {
+    vec2 entry = texelFetch(texture_buffer_lut_lf, lighting_lut_offset[lut_index >> 2][lut_index & 3] + index).rg;
+    return entry.r + entry.g * delta;
+}
+
+float LookupLightingLUTUnsigned(int lut_index, float pos) {
+    int index = clamp(int(pos * 256.0), 0, 255);
+    float delta = pos * 256.0 - float(index);
+    return LookupLightingLUT(lut_index, index, delta);
+}
+
+float LookupLightingLUTSigned(int lut_index, float pos) {
+    int index = clamp(int(pos * 128.0), -128, 127);
+    float delta = pos * 128.0 - float(index);
+    if (index < 0) index += 256;
+    return LookupLightingLUT(lut_index, index, delta);
+}
+
+float byteround(float x) {
+    return round(x * 255.0) * (1.0 / 255.0);
+}
+
+vec2 byteround(vec2 x) {
+    return round(x * 255.0) * (1.0 / 255.0);
+}
+
+vec3 byteround(vec3 x) {
+    return round(x * 255.0) * (1.0 / 255.0);
+}
+
+vec4 byteround(vec4 x) {
+    return round(x * 255.0) * (1.0 / 255.0);
+}
+
+// PICA's LOD formula for 2D textures.
+// This LOD formula is the same as the LOD lower limit defined in OpenGL.
+// f(x, y) >= max{m_u, m_v, m_w}
+// (See OpenGL 4.6 spec, 8.14.1 - Scale Factor and Level-of-Detail)
+float getLod(vec2 coord) {
+    vec2 d = max(abs(dFdx(coord)), abs(dFdy(coord)));
+    return log2(max(d.x, d.y));
+}
+
+vec4 shadowTexture(vec2 uv, float w) {
+    return vec4(1.0);
+}
+
+vec4 shadowTextureCube(vec2 uv, float w) {
+    return vec4(1.0);
+}
+
+void main() {
+vec4 rounded_primary_color = byteround(primary_color);
+vec4 primary_fragment_color = vec4(0.0);
+vec4 secondary_fragment_color = vec4(0.0);
+if (!(gl_FragCoord.x >= float(scissor_x1) && gl_FragCoord.y >= float(scissor_y1) && gl_FragCoord.x < float(scissor_x2) && gl_FragCoord.y < float(scissor_y2))) discard;
+float z_over_w = 2.0 * gl_FragCoord.z - 1.0;
+float depth = z_over_w * depth_scale + depth_offset;
+vec4 texcolor1 = textureLod(tex1, texcoord1, getLod(texcoord1 * vec2(textureSize(tex1, 0))));
+
+vec4 diffuse_sum = vec4(0.0, 0.0, 0.0, 1.0);
+vec4 specular_sum = vec4(0.0, 0.0, 0.0, 1.0);
+vec3 light_vector = vec3(0.0);
+vec3 refl_value = vec3(0.0);
+vec3 spot_dir = vec3(0.0);
+vec3 half_vector = vec3(0.0);
+float dot_product = 0.0;
+float clamp_highlights = 1.0;
+float geo_factor = 1.0;
+vec3 surface_normal = vec3(0.0, 0.0, 1.0);
+vec3 surface_tangent = vec3(1.0, 0.0, 0.0);
+vec4 normalized_normquat = normalize(normquat);
+vec3 normal = quaternion_rotate(normalized_normquat, surface_normal);
+vec3 tangent = quaternion_rotate(normalized_normquat, surface_tangent);
+vec4 shadow = vec4(1.0);
+light_vector = normalize(light_src[0].position + view);
+spot_dir = light_src[0].spot_direction;
+half_vector = normalize(view) + light_vector;
+dot_product = max(dot(light_vector, normal), 0.0);
+refl_value.r = 1.0;
+refl_value.g = refl_value.r;
+refl_value.b = refl_value.r;
+diffuse_sum.rgb += ((light_src[0].diffuse * dot_product) + light_src[0].ambient) * LookupLightingLUTUnsigned(16,clamp(light_src[0].dist_atten_scale * length(-view - light_src[0].position) + light_src[0].dist_atten_bias, 0.0, 1.0)) * 1.0;
+specular_sum.rgb += ((light_src[0].specular_0) + (light_src[0].specular_1)) * clamp_highlights * LookupLightingLUTUnsigned(16,clamp(light_src[0].dist_atten_scale * length(-view - light_src[0].position) + light_src[0].dist_atten_bias, 0.0, 1.0)) * 1.0;
+light_vector = normalize(light_src[1].position + view);
+spot_dir = light_src[1].spot_direction;
+half_vector = normalize(view) + light_vector;
+dot_product = max(dot(light_vector, normal), 0.0);
+refl_value.r = 1.0;
+refl_value.g = refl_value.r;
+refl_value.b = refl_value.r;
+diffuse_sum.rgb += ((light_src[1].diffuse * dot_product) + light_src[1].ambient) * LookupLightingLUTUnsigned(17,clamp(light_src[1].dist_atten_scale * length(-view - light_src[1].position) + light_src[1].dist_atten_bias, 0.0, 1.0)) * 1.0;
+specular_sum.rgb += ((light_src[1].specular_0) + (light_src[1].specular_1)) * clamp_highlights * LookupLightingLUTUnsigned(17,clamp(light_src[1].dist_atten_scale * length(-view - light_src[1].position) + light_src[1].dist_atten_bias, 0.0, 1.0)) * 1.0;
+light_vector = normalize(light_src[2].position + view);
+spot_dir = light_src[2].spot_direction;
+half_vector = normalize(view) + light_vector;
+dot_product = max(dot(light_vector, normal), 0.0);
+refl_value.r = 1.0;
+refl_value.g = refl_value.r;
+refl_value.b = refl_value.r;
+diffuse_sum.rgb += ((light_src[2].diffuse * dot_product) + light_src[2].ambient) * LookupLightingLUTUnsigned(18,clamp(light_src[2].dist_atten_scale * length(-view - light_src[2].position) + light_src[2].dist_atten_bias, 0.0, 1.0)) * 1.0;
+specular_sum.rgb += ((light_src[2].specular_0) + (light_src[2].specular_1)) * clamp_highlights * LookupLightingLUTUnsigned(18,clamp(light_src[2].dist_atten_scale * length(-view - light_src[2].position) + light_src[2].dist_atten_bias, 0.0, 1.0)) * 1.0;
+light_vector = normalize(light_src[3].position + view);
+spot_dir = light_src[3].spot_direction;
+half_vector = normalize(view) + light_vector;
+dot_product = max(dot(light_vector, normal), 0.0);
+refl_value.r = 1.0;
+refl_value.g = refl_value.r;
+refl_value.b = refl_value.r;
+diffuse_sum.rgb += ((light_src[3].diffuse * dot_product) + light_src[3].ambient) * LookupLightingLUTUnsigned(19,clamp(light_src[3].dist_atten_scale * length(-view - light_src[3].position) + light_src[3].dist_atten_bias, 0.0, 1.0)) * (lut_scale_sp * LookupLightingLUTUnsigned(11, max(dot(light_vector, spot_dir), 0.0)));
+specular_sum.rgb += ((light_src[3].specular_0) + (light_src[3].specular_1)) * clamp_highlights * LookupLightingLUTUnsigned(19,clamp(light_src[3].dist_atten_scale * length(-view - light_src[3].position) + light_src[3].dist_atten_bias, 0.0, 1.0)) * (lut_scale_sp * LookupLightingLUTUnsigned(11, max(dot(light_vector, spot_dir), 0.0)));
+diffuse_sum.rgb += lighting_global_ambient;
+primary_fragment_color = clamp(diffuse_sum, vec4(0.0), vec4(1.0));
+secondary_fragment_color = clamp(specular_sum, vec4(0.0), vec4(1.0));
+
+vec4 combiner_buffer = vec4(0.0);
+vec4 next_combiner_buffer = tev_combiner_buffer_color;
+vec4 last_tex_env_out = vec4(0.0);
+vec3 color_output_0 = byteround(clamp((rounded_primary_color.rgb), vec3(0.0), vec3(1.0)));
+float alpha_output_0 = byteround(clamp((rounded_primary_color.r) * (rounded_primary_color.r), 0.0, 1.0));
+last_tex_env_out = clamp(vec4(color_output_0 * 1.0, alpha_output_0 * 2.0), vec4(0.0), vec4(1.0));
+combiner_buffer = next_combiner_buffer;
+
+vec3 color_output_1 = byteround(clamp((const_color[1].rgb) * (vec3(1.0) - last_tex_env_out.aaa) + (rounded_primary_color.rgb), vec3(0.0), vec3(1.0)));
+float alpha_output_1 = byteround(clamp((rounded_primary_color.a) * (texcolor1.a), 0.0, 1.0));
+last_tex_env_out = clamp(vec4(color_output_1, alpha_output_1), vec4(0.0), vec4(1.0));
+combiner_buffer = next_combiner_buffer;
+
+vec3 color_output_2 = byteround(clamp((last_tex_env_out.rgb) * (texcolor1.rgb), vec3(0.0), vec3(1.0)));
+float alpha_output_2 = byteround(clamp((last_tex_env_out.a), 0.0, 1.0));
+last_tex_env_out = clamp(vec4(color_output_2 * 2.0, alpha_output_2 * 1.0), vec4(0.0), vec4(1.0));
+combiner_buffer = next_combiner_buffer;
+
+vec3 color_output_3 = byteround(clamp((last_tex_env_out.rgb) * (primary_fragment_color.rgb), vec3(0.0), vec3(1.0)));
+float alpha_output_3 = byteround(clamp((last_tex_env_out.a) * (const_color[3].a), 0.0, 1.0));
+last_tex_env_out = clamp(vec4(color_output_3, alpha_output_3), vec4(0.0), vec4(1.0));
+combiner_buffer = next_combiner_buffer;
+
+vec3 color_output_4 = byteround(clamp(min((const_color[4].rgb) + (shadowTexture(texcoord0, texcoord0_w).ggg), vec3(1.0)) * (last_tex_env_out.rgb), vec3(0.0), vec3(1.0)));
+float alpha_output_4 = byteround(clamp((last_tex_env_out.a), 0.0, 1.0));
+last_tex_env_out = clamp(vec4(color_output_4, alpha_output_4), vec4(0.0), vec4(1.0));
+combiner_buffer = next_combiner_buffer;
+
+combiner_buffer = next_combiner_buffer;
+
+gl_FragDepth = depth;
+color = byteround(last_tex_env_out);
+}
+// reference: AC25DDD6E1FF67E0, 360611747ED82460
+// program: 1A9F70669A3C74DF, F0531050140A5884, 360611747ED82460
+// shader: 8B30, 36A895DB9A97EBD7
 in vec4 primary_color;
 in vec2 texcoord0;
 in vec2 texcoord1;
@@ -47317,15 +44254,42 @@ vec4 normalized_normquat = normalize(normquat);
 vec3 normal = quaternion_rotate(normalized_normquat, surface_normal);
 vec3 tangent = quaternion_rotate(normalized_normquat, surface_tangent);
 vec4 shadow = vec4(1.0);
-light_vector = normalize(light_src[0].position);
+light_vector = normalize(light_src[0].position + view);
 spot_dir = light_src[0].spot_direction;
 half_vector = normalize(view) + light_vector;
 dot_product = max(dot(light_vector, normal), 0.0);
 refl_value.r = 1.0;
 refl_value.g = refl_value.r;
 refl_value.b = refl_value.r;
-diffuse_sum.rgb += ((light_src[0].diffuse * dot_product) + light_src[0].ambient) * 1.0;
-specular_sum.rgb += ((light_src[0].specular_0) + (light_src[0].specular_1)) * clamp_highlights * 1.0;
+diffuse_sum.rgb += ((light_src[0].diffuse * dot_product) + light_src[0].ambient) * LookupLightingLUTUnsigned(16,clamp(light_src[0].dist_atten_scale * length(-view - light_src[0].position) + light_src[0].dist_atten_bias, 0.0, 1.0)) * 1.0;
+specular_sum.rgb += ((light_src[0].specular_0) + (light_src[0].specular_1)) * clamp_highlights * LookupLightingLUTUnsigned(16,clamp(light_src[0].dist_atten_scale * length(-view - light_src[0].position) + light_src[0].dist_atten_bias, 0.0, 1.0)) * 1.0;
+light_vector = normalize(light_src[1].position + view);
+spot_dir = light_src[1].spot_direction;
+half_vector = normalize(view) + light_vector;
+dot_product = max(dot(light_vector, normal), 0.0);
+refl_value.r = 1.0;
+refl_value.g = refl_value.r;
+refl_value.b = refl_value.r;
+diffuse_sum.rgb += ((light_src[1].diffuse * dot_product) + light_src[1].ambient) * LookupLightingLUTUnsigned(17,clamp(light_src[1].dist_atten_scale * length(-view - light_src[1].position) + light_src[1].dist_atten_bias, 0.0, 1.0)) * 1.0;
+specular_sum.rgb += ((light_src[1].specular_0) + (light_src[1].specular_1)) * clamp_highlights * LookupLightingLUTUnsigned(17,clamp(light_src[1].dist_atten_scale * length(-view - light_src[1].position) + light_src[1].dist_atten_bias, 0.0, 1.0)) * 1.0;
+light_vector = normalize(light_src[2].position + view);
+spot_dir = light_src[2].spot_direction;
+half_vector = normalize(view) + light_vector;
+dot_product = max(dot(light_vector, normal), 0.0);
+refl_value.r = 1.0;
+refl_value.g = refl_value.r;
+refl_value.b = refl_value.r;
+diffuse_sum.rgb += ((light_src[2].diffuse * dot_product) + light_src[2].ambient) * LookupLightingLUTUnsigned(18,clamp(light_src[2].dist_atten_scale * length(-view - light_src[2].position) + light_src[2].dist_atten_bias, 0.0, 1.0)) * 1.0;
+specular_sum.rgb += ((light_src[2].specular_0) + (light_src[2].specular_1)) * clamp_highlights * LookupLightingLUTUnsigned(18,clamp(light_src[2].dist_atten_scale * length(-view - light_src[2].position) + light_src[2].dist_atten_bias, 0.0, 1.0)) * 1.0;
+light_vector = normalize(light_src[3].position + view);
+spot_dir = light_src[3].spot_direction;
+half_vector = normalize(view) + light_vector;
+dot_product = max(dot(light_vector, normal), 0.0);
+refl_value.r = 1.0;
+refl_value.g = refl_value.r;
+refl_value.b = refl_value.r;
+diffuse_sum.rgb += ((light_src[3].diffuse * dot_product) + light_src[3].ambient) * LookupLightingLUTUnsigned(19,clamp(light_src[3].dist_atten_scale * length(-view - light_src[3].position) + light_src[3].dist_atten_bias, 0.0, 1.0)) * (lut_scale_sp * LookupLightingLUTUnsigned(11, max(dot(light_vector, spot_dir), 0.0)));
+specular_sum.rgb += ((light_src[3].specular_0) + (light_src[3].specular_1)) * clamp_highlights * LookupLightingLUTUnsigned(19,clamp(light_src[3].dist_atten_scale * length(-view - light_src[3].position) + light_src[3].dist_atten_bias, 0.0, 1.0)) * (lut_scale_sp * LookupLightingLUTUnsigned(11, max(dot(light_vector, spot_dir), 0.0)));
 diffuse_sum.rgb += lighting_global_ambient;
 primary_fragment_color = clamp(diffuse_sum, vec4(0.0), vec4(1.0));
 secondary_fragment_color = clamp(specular_sum, vec4(0.0), vec4(1.0));
@@ -47368,16 +44332,239 @@ combiner_buffer = next_combiner_buffer;
 gl_FragDepth = depth;
 color = byteround(last_tex_env_out);
 }
-// reference: 87A103B1AA6C1DD5, 5F011DE5153D8592
-// program: A0A01900FB0E2CEC, F0531050140A5884, 5F011DE5153D8592
-// reference: 68D4FA2D69E1806E, 57BBB0D68287094E
-// shader: 8B30, 7438820BB64AB24A
+// reference: 7682E1A33EB6EC89, 36A895DB9A97EBD7
+// program: 1A9F70669A3C74DF, F0531050140A5884, 36A895DB9A97EBD7
+// reference: 99F7183FFD3B7132, FD374B7BAC3C5D18
+// shader: 8B30, D675E8EDD4B8CD5E
+in vec4 primary_color;
+in vec2 texcoord0;
+in vec2 texcoord1;
+in vec2 texcoord2;
+in float texcoord0_w;
+in vec4 normquat;
+in vec3 view;
 
-precision highp int;
-precision highp float;
-precision highp samplerBuffer;
-precision highp usampler2D;
-precision highp uimage2D;
+#ifndef CITRA_GLES
+in vec4 gl_FragCoord;
+#endif // CITRA_GLES
+out vec4 color;
+
+uniform sampler2D tex0;
+uniform sampler2D tex1;
+uniform sampler2D tex2;
+uniform samplerCube tex_cube;
+uniform samplerBuffer texture_buffer_lut_lf;
+uniform samplerBuffer texture_buffer_lut_rg;
+uniform samplerBuffer texture_buffer_lut_rgba;
+
+#define NUM_TEV_STAGES 6
+#define NUM_LIGHTS 8
+#define NUM_LIGHTING_SAMPLERS 24
+
+struct LightSrc {
+    vec3 specular_0;
+    vec3 specular_1;
+    vec3 diffuse;
+    vec3 ambient;
+    vec3 position;
+    vec3 spot_direction;
+    float dist_atten_bias;
+    float dist_atten_scale;
+};
+
+layout (std140) uniform shader_data {
+    int alphatest_ref;
+    float depth_scale;
+    float depth_offset;
+    float shadow_bias_constant;
+    float shadow_bias_linear;
+    int scissor_x1;
+    int scissor_y1;
+    int scissor_x2;
+    int scissor_y2;
+    int fog_lut_offset;
+    int proctex_noise_lut_offset;
+    int proctex_color_map_offset;
+    int proctex_alpha_map_offset;
+    int proctex_lut_offset;
+    int proctex_diff_lut_offset;
+    float proctex_bias;
+    vec3 fog_color;
+    vec2 proctex_noise_f;
+    vec2 proctex_noise_a;
+    vec2 proctex_noise_p;
+    vec4 const_color[NUM_TEV_STAGES];
+    vec4 tev_combiner_buffer_color;
+    vec4 clip_coef;
+};
+
+layout (std140) uniform shader_light_data {
+    ivec4 lighting_lut_offset[NUM_LIGHTING_SAMPLERS / 4];
+    vec3 lighting_global_ambient;
+    LightSrc light_src[NUM_LIGHTS];
+    float lut_scale_d0;
+    float lut_scale_d1;
+    float lut_scale_sp;
+    float lut_scale_fr;
+    float lut_scale_rb;
+    float lut_scale_rg;
+    float lut_scale_rr;
+    int shadow_texture_bias;
+};
+
+// Rotate the vector v by the quaternion q
+vec3 quaternion_rotate(vec4 q, vec3 v) {
+    return v + 2.0 * cross(q.xyz, cross(q.xyz, v) + q.w * v);
+}
+
+float LookupLightingLUT(int lut_index, int index, float delta) {
+    vec2 entry = texelFetch(texture_buffer_lut_lf, lighting_lut_offset[lut_index >> 2][lut_index & 3] + index).rg;
+    return entry.r + entry.g * delta;
+}
+
+float LookupLightingLUTUnsigned(int lut_index, float pos) {
+    int index = clamp(int(pos * 256.0), 0, 255);
+    float delta = pos * 256.0 - float(index);
+    return LookupLightingLUT(lut_index, index, delta);
+}
+
+float LookupLightingLUTSigned(int lut_index, float pos) {
+    int index = clamp(int(pos * 128.0), -128, 127);
+    float delta = pos * 128.0 - float(index);
+    if (index < 0) index += 256;
+    return LookupLightingLUT(lut_index, index, delta);
+}
+
+float byteround(float x) {
+    return round(x * 255.0) * (1.0 / 255.0);
+}
+
+vec2 byteround(vec2 x) {
+    return round(x * 255.0) * (1.0 / 255.0);
+}
+
+vec3 byteround(vec3 x) {
+    return round(x * 255.0) * (1.0 / 255.0);
+}
+
+vec4 byteround(vec4 x) {
+    return round(x * 255.0) * (1.0 / 255.0);
+}
+
+// PICA's LOD formula for 2D textures.
+// This LOD formula is the same as the LOD lower limit defined in OpenGL.
+// f(x, y) >= max{m_u, m_v, m_w}
+// (See OpenGL 4.6 spec, 8.14.1 - Scale Factor and Level-of-Detail)
+float getLod(vec2 coord) {
+    vec2 d = max(abs(dFdx(coord)), abs(dFdy(coord)));
+    return log2(max(d.x, d.y));
+}
+
+vec4 shadowTexture(vec2 uv, float w) {
+    return vec4(1.0);
+}
+
+vec4 shadowTextureCube(vec2 uv, float w) {
+    return vec4(1.0);
+}
+
+void main() {
+vec4 rounded_primary_color = byteround(primary_color);
+vec4 primary_fragment_color = vec4(0.0);
+vec4 secondary_fragment_color = vec4(0.0);
+if (!(gl_FragCoord.x >= float(scissor_x1) && gl_FragCoord.y >= float(scissor_y1) && gl_FragCoord.x < float(scissor_x2) && gl_FragCoord.y < float(scissor_y2))) discard;
+float z_over_w = 2.0 * gl_FragCoord.z - 1.0;
+float depth = z_over_w * depth_scale + depth_offset;
+vec4 texcolor1 = textureLod(tex1, texcoord1, getLod(texcoord1 * vec2(textureSize(tex1, 0))));
+
+vec4 diffuse_sum = vec4(0.0, 0.0, 0.0, 1.0);
+vec4 specular_sum = vec4(0.0, 0.0, 0.0, 1.0);
+vec3 light_vector = vec3(0.0);
+vec3 refl_value = vec3(0.0);
+vec3 spot_dir = vec3(0.0);
+vec3 half_vector = vec3(0.0);
+float dot_product = 0.0;
+float clamp_highlights = 1.0;
+float geo_factor = 1.0;
+vec3 surface_normal = vec3(0.0, 0.0, 1.0);
+vec3 surface_tangent = vec3(1.0, 0.0, 0.0);
+vec4 normalized_normquat = normalize(normquat);
+vec3 normal = quaternion_rotate(normalized_normquat, surface_normal);
+vec3 tangent = quaternion_rotate(normalized_normquat, surface_tangent);
+vec4 shadow = vec4(1.0);
+light_vector = normalize(light_src[0].position + view);
+spot_dir = light_src[0].spot_direction;
+half_vector = normalize(view) + light_vector;
+dot_product = max(dot(light_vector, normal), 0.0);
+refl_value.r = 1.0;
+refl_value.g = refl_value.r;
+refl_value.b = refl_value.r;
+diffuse_sum.rgb += ((light_src[0].diffuse * dot_product) + light_src[0].ambient) * LookupLightingLUTUnsigned(16,clamp(light_src[0].dist_atten_scale * length(-view - light_src[0].position) + light_src[0].dist_atten_bias, 0.0, 1.0)) * 1.0;
+specular_sum.rgb += ((light_src[0].specular_0) + (light_src[0].specular_1)) * clamp_highlights * LookupLightingLUTUnsigned(16,clamp(light_src[0].dist_atten_scale * length(-view - light_src[0].position) + light_src[0].dist_atten_bias, 0.0, 1.0)) * 1.0;
+light_vector = normalize(light_src[1].position + view);
+spot_dir = light_src[1].spot_direction;
+half_vector = normalize(view) + light_vector;
+dot_product = max(dot(light_vector, normal), 0.0);
+refl_value.r = 1.0;
+refl_value.g = refl_value.r;
+refl_value.b = refl_value.r;
+diffuse_sum.rgb += ((light_src[1].diffuse * dot_product) + light_src[1].ambient) * LookupLightingLUTUnsigned(17,clamp(light_src[1].dist_atten_scale * length(-view - light_src[1].position) + light_src[1].dist_atten_bias, 0.0, 1.0)) * 1.0;
+specular_sum.rgb += ((light_src[1].specular_0) + (light_src[1].specular_1)) * clamp_highlights * LookupLightingLUTUnsigned(17,clamp(light_src[1].dist_atten_scale * length(-view - light_src[1].position) + light_src[1].dist_atten_bias, 0.0, 1.0)) * 1.0;
+light_vector = normalize(light_src[2].position + view);
+spot_dir = light_src[2].spot_direction;
+half_vector = normalize(view) + light_vector;
+dot_product = max(dot(light_vector, normal), 0.0);
+refl_value.r = 1.0;
+refl_value.g = refl_value.r;
+refl_value.b = refl_value.r;
+diffuse_sum.rgb += ((light_src[2].diffuse * dot_product) + light_src[2].ambient) * LookupLightingLUTUnsigned(18,clamp(light_src[2].dist_atten_scale * length(-view - light_src[2].position) + light_src[2].dist_atten_bias, 0.0, 1.0)) * 1.0;
+specular_sum.rgb += ((light_src[2].specular_0) + (light_src[2].specular_1)) * clamp_highlights * LookupLightingLUTUnsigned(18,clamp(light_src[2].dist_atten_scale * length(-view - light_src[2].position) + light_src[2].dist_atten_bias, 0.0, 1.0)) * 1.0;
+light_vector = normalize(light_src[3].position + view);
+spot_dir = light_src[3].spot_direction;
+half_vector = normalize(view) + light_vector;
+dot_product = max(dot(light_vector, normal), 0.0);
+refl_value.r = 1.0;
+refl_value.g = refl_value.r;
+refl_value.b = refl_value.r;
+diffuse_sum.rgb += ((light_src[3].diffuse * dot_product) + light_src[3].ambient) * LookupLightingLUTUnsigned(19,clamp(light_src[3].dist_atten_scale * length(-view - light_src[3].position) + light_src[3].dist_atten_bias, 0.0, 1.0)) * (lut_scale_sp * LookupLightingLUTUnsigned(11, max(dot(light_vector, spot_dir), 0.0)));
+specular_sum.rgb += ((light_src[3].specular_0) + (light_src[3].specular_1)) * clamp_highlights * LookupLightingLUTUnsigned(19,clamp(light_src[3].dist_atten_scale * length(-view - light_src[3].position) + light_src[3].dist_atten_bias, 0.0, 1.0)) * (lut_scale_sp * LookupLightingLUTUnsigned(11, max(dot(light_vector, spot_dir), 0.0)));
+diffuse_sum.rgb += lighting_global_ambient;
+primary_fragment_color = clamp(diffuse_sum, vec4(0.0), vec4(1.0));
+secondary_fragment_color = clamp(specular_sum, vec4(0.0), vec4(1.0));
+
+vec4 combiner_buffer = vec4(0.0);
+vec4 next_combiner_buffer = tev_combiner_buffer_color;
+vec4 last_tex_env_out = vec4(0.0);
+vec3 color_output_0 = byteround(clamp((rounded_primary_color.rgb) * (texcolor1.rgb), vec3(0.0), vec3(1.0)));
+float alpha_output_0 = byteround(clamp((rounded_primary_color.a) * (texcolor1.a), 0.0, 1.0));
+last_tex_env_out = clamp(vec4(color_output_0 * 2.0, alpha_output_0 * 1.0), vec4(0.0), vec4(1.0));
+combiner_buffer = next_combiner_buffer;
+
+vec3 color_output_1 = byteround(clamp((last_tex_env_out.rgb) * (primary_fragment_color.rgb), vec3(0.0), vec3(1.0)));
+float alpha_output_1 = byteround(clamp((last_tex_env_out.a), 0.0, 1.0));
+last_tex_env_out = clamp(vec4(color_output_1, alpha_output_1), vec4(0.0), vec4(1.0));
+combiner_buffer = next_combiner_buffer;
+
+vec3 color_output_2 = byteround(clamp((last_tex_env_out.rgb), vec3(0.0), vec3(1.0)));
+float alpha_output_2 = byteround(clamp((last_tex_env_out.a) * (const_color[2].a), 0.0, 1.0));
+last_tex_env_out = clamp(vec4(color_output_2, alpha_output_2), vec4(0.0), vec4(1.0));
+combiner_buffer = next_combiner_buffer;
+
+vec3 color_output_3 = byteround(clamp(min((const_color[3].rgb) + (shadowTexture(texcoord0, texcoord0_w).ggg), vec3(1.0)) * (last_tex_env_out.rgb), vec3(0.0), vec3(1.0)));
+float alpha_output_3 = byteround(clamp((last_tex_env_out.a), 0.0, 1.0));
+last_tex_env_out = clamp(vec4(color_output_3, alpha_output_3), vec4(0.0), vec4(1.0));
+combiner_buffer = next_combiner_buffer;
+
+combiner_buffer = next_combiner_buffer;
+
+combiner_buffer = next_combiner_buffer;
+
+gl_FragDepth = depth;
+color = byteround(last_tex_env_out);
+}
+// reference: 6703C3775BE97070, D675E8EDD4B8CD5E
+// program: 1A9F70669A3C74DF, F0531050140A5884, D675E8EDD4B8CD5E
+// shader: 8B30, 8EFF19B5DE96B9A2
 in vec4 primary_color;
 in vec2 texcoord0;
 in vec2 texcoord1;
@@ -47535,15 +44722,272 @@ vec4 normalized_normquat = normalize(normquat);
 vec3 normal = quaternion_rotate(normalized_normquat, surface_normal);
 vec3 tangent = quaternion_rotate(normalized_normquat, surface_tangent);
 vec4 shadow = vec4(1.0);
-light_vector = normalize(light_src[0].position);
+light_vector = normalize(light_src[0].position + view);
 spot_dir = light_src[0].spot_direction;
 half_vector = normalize(view) + light_vector;
 dot_product = max(dot(light_vector, normal), 0.0);
 refl_value.r = 1.0;
 refl_value.g = refl_value.r;
 refl_value.b = refl_value.r;
-diffuse_sum.rgb += ((light_src[0].diffuse * dot_product) + light_src[0].ambient) * 1.0;
-specular_sum.rgb += ((light_src[0].specular_0) + (light_src[0].specular_1)) * clamp_highlights * 1.0;
+diffuse_sum.rgb += ((light_src[0].diffuse * dot_product) + light_src[0].ambient) * LookupLightingLUTUnsigned(16,clamp(light_src[0].dist_atten_scale * length(-view - light_src[0].position) + light_src[0].dist_atten_bias, 0.0, 1.0)) * 1.0;
+specular_sum.rgb += ((light_src[0].specular_0) + (light_src[0].specular_1)) * clamp_highlights * LookupLightingLUTUnsigned(16,clamp(light_src[0].dist_atten_scale * length(-view - light_src[0].position) + light_src[0].dist_atten_bias, 0.0, 1.0)) * 1.0;
+light_vector = normalize(light_src[1].position + view);
+spot_dir = light_src[1].spot_direction;
+half_vector = normalize(view) + light_vector;
+dot_product = max(dot(light_vector, normal), 0.0);
+refl_value.r = 1.0;
+refl_value.g = refl_value.r;
+refl_value.b = refl_value.r;
+diffuse_sum.rgb += ((light_src[1].diffuse * dot_product) + light_src[1].ambient) * LookupLightingLUTUnsigned(17,clamp(light_src[1].dist_atten_scale * length(-view - light_src[1].position) + light_src[1].dist_atten_bias, 0.0, 1.0)) * 1.0;
+specular_sum.rgb += ((light_src[1].specular_0) + (light_src[1].specular_1)) * clamp_highlights * LookupLightingLUTUnsigned(17,clamp(light_src[1].dist_atten_scale * length(-view - light_src[1].position) + light_src[1].dist_atten_bias, 0.0, 1.0)) * 1.0;
+light_vector = normalize(light_src[2].position + view);
+spot_dir = light_src[2].spot_direction;
+half_vector = normalize(view) + light_vector;
+dot_product = max(dot(light_vector, normal), 0.0);
+refl_value.r = 1.0;
+refl_value.g = refl_value.r;
+refl_value.b = refl_value.r;
+diffuse_sum.rgb += ((light_src[2].diffuse * dot_product) + light_src[2].ambient) * LookupLightingLUTUnsigned(18,clamp(light_src[2].dist_atten_scale * length(-view - light_src[2].position) + light_src[2].dist_atten_bias, 0.0, 1.0)) * 1.0;
+specular_sum.rgb += ((light_src[2].specular_0) + (light_src[2].specular_1)) * clamp_highlights * LookupLightingLUTUnsigned(18,clamp(light_src[2].dist_atten_scale * length(-view - light_src[2].position) + light_src[2].dist_atten_bias, 0.0, 1.0)) * 1.0;
+light_vector = normalize(light_src[3].position + view);
+spot_dir = light_src[3].spot_direction;
+half_vector = normalize(view) + light_vector;
+dot_product = max(dot(light_vector, normal), 0.0);
+refl_value.r = 1.0;
+refl_value.g = refl_value.r;
+refl_value.b = refl_value.r;
+diffuse_sum.rgb += ((light_src[3].diffuse * dot_product) + light_src[3].ambient) * LookupLightingLUTUnsigned(19,clamp(light_src[3].dist_atten_scale * length(-view - light_src[3].position) + light_src[3].dist_atten_bias, 0.0, 1.0)) * (lut_scale_sp * LookupLightingLUTUnsigned(11, max(dot(light_vector, spot_dir), 0.0)));
+specular_sum.rgb += ((light_src[3].specular_0) + (light_src[3].specular_1)) * clamp_highlights * LookupLightingLUTUnsigned(19,clamp(light_src[3].dist_atten_scale * length(-view - light_src[3].position) + light_src[3].dist_atten_bias, 0.0, 1.0)) * (lut_scale_sp * LookupLightingLUTUnsigned(11, max(dot(light_vector, spot_dir), 0.0)));
+diffuse_sum.rgb += lighting_global_ambient;
+primary_fragment_color = clamp(diffuse_sum, vec4(0.0), vec4(1.0));
+secondary_fragment_color = clamp(specular_sum, vec4(0.0), vec4(1.0));
+
+vec4 combiner_buffer = vec4(0.0);
+vec4 next_combiner_buffer = tev_combiner_buffer_color;
+vec4 last_tex_env_out = vec4(0.0);
+vec3 color_output_0 = byteround(clamp((rounded_primary_color.rgb) * (texcolor1.rgb), vec3(0.0), vec3(1.0)));
+float alpha_output_0 = byteround(clamp((rounded_primary_color.a) * (texcolor1.a), 0.0, 1.0));
+last_tex_env_out = clamp(vec4(color_output_0 * 2.0, alpha_output_0 * 1.0), vec4(0.0), vec4(1.0));
+combiner_buffer = next_combiner_buffer;
+
+vec3 color_output_1 = byteround(clamp((last_tex_env_out.rgb) * (primary_fragment_color.rgb), vec3(0.0), vec3(1.0)));
+float alpha_output_1 = byteround(clamp((last_tex_env_out.a), 0.0, 1.0));
+last_tex_env_out = clamp(vec4(color_output_1, alpha_output_1), vec4(0.0), vec4(1.0));
+combiner_buffer = next_combiner_buffer;
+
+vec3 color_output_2 = byteround(clamp((last_tex_env_out.rgb), vec3(0.0), vec3(1.0)));
+float alpha_output_2 = byteround(clamp((last_tex_env_out.a) * (const_color[2].a), 0.0, 1.0));
+last_tex_env_out = clamp(vec4(color_output_2, alpha_output_2), vec4(0.0), vec4(1.0));
+combiner_buffer = next_combiner_buffer;
+
+vec3 color_output_3 = byteround(clamp(min((const_color[3].rgb) + (texcolor0.ggg), vec3(1.0)) * (last_tex_env_out.rgb), vec3(0.0), vec3(1.0)));
+float alpha_output_3 = byteround(clamp((last_tex_env_out.a), 0.0, 1.0));
+last_tex_env_out = clamp(vec4(color_output_3, alpha_output_3), vec4(0.0), vec4(1.0));
+combiner_buffer = next_combiner_buffer;
+
+combiner_buffer = next_combiner_buffer;
+
+combiner_buffer = next_combiner_buffer;
+
+gl_FragDepth = depth;
+color = byteround(last_tex_env_out);
+}
+// reference: 36A9EC1A5BE97070, 8EFF19B5DE96B9A2
+// program: 1A9F70669A3C74DF, F0531050140A5884, 8EFF19B5DE96B9A2
+// shader: 8B30, D7D38175BFCB3646
+in vec4 primary_color;
+in vec2 texcoord0;
+in vec2 texcoord1;
+in vec2 texcoord2;
+in float texcoord0_w;
+in vec4 normquat;
+in vec3 view;
+
+#ifndef CITRA_GLES
+in vec4 gl_FragCoord;
+#endif // CITRA_GLES
+out vec4 color;
+
+uniform sampler2D tex0;
+uniform sampler2D tex1;
+uniform sampler2D tex2;
+uniform samplerCube tex_cube;
+uniform samplerBuffer texture_buffer_lut_lf;
+uniform samplerBuffer texture_buffer_lut_rg;
+uniform samplerBuffer texture_buffer_lut_rgba;
+
+#define NUM_TEV_STAGES 6
+#define NUM_LIGHTS 8
+#define NUM_LIGHTING_SAMPLERS 24
+
+struct LightSrc {
+    vec3 specular_0;
+    vec3 specular_1;
+    vec3 diffuse;
+    vec3 ambient;
+    vec3 position;
+    vec3 spot_direction;
+    float dist_atten_bias;
+    float dist_atten_scale;
+};
+
+layout (std140) uniform shader_data {
+    int alphatest_ref;
+    float depth_scale;
+    float depth_offset;
+    float shadow_bias_constant;
+    float shadow_bias_linear;
+    int scissor_x1;
+    int scissor_y1;
+    int scissor_x2;
+    int scissor_y2;
+    int fog_lut_offset;
+    int proctex_noise_lut_offset;
+    int proctex_color_map_offset;
+    int proctex_alpha_map_offset;
+    int proctex_lut_offset;
+    int proctex_diff_lut_offset;
+    float proctex_bias;
+    vec3 fog_color;
+    vec2 proctex_noise_f;
+    vec2 proctex_noise_a;
+    vec2 proctex_noise_p;
+    vec4 const_color[NUM_TEV_STAGES];
+    vec4 tev_combiner_buffer_color;
+    vec4 clip_coef;
+};
+
+layout (std140) uniform shader_light_data {
+    ivec4 lighting_lut_offset[NUM_LIGHTING_SAMPLERS / 4];
+    vec3 lighting_global_ambient;
+    LightSrc light_src[NUM_LIGHTS];
+    float lut_scale_d0;
+    float lut_scale_d1;
+    float lut_scale_sp;
+    float lut_scale_fr;
+    float lut_scale_rb;
+    float lut_scale_rg;
+    float lut_scale_rr;
+    int shadow_texture_bias;
+};
+
+// Rotate the vector v by the quaternion q
+vec3 quaternion_rotate(vec4 q, vec3 v) {
+    return v + 2.0 * cross(q.xyz, cross(q.xyz, v) + q.w * v);
+}
+
+float LookupLightingLUT(int lut_index, int index, float delta) {
+    vec2 entry = texelFetch(texture_buffer_lut_lf, lighting_lut_offset[lut_index >> 2][lut_index & 3] + index).rg;
+    return entry.r + entry.g * delta;
+}
+
+float LookupLightingLUTUnsigned(int lut_index, float pos) {
+    int index = clamp(int(pos * 256.0), 0, 255);
+    float delta = pos * 256.0 - float(index);
+    return LookupLightingLUT(lut_index, index, delta);
+}
+
+float LookupLightingLUTSigned(int lut_index, float pos) {
+    int index = clamp(int(pos * 128.0), -128, 127);
+    float delta = pos * 128.0 - float(index);
+    if (index < 0) index += 256;
+    return LookupLightingLUT(lut_index, index, delta);
+}
+
+float byteround(float x) {
+    return round(x * 255.0) * (1.0 / 255.0);
+}
+
+vec2 byteround(vec2 x) {
+    return round(x * 255.0) * (1.0 / 255.0);
+}
+
+vec3 byteround(vec3 x) {
+    return round(x * 255.0) * (1.0 / 255.0);
+}
+
+vec4 byteround(vec4 x) {
+    return round(x * 255.0) * (1.0 / 255.0);
+}
+
+// PICA's LOD formula for 2D textures.
+// This LOD formula is the same as the LOD lower limit defined in OpenGL.
+// f(x, y) >= max{m_u, m_v, m_w}
+// (See OpenGL 4.6 spec, 8.14.1 - Scale Factor and Level-of-Detail)
+float getLod(vec2 coord) {
+    vec2 d = max(abs(dFdx(coord)), abs(dFdy(coord)));
+    return log2(max(d.x, d.y));
+}
+
+vec4 shadowTexture(vec2 uv, float w) {
+    return vec4(1.0);
+}
+
+vec4 shadowTextureCube(vec2 uv, float w) {
+    return vec4(1.0);
+}
+
+void main() {
+vec4 rounded_primary_color = byteround(primary_color);
+vec4 primary_fragment_color = vec4(0.0);
+vec4 secondary_fragment_color = vec4(0.0);
+if (!(gl_FragCoord.x >= float(scissor_x1) && gl_FragCoord.y >= float(scissor_y1) && gl_FragCoord.x < float(scissor_x2) && gl_FragCoord.y < float(scissor_y2))) discard;
+float z_over_w = 2.0 * gl_FragCoord.z - 1.0;
+float depth = z_over_w * depth_scale + depth_offset;
+vec4 texcolor0 = textureLod(tex0, texcoord0, getLod(texcoord0 * vec2(textureSize(tex0, 0))));
+vec4 texcolor1 = textureLod(tex1, texcoord1, getLod(texcoord1 * vec2(textureSize(tex1, 0))));
+
+vec4 diffuse_sum = vec4(0.0, 0.0, 0.0, 1.0);
+vec4 specular_sum = vec4(0.0, 0.0, 0.0, 1.0);
+vec3 light_vector = vec3(0.0);
+vec3 refl_value = vec3(0.0);
+vec3 spot_dir = vec3(0.0);
+vec3 half_vector = vec3(0.0);
+float dot_product = 0.0;
+float clamp_highlights = 1.0;
+float geo_factor = 1.0;
+vec3 surface_normal = vec3(0.0, 0.0, 1.0);
+vec3 surface_tangent = vec3(1.0, 0.0, 0.0);
+vec4 normalized_normquat = normalize(normquat);
+vec3 normal = quaternion_rotate(normalized_normquat, surface_normal);
+vec3 tangent = quaternion_rotate(normalized_normquat, surface_tangent);
+vec4 shadow = vec4(1.0);
+light_vector = normalize(light_src[0].position + view);
+spot_dir = light_src[0].spot_direction;
+half_vector = normalize(view) + light_vector;
+dot_product = max(dot(light_vector, normal), 0.0);
+refl_value.r = 1.0;
+refl_value.g = refl_value.r;
+refl_value.b = refl_value.r;
+diffuse_sum.rgb += ((light_src[0].diffuse * dot_product) + light_src[0].ambient) * LookupLightingLUTUnsigned(16,clamp(light_src[0].dist_atten_scale * length(-view - light_src[0].position) + light_src[0].dist_atten_bias, 0.0, 1.0)) * 1.0;
+specular_sum.rgb += ((light_src[0].specular_0) + (light_src[0].specular_1)) * clamp_highlights * LookupLightingLUTUnsigned(16,clamp(light_src[0].dist_atten_scale * length(-view - light_src[0].position) + light_src[0].dist_atten_bias, 0.0, 1.0)) * 1.0;
+light_vector = normalize(light_src[1].position + view);
+spot_dir = light_src[1].spot_direction;
+half_vector = normalize(view) + light_vector;
+dot_product = max(dot(light_vector, normal), 0.0);
+refl_value.r = 1.0;
+refl_value.g = refl_value.r;
+refl_value.b = refl_value.r;
+diffuse_sum.rgb += ((light_src[1].diffuse * dot_product) + light_src[1].ambient) * LookupLightingLUTUnsigned(17,clamp(light_src[1].dist_atten_scale * length(-view - light_src[1].position) + light_src[1].dist_atten_bias, 0.0, 1.0)) * 1.0;
+specular_sum.rgb += ((light_src[1].specular_0) + (light_src[1].specular_1)) * clamp_highlights * LookupLightingLUTUnsigned(17,clamp(light_src[1].dist_atten_scale * length(-view - light_src[1].position) + light_src[1].dist_atten_bias, 0.0, 1.0)) * 1.0;
+light_vector = normalize(light_src[2].position + view);
+spot_dir = light_src[2].spot_direction;
+half_vector = normalize(view) + light_vector;
+dot_product = max(dot(light_vector, normal), 0.0);
+refl_value.r = 1.0;
+refl_value.g = refl_value.r;
+refl_value.b = refl_value.r;
+diffuse_sum.rgb += ((light_src[2].diffuse * dot_product) + light_src[2].ambient) * LookupLightingLUTUnsigned(18,clamp(light_src[2].dist_atten_scale * length(-view - light_src[2].position) + light_src[2].dist_atten_bias, 0.0, 1.0)) * 1.0;
+specular_sum.rgb += ((light_src[2].specular_0) + (light_src[2].specular_1)) * clamp_highlights * LookupLightingLUTUnsigned(18,clamp(light_src[2].dist_atten_scale * length(-view - light_src[2].position) + light_src[2].dist_atten_bias, 0.0, 1.0)) * 1.0;
+light_vector = normalize(light_src[3].position + view);
+spot_dir = light_src[3].spot_direction;
+half_vector = normalize(view) + light_vector;
+dot_product = max(dot(light_vector, normal), 0.0);
+refl_value.r = 1.0;
+refl_value.g = refl_value.r;
+refl_value.b = refl_value.r;
+diffuse_sum.rgb += ((light_src[3].diffuse * dot_product) + light_src[3].ambient) * LookupLightingLUTUnsigned(19,clamp(light_src[3].dist_atten_scale * length(-view - light_src[3].position) + light_src[3].dist_atten_bias, 0.0, 1.0)) * (lut_scale_sp * LookupLightingLUTUnsigned(11, max(dot(light_vector, spot_dir), 0.0)));
+specular_sum.rgb += ((light_src[3].specular_0) + (light_src[3].specular_1)) * clamp_highlights * LookupLightingLUTUnsigned(19,clamp(light_src[3].dist_atten_scale * length(-view - light_src[3].position) + light_src[3].dist_atten_bias, 0.0, 1.0)) * (lut_scale_sp * LookupLightingLUTUnsigned(11, max(dot(light_vector, spot_dir), 0.0)));
 diffuse_sum.rgb += lighting_global_ambient;
 primary_fragment_color = clamp(diffuse_sum, vec4(0.0), vec4(1.0));
 secondary_fragment_color = clamp(specular_sum, vec4(0.0), vec4(1.0));
@@ -47587,15 +45031,9 @@ combiner_buffer = next_combiner_buffer;
 gl_FragDepth = depth;
 color = byteround(last_tex_env_out);
 }
-// reference: 932461CC01F0B970, 7438820BB64AB24A
-// program: A0A01900FB0E2CEC, F0531050140A5884, 7438820BB64AB24A
-// shader: 8B30, 2C7164B1407E43A9
-
-precision highp int;
-precision highp float;
-precision highp samplerBuffer;
-precision highp usampler2D;
-precision highp uimage2D;
+// reference: 620783DE952A482C, D7D38175BFCB3646
+// program: 1A9F70669A3C74DF, F0531050140A5884, D7D38175BFCB3646
+// shader: 8B30, 04B0EAB88A77800F
 in vec4 primary_color;
 in vec2 texcoord0;
 in vec2 texcoord1;
@@ -47753,15 +45191,42 @@ vec4 normalized_normquat = normalize(normquat);
 vec3 normal = quaternion_rotate(normalized_normquat, surface_normal);
 vec3 tangent = quaternion_rotate(normalized_normquat, surface_tangent);
 vec4 shadow = vec4(1.0);
-light_vector = normalize(light_src[0].position);
+light_vector = normalize(light_src[0].position + view);
 spot_dir = light_src[0].spot_direction;
 half_vector = normalize(view) + light_vector;
 dot_product = max(dot(light_vector, normal), 0.0);
 refl_value.r = 1.0;
 refl_value.g = refl_value.r;
 refl_value.b = refl_value.r;
-diffuse_sum.rgb += ((light_src[0].diffuse * dot_product) + light_src[0].ambient) * 1.0;
-specular_sum.rgb += ((light_src[0].specular_0) + (light_src[0].specular_1)) * clamp_highlights * 1.0;
+diffuse_sum.rgb += ((light_src[0].diffuse * dot_product) + light_src[0].ambient) * LookupLightingLUTUnsigned(16,clamp(light_src[0].dist_atten_scale * length(-view - light_src[0].position) + light_src[0].dist_atten_bias, 0.0, 1.0)) * 1.0;
+specular_sum.rgb += ((light_src[0].specular_0) + (light_src[0].specular_1)) * clamp_highlights * LookupLightingLUTUnsigned(16,clamp(light_src[0].dist_atten_scale * length(-view - light_src[0].position) + light_src[0].dist_atten_bias, 0.0, 1.0)) * 1.0;
+light_vector = normalize(light_src[1].position + view);
+spot_dir = light_src[1].spot_direction;
+half_vector = normalize(view) + light_vector;
+dot_product = max(dot(light_vector, normal), 0.0);
+refl_value.r = 1.0;
+refl_value.g = refl_value.r;
+refl_value.b = refl_value.r;
+diffuse_sum.rgb += ((light_src[1].diffuse * dot_product) + light_src[1].ambient) * LookupLightingLUTUnsigned(17,clamp(light_src[1].dist_atten_scale * length(-view - light_src[1].position) + light_src[1].dist_atten_bias, 0.0, 1.0)) * 1.0;
+specular_sum.rgb += ((light_src[1].specular_0) + (light_src[1].specular_1)) * clamp_highlights * LookupLightingLUTUnsigned(17,clamp(light_src[1].dist_atten_scale * length(-view - light_src[1].position) + light_src[1].dist_atten_bias, 0.0, 1.0)) * 1.0;
+light_vector = normalize(light_src[2].position + view);
+spot_dir = light_src[2].spot_direction;
+half_vector = normalize(view) + light_vector;
+dot_product = max(dot(light_vector, normal), 0.0);
+refl_value.r = 1.0;
+refl_value.g = refl_value.r;
+refl_value.b = refl_value.r;
+diffuse_sum.rgb += ((light_src[2].diffuse * dot_product) + light_src[2].ambient) * LookupLightingLUTUnsigned(18,clamp(light_src[2].dist_atten_scale * length(-view - light_src[2].position) + light_src[2].dist_atten_bias, 0.0, 1.0)) * 1.0;
+specular_sum.rgb += ((light_src[2].specular_0) + (light_src[2].specular_1)) * clamp_highlights * LookupLightingLUTUnsigned(18,clamp(light_src[2].dist_atten_scale * length(-view - light_src[2].position) + light_src[2].dist_atten_bias, 0.0, 1.0)) * 1.0;
+light_vector = normalize(light_src[3].position + view);
+spot_dir = light_src[3].spot_direction;
+half_vector = normalize(view) + light_vector;
+dot_product = max(dot(light_vector, normal), 0.0);
+refl_value.r = 1.0;
+refl_value.g = refl_value.r;
+refl_value.b = refl_value.r;
+diffuse_sum.rgb += ((light_src[3].diffuse * dot_product) + light_src[3].ambient) * LookupLightingLUTUnsigned(19,clamp(light_src[3].dist_atten_scale * length(-view - light_src[3].position) + light_src[3].dist_atten_bias, 0.0, 1.0)) * (lut_scale_sp * LookupLightingLUTUnsigned(11, max(dot(light_vector, spot_dir), 0.0)));
+specular_sum.rgb += ((light_src[3].specular_0) + (light_src[3].specular_1)) * clamp_highlights * LookupLightingLUTUnsigned(19,clamp(light_src[3].dist_atten_scale * length(-view - light_src[3].position) + light_src[3].dist_atten_bias, 0.0, 1.0)) * (lut_scale_sp * LookupLightingLUTUnsigned(11, max(dot(light_vector, spot_dir), 0.0)));
 diffuse_sum.rgb += lighting_global_ambient;
 primary_fragment_color = clamp(diffuse_sum, vec4(0.0), vec4(1.0));
 secondary_fragment_color = clamp(specular_sum, vec4(0.0), vec4(1.0));
@@ -47805,15 +45270,9 @@ combiner_buffer = next_combiner_buffer;
 gl_FragDepth = depth;
 color = byteround(last_tex_env_out);
 }
-// reference: 7C5198507952ABB8, 2C7164B1407E43A9
-// program: A0A01900FB0E2CEC, F0531050140A5884, 2C7164B1407E43A9
-// shader: 8B30, 29138E1EFBA7E45F
-
-precision highp int;
-precision highp float;
-precision highp samplerBuffer;
-precision highp usampler2D;
-precision highp uimage2D;
+// reference: 8D727A42ED885AE4, 04B0EAB88A77800F
+// program: 1A9F70669A3C74DF, F0531050140A5884, 04B0EAB88A77800F
+// shader: 8B30, 7C65DFC73A94EABB
 in vec4 primary_color;
 in vec2 texcoord0;
 in vec2 texcoord1;
@@ -47953,6 +45412,7 @@ vec4 secondary_fragment_color = vec4(0.0);
 if (!(gl_FragCoord.x >= float(scissor_x1) && gl_FragCoord.y >= float(scissor_y1) && gl_FragCoord.x < float(scissor_x2) && gl_FragCoord.y < float(scissor_y2))) discard;
 float z_over_w = 2.0 * gl_FragCoord.z - 1.0;
 float depth = z_over_w * depth_scale + depth_offset;
+vec4 texcolor0 = textureLod(tex0, texcoord0, getLod(texcoord0 * vec2(textureSize(tex0, 0))));
 
 vec4 diffuse_sum = vec4(0.0, 0.0, 0.0, 1.0);
 vec4 specular_sum = vec4(0.0, 0.0, 0.0, 1.0);
@@ -47969,16 +45429,42 @@ vec4 normalized_normquat = normalize(normquat);
 vec3 normal = quaternion_rotate(normalized_normquat, surface_normal);
 vec3 tangent = quaternion_rotate(normalized_normquat, surface_tangent);
 vec4 shadow = vec4(1.0);
-light_vector = normalize(light_src[0].position);
+light_vector = normalize(light_src[0].position + view);
 spot_dir = light_src[0].spot_direction;
 half_vector = normalize(view) + light_vector;
 dot_product = max(dot(light_vector, normal), 0.0);
 refl_value.r = 1.0;
 refl_value.g = refl_value.r;
 refl_value.b = refl_value.r;
-specular_sum.a = (lut_scale_fr * LookupLightingLUTUnsigned(3, max(dot(normal, normalize(view)), 0.0)));
-diffuse_sum.rgb += ((light_src[0].diffuse * dot_product) + light_src[0].ambient) * 1.0;
-specular_sum.rgb += ((light_src[0].specular_0) + (light_src[0].specular_1)) * clamp_highlights * 1.0;
+diffuse_sum.rgb += ((light_src[0].diffuse * dot_product) + light_src[0].ambient) * LookupLightingLUTUnsigned(16,clamp(light_src[0].dist_atten_scale * length(-view - light_src[0].position) + light_src[0].dist_atten_bias, 0.0, 1.0)) * 1.0;
+specular_sum.rgb += ((light_src[0].specular_0) + (light_src[0].specular_1)) * clamp_highlights * LookupLightingLUTUnsigned(16,clamp(light_src[0].dist_atten_scale * length(-view - light_src[0].position) + light_src[0].dist_atten_bias, 0.0, 1.0)) * 1.0;
+light_vector = normalize(light_src[1].position + view);
+spot_dir = light_src[1].spot_direction;
+half_vector = normalize(view) + light_vector;
+dot_product = max(dot(light_vector, normal), 0.0);
+refl_value.r = 1.0;
+refl_value.g = refl_value.r;
+refl_value.b = refl_value.r;
+diffuse_sum.rgb += ((light_src[1].diffuse * dot_product) + light_src[1].ambient) * LookupLightingLUTUnsigned(17,clamp(light_src[1].dist_atten_scale * length(-view - light_src[1].position) + light_src[1].dist_atten_bias, 0.0, 1.0)) * 1.0;
+specular_sum.rgb += ((light_src[1].specular_0) + (light_src[1].specular_1)) * clamp_highlights * LookupLightingLUTUnsigned(17,clamp(light_src[1].dist_atten_scale * length(-view - light_src[1].position) + light_src[1].dist_atten_bias, 0.0, 1.0)) * 1.0;
+light_vector = normalize(light_src[2].position + view);
+spot_dir = light_src[2].spot_direction;
+half_vector = normalize(view) + light_vector;
+dot_product = max(dot(light_vector, normal), 0.0);
+refl_value.r = 1.0;
+refl_value.g = refl_value.r;
+refl_value.b = refl_value.r;
+diffuse_sum.rgb += ((light_src[2].diffuse * dot_product) + light_src[2].ambient) * LookupLightingLUTUnsigned(18,clamp(light_src[2].dist_atten_scale * length(-view - light_src[2].position) + light_src[2].dist_atten_bias, 0.0, 1.0)) * 1.0;
+specular_sum.rgb += ((light_src[2].specular_0) + (light_src[2].specular_1)) * clamp_highlights * LookupLightingLUTUnsigned(18,clamp(light_src[2].dist_atten_scale * length(-view - light_src[2].position) + light_src[2].dist_atten_bias, 0.0, 1.0)) * 1.0;
+light_vector = normalize(light_src[3].position + view);
+spot_dir = light_src[3].spot_direction;
+half_vector = normalize(view) + light_vector;
+dot_product = max(dot(light_vector, normal), 0.0);
+refl_value.r = 1.0;
+refl_value.g = refl_value.r;
+refl_value.b = refl_value.r;
+diffuse_sum.rgb += ((light_src[3].diffuse * dot_product) + light_src[3].ambient) * LookupLightingLUTUnsigned(19,clamp(light_src[3].dist_atten_scale * length(-view - light_src[3].position) + light_src[3].dist_atten_bias, 0.0, 1.0)) * (lut_scale_sp * LookupLightingLUTUnsigned(11, max(dot(light_vector, spot_dir), 0.0)));
+specular_sum.rgb += ((light_src[3].specular_0) + (light_src[3].specular_1)) * clamp_highlights * LookupLightingLUTUnsigned(19,clamp(light_src[3].dist_atten_scale * length(-view - light_src[3].position) + light_src[3].dist_atten_bias, 0.0, 1.0)) * (lut_scale_sp * LookupLightingLUTUnsigned(11, max(dot(light_vector, spot_dir), 0.0)));
 diffuse_sum.rgb += lighting_global_ambient;
 primary_fragment_color = clamp(diffuse_sum, vec4(0.0), vec4(1.0));
 secondary_fragment_color = clamp(specular_sum, vec4(0.0), vec4(1.0));
@@ -47986,213 +45472,13 @@ secondary_fragment_color = clamp(specular_sum, vec4(0.0), vec4(1.0));
 vec4 combiner_buffer = vec4(0.0);
 vec4 next_combiner_buffer = tev_combiner_buffer_color;
 vec4 last_tex_env_out = vec4(0.0);
-vec3 color_output_0 = byteround(clamp((const_color[0].rgb), vec3(0.0), vec3(1.0)));
-float alpha_output_0 = byteround(clamp((secondary_fragment_color.a) * (const_color[0].a), 0.0, 1.0));
+vec3 color_output_0 = byteround(clamp((texcolor0.rgb) * (const_color[0].rgb), vec3(0.0), vec3(1.0)));
+float alpha_output_0 = byteround(clamp((texcolor0.a) * (const_color[0].a), 0.0, 1.0));
 last_tex_env_out = clamp(vec4(color_output_0, alpha_output_0), vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 
-combiner_buffer = next_combiner_buffer;
-
-combiner_buffer = next_combiner_buffer;
-
-combiner_buffer = next_combiner_buffer;
-
-combiner_buffer = next_combiner_buffer;
-
-combiner_buffer = next_combiner_buffer;
-
-gl_FragDepth = depth;
-color = byteround(last_tex_env_out);
-}
-// reference: AFE23356E3ED583E, 29138E1EFBA7E45F
-// program: A0A01900FB0E2CEC, F0531050140A5884, 29138E1EFBA7E45F
-// reference: 803D1993DC43D232, 94C189A177E49D88
-// shader: 8B30, 286C13F02053B6E6
-
-precision highp int;
-precision highp float;
-precision highp samplerBuffer;
-precision highp usampler2D;
-precision highp uimage2D;
-in vec4 primary_color;
-in vec2 texcoord0;
-in vec2 texcoord1;
-in vec2 texcoord2;
-in float texcoord0_w;
-in vec4 normquat;
-in vec3 view;
-
-#ifndef CITRA_GLES
-in vec4 gl_FragCoord;
-#endif // CITRA_GLES
-out vec4 color;
-
-uniform sampler2D tex0;
-uniform sampler2D tex1;
-uniform sampler2D tex2;
-uniform samplerCube tex_cube;
-uniform samplerBuffer texture_buffer_lut_lf;
-uniform samplerBuffer texture_buffer_lut_rg;
-uniform samplerBuffer texture_buffer_lut_rgba;
-
-#define NUM_TEV_STAGES 6
-#define NUM_LIGHTS 8
-#define NUM_LIGHTING_SAMPLERS 24
-
-struct LightSrc {
-    vec3 specular_0;
-    vec3 specular_1;
-    vec3 diffuse;
-    vec3 ambient;
-    vec3 position;
-    vec3 spot_direction;
-    float dist_atten_bias;
-    float dist_atten_scale;
-};
-
-layout (std140) uniform shader_data {
-    int alphatest_ref;
-    float depth_scale;
-    float depth_offset;
-    float shadow_bias_constant;
-    float shadow_bias_linear;
-    int scissor_x1;
-    int scissor_y1;
-    int scissor_x2;
-    int scissor_y2;
-    int fog_lut_offset;
-    int proctex_noise_lut_offset;
-    int proctex_color_map_offset;
-    int proctex_alpha_map_offset;
-    int proctex_lut_offset;
-    int proctex_diff_lut_offset;
-    float proctex_bias;
-    vec3 fog_color;
-    vec2 proctex_noise_f;
-    vec2 proctex_noise_a;
-    vec2 proctex_noise_p;
-    vec4 const_color[NUM_TEV_STAGES];
-    vec4 tev_combiner_buffer_color;
-    vec4 clip_coef;
-};
-
-layout (std140) uniform shader_light_data {
-    ivec4 lighting_lut_offset[NUM_LIGHTING_SAMPLERS / 4];
-    vec3 lighting_global_ambient;
-    LightSrc light_src[NUM_LIGHTS];
-    float lut_scale_d0;
-    float lut_scale_d1;
-    float lut_scale_sp;
-    float lut_scale_fr;
-    float lut_scale_rb;
-    float lut_scale_rg;
-    float lut_scale_rr;
-    int shadow_texture_bias;
-};
-
-// Rotate the vector v by the quaternion q
-vec3 quaternion_rotate(vec4 q, vec3 v) {
-    return v + 2.0 * cross(q.xyz, cross(q.xyz, v) + q.w * v);
-}
-
-float LookupLightingLUT(int lut_index, int index, float delta) {
-    vec2 entry = texelFetch(texture_buffer_lut_lf, lighting_lut_offset[lut_index >> 2][lut_index & 3] + index).rg;
-    return entry.r + entry.g * delta;
-}
-
-float LookupLightingLUTUnsigned(int lut_index, float pos) {
-    int index = clamp(int(pos * 256.0), 0, 255);
-    float delta = pos * 256.0 - float(index);
-    return LookupLightingLUT(lut_index, index, delta);
-}
-
-float LookupLightingLUTSigned(int lut_index, float pos) {
-    int index = clamp(int(pos * 128.0), -128, 127);
-    float delta = pos * 128.0 - float(index);
-    if (index < 0) index += 256;
-    return LookupLightingLUT(lut_index, index, delta);
-}
-
-float byteround(float x) {
-    return round(x * 255.0) * (1.0 / 255.0);
-}
-
-vec2 byteround(vec2 x) {
-    return round(x * 255.0) * (1.0 / 255.0);
-}
-
-vec3 byteround(vec3 x) {
-    return round(x * 255.0) * (1.0 / 255.0);
-}
-
-vec4 byteround(vec4 x) {
-    return round(x * 255.0) * (1.0 / 255.0);
-}
-
-// PICA's LOD formula for 2D textures.
-// This LOD formula is the same as the LOD lower limit defined in OpenGL.
-// f(x, y) >= max{m_u, m_v, m_w}
-// (See OpenGL 4.6 spec, 8.14.1 - Scale Factor and Level-of-Detail)
-float getLod(vec2 coord) {
-    vec2 d = max(abs(dFdx(coord)), abs(dFdy(coord)));
-    return log2(max(d.x, d.y));
-}
-
-vec4 shadowTexture(vec2 uv, float w) {
-    return vec4(1.0);
-}
-
-vec4 shadowTextureCube(vec2 uv, float w) {
-    return vec4(1.0);
-}
-
-void main() {
-vec4 rounded_primary_color = byteround(primary_color);
-vec4 primary_fragment_color = vec4(0.0);
-vec4 secondary_fragment_color = vec4(0.0);
-if (!(gl_FragCoord.x >= float(scissor_x1) && gl_FragCoord.y >= float(scissor_y1) && gl_FragCoord.x < float(scissor_x2) && gl_FragCoord.y < float(scissor_y2))) discard;
-float z_over_w = 2.0 * gl_FragCoord.z - 1.0;
-float depth = z_over_w * depth_scale + depth_offset;
-
-vec4 diffuse_sum = vec4(0.0, 0.0, 0.0, 1.0);
-vec4 specular_sum = vec4(0.0, 0.0, 0.0, 1.0);
-vec3 light_vector = vec3(0.0);
-vec3 refl_value = vec3(0.0);
-vec3 spot_dir = vec3(0.0);
-vec3 half_vector = vec3(0.0);
-float dot_product = 0.0;
-float clamp_highlights = 1.0;
-float geo_factor = 1.0;
-vec3 surface_normal = vec3(0.0, 0.0, 1.0);
-vec3 surface_tangent = vec3(1.0, 0.0, 0.0);
-vec4 normalized_normquat = normalize(normquat);
-vec3 normal = quaternion_rotate(normalized_normquat, surface_normal);
-vec3 tangent = quaternion_rotate(normalized_normquat, surface_tangent);
-vec4 shadow = vec4(1.0);
-light_vector = normalize(light_src[0].position);
-spot_dir = light_src[0].spot_direction;
-half_vector = normalize(view) + light_vector;
-dot_product = max(dot(light_vector, normal), 0.0);
-refl_value.r = 1.0;
-refl_value.g = refl_value.r;
-refl_value.b = refl_value.r;
-specular_sum.a = (lut_scale_fr * LookupLightingLUTUnsigned(3, max(dot(normal, normalize(view)), 0.0)));
-diffuse_sum.rgb += ((light_src[0].diffuse * dot_product) + light_src[0].ambient) * 1.0;
-specular_sum.rgb += ((light_src[0].specular_0) + (light_src[0].specular_1)) * clamp_highlights * 1.0;
-diffuse_sum.rgb += lighting_global_ambient;
-primary_fragment_color = clamp(diffuse_sum, vec4(0.0), vec4(1.0));
-secondary_fragment_color = clamp(specular_sum, vec4(0.0), vec4(1.0));
-
-vec4 combiner_buffer = vec4(0.0);
-vec4 next_combiner_buffer = tev_combiner_buffer_color;
-vec4 last_tex_env_out = vec4(0.0);
-vec3 color_output_0 = byteround(clamp((const_color[0].rgb), vec3(0.0), vec3(1.0)));
-float alpha_output_0 = byteround(clamp((secondary_fragment_color.a) * (const_color[0].a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_0, alpha_output_0), vec4(0.0), vec4(1.0));
-combiner_buffer = next_combiner_buffer;
-
-vec3 color_output_1 = byteround(clamp((last_tex_env_out.rgb), vec3(0.0), vec3(1.0)));
-float alpha_output_1 = byteround(clamp((last_tex_env_out.a) * (const_color[1].a), 0.0, 1.0));
+vec3 color_output_1 = byteround(clamp((last_tex_env_out.rgb) * (primary_fragment_color.rgb), vec3(0.0), vec3(1.0)));
+float alpha_output_1 = byteround(clamp((last_tex_env_out.a), 0.0, 1.0));
 last_tex_env_out = clamp(vec4(color_output_1, alpha_output_1), vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 
@@ -48207,16 +45493,12 @@ combiner_buffer = next_combiner_buffer;
 gl_FragDepth = depth;
 color = byteround(last_tex_env_out);
 }
-// reference: 86EA0EF309398198, 286C13F02053B6E6
-// program: A0A01900FB0E2CEC, F0531050140A5884, 286C13F02053B6E6
-// program: 06F56F2630B83832, E4F72E6786B1F5DC, 9003BF984D8E6760
-// shader: 8B30, 92D4433DEE213644
-
-precision highp int;
-precision highp float;
-precision highp samplerBuffer;
-precision highp usampler2D;
-precision highp uimage2D;
+// reference: D4C7C9521946DA4E, 7C65DFC73A94EABB
+// program: 1A9F70669A3C74DF, F0531050140A5884, 7C65DFC73A94EABB
+// reference: 5EC1D1447737A962, 59ED698457F53D16
+// reference: 711EFB814899236E, 03A41228A921F0A5
+// reference: 77C9ECE19DE370C4, 57944423B0A02429
+// shader: 8B30, 47D7E00A67723A21
 in vec4 primary_color;
 in vec2 texcoord0;
 in vec2 texcoord1;
@@ -48444,15 +45726,3341 @@ combiner_buffer = next_combiner_buffer;
 gl_FragDepth = depth;
 color = byteround(last_tex_env_out);
 }
-// reference: 5E11EDACD1B04CC8, 92D4433DEE213644
-// program: A0A01900FB0E2CEC, F0531050140A5884, 92D4433DEE213644
-// shader: 8B30, 97CBCB429E741BC4
+// reference: 5E11EDACD1B04CC8, 47D7E00A67723A21
+// program: 1A9F70669A3C74DF, F0531050140A5884, 47D7E00A67723A21
+// reference: 1D746E449FA7634C, 77D4EA88CD01043F
+// shader: 8B30, BC0E4C74AC09012D
+in vec4 primary_color;
+in vec2 texcoord0;
+in vec2 texcoord1;
+in vec2 texcoord2;
+in float texcoord0_w;
+in vec4 normquat;
+in vec3 view;
 
-precision highp int;
-precision highp float;
-precision highp samplerBuffer;
-precision highp usampler2D;
-precision highp uimage2D;
+#ifndef CITRA_GLES
+in vec4 gl_FragCoord;
+#endif // CITRA_GLES
+out vec4 color;
+
+uniform sampler2D tex0;
+uniform sampler2D tex1;
+uniform sampler2D tex2;
+uniform samplerCube tex_cube;
+uniform samplerBuffer texture_buffer_lut_lf;
+uniform samplerBuffer texture_buffer_lut_rg;
+uniform samplerBuffer texture_buffer_lut_rgba;
+
+#define NUM_TEV_STAGES 6
+#define NUM_LIGHTS 8
+#define NUM_LIGHTING_SAMPLERS 24
+
+struct LightSrc {
+    vec3 specular_0;
+    vec3 specular_1;
+    vec3 diffuse;
+    vec3 ambient;
+    vec3 position;
+    vec3 spot_direction;
+    float dist_atten_bias;
+    float dist_atten_scale;
+};
+
+layout (std140) uniform shader_data {
+    int alphatest_ref;
+    float depth_scale;
+    float depth_offset;
+    float shadow_bias_constant;
+    float shadow_bias_linear;
+    int scissor_x1;
+    int scissor_y1;
+    int scissor_x2;
+    int scissor_y2;
+    int fog_lut_offset;
+    int proctex_noise_lut_offset;
+    int proctex_color_map_offset;
+    int proctex_alpha_map_offset;
+    int proctex_lut_offset;
+    int proctex_diff_lut_offset;
+    float proctex_bias;
+    vec3 fog_color;
+    vec2 proctex_noise_f;
+    vec2 proctex_noise_a;
+    vec2 proctex_noise_p;
+    vec4 const_color[NUM_TEV_STAGES];
+    vec4 tev_combiner_buffer_color;
+    vec4 clip_coef;
+};
+
+layout (std140) uniform shader_light_data {
+    ivec4 lighting_lut_offset[NUM_LIGHTING_SAMPLERS / 4];
+    vec3 lighting_global_ambient;
+    LightSrc light_src[NUM_LIGHTS];
+    float lut_scale_d0;
+    float lut_scale_d1;
+    float lut_scale_sp;
+    float lut_scale_fr;
+    float lut_scale_rb;
+    float lut_scale_rg;
+    float lut_scale_rr;
+    int shadow_texture_bias;
+};
+
+// Rotate the vector v by the quaternion q
+vec3 quaternion_rotate(vec4 q, vec3 v) {
+    return v + 2.0 * cross(q.xyz, cross(q.xyz, v) + q.w * v);
+}
+
+float LookupLightingLUT(int lut_index, int index, float delta) {
+    vec2 entry = texelFetch(texture_buffer_lut_lf, lighting_lut_offset[lut_index >> 2][lut_index & 3] + index).rg;
+    return entry.r + entry.g * delta;
+}
+
+float LookupLightingLUTUnsigned(int lut_index, float pos) {
+    int index = clamp(int(pos * 256.0), 0, 255);
+    float delta = pos * 256.0 - float(index);
+    return LookupLightingLUT(lut_index, index, delta);
+}
+
+float LookupLightingLUTSigned(int lut_index, float pos) {
+    int index = clamp(int(pos * 128.0), -128, 127);
+    float delta = pos * 128.0 - float(index);
+    if (index < 0) index += 256;
+    return LookupLightingLUT(lut_index, index, delta);
+}
+
+float byteround(float x) {
+    return round(x * 255.0) * (1.0 / 255.0);
+}
+
+vec2 byteround(vec2 x) {
+    return round(x * 255.0) * (1.0 / 255.0);
+}
+
+vec3 byteround(vec3 x) {
+    return round(x * 255.0) * (1.0 / 255.0);
+}
+
+vec4 byteround(vec4 x) {
+    return round(x * 255.0) * (1.0 / 255.0);
+}
+
+// PICA's LOD formula for 2D textures.
+// This LOD formula is the same as the LOD lower limit defined in OpenGL.
+// f(x, y) >= max{m_u, m_v, m_w}
+// (See OpenGL 4.6 spec, 8.14.1 - Scale Factor and Level-of-Detail)
+float getLod(vec2 coord) {
+    vec2 d = max(abs(dFdx(coord)), abs(dFdy(coord)));
+    return log2(max(d.x, d.y));
+}
+
+vec4 shadowTexture(vec2 uv, float w) {
+    return vec4(1.0);
+}
+
+vec4 shadowTextureCube(vec2 uv, float w) {
+    return vec4(1.0);
+}
+
+void main() {
+vec4 rounded_primary_color = byteround(primary_color);
+vec4 primary_fragment_color = vec4(0.0);
+vec4 secondary_fragment_color = vec4(0.0);
+if (!(gl_FragCoord.x >= float(scissor_x1) && gl_FragCoord.y >= float(scissor_y1) && gl_FragCoord.x < float(scissor_x2) && gl_FragCoord.y < float(scissor_y2))) discard;
+float z_over_w = 2.0 * gl_FragCoord.z - 1.0;
+float depth = z_over_w * depth_scale + depth_offset;
+vec4 texcolor1 = textureLod(tex1, texcoord1, getLod(texcoord1 * vec2(textureSize(tex1, 0))));
+vec4 texcolor2 = textureLod(tex2, texcoord2, getLod(texcoord2 * vec2(textureSize(tex2, 0))));
+
+vec4 diffuse_sum = vec4(0.0, 0.0, 0.0, 1.0);
+vec4 specular_sum = vec4(0.0, 0.0, 0.0, 1.0);
+vec3 light_vector = vec3(0.0);
+vec3 refl_value = vec3(0.0);
+vec3 spot_dir = vec3(0.0);
+vec3 half_vector = vec3(0.0);
+float dot_product = 0.0;
+float clamp_highlights = 1.0;
+float geo_factor = 1.0;
+vec3 surface_normal = vec3(0.0, 0.0, 1.0);
+vec3 surface_tangent = vec3(1.0, 0.0, 0.0);
+vec4 normalized_normquat = normalize(normquat);
+vec3 normal = quaternion_rotate(normalized_normquat, surface_normal);
+vec3 tangent = quaternion_rotate(normalized_normquat, surface_tangent);
+vec4 shadow = vec4(1.0);
+light_vector = normalize(light_src[0].position);
+spot_dir = light_src[0].spot_direction;
+half_vector = normalize(view) + light_vector;
+dot_product = max(dot(light_vector, normal), 0.0);
+refl_value.r = 1.0;
+refl_value.g = refl_value.r;
+refl_value.b = refl_value.r;
+diffuse_sum.rgb += ((light_src[0].diffuse * dot_product) + light_src[0].ambient) * 1.0;
+specular_sum.rgb += ((light_src[0].specular_0) + (light_src[0].specular_1)) * clamp_highlights * 1.0;
+diffuse_sum.rgb += lighting_global_ambient;
+primary_fragment_color = clamp(diffuse_sum, vec4(0.0), vec4(1.0));
+secondary_fragment_color = clamp(specular_sum, vec4(0.0), vec4(1.0));
+
+vec4 combiner_buffer = vec4(0.0);
+vec4 next_combiner_buffer = tev_combiner_buffer_color;
+vec4 last_tex_env_out = vec4(0.0);
+vec3 color_output_0 = byteround(clamp((const_color[0].aaa) * (texcolor2.rgb), vec3(0.0), vec3(1.0)));
+float alpha_output_0 = byteround(clamp((rounded_primary_color.r) * (rounded_primary_color.r), 0.0, 1.0));
+last_tex_env_out = clamp(vec4(color_output_0 * 1.0, alpha_output_0 * 2.0), vec4(0.0), vec4(1.0));
+combiner_buffer = next_combiner_buffer;
+next_combiner_buffer.rgb = last_tex_env_out.rgb;
+
+vec3 color_output_1 = byteround(clamp((const_color[1].rgb) * (vec3(1.0) - last_tex_env_out.aaa) + (rounded_primary_color.rgb), vec3(0.0), vec3(1.0)));
+float alpha_output_1 = byteround(clamp((const_color[1].a) * (texcolor2.a), 0.0, 1.0));
+last_tex_env_out = clamp(vec4(color_output_1, alpha_output_1), vec4(0.0), vec4(1.0));
+combiner_buffer = next_combiner_buffer;
+
+vec3 color_output_2 = byteround(clamp((last_tex_env_out.rgb) * (texcolor1.rgb) + (combiner_buffer.rgb), vec3(0.0), vec3(1.0)));
+float alpha_output_2 = byteround(clamp((last_tex_env_out.a), 0.0, 1.0));
+last_tex_env_out = clamp(vec4(color_output_2 * 2.0, alpha_output_2 * 4.0), vec4(0.0), vec4(1.0));
+combiner_buffer = next_combiner_buffer;
+next_combiner_buffer.rgb = last_tex_env_out.rgb;
+
+vec3 color_output_3 = byteround(clamp((const_color[3].rgb) * (last_tex_env_out.aaa) + (primary_fragment_color.rgb) * (vec3(1.0) - (last_tex_env_out.aaa)), vec3(0.0), vec3(1.0)));
+float alpha_output_3 = byteround(clamp((last_tex_env_out.a), 0.0, 1.0));
+last_tex_env_out = clamp(vec4(color_output_3, alpha_output_3), vec4(0.0), vec4(1.0));
+combiner_buffer = next_combiner_buffer;
+
+vec3 color_output_4 = byteround(clamp((combiner_buffer.rgb) * (last_tex_env_out.rgb), vec3(0.0), vec3(1.0)));
+float alpha_output_4 = byteround(clamp((const_color[4].a), 0.0, 1.0));
+last_tex_env_out = clamp(vec4(color_output_4, alpha_output_4), vec4(0.0), vec4(1.0));
+combiner_buffer = next_combiner_buffer;
+
+vec3 color_output_5 = byteround(clamp(min((const_color[5].rgb) + (shadowTexture(texcoord0, texcoord0_w).ggg), vec3(1.0)) * (last_tex_env_out.rgb), vec3(0.0), vec3(1.0)));
+float alpha_output_5 = byteround(clamp((last_tex_env_out.a), 0.0, 1.0));
+last_tex_env_out = clamp(vec4(color_output_5, alpha_output_5), vec4(0.0), vec4(1.0));
+combiner_buffer = next_combiner_buffer;
+
+gl_FragDepth = depth;
+color = byteround(last_tex_env_out);
+}
+// reference: 68D4FA2D4D892851, BC0E4C74AC09012D
+// program: 1A9F70669A3C74DF, F0531050140A5884, BC0E4C74AC09012D
+// reference: 68D4FA2D69E1806E, BC0E4C74AC09012D
+// shader: 8B30, 9EFA62D067D0486F
+in vec4 primary_color;
+in vec2 texcoord0;
+in vec2 texcoord1;
+in vec2 texcoord2;
+in float texcoord0_w;
+in vec4 normquat;
+in vec3 view;
+
+#ifndef CITRA_GLES
+in vec4 gl_FragCoord;
+#endif // CITRA_GLES
+out vec4 color;
+
+uniform sampler2D tex0;
+uniform sampler2D tex1;
+uniform sampler2D tex2;
+uniform samplerCube tex_cube;
+uniform samplerBuffer texture_buffer_lut_lf;
+uniform samplerBuffer texture_buffer_lut_rg;
+uniform samplerBuffer texture_buffer_lut_rgba;
+
+#define NUM_TEV_STAGES 6
+#define NUM_LIGHTS 8
+#define NUM_LIGHTING_SAMPLERS 24
+
+struct LightSrc {
+    vec3 specular_0;
+    vec3 specular_1;
+    vec3 diffuse;
+    vec3 ambient;
+    vec3 position;
+    vec3 spot_direction;
+    float dist_atten_bias;
+    float dist_atten_scale;
+};
+
+layout (std140) uniform shader_data {
+    int alphatest_ref;
+    float depth_scale;
+    float depth_offset;
+    float shadow_bias_constant;
+    float shadow_bias_linear;
+    int scissor_x1;
+    int scissor_y1;
+    int scissor_x2;
+    int scissor_y2;
+    int fog_lut_offset;
+    int proctex_noise_lut_offset;
+    int proctex_color_map_offset;
+    int proctex_alpha_map_offset;
+    int proctex_lut_offset;
+    int proctex_diff_lut_offset;
+    float proctex_bias;
+    vec3 fog_color;
+    vec2 proctex_noise_f;
+    vec2 proctex_noise_a;
+    vec2 proctex_noise_p;
+    vec4 const_color[NUM_TEV_STAGES];
+    vec4 tev_combiner_buffer_color;
+    vec4 clip_coef;
+};
+
+layout (std140) uniform shader_light_data {
+    ivec4 lighting_lut_offset[NUM_LIGHTING_SAMPLERS / 4];
+    vec3 lighting_global_ambient;
+    LightSrc light_src[NUM_LIGHTS];
+    float lut_scale_d0;
+    float lut_scale_d1;
+    float lut_scale_sp;
+    float lut_scale_fr;
+    float lut_scale_rb;
+    float lut_scale_rg;
+    float lut_scale_rr;
+    int shadow_texture_bias;
+};
+
+// Rotate the vector v by the quaternion q
+vec3 quaternion_rotate(vec4 q, vec3 v) {
+    return v + 2.0 * cross(q.xyz, cross(q.xyz, v) + q.w * v);
+}
+
+float LookupLightingLUT(int lut_index, int index, float delta) {
+    vec2 entry = texelFetch(texture_buffer_lut_lf, lighting_lut_offset[lut_index >> 2][lut_index & 3] + index).rg;
+    return entry.r + entry.g * delta;
+}
+
+float LookupLightingLUTUnsigned(int lut_index, float pos) {
+    int index = clamp(int(pos * 256.0), 0, 255);
+    float delta = pos * 256.0 - float(index);
+    return LookupLightingLUT(lut_index, index, delta);
+}
+
+float LookupLightingLUTSigned(int lut_index, float pos) {
+    int index = clamp(int(pos * 128.0), -128, 127);
+    float delta = pos * 128.0 - float(index);
+    if (index < 0) index += 256;
+    return LookupLightingLUT(lut_index, index, delta);
+}
+
+float byteround(float x) {
+    return round(x * 255.0) * (1.0 / 255.0);
+}
+
+vec2 byteround(vec2 x) {
+    return round(x * 255.0) * (1.0 / 255.0);
+}
+
+vec3 byteround(vec3 x) {
+    return round(x * 255.0) * (1.0 / 255.0);
+}
+
+vec4 byteround(vec4 x) {
+    return round(x * 255.0) * (1.0 / 255.0);
+}
+
+// PICA's LOD formula for 2D textures.
+// This LOD formula is the same as the LOD lower limit defined in OpenGL.
+// f(x, y) >= max{m_u, m_v, m_w}
+// (See OpenGL 4.6 spec, 8.14.1 - Scale Factor and Level-of-Detail)
+float getLod(vec2 coord) {
+    vec2 d = max(abs(dFdx(coord)), abs(dFdy(coord)));
+    return log2(max(d.x, d.y));
+}
+
+vec4 shadowTexture(vec2 uv, float w) {
+    return vec4(1.0);
+}
+
+vec4 shadowTextureCube(vec2 uv, float w) {
+    return vec4(1.0);
+}
+
+void main() {
+vec4 rounded_primary_color = byteround(primary_color);
+vec4 primary_fragment_color = vec4(0.0);
+vec4 secondary_fragment_color = vec4(0.0);
+if (!(gl_FragCoord.x >= float(scissor_x1) && gl_FragCoord.y >= float(scissor_y1) && gl_FragCoord.x < float(scissor_x2) && gl_FragCoord.y < float(scissor_y2))) discard;
+float z_over_w = 2.0 * gl_FragCoord.z - 1.0;
+float depth = z_over_w * depth_scale + depth_offset;
+vec4 texcolor1 = textureLod(tex1, texcoord1, getLod(texcoord1 * vec2(textureSize(tex1, 0))));
+vec4 texcolor2 = textureLod(tex2, texcoord2, getLod(texcoord2 * vec2(textureSize(tex2, 0))));
+
+vec4 diffuse_sum = vec4(0.0, 0.0, 0.0, 1.0);
+vec4 specular_sum = vec4(0.0, 0.0, 0.0, 1.0);
+vec3 light_vector = vec3(0.0);
+vec3 refl_value = vec3(0.0);
+vec3 spot_dir = vec3(0.0);
+vec3 half_vector = vec3(0.0);
+float dot_product = 0.0;
+float clamp_highlights = 1.0;
+float geo_factor = 1.0;
+vec3 surface_normal = vec3(0.0, 0.0, 1.0);
+vec3 surface_tangent = vec3(1.0, 0.0, 0.0);
+vec4 normalized_normquat = normalize(normquat);
+vec3 normal = quaternion_rotate(normalized_normquat, surface_normal);
+vec3 tangent = quaternion_rotate(normalized_normquat, surface_tangent);
+vec4 shadow = vec4(1.0);
+light_vector = normalize(light_src[0].position);
+spot_dir = light_src[0].spot_direction;
+half_vector = normalize(view) + light_vector;
+dot_product = max(dot(light_vector, normal), 0.0);
+refl_value.r = 1.0;
+refl_value.g = refl_value.r;
+refl_value.b = refl_value.r;
+diffuse_sum.rgb += ((light_src[0].diffuse * dot_product) + light_src[0].ambient) * 1.0;
+specular_sum.rgb += ((light_src[0].specular_0) + (light_src[0].specular_1)) * clamp_highlights * 1.0;
+diffuse_sum.rgb += lighting_global_ambient;
+primary_fragment_color = clamp(diffuse_sum, vec4(0.0), vec4(1.0));
+secondary_fragment_color = clamp(specular_sum, vec4(0.0), vec4(1.0));
+
+vec4 combiner_buffer = vec4(0.0);
+vec4 next_combiner_buffer = tev_combiner_buffer_color;
+vec4 last_tex_env_out = vec4(0.0);
+vec3 color_output_0 = byteround(clamp((const_color[0].aaa) * (texcolor2.rgb), vec3(0.0), vec3(1.0)));
+float alpha_output_0 = byteround(clamp((rounded_primary_color.r) * (rounded_primary_color.r), 0.0, 1.0));
+last_tex_env_out = clamp(vec4(color_output_0 * 1.0, alpha_output_0 * 2.0), vec4(0.0), vec4(1.0));
+combiner_buffer = next_combiner_buffer;
+next_combiner_buffer.rgb = last_tex_env_out.rgb;
+
+vec3 color_output_1 = byteround(clamp((const_color[1].rgb) * (vec3(1.0) - last_tex_env_out.aaa) + (rounded_primary_color.rgb), vec3(0.0), vec3(1.0)));
+float alpha_output_1 = byteround(clamp((const_color[1].a) * (texcolor2.a), 0.0, 1.0));
+last_tex_env_out = clamp(vec4(color_output_1, alpha_output_1), vec4(0.0), vec4(1.0));
+combiner_buffer = next_combiner_buffer;
+
+vec3 color_output_2 = byteround(clamp((last_tex_env_out.rgb) * (texcolor1.rgb) + (combiner_buffer.rgb), vec3(0.0), vec3(1.0)));
+float alpha_output_2 = byteround(clamp((last_tex_env_out.a) * (const_color[2].a), 0.0, 1.0));
+last_tex_env_out = clamp(vec4(color_output_2 * 2.0, alpha_output_2 * 4.0), vec4(0.0), vec4(1.0));
+combiner_buffer = next_combiner_buffer;
+next_combiner_buffer.rgb = last_tex_env_out.rgb;
+
+vec3 color_output_3 = byteround(clamp((const_color[3].rgb) * (last_tex_env_out.aaa) + (primary_fragment_color.rgb) * (vec3(1.0) - (last_tex_env_out.aaa)), vec3(0.0), vec3(1.0)));
+float alpha_output_3 = byteround(clamp((last_tex_env_out.a), 0.0, 1.0));
+last_tex_env_out = clamp(vec4(color_output_3, alpha_output_3), vec4(0.0), vec4(1.0));
+combiner_buffer = next_combiner_buffer;
+
+vec3 color_output_4 = byteround(clamp((combiner_buffer.rgb) * (last_tex_env_out.rgb), vec3(0.0), vec3(1.0)));
+float alpha_output_4 = byteround(clamp((const_color[4].a), 0.0, 1.0));
+last_tex_env_out = clamp(vec4(color_output_4, alpha_output_4), vec4(0.0), vec4(1.0));
+combiner_buffer = next_combiner_buffer;
+
+vec3 color_output_5 = byteround(clamp(min((const_color[5].rgb) + (shadowTexture(texcoord0, texcoord0_w).ggg), vec3(1.0)) * (last_tex_env_out.rgb), vec3(0.0), vec3(1.0)));
+float alpha_output_5 = byteround(clamp((last_tex_env_out.a), 0.0, 1.0));
+last_tex_env_out = clamp(vec4(color_output_5, alpha_output_5), vec4(0.0), vec4(1.0));
+combiner_buffer = next_combiner_buffer;
+
+gl_FragDepth = depth;
+color = byteround(last_tex_env_out);
+}
+// reference: 87A103B1AA6C1DD5, 9EFA62D067D0486F
+// program: 1A9F70669A3C74DF, F0531050140A5884, 9EFA62D067D0486F
+// shader: 8B30, 5A8DC93C7803FAD5
+in vec4 primary_color;
+in vec2 texcoord0;
+in vec2 texcoord1;
+in vec2 texcoord2;
+in float texcoord0_w;
+in vec4 normquat;
+in vec3 view;
+
+#ifndef CITRA_GLES
+in vec4 gl_FragCoord;
+#endif // CITRA_GLES
+out vec4 color;
+
+uniform sampler2D tex0;
+uniform sampler2D tex1;
+uniform sampler2D tex2;
+uniform samplerCube tex_cube;
+uniform samplerBuffer texture_buffer_lut_lf;
+uniform samplerBuffer texture_buffer_lut_rg;
+uniform samplerBuffer texture_buffer_lut_rgba;
+
+#define NUM_TEV_STAGES 6
+#define NUM_LIGHTS 8
+#define NUM_LIGHTING_SAMPLERS 24
+
+struct LightSrc {
+    vec3 specular_0;
+    vec3 specular_1;
+    vec3 diffuse;
+    vec3 ambient;
+    vec3 position;
+    vec3 spot_direction;
+    float dist_atten_bias;
+    float dist_atten_scale;
+};
+
+layout (std140) uniform shader_data {
+    int alphatest_ref;
+    float depth_scale;
+    float depth_offset;
+    float shadow_bias_constant;
+    float shadow_bias_linear;
+    int scissor_x1;
+    int scissor_y1;
+    int scissor_x2;
+    int scissor_y2;
+    int fog_lut_offset;
+    int proctex_noise_lut_offset;
+    int proctex_color_map_offset;
+    int proctex_alpha_map_offset;
+    int proctex_lut_offset;
+    int proctex_diff_lut_offset;
+    float proctex_bias;
+    vec3 fog_color;
+    vec2 proctex_noise_f;
+    vec2 proctex_noise_a;
+    vec2 proctex_noise_p;
+    vec4 const_color[NUM_TEV_STAGES];
+    vec4 tev_combiner_buffer_color;
+    vec4 clip_coef;
+};
+
+layout (std140) uniform shader_light_data {
+    ivec4 lighting_lut_offset[NUM_LIGHTING_SAMPLERS / 4];
+    vec3 lighting_global_ambient;
+    LightSrc light_src[NUM_LIGHTS];
+    float lut_scale_d0;
+    float lut_scale_d1;
+    float lut_scale_sp;
+    float lut_scale_fr;
+    float lut_scale_rb;
+    float lut_scale_rg;
+    float lut_scale_rr;
+    int shadow_texture_bias;
+};
+
+// Rotate the vector v by the quaternion q
+vec3 quaternion_rotate(vec4 q, vec3 v) {
+    return v + 2.0 * cross(q.xyz, cross(q.xyz, v) + q.w * v);
+}
+
+float LookupLightingLUT(int lut_index, int index, float delta) {
+    vec2 entry = texelFetch(texture_buffer_lut_lf, lighting_lut_offset[lut_index >> 2][lut_index & 3] + index).rg;
+    return entry.r + entry.g * delta;
+}
+
+float LookupLightingLUTUnsigned(int lut_index, float pos) {
+    int index = clamp(int(pos * 256.0), 0, 255);
+    float delta = pos * 256.0 - float(index);
+    return LookupLightingLUT(lut_index, index, delta);
+}
+
+float LookupLightingLUTSigned(int lut_index, float pos) {
+    int index = clamp(int(pos * 128.0), -128, 127);
+    float delta = pos * 128.0 - float(index);
+    if (index < 0) index += 256;
+    return LookupLightingLUT(lut_index, index, delta);
+}
+
+float byteround(float x) {
+    return round(x * 255.0) * (1.0 / 255.0);
+}
+
+vec2 byteround(vec2 x) {
+    return round(x * 255.0) * (1.0 / 255.0);
+}
+
+vec3 byteround(vec3 x) {
+    return round(x * 255.0) * (1.0 / 255.0);
+}
+
+vec4 byteround(vec4 x) {
+    return round(x * 255.0) * (1.0 / 255.0);
+}
+
+// PICA's LOD formula for 2D textures.
+// This LOD formula is the same as the LOD lower limit defined in OpenGL.
+// f(x, y) >= max{m_u, m_v, m_w}
+// (See OpenGL 4.6 spec, 8.14.1 - Scale Factor and Level-of-Detail)
+float getLod(vec2 coord) {
+    vec2 d = max(abs(dFdx(coord)), abs(dFdy(coord)));
+    return log2(max(d.x, d.y));
+}
+
+vec4 shadowTexture(vec2 uv, float w) {
+    return vec4(1.0);
+}
+
+vec4 shadowTextureCube(vec2 uv, float w) {
+    return vec4(1.0);
+}
+
+void main() {
+vec4 rounded_primary_color = byteround(primary_color);
+vec4 primary_fragment_color = vec4(0.0);
+vec4 secondary_fragment_color = vec4(0.0);
+if (!(gl_FragCoord.x >= float(scissor_x1) && gl_FragCoord.y >= float(scissor_y1) && gl_FragCoord.x < float(scissor_x2) && gl_FragCoord.y < float(scissor_y2))) discard;
+float z_over_w = 2.0 * gl_FragCoord.z - 1.0;
+float depth = z_over_w * depth_scale + depth_offset;
+vec4 texcolor1 = textureLod(tex1, texcoord1, getLod(texcoord1 * vec2(textureSize(tex1, 0))));
+
+vec4 diffuse_sum = vec4(0.0, 0.0, 0.0, 1.0);
+vec4 specular_sum = vec4(0.0, 0.0, 0.0, 1.0);
+vec3 light_vector = vec3(0.0);
+vec3 refl_value = vec3(0.0);
+vec3 spot_dir = vec3(0.0);
+vec3 half_vector = vec3(0.0);
+float dot_product = 0.0;
+float clamp_highlights = 1.0;
+float geo_factor = 1.0;
+vec3 surface_normal = vec3(0.0, 0.0, 1.0);
+vec3 surface_tangent = vec3(1.0, 0.0, 0.0);
+vec4 normalized_normquat = normalize(normquat);
+vec3 normal = quaternion_rotate(normalized_normquat, surface_normal);
+vec3 tangent = quaternion_rotate(normalized_normquat, surface_tangent);
+vec4 shadow = vec4(1.0);
+light_vector = normalize(light_src[0].position);
+spot_dir = light_src[0].spot_direction;
+half_vector = normalize(view) + light_vector;
+dot_product = max(dot(light_vector, normal), 0.0);
+refl_value.r = 1.0;
+refl_value.g = refl_value.r;
+refl_value.b = refl_value.r;
+diffuse_sum.rgb += ((light_src[0].diffuse * dot_product) + light_src[0].ambient) * 1.0;
+specular_sum.rgb += ((light_src[0].specular_0) + (light_src[0].specular_1)) * clamp_highlights * 1.0;
+diffuse_sum.rgb += lighting_global_ambient;
+primary_fragment_color = clamp(diffuse_sum, vec4(0.0), vec4(1.0));
+secondary_fragment_color = clamp(specular_sum, vec4(0.0), vec4(1.0));
+
+vec4 combiner_buffer = vec4(0.0);
+vec4 next_combiner_buffer = tev_combiner_buffer_color;
+vec4 last_tex_env_out = vec4(0.0);
+vec3 color_output_0 = byteround(clamp((rounded_primary_color.rgb), vec3(0.0), vec3(1.0)));
+float alpha_output_0 = byteround(clamp((rounded_primary_color.r) * (rounded_primary_color.r), 0.0, 1.0));
+last_tex_env_out = clamp(vec4(color_output_0 * 1.0, alpha_output_0 * 2.0), vec4(0.0), vec4(1.0));
+combiner_buffer = next_combiner_buffer;
+
+vec3 color_output_1 = byteround(clamp((const_color[1].rgb) * (vec3(1.0) - last_tex_env_out.aaa) + (rounded_primary_color.rgb), vec3(0.0), vec3(1.0)));
+float alpha_output_1 = byteround(clamp((rounded_primary_color.a) * (texcolor1.a), 0.0, 1.0));
+last_tex_env_out = clamp(vec4(color_output_1, alpha_output_1), vec4(0.0), vec4(1.0));
+combiner_buffer = next_combiner_buffer;
+
+vec3 color_output_2 = byteround(clamp((last_tex_env_out.rgb) * (texcolor1.rgb), vec3(0.0), vec3(1.0)));
+float alpha_output_2 = byteround(clamp((last_tex_env_out.a), 0.0, 1.0));
+last_tex_env_out = clamp(vec4(color_output_2 * 2.0, alpha_output_2 * 1.0), vec4(0.0), vec4(1.0));
+combiner_buffer = next_combiner_buffer;
+
+vec3 color_output_3 = byteround(clamp((last_tex_env_out.rgb) * (primary_fragment_color.rgb), vec3(0.0), vec3(1.0)));
+float alpha_output_3 = byteround(clamp((last_tex_env_out.a) * (const_color[3].a), 0.0, 1.0));
+last_tex_env_out = clamp(vec4(color_output_3, alpha_output_3), vec4(0.0), vec4(1.0));
+combiner_buffer = next_combiner_buffer;
+
+vec3 color_output_4 = byteround(clamp(min((const_color[4].rgb) + (shadowTexture(texcoord0, texcoord0_w).ggg), vec3(1.0)) * (last_tex_env_out.rgb), vec3(0.0), vec3(1.0)));
+float alpha_output_4 = byteround(clamp((last_tex_env_out.a), 0.0, 1.0));
+last_tex_env_out = clamp(vec4(color_output_4, alpha_output_4), vec4(0.0), vec4(1.0));
+combiner_buffer = next_combiner_buffer;
+
+combiner_buffer = next_combiner_buffer;
+
+if (int(last_tex_env_out.a * 255.0) <= alphatest_ref) discard;
+gl_FragDepth = depth;
+color = byteround(last_tex_env_out);
+}
+// reference: 5D063FC499927DBF, 5A8DC93C7803FAD5
+// program: 1A9F70669A3C74DF, F0531050140A5884, 5A8DC93C7803FAD5
+// reference: 803D1993DC43D232, 03A41228A921F0A5
+// shader: 8B30, BF82958A8D3DD293
+in vec4 primary_color;
+in vec2 texcoord0;
+in vec2 texcoord1;
+in vec2 texcoord2;
+in float texcoord0_w;
+in vec4 normquat;
+in vec3 view;
+
+#ifndef CITRA_GLES
+in vec4 gl_FragCoord;
+#endif // CITRA_GLES
+out vec4 color;
+
+uniform sampler2D tex0;
+uniform sampler2D tex1;
+uniform sampler2D tex2;
+uniform samplerCube tex_cube;
+uniform samplerBuffer texture_buffer_lut_lf;
+uniform samplerBuffer texture_buffer_lut_rg;
+uniform samplerBuffer texture_buffer_lut_rgba;
+
+#define NUM_TEV_STAGES 6
+#define NUM_LIGHTS 8
+#define NUM_LIGHTING_SAMPLERS 24
+
+struct LightSrc {
+    vec3 specular_0;
+    vec3 specular_1;
+    vec3 diffuse;
+    vec3 ambient;
+    vec3 position;
+    vec3 spot_direction;
+    float dist_atten_bias;
+    float dist_atten_scale;
+};
+
+layout (std140) uniform shader_data {
+    int alphatest_ref;
+    float depth_scale;
+    float depth_offset;
+    float shadow_bias_constant;
+    float shadow_bias_linear;
+    int scissor_x1;
+    int scissor_y1;
+    int scissor_x2;
+    int scissor_y2;
+    int fog_lut_offset;
+    int proctex_noise_lut_offset;
+    int proctex_color_map_offset;
+    int proctex_alpha_map_offset;
+    int proctex_lut_offset;
+    int proctex_diff_lut_offset;
+    float proctex_bias;
+    vec3 fog_color;
+    vec2 proctex_noise_f;
+    vec2 proctex_noise_a;
+    vec2 proctex_noise_p;
+    vec4 const_color[NUM_TEV_STAGES];
+    vec4 tev_combiner_buffer_color;
+    vec4 clip_coef;
+};
+
+layout (std140) uniform shader_light_data {
+    ivec4 lighting_lut_offset[NUM_LIGHTING_SAMPLERS / 4];
+    vec3 lighting_global_ambient;
+    LightSrc light_src[NUM_LIGHTS];
+    float lut_scale_d0;
+    float lut_scale_d1;
+    float lut_scale_sp;
+    float lut_scale_fr;
+    float lut_scale_rb;
+    float lut_scale_rg;
+    float lut_scale_rr;
+    int shadow_texture_bias;
+};
+
+// Rotate the vector v by the quaternion q
+vec3 quaternion_rotate(vec4 q, vec3 v) {
+    return v + 2.0 * cross(q.xyz, cross(q.xyz, v) + q.w * v);
+}
+
+float LookupLightingLUT(int lut_index, int index, float delta) {
+    vec2 entry = texelFetch(texture_buffer_lut_lf, lighting_lut_offset[lut_index >> 2][lut_index & 3] + index).rg;
+    return entry.r + entry.g * delta;
+}
+
+float LookupLightingLUTUnsigned(int lut_index, float pos) {
+    int index = clamp(int(pos * 256.0), 0, 255);
+    float delta = pos * 256.0 - float(index);
+    return LookupLightingLUT(lut_index, index, delta);
+}
+
+float LookupLightingLUTSigned(int lut_index, float pos) {
+    int index = clamp(int(pos * 128.0), -128, 127);
+    float delta = pos * 128.0 - float(index);
+    if (index < 0) index += 256;
+    return LookupLightingLUT(lut_index, index, delta);
+}
+
+float byteround(float x) {
+    return round(x * 255.0) * (1.0 / 255.0);
+}
+
+vec2 byteround(vec2 x) {
+    return round(x * 255.0) * (1.0 / 255.0);
+}
+
+vec3 byteround(vec3 x) {
+    return round(x * 255.0) * (1.0 / 255.0);
+}
+
+vec4 byteround(vec4 x) {
+    return round(x * 255.0) * (1.0 / 255.0);
+}
+
+// PICA's LOD formula for 2D textures.
+// This LOD formula is the same as the LOD lower limit defined in OpenGL.
+// f(x, y) >= max{m_u, m_v, m_w}
+// (See OpenGL 4.6 spec, 8.14.1 - Scale Factor and Level-of-Detail)
+float getLod(vec2 coord) {
+    vec2 d = max(abs(dFdx(coord)), abs(dFdy(coord)));
+    return log2(max(d.x, d.y));
+}
+
+vec4 shadowTexture(vec2 uv, float w) {
+    return vec4(1.0);
+}
+
+vec4 shadowTextureCube(vec2 uv, float w) {
+    return vec4(1.0);
+}
+
+void main() {
+vec4 rounded_primary_color = byteround(primary_color);
+vec4 primary_fragment_color = vec4(0.0);
+vec4 secondary_fragment_color = vec4(0.0);
+if (!(gl_FragCoord.x >= float(scissor_x1) && gl_FragCoord.y >= float(scissor_y1) && gl_FragCoord.x < float(scissor_x2) && gl_FragCoord.y < float(scissor_y2))) discard;
+float z_over_w = 2.0 * gl_FragCoord.z - 1.0;
+float depth = z_over_w * depth_scale + depth_offset;
+vec4 texcolor0 = textureLod(tex0, texcoord0, getLod(texcoord0 * vec2(textureSize(tex0, 0))));
+vec4 texcolor1 = textureLod(tex1, texcoord1, getLod(texcoord1 * vec2(textureSize(tex1, 0))));
+
+vec4 diffuse_sum = vec4(0.0, 0.0, 0.0, 1.0);
+vec4 specular_sum = vec4(0.0, 0.0, 0.0, 1.0);
+vec3 light_vector = vec3(0.0);
+vec3 refl_value = vec3(0.0);
+vec3 spot_dir = vec3(0.0);
+vec3 half_vector = vec3(0.0);
+float dot_product = 0.0;
+float clamp_highlights = 1.0;
+float geo_factor = 1.0;
+vec3 surface_normal = vec3(0.0, 0.0, 1.0);
+vec3 surface_tangent = vec3(1.0, 0.0, 0.0);
+vec4 normalized_normquat = normalize(normquat);
+vec3 normal = quaternion_rotate(normalized_normquat, surface_normal);
+vec3 tangent = quaternion_rotate(normalized_normquat, surface_tangent);
+vec4 shadow = vec4(1.0);
+light_vector = normalize(light_src[0].position);
+spot_dir = light_src[0].spot_direction;
+half_vector = normalize(view) + light_vector;
+dot_product = max(dot(light_vector, normal), 0.0);
+refl_value.r = 1.0;
+refl_value.g = refl_value.r;
+refl_value.b = refl_value.r;
+diffuse_sum.rgb += ((light_src[0].diffuse * dot_product) + light_src[0].ambient) * 1.0;
+specular_sum.rgb += ((light_src[0].specular_0) + (light_src[0].specular_1)) * clamp_highlights * 1.0;
+diffuse_sum.rgb += lighting_global_ambient;
+primary_fragment_color = clamp(diffuse_sum, vec4(0.0), vec4(1.0));
+secondary_fragment_color = clamp(specular_sum, vec4(0.0), vec4(1.0));
+
+vec4 combiner_buffer = vec4(0.0);
+vec4 next_combiner_buffer = tev_combiner_buffer_color;
+vec4 last_tex_env_out = vec4(0.0);
+vec3 color_output_0 = byteround(clamp((texcolor1.rgb) * (rounded_primary_color.rgb), vec3(0.0), vec3(1.0)));
+float alpha_output_0 = byteround(clamp((texcolor1.g) * (texcolor1.g), 0.0, 1.0));
+last_tex_env_out = clamp(vec4(color_output_0, alpha_output_0), vec4(0.0), vec4(1.0));
+combiner_buffer = next_combiner_buffer;
+next_combiner_buffer.rgb = last_tex_env_out.rgb;
+
+vec3 color_output_1 = byteround(clamp((const_color[1].rgb) + (primary_fragment_color.rgb), vec3(0.0), vec3(1.0)));
+float alpha_output_1 = byteround(clamp((last_tex_env_out.a) * (rounded_primary_color.r), 0.0, 1.0));
+last_tex_env_out = clamp(vec4(color_output_1, alpha_output_1), vec4(0.0), vec4(1.0));
+combiner_buffer = next_combiner_buffer;
+next_combiner_buffer.a = last_tex_env_out.a;
+
+vec3 color_output_2 = byteround(clamp((last_tex_env_out.rgb) * (combiner_buffer.rgb), vec3(0.0), vec3(1.0)));
+float alpha_output_2 = byteround(clamp((const_color[2].a), 0.0, 1.0));
+last_tex_env_out = clamp(vec4(color_output_2, alpha_output_2), vec4(0.0), vec4(1.0));
+combiner_buffer = next_combiner_buffer;
+next_combiner_buffer.rgb = last_tex_env_out.rgb;
+
+vec3 color_output_3 = byteround(clamp((combiner_buffer.aaa) * (const_color[3].rgb), vec3(0.0), vec3(1.0)));
+float alpha_output_3 = byteround(clamp((last_tex_env_out.a), 0.0, 1.0));
+last_tex_env_out = clamp(vec4(color_output_3, alpha_output_3), vec4(0.0), vec4(1.0));
+combiner_buffer = next_combiner_buffer;
+
+vec3 color_output_4 = byteround(clamp((last_tex_env_out.rgb) + (combiner_buffer.rgb), vec3(0.0), vec3(1.0)));
+float alpha_output_4 = byteround(clamp((last_tex_env_out.a), 0.0, 1.0));
+last_tex_env_out = clamp(vec4(color_output_4, alpha_output_4), vec4(0.0), vec4(1.0));
+combiner_buffer = next_combiner_buffer;
+
+vec3 color_output_5 = byteround(clamp(min((const_color[5].rgb) + (texcolor0.ggg), vec3(1.0)) * (last_tex_env_out.rgb), vec3(0.0), vec3(1.0)));
+float alpha_output_5 = byteround(clamp((last_tex_env_out.a), 0.0, 1.0));
+last_tex_env_out = clamp(vec4(color_output_5, alpha_output_5), vec4(0.0), vec4(1.0));
+combiner_buffer = next_combiner_buffer;
+
+gl_FragDepth = depth;
+color = byteround(last_tex_env_out);
+}
+// reference: 932461CC01F0B970, BF82958A8D3DD293
+// program: 1A9F70669A3C74DF, F0531050140A5884, BF82958A8D3DD293
+// shader: 8B30, 384D1228116891ED
+in vec4 primary_color;
+in vec2 texcoord0;
+in vec2 texcoord1;
+in vec2 texcoord2;
+in float texcoord0_w;
+in vec4 normquat;
+in vec3 view;
+
+#ifndef CITRA_GLES
+in vec4 gl_FragCoord;
+#endif // CITRA_GLES
+out vec4 color;
+
+uniform sampler2D tex0;
+uniform sampler2D tex1;
+uniform sampler2D tex2;
+uniform samplerCube tex_cube;
+uniform samplerBuffer texture_buffer_lut_lf;
+uniform samplerBuffer texture_buffer_lut_rg;
+uniform samplerBuffer texture_buffer_lut_rgba;
+
+#define NUM_TEV_STAGES 6
+#define NUM_LIGHTS 8
+#define NUM_LIGHTING_SAMPLERS 24
+
+struct LightSrc {
+    vec3 specular_0;
+    vec3 specular_1;
+    vec3 diffuse;
+    vec3 ambient;
+    vec3 position;
+    vec3 spot_direction;
+    float dist_atten_bias;
+    float dist_atten_scale;
+};
+
+layout (std140) uniform shader_data {
+    int alphatest_ref;
+    float depth_scale;
+    float depth_offset;
+    float shadow_bias_constant;
+    float shadow_bias_linear;
+    int scissor_x1;
+    int scissor_y1;
+    int scissor_x2;
+    int scissor_y2;
+    int fog_lut_offset;
+    int proctex_noise_lut_offset;
+    int proctex_color_map_offset;
+    int proctex_alpha_map_offset;
+    int proctex_lut_offset;
+    int proctex_diff_lut_offset;
+    float proctex_bias;
+    vec3 fog_color;
+    vec2 proctex_noise_f;
+    vec2 proctex_noise_a;
+    vec2 proctex_noise_p;
+    vec4 const_color[NUM_TEV_STAGES];
+    vec4 tev_combiner_buffer_color;
+    vec4 clip_coef;
+};
+
+layout (std140) uniform shader_light_data {
+    ivec4 lighting_lut_offset[NUM_LIGHTING_SAMPLERS / 4];
+    vec3 lighting_global_ambient;
+    LightSrc light_src[NUM_LIGHTS];
+    float lut_scale_d0;
+    float lut_scale_d1;
+    float lut_scale_sp;
+    float lut_scale_fr;
+    float lut_scale_rb;
+    float lut_scale_rg;
+    float lut_scale_rr;
+    int shadow_texture_bias;
+};
+
+// Rotate the vector v by the quaternion q
+vec3 quaternion_rotate(vec4 q, vec3 v) {
+    return v + 2.0 * cross(q.xyz, cross(q.xyz, v) + q.w * v);
+}
+
+float LookupLightingLUT(int lut_index, int index, float delta) {
+    vec2 entry = texelFetch(texture_buffer_lut_lf, lighting_lut_offset[lut_index >> 2][lut_index & 3] + index).rg;
+    return entry.r + entry.g * delta;
+}
+
+float LookupLightingLUTUnsigned(int lut_index, float pos) {
+    int index = clamp(int(pos * 256.0), 0, 255);
+    float delta = pos * 256.0 - float(index);
+    return LookupLightingLUT(lut_index, index, delta);
+}
+
+float LookupLightingLUTSigned(int lut_index, float pos) {
+    int index = clamp(int(pos * 128.0), -128, 127);
+    float delta = pos * 128.0 - float(index);
+    if (index < 0) index += 256;
+    return LookupLightingLUT(lut_index, index, delta);
+}
+
+float byteround(float x) {
+    return round(x * 255.0) * (1.0 / 255.0);
+}
+
+vec2 byteround(vec2 x) {
+    return round(x * 255.0) * (1.0 / 255.0);
+}
+
+vec3 byteround(vec3 x) {
+    return round(x * 255.0) * (1.0 / 255.0);
+}
+
+vec4 byteround(vec4 x) {
+    return round(x * 255.0) * (1.0 / 255.0);
+}
+
+// PICA's LOD formula for 2D textures.
+// This LOD formula is the same as the LOD lower limit defined in OpenGL.
+// f(x, y) >= max{m_u, m_v, m_w}
+// (See OpenGL 4.6 spec, 8.14.1 - Scale Factor and Level-of-Detail)
+float getLod(vec2 coord) {
+    vec2 d = max(abs(dFdx(coord)), abs(dFdy(coord)));
+    return log2(max(d.x, d.y));
+}
+
+vec4 shadowTexture(vec2 uv, float w) {
+    return vec4(1.0);
+}
+
+vec4 shadowTextureCube(vec2 uv, float w) {
+    return vec4(1.0);
+}
+
+void main() {
+vec4 rounded_primary_color = byteround(primary_color);
+vec4 primary_fragment_color = vec4(0.0);
+vec4 secondary_fragment_color = vec4(0.0);
+if (!(gl_FragCoord.x >= float(scissor_x1) && gl_FragCoord.y >= float(scissor_y1) && gl_FragCoord.x < float(scissor_x2) && gl_FragCoord.y < float(scissor_y2))) discard;
+float z_over_w = 2.0 * gl_FragCoord.z - 1.0;
+float depth = z_over_w * depth_scale + depth_offset;
+vec4 texcolor0 = textureLod(tex0, texcoord0, getLod(texcoord0 * vec2(textureSize(tex0, 0))));
+
+vec4 diffuse_sum = vec4(0.0, 0.0, 0.0, 1.0);
+vec4 specular_sum = vec4(0.0, 0.0, 0.0, 1.0);
+vec3 light_vector = vec3(0.0);
+vec3 refl_value = vec3(0.0);
+vec3 spot_dir = vec3(0.0);
+vec3 half_vector = vec3(0.0);
+float dot_product = 0.0;
+float clamp_highlights = 1.0;
+float geo_factor = 1.0;
+vec3 surface_normal = vec3(0.0, 0.0, 1.0);
+vec3 surface_tangent = vec3(1.0, 0.0, 0.0);
+vec4 normalized_normquat = normalize(normquat);
+vec3 normal = quaternion_rotate(normalized_normquat, surface_normal);
+vec3 tangent = quaternion_rotate(normalized_normquat, surface_tangent);
+vec4 shadow = vec4(1.0);
+light_vector = normalize(light_src[0].position);
+spot_dir = light_src[0].spot_direction;
+half_vector = normalize(view) + light_vector;
+dot_product = max(dot(light_vector, normal), 0.0);
+refl_value.r = 1.0;
+refl_value.g = refl_value.r;
+refl_value.b = refl_value.r;
+specular_sum.a = (lut_scale_fr * LookupLightingLUTUnsigned(3, max(dot(normal, normalize(view)), 0.0)));
+diffuse_sum.rgb += ((light_src[0].diffuse * dot_product) + light_src[0].ambient) * 1.0;
+specular_sum.rgb += ((light_src[0].specular_0) + (light_src[0].specular_1)) * clamp_highlights * 1.0;
+diffuse_sum.rgb += lighting_global_ambient;
+primary_fragment_color = clamp(diffuse_sum, vec4(0.0), vec4(1.0));
+secondary_fragment_color = clamp(specular_sum, vec4(0.0), vec4(1.0));
+
+vec4 combiner_buffer = vec4(0.0);
+vec4 next_combiner_buffer = tev_combiner_buffer_color;
+vec4 last_tex_env_out = vec4(0.0);
+vec3 color_output_0 = byteround(clamp((const_color[0].rgb), vec3(0.0), vec3(1.0)));
+float alpha_output_0 = byteround(clamp((secondary_fragment_color.a) * (const_color[0].a), 0.0, 1.0));
+last_tex_env_out = clamp(vec4(color_output_0, alpha_output_0), vec4(0.0), vec4(1.0));
+combiner_buffer = next_combiner_buffer;
+
+vec3 color_output_1 = byteround(clamp((last_tex_env_out.rgb), vec3(0.0), vec3(1.0)));
+float alpha_output_1 = byteround(clamp((last_tex_env_out.a) * (const_color[1].a), 0.0, 1.0));
+last_tex_env_out = clamp(vec4(color_output_1, alpha_output_1), vec4(0.0), vec4(1.0));
+combiner_buffer = next_combiner_buffer;
+
+combiner_buffer = next_combiner_buffer;
+
+combiner_buffer = next_combiner_buffer;
+
+combiner_buffer = next_combiner_buffer;
+
+combiner_buffer = next_combiner_buffer;
+
+gl_FragDepth = depth;
+color = byteround(last_tex_env_out);
+}
+// reference: D740219E09398198, 384D1228116891ED
+// program: 1A9F70669A3C74DF, F0531050140A5884, 384D1228116891ED
+// shader: 8B30, B0A749CD2B2ADF16
+in vec4 primary_color;
+in vec2 texcoord0;
+in vec2 texcoord1;
+in vec2 texcoord2;
+in float texcoord0_w;
+in vec4 normquat;
+in vec3 view;
+
+#ifndef CITRA_GLES
+in vec4 gl_FragCoord;
+#endif // CITRA_GLES
+out vec4 color;
+
+uniform sampler2D tex0;
+uniform sampler2D tex1;
+uniform sampler2D tex2;
+uniform samplerCube tex_cube;
+uniform samplerBuffer texture_buffer_lut_lf;
+uniform samplerBuffer texture_buffer_lut_rg;
+uniform samplerBuffer texture_buffer_lut_rgba;
+
+#define NUM_TEV_STAGES 6
+#define NUM_LIGHTS 8
+#define NUM_LIGHTING_SAMPLERS 24
+
+struct LightSrc {
+    vec3 specular_0;
+    vec3 specular_1;
+    vec3 diffuse;
+    vec3 ambient;
+    vec3 position;
+    vec3 spot_direction;
+    float dist_atten_bias;
+    float dist_atten_scale;
+};
+
+layout (std140) uniform shader_data {
+    int alphatest_ref;
+    float depth_scale;
+    float depth_offset;
+    float shadow_bias_constant;
+    float shadow_bias_linear;
+    int scissor_x1;
+    int scissor_y1;
+    int scissor_x2;
+    int scissor_y2;
+    int fog_lut_offset;
+    int proctex_noise_lut_offset;
+    int proctex_color_map_offset;
+    int proctex_alpha_map_offset;
+    int proctex_lut_offset;
+    int proctex_diff_lut_offset;
+    float proctex_bias;
+    vec3 fog_color;
+    vec2 proctex_noise_f;
+    vec2 proctex_noise_a;
+    vec2 proctex_noise_p;
+    vec4 const_color[NUM_TEV_STAGES];
+    vec4 tev_combiner_buffer_color;
+    vec4 clip_coef;
+};
+
+layout (std140) uniform shader_light_data {
+    ivec4 lighting_lut_offset[NUM_LIGHTING_SAMPLERS / 4];
+    vec3 lighting_global_ambient;
+    LightSrc light_src[NUM_LIGHTS];
+    float lut_scale_d0;
+    float lut_scale_d1;
+    float lut_scale_sp;
+    float lut_scale_fr;
+    float lut_scale_rb;
+    float lut_scale_rg;
+    float lut_scale_rr;
+    int shadow_texture_bias;
+};
+
+// Rotate the vector v by the quaternion q
+vec3 quaternion_rotate(vec4 q, vec3 v) {
+    return v + 2.0 * cross(q.xyz, cross(q.xyz, v) + q.w * v);
+}
+
+float LookupLightingLUT(int lut_index, int index, float delta) {
+    vec2 entry = texelFetch(texture_buffer_lut_lf, lighting_lut_offset[lut_index >> 2][lut_index & 3] + index).rg;
+    return entry.r + entry.g * delta;
+}
+
+float LookupLightingLUTUnsigned(int lut_index, float pos) {
+    int index = clamp(int(pos * 256.0), 0, 255);
+    float delta = pos * 256.0 - float(index);
+    return LookupLightingLUT(lut_index, index, delta);
+}
+
+float LookupLightingLUTSigned(int lut_index, float pos) {
+    int index = clamp(int(pos * 128.0), -128, 127);
+    float delta = pos * 128.0 - float(index);
+    if (index < 0) index += 256;
+    return LookupLightingLUT(lut_index, index, delta);
+}
+
+float byteround(float x) {
+    return round(x * 255.0) * (1.0 / 255.0);
+}
+
+vec2 byteround(vec2 x) {
+    return round(x * 255.0) * (1.0 / 255.0);
+}
+
+vec3 byteround(vec3 x) {
+    return round(x * 255.0) * (1.0 / 255.0);
+}
+
+vec4 byteround(vec4 x) {
+    return round(x * 255.0) * (1.0 / 255.0);
+}
+
+// PICA's LOD formula for 2D textures.
+// This LOD formula is the same as the LOD lower limit defined in OpenGL.
+// f(x, y) >= max{m_u, m_v, m_w}
+// (See OpenGL 4.6 spec, 8.14.1 - Scale Factor and Level-of-Detail)
+float getLod(vec2 coord) {
+    vec2 d = max(abs(dFdx(coord)), abs(dFdy(coord)));
+    return log2(max(d.x, d.y));
+}
+
+vec4 shadowTexture(vec2 uv, float w) {
+    return vec4(1.0);
+}
+
+vec4 shadowTextureCube(vec2 uv, float w) {
+    return vec4(1.0);
+}
+
+void main() {
+vec4 rounded_primary_color = byteround(primary_color);
+vec4 primary_fragment_color = vec4(0.0);
+vec4 secondary_fragment_color = vec4(0.0);
+if (!(gl_FragCoord.x >= float(scissor_x1) && gl_FragCoord.y >= float(scissor_y1) && gl_FragCoord.x < float(scissor_x2) && gl_FragCoord.y < float(scissor_y2))) discard;
+float z_over_w = 2.0 * gl_FragCoord.z - 1.0;
+float depth = z_over_w * depth_scale + depth_offset;
+vec4 texcolor0 = textureLod(tex0, texcoord0, getLod(texcoord0 * vec2(textureSize(tex0, 0))));
+
+vec4 diffuse_sum = vec4(0.0, 0.0, 0.0, 1.0);
+vec4 specular_sum = vec4(0.0, 0.0, 0.0, 1.0);
+vec3 light_vector = vec3(0.0);
+vec3 refl_value = vec3(0.0);
+vec3 spot_dir = vec3(0.0);
+vec3 half_vector = vec3(0.0);
+float dot_product = 0.0;
+float clamp_highlights = 1.0;
+float geo_factor = 1.0;
+vec3 surface_normal = vec3(0.0, 0.0, 1.0);
+vec3 surface_tangent = vec3(1.0, 0.0, 0.0);
+vec4 normalized_normquat = normalize(normquat);
+vec3 normal = quaternion_rotate(normalized_normquat, surface_normal);
+vec3 tangent = quaternion_rotate(normalized_normquat, surface_tangent);
+vec4 shadow = vec4(1.0);
+light_vector = normalize(light_src[0].position);
+spot_dir = light_src[0].spot_direction;
+half_vector = normalize(view) + light_vector;
+dot_product = max(dot(light_vector, normal), 0.0);
+refl_value.r = 1.0;
+refl_value.g = refl_value.r;
+refl_value.b = refl_value.r;
+diffuse_sum.rgb += ((light_src[0].diffuse * dot_product) + light_src[0].ambient) * 1.0;
+specular_sum.rgb += (((lut_scale_d0 * LookupLightingLUTSigned(0, dot(normal, normalize(half_vector)))) * light_src[0].specular_0) + ((lut_scale_d1 * LookupLightingLUTSigned(1, dot(normal, normalize(view)))) * light_src[0].specular_1)) * clamp_highlights * 1.0;
+light_vector = normalize(light_src[1].position + view);
+spot_dir = light_src[1].spot_direction;
+half_vector = normalize(view) + light_vector;
+dot_product = max(dot(light_vector, normal), 0.0);
+refl_value.r = 1.0;
+refl_value.g = refl_value.r;
+refl_value.b = refl_value.r;
+diffuse_sum.rgb += ((light_src[1].diffuse * dot_product) + light_src[1].ambient) * LookupLightingLUTUnsigned(17,clamp(light_src[1].dist_atten_scale * length(-view - light_src[1].position) + light_src[1].dist_atten_bias, 0.0, 1.0)) * 1.0;
+specular_sum.rgb += (((lut_scale_d0 * LookupLightingLUTSigned(0, dot(normal, normalize(half_vector)))) * light_src[1].specular_0) + ((lut_scale_d1 * LookupLightingLUTSigned(1, dot(normal, normalize(view)))) * light_src[1].specular_1)) * clamp_highlights * LookupLightingLUTUnsigned(17,clamp(light_src[1].dist_atten_scale * length(-view - light_src[1].position) + light_src[1].dist_atten_bias, 0.0, 1.0)) * 1.0;
+light_vector = normalize(light_src[2].position + view);
+spot_dir = light_src[2].spot_direction;
+half_vector = normalize(view) + light_vector;
+dot_product = max(dot(light_vector, normal), 0.0);
+refl_value.r = 1.0;
+refl_value.g = refl_value.r;
+refl_value.b = refl_value.r;
+diffuse_sum.rgb += ((light_src[2].diffuse * dot_product) + light_src[2].ambient) * LookupLightingLUTUnsigned(18,clamp(light_src[2].dist_atten_scale * length(-view - light_src[2].position) + light_src[2].dist_atten_bias, 0.0, 1.0)) * 1.0;
+specular_sum.rgb += (((lut_scale_d0 * LookupLightingLUTSigned(0, dot(normal, normalize(half_vector)))) * light_src[2].specular_0) + ((lut_scale_d1 * LookupLightingLUTSigned(1, dot(normal, normalize(view)))) * light_src[2].specular_1)) * clamp_highlights * LookupLightingLUTUnsigned(18,clamp(light_src[2].dist_atten_scale * length(-view - light_src[2].position) + light_src[2].dist_atten_bias, 0.0, 1.0)) * 1.0;
+light_vector = normalize(light_src[3].position + view);
+spot_dir = light_src[3].spot_direction;
+half_vector = normalize(view) + light_vector;
+dot_product = max(dot(light_vector, normal), 0.0);
+refl_value.r = 1.0;
+refl_value.g = refl_value.r;
+refl_value.b = refl_value.r;
+diffuse_sum.rgb += ((light_src[3].diffuse * dot_product) + light_src[3].ambient) * LookupLightingLUTUnsigned(19,clamp(light_src[3].dist_atten_scale * length(-view - light_src[3].position) + light_src[3].dist_atten_bias, 0.0, 1.0)) * 1.0;
+specular_sum.rgb += (((lut_scale_d0 * LookupLightingLUTSigned(0, dot(normal, normalize(half_vector)))) * light_src[3].specular_0) + ((lut_scale_d1 * LookupLightingLUTSigned(1, dot(normal, normalize(view)))) * light_src[3].specular_1)) * clamp_highlights * LookupLightingLUTUnsigned(19,clamp(light_src[3].dist_atten_scale * length(-view - light_src[3].position) + light_src[3].dist_atten_bias, 0.0, 1.0)) * 1.0;
+diffuse_sum.rgb += lighting_global_ambient;
+primary_fragment_color = clamp(diffuse_sum, vec4(0.0), vec4(1.0));
+secondary_fragment_color = clamp(specular_sum, vec4(0.0), vec4(1.0));
+
+vec4 combiner_buffer = vec4(0.0);
+vec4 next_combiner_buffer = tev_combiner_buffer_color;
+vec4 last_tex_env_out = vec4(0.0);
+vec3 color_output_0 = byteround(clamp((primary_fragment_color.rgb) * (texcolor0.rgb), vec3(0.0), vec3(1.0)));
+float alpha_output_0 = byteround(clamp((rounded_primary_color.a), 0.0, 1.0));
+last_tex_env_out = clamp(vec4(color_output_0, alpha_output_0), vec4(0.0), vec4(1.0));
+combiner_buffer = next_combiner_buffer;
+
+vec3 color_output_1 = byteround(clamp((const_color[1].rgb) * (secondary_fragment_color.rgb) + (last_tex_env_out.rgb), vec3(0.0), vec3(1.0)));
+float alpha_output_1 = byteround(clamp((last_tex_env_out.a), 0.0, 1.0));
+last_tex_env_out = clamp(vec4(color_output_1, alpha_output_1), vec4(0.0), vec4(1.0));
+combiner_buffer = next_combiner_buffer;
+
+vec3 color_output_2 = byteround(clamp((last_tex_env_out.rgb), vec3(0.0), vec3(1.0)));
+float alpha_output_2 = byteround(clamp((last_tex_env_out.a) * (const_color[2].a), 0.0, 1.0));
+last_tex_env_out = clamp(vec4(color_output_2, alpha_output_2), vec4(0.0), vec4(1.0));
+combiner_buffer = next_combiner_buffer;
+
+combiner_buffer = next_combiner_buffer;
+
+combiner_buffer = next_combiner_buffer;
+
+combiner_buffer = next_combiner_buffer;
+
+gl_FragDepth = depth;
+color = byteround(last_tex_env_out);
+}
+// reference: 8FFCD49D375CF623, B0A749CD2B2ADF16
+// program: 1A9F70669A3C74DF, F0531050140A5884, B0A749CD2B2ADF16
+// shader: 8B30, 5C148B383D1E4DEE
+in vec4 primary_color;
+in vec2 texcoord0;
+in vec2 texcoord1;
+in vec2 texcoord2;
+in float texcoord0_w;
+in vec4 normquat;
+in vec3 view;
+
+#ifndef CITRA_GLES
+in vec4 gl_FragCoord;
+#endif // CITRA_GLES
+out vec4 color;
+
+uniform sampler2D tex0;
+uniform sampler2D tex1;
+uniform sampler2D tex2;
+uniform samplerCube tex_cube;
+uniform samplerBuffer texture_buffer_lut_lf;
+uniform samplerBuffer texture_buffer_lut_rg;
+uniform samplerBuffer texture_buffer_lut_rgba;
+
+#define NUM_TEV_STAGES 6
+#define NUM_LIGHTS 8
+#define NUM_LIGHTING_SAMPLERS 24
+
+struct LightSrc {
+    vec3 specular_0;
+    vec3 specular_1;
+    vec3 diffuse;
+    vec3 ambient;
+    vec3 position;
+    vec3 spot_direction;
+    float dist_atten_bias;
+    float dist_atten_scale;
+};
+
+layout (std140) uniform shader_data {
+    int alphatest_ref;
+    float depth_scale;
+    float depth_offset;
+    float shadow_bias_constant;
+    float shadow_bias_linear;
+    int scissor_x1;
+    int scissor_y1;
+    int scissor_x2;
+    int scissor_y2;
+    int fog_lut_offset;
+    int proctex_noise_lut_offset;
+    int proctex_color_map_offset;
+    int proctex_alpha_map_offset;
+    int proctex_lut_offset;
+    int proctex_diff_lut_offset;
+    float proctex_bias;
+    vec3 fog_color;
+    vec2 proctex_noise_f;
+    vec2 proctex_noise_a;
+    vec2 proctex_noise_p;
+    vec4 const_color[NUM_TEV_STAGES];
+    vec4 tev_combiner_buffer_color;
+    vec4 clip_coef;
+};
+
+layout (std140) uniform shader_light_data {
+    ivec4 lighting_lut_offset[NUM_LIGHTING_SAMPLERS / 4];
+    vec3 lighting_global_ambient;
+    LightSrc light_src[NUM_LIGHTS];
+    float lut_scale_d0;
+    float lut_scale_d1;
+    float lut_scale_sp;
+    float lut_scale_fr;
+    float lut_scale_rb;
+    float lut_scale_rg;
+    float lut_scale_rr;
+    int shadow_texture_bias;
+};
+
+// Rotate the vector v by the quaternion q
+vec3 quaternion_rotate(vec4 q, vec3 v) {
+    return v + 2.0 * cross(q.xyz, cross(q.xyz, v) + q.w * v);
+}
+
+float LookupLightingLUT(int lut_index, int index, float delta) {
+    vec2 entry = texelFetch(texture_buffer_lut_lf, lighting_lut_offset[lut_index >> 2][lut_index & 3] + index).rg;
+    return entry.r + entry.g * delta;
+}
+
+float LookupLightingLUTUnsigned(int lut_index, float pos) {
+    int index = clamp(int(pos * 256.0), 0, 255);
+    float delta = pos * 256.0 - float(index);
+    return LookupLightingLUT(lut_index, index, delta);
+}
+
+float LookupLightingLUTSigned(int lut_index, float pos) {
+    int index = clamp(int(pos * 128.0), -128, 127);
+    float delta = pos * 128.0 - float(index);
+    if (index < 0) index += 256;
+    return LookupLightingLUT(lut_index, index, delta);
+}
+
+float byteround(float x) {
+    return round(x * 255.0) * (1.0 / 255.0);
+}
+
+vec2 byteround(vec2 x) {
+    return round(x * 255.0) * (1.0 / 255.0);
+}
+
+vec3 byteround(vec3 x) {
+    return round(x * 255.0) * (1.0 / 255.0);
+}
+
+vec4 byteround(vec4 x) {
+    return round(x * 255.0) * (1.0 / 255.0);
+}
+
+// PICA's LOD formula for 2D textures.
+// This LOD formula is the same as the LOD lower limit defined in OpenGL.
+// f(x, y) >= max{m_u, m_v, m_w}
+// (See OpenGL 4.6 spec, 8.14.1 - Scale Factor and Level-of-Detail)
+float getLod(vec2 coord) {
+    vec2 d = max(abs(dFdx(coord)), abs(dFdy(coord)));
+    return log2(max(d.x, d.y));
+}
+
+vec4 shadowTexture(vec2 uv, float w) {
+    return vec4(1.0);
+}
+
+vec4 shadowTextureCube(vec2 uv, float w) {
+    return vec4(1.0);
+}
+
+void main() {
+vec4 rounded_primary_color = byteround(primary_color);
+vec4 primary_fragment_color = vec4(0.0);
+vec4 secondary_fragment_color = vec4(0.0);
+if (!(gl_FragCoord.x >= float(scissor_x1) && gl_FragCoord.y >= float(scissor_y1) && gl_FragCoord.x < float(scissor_x2) && gl_FragCoord.y < float(scissor_y2))) discard;
+float z_over_w = 2.0 * gl_FragCoord.z - 1.0;
+float depth = z_over_w * depth_scale + depth_offset;
+vec4 texcolor0 = textureLod(tex0, texcoord0, getLod(texcoord0 * vec2(textureSize(tex0, 0))));
+vec4 texcolor1 = textureLod(tex1, texcoord1, getLod(texcoord1 * vec2(textureSize(tex1, 0))));
+
+vec4 diffuse_sum = vec4(0.0, 0.0, 0.0, 1.0);
+vec4 specular_sum = vec4(0.0, 0.0, 0.0, 1.0);
+vec3 light_vector = vec3(0.0);
+vec3 refl_value = vec3(0.0);
+vec3 spot_dir = vec3(0.0);
+vec3 half_vector = vec3(0.0);
+float dot_product = 0.0;
+float clamp_highlights = 1.0;
+float geo_factor = 1.0;
+vec3 surface_normal = vec3(0.0, 0.0, 1.0);
+vec3 surface_tangent = vec3(1.0, 0.0, 0.0);
+vec4 normalized_normquat = normalize(normquat);
+vec3 normal = quaternion_rotate(normalized_normquat, surface_normal);
+vec3 tangent = quaternion_rotate(normalized_normquat, surface_tangent);
+vec4 shadow = vec4(1.0);
+light_vector = normalize(light_src[0].position);
+spot_dir = light_src[0].spot_direction;
+half_vector = normalize(view) + light_vector;
+dot_product = max(dot(light_vector, normal), 0.0);
+refl_value.r = 1.0;
+refl_value.g = refl_value.r;
+refl_value.b = refl_value.r;
+diffuse_sum.rgb += ((light_src[0].diffuse * dot_product) + light_src[0].ambient) * 1.0;
+specular_sum.rgb += (((lut_scale_d0 * LookupLightingLUTSigned(0, dot(normal, normalize(half_vector)))) * light_src[0].specular_0) + ((lut_scale_d1 * LookupLightingLUTSigned(1, dot(normal, normalize(view)))) * light_src[0].specular_1)) * clamp_highlights * 1.0;
+light_vector = normalize(light_src[1].position + view);
+spot_dir = light_src[1].spot_direction;
+half_vector = normalize(view) + light_vector;
+dot_product = max(dot(light_vector, normal), 0.0);
+refl_value.r = 1.0;
+refl_value.g = refl_value.r;
+refl_value.b = refl_value.r;
+diffuse_sum.rgb += ((light_src[1].diffuse * dot_product) + light_src[1].ambient) * LookupLightingLUTUnsigned(17,clamp(light_src[1].dist_atten_scale * length(-view - light_src[1].position) + light_src[1].dist_atten_bias, 0.0, 1.0)) * 1.0;
+specular_sum.rgb += (((lut_scale_d0 * LookupLightingLUTSigned(0, dot(normal, normalize(half_vector)))) * light_src[1].specular_0) + ((lut_scale_d1 * LookupLightingLUTSigned(1, dot(normal, normalize(view)))) * light_src[1].specular_1)) * clamp_highlights * LookupLightingLUTUnsigned(17,clamp(light_src[1].dist_atten_scale * length(-view - light_src[1].position) + light_src[1].dist_atten_bias, 0.0, 1.0)) * 1.0;
+light_vector = normalize(light_src[2].position + view);
+spot_dir = light_src[2].spot_direction;
+half_vector = normalize(view) + light_vector;
+dot_product = max(dot(light_vector, normal), 0.0);
+refl_value.r = 1.0;
+refl_value.g = refl_value.r;
+refl_value.b = refl_value.r;
+diffuse_sum.rgb += ((light_src[2].diffuse * dot_product) + light_src[2].ambient) * LookupLightingLUTUnsigned(18,clamp(light_src[2].dist_atten_scale * length(-view - light_src[2].position) + light_src[2].dist_atten_bias, 0.0, 1.0)) * 1.0;
+specular_sum.rgb += (((lut_scale_d0 * LookupLightingLUTSigned(0, dot(normal, normalize(half_vector)))) * light_src[2].specular_0) + ((lut_scale_d1 * LookupLightingLUTSigned(1, dot(normal, normalize(view)))) * light_src[2].specular_1)) * clamp_highlights * LookupLightingLUTUnsigned(18,clamp(light_src[2].dist_atten_scale * length(-view - light_src[2].position) + light_src[2].dist_atten_bias, 0.0, 1.0)) * 1.0;
+light_vector = normalize(light_src[3].position + view);
+spot_dir = light_src[3].spot_direction;
+half_vector = normalize(view) + light_vector;
+dot_product = max(dot(light_vector, normal), 0.0);
+refl_value.r = 1.0;
+refl_value.g = refl_value.r;
+refl_value.b = refl_value.r;
+diffuse_sum.rgb += ((light_src[3].diffuse * dot_product) + light_src[3].ambient) * LookupLightingLUTUnsigned(19,clamp(light_src[3].dist_atten_scale * length(-view - light_src[3].position) + light_src[3].dist_atten_bias, 0.0, 1.0)) * 1.0;
+specular_sum.rgb += (((lut_scale_d0 * LookupLightingLUTSigned(0, dot(normal, normalize(half_vector)))) * light_src[3].specular_0) + ((lut_scale_d1 * LookupLightingLUTSigned(1, dot(normal, normalize(view)))) * light_src[3].specular_1)) * clamp_highlights * LookupLightingLUTUnsigned(19,clamp(light_src[3].dist_atten_scale * length(-view - light_src[3].position) + light_src[3].dist_atten_bias, 0.0, 1.0)) * 1.0;
+diffuse_sum.rgb += lighting_global_ambient;
+primary_fragment_color = clamp(diffuse_sum, vec4(0.0), vec4(1.0));
+secondary_fragment_color = clamp(specular_sum, vec4(0.0), vec4(1.0));
+
+vec4 combiner_buffer = vec4(0.0);
+vec4 next_combiner_buffer = tev_combiner_buffer_color;
+vec4 last_tex_env_out = vec4(0.0);
+vec3 color_output_0 = byteround(clamp((primary_fragment_color.rgb) * (texcolor0.rgb), vec3(0.0), vec3(1.0)));
+float alpha_output_0 = byteround(clamp((rounded_primary_color.a) * (const_color[0].a), 0.0, 1.0));
+last_tex_env_out = clamp(vec4(color_output_0, alpha_output_0), vec4(0.0), vec4(1.0));
+combiner_buffer = next_combiner_buffer;
+
+vec3 color_output_1 = byteround(clamp(min((texcolor0.aaa) + (texcolor1.rgb), vec3(1.0)) * (last_tex_env_out.rgb), vec3(0.0), vec3(1.0)));
+float alpha_output_1 = byteround(clamp((last_tex_env_out.a), 0.0, 1.0));
+last_tex_env_out = clamp(vec4(color_output_1, alpha_output_1), vec4(0.0), vec4(1.0));
+combiner_buffer = next_combiner_buffer;
+
+vec3 color_output_2 = byteround(clamp((const_color[2].rgb) * (secondary_fragment_color.rgb) + (last_tex_env_out.rgb), vec3(0.0), vec3(1.0)));
+float alpha_output_2 = byteround(clamp((last_tex_env_out.a), 0.0, 1.0));
+last_tex_env_out = clamp(vec4(color_output_2, alpha_output_2), vec4(0.0), vec4(1.0));
+combiner_buffer = next_combiner_buffer;
+
+vec3 color_output_3 = byteround(clamp((last_tex_env_out.rgb), vec3(0.0), vec3(1.0)));
+float alpha_output_3 = byteround(clamp((last_tex_env_out.a) * (const_color[3].a), 0.0, 1.0));
+last_tex_env_out = clamp(vec4(color_output_3, alpha_output_3), vec4(0.0), vec4(1.0));
+combiner_buffer = next_combiner_buffer;
+
+combiner_buffer = next_combiner_buffer;
+
+combiner_buffer = next_combiner_buffer;
+
+gl_FragDepth = depth;
+color = byteround(last_tex_env_out);
+}
+// reference: 279CFCC5DF4DDD38, 5C148B383D1E4DEE
+// program: 1A9F70669A3C74DF, F0531050140A5884, 5C148B383D1E4DEE
+// shader: 8B30, BCF18887234D14D7
+in vec4 primary_color;
+in vec2 texcoord0;
+in vec2 texcoord1;
+in vec2 texcoord2;
+in float texcoord0_w;
+in vec4 normquat;
+in vec3 view;
+
+#ifndef CITRA_GLES
+in vec4 gl_FragCoord;
+#endif // CITRA_GLES
+out vec4 color;
+
+uniform sampler2D tex0;
+uniform sampler2D tex1;
+uniform sampler2D tex2;
+uniform samplerCube tex_cube;
+uniform samplerBuffer texture_buffer_lut_lf;
+uniform samplerBuffer texture_buffer_lut_rg;
+uniform samplerBuffer texture_buffer_lut_rgba;
+
+#define NUM_TEV_STAGES 6
+#define NUM_LIGHTS 8
+#define NUM_LIGHTING_SAMPLERS 24
+
+struct LightSrc {
+    vec3 specular_0;
+    vec3 specular_1;
+    vec3 diffuse;
+    vec3 ambient;
+    vec3 position;
+    vec3 spot_direction;
+    float dist_atten_bias;
+    float dist_atten_scale;
+};
+
+layout (std140) uniform shader_data {
+    int alphatest_ref;
+    float depth_scale;
+    float depth_offset;
+    float shadow_bias_constant;
+    float shadow_bias_linear;
+    int scissor_x1;
+    int scissor_y1;
+    int scissor_x2;
+    int scissor_y2;
+    int fog_lut_offset;
+    int proctex_noise_lut_offset;
+    int proctex_color_map_offset;
+    int proctex_alpha_map_offset;
+    int proctex_lut_offset;
+    int proctex_diff_lut_offset;
+    float proctex_bias;
+    vec3 fog_color;
+    vec2 proctex_noise_f;
+    vec2 proctex_noise_a;
+    vec2 proctex_noise_p;
+    vec4 const_color[NUM_TEV_STAGES];
+    vec4 tev_combiner_buffer_color;
+    vec4 clip_coef;
+};
+
+layout (std140) uniform shader_light_data {
+    ivec4 lighting_lut_offset[NUM_LIGHTING_SAMPLERS / 4];
+    vec3 lighting_global_ambient;
+    LightSrc light_src[NUM_LIGHTS];
+    float lut_scale_d0;
+    float lut_scale_d1;
+    float lut_scale_sp;
+    float lut_scale_fr;
+    float lut_scale_rb;
+    float lut_scale_rg;
+    float lut_scale_rr;
+    int shadow_texture_bias;
+};
+
+// Rotate the vector v by the quaternion q
+vec3 quaternion_rotate(vec4 q, vec3 v) {
+    return v + 2.0 * cross(q.xyz, cross(q.xyz, v) + q.w * v);
+}
+
+float LookupLightingLUT(int lut_index, int index, float delta) {
+    vec2 entry = texelFetch(texture_buffer_lut_lf, lighting_lut_offset[lut_index >> 2][lut_index & 3] + index).rg;
+    return entry.r + entry.g * delta;
+}
+
+float LookupLightingLUTUnsigned(int lut_index, float pos) {
+    int index = clamp(int(pos * 256.0), 0, 255);
+    float delta = pos * 256.0 - float(index);
+    return LookupLightingLUT(lut_index, index, delta);
+}
+
+float LookupLightingLUTSigned(int lut_index, float pos) {
+    int index = clamp(int(pos * 128.0), -128, 127);
+    float delta = pos * 128.0 - float(index);
+    if (index < 0) index += 256;
+    return LookupLightingLUT(lut_index, index, delta);
+}
+
+float byteround(float x) {
+    return round(x * 255.0) * (1.0 / 255.0);
+}
+
+vec2 byteround(vec2 x) {
+    return round(x * 255.0) * (1.0 / 255.0);
+}
+
+vec3 byteround(vec3 x) {
+    return round(x * 255.0) * (1.0 / 255.0);
+}
+
+vec4 byteround(vec4 x) {
+    return round(x * 255.0) * (1.0 / 255.0);
+}
+
+// PICA's LOD formula for 2D textures.
+// This LOD formula is the same as the LOD lower limit defined in OpenGL.
+// f(x, y) >= max{m_u, m_v, m_w}
+// (See OpenGL 4.6 spec, 8.14.1 - Scale Factor and Level-of-Detail)
+float getLod(vec2 coord) {
+    vec2 d = max(abs(dFdx(coord)), abs(dFdy(coord)));
+    return log2(max(d.x, d.y));
+}
+
+vec4 shadowTexture(vec2 uv, float w) {
+    return vec4(1.0);
+}
+
+vec4 shadowTextureCube(vec2 uv, float w) {
+    return vec4(1.0);
+}
+
+void main() {
+vec4 rounded_primary_color = byteround(primary_color);
+vec4 primary_fragment_color = vec4(0.0);
+vec4 secondary_fragment_color = vec4(0.0);
+if (!(gl_FragCoord.x >= float(scissor_x1) && gl_FragCoord.y >= float(scissor_y1) && gl_FragCoord.x < float(scissor_x2) && gl_FragCoord.y < float(scissor_y2))) discard;
+float z_over_w = 2.0 * gl_FragCoord.z - 1.0;
+float depth = z_over_w * depth_scale + depth_offset;
+vec4 texcolor0 = textureLod(tex0, texcoord0, getLod(texcoord0 * vec2(textureSize(tex0, 0))));
+
+vec4 diffuse_sum = vec4(0.0, 0.0, 0.0, 1.0);
+vec4 specular_sum = vec4(0.0, 0.0, 0.0, 1.0);
+vec3 light_vector = vec3(0.0);
+vec3 refl_value = vec3(0.0);
+vec3 spot_dir = vec3(0.0);
+vec3 half_vector = vec3(0.0);
+float dot_product = 0.0;
+float clamp_highlights = 1.0;
+float geo_factor = 1.0;
+vec3 surface_normal = vec3(0.0, 0.0, 1.0);
+vec3 surface_tangent = vec3(1.0, 0.0, 0.0);
+vec4 normalized_normquat = normalize(normquat);
+vec3 normal = quaternion_rotate(normalized_normquat, surface_normal);
+vec3 tangent = quaternion_rotate(normalized_normquat, surface_tangent);
+vec4 shadow = vec4(1.0);
+light_vector = normalize(light_src[0].position);
+spot_dir = light_src[0].spot_direction;
+half_vector = normalize(view) + light_vector;
+dot_product = max(dot(light_vector, normal), 0.0);
+refl_value.r = 1.0;
+refl_value.g = refl_value.r;
+refl_value.b = refl_value.r;
+diffuse_sum.rgb += ((light_src[0].diffuse * dot_product) + light_src[0].ambient) * 1.0;
+specular_sum.rgb += (((lut_scale_d0 * LookupLightingLUTSigned(0, dot(normal, normalize(half_vector)))) * light_src[0].specular_0) + ((lut_scale_d1 * LookupLightingLUTSigned(1, dot(normal, normalize(view)))) * light_src[0].specular_1)) * clamp_highlights * 1.0;
+light_vector = normalize(light_src[1].position + view);
+spot_dir = light_src[1].spot_direction;
+half_vector = normalize(view) + light_vector;
+dot_product = max(dot(light_vector, normal), 0.0);
+refl_value.r = 1.0;
+refl_value.g = refl_value.r;
+refl_value.b = refl_value.r;
+diffuse_sum.rgb += ((light_src[1].diffuse * dot_product) + light_src[1].ambient) * LookupLightingLUTUnsigned(17,clamp(light_src[1].dist_atten_scale * length(-view - light_src[1].position) + light_src[1].dist_atten_bias, 0.0, 1.0)) * 1.0;
+specular_sum.rgb += (((lut_scale_d0 * LookupLightingLUTSigned(0, dot(normal, normalize(half_vector)))) * light_src[1].specular_0) + ((lut_scale_d1 * LookupLightingLUTSigned(1, dot(normal, normalize(view)))) * light_src[1].specular_1)) * clamp_highlights * LookupLightingLUTUnsigned(17,clamp(light_src[1].dist_atten_scale * length(-view - light_src[1].position) + light_src[1].dist_atten_bias, 0.0, 1.0)) * 1.0;
+light_vector = normalize(light_src[2].position + view);
+spot_dir = light_src[2].spot_direction;
+half_vector = normalize(view) + light_vector;
+dot_product = max(dot(light_vector, normal), 0.0);
+refl_value.r = 1.0;
+refl_value.g = refl_value.r;
+refl_value.b = refl_value.r;
+diffuse_sum.rgb += ((light_src[2].diffuse * dot_product) + light_src[2].ambient) * LookupLightingLUTUnsigned(18,clamp(light_src[2].dist_atten_scale * length(-view - light_src[2].position) + light_src[2].dist_atten_bias, 0.0, 1.0)) * 1.0;
+specular_sum.rgb += (((lut_scale_d0 * LookupLightingLUTSigned(0, dot(normal, normalize(half_vector)))) * light_src[2].specular_0) + ((lut_scale_d1 * LookupLightingLUTSigned(1, dot(normal, normalize(view)))) * light_src[2].specular_1)) * clamp_highlights * LookupLightingLUTUnsigned(18,clamp(light_src[2].dist_atten_scale * length(-view - light_src[2].position) + light_src[2].dist_atten_bias, 0.0, 1.0)) * 1.0;
+light_vector = normalize(light_src[3].position + view);
+spot_dir = light_src[3].spot_direction;
+half_vector = normalize(view) + light_vector;
+dot_product = max(dot(light_vector, normal), 0.0);
+refl_value.r = 1.0;
+refl_value.g = refl_value.r;
+refl_value.b = refl_value.r;
+diffuse_sum.rgb += ((light_src[3].diffuse * dot_product) + light_src[3].ambient) * LookupLightingLUTUnsigned(19,clamp(light_src[3].dist_atten_scale * length(-view - light_src[3].position) + light_src[3].dist_atten_bias, 0.0, 1.0)) * 1.0;
+specular_sum.rgb += (((lut_scale_d0 * LookupLightingLUTSigned(0, dot(normal, normalize(half_vector)))) * light_src[3].specular_0) + ((lut_scale_d1 * LookupLightingLUTSigned(1, dot(normal, normalize(view)))) * light_src[3].specular_1)) * clamp_highlights * LookupLightingLUTUnsigned(19,clamp(light_src[3].dist_atten_scale * length(-view - light_src[3].position) + light_src[3].dist_atten_bias, 0.0, 1.0)) * 1.0;
+diffuse_sum.rgb += lighting_global_ambient;
+primary_fragment_color = clamp(diffuse_sum, vec4(0.0), vec4(1.0));
+secondary_fragment_color = clamp(specular_sum, vec4(0.0), vec4(1.0));
+
+vec4 combiner_buffer = vec4(0.0);
+vec4 next_combiner_buffer = tev_combiner_buffer_color;
+vec4 last_tex_env_out = vec4(0.0);
+vec3 color_output_0 = byteround(clamp((primary_fragment_color.rgb) * (texcolor0.rgb), vec3(0.0), vec3(1.0)));
+float alpha_output_0 = byteround(clamp((rounded_primary_color.a) * (texcolor0.a), 0.0, 1.0));
+last_tex_env_out = clamp(vec4(color_output_0, alpha_output_0), vec4(0.0), vec4(1.0));
+combiner_buffer = next_combiner_buffer;
+
+vec3 color_output_1 = byteround(clamp((texcolor0.aaa) * (secondary_fragment_color.rgb) + (last_tex_env_out.rgb), vec3(0.0), vec3(1.0)));
+float alpha_output_1 = byteround(clamp((last_tex_env_out.a) * (const_color[1].a), 0.0, 1.0));
+last_tex_env_out = clamp(vec4(color_output_1, alpha_output_1), vec4(0.0), vec4(1.0));
+combiner_buffer = next_combiner_buffer;
+
+combiner_buffer = next_combiner_buffer;
+
+combiner_buffer = next_combiner_buffer;
+
+combiner_buffer = next_combiner_buffer;
+
+combiner_buffer = next_combiner_buffer;
+
+gl_FragDepth = depth;
+color = byteround(last_tex_env_out);
+}
+// reference: 686895FD27C2E6DF, BCF18887234D14D7
+// program: 1A9F70669A3C74DF, F0531050140A5884, BCF18887234D14D7
+// shader: 8B30, 7483D98597D260FA
+in vec4 primary_color;
+in vec2 texcoord0;
+in vec2 texcoord1;
+in vec2 texcoord2;
+in float texcoord0_w;
+in vec4 normquat;
+in vec3 view;
+
+#ifndef CITRA_GLES
+in vec4 gl_FragCoord;
+#endif // CITRA_GLES
+out vec4 color;
+
+uniform sampler2D tex0;
+uniform sampler2D tex1;
+uniform sampler2D tex2;
+uniform samplerCube tex_cube;
+uniform samplerBuffer texture_buffer_lut_lf;
+uniform samplerBuffer texture_buffer_lut_rg;
+uniform samplerBuffer texture_buffer_lut_rgba;
+
+#define NUM_TEV_STAGES 6
+#define NUM_LIGHTS 8
+#define NUM_LIGHTING_SAMPLERS 24
+
+struct LightSrc {
+    vec3 specular_0;
+    vec3 specular_1;
+    vec3 diffuse;
+    vec3 ambient;
+    vec3 position;
+    vec3 spot_direction;
+    float dist_atten_bias;
+    float dist_atten_scale;
+};
+
+layout (std140) uniform shader_data {
+    int alphatest_ref;
+    float depth_scale;
+    float depth_offset;
+    float shadow_bias_constant;
+    float shadow_bias_linear;
+    int scissor_x1;
+    int scissor_y1;
+    int scissor_x2;
+    int scissor_y2;
+    int fog_lut_offset;
+    int proctex_noise_lut_offset;
+    int proctex_color_map_offset;
+    int proctex_alpha_map_offset;
+    int proctex_lut_offset;
+    int proctex_diff_lut_offset;
+    float proctex_bias;
+    vec3 fog_color;
+    vec2 proctex_noise_f;
+    vec2 proctex_noise_a;
+    vec2 proctex_noise_p;
+    vec4 const_color[NUM_TEV_STAGES];
+    vec4 tev_combiner_buffer_color;
+    vec4 clip_coef;
+};
+
+layout (std140) uniform shader_light_data {
+    ivec4 lighting_lut_offset[NUM_LIGHTING_SAMPLERS / 4];
+    vec3 lighting_global_ambient;
+    LightSrc light_src[NUM_LIGHTS];
+    float lut_scale_d0;
+    float lut_scale_d1;
+    float lut_scale_sp;
+    float lut_scale_fr;
+    float lut_scale_rb;
+    float lut_scale_rg;
+    float lut_scale_rr;
+    int shadow_texture_bias;
+};
+
+// Rotate the vector v by the quaternion q
+vec3 quaternion_rotate(vec4 q, vec3 v) {
+    return v + 2.0 * cross(q.xyz, cross(q.xyz, v) + q.w * v);
+}
+
+float LookupLightingLUT(int lut_index, int index, float delta) {
+    vec2 entry = texelFetch(texture_buffer_lut_lf, lighting_lut_offset[lut_index >> 2][lut_index & 3] + index).rg;
+    return entry.r + entry.g * delta;
+}
+
+float LookupLightingLUTUnsigned(int lut_index, float pos) {
+    int index = clamp(int(pos * 256.0), 0, 255);
+    float delta = pos * 256.0 - float(index);
+    return LookupLightingLUT(lut_index, index, delta);
+}
+
+float LookupLightingLUTSigned(int lut_index, float pos) {
+    int index = clamp(int(pos * 128.0), -128, 127);
+    float delta = pos * 128.0 - float(index);
+    if (index < 0) index += 256;
+    return LookupLightingLUT(lut_index, index, delta);
+}
+
+float byteround(float x) {
+    return round(x * 255.0) * (1.0 / 255.0);
+}
+
+vec2 byteround(vec2 x) {
+    return round(x * 255.0) * (1.0 / 255.0);
+}
+
+vec3 byteround(vec3 x) {
+    return round(x * 255.0) * (1.0 / 255.0);
+}
+
+vec4 byteround(vec4 x) {
+    return round(x * 255.0) * (1.0 / 255.0);
+}
+
+// PICA's LOD formula for 2D textures.
+// This LOD formula is the same as the LOD lower limit defined in OpenGL.
+// f(x, y) >= max{m_u, m_v, m_w}
+// (See OpenGL 4.6 spec, 8.14.1 - Scale Factor and Level-of-Detail)
+float getLod(vec2 coord) {
+    vec2 d = max(abs(dFdx(coord)), abs(dFdy(coord)));
+    return log2(max(d.x, d.y));
+}
+
+vec4 shadowTexture(vec2 uv, float w) {
+    return vec4(1.0);
+}
+
+vec4 shadowTextureCube(vec2 uv, float w) {
+    return vec4(1.0);
+}
+
+void main() {
+vec4 rounded_primary_color = byteround(primary_color);
+vec4 primary_fragment_color = vec4(0.0);
+vec4 secondary_fragment_color = vec4(0.0);
+if (!(gl_FragCoord.x >= float(scissor_x1) && gl_FragCoord.y >= float(scissor_y1) && gl_FragCoord.x < float(scissor_x2) && gl_FragCoord.y < float(scissor_y2))) discard;
+float z_over_w = 2.0 * gl_FragCoord.z - 1.0;
+float depth = z_over_w * depth_scale + depth_offset;
+vec4 texcolor1 = textureLod(tex1, texcoord1, getLod(texcoord1 * vec2(textureSize(tex1, 0))));
+
+vec4 diffuse_sum = vec4(0.0, 0.0, 0.0, 1.0);
+vec4 specular_sum = vec4(0.0, 0.0, 0.0, 1.0);
+vec3 light_vector = vec3(0.0);
+vec3 refl_value = vec3(0.0);
+vec3 spot_dir = vec3(0.0);
+vec3 half_vector = vec3(0.0);
+float dot_product = 0.0;
+float clamp_highlights = 1.0;
+float geo_factor = 1.0;
+vec3 surface_normal = vec3(0.0, 0.0, 1.0);
+vec3 surface_tangent = vec3(1.0, 0.0, 0.0);
+vec4 normalized_normquat = normalize(normquat);
+vec3 normal = quaternion_rotate(normalized_normquat, surface_normal);
+vec3 tangent = quaternion_rotate(normalized_normquat, surface_tangent);
+vec4 shadow = vec4(1.0);
+light_vector = normalize(light_src[0].position);
+spot_dir = light_src[0].spot_direction;
+half_vector = normalize(view) + light_vector;
+dot_product = max(dot(light_vector, normal), 0.0);
+refl_value.r = 1.0;
+refl_value.g = refl_value.r;
+refl_value.b = refl_value.r;
+diffuse_sum.rgb += ((light_src[0].diffuse * dot_product) + light_src[0].ambient) * 1.0;
+specular_sum.rgb += ((light_src[0].specular_0) + (light_src[0].specular_1)) * clamp_highlights * 1.0;
+light_vector = normalize(light_src[1].position + view);
+spot_dir = light_src[1].spot_direction;
+half_vector = normalize(view) + light_vector;
+dot_product = max(dot(light_vector, normal), 0.0);
+refl_value.r = 1.0;
+refl_value.g = refl_value.r;
+refl_value.b = refl_value.r;
+diffuse_sum.rgb += ((light_src[1].diffuse * dot_product) + light_src[1].ambient) * LookupLightingLUTUnsigned(17,clamp(light_src[1].dist_atten_scale * length(-view - light_src[1].position) + light_src[1].dist_atten_bias, 0.0, 1.0)) * 1.0;
+specular_sum.rgb += ((light_src[1].specular_0) + (light_src[1].specular_1)) * clamp_highlights * LookupLightingLUTUnsigned(17,clamp(light_src[1].dist_atten_scale * length(-view - light_src[1].position) + light_src[1].dist_atten_bias, 0.0, 1.0)) * 1.0;
+light_vector = normalize(light_src[2].position + view);
+spot_dir = light_src[2].spot_direction;
+half_vector = normalize(view) + light_vector;
+dot_product = max(dot(light_vector, normal), 0.0);
+refl_value.r = 1.0;
+refl_value.g = refl_value.r;
+refl_value.b = refl_value.r;
+diffuse_sum.rgb += ((light_src[2].diffuse * dot_product) + light_src[2].ambient) * LookupLightingLUTUnsigned(18,clamp(light_src[2].dist_atten_scale * length(-view - light_src[2].position) + light_src[2].dist_atten_bias, 0.0, 1.0)) * (lut_scale_sp * LookupLightingLUTUnsigned(10, max(dot(light_vector, spot_dir), 0.0)));
+specular_sum.rgb += ((light_src[2].specular_0) + (light_src[2].specular_1)) * clamp_highlights * LookupLightingLUTUnsigned(18,clamp(light_src[2].dist_atten_scale * length(-view - light_src[2].position) + light_src[2].dist_atten_bias, 0.0, 1.0)) * (lut_scale_sp * LookupLightingLUTUnsigned(10, max(dot(light_vector, spot_dir), 0.0)));
+light_vector = normalize(light_src[3].position + view);
+spot_dir = light_src[3].spot_direction;
+half_vector = normalize(view) + light_vector;
+dot_product = max(dot(light_vector, normal), 0.0);
+refl_value.r = 1.0;
+refl_value.g = refl_value.r;
+refl_value.b = refl_value.r;
+diffuse_sum.rgb += ((light_src[3].diffuse * dot_product) + light_src[3].ambient) * LookupLightingLUTUnsigned(19,clamp(light_src[3].dist_atten_scale * length(-view - light_src[3].position) + light_src[3].dist_atten_bias, 0.0, 1.0)) * 1.0;
+specular_sum.rgb += ((light_src[3].specular_0) + (light_src[3].specular_1)) * clamp_highlights * LookupLightingLUTUnsigned(19,clamp(light_src[3].dist_atten_scale * length(-view - light_src[3].position) + light_src[3].dist_atten_bias, 0.0, 1.0)) * 1.0;
+diffuse_sum.rgb += lighting_global_ambient;
+primary_fragment_color = clamp(diffuse_sum, vec4(0.0), vec4(1.0));
+secondary_fragment_color = clamp(specular_sum, vec4(0.0), vec4(1.0));
+
+vec4 combiner_buffer = vec4(0.0);
+vec4 next_combiner_buffer = tev_combiner_buffer_color;
+vec4 last_tex_env_out = vec4(0.0);
+vec3 color_output_0 = byteround(clamp((rounded_primary_color.rgb) * (texcolor1.rgb), vec3(0.0), vec3(1.0)));
+float alpha_output_0 = byteround(clamp((rounded_primary_color.a) * (texcolor1.a), 0.0, 1.0));
+last_tex_env_out = clamp(vec4(color_output_0 * 2.0, alpha_output_0 * 1.0), vec4(0.0), vec4(1.0));
+combiner_buffer = next_combiner_buffer;
+
+vec3 color_output_1 = byteround(clamp((last_tex_env_out.rgb) * (primary_fragment_color.rgb), vec3(0.0), vec3(1.0)));
+float alpha_output_1 = byteround(clamp((last_tex_env_out.a), 0.0, 1.0));
+last_tex_env_out = clamp(vec4(color_output_1, alpha_output_1), vec4(0.0), vec4(1.0));
+combiner_buffer = next_combiner_buffer;
+
+vec3 color_output_2 = byteround(clamp((last_tex_env_out.rgb), vec3(0.0), vec3(1.0)));
+float alpha_output_2 = byteround(clamp((last_tex_env_out.a) * (const_color[2].a), 0.0, 1.0));
+last_tex_env_out = clamp(vec4(color_output_2, alpha_output_2), vec4(0.0), vec4(1.0));
+combiner_buffer = next_combiner_buffer;
+
+vec3 color_output_3 = byteround(clamp(min((const_color[3].rgb) + (shadowTexture(texcoord0, texcoord0_w).ggg), vec3(1.0)) * (last_tex_env_out.rgb), vec3(0.0), vec3(1.0)));
+float alpha_output_3 = byteround(clamp((last_tex_env_out.a), 0.0, 1.0));
+last_tex_env_out = clamp(vec4(color_output_3, alpha_output_3), vec4(0.0), vec4(1.0));
+combiner_buffer = next_combiner_buffer;
+
+combiner_buffer = next_combiner_buffer;
+
+combiner_buffer = next_combiner_buffer;
+
+gl_FragDepth = depth;
+color = byteround(last_tex_env_out);
+}
+// reference: DB15071AF539825C, 7483D98597D260FA
+// program: 1A9F70669A3C74DF, F0531050140A5884, 7483D98597D260FA
+// shader: 8B30, 371E581E449772EA
+in vec4 primary_color;
+in vec2 texcoord0;
+in vec2 texcoord1;
+in vec2 texcoord2;
+in float texcoord0_w;
+in vec4 normquat;
+in vec3 view;
+
+#ifndef CITRA_GLES
+in vec4 gl_FragCoord;
+#endif // CITRA_GLES
+out vec4 color;
+
+uniform sampler2D tex0;
+uniform sampler2D tex1;
+uniform sampler2D tex2;
+uniform samplerCube tex_cube;
+uniform samplerBuffer texture_buffer_lut_lf;
+uniform samplerBuffer texture_buffer_lut_rg;
+uniform samplerBuffer texture_buffer_lut_rgba;
+
+#define NUM_TEV_STAGES 6
+#define NUM_LIGHTS 8
+#define NUM_LIGHTING_SAMPLERS 24
+
+struct LightSrc {
+    vec3 specular_0;
+    vec3 specular_1;
+    vec3 diffuse;
+    vec3 ambient;
+    vec3 position;
+    vec3 spot_direction;
+    float dist_atten_bias;
+    float dist_atten_scale;
+};
+
+layout (std140) uniform shader_data {
+    int alphatest_ref;
+    float depth_scale;
+    float depth_offset;
+    float shadow_bias_constant;
+    float shadow_bias_linear;
+    int scissor_x1;
+    int scissor_y1;
+    int scissor_x2;
+    int scissor_y2;
+    int fog_lut_offset;
+    int proctex_noise_lut_offset;
+    int proctex_color_map_offset;
+    int proctex_alpha_map_offset;
+    int proctex_lut_offset;
+    int proctex_diff_lut_offset;
+    float proctex_bias;
+    vec3 fog_color;
+    vec2 proctex_noise_f;
+    vec2 proctex_noise_a;
+    vec2 proctex_noise_p;
+    vec4 const_color[NUM_TEV_STAGES];
+    vec4 tev_combiner_buffer_color;
+    vec4 clip_coef;
+};
+
+layout (std140) uniform shader_light_data {
+    ivec4 lighting_lut_offset[NUM_LIGHTING_SAMPLERS / 4];
+    vec3 lighting_global_ambient;
+    LightSrc light_src[NUM_LIGHTS];
+    float lut_scale_d0;
+    float lut_scale_d1;
+    float lut_scale_sp;
+    float lut_scale_fr;
+    float lut_scale_rb;
+    float lut_scale_rg;
+    float lut_scale_rr;
+    int shadow_texture_bias;
+};
+
+// Rotate the vector v by the quaternion q
+vec3 quaternion_rotate(vec4 q, vec3 v) {
+    return v + 2.0 * cross(q.xyz, cross(q.xyz, v) + q.w * v);
+}
+
+float LookupLightingLUT(int lut_index, int index, float delta) {
+    vec2 entry = texelFetch(texture_buffer_lut_lf, lighting_lut_offset[lut_index >> 2][lut_index & 3] + index).rg;
+    return entry.r + entry.g * delta;
+}
+
+float LookupLightingLUTUnsigned(int lut_index, float pos) {
+    int index = clamp(int(pos * 256.0), 0, 255);
+    float delta = pos * 256.0 - float(index);
+    return LookupLightingLUT(lut_index, index, delta);
+}
+
+float LookupLightingLUTSigned(int lut_index, float pos) {
+    int index = clamp(int(pos * 128.0), -128, 127);
+    float delta = pos * 128.0 - float(index);
+    if (index < 0) index += 256;
+    return LookupLightingLUT(lut_index, index, delta);
+}
+
+float byteround(float x) {
+    return round(x * 255.0) * (1.0 / 255.0);
+}
+
+vec2 byteround(vec2 x) {
+    return round(x * 255.0) * (1.0 / 255.0);
+}
+
+vec3 byteround(vec3 x) {
+    return round(x * 255.0) * (1.0 / 255.0);
+}
+
+vec4 byteround(vec4 x) {
+    return round(x * 255.0) * (1.0 / 255.0);
+}
+
+// PICA's LOD formula for 2D textures.
+// This LOD formula is the same as the LOD lower limit defined in OpenGL.
+// f(x, y) >= max{m_u, m_v, m_w}
+// (See OpenGL 4.6 spec, 8.14.1 - Scale Factor and Level-of-Detail)
+float getLod(vec2 coord) {
+    vec2 d = max(abs(dFdx(coord)), abs(dFdy(coord)));
+    return log2(max(d.x, d.y));
+}
+
+vec4 shadowTexture(vec2 uv, float w) {
+    return vec4(1.0);
+}
+
+vec4 shadowTextureCube(vec2 uv, float w) {
+    return vec4(1.0);
+}
+
+void main() {
+vec4 rounded_primary_color = byteround(primary_color);
+vec4 primary_fragment_color = vec4(0.0);
+vec4 secondary_fragment_color = vec4(0.0);
+if (!(gl_FragCoord.x >= float(scissor_x1) && gl_FragCoord.y >= float(scissor_y1) && gl_FragCoord.x < float(scissor_x2) && gl_FragCoord.y < float(scissor_y2))) discard;
+float z_over_w = 2.0 * gl_FragCoord.z - 1.0;
+float depth = z_over_w * depth_scale + depth_offset;
+vec4 texcolor1 = textureLod(tex1, texcoord1, getLod(texcoord1 * vec2(textureSize(tex1, 0))));
+
+vec4 diffuse_sum = vec4(0.0, 0.0, 0.0, 1.0);
+vec4 specular_sum = vec4(0.0, 0.0, 0.0, 1.0);
+vec3 light_vector = vec3(0.0);
+vec3 refl_value = vec3(0.0);
+vec3 spot_dir = vec3(0.0);
+vec3 half_vector = vec3(0.0);
+float dot_product = 0.0;
+float clamp_highlights = 1.0;
+float geo_factor = 1.0;
+vec3 surface_normal = vec3(0.0, 0.0, 1.0);
+vec3 surface_tangent = vec3(1.0, 0.0, 0.0);
+vec4 normalized_normquat = normalize(normquat);
+vec3 normal = quaternion_rotate(normalized_normquat, surface_normal);
+vec3 tangent = quaternion_rotate(normalized_normquat, surface_tangent);
+vec4 shadow = vec4(1.0);
+light_vector = normalize(light_src[0].position);
+spot_dir = light_src[0].spot_direction;
+half_vector = normalize(view) + light_vector;
+dot_product = max(dot(light_vector, normal), 0.0);
+refl_value.r = 1.0;
+refl_value.g = refl_value.r;
+refl_value.b = refl_value.r;
+diffuse_sum.rgb += ((light_src[0].diffuse * dot_product) + light_src[0].ambient) * 1.0;
+specular_sum.rgb += ((light_src[0].specular_0) + (light_src[0].specular_1)) * clamp_highlights * 1.0;
+light_vector = normalize(light_src[1].position + view);
+spot_dir = light_src[1].spot_direction;
+half_vector = normalize(view) + light_vector;
+dot_product = max(dot(light_vector, normal), 0.0);
+refl_value.r = 1.0;
+refl_value.g = refl_value.r;
+refl_value.b = refl_value.r;
+diffuse_sum.rgb += ((light_src[1].diffuse * dot_product) + light_src[1].ambient) * LookupLightingLUTUnsigned(17,clamp(light_src[1].dist_atten_scale * length(-view - light_src[1].position) + light_src[1].dist_atten_bias, 0.0, 1.0)) * 1.0;
+specular_sum.rgb += ((light_src[1].specular_0) + (light_src[1].specular_1)) * clamp_highlights * LookupLightingLUTUnsigned(17,clamp(light_src[1].dist_atten_scale * length(-view - light_src[1].position) + light_src[1].dist_atten_bias, 0.0, 1.0)) * 1.0;
+light_vector = normalize(light_src[2].position + view);
+spot_dir = light_src[2].spot_direction;
+half_vector = normalize(view) + light_vector;
+dot_product = max(dot(light_vector, normal), 0.0);
+refl_value.r = 1.0;
+refl_value.g = refl_value.r;
+refl_value.b = refl_value.r;
+diffuse_sum.rgb += ((light_src[2].diffuse * dot_product) + light_src[2].ambient) * LookupLightingLUTUnsigned(18,clamp(light_src[2].dist_atten_scale * length(-view - light_src[2].position) + light_src[2].dist_atten_bias, 0.0, 1.0)) * (lut_scale_sp * LookupLightingLUTUnsigned(10, max(dot(light_vector, spot_dir), 0.0)));
+specular_sum.rgb += ((light_src[2].specular_0) + (light_src[2].specular_1)) * clamp_highlights * LookupLightingLUTUnsigned(18,clamp(light_src[2].dist_atten_scale * length(-view - light_src[2].position) + light_src[2].dist_atten_bias, 0.0, 1.0)) * (lut_scale_sp * LookupLightingLUTUnsigned(10, max(dot(light_vector, spot_dir), 0.0)));
+light_vector = normalize(light_src[3].position + view);
+spot_dir = light_src[3].spot_direction;
+half_vector = normalize(view) + light_vector;
+dot_product = max(dot(light_vector, normal), 0.0);
+refl_value.r = 1.0;
+refl_value.g = refl_value.r;
+refl_value.b = refl_value.r;
+diffuse_sum.rgb += ((light_src[3].diffuse * dot_product) + light_src[3].ambient) * LookupLightingLUTUnsigned(19,clamp(light_src[3].dist_atten_scale * length(-view - light_src[3].position) + light_src[3].dist_atten_bias, 0.0, 1.0)) * 1.0;
+specular_sum.rgb += ((light_src[3].specular_0) + (light_src[3].specular_1)) * clamp_highlights * LookupLightingLUTUnsigned(19,clamp(light_src[3].dist_atten_scale * length(-view - light_src[3].position) + light_src[3].dist_atten_bias, 0.0, 1.0)) * 1.0;
+diffuse_sum.rgb += lighting_global_ambient;
+primary_fragment_color = clamp(diffuse_sum, vec4(0.0), vec4(1.0));
+secondary_fragment_color = clamp(specular_sum, vec4(0.0), vec4(1.0));
+
+vec4 combiner_buffer = vec4(0.0);
+vec4 next_combiner_buffer = tev_combiner_buffer_color;
+vec4 last_tex_env_out = vec4(0.0);
+vec3 color_output_0 = byteround(clamp((rounded_primary_color.rgb), vec3(0.0), vec3(1.0)));
+float alpha_output_0 = byteround(clamp((rounded_primary_color.r) * (rounded_primary_color.r), 0.0, 1.0));
+last_tex_env_out = clamp(vec4(color_output_0 * 1.0, alpha_output_0 * 2.0), vec4(0.0), vec4(1.0));
+combiner_buffer = next_combiner_buffer;
+
+vec3 color_output_1 = byteround(clamp((const_color[1].rgb) * (vec3(1.0) - last_tex_env_out.aaa) + (rounded_primary_color.rgb), vec3(0.0), vec3(1.0)));
+float alpha_output_1 = byteround(clamp((rounded_primary_color.a) * (texcolor1.a), 0.0, 1.0));
+last_tex_env_out = clamp(vec4(color_output_1, alpha_output_1), vec4(0.0), vec4(1.0));
+combiner_buffer = next_combiner_buffer;
+
+vec3 color_output_2 = byteround(clamp((last_tex_env_out.rgb) * (texcolor1.rgb), vec3(0.0), vec3(1.0)));
+float alpha_output_2 = byteround(clamp((last_tex_env_out.a), 0.0, 1.0));
+last_tex_env_out = clamp(vec4(color_output_2 * 2.0, alpha_output_2 * 1.0), vec4(0.0), vec4(1.0));
+combiner_buffer = next_combiner_buffer;
+
+vec3 color_output_3 = byteround(clamp((last_tex_env_out.rgb) * (primary_fragment_color.rgb), vec3(0.0), vec3(1.0)));
+float alpha_output_3 = byteround(clamp((last_tex_env_out.a) * (const_color[3].a), 0.0, 1.0));
+last_tex_env_out = clamp(vec4(color_output_3, alpha_output_3), vec4(0.0), vec4(1.0));
+combiner_buffer = next_combiner_buffer;
+
+vec3 color_output_4 = byteround(clamp(min((const_color[4].rgb) + (shadowTexture(texcoord0, texcoord0_w).ggg), vec3(1.0)) * (last_tex_env_out.rgb), vec3(0.0), vec3(1.0)));
+float alpha_output_4 = byteround(clamp((last_tex_env_out.a), 0.0, 1.0));
+last_tex_env_out = clamp(vec4(color_output_4, alpha_output_4), vec4(0.0), vec4(1.0));
+combiner_buffer = next_combiner_buffer;
+
+combiner_buffer = next_combiner_buffer;
+
+gl_FragDepth = depth;
+color = byteround(last_tex_env_out);
+}
+// reference: 103319BB4F2F95CC, 371E581E449772EA
+// program: 1A9F70669A3C74DF, F0531050140A5884, 371E581E449772EA
+// shader: 8B30, BEA10317100B0691
+in vec4 primary_color;
+in vec2 texcoord0;
+in vec2 texcoord1;
+in vec2 texcoord2;
+in float texcoord0_w;
+in vec4 normquat;
+in vec3 view;
+
+#ifndef CITRA_GLES
+in vec4 gl_FragCoord;
+#endif // CITRA_GLES
+out vec4 color;
+
+uniform sampler2D tex0;
+uniform sampler2D tex1;
+uniform sampler2D tex2;
+uniform samplerCube tex_cube;
+uniform samplerBuffer texture_buffer_lut_lf;
+uniform samplerBuffer texture_buffer_lut_rg;
+uniform samplerBuffer texture_buffer_lut_rgba;
+
+#define NUM_TEV_STAGES 6
+#define NUM_LIGHTS 8
+#define NUM_LIGHTING_SAMPLERS 24
+
+struct LightSrc {
+    vec3 specular_0;
+    vec3 specular_1;
+    vec3 diffuse;
+    vec3 ambient;
+    vec3 position;
+    vec3 spot_direction;
+    float dist_atten_bias;
+    float dist_atten_scale;
+};
+
+layout (std140) uniform shader_data {
+    int alphatest_ref;
+    float depth_scale;
+    float depth_offset;
+    float shadow_bias_constant;
+    float shadow_bias_linear;
+    int scissor_x1;
+    int scissor_y1;
+    int scissor_x2;
+    int scissor_y2;
+    int fog_lut_offset;
+    int proctex_noise_lut_offset;
+    int proctex_color_map_offset;
+    int proctex_alpha_map_offset;
+    int proctex_lut_offset;
+    int proctex_diff_lut_offset;
+    float proctex_bias;
+    vec3 fog_color;
+    vec2 proctex_noise_f;
+    vec2 proctex_noise_a;
+    vec2 proctex_noise_p;
+    vec4 const_color[NUM_TEV_STAGES];
+    vec4 tev_combiner_buffer_color;
+    vec4 clip_coef;
+};
+
+layout (std140) uniform shader_light_data {
+    ivec4 lighting_lut_offset[NUM_LIGHTING_SAMPLERS / 4];
+    vec3 lighting_global_ambient;
+    LightSrc light_src[NUM_LIGHTS];
+    float lut_scale_d0;
+    float lut_scale_d1;
+    float lut_scale_sp;
+    float lut_scale_fr;
+    float lut_scale_rb;
+    float lut_scale_rg;
+    float lut_scale_rr;
+    int shadow_texture_bias;
+};
+
+// Rotate the vector v by the quaternion q
+vec3 quaternion_rotate(vec4 q, vec3 v) {
+    return v + 2.0 * cross(q.xyz, cross(q.xyz, v) + q.w * v);
+}
+
+float LookupLightingLUT(int lut_index, int index, float delta) {
+    vec2 entry = texelFetch(texture_buffer_lut_lf, lighting_lut_offset[lut_index >> 2][lut_index & 3] + index).rg;
+    return entry.r + entry.g * delta;
+}
+
+float LookupLightingLUTUnsigned(int lut_index, float pos) {
+    int index = clamp(int(pos * 256.0), 0, 255);
+    float delta = pos * 256.0 - float(index);
+    return LookupLightingLUT(lut_index, index, delta);
+}
+
+float LookupLightingLUTSigned(int lut_index, float pos) {
+    int index = clamp(int(pos * 128.0), -128, 127);
+    float delta = pos * 128.0 - float(index);
+    if (index < 0) index += 256;
+    return LookupLightingLUT(lut_index, index, delta);
+}
+
+float byteround(float x) {
+    return round(x * 255.0) * (1.0 / 255.0);
+}
+
+vec2 byteround(vec2 x) {
+    return round(x * 255.0) * (1.0 / 255.0);
+}
+
+vec3 byteround(vec3 x) {
+    return round(x * 255.0) * (1.0 / 255.0);
+}
+
+vec4 byteround(vec4 x) {
+    return round(x * 255.0) * (1.0 / 255.0);
+}
+
+// PICA's LOD formula for 2D textures.
+// This LOD formula is the same as the LOD lower limit defined in OpenGL.
+// f(x, y) >= max{m_u, m_v, m_w}
+// (See OpenGL 4.6 spec, 8.14.1 - Scale Factor and Level-of-Detail)
+float getLod(vec2 coord) {
+    vec2 d = max(abs(dFdx(coord)), abs(dFdy(coord)));
+    return log2(max(d.x, d.y));
+}
+
+vec4 shadowTexture(vec2 uv, float w) {
+    return vec4(1.0);
+}
+
+vec4 shadowTextureCube(vec2 uv, float w) {
+    return vec4(1.0);
+}
+
+void main() {
+vec4 rounded_primary_color = byteround(primary_color);
+vec4 primary_fragment_color = vec4(0.0);
+vec4 secondary_fragment_color = vec4(0.0);
+if (!(gl_FragCoord.x >= float(scissor_x1) && gl_FragCoord.y >= float(scissor_y1) && gl_FragCoord.x < float(scissor_x2) && gl_FragCoord.y < float(scissor_y2))) discard;
+float z_over_w = 2.0 * gl_FragCoord.z - 1.0;
+float depth = z_over_w * depth_scale + depth_offset;
+vec4 texcolor0 = textureLod(tex0, texcoord0, getLod(texcoord0 * vec2(textureSize(tex0, 0))));
+vec4 texcolor1 = textureLod(tex1, texcoord1, getLod(texcoord1 * vec2(textureSize(tex1, 0))));
+
+vec4 diffuse_sum = vec4(0.0, 0.0, 0.0, 1.0);
+vec4 specular_sum = vec4(0.0, 0.0, 0.0, 1.0);
+vec3 light_vector = vec3(0.0);
+vec3 refl_value = vec3(0.0);
+vec3 spot_dir = vec3(0.0);
+vec3 half_vector = vec3(0.0);
+float dot_product = 0.0;
+float clamp_highlights = 1.0;
+float geo_factor = 1.0;
+vec3 surface_normal = vec3(0.0, 0.0, 1.0);
+vec3 surface_tangent = vec3(1.0, 0.0, 0.0);
+vec4 normalized_normquat = normalize(normquat);
+vec3 normal = quaternion_rotate(normalized_normquat, surface_normal);
+vec3 tangent = quaternion_rotate(normalized_normquat, surface_tangent);
+vec4 shadow = vec4(1.0);
+light_vector = normalize(light_src[0].position);
+spot_dir = light_src[0].spot_direction;
+half_vector = normalize(view) + light_vector;
+dot_product = max(dot(light_vector, normal), 0.0);
+refl_value.r = 1.0;
+refl_value.g = refl_value.r;
+refl_value.b = refl_value.r;
+diffuse_sum.rgb += ((light_src[0].diffuse * dot_product) + light_src[0].ambient) * 1.0;
+specular_sum.rgb += ((light_src[0].specular_0) + (light_src[0].specular_1)) * clamp_highlights * 1.0;
+light_vector = normalize(light_src[1].position + view);
+spot_dir = light_src[1].spot_direction;
+half_vector = normalize(view) + light_vector;
+dot_product = max(dot(light_vector, normal), 0.0);
+refl_value.r = 1.0;
+refl_value.g = refl_value.r;
+refl_value.b = refl_value.r;
+diffuse_sum.rgb += ((light_src[1].diffuse * dot_product) + light_src[1].ambient) * LookupLightingLUTUnsigned(17,clamp(light_src[1].dist_atten_scale * length(-view - light_src[1].position) + light_src[1].dist_atten_bias, 0.0, 1.0)) * 1.0;
+specular_sum.rgb += ((light_src[1].specular_0) + (light_src[1].specular_1)) * clamp_highlights * LookupLightingLUTUnsigned(17,clamp(light_src[1].dist_atten_scale * length(-view - light_src[1].position) + light_src[1].dist_atten_bias, 0.0, 1.0)) * 1.0;
+light_vector = normalize(light_src[2].position + view);
+spot_dir = light_src[2].spot_direction;
+half_vector = normalize(view) + light_vector;
+dot_product = max(dot(light_vector, normal), 0.0);
+refl_value.r = 1.0;
+refl_value.g = refl_value.r;
+refl_value.b = refl_value.r;
+diffuse_sum.rgb += ((light_src[2].diffuse * dot_product) + light_src[2].ambient) * LookupLightingLUTUnsigned(18,clamp(light_src[2].dist_atten_scale * length(-view - light_src[2].position) + light_src[2].dist_atten_bias, 0.0, 1.0)) * (lut_scale_sp * LookupLightingLUTUnsigned(10, max(dot(light_vector, spot_dir), 0.0)));
+specular_sum.rgb += ((light_src[2].specular_0) + (light_src[2].specular_1)) * clamp_highlights * LookupLightingLUTUnsigned(18,clamp(light_src[2].dist_atten_scale * length(-view - light_src[2].position) + light_src[2].dist_atten_bias, 0.0, 1.0)) * (lut_scale_sp * LookupLightingLUTUnsigned(10, max(dot(light_vector, spot_dir), 0.0)));
+light_vector = normalize(light_src[3].position + view);
+spot_dir = light_src[3].spot_direction;
+half_vector = normalize(view) + light_vector;
+dot_product = max(dot(light_vector, normal), 0.0);
+refl_value.r = 1.0;
+refl_value.g = refl_value.r;
+refl_value.b = refl_value.r;
+diffuse_sum.rgb += ((light_src[3].diffuse * dot_product) + light_src[3].ambient) * LookupLightingLUTUnsigned(19,clamp(light_src[3].dist_atten_scale * length(-view - light_src[3].position) + light_src[3].dist_atten_bias, 0.0, 1.0)) * 1.0;
+specular_sum.rgb += ((light_src[3].specular_0) + (light_src[3].specular_1)) * clamp_highlights * LookupLightingLUTUnsigned(19,clamp(light_src[3].dist_atten_scale * length(-view - light_src[3].position) + light_src[3].dist_atten_bias, 0.0, 1.0)) * 1.0;
+diffuse_sum.rgb += lighting_global_ambient;
+primary_fragment_color = clamp(diffuse_sum, vec4(0.0), vec4(1.0));
+secondary_fragment_color = clamp(specular_sum, vec4(0.0), vec4(1.0));
+
+vec4 combiner_buffer = vec4(0.0);
+vec4 next_combiner_buffer = tev_combiner_buffer_color;
+vec4 last_tex_env_out = vec4(0.0);
+vec3 color_output_0 = byteround(clamp((rounded_primary_color.rgb) * (texcolor1.rgb), vec3(0.0), vec3(1.0)));
+float alpha_output_0 = byteround(clamp((rounded_primary_color.a) * (texcolor1.a), 0.0, 1.0));
+last_tex_env_out = clamp(vec4(color_output_0 * 2.0, alpha_output_0 * 1.0), vec4(0.0), vec4(1.0));
+combiner_buffer = next_combiner_buffer;
+
+vec3 color_output_1 = byteround(clamp((last_tex_env_out.rgb) * (primary_fragment_color.rgb), vec3(0.0), vec3(1.0)));
+float alpha_output_1 = byteround(clamp((last_tex_env_out.a), 0.0, 1.0));
+last_tex_env_out = clamp(vec4(color_output_1, alpha_output_1), vec4(0.0), vec4(1.0));
+combiner_buffer = next_combiner_buffer;
+
+vec3 color_output_2 = byteround(clamp((last_tex_env_out.rgb), vec3(0.0), vec3(1.0)));
+float alpha_output_2 = byteround(clamp((last_tex_env_out.a) * (const_color[2].a), 0.0, 1.0));
+last_tex_env_out = clamp(vec4(color_output_2, alpha_output_2), vec4(0.0), vec4(1.0));
+combiner_buffer = next_combiner_buffer;
+
+vec3 color_output_3 = byteround(clamp(min((const_color[3].rgb) + (texcolor0.ggg), vec3(1.0)) * (last_tex_env_out.rgb), vec3(0.0), vec3(1.0)));
+float alpha_output_3 = byteround(clamp((last_tex_env_out.a), 0.0, 1.0));
+last_tex_env_out = clamp(vec4(color_output_3, alpha_output_3), vec4(0.0), vec4(1.0));
+combiner_buffer = next_combiner_buffer;
+
+combiner_buffer = next_combiner_buffer;
+
+combiner_buffer = next_combiner_buffer;
+
+gl_FragDepth = depth;
+color = byteround(last_tex_env_out);
+}
+// reference: 8ABF2877F539825C, BEA10317100B0691
+// program: 1A9F70669A3C74DF, F0531050140A5884, BEA10317100B0691
+// shader: 8B30, 2382D22C01A5155D
+in vec4 primary_color;
+in vec2 texcoord0;
+in vec2 texcoord1;
+in vec2 texcoord2;
+in float texcoord0_w;
+in vec4 normquat;
+in vec3 view;
+
+#ifndef CITRA_GLES
+in vec4 gl_FragCoord;
+#endif // CITRA_GLES
+out vec4 color;
+
+uniform sampler2D tex0;
+uniform sampler2D tex1;
+uniform sampler2D tex2;
+uniform samplerCube tex_cube;
+uniform samplerBuffer texture_buffer_lut_lf;
+uniform samplerBuffer texture_buffer_lut_rg;
+uniform samplerBuffer texture_buffer_lut_rgba;
+
+#define NUM_TEV_STAGES 6
+#define NUM_LIGHTS 8
+#define NUM_LIGHTING_SAMPLERS 24
+
+struct LightSrc {
+    vec3 specular_0;
+    vec3 specular_1;
+    vec3 diffuse;
+    vec3 ambient;
+    vec3 position;
+    vec3 spot_direction;
+    float dist_atten_bias;
+    float dist_atten_scale;
+};
+
+layout (std140) uniform shader_data {
+    int alphatest_ref;
+    float depth_scale;
+    float depth_offset;
+    float shadow_bias_constant;
+    float shadow_bias_linear;
+    int scissor_x1;
+    int scissor_y1;
+    int scissor_x2;
+    int scissor_y2;
+    int fog_lut_offset;
+    int proctex_noise_lut_offset;
+    int proctex_color_map_offset;
+    int proctex_alpha_map_offset;
+    int proctex_lut_offset;
+    int proctex_diff_lut_offset;
+    float proctex_bias;
+    vec3 fog_color;
+    vec2 proctex_noise_f;
+    vec2 proctex_noise_a;
+    vec2 proctex_noise_p;
+    vec4 const_color[NUM_TEV_STAGES];
+    vec4 tev_combiner_buffer_color;
+    vec4 clip_coef;
+};
+
+layout (std140) uniform shader_light_data {
+    ivec4 lighting_lut_offset[NUM_LIGHTING_SAMPLERS / 4];
+    vec3 lighting_global_ambient;
+    LightSrc light_src[NUM_LIGHTS];
+    float lut_scale_d0;
+    float lut_scale_d1;
+    float lut_scale_sp;
+    float lut_scale_fr;
+    float lut_scale_rb;
+    float lut_scale_rg;
+    float lut_scale_rr;
+    int shadow_texture_bias;
+};
+
+// Rotate the vector v by the quaternion q
+vec3 quaternion_rotate(vec4 q, vec3 v) {
+    return v + 2.0 * cross(q.xyz, cross(q.xyz, v) + q.w * v);
+}
+
+float LookupLightingLUT(int lut_index, int index, float delta) {
+    vec2 entry = texelFetch(texture_buffer_lut_lf, lighting_lut_offset[lut_index >> 2][lut_index & 3] + index).rg;
+    return entry.r + entry.g * delta;
+}
+
+float LookupLightingLUTUnsigned(int lut_index, float pos) {
+    int index = clamp(int(pos * 256.0), 0, 255);
+    float delta = pos * 256.0 - float(index);
+    return LookupLightingLUT(lut_index, index, delta);
+}
+
+float LookupLightingLUTSigned(int lut_index, float pos) {
+    int index = clamp(int(pos * 128.0), -128, 127);
+    float delta = pos * 128.0 - float(index);
+    if (index < 0) index += 256;
+    return LookupLightingLUT(lut_index, index, delta);
+}
+
+float byteround(float x) {
+    return round(x * 255.0) * (1.0 / 255.0);
+}
+
+vec2 byteround(vec2 x) {
+    return round(x * 255.0) * (1.0 / 255.0);
+}
+
+vec3 byteround(vec3 x) {
+    return round(x * 255.0) * (1.0 / 255.0);
+}
+
+vec4 byteround(vec4 x) {
+    return round(x * 255.0) * (1.0 / 255.0);
+}
+
+// PICA's LOD formula for 2D textures.
+// This LOD formula is the same as the LOD lower limit defined in OpenGL.
+// f(x, y) >= max{m_u, m_v, m_w}
+// (See OpenGL 4.6 spec, 8.14.1 - Scale Factor and Level-of-Detail)
+float getLod(vec2 coord) {
+    vec2 d = max(abs(dFdx(coord)), abs(dFdy(coord)));
+    return log2(max(d.x, d.y));
+}
+
+vec4 shadowTexture(vec2 uv, float w) {
+    return vec4(1.0);
+}
+
+vec4 shadowTextureCube(vec2 uv, float w) {
+    return vec4(1.0);
+}
+
+void main() {
+vec4 rounded_primary_color = byteround(primary_color);
+vec4 primary_fragment_color = vec4(0.0);
+vec4 secondary_fragment_color = vec4(0.0);
+if (!(gl_FragCoord.x >= float(scissor_x1) && gl_FragCoord.y >= float(scissor_y1) && gl_FragCoord.x < float(scissor_x2) && gl_FragCoord.y < float(scissor_y2))) discard;
+float z_over_w = 2.0 * gl_FragCoord.z - 1.0;
+float depth = z_over_w * depth_scale + depth_offset;
+vec4 texcolor0 = textureLod(tex0, texcoord0, getLod(texcoord0 * vec2(textureSize(tex0, 0))));
+vec4 texcolor1 = textureLod(tex1, texcoord1, getLod(texcoord1 * vec2(textureSize(tex1, 0))));
+
+vec4 diffuse_sum = vec4(0.0, 0.0, 0.0, 1.0);
+vec4 specular_sum = vec4(0.0, 0.0, 0.0, 1.0);
+vec3 light_vector = vec3(0.0);
+vec3 refl_value = vec3(0.0);
+vec3 spot_dir = vec3(0.0);
+vec3 half_vector = vec3(0.0);
+float dot_product = 0.0;
+float clamp_highlights = 1.0;
+float geo_factor = 1.0;
+vec3 surface_normal = vec3(0.0, 0.0, 1.0);
+vec3 surface_tangent = vec3(1.0, 0.0, 0.0);
+vec4 normalized_normquat = normalize(normquat);
+vec3 normal = quaternion_rotate(normalized_normquat, surface_normal);
+vec3 tangent = quaternion_rotate(normalized_normquat, surface_tangent);
+vec4 shadow = vec4(1.0);
+light_vector = normalize(light_src[0].position);
+spot_dir = light_src[0].spot_direction;
+half_vector = normalize(view) + light_vector;
+dot_product = max(dot(light_vector, normal), 0.0);
+refl_value.r = 1.0;
+refl_value.g = refl_value.r;
+refl_value.b = refl_value.r;
+diffuse_sum.rgb += ((light_src[0].diffuse * dot_product) + light_src[0].ambient) * 1.0;
+specular_sum.rgb += ((light_src[0].specular_0) + (light_src[0].specular_1)) * clamp_highlights * 1.0;
+light_vector = normalize(light_src[1].position + view);
+spot_dir = light_src[1].spot_direction;
+half_vector = normalize(view) + light_vector;
+dot_product = max(dot(light_vector, normal), 0.0);
+refl_value.r = 1.0;
+refl_value.g = refl_value.r;
+refl_value.b = refl_value.r;
+diffuse_sum.rgb += ((light_src[1].diffuse * dot_product) + light_src[1].ambient) * LookupLightingLUTUnsigned(17,clamp(light_src[1].dist_atten_scale * length(-view - light_src[1].position) + light_src[1].dist_atten_bias, 0.0, 1.0)) * 1.0;
+specular_sum.rgb += ((light_src[1].specular_0) + (light_src[1].specular_1)) * clamp_highlights * LookupLightingLUTUnsigned(17,clamp(light_src[1].dist_atten_scale * length(-view - light_src[1].position) + light_src[1].dist_atten_bias, 0.0, 1.0)) * 1.0;
+light_vector = normalize(light_src[2].position + view);
+spot_dir = light_src[2].spot_direction;
+half_vector = normalize(view) + light_vector;
+dot_product = max(dot(light_vector, normal), 0.0);
+refl_value.r = 1.0;
+refl_value.g = refl_value.r;
+refl_value.b = refl_value.r;
+diffuse_sum.rgb += ((light_src[2].diffuse * dot_product) + light_src[2].ambient) * LookupLightingLUTUnsigned(18,clamp(light_src[2].dist_atten_scale * length(-view - light_src[2].position) + light_src[2].dist_atten_bias, 0.0, 1.0)) * (lut_scale_sp * LookupLightingLUTUnsigned(10, max(dot(light_vector, spot_dir), 0.0)));
+specular_sum.rgb += ((light_src[2].specular_0) + (light_src[2].specular_1)) * clamp_highlights * LookupLightingLUTUnsigned(18,clamp(light_src[2].dist_atten_scale * length(-view - light_src[2].position) + light_src[2].dist_atten_bias, 0.0, 1.0)) * (lut_scale_sp * LookupLightingLUTUnsigned(10, max(dot(light_vector, spot_dir), 0.0)));
+light_vector = normalize(light_src[3].position + view);
+spot_dir = light_src[3].spot_direction;
+half_vector = normalize(view) + light_vector;
+dot_product = max(dot(light_vector, normal), 0.0);
+refl_value.r = 1.0;
+refl_value.g = refl_value.r;
+refl_value.b = refl_value.r;
+diffuse_sum.rgb += ((light_src[3].diffuse * dot_product) + light_src[3].ambient) * LookupLightingLUTUnsigned(19,clamp(light_src[3].dist_atten_scale * length(-view - light_src[3].position) + light_src[3].dist_atten_bias, 0.0, 1.0)) * 1.0;
+specular_sum.rgb += ((light_src[3].specular_0) + (light_src[3].specular_1)) * clamp_highlights * LookupLightingLUTUnsigned(19,clamp(light_src[3].dist_atten_scale * length(-view - light_src[3].position) + light_src[3].dist_atten_bias, 0.0, 1.0)) * 1.0;
+diffuse_sum.rgb += lighting_global_ambient;
+primary_fragment_color = clamp(diffuse_sum, vec4(0.0), vec4(1.0));
+secondary_fragment_color = clamp(specular_sum, vec4(0.0), vec4(1.0));
+
+vec4 combiner_buffer = vec4(0.0);
+vec4 next_combiner_buffer = tev_combiner_buffer_color;
+vec4 last_tex_env_out = vec4(0.0);
+vec3 color_output_0 = byteround(clamp((rounded_primary_color.rgb), vec3(0.0), vec3(1.0)));
+float alpha_output_0 = byteround(clamp((rounded_primary_color.r) * (rounded_primary_color.r), 0.0, 1.0));
+last_tex_env_out = clamp(vec4(color_output_0 * 1.0, alpha_output_0 * 2.0), vec4(0.0), vec4(1.0));
+combiner_buffer = next_combiner_buffer;
+
+vec3 color_output_1 = byteround(clamp((const_color[1].rgb) * (vec3(1.0) - last_tex_env_out.aaa) + (rounded_primary_color.rgb), vec3(0.0), vec3(1.0)));
+float alpha_output_1 = byteround(clamp((rounded_primary_color.a) * (texcolor1.a), 0.0, 1.0));
+last_tex_env_out = clamp(vec4(color_output_1, alpha_output_1), vec4(0.0), vec4(1.0));
+combiner_buffer = next_combiner_buffer;
+
+vec3 color_output_2 = byteround(clamp((last_tex_env_out.rgb) * (texcolor1.rgb), vec3(0.0), vec3(1.0)));
+float alpha_output_2 = byteround(clamp((last_tex_env_out.a), 0.0, 1.0));
+last_tex_env_out = clamp(vec4(color_output_2 * 2.0, alpha_output_2 * 1.0), vec4(0.0), vec4(1.0));
+combiner_buffer = next_combiner_buffer;
+
+vec3 color_output_3 = byteround(clamp((last_tex_env_out.rgb) * (primary_fragment_color.rgb), vec3(0.0), vec3(1.0)));
+float alpha_output_3 = byteround(clamp((last_tex_env_out.a) * (const_color[3].a), 0.0, 1.0));
+last_tex_env_out = clamp(vec4(color_output_3, alpha_output_3), vec4(0.0), vec4(1.0));
+combiner_buffer = next_combiner_buffer;
+
+vec3 color_output_4 = byteround(clamp(min((const_color[4].rgb) + (texcolor0.ggg), vec3(1.0)) * (last_tex_env_out.rgb), vec3(0.0), vec3(1.0)));
+float alpha_output_4 = byteround(clamp((last_tex_env_out.a), 0.0, 1.0));
+last_tex_env_out = clamp(vec4(color_output_4, alpha_output_4), vec4(0.0), vec4(1.0));
+combiner_buffer = next_combiner_buffer;
+
+combiner_buffer = next_combiner_buffer;
+
+gl_FragDepth = depth;
+color = byteround(last_tex_env_out);
+}
+// reference: 419936D64F2F95CC, 2382D22C01A5155D
+// program: 1A9F70669A3C74DF, F0531050140A5884, 2382D22C01A5155D
+// shader: 8B30, 3B18E699FD03D5D1
+in vec4 primary_color;
+in vec2 texcoord0;
+in vec2 texcoord1;
+in vec2 texcoord2;
+in float texcoord0_w;
+in vec4 normquat;
+in vec3 view;
+
+#ifndef CITRA_GLES
+in vec4 gl_FragCoord;
+#endif // CITRA_GLES
+out vec4 color;
+
+uniform sampler2D tex0;
+uniform sampler2D tex1;
+uniform sampler2D tex2;
+uniform samplerCube tex_cube;
+uniform samplerBuffer texture_buffer_lut_lf;
+uniform samplerBuffer texture_buffer_lut_rg;
+uniform samplerBuffer texture_buffer_lut_rgba;
+
+#define NUM_TEV_STAGES 6
+#define NUM_LIGHTS 8
+#define NUM_LIGHTING_SAMPLERS 24
+
+struct LightSrc {
+    vec3 specular_0;
+    vec3 specular_1;
+    vec3 diffuse;
+    vec3 ambient;
+    vec3 position;
+    vec3 spot_direction;
+    float dist_atten_bias;
+    float dist_atten_scale;
+};
+
+layout (std140) uniform shader_data {
+    int alphatest_ref;
+    float depth_scale;
+    float depth_offset;
+    float shadow_bias_constant;
+    float shadow_bias_linear;
+    int scissor_x1;
+    int scissor_y1;
+    int scissor_x2;
+    int scissor_y2;
+    int fog_lut_offset;
+    int proctex_noise_lut_offset;
+    int proctex_color_map_offset;
+    int proctex_alpha_map_offset;
+    int proctex_lut_offset;
+    int proctex_diff_lut_offset;
+    float proctex_bias;
+    vec3 fog_color;
+    vec2 proctex_noise_f;
+    vec2 proctex_noise_a;
+    vec2 proctex_noise_p;
+    vec4 const_color[NUM_TEV_STAGES];
+    vec4 tev_combiner_buffer_color;
+    vec4 clip_coef;
+};
+
+layout (std140) uniform shader_light_data {
+    ivec4 lighting_lut_offset[NUM_LIGHTING_SAMPLERS / 4];
+    vec3 lighting_global_ambient;
+    LightSrc light_src[NUM_LIGHTS];
+    float lut_scale_d0;
+    float lut_scale_d1;
+    float lut_scale_sp;
+    float lut_scale_fr;
+    float lut_scale_rb;
+    float lut_scale_rg;
+    float lut_scale_rr;
+    int shadow_texture_bias;
+};
+
+// Rotate the vector v by the quaternion q
+vec3 quaternion_rotate(vec4 q, vec3 v) {
+    return v + 2.0 * cross(q.xyz, cross(q.xyz, v) + q.w * v);
+}
+
+float LookupLightingLUT(int lut_index, int index, float delta) {
+    vec2 entry = texelFetch(texture_buffer_lut_lf, lighting_lut_offset[lut_index >> 2][lut_index & 3] + index).rg;
+    return entry.r + entry.g * delta;
+}
+
+float LookupLightingLUTUnsigned(int lut_index, float pos) {
+    int index = clamp(int(pos * 256.0), 0, 255);
+    float delta = pos * 256.0 - float(index);
+    return LookupLightingLUT(lut_index, index, delta);
+}
+
+float LookupLightingLUTSigned(int lut_index, float pos) {
+    int index = clamp(int(pos * 128.0), -128, 127);
+    float delta = pos * 128.0 - float(index);
+    if (index < 0) index += 256;
+    return LookupLightingLUT(lut_index, index, delta);
+}
+
+float byteround(float x) {
+    return round(x * 255.0) * (1.0 / 255.0);
+}
+
+vec2 byteround(vec2 x) {
+    return round(x * 255.0) * (1.0 / 255.0);
+}
+
+vec3 byteround(vec3 x) {
+    return round(x * 255.0) * (1.0 / 255.0);
+}
+
+vec4 byteround(vec4 x) {
+    return round(x * 255.0) * (1.0 / 255.0);
+}
+
+// PICA's LOD formula for 2D textures.
+// This LOD formula is the same as the LOD lower limit defined in OpenGL.
+// f(x, y) >= max{m_u, m_v, m_w}
+// (See OpenGL 4.6 spec, 8.14.1 - Scale Factor and Level-of-Detail)
+float getLod(vec2 coord) {
+    vec2 d = max(abs(dFdx(coord)), abs(dFdy(coord)));
+    return log2(max(d.x, d.y));
+}
+
+vec4 shadowTexture(vec2 uv, float w) {
+    return vec4(1.0);
+}
+
+vec4 shadowTextureCube(vec2 uv, float w) {
+    return vec4(1.0);
+}
+
+void main() {
+vec4 rounded_primary_color = byteround(primary_color);
+vec4 primary_fragment_color = vec4(0.0);
+vec4 secondary_fragment_color = vec4(0.0);
+if (!(gl_FragCoord.x >= float(scissor_x1) && gl_FragCoord.y >= float(scissor_y1) && gl_FragCoord.x < float(scissor_x2) && gl_FragCoord.y < float(scissor_y2))) discard;
+float z_over_w = 2.0 * gl_FragCoord.z - 1.0;
+float depth = z_over_w * depth_scale + depth_offset;
+vec4 texcolor0 = textureLod(tex0, texcoord0, getLod(texcoord0 * vec2(textureSize(tex0, 0))));
+
+vec4 diffuse_sum = vec4(0.0, 0.0, 0.0, 1.0);
+vec4 specular_sum = vec4(0.0, 0.0, 0.0, 1.0);
+vec3 light_vector = vec3(0.0);
+vec3 refl_value = vec3(0.0);
+vec3 spot_dir = vec3(0.0);
+vec3 half_vector = vec3(0.0);
+float dot_product = 0.0;
+float clamp_highlights = 1.0;
+float geo_factor = 1.0;
+vec3 surface_normal = vec3(0.0, 0.0, 1.0);
+vec3 surface_tangent = vec3(1.0, 0.0, 0.0);
+vec4 normalized_normquat = normalize(normquat);
+vec3 normal = quaternion_rotate(normalized_normquat, surface_normal);
+vec3 tangent = quaternion_rotate(normalized_normquat, surface_tangent);
+vec4 shadow = vec4(1.0);
+light_vector = normalize(light_src[0].position);
+spot_dir = light_src[0].spot_direction;
+half_vector = normalize(view) + light_vector;
+dot_product = max(dot(light_vector, normal), 0.0);
+refl_value.r = 1.0;
+refl_value.g = refl_value.r;
+refl_value.b = refl_value.r;
+diffuse_sum.rgb += ((light_src[0].diffuse * dot_product) + light_src[0].ambient) * 1.0;
+specular_sum.rgb += ((light_src[0].specular_0) + (light_src[0].specular_1)) * clamp_highlights * 1.0;
+light_vector = normalize(light_src[1].position + view);
+spot_dir = light_src[1].spot_direction;
+half_vector = normalize(view) + light_vector;
+dot_product = max(dot(light_vector, normal), 0.0);
+refl_value.r = 1.0;
+refl_value.g = refl_value.r;
+refl_value.b = refl_value.r;
+diffuse_sum.rgb += ((light_src[1].diffuse * dot_product) + light_src[1].ambient) * LookupLightingLUTUnsigned(17,clamp(light_src[1].dist_atten_scale * length(-view - light_src[1].position) + light_src[1].dist_atten_bias, 0.0, 1.0)) * 1.0;
+specular_sum.rgb += ((light_src[1].specular_0) + (light_src[1].specular_1)) * clamp_highlights * LookupLightingLUTUnsigned(17,clamp(light_src[1].dist_atten_scale * length(-view - light_src[1].position) + light_src[1].dist_atten_bias, 0.0, 1.0)) * 1.0;
+light_vector = normalize(light_src[2].position + view);
+spot_dir = light_src[2].spot_direction;
+half_vector = normalize(view) + light_vector;
+dot_product = max(dot(light_vector, normal), 0.0);
+refl_value.r = 1.0;
+refl_value.g = refl_value.r;
+refl_value.b = refl_value.r;
+diffuse_sum.rgb += ((light_src[2].diffuse * dot_product) + light_src[2].ambient) * LookupLightingLUTUnsigned(18,clamp(light_src[2].dist_atten_scale * length(-view - light_src[2].position) + light_src[2].dist_atten_bias, 0.0, 1.0)) * (lut_scale_sp * LookupLightingLUTUnsigned(10, max(dot(light_vector, spot_dir), 0.0)));
+specular_sum.rgb += ((light_src[2].specular_0) + (light_src[2].specular_1)) * clamp_highlights * LookupLightingLUTUnsigned(18,clamp(light_src[2].dist_atten_scale * length(-view - light_src[2].position) + light_src[2].dist_atten_bias, 0.0, 1.0)) * (lut_scale_sp * LookupLightingLUTUnsigned(10, max(dot(light_vector, spot_dir), 0.0)));
+light_vector = normalize(light_src[3].position + view);
+spot_dir = light_src[3].spot_direction;
+half_vector = normalize(view) + light_vector;
+dot_product = max(dot(light_vector, normal), 0.0);
+refl_value.r = 1.0;
+refl_value.g = refl_value.r;
+refl_value.b = refl_value.r;
+diffuse_sum.rgb += ((light_src[3].diffuse * dot_product) + light_src[3].ambient) * LookupLightingLUTUnsigned(19,clamp(light_src[3].dist_atten_scale * length(-view - light_src[3].position) + light_src[3].dist_atten_bias, 0.0, 1.0)) * 1.0;
+specular_sum.rgb += ((light_src[3].specular_0) + (light_src[3].specular_1)) * clamp_highlights * LookupLightingLUTUnsigned(19,clamp(light_src[3].dist_atten_scale * length(-view - light_src[3].position) + light_src[3].dist_atten_bias, 0.0, 1.0)) * 1.0;
+diffuse_sum.rgb += lighting_global_ambient;
+primary_fragment_color = clamp(diffuse_sum, vec4(0.0), vec4(1.0));
+secondary_fragment_color = clamp(specular_sum, vec4(0.0), vec4(1.0));
+
+vec4 combiner_buffer = vec4(0.0);
+vec4 next_combiner_buffer = tev_combiner_buffer_color;
+vec4 last_tex_env_out = vec4(0.0);
+vec3 color_output_0 = byteround(clamp((texcolor0.rgb) * (const_color[0].rgb), vec3(0.0), vec3(1.0)));
+float alpha_output_0 = byteround(clamp((texcolor0.a) * (const_color[0].a), 0.0, 1.0));
+last_tex_env_out = clamp(vec4(color_output_0, alpha_output_0), vec4(0.0), vec4(1.0));
+combiner_buffer = next_combiner_buffer;
+
+vec3 color_output_1 = byteround(clamp((last_tex_env_out.rgb) * (primary_fragment_color.rgb), vec3(0.0), vec3(1.0)));
+float alpha_output_1 = byteround(clamp((last_tex_env_out.a), 0.0, 1.0));
+last_tex_env_out = clamp(vec4(color_output_1, alpha_output_1), vec4(0.0), vec4(1.0));
+combiner_buffer = next_combiner_buffer;
+
+combiner_buffer = next_combiner_buffer;
+
+combiner_buffer = next_combiner_buffer;
+
+combiner_buffer = next_combiner_buffer;
+
+combiner_buffer = next_combiner_buffer;
+
+gl_FragDepth = depth;
+color = byteround(last_tex_env_out);
+}
+// reference: 68D10D3FB7962862, 3B18E699FD03D5D1
+// program: 1A9F70669A3C74DF, F0531050140A5884, 3B18E699FD03D5D1
+// reference: CD083FECE649D142, 03A41228A921F0A5
+// shader: 8B30, 8E7FA7A175708E99
+in vec4 primary_color;
+in vec2 texcoord0;
+in vec2 texcoord1;
+in vec2 texcoord2;
+in float texcoord0_w;
+in vec4 normquat;
+in vec3 view;
+
+#ifndef CITRA_GLES
+in vec4 gl_FragCoord;
+#endif // CITRA_GLES
+out vec4 color;
+
+uniform sampler2D tex0;
+uniform sampler2D tex1;
+uniform sampler2D tex2;
+uniform samplerCube tex_cube;
+uniform samplerBuffer texture_buffer_lut_lf;
+uniform samplerBuffer texture_buffer_lut_rg;
+uniform samplerBuffer texture_buffer_lut_rgba;
+
+#define NUM_TEV_STAGES 6
+#define NUM_LIGHTS 8
+#define NUM_LIGHTING_SAMPLERS 24
+
+struct LightSrc {
+    vec3 specular_0;
+    vec3 specular_1;
+    vec3 diffuse;
+    vec3 ambient;
+    vec3 position;
+    vec3 spot_direction;
+    float dist_atten_bias;
+    float dist_atten_scale;
+};
+
+layout (std140) uniform shader_data {
+    int alphatest_ref;
+    float depth_scale;
+    float depth_offset;
+    float shadow_bias_constant;
+    float shadow_bias_linear;
+    int scissor_x1;
+    int scissor_y1;
+    int scissor_x2;
+    int scissor_y2;
+    int fog_lut_offset;
+    int proctex_noise_lut_offset;
+    int proctex_color_map_offset;
+    int proctex_alpha_map_offset;
+    int proctex_lut_offset;
+    int proctex_diff_lut_offset;
+    float proctex_bias;
+    vec3 fog_color;
+    vec2 proctex_noise_f;
+    vec2 proctex_noise_a;
+    vec2 proctex_noise_p;
+    vec4 const_color[NUM_TEV_STAGES];
+    vec4 tev_combiner_buffer_color;
+    vec4 clip_coef;
+};
+
+layout (std140) uniform shader_light_data {
+    ivec4 lighting_lut_offset[NUM_LIGHTING_SAMPLERS / 4];
+    vec3 lighting_global_ambient;
+    LightSrc light_src[NUM_LIGHTS];
+    float lut_scale_d0;
+    float lut_scale_d1;
+    float lut_scale_sp;
+    float lut_scale_fr;
+    float lut_scale_rb;
+    float lut_scale_rg;
+    float lut_scale_rr;
+    int shadow_texture_bias;
+};
+
+// Rotate the vector v by the quaternion q
+vec3 quaternion_rotate(vec4 q, vec3 v) {
+    return v + 2.0 * cross(q.xyz, cross(q.xyz, v) + q.w * v);
+}
+
+float LookupLightingLUT(int lut_index, int index, float delta) {
+    vec2 entry = texelFetch(texture_buffer_lut_lf, lighting_lut_offset[lut_index >> 2][lut_index & 3] + index).rg;
+    return entry.r + entry.g * delta;
+}
+
+float LookupLightingLUTUnsigned(int lut_index, float pos) {
+    int index = clamp(int(pos * 256.0), 0, 255);
+    float delta = pos * 256.0 - float(index);
+    return LookupLightingLUT(lut_index, index, delta);
+}
+
+float LookupLightingLUTSigned(int lut_index, float pos) {
+    int index = clamp(int(pos * 128.0), -128, 127);
+    float delta = pos * 128.0 - float(index);
+    if (index < 0) index += 256;
+    return LookupLightingLUT(lut_index, index, delta);
+}
+
+float byteround(float x) {
+    return round(x * 255.0) * (1.0 / 255.0);
+}
+
+vec2 byteround(vec2 x) {
+    return round(x * 255.0) * (1.0 / 255.0);
+}
+
+vec3 byteround(vec3 x) {
+    return round(x * 255.0) * (1.0 / 255.0);
+}
+
+vec4 byteround(vec4 x) {
+    return round(x * 255.0) * (1.0 / 255.0);
+}
+
+// PICA's LOD formula for 2D textures.
+// This LOD formula is the same as the LOD lower limit defined in OpenGL.
+// f(x, y) >= max{m_u, m_v, m_w}
+// (See OpenGL 4.6 spec, 8.14.1 - Scale Factor and Level-of-Detail)
+float getLod(vec2 coord) {
+    vec2 d = max(abs(dFdx(coord)), abs(dFdy(coord)));
+    return log2(max(d.x, d.y));
+}
+
+vec4 shadowTexture(vec2 uv, float w) {
+    return vec4(1.0);
+}
+
+vec4 shadowTextureCube(vec2 uv, float w) {
+    return vec4(1.0);
+}
+
+void main() {
+vec4 rounded_primary_color = byteround(primary_color);
+vec4 primary_fragment_color = vec4(0.0);
+vec4 secondary_fragment_color = vec4(0.0);
+if (!(gl_FragCoord.x >= float(scissor_x1) && gl_FragCoord.y >= float(scissor_y1) && gl_FragCoord.x < float(scissor_x2) && gl_FragCoord.y < float(scissor_y2))) discard;
+float z_over_w = 2.0 * gl_FragCoord.z - 1.0;
+float depth = z_over_w * depth_scale + depth_offset;
+vec4 texcolor0 = textureLod(tex0, texcoord0, getLod(texcoord0 * vec2(textureSize(tex0, 0))));
+vec4 texcolor1 = textureLod(tex1, texcoord1, getLod(texcoord1 * vec2(textureSize(tex1, 0))));
+
+vec4 diffuse_sum = vec4(0.0, 0.0, 0.0, 1.0);
+vec4 specular_sum = vec4(0.0, 0.0, 0.0, 1.0);
+vec3 light_vector = vec3(0.0);
+vec3 refl_value = vec3(0.0);
+vec3 spot_dir = vec3(0.0);
+vec3 half_vector = vec3(0.0);
+float dot_product = 0.0;
+float clamp_highlights = 1.0;
+float geo_factor = 1.0;
+vec3 surface_normal = vec3(0.0, 0.0, 1.0);
+vec3 surface_tangent = vec3(1.0, 0.0, 0.0);
+vec4 normalized_normquat = normalize(normquat);
+vec3 normal = quaternion_rotate(normalized_normquat, surface_normal);
+vec3 tangent = quaternion_rotate(normalized_normquat, surface_tangent);
+vec4 shadow = vec4(1.0);
+light_vector = normalize(light_src[0].position + view);
+spot_dir = light_src[0].spot_direction;
+half_vector = normalize(view) + light_vector;
+dot_product = max(dot(light_vector, normal), 0.0);
+refl_value.r = 1.0;
+refl_value.g = refl_value.r;
+refl_value.b = refl_value.r;
+diffuse_sum.rgb += ((light_src[0].diffuse * dot_product) + light_src[0].ambient) * LookupLightingLUTUnsigned(16,clamp(light_src[0].dist_atten_scale * length(-view - light_src[0].position) + light_src[0].dist_atten_bias, 0.0, 1.0)) * 1.0;
+specular_sum.rgb += ((light_src[0].specular_0) + (light_src[0].specular_1)) * clamp_highlights * LookupLightingLUTUnsigned(16,clamp(light_src[0].dist_atten_scale * length(-view - light_src[0].position) + light_src[0].dist_atten_bias, 0.0, 1.0)) * 1.0;
+light_vector = normalize(light_src[1].position + view);
+spot_dir = light_src[1].spot_direction;
+half_vector = normalize(view) + light_vector;
+dot_product = max(dot(light_vector, normal), 0.0);
+refl_value.r = 1.0;
+refl_value.g = refl_value.r;
+refl_value.b = refl_value.r;
+diffuse_sum.rgb += ((light_src[1].diffuse * dot_product) + light_src[1].ambient) * LookupLightingLUTUnsigned(17,clamp(light_src[1].dist_atten_scale * length(-view - light_src[1].position) + light_src[1].dist_atten_bias, 0.0, 1.0)) * 1.0;
+specular_sum.rgb += ((light_src[1].specular_0) + (light_src[1].specular_1)) * clamp_highlights * LookupLightingLUTUnsigned(17,clamp(light_src[1].dist_atten_scale * length(-view - light_src[1].position) + light_src[1].dist_atten_bias, 0.0, 1.0)) * 1.0;
+light_vector = normalize(light_src[2].position + view);
+spot_dir = light_src[2].spot_direction;
+half_vector = normalize(view) + light_vector;
+dot_product = max(dot(light_vector, normal), 0.0);
+refl_value.r = 1.0;
+refl_value.g = refl_value.r;
+refl_value.b = refl_value.r;
+diffuse_sum.rgb += ((light_src[2].diffuse * dot_product) + light_src[2].ambient) * LookupLightingLUTUnsigned(18,clamp(light_src[2].dist_atten_scale * length(-view - light_src[2].position) + light_src[2].dist_atten_bias, 0.0, 1.0)) * (lut_scale_sp * LookupLightingLUTUnsigned(10, max(dot(light_vector, spot_dir), 0.0)));
+specular_sum.rgb += ((light_src[2].specular_0) + (light_src[2].specular_1)) * clamp_highlights * LookupLightingLUTUnsigned(18,clamp(light_src[2].dist_atten_scale * length(-view - light_src[2].position) + light_src[2].dist_atten_bias, 0.0, 1.0)) * (lut_scale_sp * LookupLightingLUTUnsigned(10, max(dot(light_vector, spot_dir), 0.0)));
+light_vector = normalize(light_src[3].position + view);
+spot_dir = light_src[3].spot_direction;
+half_vector = normalize(view) + light_vector;
+dot_product = max(dot(light_vector, normal), 0.0);
+refl_value.r = 1.0;
+refl_value.g = refl_value.r;
+refl_value.b = refl_value.r;
+diffuse_sum.rgb += ((light_src[3].diffuse * dot_product) + light_src[3].ambient) * LookupLightingLUTUnsigned(19,clamp(light_src[3].dist_atten_scale * length(-view - light_src[3].position) + light_src[3].dist_atten_bias, 0.0, 1.0)) * 1.0;
+specular_sum.rgb += ((light_src[3].specular_0) + (light_src[3].specular_1)) * clamp_highlights * LookupLightingLUTUnsigned(19,clamp(light_src[3].dist_atten_scale * length(-view - light_src[3].position) + light_src[3].dist_atten_bias, 0.0, 1.0)) * 1.0;
+diffuse_sum.rgb += lighting_global_ambient;
+primary_fragment_color = clamp(diffuse_sum, vec4(0.0), vec4(1.0));
+secondary_fragment_color = clamp(specular_sum, vec4(0.0), vec4(1.0));
+
+vec4 combiner_buffer = vec4(0.0);
+vec4 next_combiner_buffer = tev_combiner_buffer_color;
+vec4 last_tex_env_out = vec4(0.0);
+vec3 color_output_0 = byteround(clamp((rounded_primary_color.rgb) * (texcolor1.rgb), vec3(0.0), vec3(1.0)));
+float alpha_output_0 = byteround(clamp((rounded_primary_color.a) * (texcolor1.a), 0.0, 1.0));
+last_tex_env_out = clamp(vec4(color_output_0 * 2.0, alpha_output_0 * 1.0), vec4(0.0), vec4(1.0));
+combiner_buffer = next_combiner_buffer;
+
+vec3 color_output_1 = byteround(clamp((last_tex_env_out.rgb) * (primary_fragment_color.rgb), vec3(0.0), vec3(1.0)));
+float alpha_output_1 = byteround(clamp((last_tex_env_out.a), 0.0, 1.0));
+last_tex_env_out = clamp(vec4(color_output_1, alpha_output_1), vec4(0.0), vec4(1.0));
+combiner_buffer = next_combiner_buffer;
+
+vec3 color_output_2 = byteround(clamp((last_tex_env_out.rgb), vec3(0.0), vec3(1.0)));
+float alpha_output_2 = byteround(clamp((last_tex_env_out.a) * (const_color[2].a), 0.0, 1.0));
+last_tex_env_out = clamp(vec4(color_output_2, alpha_output_2), vec4(0.0), vec4(1.0));
+combiner_buffer = next_combiner_buffer;
+
+vec3 color_output_3 = byteround(clamp(min((const_color[3].rgb) + (texcolor0.ggg), vec3(1.0)) * (last_tex_env_out.rgb), vec3(0.0), vec3(1.0)));
+float alpha_output_3 = byteround(clamp((last_tex_env_out.a), 0.0, 1.0));
+last_tex_env_out = clamp(vec4(color_output_3, alpha_output_3), vec4(0.0), vec4(1.0));
+combiner_buffer = next_combiner_buffer;
+
+combiner_buffer = next_combiner_buffer;
+
+combiner_buffer = next_combiner_buffer;
+
+if (int(last_tex_env_out.a * 255.0) <= alphatest_ref) discard;
+gl_FragDepth = depth;
+color = byteround(last_tex_env_out);
+}
+// reference: E81ECC1F198E695F, 8E7FA7A175708E99
+// program: 1A9F70669A3C74DF, F0531050140A5884, 8E7FA7A175708E99
+// shader: 8B30, D5A9F07AD757C1B9
+in vec4 primary_color;
+in vec2 texcoord0;
+in vec2 texcoord1;
+in vec2 texcoord2;
+in float texcoord0_w;
+in vec4 normquat;
+in vec3 view;
+
+#ifndef CITRA_GLES
+in vec4 gl_FragCoord;
+#endif // CITRA_GLES
+out vec4 color;
+
+uniform sampler2D tex0;
+uniform sampler2D tex1;
+uniform sampler2D tex2;
+uniform samplerCube tex_cube;
+uniform samplerBuffer texture_buffer_lut_lf;
+uniform samplerBuffer texture_buffer_lut_rg;
+uniform samplerBuffer texture_buffer_lut_rgba;
+
+#define NUM_TEV_STAGES 6
+#define NUM_LIGHTS 8
+#define NUM_LIGHTING_SAMPLERS 24
+
+struct LightSrc {
+    vec3 specular_0;
+    vec3 specular_1;
+    vec3 diffuse;
+    vec3 ambient;
+    vec3 position;
+    vec3 spot_direction;
+    float dist_atten_bias;
+    float dist_atten_scale;
+};
+
+layout (std140) uniform shader_data {
+    int alphatest_ref;
+    float depth_scale;
+    float depth_offset;
+    float shadow_bias_constant;
+    float shadow_bias_linear;
+    int scissor_x1;
+    int scissor_y1;
+    int scissor_x2;
+    int scissor_y2;
+    int fog_lut_offset;
+    int proctex_noise_lut_offset;
+    int proctex_color_map_offset;
+    int proctex_alpha_map_offset;
+    int proctex_lut_offset;
+    int proctex_diff_lut_offset;
+    float proctex_bias;
+    vec3 fog_color;
+    vec2 proctex_noise_f;
+    vec2 proctex_noise_a;
+    vec2 proctex_noise_p;
+    vec4 const_color[NUM_TEV_STAGES];
+    vec4 tev_combiner_buffer_color;
+    vec4 clip_coef;
+};
+
+layout (std140) uniform shader_light_data {
+    ivec4 lighting_lut_offset[NUM_LIGHTING_SAMPLERS / 4];
+    vec3 lighting_global_ambient;
+    LightSrc light_src[NUM_LIGHTS];
+    float lut_scale_d0;
+    float lut_scale_d1;
+    float lut_scale_sp;
+    float lut_scale_fr;
+    float lut_scale_rb;
+    float lut_scale_rg;
+    float lut_scale_rr;
+    int shadow_texture_bias;
+};
+
+// Rotate the vector v by the quaternion q
+vec3 quaternion_rotate(vec4 q, vec3 v) {
+    return v + 2.0 * cross(q.xyz, cross(q.xyz, v) + q.w * v);
+}
+
+float LookupLightingLUT(int lut_index, int index, float delta) {
+    vec2 entry = texelFetch(texture_buffer_lut_lf, lighting_lut_offset[lut_index >> 2][lut_index & 3] + index).rg;
+    return entry.r + entry.g * delta;
+}
+
+float LookupLightingLUTUnsigned(int lut_index, float pos) {
+    int index = clamp(int(pos * 256.0), 0, 255);
+    float delta = pos * 256.0 - float(index);
+    return LookupLightingLUT(lut_index, index, delta);
+}
+
+float LookupLightingLUTSigned(int lut_index, float pos) {
+    int index = clamp(int(pos * 128.0), -128, 127);
+    float delta = pos * 128.0 - float(index);
+    if (index < 0) index += 256;
+    return LookupLightingLUT(lut_index, index, delta);
+}
+
+float byteround(float x) {
+    return round(x * 255.0) * (1.0 / 255.0);
+}
+
+vec2 byteround(vec2 x) {
+    return round(x * 255.0) * (1.0 / 255.0);
+}
+
+vec3 byteround(vec3 x) {
+    return round(x * 255.0) * (1.0 / 255.0);
+}
+
+vec4 byteround(vec4 x) {
+    return round(x * 255.0) * (1.0 / 255.0);
+}
+
+// PICA's LOD formula for 2D textures.
+// This LOD formula is the same as the LOD lower limit defined in OpenGL.
+// f(x, y) >= max{m_u, m_v, m_w}
+// (See OpenGL 4.6 spec, 8.14.1 - Scale Factor and Level-of-Detail)
+float getLod(vec2 coord) {
+    vec2 d = max(abs(dFdx(coord)), abs(dFdy(coord)));
+    return log2(max(d.x, d.y));
+}
+
+vec4 shadowTexture(vec2 uv, float w) {
+    return vec4(1.0);
+}
+
+vec4 shadowTextureCube(vec2 uv, float w) {
+    return vec4(1.0);
+}
+
+void main() {
+vec4 rounded_primary_color = byteround(primary_color);
+vec4 primary_fragment_color = vec4(0.0);
+vec4 secondary_fragment_color = vec4(0.0);
+if (!(gl_FragCoord.x >= float(scissor_x1) && gl_FragCoord.y >= float(scissor_y1) && gl_FragCoord.x < float(scissor_x2) && gl_FragCoord.y < float(scissor_y2))) discard;
+float z_over_w = 2.0 * gl_FragCoord.z - 1.0;
+float depth = z_over_w * depth_scale + depth_offset;
+vec4 texcolor0 = textureLod(tex0, texcoord0, getLod(texcoord0 * vec2(textureSize(tex0, 0))));
+vec4 texcolor1 = textureLod(tex1, texcoord1, getLod(texcoord1 * vec2(textureSize(tex1, 0))));
+
+vec4 diffuse_sum = vec4(0.0, 0.0, 0.0, 1.0);
+vec4 specular_sum = vec4(0.0, 0.0, 0.0, 1.0);
+vec3 light_vector = vec3(0.0);
+vec3 refl_value = vec3(0.0);
+vec3 spot_dir = vec3(0.0);
+vec3 half_vector = vec3(0.0);
+float dot_product = 0.0;
+float clamp_highlights = 1.0;
+float geo_factor = 1.0;
+vec3 surface_normal = vec3(0.0, 0.0, 1.0);
+vec3 surface_tangent = vec3(1.0, 0.0, 0.0);
+vec4 normalized_normquat = normalize(normquat);
+vec3 normal = quaternion_rotate(normalized_normquat, surface_normal);
+vec3 tangent = quaternion_rotate(normalized_normquat, surface_tangent);
+vec4 shadow = vec4(1.0);
+light_vector = normalize(light_src[0].position + view);
+spot_dir = light_src[0].spot_direction;
+half_vector = normalize(view) + light_vector;
+dot_product = max(dot(light_vector, normal), 0.0);
+refl_value.r = 1.0;
+refl_value.g = refl_value.r;
+refl_value.b = refl_value.r;
+diffuse_sum.rgb += ((light_src[0].diffuse * dot_product) + light_src[0].ambient) * LookupLightingLUTUnsigned(16,clamp(light_src[0].dist_atten_scale * length(-view - light_src[0].position) + light_src[0].dist_atten_bias, 0.0, 1.0)) * 1.0;
+specular_sum.rgb += ((light_src[0].specular_0) + (light_src[0].specular_1)) * clamp_highlights * LookupLightingLUTUnsigned(16,clamp(light_src[0].dist_atten_scale * length(-view - light_src[0].position) + light_src[0].dist_atten_bias, 0.0, 1.0)) * 1.0;
+light_vector = normalize(light_src[1].position + view);
+spot_dir = light_src[1].spot_direction;
+half_vector = normalize(view) + light_vector;
+dot_product = max(dot(light_vector, normal), 0.0);
+refl_value.r = 1.0;
+refl_value.g = refl_value.r;
+refl_value.b = refl_value.r;
+diffuse_sum.rgb += ((light_src[1].diffuse * dot_product) + light_src[1].ambient) * LookupLightingLUTUnsigned(17,clamp(light_src[1].dist_atten_scale * length(-view - light_src[1].position) + light_src[1].dist_atten_bias, 0.0, 1.0)) * 1.0;
+specular_sum.rgb += ((light_src[1].specular_0) + (light_src[1].specular_1)) * clamp_highlights * LookupLightingLUTUnsigned(17,clamp(light_src[1].dist_atten_scale * length(-view - light_src[1].position) + light_src[1].dist_atten_bias, 0.0, 1.0)) * 1.0;
+light_vector = normalize(light_src[2].position + view);
+spot_dir = light_src[2].spot_direction;
+half_vector = normalize(view) + light_vector;
+dot_product = max(dot(light_vector, normal), 0.0);
+refl_value.r = 1.0;
+refl_value.g = refl_value.r;
+refl_value.b = refl_value.r;
+diffuse_sum.rgb += ((light_src[2].diffuse * dot_product) + light_src[2].ambient) * LookupLightingLUTUnsigned(18,clamp(light_src[2].dist_atten_scale * length(-view - light_src[2].position) + light_src[2].dist_atten_bias, 0.0, 1.0)) * (lut_scale_sp * LookupLightingLUTUnsigned(10, max(dot(light_vector, spot_dir), 0.0)));
+specular_sum.rgb += ((light_src[2].specular_0) + (light_src[2].specular_1)) * clamp_highlights * LookupLightingLUTUnsigned(18,clamp(light_src[2].dist_atten_scale * length(-view - light_src[2].position) + light_src[2].dist_atten_bias, 0.0, 1.0)) * (lut_scale_sp * LookupLightingLUTUnsigned(10, max(dot(light_vector, spot_dir), 0.0)));
+light_vector = normalize(light_src[3].position + view);
+spot_dir = light_src[3].spot_direction;
+half_vector = normalize(view) + light_vector;
+dot_product = max(dot(light_vector, normal), 0.0);
+refl_value.r = 1.0;
+refl_value.g = refl_value.r;
+refl_value.b = refl_value.r;
+diffuse_sum.rgb += ((light_src[3].diffuse * dot_product) + light_src[3].ambient) * LookupLightingLUTUnsigned(19,clamp(light_src[3].dist_atten_scale * length(-view - light_src[3].position) + light_src[3].dist_atten_bias, 0.0, 1.0)) * 1.0;
+specular_sum.rgb += ((light_src[3].specular_0) + (light_src[3].specular_1)) * clamp_highlights * LookupLightingLUTUnsigned(19,clamp(light_src[3].dist_atten_scale * length(-view - light_src[3].position) + light_src[3].dist_atten_bias, 0.0, 1.0)) * 1.0;
+diffuse_sum.rgb += lighting_global_ambient;
+primary_fragment_color = clamp(diffuse_sum, vec4(0.0), vec4(1.0));
+secondary_fragment_color = clamp(specular_sum, vec4(0.0), vec4(1.0));
+
+vec4 combiner_buffer = vec4(0.0);
+vec4 next_combiner_buffer = tev_combiner_buffer_color;
+vec4 last_tex_env_out = vec4(0.0);
+vec3 color_output_0 = byteround(clamp((rounded_primary_color.rgb), vec3(0.0), vec3(1.0)));
+float alpha_output_0 = byteround(clamp((rounded_primary_color.r) * (rounded_primary_color.r), 0.0, 1.0));
+last_tex_env_out = clamp(vec4(color_output_0 * 1.0, alpha_output_0 * 2.0), vec4(0.0), vec4(1.0));
+combiner_buffer = next_combiner_buffer;
+
+vec3 color_output_1 = byteround(clamp((const_color[1].rgb) * (vec3(1.0) - last_tex_env_out.aaa) + (rounded_primary_color.rgb), vec3(0.0), vec3(1.0)));
+float alpha_output_1 = byteround(clamp((rounded_primary_color.a) * (texcolor1.a), 0.0, 1.0));
+last_tex_env_out = clamp(vec4(color_output_1, alpha_output_1), vec4(0.0), vec4(1.0));
+combiner_buffer = next_combiner_buffer;
+
+vec3 color_output_2 = byteround(clamp((last_tex_env_out.rgb) * (texcolor1.rgb), vec3(0.0), vec3(1.0)));
+float alpha_output_2 = byteround(clamp((last_tex_env_out.a), 0.0, 1.0));
+last_tex_env_out = clamp(vec4(color_output_2 * 2.0, alpha_output_2 * 1.0), vec4(0.0), vec4(1.0));
+combiner_buffer = next_combiner_buffer;
+
+vec3 color_output_3 = byteround(clamp((last_tex_env_out.rgb) * (primary_fragment_color.rgb), vec3(0.0), vec3(1.0)));
+float alpha_output_3 = byteround(clamp((last_tex_env_out.a) * (const_color[3].a), 0.0, 1.0));
+last_tex_env_out = clamp(vec4(color_output_3, alpha_output_3), vec4(0.0), vec4(1.0));
+combiner_buffer = next_combiner_buffer;
+
+vec3 color_output_4 = byteround(clamp(min((const_color[4].rgb) + (texcolor0.ggg), vec3(1.0)) * (last_tex_env_out.rgb), vec3(0.0), vec3(1.0)));
+float alpha_output_4 = byteround(clamp((last_tex_env_out.a), 0.0, 1.0));
+last_tex_env_out = clamp(vec4(color_output_4, alpha_output_4), vec4(0.0), vec4(1.0));
+combiner_buffer = next_combiner_buffer;
+
+combiner_buffer = next_combiner_buffer;
+
+if (int(last_tex_env_out.a * 255.0) <= alphatest_ref) discard;
+gl_FragDepth = depth;
+color = byteround(last_tex_env_out);
+}
+// reference: 2338D2BEA3987ECF, D5A9F07AD757C1B9
+// program: 1A9F70669A3C74DF, F0531050140A5884, D5A9F07AD757C1B9
+// shader: 8B30, F798BDE2732C1B7A
 in vec4 primary_color;
 in vec2 texcoord0;
 in vec2 texcoord1;
@@ -48672,15 +49280,9 @@ if (int(last_tex_env_out.a * 255.0) <= alphatest_ref) discard;
 gl_FragDepth = depth;
 color = byteround(last_tex_env_out);
 }
-// reference: 9E54179A5BAC67BB, 97CBCB429E741BC4
-// program: A0A01900FB0E2CEC, F0531050140A5884, 97CBCB429E741BC4
-// shader: 8B30, 2C86727A324EF98F
-
-precision highp int;
-precision highp float;
-precision highp samplerBuffer;
-precision highp usampler2D;
-precision highp uimage2D;
+// reference: 9E54179A5BAC67BB, F798BDE2732C1B7A
+// program: 1A9F70669A3C74DF, F0531050140A5884, F798BDE2732C1B7A
+// shader: 8B30, 9E308B2D7CF96B32
 in vec4 primary_color;
 in vec2 texcoord0;
 in vec2 texcoord1;
@@ -48903,15 +49505,9 @@ if (int(last_tex_env_out.a * 255.0) <= alphatest_ref) discard;
 gl_FragDepth = depth;
 color = byteround(last_tex_env_out);
 }
-// reference: 5572093BE1BA702B, 2C86727A324EF98F
-// program: A0A01900FB0E2CEC, F0531050140A5884, 2C86727A324EF98F
-// shader: 8B30, FAF13DF97E058E18
-
-precision highp int;
-precision highp float;
-precision highp samplerBuffer;
-precision highp usampler2D;
-precision highp uimage2D;
+// reference: 5572093BE1BA702B, 9E308B2D7CF96B32
+// program: 1A9F70669A3C74DF, F0531050140A5884, 9E308B2D7CF96B32
+// shader: 8B30, 6189D7BC61784A2A
 in vec4 primary_color;
 in vec2 texcoord0;
 in vec2 texcoord1;
@@ -49111,15 +49707,9 @@ combiner_buffer = next_combiner_buffer;
 gl_FragDepth = depth;
 color = byteround(last_tex_env_out);
 }
-// reference: F481C50DCF33812C, FAF13DF97E058E18
-// program: A0A01900FB0E2CEC, F0531050140A5884, FAF13DF97E058E18
-// shader: 8B30, 5E0B385B7747E6E4
-
-precision highp int;
-precision highp float;
-precision highp samplerBuffer;
-precision highp usampler2D;
-precision highp uimage2D;
+// reference: F481C50DCF33812C, 6189D7BC61784A2A
+// program: 1A9F70669A3C74DF, F0531050140A5884, 6189D7BC61784A2A
+// shader: 8B30, 0EDF414F16EDBBF5
 in vec4 primary_color;
 in vec2 texcoord0;
 in vec2 texcoord1;
@@ -49320,15 +49910,9 @@ combiner_buffer = next_combiner_buffer;
 gl_FragDepth = depth;
 color = byteround(last_tex_env_out);
 }
-// reference: A52BEA60CF33812C, 5E0B385B7747E6E4
-// program: A0A01900FB0E2CEC, F0531050140A5884, 5E0B385B7747E6E4
-// shader: 8B30, 9398F3F3AD145918
-
-precision highp int;
-precision highp float;
-precision highp samplerBuffer;
-precision highp usampler2D;
-precision highp uimage2D;
+// reference: A52BEA60CF33812C, 0EDF414F16EDBBF5
+// program: 1A9F70669A3C74DF, F0531050140A5884, 0EDF414F16EDBBF5
+// shader: 8B30, AF37E88C18AE0B99
 in vec4 primary_color;
 in vec2 texcoord0;
 in vec2 texcoord1;
@@ -49530,15 +50114,9 @@ if (int(last_tex_env_out.a * 255.0) <= alphatest_ref) discard;
 gl_FragDepth = depth;
 color = byteround(last_tex_env_out);
 }
-// reference: A52BEA6023846A2F, 9398F3F3AD145918
-// program: A0A01900FB0E2CEC, F0531050140A5884, 9398F3F3AD145918
-// shader: 8B30, A8E110EF4EFFE568
-
-precision highp int;
-precision highp float;
-precision highp samplerBuffer;
-precision highp usampler2D;
-precision highp uimage2D;
+// reference: A52BEA6023846A2F, AF37E88C18AE0B99
+// program: 1A9F70669A3C74DF, F0531050140A5884, AF37E88C18AE0B99
+// shader: 8B30, 24E6A6A0C73BBB26
 in vec4 primary_color;
 in vec2 texcoord0;
 in vec2 texcoord1;
@@ -49748,15 +50326,9 @@ combiner_buffer = next_combiner_buffer;
 gl_FragDepth = depth;
 color = byteround(last_tex_env_out);
 }
-// reference: F18585A401F0B970, A8E110EF4EFFE568
-// program: A0A01900FB0E2CEC, F0531050140A5884, A8E110EF4EFFE568
-// shader: 8B30, 044FA39FD0D931C6
-
-precision highp int;
-precision highp float;
-precision highp samplerBuffer;
-precision highp usampler2D;
-precision highp uimage2D;
+// reference: F18585A401F0B970, 24E6A6A0C73BBB26
+// program: 1A9F70669A3C74DF, F0531050140A5884, 24E6A6A0C73BBB26
+// shader: 8B30, D5844ECA5F633635
 in vec4 primary_color;
 in vec2 texcoord0;
 in vec2 texcoord1;
@@ -49961,15 +50533,9 @@ if (int(last_tex_env_out.a * 255.0) <= alphatest_ref) discard;
 gl_FragDepth = depth;
 color = byteround(last_tex_env_out);
 }
-// reference: 6E0DF4C199927DBF, 044FA39FD0D931C6
-// program: A0A01900FB0E2CEC, F0531050140A5884, 044FA39FD0D931C6
-// shader: 8B30, 7EEA1C319CDB2BB1
-
-precision highp int;
-precision highp float;
-precision highp samplerBuffer;
-precision highp usampler2D;
-precision highp uimage2D;
+// reference: 6E0DF4C199927DBF, D5844ECA5F633635
+// program: 1A9F70669A3C74DF, F0531050140A5884, D5844ECA5F633635
+// shader: 8B30, 8DB0CA72E99B8579
 in vec4 primary_color;
 in vec2 texcoord0;
 in vec2 texcoord1;
@@ -50166,15 +50732,9 @@ combiner_buffer = next_combiner_buffer;
 gl_FragDepth = depth;
 color = byteround(last_tex_env_out);
 }
-// reference: A068168A0D56F553, 7EEA1C319CDB2BB1
-// program: A0A01900FB0E2CEC, F0531050140A5884, 7EEA1C319CDB2BB1
-// shader: 8B30, AF161A82C4109A18
-
-precision highp int;
-precision highp float;
-precision highp samplerBuffer;
-precision highp usampler2D;
-precision highp uimage2D;
+// reference: A068168A0D56F553, 8DB0CA72E99B8579
+// program: 1A9F70669A3C74DF, F0531050140A5884, 8DB0CA72E99B8579
+// shader: 8B30, CF1CDDFA771DF791
 in vec4 primary_color;
 in vec2 texcoord0;
 in vec2 texcoord1;
@@ -50375,15 +50935,9 @@ combiner_buffer = next_combiner_buffer;
 gl_FragDepth = depth;
 color = byteround(last_tex_env_out);
 }
-// reference: 08083ED2E547DE48, AF161A82C4109A18
-// program: A0A01900FB0E2CEC, F0531050140A5884, AF161A82C4109A18
-// shader: 8B30, 208BE40A561256C7
-
-precision highp int;
-precision highp float;
-precision highp samplerBuffer;
-precision highp usampler2D;
-precision highp uimage2D;
+// reference: 08083ED2E547DE48, CF1CDDFA771DF791
+// program: 1A9F70669A3C74DF, F0531050140A5884, CF1CDDFA771DF791
+// shader: 8B30, D579705073B7713B
 in vec4 primary_color;
 in vec2 texcoord0;
 in vec2 texcoord1;
@@ -50577,15 +51131,9 @@ combiner_buffer = next_combiner_buffer;
 gl_FragDepth = depth;
 color = byteround(last_tex_env_out);
 }
-// reference: 47FC57EA1DC8E5AF, 208BE40A561256C7
-// program: A0A01900FB0E2CEC, F0531050140A5884, 208BE40A561256C7
-// shader: 8B30, A295D61E40C775DB
-
-precision highp int;
-precision highp float;
-precision highp samplerBuffer;
-precision highp usampler2D;
-precision highp uimage2D;
+// reference: 47FC57EA1DC8E5AF, D579705073B7713B
+// program: 1A9F70669A3C74DF, F0531050140A5884, D579705073B7713B
+// shader: 8B30, 0B93AFF4EC0AF4B1
 in vec4 primary_color;
 in vec2 texcoord0;
 in vec2 texcoord1;
@@ -50789,15 +51337,9 @@ combiner_buffer = next_combiner_buffer;
 gl_FragDepth = depth;
 color = byteround(last_tex_env_out);
 }
-// reference: 6E0DF4C1752596BC, A295D61E40C775DB
-// program: A0A01900FB0E2CEC, F0531050140A5884, A295D61E40C775DB
-// shader: 8B30, 500236E0C2247045
-
-precision highp int;
-precision highp float;
-precision highp samplerBuffer;
-precision highp usampler2D;
-precision highp uimage2D;
+// reference: 6E0DF4C1752596BC, 0B93AFF4EC0AF4B1
+// program: 1A9F70669A3C74DF, F0531050140A5884, 0B93AFF4EC0AF4B1
+// shader: 8B30, D8BF10FB59EE0059
 in vec4 primary_color;
 in vec2 texcoord0;
 in vec2 texcoord1;
@@ -50991,16 +51533,10 @@ combiner_buffer = next_combiner_buffer;
 gl_FragDepth = depth;
 color = byteround(last_tex_env_out);
 }
-// reference: 4745CF288D9C2B12, 500236E0C2247045
-// program: A0A01900FB0E2CEC, F0531050140A5884, 500236E0C2247045
-// reference: E29CFDFBDC43D232, 94C189A177E49D88
-// shader: 8B30, CFA19D823FCD7331
-
-precision highp int;
-precision highp float;
-precision highp samplerBuffer;
-precision highp usampler2D;
-precision highp uimage2D;
+// reference: 4745CF288D9C2B12, D8BF10FB59EE0059
+// program: 1A9F70669A3C74DF, F0531050140A5884, D8BF10FB59EE0059
+// reference: E29CFDFBDC43D232, 03A41228A921F0A5
+// shader: 8B30, F4EE945F52CF8541
 in vec4 primary_color;
 in vec2 texcoord0;
 in vec2 texcoord1;
@@ -51194,15 +51730,9 @@ combiner_buffer = next_combiner_buffer;
 gl_FragDepth = depth;
 color = byteround(last_tex_env_out);
 }
-// reference: E44BEA9B09398198, CFA19D823FCD7331
-// program: A0A01900FB0E2CEC, F0531050140A5884, CFA19D823FCD7331
-// shader: 8B30, 31595CB8401348D0
-
-precision highp int;
-precision highp float;
-precision highp samplerBuffer;
-precision highp usampler2D;
-precision highp uimage2D;
+// reference: E44BEA9B09398198, F4EE945F52CF8541
+// program: 1A9F70669A3C74DF, F0531050140A5884, F4EE945F52CF8541
+// shader: 8B30, D4D2496BCF89EDC6
 in vec4 primary_color;
 in vec2 texcoord0;
 in vec2 texcoord1;
@@ -51396,15 +51926,9 @@ combiner_buffer = next_combiner_buffer;
 gl_FragDepth = depth;
 color = byteround(last_tex_env_out);
 }
-// reference: 4F1DEF16D3F33C86, 31595CB8401348D0
-// program: A0A01900FB0E2CEC, F0531050140A5884, 31595CB8401348D0
-// shader: 8B30, D131D50082DA29E4
-
-precision highp int;
-precision highp float;
-precision highp samplerBuffer;
-precision highp usampler2D;
-precision highp uimage2D;
+// reference: 4F1DEF16D3F33C86, D4D2496BCF89EDC6
+// program: 1A9F70669A3C74DF, F0531050140A5884, D4D2496BCF89EDC6
+// shader: 8B30, 54D9896538AFFE92
 in vec4 primary_color;
 in vec2 texcoord0;
 in vec2 texcoord1;
@@ -51602,15 +52126,9 @@ combiner_buffer = next_combiner_buffer;
 gl_FragDepth = depth;
 color = byteround(last_tex_env_out);
 }
-// reference: 036F1756D20862A4, D131D50082DA29E4
-// program: A0A01900FB0E2CEC, F0531050140A5884, D131D50082DA29E4
-// shader: 8B30, B5B659B0AE2072E2
-
-precision highp int;
-precision highp float;
-precision highp samplerBuffer;
-precision highp usampler2D;
-precision highp uimage2D;
+// reference: 036F1756D20862A4, 54D9896538AFFE92
+// program: 1A9F70669A3C74DF, F0531050140A5884, 54D9896538AFFE92
+// shader: 8B30, CEE40C5C2EE9BE77
 in vec4 primary_color;
 in vec2 texcoord0;
 in vec2 texcoord1;
@@ -51831,15 +52349,9 @@ combiner_buffer = next_combiner_buffer;
 gl_FragDepth = depth;
 color = byteround(last_tex_env_out);
 }
-// reference: 0228C9694729CDDA, B5B659B0AE2072E2
-// program: A0A01900FB0E2CEC, F0531050140A5884, B5B659B0AE2072E2
-// shader: 8B30, F985A9A3ADDF1FF3
-
-precision highp int;
-precision highp float;
-precision highp samplerBuffer;
-precision highp usampler2D;
-precision highp uimage2D;
+// reference: 0228C9694729CDDA, CEE40C5C2EE9BE77
+// program: 1A9F70669A3C74DF, F0531050140A5884, CEE40C5C2EE9BE77
+// shader: 8B30, 5B1260DC4FBE3BBC
 in vec4 primary_color;
 in vec2 texcoord0;
 in vec2 texcoord1;
@@ -52064,15 +52576,9 @@ combiner_buffer = next_combiner_buffer;
 gl_FragDepth = depth;
 color = byteround(last_tex_env_out);
 }
-// reference: 4E5A312946D293F8, F985A9A3ADDF1FF3
-// program: A0A01900FB0E2CEC, F0531050140A5884, F985A9A3ADDF1FF3
-// shader: 8B30, E2DCAA467CAF915A
-
-precision highp int;
-precision highp float;
-precision highp samplerBuffer;
-precision highp usampler2D;
-precision highp uimage2D;
+// reference: 4E5A312946D293F8, 5B1260DC4FBE3BBC
+// program: 1A9F70669A3C74DF, F0531050140A5884, 5B1260DC4FBE3BBC
+// shader: 8B30, 58DE88755928B8F9
 in vec4 primary_color;
 in vec2 texcoord0;
 in vec2 texcoord1;
@@ -52267,15 +52773,9 @@ combiner_buffer = next_combiner_buffer;
 gl_FragDepth = depth;
 color = byteround(last_tex_env_out);
 }
-// reference: 5329C7580588D779, E2DCAA467CAF915A
-// program: A0A01900FB0E2CEC, F0531050140A5884, E2DCAA467CAF915A
-// shader: 8B30, 9CA88172E83BCFD0
-
-precision highp int;
-precision highp float;
-precision highp samplerBuffer;
-precision highp usampler2D;
-precision highp uimage2D;
+// reference: 5329C7580588D779, 58DE88755928B8F9
+// program: 1A9F70669A3C74DF, F0531050140A5884, 58DE88755928B8F9
+// shader: 8B30, 2E019A8434E47F68
 in vec4 primary_color;
 in vec2 texcoord0;
 in vec2 texcoord1;
@@ -52466,15 +52966,9 @@ combiner_buffer = next_combiner_buffer;
 gl_FragDepth = depth;
 color = byteround(last_tex_env_out);
 }
-// reference: 2B58002F66335FB7, 9CA88172E83BCFD0
-// program: A0A01900FB0E2CEC, F0531050140A5884, 9CA88172E83BCFD0
-// shader: 8B30, F58492140140FF11
-
-precision highp int;
-precision highp float;
-precision highp samplerBuffer;
-precision highp usampler2D;
-precision highp uimage2D;
+// reference: 2B58002F66335FB7, 2E019A8434E47F68
+// program: 1A9F70669A3C74DF, F0531050140A5884, 2E019A8434E47F68
+// shader: 8B30, B1C7FBA3D5563F2D
 in vec4 primary_color;
 in vec2 texcoord0;
 in vec2 texcoord1;
@@ -52668,15 +53162,9 @@ combiner_buffer = next_combiner_buffer;
 gl_FragDepth = depth;
 color = byteround(last_tex_env_out);
 }
-// reference: C63A8C6DC8B82BA3, F58492140140FF11
-// program: A0A01900FB0E2CEC, F0531050140A5884, F58492140140FF11
-// shader: 8B30, 4CA3344BDDBF6559
-
-precision highp int;
-precision highp float;
-precision highp samplerBuffer;
-precision highp usampler2D;
-precision highp uimage2D;
+// reference: C63A8C6DC8B82BA3, B1C7FBA3D5563F2D
+// program: 1A9F70669A3C74DF, F0531050140A5884, B1C7FBA3D5563F2D
+// shader: 8B30, CB30D7FD841C36B9
 in vec4 primary_color;
 in vec2 texcoord0;
 in vec2 texcoord1;
@@ -52846,15 +53334,9 @@ combiner_buffer = next_combiner_buffer;
 gl_FragDepth = depth;
 color = byteround(last_tex_env_out);
 }
-// reference: 58AF4E2E58BB986D, 4CA3344BDDBF6559
-// program: A0A01900FB0E2CEC, F0531050140A5884, 4CA3344BDDBF6559
-// shader: 8B30, 1A7FF42726FB0F9F
-
-precision highp int;
-precision highp float;
-precision highp samplerBuffer;
-precision highp usampler2D;
-precision highp uimage2D;
+// reference: 58AF4E2E58BB986D, CB30D7FD841C36B9
+// program: 1A9F70669A3C74DF, F0531050140A5884, CB30D7FD841C36B9
+// shader: 8B30, D11BB2C3B09B6DE9
 in vec4 primary_color;
 in vec2 texcoord0;
 in vec2 texcoord1;
@@ -53075,15 +53557,9 @@ combiner_buffer = next_combiner_buffer;
 gl_FragDepth = depth;
 color = byteround(last_tex_env_out);
 }
-// reference: 070C012D321AE539, 1A7FF42726FB0F9F
-// program: A0A01900FB0E2CEC, F0531050140A5884, 1A7FF42726FB0F9F
-// shader: 8B30, 7CA5AED5A30ED5BA
-
-precision highp int;
-precision highp float;
-precision highp samplerBuffer;
-precision highp usampler2D;
-precision highp uimage2D;
+// reference: 070C012D321AE539, D11BB2C3B09B6DE9
+// program: 1A9F70669A3C74DF, F0531050140A5884, D11BB2C3B09B6DE9
+// shader: 8B30, 9A8EFADFCFEC17B6
 in vec4 primary_color;
 in vec2 texcoord0;
 in vec2 texcoord1;
@@ -53250,15 +53726,9 @@ combiner_buffer = next_combiner_buffer;
 gl_FragDepth = depth;
 color = byteround(last_tex_env_out);
 }
-// reference: 89CA01CED0DA7310, 7CA5AED5A30ED5BA
-// program: A0A01900FB0E2CEC, F0531050140A5884, 7CA5AED5A30ED5BA
-// shader: 8B30, 6B0EBAAB9A4CB63E
-
-precision highp int;
-precision highp float;
-precision highp samplerBuffer;
-precision highp usampler2D;
-precision highp uimage2D;
+// reference: 89CA01CED0DA7310, 9A8EFADFCFEC17B6
+// program: 1A9F70669A3C74DF, F0531050140A5884, 9A8EFADFCFEC17B6
+// shader: 8B30, 1621D810D39D8D18
 in vec4 primary_color;
 in vec2 texcoord0;
 in vec2 texcoord1;
@@ -53420,15 +53890,9 @@ combiner_buffer = next_combiner_buffer;
 gl_FragDepth = depth;
 color = byteround(last_tex_env_out);
 }
-// reference: 108074776EA413FD, 6B0EBAAB9A4CB63E
-// program: A0A01900FB0E2CEC, F0531050140A5884, 6B0EBAAB9A4CB63E
-// shader: 8B30, 7BE3A9A3DC6D572D
-
-precision highp int;
-precision highp float;
-precision highp samplerBuffer;
-precision highp usampler2D;
-precision highp uimage2D;
+// reference: 108074776EA413FD, 1621D810D39D8D18
+// program: 1A9F70669A3C74DF, F0531050140A5884, 1621D810D39D8D18
+// shader: 8B30, D118903233D1ECDA
 in vec4 primary_color;
 in vec2 texcoord0;
 in vec2 texcoord1;
@@ -53660,16 +54124,10 @@ if (int(last_tex_env_out.a * 255.0) <= alphatest_ref) discard;
 gl_FragDepth = depth;
 color = byteround(last_tex_env_out);
 }
-// reference: 2338D2BE0D488CE3, 7BE3A9A3DC6D572D
-// program: A0A01900FB0E2CEC, F0531050140A5884, 7BE3A9A3DC6D572D
-// reference: F8D4E3899DE370C4, 2AC9C217B2AE4D97
-// shader: 8B30, CE1840E8D5DA68C3
-
-precision highp int;
-precision highp float;
-precision highp samplerBuffer;
-precision highp usampler2D;
-precision highp uimage2D;
+// reference: 2338D2BE0D488CE3, D118903233D1ECDA
+// program: 1A9F70669A3C74DF, F0531050140A5884, D118903233D1ECDA
+// reference: F8D4E3899DE370C4, 6214A7D100EBB604
+// shader: 8B30, 0E5452FA3013C2E1
 in vec4 primary_color;
 in vec2 texcoord0;
 in vec2 texcoord1;
@@ -53894,15 +54352,9 @@ combiner_buffer = next_combiner_buffer;
 gl_FragDepth = depth;
 color = byteround(last_tex_env_out);
 }
-// reference: A97C9E834BAAAFD2, CE1840E8D5DA68C3
-// program: A0A01900FB0E2CEC, F0531050140A5884, CE1840E8D5DA68C3
-// shader: 8B30, BBA27ABABC2BA7A4
-
-precision highp int;
-precision highp float;
-precision highp samplerBuffer;
-precision highp usampler2D;
-precision highp uimage2D;
+// reference: A97C9E834BAAAFD2, 0E5452FA3013C2E1
+// program: 1A9F70669A3C74DF, F0531050140A5884, 0E5452FA3013C2E1
+// shader: 8B30, E29941618DF448C1
 in vec4 primary_color;
 in vec2 texcoord0;
 in vec2 texcoord1;
@@ -54127,15 +54579,9 @@ combiner_buffer = next_combiner_buffer;
 gl_FragDepth = depth;
 color = byteround(last_tex_env_out);
 }
-// reference: 6D08540D4BAAAFD2, BBA27ABABC2BA7A4
-// program: A0A01900FB0E2CEC, F0531050140A5884, BBA27ABABC2BA7A4
-// shader: 8B30, 81784C3DA82689D9
-
-precision highp int;
-precision highp float;
-precision highp samplerBuffer;
-precision highp usampler2D;
-precision highp uimage2D;
+// reference: 6D08540D4BAAAFD2, E29941618DF448C1
+// program: 1A9F70669A3C74DF, F0531050140A5884, E29941618DF448C1
+// shader: 8B30, D5CA6D68B2F96AFD
 in vec4 primary_color;
 in vec2 texcoord0;
 in vec2 texcoord1;
@@ -54364,16 +54810,11 @@ if (int(last_tex_env_out.a * 255.0) <= alphatest_ref) discard;
 gl_FragDepth = depth;
 color = byteround(last_tex_env_out);
 }
-// reference: E81ECC1FB75E9B73, 81784C3DA82689D9
-// program: A0A01900FB0E2CEC, F0531050140A5884, 81784C3DA82689D9
-// program: A0A01900FB0E2CEC, F0531050140A5884, 4982B44D494E20C9
-// shader: 8B30, 53F073AE13003D95
-
-precision highp int;
-precision highp float;
-precision highp samplerBuffer;
-precision highp usampler2D;
-precision highp uimage2D;
+// reference: E81ECC1FB75E9B73, D5CA6D68B2F96AFD
+// program: 1A9F70669A3C74DF, F0531050140A5884, D5CA6D68B2F96AFD
+// program: 1A9F70669A3C74DF, F0531050140A5884, 28AD7E8A860FE887
+// reference: 8076F1417737A962, 59ED698457F53D16
+// shader: 8B30, B4FA01B27B837AB1
 in vec4 primary_color;
 in vec2 texcoord0;
 in vec2 texcoord1;
@@ -54544,15 +54985,9 @@ combiner_buffer = next_combiner_buffer;
 gl_FragDepth = depth;
 color = byteround(last_tex_env_out);
 }
-// reference: 96202165586E0FC3, 53F073AE13003D95
-// program: A0A01900FB0E2CEC, F0531050140A5884, 53F073AE13003D95
-// shader: 8B30, 492BE0D111302EC5
-
-precision highp int;
-precision highp float;
-precision highp samplerBuffer;
-precision highp usampler2D;
-precision highp uimage2D;
+// reference: 96202165586E0FC3, B4FA01B27B837AB1
+// program: 1A9F70669A3C74DF, F0531050140A5884, B4FA01B27B837AB1
+// shader: 8B30, 14EB45521EF82002
 in vec4 primary_color;
 in vec2 texcoord0;
 in vec2 texcoord1;
@@ -54756,15 +55191,9 @@ combiner_buffer = next_combiner_buffer;
 gl_FragDepth = depth;
 color = byteround(last_tex_env_out);
 }
-// reference: 93A58CCCACD63FBC, 492BE0D111302EC5
-// program: A0A01900FB0E2CEC, F0531050140A5884, 492BE0D111302EC5
-// shader: 8B30, DA149CBC7702C9CC
-
-precision highp int;
-precision highp float;
-precision highp samplerBuffer;
-precision highp usampler2D;
-precision highp uimage2D;
+// reference: 93A58CCCACD63FBC, 14EB45521EF82002
+// program: 1A9F70669A3C74DF, F0531050140A5884, 14EB45521EF82002
+// shader: 8B30, A903B023CA0B7AA0
 in vec4 primary_color;
 in vec2 texcoord0;
 in vec2 texcoord1;
@@ -54968,15 +55397,9 @@ combiner_buffer = next_combiner_buffer;
 gl_FragDepth = depth;
 color = byteround(last_tex_env_out);
 }
-// reference: 8A296404DF9A2838, DA149CBC7702C9CC
-// program: A0A01900FB0E2CEC, F0531050140A5884, DA149CBC7702C9CC
-// shader: 8B30, 1005C5D311302EC5
-
-precision highp int;
-precision highp float;
-precision highp samplerBuffer;
-precision highp usampler2D;
-precision highp uimage2D;
+// reference: 8A296404DF9A2838, A903B023CA0B7AA0
+// program: 1A9F70669A3C74DF, F0531050140A5884, A903B023CA0B7AA0
+// shader: 8B30, FABC0A5B1EF82002
 in vec4 primary_color;
 in vec2 texcoord0;
 in vec2 texcoord1;
@@ -55180,15 +55603,9 @@ combiner_buffer = next_combiner_buffer;
 gl_FragDepth = depth;
 color = byteround(last_tex_env_out);
 }
-// reference: 597A777988BE9783, 1005C5D311302EC5
-// program: A0A01900FB0E2CEC, F0531050140A5884, 1005C5D311302EC5
-// shader: 8B30, 9EFCE484C09A0B7D
-
-precision highp int;
-precision highp float;
-precision highp samplerBuffer;
-precision highp usampler2D;
-precision highp uimage2D;
+// reference: 597A777988BE9783, FABC0A5B1EF82002
+// program: 1A9F70669A3C74DF, F0531050140A5884, FABC0A5B1EF82002
+// shader: 8B30, 4950735BAD8890FC
 in vec4 primary_color;
 in vec2 texcoord0;
 in vec2 texcoord1;
@@ -55389,15 +55806,9 @@ combiner_buffer = next_combiner_buffer;
 gl_FragDepth = depth;
 color = byteround(last_tex_env_out);
 }
-// reference: F310B946AE0A30CD, 9EFCE484C09A0B7D
-// program: A0A01900FB0E2CEC, F0531050140A5884, 9EFCE484C09A0B7D
-// shader: 8B30, F1C05BD8757DABA4
-
-precision highp int;
-precision highp float;
-precision highp samplerBuffer;
-precision highp usampler2D;
-precision highp uimage2D;
+// reference: F310B946AE0A30CD, 4950735BAD8890FC
+// program: 1A9F70669A3C74DF, F0531050140A5884, 4950735BAD8890FC
+// shader: 8B30, 212FF8B696FF0C3C
 in vec4 primary_color;
 in vec2 texcoord0;
 in vec2 texcoord1;
@@ -55596,15 +56007,9 @@ combiner_buffer = next_combiner_buffer;
 gl_FragDepth = depth;
 color = byteround(last_tex_env_out);
 }
-// reference: 9179CD58F33526BA, F1C05BD8757DABA4
-// program: A0A01900FB0E2CEC, F0531050140A5884, F1C05BD8757DABA4
-// shader: 8B30, F1C05BD88925FBE5
-
-precision highp int;
-precision highp float;
-precision highp samplerBuffer;
-precision highp usampler2D;
-precision highp uimage2D;
+// reference: 9179CD58F33526BA, 212FF8B696FF0C3C
+// program: 1A9F70669A3C74DF, F0531050140A5884, 212FF8B696FF0C3C
+// shader: 8B30, 8054E18996FF0C3C
 in vec4 primary_color;
 in vec2 texcoord0;
 in vec2 texcoord1;
@@ -55803,16 +56208,10 @@ combiner_buffer = next_combiner_buffer;
 gl_FragDepth = depth;
 color = byteround(last_tex_env_out);
 }
-// reference: 9F28824696A662E3, F1C05BD88925FBE5
-// program: A0A01900FB0E2CEC, F0531050140A5884, F1C05BD88925FBE5
-// reference: 9179CD58841FF4BD, F1C05BD8757DABA4
-// shader: 8B30, 1CCA10803B779564
-
-precision highp int;
-precision highp float;
-precision highp samplerBuffer;
-precision highp usampler2D;
-precision highp uimage2D;
+// reference: 9F28824696A662E3, 8054E18996FF0C3C
+// program: 1A9F70669A3C74DF, F0531050140A5884, 8054E18996FF0C3C
+// reference: 9179CD58841FF4BD, 212FF8B696FF0C3C
+// shader: 8B30, E6005D29FF00FD54
 in vec4 primary_color;
 in vec2 texcoord0;
 in vec2 texcoord1;
@@ -56013,15 +56412,9 @@ combiner_buffer = next_combiner_buffer;
 gl_FragDepth = depth;
 color = byteround(last_tex_env_out);
 }
-// reference: 376473C85337E940, 1CCA10803B779564
-// program: A0A01900FB0E2CEC, F0531050140A5884, 1CCA10803B779564
-// shader: 8B30, A09283429B5CC936
-
-precision highp int;
-precision highp float;
-precision highp samplerBuffer;
-precision highp usampler2D;
-precision highp uimage2D;
+// reference: 376473C85337E940, E6005D29FF00FD54
+// program: 1A9F70669A3C74DF, F0531050140A5884, E6005D29FF00FD54
+// shader: 8B30, 26905385B406049C
 in vec4 primary_color;
 in vec2 texcoord0;
 in vec2 texcoord1;
@@ -56225,15 +56618,9 @@ combiner_buffer = next_combiner_buffer;
 gl_FragDepth = depth;
 color = byteround(last_tex_env_out);
 }
-// reference: 8051E46B5C3C489D, A09283429B5CC936
-// program: A0A01900FB0E2CEC, F0531050140A5884, A09283429B5CC936
-// shader: 8B30, 499F2B29B1E7B088
-
-precision highp int;
-precision highp float;
-precision highp samplerBuffer;
-precision highp usampler2D;
-precision highp uimage2D;
+// reference: 8051E46B5C3C489D, 26905385B406049C
+// program: 1A9F70669A3C74DF, F0531050140A5884, 26905385B406049C
+// shader: 8B30, 7CE6FFCD559DF499
 in vec4 primary_color;
 in vec2 texcoord0;
 in vec2 texcoord1;
@@ -56408,15 +56795,9 @@ combiner_buffer = next_combiner_buffer;
 gl_FragDepth = depth;
 color = byteround(last_tex_env_out);
 }
-// reference: BD1251C57F37DD48, 499F2B29B1E7B088
-// program: A0A01900FB0E2CEC, F0531050140A5884, 499F2B29B1E7B088
-// shader: 8B30, 077F763720B79EBC
-
-precision highp int;
-precision highp float;
-precision highp samplerBuffer;
-precision highp usampler2D;
-precision highp uimage2D;
+// reference: BD1251C57F37DD48, 7CE6FFCD559DF499
+// program: 1A9F70669A3C74DF, F0531050140A5884, 7CE6FFCD559DF499
+// shader: 8B30, 66D8C3F28AD731BE
 in vec4 primary_color;
 in vec2 texcoord0;
 in vec2 texcoord1;
@@ -56611,15 +56992,9 @@ combiner_buffer = next_combiner_buffer;
 gl_FragDepth = depth;
 color = byteround(last_tex_env_out);
 }
-// reference: 7E75A729155AEDC3, 077F763720B79EBC
-// program: A0A01900FB0E2CEC, F0531050140A5884, 077F763720B79EBC
-// shader: 8B30, A3CE7E95552CBD1A
-
-precision highp int;
-precision highp float;
-precision highp samplerBuffer;
-precision highp usampler2D;
-precision highp uimage2D;
+// reference: 7E75A729155AEDC3, 66D8C3F28AD731BE
+// program: 1A9F70669A3C74DF, F0531050140A5884, 66D8C3F28AD731BE
+// shader: 8B30, E8089482F5FA7BFF
 in vec4 primary_color;
 in vec2 texcoord0;
 in vec2 texcoord1;
@@ -56822,15 +57197,9 @@ combiner_buffer = next_combiner_buffer;
 gl_FragDepth = depth;
 color = byteround(last_tex_env_out);
 }
-// reference: EB079E04706E327C, A3CE7E95552CBD1A
-// program: A0A01900FB0E2CEC, F0531050140A5884, A3CE7E95552CBD1A
-// shader: 8B30, 2C66EAD7513FC5B3
-
-precision highp int;
-precision highp float;
-precision highp samplerBuffer;
-precision highp usampler2D;
-precision highp uimage2D;
+// reference: EB079E04706E327C, E8089482F5FA7BFF
+// program: 1A9F70669A3C74DF, F0531050140A5884, E8089482F5FA7BFF
+// shader: 8B30, BB631C1CA119CD65
 in vec4 primary_color;
 in vec2 texcoord0;
 in vec2 texcoord1;
@@ -57008,17 +57377,11 @@ combiner_buffer = next_combiner_buffer;
 gl_FragDepth = depth;
 color = byteround(last_tex_env_out);
 }
-// reference: B8874AB083B1DFA3, 2C66EAD7513FC5B3
-// program: A0A01900FB0E2CEC, F0531050140A5884, 2C66EAD7513FC5B3
-// reference: 855E919413CB116A, 4982B44D494E20C9
-// reference: F481C50D586E0FC3, 53F073AE13003D95
-// shader: 8B30, B39F2821C566B8BF
-
-precision highp int;
-precision highp float;
-precision highp samplerBuffer;
-precision highp usampler2D;
-precision highp uimage2D;
+// reference: B8874AB083B1DFA3, BB631C1CA119CD65
+// program: 1A9F70669A3C74DF, F0531050140A5884, BB631C1CA119CD65
+// reference: 855E919413CB116A, 28AD7E8A860FE887
+// reference: F481C50D586E0FC3, B4FA01B27B837AB1
+// shader: 8B30, B221C3AADD3590F8
 in vec4 primary_color;
 in vec2 texcoord0;
 in vec2 texcoord1;
@@ -57222,15 +57585,9 @@ combiner_buffer = next_combiner_buffer;
 gl_FragDepth = depth;
 color = byteround(last_tex_env_out);
 }
-// reference: F10468A4ACD63FBC, B39F2821C566B8BF
-// program: A0A01900FB0E2CEC, F0531050140A5884, B39F2821C566B8BF
-// shader: 8B30, 2F100D61C1B2DD9A
-
-precision highp int;
-precision highp float;
-precision highp samplerBuffer;
-precision highp usampler2D;
-precision highp uimage2D;
+// reference: F10468A4ACD63FBC, B221C3AADD3590F8
+// program: 1A9F70669A3C74DF, F0531050140A5884, B221C3AADD3590F8
+// shader: 8B30, 26FAD5F038F10998
 in vec4 primary_color;
 in vec2 texcoord0;
 in vec2 texcoord1;
@@ -57434,15 +57791,9 @@ combiner_buffer = next_combiner_buffer;
 gl_FragDepth = depth;
 color = byteround(last_tex_env_out);
 }
-// reference: E888806CDF9A2838, 2F100D61C1B2DD9A
-// program: A0A01900FB0E2CEC, F0531050140A5884, 2F100D61C1B2DD9A
-// shader: 8B30, B39F282171E03924
-
-precision highp int;
-precision highp float;
-precision highp samplerBuffer;
-precision highp usampler2D;
-precision highp uimage2D;
+// reference: E888806CDF9A2838, 26FAD5F038F10998
+// program: 1A9F70669A3C74DF, F0531050140A5884, 26FAD5F038F10998
+// shader: 8B30, B221C3AA69B31163
 in vec4 primary_color;
 in vec2 texcoord0;
 in vec2 texcoord1;
@@ -57646,15 +57997,9 @@ combiner_buffer = next_combiner_buffer;
 gl_FragDepth = depth;
 color = byteround(last_tex_env_out);
 }
-// reference: 3BDB931188BE9783, B39F282171E03924
-// program: A0A01900FB0E2CEC, F0531050140A5884, B39F282171E03924
-// shader: 8B30, AC68BF4750DB6508
-
-precision highp int;
-precision highp float;
-precision highp samplerBuffer;
-precision highp usampler2D;
-precision highp uimage2D;
+// reference: 3BDB931188BE9783, B221C3AA69B31163
+// program: 1A9F70669A3C74DF, F0531050140A5884, B221C3AA69B31163
+// shader: 8B30, 0817D14640F27BD1
 in vec4 primary_color;
 in vec2 texcoord0;
 in vec2 texcoord1;
@@ -57855,15 +58200,9 @@ combiner_buffer = next_combiner_buffer;
 gl_FragDepth = depth;
 color = byteround(last_tex_env_out);
 }
-// reference: 91B15D2EAE0A30CD, AC68BF4750DB6508
-// program: A0A01900FB0E2CEC, F0531050140A5884, AC68BF4750DB6508
-// shader: 8B30, 99BF83AC807F4D89
-
-precision highp int;
-precision highp float;
-precision highp samplerBuffer;
-precision highp usampler2D;
-precision highp uimage2D;
+// reference: 91B15D2EAE0A30CD, 0817D14640F27BD1
+// program: 1A9F70669A3C74DF, F0531050140A5884, 0817D14640F27BD1
+// shader: 8B30, 11A85693B01C46E9
 in vec4 primary_color;
 in vec2 texcoord0;
 in vec2 texcoord1;
@@ -58062,15 +58401,9 @@ combiner_buffer = next_combiner_buffer;
 gl_FragDepth = depth;
 color = byteround(last_tex_env_out);
 }
-// reference: F3D82930F33526BA, 99BF83AC807F4D89
-// program: A0A01900FB0E2CEC, F0531050140A5884, 99BF83AC807F4D89
-// shader: 8B30, 99BF83AC56DA0EC2
-
-precision highp int;
-precision highp float;
-precision highp samplerBuffer;
-precision highp usampler2D;
-precision highp uimage2D;
+// reference: F3D82930F33526BA, 11A85693B01C46E9
+// program: 1A9F70669A3C74DF, F0531050140A5884, 11A85693B01C46E9
+// shader: 8B30, 11A8569366B905A2
 in vec4 primary_color;
 in vec2 texcoord0;
 in vec2 texcoord1;
@@ -58269,16 +58602,10 @@ combiner_buffer = next_combiner_buffer;
 gl_FragDepth = depth;
 color = byteround(last_tex_env_out);
 }
-// reference: FD89662E96A662E3, 99BF83AC56DA0EC2
-// program: A0A01900FB0E2CEC, F0531050140A5884, 99BF83AC56DA0EC2
-// reference: F3D82930841FF4BD, 99BF83AC807F4D89
-// shader: 8B30, 568000218BDB186D
-
-precision highp int;
-precision highp float;
-precision highp samplerBuffer;
-precision highp usampler2D;
-precision highp uimage2D;
+// reference: FD89662E96A662E3, 11A8569366B905A2
+// program: 1A9F70669A3C74DF, F0531050140A5884, 11A8569366B905A2
+// reference: F3D82930841FF4BD, 11A85693B01C46E9
+// shader: 8B30, 186AA241A8113048
 in vec4 primary_color;
 in vec2 texcoord0;
 in vec2 texcoord1;
@@ -58479,15 +58806,9 @@ combiner_buffer = next_combiner_buffer;
 gl_FragDepth = depth;
 color = byteround(last_tex_env_out);
 }
-// reference: 55C597A05337E940, 568000218BDB186D
-// program: A0A01900FB0E2CEC, F0531050140A5884, 568000218BDB186D
-// shader: 8B30, 555463A750365462
-
-precision highp int;
-precision highp float;
-precision highp samplerBuffer;
-precision highp usampler2D;
-precision highp uimage2D;
+// reference: 55C597A05337E940, 186AA241A8113048
+// program: 1A9F70669A3C74DF, F0531050140A5884, 186AA241A8113048
+// shader: 8B30, 07311677B28A77A9
 in vec4 primary_color;
 in vec2 texcoord0;
 in vec2 texcoord1;
@@ -58691,16 +59012,10 @@ combiner_buffer = next_combiner_buffer;
 gl_FragDepth = depth;
 color = byteround(last_tex_env_out);
 }
-// reference: E2F000035C3C489D, 555463A750365462
-// program: A0A01900FB0E2CEC, F0531050140A5884, 555463A750365462
-// reference: DFB3B5AD7F37DD48, 499F2B29B1E7B088
-// shader: 8B30, E94EDE50B394E834
-
-precision highp int;
-precision highp float;
-precision highp samplerBuffer;
-precision highp usampler2D;
-precision highp uimage2D;
+// reference: E2F000035C3C489D, 07311677B28A77A9
+// program: 1A9F70669A3C74DF, F0531050140A5884, 07311677B28A77A9
+// reference: DFB3B5AD7F37DD48, 7CE6FFCD559DF499
+// shader: 8B30, A823B928E508E068
 in vec4 primary_color;
 in vec2 texcoord0;
 in vec2 texcoord1;
@@ -58895,15 +59210,9 @@ combiner_buffer = next_combiner_buffer;
 gl_FragDepth = depth;
 color = byteround(last_tex_env_out);
 }
-// reference: 1CD44341155AEDC3, E94EDE50B394E834
-// program: A0A01900FB0E2CEC, F0531050140A5884, E94EDE50B394E834
-// shader: 8B30, C24ACBD4B6941B1D
-
-precision highp int;
-precision highp float;
-precision highp samplerBuffer;
-precision highp usampler2D;
-precision highp uimage2D;
+// reference: 1CD44341155AEDC3, A823B928E508E068
+// program: 1A9F70669A3C74DF, F0531050140A5884, A823B928E508E068
+// shader: 8B30, 3E347CD787E09213
 in vec4 primary_color;
 in vec2 texcoord0;
 in vec2 texcoord1;
@@ -59106,14 +59415,6 @@ combiner_buffer = next_combiner_buffer;
 gl_FragDepth = depth;
 color = byteround(last_tex_env_out);
 }
-// reference: 89A67A6C706E327C, C24ACBD4B6941B1D
-// program: A0A01900FB0E2CEC, F0531050140A5884, C24ACBD4B6941B1D
-// reference: DA26AED883B1DFA3, 2C66EAD7513FC5B3
-// program: A0A01900FB0E2CEC, F0531050140A5884, 5C2EEA8888180CEB
-// program: A0A01900FB0E2CEC, F0531050140A5884, 8F0AA0D951BDED66
-// program: A0A01900FB0E2CEC, F0531050140A5884, 8DB34EF821962404
-// reference: 0F022879AD4BA98D, 06F56F2630B83832
-// reference: 40247235EECD6E4F, A0A01900FB0E2CEC
-// reference: 402472353574CF08, A0A01900FB0E2CEC
-// reference: 062BD9EE4B4083E8, 06F56F2630B83832
-// reference: 062BD9EE90F922AF, 06F56F2630B83832
+// reference: 89A67A6C706E327C, 3E347CD787E09213
+// program: 1A9F70669A3C74DF, F0531050140A5884, 3E347CD787E09213
+// reference: DA26AED883B1DFA3, BB631C1CA119CD65

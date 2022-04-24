@@ -35,7 +35,8 @@ enum class MicInputType {
 enum class AccurateMul {
     OFF = 0,
     FAST = 1,
-    ACCURATE = 2,
+    SAFE = 2,
+    SLOW = 3,
 };
 
 namespace NativeButton {
