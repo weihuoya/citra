@@ -1,4 +1,4 @@
-// shader: 8B31, 54A5A5050944E246
+// shader: 8B31, B91C978956DF7835
 
 struct pica_uniforms {
     bool b[16];
@@ -7,7 +7,6 @@ struct pica_uniforms {
 };
 
 bool exec_shader();
-
 
 #define uniforms vs_uniforms
 layout (std140) uniform vs_config {
@@ -30,10 +29,14 @@ void main() {
     exec_shader();
 }
 
-#define fma_safe(x, y, z) fma(x, y, z)
-#define mul_safe(x, y) (x * y)
-#define rcp_safe(x) (1.0f / x)
-#define rsq_safe(x) inversesqrt(x)
+
+#define mul_s(x, y) (x * y)
+#define fma_s(x, y, z) fma(x, y, z)
+#define rcp_s(x) (1.0 / x)
+#define rsq_s(x) inversesqrt(x)
+#define dot_s(x, y) dot(x, y)
+#define dot_3(x, y) dot(x, y)
+
 bvec2 conditional_code = bvec2(false);
 ivec3 address_registers = ivec3(0);
 vec4 reg_tmp0 = vec4(0.0, 0.0, 0.0, 1.0);
@@ -63,21 +66,21 @@ bool exec_shader() {
 
 bool sub_0_8() {
     // 0: dp4
-    reg_tmp15.x = dot(uniforms.f[4], vs_in_reg0);
+    reg_tmp15.x = dot_s(uniforms.f[4], vs_in_reg0);
     // 1: dp4
-    reg_tmp15.y = dot(uniforms.f[5], vs_in_reg0);
+    reg_tmp15.y = dot_s(uniforms.f[5], vs_in_reg0);
     // 2: dp4
-    reg_tmp15.z = dot(uniforms.f[6], vs_in_reg0);
+    reg_tmp15.z = dot_s(uniforms.f[6], vs_in_reg0);
     // 3: dp4
-    reg_tmp15.w = dot(uniforms.f[7], vs_in_reg0);
+    reg_tmp15.w = dot_s(uniforms.f[7], vs_in_reg0);
     // 4: dp4
-    vs_out_attr0.x = dot(uniforms.f[0], reg_tmp15);
+    vs_out_attr0.x = dot_s(uniforms.f[0], reg_tmp15);
     // 5: dp4
-    vs_out_attr0.y = dot(uniforms.f[1], reg_tmp15);
+    vs_out_attr0.y = dot_s(uniforms.f[1], reg_tmp15);
     // 6: dp4
-    vs_out_attr0.z = dot(uniforms.f[2], reg_tmp15);
+    vs_out_attr0.z = dot_s(uniforms.f[2], reg_tmp15);
     // 7: dp4
-    vs_out_attr0.w = dot(uniforms.f[3], reg_tmp15);
+    vs_out_attr0.w = dot_s(uniforms.f[3], reg_tmp15);
     return false;
 }
 bool sub_9_4096() {
@@ -92,7 +95,7 @@ bool sub_9_4096() {
     // 12: end
     return true;
 }
-// reference: 822F707A9742C866, 54A5A5050944E246
+// reference: 822F707A9742C866, B91C978956DF7835
 // shader: 8DD9, 4E5317772B5CE683
 
 layout(triangles) in;
@@ -388,6 +391,5 @@ gl_FragDepth = depth;
 color = byteround(last_tex_env_out);
 }
 // reference: C9A1B13DA2EEF50E, 0FF6C7A34B82BC10
-// program: 54A5A5050944E246, 4E5317772B5CE683, 0FF6C7A34B82BC10
-// reference: 09CFA7D59742C866, 54A5A5050944E246
-// reference: 1B7A083B9742C866, 54A5A5050944E246
+// program: B91C978956DF7835, 4E5317772B5CE683, 0FF6C7A34B82BC10
+// reference: 51ACB7839742C866, B91C978956DF7835
