@@ -1,4 +1,4 @@
-// shader: 8B31, 9EBDB054E6C968F5
+// shader: 8B31, 07440F333D3D809A
 
 struct pica_uniforms {
     bool b[16];
@@ -44,7 +44,20 @@ void main() {
     exec_shader();
 }
 
-// accurate_mul: fast
+
+#define mul_s(x, y) mix(x * y, vec4(0.0), isnan(x * y))
+#define fma_s(x, y, z) (mix(x * y, vec4(0.0), isnan(x * y)) + z)
+float rcp_s(float x) {
+    if (x == 0.0) return x;
+    return 1.0 / x;
+}
+float rsq_s(float x) {
+    if (x > 0.0) return inversesqrt(x);
+    return 0.0;
+}
+#define dot_s(x, y) dot(x, y)
+#define dot_3(x, y) dot(x, y)
+
 bvec2 conditional_code = bvec2(false);
 ivec3 address_registers = ivec3(0);
 vec4 reg_tmp0 = vec4(0.0, 0.0, 0.0, 1.0);
@@ -1870,7 +1883,7 @@ bool sub_209_218() {
     reg_tmp8 = fma_s(reg_tmp13.wwww, uniforms.f[15], reg_tmp8);
     return false;
 }
-// reference: D711CBAA36443D92, 9EBDB054E6C968F5
+// reference: D711CBAA36443D92, 07440F333D3D809A
 // shader: 8DD9, C6949C8D76FDEB0C
 
 layout(triangles) in;
@@ -1998,7 +2011,13 @@ void main() {
     EmitPrim(prim_buffer[0], prim_buffer[1], prim_buffer[2]);
 }
 // reference: A0CB59480533AF6A, C6949C8D76FDEB0C
-// shader: 8B30, 3E7E129BEAA89F4B
+// shader: 8B30, D8A369D59E3997EA
+
+precision highp int;
+precision highp float;
+precision highp samplerBuffer;
+precision highp usampler2D;
+precision highp uimage2D;
 in vec4 primary_color;
 in vec2 texcoord0;
 in vec2 texcoord1;
@@ -2159,10 +2178,10 @@ combiner_buffer = next_combiner_buffer;
 gl_FragDepth = depth;
 color = byteround(last_tex_env_out);
 }
-// reference: 2584B8EBD17F933D, 3E7E129BEAA89F4B
-// program: 9EBDB054E6C968F5, C6949C8D76FDEB0C, 3E7E129BEAA89F4B
-// reference: 5CF11C0536443D92, 9EBDB054E6C968F5
-// shader: 8B31, 97CC886AC887FAB2
+// reference: 2584B8EBD17F933D, D8A369D59E3997EA
+// program: 07440F333D3D809A, C6949C8D76FDEB0C, D8A369D59E3997EA
+// reference: 04920C5336443D92, 07440F333D3D809A
+// shader: 8B31, 5B031FBA63FC5397
 
 struct pica_uniforms {
     bool b[16];
@@ -2208,7 +2227,20 @@ void main() {
     exec_shader();
 }
 
-// accurate_mul: fast
+
+#define mul_s(x, y) mix(x * y, vec4(0.0), isnan(x * y))
+#define fma_s(x, y, z) (mix(x * y, vec4(0.0), isnan(x * y)) + z)
+float rcp_s(float x) {
+    if (x == 0.0) return x;
+    return 1.0 / x;
+}
+float rsq_s(float x) {
+    if (x > 0.0) return inversesqrt(x);
+    return 0.0;
+}
+#define dot_s(x, y) dot(x, y)
+#define dot_3(x, y) dot(x, y)
+
 bvec2 conditional_code = bvec2(false);
 ivec3 address_registers = ivec3(0);
 vec4 reg_tmp0 = vec4(0.0, 0.0, 0.0, 1.0);
@@ -4034,8 +4066,14 @@ bool sub_209_218() {
     reg_tmp8 = fma_s(reg_tmp13.wwww, uniforms.f[15], reg_tmp8);
     return false;
 }
-// reference: D711CBAAE6C57E4D, 97CC886AC887FAB2
-// shader: 8B30, F4F521EBD49743B3
+// reference: D711CBAAE6C57E4D, 5B031FBA63FC5397
+// shader: 8B30, 9003BF984D8E6760
+
+precision highp int;
+precision highp float;
+precision highp samplerBuffer;
+precision highp usampler2D;
+precision highp uimage2D;
 in vec4 primary_color;
 in vec2 texcoord0;
 in vec2 texcoord1;
@@ -4197,9 +4235,9 @@ combiner_buffer = next_combiner_buffer;
 gl_FragDepth = depth;
 color = byteround(last_tex_env_out);
 }
-// reference: CE312E68D17F933D, F4F521EBD49743B3
-// program: 97CC886AC887FAB2, C6949C8D76FDEB0C, F4F521EBD49743B3
-// shader: 8B31, AC1E46EC4C190A5B
+// reference: CE312E68D17F933D, 9003BF984D8E6760
+// program: 5B031FBA63FC5397, C6949C8D76FDEB0C, 9003BF984D8E6760
+// shader: 8B31, 91BF95E5F4CCCBE0
 
 struct pica_uniforms {
     bool b[16];
@@ -4245,7 +4283,20 @@ void main() {
     exec_shader();
 }
 
-// accurate_mul: fast
+
+#define mul_s(x, y) mix(x * y, vec4(0.0), isnan(x * y))
+#define fma_s(x, y, z) (mix(x * y, vec4(0.0), isnan(x * y)) + z)
+float rcp_s(float x) {
+    if (x == 0.0) return x;
+    return 1.0 / x;
+}
+float rsq_s(float x) {
+    if (x > 0.0) return inversesqrt(x);
+    return 0.0;
+}
+#define dot_s(x, y) dot(x, y)
+#define dot_3(x, y) dot(x, y)
+
 bvec2 conditional_code = bvec2(false);
 ivec3 address_registers = ivec3(0);
 vec4 reg_tmp0 = vec4(0.0, 0.0, 0.0, 1.0);
@@ -6071,8 +6122,14 @@ bool sub_218_4096() {
     }
     return false;
 }
-// reference: D711CBAA2CFFEF70, AC1E46EC4C190A5B
-// shader: 8B30, 6FD97AD8657BBAC1
+// reference: D711CBAA2CFFEF70, 91BF95E5F4CCCBE0
+// shader: 8B30, 5213DBEBC54CDCCA
+
+precision highp int;
+precision highp float;
+precision highp samplerBuffer;
+precision highp usampler2D;
+precision highp uimage2D;
 in vec4 primary_color;
 in vec2 texcoord0;
 in vec2 texcoord1;
@@ -6287,10 +6344,10 @@ combiner_buffer = next_combiner_buffer;
 gl_FragDepth = depth;
 color = byteround(last_tex_env_out);
 }
-// reference: 7A18D35B29D616F8, 6FD97AD8657BBAC1
-// program: AC1E46EC4C190A5B, C6949C8D76FDEB0C, 6FD97AD8657BBAC1
-// reference: 5CF11C05C1B4DEC4, AC1E46EC4C190A5B
-// shader: 8B31, 56733821C41448DB
+// reference: 7A18D35B29D616F8, 5213DBEBC54CDCCA
+// program: 91BF95E5F4CCCBE0, C6949C8D76FDEB0C, 5213DBEBC54CDCCA
+// reference: 04920C53C1B4DEC4, 91BF95E5F4CCCBE0
+// shader: 8B31, 43426DC6D4038D79
 
 struct pica_uniforms {
     bool b[16];
@@ -6336,7 +6393,20 @@ void main() {
     exec_shader();
 }
 
-// accurate_mul: fast
+
+#define mul_s(x, y) mix(x * y, vec4(0.0), isnan(x * y))
+#define fma_s(x, y, z) (mix(x * y, vec4(0.0), isnan(x * y)) + z)
+float rcp_s(float x) {
+    if (x == 0.0) return x;
+    return 1.0 / x;
+}
+float rsq_s(float x) {
+    if (x > 0.0) return inversesqrt(x);
+    return 0.0;
+}
+#define dot_s(x, y) dot(x, y)
+#define dot_3(x, y) dot(x, y)
+
 bvec2 conditional_code = bvec2(false);
 ivec3 address_registers = ivec3(0);
 vec4 reg_tmp0 = vec4(0.0, 0.0, 0.0, 1.0);
@@ -8162,8 +8232,14 @@ bool sub_209_218() {
     reg_tmp8 = fma_s(reg_tmp13.wwww, uniforms.f[15], reg_tmp8);
     return false;
 }
-// reference: 5CF11C055B417E8E, 56733821C41448DB
-// shader: 8B30, 8B1FD607056F9256
+// reference: 04920C535B417E8E, 43426DC6D4038D79
+// shader: 8B30, F8C7191BF79C7A66
+
+precision highp int;
+precision highp float;
+precision highp samplerBuffer;
+precision highp usampler2D;
+precision highp uimage2D;
 in vec4 primary_color;
 in vec2 texcoord0;
 in vec2 texcoord1;
@@ -8327,9 +8403,9 @@ combiner_buffer = next_combiner_buffer;
 gl_FragDepth = depth;
 color = byteround(last_tex_env_out);
 }
-// reference: CE312E68D97C7BB5, 8B1FD607056F9256
-// program: 56733821C41448DB, C6949C8D76FDEB0C, 8B1FD607056F9256
-// shader: 8B31, 1733DA30E46EBA39
+// reference: CE312E68D97C7BB5, F8C7191BF79C7A66
+// program: 43426DC6D4038D79, C6949C8D76FDEB0C, F8C7191BF79C7A66
+// shader: 8B31, 1AFF87880D434FB6
 
 struct pica_uniforms {
     bool b[16];
@@ -8375,7 +8451,20 @@ void main() {
     exec_shader();
 }
 
-// accurate_mul: fast
+
+#define mul_s(x, y) mix(x * y, vec4(0.0), isnan(x * y))
+#define fma_s(x, y, z) (mix(x * y, vec4(0.0), isnan(x * y)) + z)
+float rcp_s(float x) {
+    if (x == 0.0) return x;
+    return 1.0 / x;
+}
+float rsq_s(float x) {
+    if (x > 0.0) return inversesqrt(x);
+    return 0.0;
+}
+#define dot_s(x, y) dot(x, y)
+#define dot_3(x, y) dot(x, y)
+
 bvec2 conditional_code = bvec2(false);
 ivec3 address_registers = ivec3(0);
 vec4 reg_tmp0 = vec4(0.0, 0.0, 0.0, 1.0);
@@ -10201,8 +10290,14 @@ bool sub_423_4096() {
     }
     return false;
 }
-// reference: 5CF11C0529AD8433, 1733DA30E46EBA39
-// shader: 8B30, C3CCF00FC38679E7
+// reference: 04920C5329AD8433, 1AFF87880D434FB6
+// shader: 8B30, D78E82539AF722DD
+
+precision highp int;
+precision highp float;
+precision highp samplerBuffer;
+precision highp usampler2D;
+precision highp uimage2D;
 in vec4 primary_color;
 in vec2 texcoord0;
 in vec2 texcoord1;
@@ -10369,10 +10464,16 @@ combiner_buffer = next_combiner_buffer;
 gl_FragDepth = depth;
 color = byteround(last_tex_env_out);
 }
-// reference: 4609680CD97C7BB5, C3CCF00FC38679E7
-// program: 1733DA30E46EBA39, C6949C8D76FDEB0C, C3CCF00FC38679E7
-// reference: 5CF11C050B8E4FF9, 97CC886AC887FAB2
-// shader: 8B30, FC49D08B59375371
+// reference: 4609680CD97C7BB5, D78E82539AF722DD
+// program: 1AFF87880D434FB6, C6949C8D76FDEB0C, D78E82539AF722DD
+// reference: 04920C530B8E4FF9, 5B031FBA63FC5397
+// shader: 8B30, 4A8A014214673BAC
+
+precision highp int;
+precision highp float;
+precision highp samplerBuffer;
+precision highp usampler2D;
+precision highp uimage2D;
 in vec4 primary_color;
 in vec2 texcoord0;
 in vec2 texcoord1;
@@ -10537,9 +10638,15 @@ if (int(last_tex_env_out.a * 255.0) <= alphatest_ref) discard;
 gl_FragDepth = depth;
 color = byteround(last_tex_env_out);
 }
-// reference: CE312E683012D426, FC49D08B59375371
-// program: 97CC886AC887FAB2, C6949C8D76FDEB0C, FC49D08B59375371
-// shader: 8B30, FE910D34AFF7636A
+// reference: CE312E683012D426, 4A8A014214673BAC
+// program: 5B031FBA63FC5397, C6949C8D76FDEB0C, 4A8A014214673BAC
+// shader: 8B30, 7D03C725FB5FD6D4
+
+precision highp int;
+precision highp float;
+precision highp samplerBuffer;
+precision highp usampler2D;
+precision highp uimage2D;
 in vec4 primary_color;
 in vec2 texcoord0;
 in vec2 texcoord1;
@@ -10703,9 +10810,9 @@ combiner_buffer = next_combiner_buffer;
 gl_FragDepth = depth;
 color = byteround(last_tex_env_out);
 }
-// reference: CE312E68DCA53F25, FE910D34AFF7636A
-// program: 97CC886AC887FAB2, C6949C8D76FDEB0C, FE910D34AFF7636A
-// shader: 8B31, 8A49AC89BB442A51
+// reference: CE312E68DCA53F25, 7D03C725FB5FD6D4
+// program: 5B031FBA63FC5397, C6949C8D76FDEB0C, 7D03C725FB5FD6D4
+// shader: 8B31, 747AD5F8B654FD1A
 
 struct pica_uniforms {
     bool b[16];
@@ -10751,7 +10858,20 @@ void main() {
     exec_shader();
 }
 
-// accurate_mul: fast
+
+#define mul_s(x, y) mix(x * y, vec4(0.0), isnan(x * y))
+#define fma_s(x, y, z) (mix(x * y, vec4(0.0), isnan(x * y)) + z)
+float rcp_s(float x) {
+    if (x == 0.0) return x;
+    return 1.0 / x;
+}
+float rsq_s(float x) {
+    if (x > 0.0) return inversesqrt(x);
+    return 0.0;
+}
+#define dot_s(x, y) dot(x, y)
+#define dot_3(x, y) dot(x, y)
+
 bvec2 conditional_code = bvec2(false);
 ivec3 address_registers = ivec3(0);
 vec4 reg_tmp0 = vec4(0.0, 0.0, 0.0, 1.0);
@@ -12577,8 +12697,14 @@ bool sub_366_4096() {
     }
     return false;
 }
-// reference: 5CF11C0553189205, 8A49AC89BB442A51
-// shader: 8B30, 193B125A20D200BB
+// reference: 04920C5353189205, 747AD5F8B654FD1A
+// shader: 8B30, 077A79DCAD4C53E8
+
+precision highp int;
+precision highp float;
+precision highp samplerBuffer;
+precision highp usampler2D;
+precision highp uimage2D;
 in vec4 primary_color;
 in vec2 texcoord0;
 in vec2 texcoord1;
@@ -12838,9 +12964,9 @@ combiner_buffer = next_combiner_buffer;
 gl_FragDepth = depth;
 color = byteround(last_tex_env_out);
 }
-// reference: 6FB6A9CFF55366E9, 193B125A20D200BB
-// program: 8A49AC89BB442A51, C6949C8D76FDEB0C, 193B125A20D200BB
-// shader: 8B31, 4FBEA5C814CE763A
+// reference: 6FB6A9CFF55366E9, 077A79DCAD4C53E8
+// program: 747AD5F8B654FD1A, C6949C8D76FDEB0C, 077A79DCAD4C53E8
+// shader: 8B31, 5D55EF5559950FCC
 
 struct pica_uniforms {
     bool b[16];
@@ -12886,7 +13012,20 @@ void main() {
     exec_shader();
 }
 
-// accurate_mul: fast
+
+#define mul_s(x, y) mix(x * y, vec4(0.0), isnan(x * y))
+#define fma_s(x, y, z) (mix(x * y, vec4(0.0), isnan(x * y)) + z)
+float rcp_s(float x) {
+    if (x == 0.0) return x;
+    return 1.0 / x;
+}
+float rsq_s(float x) {
+    if (x > 0.0) return inversesqrt(x);
+    return 0.0;
+}
+#define dot_s(x, y) dot(x, y)
+#define dot_3(x, y) dot(x, y)
+
 bvec2 conditional_code = bvec2(false);
 ivec3 address_registers = ivec3(0);
 vec4 reg_tmp0 = vec4(0.0, 0.0, 0.0, 1.0);
@@ -14712,8 +14851,14 @@ bool sub_315_4096() {
     }
     return false;
 }
-// reference: 5CF11C05BD444319, 4FBEA5C814CE763A
-// shader: 8B30, D3601306AB6B804E
+// reference: 04920C53BD444319, 5D55EF5559950FCC
+// shader: 8B30, BFE0DD4DB344DD76
+
+precision highp int;
+precision highp float;
+precision highp samplerBuffer;
+precision highp usampler2D;
+precision highp uimage2D;
 in vec4 primary_color;
 in vec2 texcoord0;
 in vec2 texcoord1;
@@ -14976,9 +15121,9 @@ combiner_buffer = next_combiner_buffer;
 gl_FragDepth = depth;
 color = byteround(last_tex_env_out);
 }
-// reference: 873C4D108C8B25A0, D3601306AB6B804E
-// program: 4FBEA5C814CE763A, C6949C8D76FDEB0C, D3601306AB6B804E
-// shader: 8B31, 8B9BA1BE191369D4
+// reference: 873C4D108C8B25A0, BFE0DD4DB344DD76
+// program: 5D55EF5559950FCC, C6949C8D76FDEB0C, BFE0DD4DB344DD76
+// shader: 8B31, 8D607ED475583530
 
 struct pica_uniforms {
     bool b[16];
@@ -15024,7 +15169,20 @@ void main() {
     exec_shader();
 }
 
-// accurate_mul: fast
+
+#define mul_s(x, y) mix(x * y, vec4(0.0), isnan(x * y))
+#define fma_s(x, y, z) (mix(x * y, vec4(0.0), isnan(x * y)) + z)
+float rcp_s(float x) {
+    if (x == 0.0) return x;
+    return 1.0 / x;
+}
+float rsq_s(float x) {
+    if (x > 0.0) return inversesqrt(x);
+    return 0.0;
+}
+#define dot_s(x, y) dot(x, y)
+#define dot_3(x, y) dot(x, y)
+
 bvec2 conditional_code = bvec2(false);
 ivec3 address_registers = ivec3(0);
 vec4 reg_tmp0 = vec4(0.0, 0.0, 0.0, 1.0);
@@ -16850,9 +17008,15 @@ bool sub_288_4096() {
     }
     return false;
 }
-// reference: 5CF11C05196C7190, 8B9BA1BE191369D4
-// program: 8B9BA1BE191369D4, C6949C8D76FDEB0C, 193B125A20D200BB
-// shader: 8B30, B637595F731B9722
+// reference: 04920C53196C7190, 8D607ED475583530
+// program: 8D607ED475583530, C6949C8D76FDEB0C, 077A79DCAD4C53E8
+// shader: 8B30, 000DF67C5DFDA4FB
+
+precision highp int;
+precision highp float;
+precision highp samplerBuffer;
+precision highp usampler2D;
+precision highp uimage2D;
 in vec4 primary_color;
 in vec2 texcoord0;
 in vec2 texcoord1;
@@ -17108,9 +17272,15 @@ combiner_buffer = next_combiner_buffer;
 gl_FragDepth = depth;
 color = byteround(last_tex_env_out);
 }
-// reference: 417FDD591098CDE2, B637595F731B9722
-// program: AC1E46EC4C190A5B, C6949C8D76FDEB0C, B637595F731B9722
-// shader: 8B30, 4060BC9515ABE333
+// reference: 417FDD591098CDE2, 000DF67C5DFDA4FB
+// program: 91BF95E5F4CCCBE0, C6949C8D76FDEB0C, 000DF67C5DFDA4FB
+// shader: 8B30, 5D3237CC1A2114E3
+
+precision highp int;
+precision highp float;
+precision highp samplerBuffer;
+precision highp usampler2D;
+precision highp uimage2D;
 in vec4 primary_color;
 in vec2 texcoord0;
 in vec2 texcoord1;
@@ -17370,9 +17540,9 @@ combiner_buffer = next_combiner_buffer;
 gl_FragDepth = depth;
 color = byteround(last_tex_env_out);
 }
-// reference: B1E589F5E28A25B3, 4060BC9515ABE333
-// program: AC1E46EC4C190A5B, C6949C8D76FDEB0C, 4060BC9515ABE333
-// shader: 8B31, 7D8640703418231E
+// reference: B1E589F5E28A25B3, 5D3237CC1A2114E3
+// program: 91BF95E5F4CCCBE0, C6949C8D76FDEB0C, 5D3237CC1A2114E3
+// shader: 8B31, 390AE326B576D5B0
 
 struct pica_uniforms {
     bool b[16];
@@ -17418,7 +17588,20 @@ void main() {
     exec_shader();
 }
 
-// accurate_mul: fast
+
+#define mul_s(x, y) mix(x * y, vec4(0.0), isnan(x * y))
+#define fma_s(x, y, z) (mix(x * y, vec4(0.0), isnan(x * y)) + z)
+float rcp_s(float x) {
+    if (x == 0.0) return x;
+    return 1.0 / x;
+}
+float rsq_s(float x) {
+    if (x > 0.0) return inversesqrt(x);
+    return 0.0;
+}
+#define dot_s(x, y) dot(x, y)
+#define dot_3(x, y) dot(x, y)
+
 bvec2 conditional_code = bvec2(false);
 ivec3 address_registers = ivec3(0);
 vec4 reg_tmp0 = vec4(0.0, 0.0, 0.0, 1.0);
@@ -19244,8 +19427,14 @@ bool sub_230_4096() {
     }
     return false;
 }
-// reference: 5CF11C05AD1E1EA7, 7D8640703418231E
-// shader: 8B30, 8E30882B652C5E6F
+// reference: 04920C53AD1E1EA7, 390AE326B576D5B0
+// shader: 8B30, 981BBB48500DA4CC
+
+precision highp int;
+precision highp float;
+precision highp samplerBuffer;
+precision highp usampler2D;
+precision highp uimage2D;
 in vec4 primary_color;
 in vec2 texcoord0;
 in vec2 texcoord1;
@@ -19500,10 +19689,16 @@ combiner_buffer = next_combiner_buffer;
 gl_FragDepth = depth;
 color = byteround(last_tex_env_out);
 }
-// reference: 5BBA4DC855B6C27F, 8E30882B652C5E6F
-// program: 7D8640703418231E, C6949C8D76FDEB0C, 8E30882B652C5E6F
-// program: 7D8640703418231E, C6949C8D76FDEB0C, B637595F731B9722
-// shader: 8B30, 59F0B7670BBB6C58
+// reference: 5BBA4DC855B6C27F, 981BBB48500DA4CC
+// program: 390AE326B576D5B0, C6949C8D76FDEB0C, 981BBB48500DA4CC
+// program: 390AE326B576D5B0, C6949C8D76FDEB0C, 000DF67C5DFDA4FB
+// shader: 8B30, 6A00E0D955A2682F
+
+precision highp int;
+precision highp float;
+precision highp samplerBuffer;
+precision highp usampler2D;
+precision highp uimage2D;
 in vec4 primary_color;
 in vec2 texcoord0;
 in vec2 texcoord1;
@@ -19762,9 +19957,15 @@ combiner_buffer = next_combiner_buffer;
 gl_FragDepth = depth;
 color = byteround(last_tex_env_out);
 }
-// reference: C673596295CB7955, 59F0B7670BBB6C58
-// program: 7D8640703418231E, C6949C8D76FDEB0C, 59F0B7670BBB6C58
-// shader: 8B30, 3F5A0E10818820AF
+// reference: C673596295CB7955, 6A00E0D955A2682F
+// program: 390AE326B576D5B0, C6949C8D76FDEB0C, 6A00E0D955A2682F
+// shader: 8B30, BC4B390CD62E2821
+
+precision highp int;
+precision highp float;
+precision highp samplerBuffer;
+precision highp usampler2D;
+precision highp uimage2D;
 in vec4 primary_color;
 in vec2 texcoord0;
 in vec2 texcoord1;
@@ -20027,9 +20228,9 @@ combiner_buffer = next_combiner_buffer;
 gl_FragDepth = depth;
 color = byteround(last_tex_env_out);
 }
-// reference: 36E90DCE67D99104, 3F5A0E10818820AF
-// program: 7D8640703418231E, C6949C8D76FDEB0C, 3F5A0E10818820AF
-// shader: 8B31, 4F42FEAC9F6825AE
+// reference: 36E90DCE67D99104, BC4B390CD62E2821
+// program: 390AE326B576D5B0, C6949C8D76FDEB0C, BC4B390CD62E2821
+// shader: 8B31, 67BB82F25B4EACD6
 
 struct pica_uniforms {
     bool b[16];
@@ -20075,7 +20276,20 @@ void main() {
     exec_shader();
 }
 
-// accurate_mul: fast
+
+#define mul_s(x, y) mix(x * y, vec4(0.0), isnan(x * y))
+#define fma_s(x, y, z) (mix(x * y, vec4(0.0), isnan(x * y)) + z)
+float rcp_s(float x) {
+    if (x == 0.0) return x;
+    return 1.0 / x;
+}
+float rsq_s(float x) {
+    if (x > 0.0) return inversesqrt(x);
+    return 0.0;
+}
+#define dot_s(x, y) dot(x, y)
+#define dot_3(x, y) dot(x, y)
+
 bvec2 conditional_code = bvec2(false);
 ivec3 address_registers = ivec3(0);
 vec4 reg_tmp0 = vec4(0.0, 0.0, 0.0, 1.0);
@@ -21901,8 +22115,14 @@ bool sub_454_4096() {
     }
     return false;
 }
-// reference: 5CF11C05D12814B3, 4F42FEAC9F6825AE
-// shader: 8B30, F8F4CF14835618A1
+// reference: 04920C53D12814B3, 67BB82F25B4EACD6
+// shader: 8B30, E4480FEE6392426B
+
+precision highp int;
+precision highp float;
+precision highp samplerBuffer;
+precision highp usampler2D;
+precision highp uimage2D;
 in vec4 primary_color;
 in vec2 texcoord0;
 in vec2 texcoord1;
@@ -22072,9 +22292,15 @@ combiner_buffer = next_combiner_buffer;
 gl_FragDepth = depth;
 color = byteround(last_tex_env_out);
 }
-// reference: 3F49E9FAD8C03A8C, F8F4CF14835618A1
-// program: 4F42FEAC9F6825AE, C6949C8D76FDEB0C, F8F4CF14835618A1
-// shader: 8B30, 807854247B98C17F
+// reference: 3F49E9FAD8C03A8C, E4480FEE6392426B
+// program: 67BB82F25B4EACD6, C6949C8D76FDEB0C, E4480FEE6392426B
+// shader: 8B30, EA980555E25AA2F3
+
+precision highp int;
+precision highp float;
+precision highp samplerBuffer;
+precision highp usampler2D;
+precision highp uimage2D;
 in vec4 primary_color;
 in vec2 texcoord0;
 in vec2 texcoord1;
@@ -22248,9 +22474,15 @@ combiner_buffer = next_combiner_buffer;
 gl_FragDepth = depth;
 color = byteround(last_tex_env_out);
 }
-// reference: F4486373B0A9534B, 807854247B98C17F
-// program: 4F42FEAC9F6825AE, C6949C8D76FDEB0C, 807854247B98C17F
-// shader: 8B30, A694F9680519A04D
+// reference: F4486373B0A9534B, EA980555E25AA2F3
+// program: 67BB82F25B4EACD6, C6949C8D76FDEB0C, EA980555E25AA2F3
+// shader: 8B30, 5BACB25EDAC5B5A1
+
+precision highp int;
+precision highp float;
+precision highp samplerBuffer;
+precision highp usampler2D;
+precision highp uimage2D;
 in vec4 primary_color;
 in vec2 texcoord0;
 in vec2 texcoord1;
@@ -22414,9 +22646,9 @@ combiner_buffer = next_combiner_buffer;
 gl_FragDepth = depth;
 color = byteround(last_tex_env_out);
 }
-// reference: CE312E68CF138F9D, A694F9680519A04D
-// program: 56733821C41448DB, C6949C8D76FDEB0C, A694F9680519A04D
-// shader: 8B31, F26DDCE599E00BBF
+// reference: CE312E68CF138F9D, 5BACB25EDAC5B5A1
+// program: 43426DC6D4038D79, C6949C8D76FDEB0C, 5BACB25EDAC5B5A1
+// shader: 8B31, C579EB40345EBB8C
 
 struct pica_uniforms {
     bool b[16];
@@ -22462,7 +22694,20 @@ void main() {
     exec_shader();
 }
 
-// accurate_mul: fast
+
+#define mul_s(x, y) mix(x * y, vec4(0.0), isnan(x * y))
+#define fma_s(x, y, z) (mix(x * y, vec4(0.0), isnan(x * y)) + z)
+float rcp_s(float x) {
+    if (x == 0.0) return x;
+    return 1.0 / x;
+}
+float rsq_s(float x) {
+    if (x > 0.0) return inversesqrt(x);
+    return 0.0;
+}
+#define dot_s(x, y) dot(x, y)
+#define dot_3(x, y) dot(x, y)
+
 bvec2 conditional_code = bvec2(false);
 ivec3 address_registers = ivec3(0);
 vec4 reg_tmp0 = vec4(0.0, 0.0, 0.0, 1.0);
@@ -24288,9 +24533,9 @@ bool sub_427_4096() {
     }
     return false;
 }
-// reference: 5CF11C05835F4613, F26DDCE599E00BBF
-// program: F26DDCE599E00BBF, C6949C8D76FDEB0C, 807854247B98C17F
-// shader: 8B31, B53DD7B080E493F5
+// reference: 04920C53835F4613, C579EB40345EBB8C
+// program: C579EB40345EBB8C, C6949C8D76FDEB0C, EA980555E25AA2F3
+// shader: 8B31, 3364016E9942273A
 
 struct pica_uniforms {
     bool b[16];
@@ -24336,7 +24581,20 @@ void main() {
     exec_shader();
 }
 
-// accurate_mul: fast
+
+#define mul_s(x, y) mix(x * y, vec4(0.0), isnan(x * y))
+#define fma_s(x, y, z) (mix(x * y, vec4(0.0), isnan(x * y)) + z)
+float rcp_s(float x) {
+    if (x == 0.0) return x;
+    return 1.0 / x;
+}
+float rsq_s(float x) {
+    if (x > 0.0) return inversesqrt(x);
+    return 0.0;
+}
+#define dot_s(x, y) dot(x, y)
+#define dot_3(x, y) dot(x, y)
+
 bvec2 conditional_code = bvec2(false);
 ivec3 address_registers = ivec3(0);
 vec4 reg_tmp0 = vec4(0.0, 0.0, 0.0, 1.0);
@@ -26162,8 +26420,14 @@ bool sub_418_4096() {
     }
     return false;
 }
-// reference: 5CF11C05566855AB, B53DD7B080E493F5
-// shader: 8B30, 698B7B364DBD5C07
+// reference: 04920C53566855AB, 3364016E9942273A
+// shader: 8B30, 76F64FC7BC44C56D
+
+precision highp int;
+precision highp float;
+precision highp samplerBuffer;
+precision highp usampler2D;
+precision highp uimage2D;
 in vec4 primary_color;
 in vec2 texcoord0;
 in vec2 texcoord1;
@@ -26422,9 +26686,9 @@ combiner_buffer = next_combiner_buffer;
 gl_FragDepth = depth;
 color = byteround(last_tex_env_out);
 }
-// reference: 3D5370B30AB6B7C0, 698B7B364DBD5C07
-// program: B53DD7B080E493F5, C6949C8D76FDEB0C, 698B7B364DBD5C07
-// shader: 8B31, 02F5D70B9ADA7529
+// reference: 3D5370B30AB6B7C0, 76F64FC7BC44C56D
+// program: 3364016E9942273A, C6949C8D76FDEB0C, 76F64FC7BC44C56D
+// shader: 8B31, 25227EA48D9BEBDB
 
 struct pica_uniforms {
     bool b[16];
@@ -26470,7 +26734,20 @@ void main() {
     exec_shader();
 }
 
-// accurate_mul: fast
+
+#define mul_s(x, y) mix(x * y, vec4(0.0), isnan(x * y))
+#define fma_s(x, y, z) (mix(x * y, vec4(0.0), isnan(x * y)) + z)
+float rcp_s(float x) {
+    if (x == 0.0) return x;
+    return 1.0 / x;
+}
+float rsq_s(float x) {
+    if (x > 0.0) return inversesqrt(x);
+    return 0.0;
+}
+#define dot_s(x, y) dot(x, y)
+#define dot_3(x, y) dot(x, y)
+
 bvec2 conditional_code = bvec2(false);
 ivec3 address_registers = ivec3(0);
 vec4 reg_tmp0 = vec4(0.0, 0.0, 0.0, 1.0);
@@ -28296,8 +28573,14 @@ bool sub_452_4096() {
     }
     return false;
 }
-// reference: 5CF11C0554D0367C, 02F5D70B9ADA7529
-// shader: 8B30, D8D244F532C73C21
+// reference: 04920C5354D0367C, 25227EA48D9BEBDB
+// shader: 8B30, 69EB53926B4DD843
+
+precision highp int;
+precision highp float;
+precision highp samplerBuffer;
+precision highp usampler2D;
+precision highp uimage2D;
 in vec4 primary_color;
 in vec2 texcoord0;
 in vec2 texcoord1;
@@ -28460,9 +28743,9 @@ combiner_buffer = next_combiner_buffer;
 gl_FragDepth = depth;
 color = byteround(last_tex_env_out);
 }
-// reference: D4F4BEF97F7717E1, D8D244F532C73C21
-// program: 02F5D70B9ADA7529, C6949C8D76FDEB0C, D8D244F532C73C21
-// shader: 8B31, B5ED2F870CFD5322
+// reference: D4F4BEF97F7717E1, 69EB53926B4DD843
+// program: 25227EA48D9BEBDB, C6949C8D76FDEB0C, 69EB53926B4DD843
+// shader: 8B31, 5CA73F800C077212
 
 struct pica_uniforms {
     bool b[16];
@@ -28499,7 +28782,20 @@ void main() {
     exec_shader();
 }
 
-// accurate_mul: fast
+
+#define mul_s(x, y) mix(x * y, vec4(0.0), isnan(x * y))
+#define fma_s(x, y, z) (mix(x * y, vec4(0.0), isnan(x * y)) + z)
+float rcp_s(float x) {
+    if (x == 0.0) return x;
+    return 1.0 / x;
+}
+float rsq_s(float x) {
+    if (x > 0.0) return inversesqrt(x);
+    return 0.0;
+}
+#define dot_s(x, y) dot(x, y)
+#define dot_3(x, y) dot(x, y)
+
 bvec2 conditional_code = bvec2(false);
 ivec3 address_registers = ivec3(0);
 vec4 reg_tmp0 = vec4(0.0, 0.0, 0.0, 1.0);
@@ -28739,8 +29035,14 @@ bool sub_476_4096() {
     }
     return false;
 }
-// reference: 5CF11C05DA44B47D, B5ED2F870CFD5322
-// shader: 8B30, 6E812219E88BA6C2
+// reference: 04920C53DA44B47D, 5CA73F800C077212
+// shader: 8B30, 5D80716244EA2512
+
+precision highp int;
+precision highp float;
+precision highp samplerBuffer;
+precision highp usampler2D;
+precision highp uimage2D;
 in vec4 primary_color;
 in vec2 texcoord0;
 in vec2 texcoord1;
@@ -28997,9 +29299,15 @@ combiner_buffer = next_combiner_buffer;
 gl_FragDepth = depth;
 color = byteround(last_tex_env_out);
 }
-// reference: 2F96C4C47977DF73, 6E812219E88BA6C2
-// program: B5ED2F870CFD5322, C6949C8D76FDEB0C, 6E812219E88BA6C2
-// shader: 8B30, 962DEB62722A62F0
+// reference: 2F96C4C47977DF73, 5D80716244EA2512
+// program: 5CA73F800C077212, C6949C8D76FDEB0C, 5D80716244EA2512
+// shader: 8B30, CE5E20AAB22E3991
+
+precision highp int;
+precision highp float;
+precision highp samplerBuffer;
+precision highp usampler2D;
+precision highp uimage2D;
 in vec4 primary_color;
 in vec2 texcoord0;
 in vec2 texcoord1;
@@ -29173,9 +29481,9 @@ combiner_buffer = next_combiner_buffer;
 gl_FragDepth = depth;
 color = byteround(last_tex_env_out);
 }
-// reference: F4486373A6C6A763, 962DEB62722A62F0
-// program: 4F42FEAC9F6825AE, C6949C8D76FDEB0C, 962DEB62722A62F0
-// shader: 8B31, AEFFF14434A2B0F9
+// reference: F4486373A6C6A763, CE5E20AAB22E3991
+// program: 67BB82F25B4EACD6, C6949C8D76FDEB0C, CE5E20AAB22E3991
+// shader: 8B31, 1EA329896BFE7826
 
 struct pica_uniforms {
     bool b[16];
@@ -29221,7 +29529,20 @@ void main() {
     exec_shader();
 }
 
-// accurate_mul: fast
+
+#define mul_s(x, y) mix(x * y, vec4(0.0), isnan(x * y))
+#define fma_s(x, y, z) (mix(x * y, vec4(0.0), isnan(x * y)) + z)
+float rcp_s(float x) {
+    if (x == 0.0) return x;
+    return 1.0 / x;
+}
+float rsq_s(float x) {
+    if (x > 0.0) return inversesqrt(x);
+    return 0.0;
+}
+#define dot_s(x, y) dot(x, y)
+#define dot_3(x, y) dot(x, y)
+
 bvec2 conditional_code = bvec2(false);
 ivec3 address_registers = ivec3(0);
 vec4 reg_tmp0 = vec4(0.0, 0.0, 0.0, 1.0);
@@ -31055,8 +31376,14 @@ bool sub_209_218() {
     reg_tmp8 = fma_s(reg_tmp13.wwww, uniforms.f[15], reg_tmp8);
     return false;
 }
-// reference: 5CF11C05655A7B84, AEFFF14434A2B0F9
-// shader: 8B30, 554CE9AB2C7CA25F
+// reference: 04920C53655A7B84, 1EA329896BFE7826
+// shader: 8B30, CEA8B21231FC2428
+
+precision highp int;
+precision highp float;
+precision highp samplerBuffer;
+precision highp usampler2D;
+precision highp uimage2D;
 in vec4 primary_color;
 in vec2 texcoord0;
 in vec2 texcoord1;
@@ -31219,11 +31546,17 @@ combiner_buffer = next_combiner_buffer;
 gl_FragDepth = depth;
 color = byteround(last_tex_env_out);
 }
-// reference: D4F4BEF97440EDF5, 554CE9AB2C7CA25F
-// program: AEFFF14434A2B0F9, C6949C8D76FDEB0C, 554CE9AB2C7CA25F
-// program: F26DDCE599E00BBF, C6949C8D76FDEB0C, 962DEB62722A62F0
-// program: 02F5D70B9ADA7529, C6949C8D76FDEB0C, 554CE9AB2C7CA25F
-// shader: 8B30, FA123E4FDBEA7F2E
+// reference: D4F4BEF97440EDF5, CEA8B21231FC2428
+// program: 1EA329896BFE7826, C6949C8D76FDEB0C, CEA8B21231FC2428
+// program: C579EB40345EBB8C, C6949C8D76FDEB0C, CE5E20AAB22E3991
+// program: 25227EA48D9BEBDB, C6949C8D76FDEB0C, CEA8B21231FC2428
+// shader: 8B30, F7F169D3B22E3991
+
+precision highp int;
+precision highp float;
+precision highp samplerBuffer;
+precision highp usampler2D;
+precision highp uimage2D;
 in vec4 primary_color;
 in vec2 texcoord0;
 in vec2 texcoord1;
@@ -31397,9 +31730,9 @@ combiner_buffer = next_combiner_buffer;
 gl_FragDepth = depth;
 color = byteround(last_tex_env_out);
 }
-// reference: B771AF9EA6C6A763, FA123E4FDBEA7F2E
-// program: F26DDCE599E00BBF, C6949C8D76FDEB0C, FA123E4FDBEA7F2E
-// shader: 8B31, EF3156B9EA0EBDFD
+// reference: B771AF9EA6C6A763, F7F169D3B22E3991
+// program: C579EB40345EBB8C, C6949C8D76FDEB0C, F7F169D3B22E3991
+// shader: 8B31, 5C7077AD3C424188
 
 struct pica_uniforms {
     bool b[16];
@@ -31445,7 +31778,20 @@ void main() {
     exec_shader();
 }
 
-// accurate_mul: fast
+
+#define mul_s(x, y) mix(x * y, vec4(0.0), isnan(x * y))
+#define fma_s(x, y, z) (mix(x * y, vec4(0.0), isnan(x * y)) + z)
+float rcp_s(float x) {
+    if (x == 0.0) return x;
+    return 1.0 / x;
+}
+float rsq_s(float x) {
+    if (x > 0.0) return inversesqrt(x);
+    return 0.0;
+}
+#define dot_s(x, y) dot(x, y)
+#define dot_3(x, y) dot(x, y)
+
 bvec2 conditional_code = bvec2(false);
 ivec3 address_registers = ivec3(0);
 vec4 reg_tmp0 = vec4(0.0, 0.0, 0.0, 1.0);
@@ -33271,9 +33617,15 @@ bool sub_470_4096() {
     }
     return false;
 }
-// reference: 5CF11C0525CF174D, EF3156B9EA0EBDFD
-// program: EF3156B9EA0EBDFD, C6949C8D76FDEB0C, 6E812219E88BA6C2
-// shader: 8B30, 4D17283F260CA81A
+// reference: 04920C5325CF174D, 5C7077AD3C424188
+// program: 5C7077AD3C424188, C6949C8D76FDEB0C, 5D80716244EA2512
+// shader: 8B30, 01880BD57291DC24
+
+precision highp int;
+precision highp float;
+precision highp samplerBuffer;
+precision highp usampler2D;
+precision highp uimage2D;
 in vec4 primary_color;
 in vec2 texcoord0;
 in vec2 texcoord1;
@@ -33532,10 +33884,10 @@ combiner_buffer = next_combiner_buffer;
 gl_FragDepth = depth;
 color = byteround(last_tex_env_out);
 }
-// reference: 84033F4CF55366E9, 4D17283F260CA81A
-// program: 8A49AC89BB442A51, C6949C8D76FDEB0C, 4D17283F260CA81A
-// program: 8B9BA1BE191369D4, C6949C8D76FDEB0C, 4D17283F260CA81A
-// shader: 8B31, F52F0B661B7B3B98
+// reference: 84033F4CF55366E9, 01880BD57291DC24
+// program: 747AD5F8B654FD1A, C6949C8D76FDEB0C, 01880BD57291DC24
+// program: 8D607ED475583530, C6949C8D76FDEB0C, 01880BD57291DC24
+// shader: 8B31, 9340F6F2A6A06CB5
 
 struct pica_uniforms {
     bool b[16];
@@ -33581,7 +33933,20 @@ void main() {
     exec_shader();
 }
 
-// accurate_mul: fast
+
+#define mul_s(x, y) mix(x * y, vec4(0.0), isnan(x * y))
+#define fma_s(x, y, z) (mix(x * y, vec4(0.0), isnan(x * y)) + z)
+float rcp_s(float x) {
+    if (x == 0.0) return x;
+    return 1.0 / x;
+}
+float rsq_s(float x) {
+    if (x > 0.0) return inversesqrt(x);
+    return 0.0;
+}
+#define dot_s(x, y) dot(x, y)
+#define dot_3(x, y) dot(x, y)
+
 bvec2 conditional_code = bvec2(false);
 ivec3 address_registers = ivec3(0);
 vec4 reg_tmp0 = vec4(0.0, 0.0, 0.0, 1.0);
@@ -35407,8 +35772,14 @@ bool sub_209_218() {
     reg_tmp8 = fma_s(reg_tmp13.wwww, uniforms.f[15], reg_tmp8);
     return false;
 }
-// reference: 5CF11C059FA11F1A, F52F0B661B7B3B98
-// shader: 8B30, 3E3F4B775CB6EF93
+// reference: 04920C539FA11F1A, 9340F6F2A6A06CB5
+// shader: 8B30, FA92031249913714
+
+precision highp int;
+precision highp float;
+precision highp samplerBuffer;
+precision highp usampler2D;
+precision highp uimage2D;
 in vec4 primary_color;
 in vec2 texcoord0;
 in vec2 texcoord1;
@@ -35663,10 +36034,16 @@ combiner_buffer = next_combiner_buffer;
 gl_FragDepth = depth;
 color = byteround(last_tex_env_out);
 }
-// reference: 518ED5EF3D9D4162, 3E3F4B775CB6EF93
-// program: F52F0B661B7B3B98, C6949C8D76FDEB0C, 3E3F4B775CB6EF93
-// reference: 5CF11C05DB0F0C26, 9EBDB054E6C968F5
-// shader: 8B30, AA079A6693EEAF26
+// reference: 518ED5EF3D9D4162, FA92031249913714
+// program: 9340F6F2A6A06CB5, C6949C8D76FDEB0C, FA92031249913714
+// reference: 04920C53DB0F0C26, 07440F333D3D809A
+// shader: 8B30, 46F3A07B08750384
+
+precision highp int;
+precision highp float;
+precision highp samplerBuffer;
+precision highp usampler2D;
+precision highp uimage2D;
 in vec4 primary_color;
 in vec2 texcoord0;
 in vec2 texcoord1;
@@ -35829,10 +36206,16 @@ combiner_buffer = next_combiner_buffer;
 gl_FragDepth = depth;
 color = byteround(last_tex_env_out);
 }
-// reference: 2584B8EBD792C531, AA079A6693EEAF26
-// program: 9EBDB054E6C968F5, C6949C8D76FDEB0C, AA079A6693EEAF26
-// reference: D711CBAA370F85C9, B5ED2F870CFD5322
-// shader: 8B30, 6D75DEA7F0F2C97E
+// reference: 2584B8EBD792C531, 46F3A07B08750384
+// program: 07440F333D3D809A, C6949C8D76FDEB0C, 46F3A07B08750384
+// reference: D711CBAA370F85C9, 5CA73F800C077212
+// shader: 8B30, 158CA561EF6E7815
+
+precision highp int;
+precision highp float;
+precision highp samplerBuffer;
+precision highp usampler2D;
+precision highp uimage2D;
 in vec4 primary_color;
 in vec2 texcoord0;
 in vec2 texcoord1;
@@ -36088,9 +36471,15 @@ combiner_buffer = next_combiner_buffer;
 gl_FragDepth = depth;
 color = byteround(last_tex_env_out);
 }
-// reference: C42352477977DF73, 6D75DEA7F0F2C97E
-// program: B5ED2F870CFD5322, C6949C8D76FDEB0C, 6D75DEA7F0F2C97E
-// shader: 8B30, 034EC4551535DF38
+// reference: C42352477977DF73, 158CA561EF6E7815
+// program: 5CA73F800C077212, C6949C8D76FDEB0C, 158CA561EF6E7815
+// shader: 8B30, 6174F8A2751551D4
+
+precision highp int;
+precision highp float;
+precision highp samplerBuffer;
+precision highp usampler2D;
+precision highp uimage2D;
 in vec4 primary_color;
 in vec2 texcoord0;
 in vec2 texcoord1;
@@ -36254,9 +36643,9 @@ if (int(last_tex_env_out.a * 255.0) <= alphatest_ref) discard;
 gl_FragDepth = depth;
 color = byteround(last_tex_env_out);
 }
-// reference: 2584B8EB3B252E32, 034EC4551535DF38
-// program: 97CC886AC887FAB2, C6949C8D76FDEB0C, 034EC4551535DF38
-// shader: 8B31, 5DCDA5D5CC840E21
+// reference: 2584B8EB3B252E32, 6174F8A2751551D4
+// program: 5B031FBA63FC5397, C6949C8D76FDEB0C, 6174F8A2751551D4
+// shader: 8B31, 12E8F96D39057340
 
 struct pica_uniforms {
     bool b[16];
@@ -36302,7 +36691,20 @@ void main() {
     exec_shader();
 }
 
-// accurate_mul: fast
+
+#define mul_s(x, y) mix(x * y, vec4(0.0), isnan(x * y))
+#define fma_s(x, y, z) (mix(x * y, vec4(0.0), isnan(x * y)) + z)
+float rcp_s(float x) {
+    if (x == 0.0) return x;
+    return 1.0 / x;
+}
+float rsq_s(float x) {
+    if (x > 0.0) return inversesqrt(x);
+    return 0.0;
+}
+#define dot_s(x, y) dot(x, y)
+#define dot_3(x, y) dot(x, y)
+
 bvec2 conditional_code = bvec2(false);
 ivec3 address_registers = ivec3(0);
 vec4 reg_tmp0 = vec4(0.0, 0.0, 0.0, 1.0);
@@ -38128,9 +38530,9 @@ bool sub_359_4096() {
     }
     return false;
 }
-// reference: D711CBAA6B64B009, 5DCDA5D5CC840E21
-// reference: 5CF11C056B64B009, 5DCDA5D5CC840E21
-// shader: 8B31, B4B28C31387CBB33
+// reference: D711CBAA6B64B009, 12E8F96D39057340
+// reference: 04920C536B64B009, 12E8F96D39057340
+// shader: 8B31, 12393ED9905481CB
 
 struct pica_uniforms {
     bool b[16];
@@ -38176,7 +38578,20 @@ void main() {
     exec_shader();
 }
 
-// accurate_mul: fast
+
+#define mul_s(x, y) mix(x * y, vec4(0.0), isnan(x * y))
+#define fma_s(x, y, z) (mix(x * y, vec4(0.0), isnan(x * y)) + z)
+float rcp_s(float x) {
+    if (x == 0.0) return x;
+    return 1.0 / x;
+}
+float rsq_s(float x) {
+    if (x > 0.0) return inversesqrt(x);
+    return 0.0;
+}
+#define dot_s(x, y) dot(x, y)
+#define dot_3(x, y) dot(x, y)
+
 bvec2 conditional_code = bvec2(false);
 ivec3 address_registers = ivec3(0);
 vec4 reg_tmp0 = vec4(0.0, 0.0, 0.0, 1.0);
@@ -40002,8 +40417,8 @@ bool sub_265_4096() {
     }
     return false;
 }
-// reference: 5CF11C0513AF5221, B4B28C31387CBB33
-// shader: 8B31, A05319E57ED4A84D
+// reference: 04920C5313AF5221, 12393ED9905481CB
+// shader: 8B31, 0FE38B3285CEFD3C
 
 struct pica_uniforms {
     bool b[16];
@@ -40049,7 +40464,20 @@ void main() {
     exec_shader();
 }
 
-// accurate_mul: fast
+
+#define mul_s(x, y) mix(x * y, vec4(0.0), isnan(x * y))
+#define fma_s(x, y, z) (mix(x * y, vec4(0.0), isnan(x * y)) + z)
+float rcp_s(float x) {
+    if (x == 0.0) return x;
+    return 1.0 / x;
+}
+float rsq_s(float x) {
+    if (x > 0.0) return inversesqrt(x);
+    return 0.0;
+}
+#define dot_s(x, y) dot(x, y)
+#define dot_3(x, y) dot(x, y)
+
 bvec2 conditional_code = bvec2(false);
 ivec3 address_registers = ivec3(0);
 vec4 reg_tmp0 = vec4(0.0, 0.0, 0.0, 1.0);
@@ -41875,8 +42303,8 @@ bool sub_228_4096() {
     }
     return false;
 }
-// reference: 5CF11C05C5AD0DDC, A05319E57ED4A84D
-// shader: 8B31, 44E769CE973B2C1D
+// reference: 04920C53C5AD0DDC, 0FE38B3285CEFD3C
+// shader: 8B31, CEF0242AEDB4A8E3
 
 struct pica_uniforms {
     bool b[16];
@@ -41922,7 +42350,20 @@ void main() {
     exec_shader();
 }
 
-// accurate_mul: fast
+
+#define mul_s(x, y) mix(x * y, vec4(0.0), isnan(x * y))
+#define fma_s(x, y, z) (mix(x * y, vec4(0.0), isnan(x * y)) + z)
+float rcp_s(float x) {
+    if (x == 0.0) return x;
+    return 1.0 / x;
+}
+float rsq_s(float x) {
+    if (x > 0.0) return inversesqrt(x);
+    return 0.0;
+}
+#define dot_s(x, y) dot(x, y)
+#define dot_3(x, y) dot(x, y)
+
 bvec2 conditional_code = bvec2(false);
 ivec3 address_registers = ivec3(0);
 vec4 reg_tmp0 = vec4(0.0, 0.0, 0.0, 1.0);
@@ -43748,9 +44189,15 @@ bool sub_286_4096() {
     }
     return false;
 }
-// reference: 5CF11C051D75A288, 44E769CE973B2C1D
-// reference: 5CF11C0588114A30, AEFFF14434A2B0F9
-// shader: 8B30, EE995B4D4746F9D1
+// reference: 04920C531D75A288, CEF0242AEDB4A8E3
+// reference: 04920C5388114A30, 1EA329896BFE7826
+// shader: 8B30, EE7F66AA11563333
+
+precision highp int;
+precision highp float;
+precision highp samplerBuffer;
+precision highp usampler2D;
+precision highp uimage2D;
 in vec4 primary_color;
 in vec2 texcoord0;
 in vec2 texcoord1;
@@ -44005,9 +44452,15 @@ combiner_buffer = next_combiner_buffer;
 gl_FragDepth = depth;
 color = byteround(last_tex_env_out);
 }
-// reference: EDCDA78999A4FA83, EE995B4D4746F9D1
-// program: AC1E46EC4C190A5B, C6949C8D76FDEB0C, EE995B4D4746F9D1
-// shader: 8B30, BB1579B47C18692E
+// reference: EDCDA78999A4FA83, EE7F66AA11563333
+// program: 91BF95E5F4CCCBE0, C6949C8D76FDEB0C, EE7F66AA11563333
+// shader: 8B30, F06D4D1B4BB83B79
+
+precision highp int;
+precision highp float;
+precision highp samplerBuffer;
+precision highp usampler2D;
+precision highp uimage2D;
 in vec4 primary_color;
 in vec2 texcoord0;
 in vec2 texcoord1;
@@ -44277,9 +44730,15 @@ combiner_buffer = next_combiner_buffer;
 gl_FragDepth = depth;
 color = byteround(last_tex_env_out);
 }
-// reference: 4DFFDB75B1A04D55, BB1579B47C18692E
-// program: 8A49AC89BB442A51, C6949C8D76FDEB0C, BB1579B47C18692E
-// shader: 8B30, 51F1F88A56F74414
+// reference: 4DFFDB75B1A04D55, F06D4D1B4BB83B79
+// program: 747AD5F8B654FD1A, C6949C8D76FDEB0C, F06D4D1B4BB83B79
+// shader: 8B30, 7C917AB845BC1432
+
+precision highp int;
+precision highp float;
+precision highp samplerBuffer;
+precision highp usampler2D;
+precision highp uimage2D;
 in vec4 primary_color;
 in vec2 texcoord0;
 in vec2 texcoord1;
@@ -44552,10 +45011,16 @@ combiner_buffer = next_combiner_buffer;
 gl_FragDepth = depth;
 color = byteround(last_tex_env_out);
 }
-// reference: A5753FAAC8780E1C, 51F1F88A56F74414
-// program: 4FBEA5C814CE763A, C6949C8D76FDEB0C, 51F1F88A56F74414
-// program: 8B9BA1BE191369D4, C6949C8D76FDEB0C, BB1579B47C18692E
-// shader: 8B30, E2862472CC7B6F4D
+// reference: A5753FAAC8780E1C, 7C917AB845BC1432
+// program: 5D55EF5559950FCC, C6949C8D76FDEB0C, 7C917AB845BC1432
+// program: 8D607ED475583530, C6949C8D76FDEB0C, F06D4D1B4BB83B79
+// shader: 8B30, 872A47CD536511A0
+
+precision highp int;
+precision highp float;
+precision highp samplerBuffer;
+precision highp usampler2D;
+precision highp uimage2D;
 in vec4 primary_color;
 in vec2 texcoord0;
 in vec2 texcoord1;
@@ -44824,9 +45289,15 @@ combiner_buffer = next_combiner_buffer;
 gl_FragDepth = depth;
 color = byteround(last_tex_env_out);
 }
-// reference: 82A605528527392C, E2862472CC7B6F4D
-// program: AC1E46EC4C190A5B, C6949C8D76FDEB0C, E2862472CC7B6F4D
-// shader: 8B30, 51C9A0A8FCCB28FB
+// reference: 82A605528527392C, 872A47CD536511A0
+// program: 91BF95E5F4CCCBE0, C6949C8D76FDEB0C, 872A47CD536511A0
+// shader: 8B30, FB151D7F09CE5CBA
+
+precision highp int;
+precision highp float;
+precision highp samplerBuffer;
+precision highp usampler2D;
+precision highp uimage2D;
 in vec4 primary_color;
 in vec2 texcoord0;
 in vec2 texcoord1;
@@ -45099,9 +45570,15 @@ combiner_buffer = next_combiner_buffer;
 gl_FragDepth = depth;
 color = byteround(last_tex_env_out);
 }
-// reference: 723C51FE7735D17D, 51C9A0A8FCCB28FB
-// program: AC1E46EC4C190A5B, C6949C8D76FDEB0C, 51C9A0A8FCCB28FB
-// shader: 8B30, 1E4218244F9D1470
+// reference: 723C51FE7735D17D, FB151D7F09CE5CBA
+// program: 91BF95E5F4CCCBE0, C6949C8D76FDEB0C, FB151D7F09CE5CBA
+// shader: 8B30, 042EF479FCAA8542
+
+precision highp int;
+precision highp float;
+precision highp samplerBuffer;
+precision highp usampler2D;
+precision highp uimage2D;
 in vec4 primary_color;
 in vec2 texcoord0;
 in vec2 texcoord1;
@@ -45369,10 +45846,16 @@ combiner_buffer = next_combiner_buffer;
 gl_FragDepth = depth;
 color = byteround(last_tex_env_out);
 }
-// reference: 986395C3C00936B1, 1E4218244F9D1470
-// program: 7D8640703418231E, C6949C8D76FDEB0C, 1E4218244F9D1470
-// program: 7D8640703418231E, C6949C8D76FDEB0C, E2862472CC7B6F4D
-// shader: 8B30, FA03D765123CE524
+// reference: 986395C3C00936B1, 042EF479FCAA8542
+// program: 390AE326B576D5B0, C6949C8D76FDEB0C, 042EF479FCAA8542
+// program: 390AE326B576D5B0, C6949C8D76FDEB0C, 872A47CD536511A0
+// shader: 8B30, 0998843ABB44E098
+
+precision highp int;
+precision highp float;
+precision highp samplerBuffer;
+precision highp usampler2D;
+precision highp uimage2D;
 in vec4 primary_color;
 in vec2 texcoord0;
 in vec2 texcoord1;
@@ -45641,9 +46124,15 @@ combiner_buffer = next_combiner_buffer;
 gl_FragDepth = depth;
 color = byteround(last_tex_env_out);
 }
-// reference: 0C4474D700748D9B, FA03D765123CE524
-// program: 7D8640703418231E, C6949C8D76FDEB0C, FA03D765123CE524
-// shader: 8B30, 96177EA44675DA51
+// reference: 0C4474D700748D9B, 0998843ABB44E098
+// program: 390AE326B576D5B0, C6949C8D76FDEB0C, 0998843ABB44E098
+// shader: 8B30, 8F6A1C540028B298
+
+precision highp int;
+precision highp float;
+precision highp samplerBuffer;
+precision highp usampler2D;
+precision highp uimage2D;
 in vec4 primary_color;
 in vec2 texcoord0;
 in vec2 texcoord1;
@@ -45916,9 +46405,15 @@ combiner_buffer = next_combiner_buffer;
 gl_FragDepth = depth;
 color = byteround(last_tex_env_out);
 }
-// reference: FCDE207BF26665CA, 96177EA44675DA51
-// program: 7D8640703418231E, C6949C8D76FDEB0C, 96177EA44675DA51
-// shader: 8B30, 2E8E4F92381E394B
+// reference: FCDE207BF26665CA, 8F6A1C540028B298
+// program: 390AE326B576D5B0, C6949C8D76FDEB0C, 8F6A1C540028B298
+// shader: 8B30, C7E1393162AE0FA6
+
+precision highp int;
+precision highp float;
+precision highp samplerBuffer;
+precision highp usampler2D;
+precision highp uimage2D;
 in vec4 primary_color;
 in vec2 texcoord0;
 in vec2 texcoord1;
@@ -46190,9 +46685,15 @@ combiner_buffer = next_combiner_buffer;
 gl_FragDepth = depth;
 color = byteround(last_tex_env_out);
 }
-// reference: FE8AA8B89F09430E, 2E8E4F92381E394B
-// program: B53DD7B080E493F5, C6949C8D76FDEB0C, 2E8E4F92381E394B
-// shader: 8B30, 55B2C824AB21B1DA
+// reference: FE8AA8B89F09430E, C7E1393162AE0FA6
+// program: 3364016E9942273A, C6949C8D76FDEB0C, C7E1393162AE0FA6
+// shader: 8B30, DFE46DA4A4C6F647
+
+precision highp int;
+precision highp float;
+precision highp samplerBuffer;
+precision highp usampler2D;
+precision highp uimage2D;
 in vec4 primary_color;
 in vec2 texcoord0;
 in vec2 texcoord1;
@@ -46459,10 +46960,16 @@ combiner_buffer = next_combiner_buffer;
 gl_FragDepth = depth;
 color = byteround(last_tex_env_out);
 }
-// reference: 0DDFB67E3D84F4CF, 55B2C824AB21B1DA
-// program: B5ED2F870CFD5322, C6949C8D76FDEB0C, 55B2C824AB21B1DA
-// program: EF3156B9EA0EBDFD, C6949C8D76FDEB0C, 55B2C824AB21B1DA
-// shader: 8B30, BA060AA6732D4850
+// reference: 0DDFB67E3D84F4CF, DFE46DA4A4C6F647
+// program: 5CA73F800C077212, C6949C8D76FDEB0C, DFE46DA4A4C6F647
+// program: 5C7077AD3C424188, C6949C8D76FDEB0C, DFE46DA4A4C6F647
+// shader: 8B30, BDB93FEBB67BB9B1
+
+precision highp int;
+precision highp float;
+precision highp samplerBuffer;
+precision highp usampler2D;
+precision highp uimage2D;
 in vec4 primary_color;
 in vec2 texcoord0;
 in vec2 texcoord1;
@@ -46731,10 +47238,16 @@ combiner_buffer = next_combiner_buffer;
 gl_FragDepth = depth;
 color = byteround(last_tex_env_out);
 }
-// reference: A64A4DF6B1A04D55, BA060AA6732D4850
-// program: 8A49AC89BB442A51, C6949C8D76FDEB0C, BA060AA6732D4850
-// program: 8B9BA1BE191369D4, C6949C8D76FDEB0C, BA060AA6732D4850
-// shader: 8B30, 42D76EA7F000572A
+// reference: A64A4DF6B1A04D55, BDB93FEBB67BB9B1
+// program: 747AD5F8B654FD1A, C6949C8D76FDEB0C, BDB93FEBB67BB9B1
+// program: 8D607ED475583530, C6949C8D76FDEB0C, BDB93FEBB67BB9B1
+// shader: 8B30, 1CFCCBD42C9CC633
+
+precision highp int;
+precision highp float;
+precision highp samplerBuffer;
+precision highp usampler2D;
+precision highp uimage2D;
 in vec4 primary_color;
 in vec2 texcoord0;
 in vec2 texcoord1;
@@ -47002,9 +47515,15 @@ combiner_buffer = next_combiner_buffer;
 gl_FragDepth = depth;
 color = byteround(last_tex_env_out);
 }
-// reference: 92570DE4A822B5AC, 42D76EA7F000572A
-// program: F52F0B661B7B3B98, C6949C8D76FDEB0C, 42D76EA7F000572A
-// shader: 8B30, 32F94E00724D9D57
+// reference: 92570DE4A822B5AC, 1CFCCBD42C9CC633
+// program: 9340F6F2A6A06CB5, C6949C8D76FDEB0C, 1CFCCBD42C9CC633
+// shader: 8B30, FB8400E7B7BC30A7
+
+precision highp int;
+precision highp float;
+precision highp samplerBuffer;
+precision highp usampler2D;
+precision highp uimage2D;
 in vec4 primary_color;
 in vec2 texcoord0;
 in vec2 texcoord1;
@@ -47269,9 +47788,15 @@ combiner_buffer = next_combiner_buffer;
 gl_FragDepth = depth;
 color = byteround(last_tex_env_out);
 }
-// reference: 9B143AAD64E2CCA4, 32F94E00724D9D57
-// program: B5ED2F870CFD5322, C6949C8D76FDEB0C, 32F94E00724D9D57
-// shader: 8B30, 5C0F006121961ABF
+// reference: 9B143AAD64E2CCA4, FB8400E7B7BC30A7
+// program: 5CA73F800C077212, C6949C8D76FDEB0C, FB8400E7B7BC30A7
+// shader: 8B30, AF1F90683C075BE7
+
+precision highp int;
+precision highp float;
+precision highp samplerBuffer;
+precision highp usampler2D;
+precision highp uimage2D;
 in vec4 primary_color;
 in vec2 texcoord0;
 in vec2 texcoord1;
@@ -47537,10 +48062,16 @@ combiner_buffer = next_combiner_buffer;
 gl_FragDepth = depth;
 color = byteround(last_tex_env_out);
 }
-// reference: E66A20FD3D84F4CF, 5C0F006121961ABF
-// program: B5ED2F870CFD5322, C6949C8D76FDEB0C, 5C0F006121961ABF
-// reference: D711CBAAC5AD0DDC, A05319E57ED4A84D
-// shader: 8B30, 78C7C6C42C0A9044
+// reference: E66A20FD3D84F4CF, AF1F90683C075BE7
+// program: 5CA73F800C077212, C6949C8D76FDEB0C, AF1F90683C075BE7
+// reference: D711CBAAC5AD0DDC, 0FE38B3285CEFD3C
+// shader: 8B30, 6DC319571CA5EBEF
+
+precision highp int;
+precision highp float;
+precision highp samplerBuffer;
+precision highp usampler2D;
+precision highp uimage2D;
 in vec4 primary_color;
 in vec2 texcoord0;
 in vec2 texcoord1;
@@ -47703,10 +48234,16 @@ combiner_buffer = next_combiner_buffer;
 gl_FragDepth = depth;
 color = byteround(last_tex_env_out);
 }
-// reference: D4F4BEF9622F19DD, 78C7C6C42C0A9044
-// program: 02F5D70B9ADA7529, C6949C8D76FDEB0C, 78C7C6C42C0A9044
-// reference: D711CBAAB99B07C8, 02F5D70B9ADA7529
-// shader: 8B30, C63B011B9828BDC2
+// reference: D4F4BEF9622F19DD, 6DC319571CA5EBEF
+// program: 25227EA48D9BEBDB, C6949C8D76FDEB0C, 6DC319571CA5EBEF
+// reference: D711CBAAB99B07C8, 25227EA48D9BEBDB
+// shader: 8B30, 9A7E3AC0A821785F
+
+precision highp int;
+precision highp float;
+precision highp samplerBuffer;
+precision highp usampler2D;
+precision highp uimage2D;
 in vec4 primary_color;
 in vec2 texcoord0;
 in vec2 texcoord1;
@@ -47869,9 +48406,15 @@ combiner_buffer = next_combiner_buffer;
 gl_FragDepth = depth;
 color = byteround(last_tex_env_out);
 }
-// reference: D060346ED792C531, C63B011B9828BDC2
-// program: 9EBDB054E6C968F5, C6949C8D76FDEB0C, C63B011B9828BDC2
-// shader: 8B30, 38BDC41591A55275
+// reference: D060346ED792C531, 9A7E3AC0A821785F
+// program: 07440F333D3D809A, C6949C8D76FDEB0C, 9A7E3AC0A821785F
+// shader: 8B30, 58483E0585EBAEDA
+
+precision highp int;
+precision highp float;
+precision highp samplerBuffer;
+precision highp usampler2D;
+precision highp uimage2D;
 in vec4 primary_color;
 in vec2 texcoord0;
 in vec2 texcoord1;
@@ -48034,6 +48577,6 @@ combiner_buffer = next_combiner_buffer;
 gl_FragDepth = depth;
 color = byteround(last_tex_env_out);
 }
-// reference: 2584B8EBDCA53F25, 38BDC41591A55275
-// program: 9EBDB054E6C968F5, C6949C8D76FDEB0C, 38BDC41591A55275
-// reference: D711CBAA88114A30, AEFFF14434A2B0F9
+// reference: 2584B8EBDCA53F25, 58483E0585EBAEDA
+// program: 07440F333D3D809A, C6949C8D76FDEB0C, 58483E0585EBAEDA
+// reference: D711CBAA88114A30, 1EA329896BFE7826
