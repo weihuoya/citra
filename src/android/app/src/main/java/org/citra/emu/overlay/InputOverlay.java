@@ -266,8 +266,10 @@ public final class InputOverlay extends View {
 
     public boolean onTouchWhileEditing(MotionEvent event) {
         int pointerIndex = event.getActionIndex();
-        int pointerX = (int)event.getX(pointerIndex);
-        int pointerY = (int)event.getY(pointerIndex);
+        int pointerX = (int)(event.getX(pointerIndex) / 10);
+        int pointerY = (int)(event.getY(pointerIndex) / 10);
+        pointerX *= 10;
+        pointerY *= 10;
 
         switch (event.getAction() & MotionEvent.ACTION_MASK) {
         case MotionEvent.ACTION_DOWN:

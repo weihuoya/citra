@@ -4,6 +4,7 @@ import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Paint;
 import android.graphics.Rect;
+
 import org.citra.emu.NativeLibrary;
 
 public final class InputOverlayDpad implements InputOverlay.InputObject {
@@ -124,6 +125,7 @@ public final class InputOverlayDpad implements InputOverlay.InputObject {
             setDpadState2((int)x, (int)y);
         else
             setDpadState4((int)x, (int)y);
+        System.arraycopy(mPressStates, 0, mLastStates, 0, mLastStates.length);
     }
 
     private void setDpadState2(int pointerX, int pointerY) {
@@ -188,12 +190,11 @@ public final class InputOverlayDpad implements InputOverlay.InputObject {
     public boolean isPressed() {
         boolean pressed = false;
         for (int i = 0; i < mLastStates.length; ++i) {
-            if (!mLastStates[i] && mLastStates[i] != mPressStates[i]) {
+            if (!mLastStates[i] && mPressStates[i]) {
                 pressed = true;
-                break;
             }
+            mLastStates[i] = mPressStates[i];
         }
-        System.arraycopy(mPressStates, 0, mLastStates, 0, mLastStates.length);
         return pressed;
     }
 
