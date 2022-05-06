@@ -28,7 +28,6 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.content.pm.ShortcutManagerCompat;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.appcompat.widget.Toolbar;
@@ -210,16 +209,6 @@ public final class EditorActivity extends AppCompatActivity {
         mListView.setAdapter(mAdapter);
         mListView.addItemDecoration(new DividerItemDecoration(lineDivider));
         mListView.setLayoutManager(new LinearLayoutManager(this));
-
-        Button buttonShortcut = findViewById(R.id.button_shortcut);
-        if (ShortcutManagerCompat.isRequestPinShortcutSupported(this)) {
-            buttonShortcut.setVisibility(View.VISIBLE);
-        } else {
-            buttonShortcut.setVisibility(View.INVISIBLE);
-        }
-        buttonShortcut.setOnClickListener(view -> {
-            ShortcutDialog.newInstance(mGamePath).show(getSupportFragmentManager(), "ShortcutDialog");
-        });
 
         mCancelSave = false;
         Button buttonCancel = findViewById(R.id.button_cancel);

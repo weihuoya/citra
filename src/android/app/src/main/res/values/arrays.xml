@@ -141,6 +141,34 @@
         <item>2</item>
     </integer-array>
 
+    <!-- Ticks Preference -->
+    <string-array name="ticksEntries">
+        <item>10000</item>
+        <item>15000</item>
+        <item>20000</item>
+        <item>25000</item>
+        <item>30000</item>
+        <item>35000</item>
+        <item>40000</item>
+        <item>45000</item>
+        <item>50000</item>
+        <item>55000</item>
+        <item>60000</item>
+    </string-array>
+    <integer-array name="ticksValues">
+        <item>10000</item>
+        <item>15000</item>
+        <item>20000</item>
+        <item>25000</item>
+        <item>30000</item>
+        <item>35000</item>
+        <item>40000</item>
+        <item>45000</item>
+        <item>50000</item>
+        <item>55000</item>
+        <item>60000</item>
+    </integer-array>
+
     <string-array name="memory_scan_type">
         <item>@string/memory_scan_equal_to</item>
         <item>@string/memory_scan_not_equal_to</item>

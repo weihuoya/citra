@@ -23,6 +23,7 @@ void Apply() {
     if (system.IsPoweredOn()) {
         VideoCore::SettingUpdate();
 
+        system.CoreTiming().UpdateClockSpeed(values.cpu_clock_percentage);
         system.DSP().SetSink(values.sink_id, values.audio_device_id);
         system.DSP().EnableStretching(values.enable_audio_stretching);
 

@@ -141,6 +141,7 @@ public:
 
     class Timer {
     public:
+        Timer(double cpu_clock_scale);
         ~Timer();
 
         s64 GetMaxSliceLength() const;
@@ -187,10 +188,14 @@ public:
         s64 downcount = MAX_SLICE_LENGTH;
         s64 executed_ticks = 0;
         u64 idled_cycles = 0;
+        // Stores a scaling for the internal clockspeed. Changing this number results in
+        // under/overclocking the guest cpu
+        double cpu_clock_scale = 1.0;
+
         u32 downcount_hack = 0;
     };
 
-    explicit Timing();
+    explicit Timing(u32 cpu_clock_percentage);
 
     ~Timing(){};
 
@@ -221,6 +226,11 @@ public:
         global_timer += ticks;
     }
 
+    /**
+     * Updates the value of the cpu clock scaling to the new percentage.
+     */
+    void UpdateClockSpeed(u32 cpu_clock_percentage);
+
     std::chrono::microseconds GetGlobalTimeUs() const;
 
     std::shared_ptr<Timer> GetTimer(u32 core_id);
@@ -230,10 +240,14 @@ private:
 
     // unordered_map stores each element separately as a linked list node so pointers to
     // elements remain stable regardless of rehashes/resizing.
-    std::unordered_map<std::string, TimingEventType> event_types;
+    std::unordered_map<std::string, TimingEventType> event_types = {};
 
     std::array<std::shared_ptr<Timer>, 4> timers;
     Timer* current_timer = nullptr;
+
+    // Stores a scaling for the internal clockspeed. Changing this number results in
+    // under/overclocking the guest cpu
+    double cpu_clock_scale = 1.0;
 };
 
 } // namespace Core

@@ -434,6 +434,7 @@ JNIEXPORT void JNICALL Java_org_citra_emu_NativeLibrary_Run(JNIEnv* env, jclass 
     Config::Load();
     // system
     Settings::values.use_cpu_jit = Config::Get(Config::USE_CPU_JIT);
+    Settings::values.cpu_clock_percentage = Config::Get(Config::CPU_CLOCK_SPEED);
     Settings::values.is_new_3ds = Config::Get(Config::IS_NEW_3DS);
     Settings::values.use_virtual_sd = Config::Get(Config::USE_VIRTUAL_SD);
     Settings::values.region_value = Config::Get(Config::SYSTEM_REGION);
@@ -444,6 +445,8 @@ JNIEXPORT void JNICALL Java_org_citra_emu_NativeLibrary_Run(JNIEnv* env, jclass 
     Settings::values.use_hw_shader = Config::Get(Config::USE_HW_SHADER);
     Settings::values.use_shader_jit = Config::Get(Config::USE_SHADER_JIT);
     Settings::values.shaders_accurate_mul = Config::Get(Config::SHADERS_ACCURATE_MUL);
+    Settings::values.custom_ticks = Config::Get(Config::USE_CUSTOM_TICKS);
+    Settings::values.ticks = Config::Get(Config::TICKS);
     Settings::values.use_frame_limit = Config::Get(Config::USE_FRAME_LIMIT);
     Settings::values.frame_limit = Config::Get(Config::FRAME_LIMIT);
     Settings::values.resolution_factor = Config::Get(Config::RESOLUTION_FACTOR);

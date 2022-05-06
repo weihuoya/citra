@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content">
+
+    <ImageView
+        android:id="@+id/image_game_screen"
+        android:layout_width="100dp"
+        android:layout_height="110dp"
+        android:layout_alignParentTop="true"
+        android:layout_margin="6dp"
+        android:contentDescription="@string/version_info"
+        android:scaleType="centerCrop"
+        android:src="@drawable/no_banner" />
+
+    <TextView
+        android:id="@+id/text_game_title"
+        style="@android:style/TextAppearance.Material.Menu"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="120dp"
+        android:layout_marginTop="10dp"
+        android:layout_marginEnd="10dp"
+        android:paddingBottom="2dp"
+        android:textSize="20sp" />
+
+    <TextView
+        android:id="@+id/text_game_id"
+        style="@android:style/TextAppearance.Material.Caption"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="120dp"
+        android:layout_below="@id/text_game_title"
+        android:layout_marginEnd="70dp"
+        android:paddingTop="2dp"
+        android:textSize="14sp" />
+
+    <View
+        android:id="@+id/dummy_view"
+        android:layout_width="1px"
+        android:layout_height="1px"
+        android:layout_below="@id/image_game_screen"
+        android:layout_centerHorizontal="true"
+        android:visibility="invisible" />
+
+    <!--  -->
+    <Button
+        android:id="@+id/button_launch_game"
+        style="@style/Widget.AppCompat.Button.Colored"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/dummy_view"
+        android:backgroundTint="@color/citra_orange"
+        android:stateListAnimator="@null"
+        android:text="@string/launch_game"
+        android:textAllCaps="false" />
+
+    <!--  -->
+    <Button
+        android:id="@+id/button_cheat_code"
+        style="@style/Widget.AppCompat.Button.Colored"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/button_launch_game"
+        android:layout_toStartOf="@id/dummy_view"
+        android:backgroundTint="@color/citra_orange"
+        android:stateListAnimator="@null"
+        android:text="@string/menu_cheat_code"
+        android:textAllCaps="false" />
+
+    <Button
+        android:id="@+id/button_shortcut"
+        style="@style/Widget.AppCompat.Button.Colored"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/button_launch_game"
+        android:layout_toEndOf="@id/dummy_view"
+        android:backgroundTint="@color/citra_orange"
+        android:stateListAnimator="@null"
+        android:text="@string/shortcut"
+        android:textAllCaps="false" />
+
+</RelativeLayout>
