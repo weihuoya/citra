@@ -1,4 +1,10 @@
-// shader: 8B30, 37DAC30498CFB94F
+// shader: 8B30, 9934EB13987DB0BD
+
+precision highp int;
+precision highp float;
+precision highp samplerBuffer;
+precision highp usampler2D;
+precision highp uimage2D;
 in vec4 primary_color;
 in vec2 texcoord0;
 in vec2 texcoord1;
@@ -161,9 +167,9 @@ combiner_buffer = next_combiner_buffer;
 gl_FragDepth = depth;
 color = byteround(last_tex_env_out);
 }
-// reference: 3F41287AC35EF0E8, 37DAC30498CFB94F
-// program: 0000000000000000, 0000000000000000, 37DAC30498CFB94F
-// shader: 8B31, 240AFD368442BEF6
+// reference: 3F41287AC35EF0E8, 9934EB13987DB0BD
+// program: 0000000000000000, 0000000000000000, 9934EB13987DB0BD
+// shader: 8B31, 8E95BC59233B07C4
 
 struct pica_uniforms {
     bool b[16];
@@ -205,7 +211,14 @@ void main() {
     exec_shader();
 }
 
-// accurate_mul: off
+
+#define mul_s(x, y) (x * y)
+#define fma_s(x, y, z) fma(x, y, z)
+#define rcp_s(x) (1.0 / x)
+#define rsq_s(x) inversesqrt(x)
+#define dot_s(x, y) dot(x, y)
+#define dot_3(x, y) dot(x, y)
+
 bvec2 conditional_code = bvec2(false);
 ivec3 address_registers = ivec3(0);
 vec4 reg_tmp0 = vec4(0.0, 0.0, 0.0, 1.0);
@@ -1158,7 +1171,7 @@ bool sub_329_333() {
     reg_tmp6.zw = (uniforms.f[93].xxyy).zw;
     return false;
 }
-// reference: 369FC41F0ADDADAC, 240AFD368442BEF6
+// reference: 369FC41F0ADDADAC, 8E95BC59233B07C4
 // shader: 8DD9, 3B3AE026C742C7D5
 
 layout(triangles) in;
@@ -1286,7 +1299,13 @@ void main() {
     EmitPrim(prim_buffer[0], prim_buffer[1], prim_buffer[2]);
 }
 // reference: 46A0C2E6B155D5CD, 3B3AE026C742C7D5
-// shader: 8B30, BF309EAB6D1CFB0A
+// shader: 8B30, 24B822D609CE0531
+
+precision highp int;
+precision highp float;
+precision highp samplerBuffer;
+precision highp usampler2D;
+precision highp uimage2D;
 in vec4 primary_color;
 in vec2 texcoord0;
 in vec2 texcoord1;
@@ -1447,9 +1466,9 @@ if (int(last_tex_env_out.a * 255.0) <= alphatest_ref) discard;
 gl_FragDepth = depth;
 color = byteround(last_tex_env_out);
 }
-// reference: 3F41287A4B0C46ED, BF309EAB6D1CFB0A
-// program: 240AFD368442BEF6, 3B3AE026C742C7D5, BF309EAB6D1CFB0A
-// shader: 8B31, C001DE1069A2A928
+// reference: 3F41287A4B0C46ED, 24B822D609CE0531
+// program: 8E95BC59233B07C4, 3B3AE026C742C7D5, 24B822D609CE0531
+// shader: 8B31, B53CC394CDC34ED2
 
 struct pica_uniforms {
     bool b[16];
@@ -1492,7 +1511,14 @@ void main() {
     exec_shader();
 }
 
-// accurate_mul: off
+
+#define mul_s(x, y) (x * y)
+#define fma_s(x, y, z) fma(x, y, z)
+#define rcp_s(x) (1.0 / x)
+#define rsq_s(x) inversesqrt(x)
+#define dot_s(x, y) dot(x, y)
+#define dot_3(x, y) dot(x, y)
+
 bvec2 conditional_code = bvec2(false);
 ivec3 address_registers = ivec3(0);
 vec4 reg_tmp0 = vec4(0.0, 0.0, 0.0, 1.0);
@@ -2496,8 +2522,14 @@ bool sub_333_339() {
     reg_tmp8.w = (-reg_tmp8).w;
     return false;
 }
-// reference: DE1D69C093BF16FD, C001DE1069A2A928
-// shader: 8B30, FB7758B517CB6C95
+// reference: DE1D69C093BF16FD, B53CC394CDC34ED2
+// shader: 8B30, D8594096A96BEAFB
+
+precision highp int;
+precision highp float;
+precision highp samplerBuffer;
+precision highp usampler2D;
+precision highp uimage2D;
 in vec4 primary_color;
 in vec2 texcoord0;
 in vec2 texcoord1;
@@ -2695,10 +2727,16 @@ if (int(last_tex_env_out.a * 255.0) <= alphatest_ref) discard;
 gl_FragDepth = depth;
 color = byteround(last_tex_env_out);
 }
-// reference: 4A25EF31FADB10FA, FB7758B517CB6C95
-// program: C001DE1069A2A928, 3B3AE026C742C7D5, FB7758B517CB6C95
-// reference: 55FDBE6F93BF16FD, C001DE1069A2A928
-// shader: 8B30, A80DAD6C59C27BF3
+// reference: 4A25EF31FADB10FA, D8594096A96BEAFB
+// program: B53CC394CDC34ED2, 3B3AE026C742C7D5, D8594096A96BEAFB
+// reference: 0D9EAE3993BF16FD, B53CC394CDC34ED2
+// shader: 8B30, 30DAB74CA24CBC58
+
+precision highp int;
+precision highp float;
+precision highp samplerBuffer;
+precision highp usampler2D;
+precision highp uimage2D;
 in vec4 primary_color;
 in vec2 texcoord0;
 in vec2 texcoord1;
@@ -2899,9 +2937,9 @@ if (int(last_tex_env_out.a * 255.0) <= alphatest_ref) discard;
 gl_FragDepth = depth;
 color = byteround(last_tex_env_out);
 }
-// reference: 9786E2FC584E1931, A80DAD6C59C27BF3
-// program: C001DE1069A2A928, 3B3AE026C742C7D5, A80DAD6C59C27BF3
-// shader: 8B31, 2CDCC92349A9739C
+// reference: 9786E2FC584E1931, 30DAB74CA24CBC58
+// program: B53CC394CDC34ED2, 3B3AE026C742C7D5, 30DAB74CA24CBC58
+// shader: 8B31, 43859B2C0A985AE4
 
 struct pica_uniforms {
     bool b[16];
@@ -2944,7 +2982,14 @@ void main() {
     exec_shader();
 }
 
-// accurate_mul: off
+
+#define mul_s(x, y) (x * y)
+#define fma_s(x, y, z) fma(x, y, z)
+#define rcp_s(x) (1.0 / x)
+#define rsq_s(x) inversesqrt(x)
+#define dot_s(x, y) dot(x, y)
+#define dot_3(x, y) dot(x, y)
+
 bvec2 conditional_code = bvec2(false);
 ivec3 address_registers = ivec3(0);
 vec4 reg_tmp0 = vec4(0.0, 0.0, 0.0, 1.0);
@@ -4046,8 +4091,14 @@ bool sub_375_381() {
     reg_tmp8.w = (-reg_tmp8).w;
     return false;
 }
-// reference: E4CB92137C3CD1AB, 2CDCC92349A9739C
-// shader: 8B30, 0475C09A7BDCD95D
+// reference: BCA882457C3CD1AB, 43859B2C0A985AE4
+// shader: 8B30, 18CD6F34EF819318
+
+precision highp int;
+precision highp float;
+precision highp samplerBuffer;
+precision highp usampler2D;
+precision highp uimage2D;
 in vec4 primary_color;
 in vec2 texcoord0;
 in vec2 texcoord1;
@@ -4251,10 +4302,16 @@ if (int(last_tex_env_out.a * 255.0) <= alphatest_ref) discard;
 gl_FragDepth = depth;
 color = byteround(last_tex_env_out);
 }
-// reference: D290B1ECDBF12D46, 0475C09A7BDCD95D
-// program: 2CDCC92349A9739C, 3B3AE026C742C7D5, 0475C09A7BDCD95D
-// reference: B0EBB899227E893F, C001DE1069A2A928
-// shader: 8B30, 2F5A06CF335EF98F
+// reference: D290B1ECDBF12D46, 18CD6F34EF819318
+// program: 43859B2C0A985AE4, 3B3AE026C742C7D5, 18CD6F34EF819318
+// reference: E888A8CF227E893F, B53CC394CDC34ED2
+// shader: 8B30, 21647988483E7BCD
+
+precision highp int;
+precision highp float;
+precision highp samplerBuffer;
+precision highp usampler2D;
+precision highp uimage2D;
 in vec4 primary_color;
 in vec2 texcoord0;
 in vec2 texcoord1;
@@ -4454,9 +4511,15 @@ combiner_buffer = next_combiner_buffer;
 gl_FragDepth = depth;
 color = byteround(last_tex_env_out);
 }
-// reference: 9786E2FCB4F9F232, 2F5A06CF335EF98F
-// program: C001DE1069A2A928, 3B3AE026C742C7D5, 2F5A06CF335EF98F
-// shader: 8B30, BD805CF2CB47BF6E
+// reference: 9786E2FCB4F9F232, 21647988483E7BCD
+// program: B53CC394CDC34ED2, 3B3AE026C742C7D5, 21647988483E7BCD
+// shader: 8B30, 89D97212A8A5638E
+
+precision highp int;
+precision highp float;
+precision highp samplerBuffer;
+precision highp usampler2D;
+precision highp uimage2D;
 in vec4 primary_color;
 in vec2 texcoord0;
 in vec2 texcoord1;
@@ -4657,9 +4720,15 @@ if (int(last_tex_env_out.a * 255.0) <= alphatest_ref) discard;
 gl_FragDepth = depth;
 color = byteround(last_tex_env_out);
 }
-// reference: 8E138227E822D4FD, BD805CF2CB47BF6E
-// program: C001DE1069A2A928, 3B3AE026C742C7D5, BD805CF2CB47BF6E
-// shader: 8B30, 1F294241E616AFF4
+// reference: 8E138227E822D4FD, 89D97212A8A5638E
+// program: B53CC394CDC34ED2, 3B3AE026C742C7D5, 89D97212A8A5638E
+// shader: 8B30, 26DF4C99E7E830A1
+
+precision highp int;
+precision highp float;
+precision highp samplerBuffer;
+precision highp usampler2D;
+precision highp uimage2D;
 in vec4 primary_color;
 in vec2 texcoord0;
 in vec2 texcoord1;
@@ -4829,9 +4898,15 @@ if (int(last_tex_env_out.a * 255.0) <= alphatest_ref) discard;
 gl_FragDepth = depth;
 color = byteround(last_tex_env_out);
 }
-// reference: 05E2A27DFCF388BC, 1F294241E616AFF4
-// program: C001DE1069A2A928, 3B3AE026C742C7D5, 1F294241E616AFF4
-// shader: 8B30, 0946CACA7E5955DD
+// reference: 05E2A27DFCF388BC, 26DF4C99E7E830A1
+// program: B53CC394CDC34ED2, 3B3AE026C742C7D5, 26DF4C99E7E830A1
+// shader: 8B30, 9988F5A1B47B94DE
+
+precision highp int;
+precision highp float;
+precision highp samplerBuffer;
+precision highp usampler2D;
+precision highp uimage2D;
 in vec4 primary_color;
 in vec2 texcoord0;
 in vec2 texcoord1;
@@ -5000,9 +5075,15 @@ if (int(last_tex_env_out.a * 255.0) <= alphatest_ref) discard;
 gl_FragDepth = depth;
 color = byteround(last_tex_env_out);
 }
-// reference: C892D3B8884C7CF7, 0946CACA7E5955DD
-// program: C001DE1069A2A928, 3B3AE026C742C7D5, 0946CACA7E5955DD
-// shader: 8B30, B01D944717C1CB85
+// reference: C892D3B8884C7CF7, 9988F5A1B47B94DE
+// program: B53CC394CDC34ED2, 3B3AE026C742C7D5, 9988F5A1B47B94DE
+// shader: 8B30, 3FF895249C24F1FA
+
+precision highp int;
+precision highp float;
+precision highp samplerBuffer;
+precision highp usampler2D;
+precision highp uimage2D;
 in vec4 primary_color;
 in vec2 texcoord0;
 in vec2 texcoord1;
@@ -5174,9 +5255,15 @@ if (int(last_tex_env_out.a * 255.0) <= alphatest_ref) discard;
 gl_FragDepth = depth;
 color = byteround(last_tex_env_out);
 }
-// reference: 9786E2FC95082783, B01D944717C1CB85
-// program: C001DE1069A2A928, 3B3AE026C742C7D5, B01D944717C1CB85
-// shader: 8B30, F7783FABB0855E72
+// reference: 9786E2FC95082783, 3FF895249C24F1FA
+// program: B53CC394CDC34ED2, 3B3AE026C742C7D5, 3FF895249C24F1FA
+// shader: 8B30, 9336F65C865A2F0D
+
+precision highp int;
+precision highp float;
+precision highp samplerBuffer;
+precision highp usampler2D;
+precision highp uimage2D;
 in vec4 primary_color;
 in vec2 texcoord0;
 in vec2 texcoord1;
@@ -5378,9 +5465,9 @@ if (int(last_tex_env_out.a * 255.0) <= alphatest_ref) discard;
 gl_FragDepth = depth;
 color = byteround(last_tex_env_out);
 }
-// reference: 879C39D70C771194, F7783FABB0855E72
-// program: C001DE1069A2A928, 3B3AE026C742C7D5, F7783FABB0855E72
-// shader: 8B31, ACF8A8F69E37F330
+// reference: 879C39D70C771194, 9336F65C865A2F0D
+// program: B53CC394CDC34ED2, 3B3AE026C742C7D5, 9336F65C865A2F0D
+// shader: 8B31, 43234E20D4995F36
 
 struct pica_uniforms {
     bool b[16];
@@ -5425,7 +5512,14 @@ void main() {
     exec_shader();
 }
 
-// accurate_mul: off
+
+#define mul_s(x, y) (x * y)
+#define fma_s(x, y, z) fma(x, y, z)
+#define rcp_s(x) (1.0 / x)
+#define rsq_s(x) inversesqrt(x)
+#define dot_s(x, y) dot(x, y)
+#define dot_3(x, y) dot(x, y)
+
 bvec2 conditional_code = bvec2(false);
 ivec3 address_registers = ivec3(0);
 vec4 reg_tmp0 = vec4(0.0, 0.0, 0.0, 1.0);
@@ -6477,7 +6571,7 @@ bool sub_404_405() {
     reg_tmp6.xy = (mul_s(uniforms.f[8].zzzz, vs_in_reg6.xyyy)).xy;
     return false;
 }
-// reference: 944FFD71E3F8351D, ACF8A8F69E37F330
+// reference: 944FFD71E3F8351D, 43234E20D4995F36
 // shader: 8DD9, AD7922A63ED54CA7
 
 layout(triangles) in;
@@ -6606,7 +6700,13 @@ void main() {
     EmitPrim(prim_buffer[0], prim_buffer[1], prim_buffer[2]);
 }
 // reference: FC74FA4ACA1C8C74, AD7922A63ED54CA7
-// shader: 8B30, 3CFDBE4428EB3EE2
+// shader: 8B30, 6C52B0C98E735639
+
+precision highp int;
+precision highp float;
+precision highp samplerBuffer;
+precision highp usampler2D;
+precision highp uimage2D;
 in vec4 primary_color;
 in vec2 texcoord0;
 in vec2 texcoord1;
@@ -6779,10 +6879,10 @@ if (int(last_tex_env_out.a * 255.0) <= alphatest_ref) discard;
 gl_FragDepth = depth;
 color = byteround(last_tex_env_out);
 }
-// reference: ABA244DA3C7BE787, 3CFDBE4428EB3EE2
-// program: ACF8A8F69E37F330, AD7922A63ED54CA7, 3CFDBE4428EB3EE2
-// reference: 1FAF2ADE4AFE2D78, ACF8A8F69E37F330
-// shader: 8B31, C1CBF67CD890716A
+// reference: ABA244DA3C7BE787, 6C52B0C98E735639
+// program: 43234E20D4995F36, AD7922A63ED54CA7, 6C52B0C98E735639
+// reference: 47CC3A884AFE2D78, 43234E20D4995F36
+// shader: 8B31, 0FE813B2D8221036
 
 struct pica_uniforms {
     bool b[16];
@@ -6823,7 +6923,14 @@ void main() {
     exec_shader();
 }
 
-// accurate_mul: off
+
+#define mul_s(x, y) (x * y)
+#define fma_s(x, y, z) fma(x, y, z)
+#define rcp_s(x) (1.0 / x)
+#define rsq_s(x) inversesqrt(x)
+#define dot_s(x, y) dot(x, y)
+#define dot_3(x, y) dot(x, y)
+
 bvec2 conditional_code = bvec2(false);
 ivec3 address_registers = ivec3(0);
 vec4 reg_tmp0 = vec4(0.0, 0.0, 0.0, 1.0);
@@ -7439,8 +7546,14 @@ bool sub_167_168() {
     vs_out_attr6 = uniforms.f[93].xxxx;
     return false;
 }
-// reference: DFC78E6A74F255B8, C1CBF67CD890716A
-// shader: 8B30, 3CF8F53428B9171F
+// reference: DFC78E6A74F255B8, 0FE813B2D8221036
+// shader: 8B30, 8A76329CB25030B1
+
+precision highp int;
+precision highp float;
+precision highp samplerBuffer;
+precision highp usampler2D;
+precision highp uimage2D;
 in vec4 primary_color;
 in vec2 texcoord0;
 in vec2 texcoord1;
@@ -7619,10 +7732,16 @@ combiner_buffer = next_combiner_buffer;
 gl_FragDepth = depth;
 color = byteround(last_tex_env_out);
 }
-// reference: 51511626FFF7D03B, 3CF8F53428B9171F
-// program: C1CBF67CD890716A, AD7922A63ED54CA7, 3CF8F53428B9171F
-// reference: 542759C599B9640C, C1CBF67CD890716A
-// shader: 8B30, C9CF8EA0E81D1AE8
+// reference: 51511626FFF7D03B, 8A76329CB25030B1
+// program: 0FE813B2D8221036, AD7922A63ED54CA7, 8A76329CB25030B1
+// reference: 0C44499399B9640C, 0FE813B2D8221036
+// shader: 8B30, D375021927AD9455
+
+precision highp int;
+precision highp float;
+precision highp samplerBuffer;
+precision highp usampler2D;
+precision highp uimage2D;
 in vec4 primary_color;
 in vec2 texcoord0;
 in vec2 texcoord1;
@@ -7800,9 +7919,15 @@ combiner_buffer = next_combiner_buffer;
 gl_FragDepth = depth;
 color = byteround(last_tex_env_out);
 }
-// reference: B1A5DBDE4C463157, C9CF8EA0E81D1AE8
-// program: C1CBF67CD890716A, AD7922A63ED54CA7, C9CF8EA0E81D1AE8
-// shader: 8B30, C0CCCAC4CC5047B0
+// reference: B1A5DBDE4C463157, D375021927AD9455
+// program: 0FE813B2D8221036, AD7922A63ED54CA7, D375021927AD9455
+// shader: 8B30, FB2B5B4178346715
+
+precision highp int;
+precision highp float;
+precision highp samplerBuffer;
+precision highp usampler2D;
+precision highp uimage2D;
 in vec4 primary_color;
 in vec2 texcoord0;
 in vec2 texcoord1;
@@ -7977,9 +8102,15 @@ combiner_buffer = next_combiner_buffer;
 gl_FragDepth = depth;
 color = byteround(last_tex_env_out);
 }
-// reference: 1EC8268EF6F4E360, C0CCCAC4CC5047B0
-// program: C1CBF67CD890716A, AD7922A63ED54CA7, C0CCCAC4CC5047B0
-// shader: 8B30, 96837EE35947BDEC
+// reference: 1EC8268EF6F4E360, FB2B5B4178346715
+// program: 0FE813B2D8221036, AD7922A63ED54CA7, FB2B5B4178346715
+// shader: 8B30, C32574EA415A8ECF
+
+precision highp int;
+precision highp float;
+precision highp samplerBuffer;
+precision highp usampler2D;
+precision highp uimage2D;
 in vec4 primary_color;
 in vec2 texcoord0;
 in vec2 texcoord1;
@@ -8157,15 +8288,21 @@ combiner_buffer = next_combiner_buffer;
 gl_FragDepth = depth;
 color = byteround(last_tex_env_out);
 }
-// reference: 1EC8268EE5810F4F, 96837EE35947BDEC
-// program: 0000000000000000, 0000000000000000, 96837EE35947BDEC
-// reference: 42DE4D0A9263A80F, 240AFD368442BEF6
-// reference: 3B0B6F36227E893F, C001DE1069A2A928
-// reference: 9786E2FC2AFEC0FD, A80DAD6C59C27BF3
-// reference: 8E1382279A920D31, BD805CF2CB47BF6E
-// reference: 9786E2FCE7B8FE4F, B01D944717C1CB85
-// reference: 879C39D77EC7C858, F7783FABB0855E72
-// shader: 8B30, 3E7E129BEAA89F4B
+// reference: 1EC8268EE5810F4F, C32574EA415A8ECF
+// program: 0000000000000000, 0000000000000000, C32574EA415A8ECF
+// reference: 42DE4D0A9263A80F, 8E95BC59233B07C4
+// reference: 3B0B6F36227E893F, B53CC394CDC34ED2
+// reference: 9786E2FC2AFEC0FD, 30DAB74CA24CBC58
+// reference: 8E1382279A920D31, 89D97212A8A5638E
+// reference: 9786E2FCE7B8FE4F, 3FF895249C24F1FA
+// reference: 879C39D77EC7C858, 9336F65C865A2F0D
+// shader: 8B30, D8A369D59E3997EA
+
+precision highp int;
+precision highp float;
+precision highp samplerBuffer;
+precision highp usampler2D;
+precision highp uimage2D;
 in vec4 primary_color;
 in vec2 texcoord0;
 in vec2 texcoord1;
@@ -8326,18 +8463,31 @@ combiner_buffer = next_combiner_buffer;
 gl_FragDepth = depth;
 color = byteround(last_tex_env_out);
 }
-// reference: 2584B8EB83D54929, 3E7E129BEAA89F4B
-// program: 0000000000000000, 0000000000000000, 3E7E129BEAA89F4B
-// reference: FDE874DFE3F8351D, ACF8A8F69E37F330
-// reference: 7608A3704AFE2D78, ACF8A8F69E37F330
-// reference: B66007C474F255B8, C1CBF67CD890716A
-// reference: 3D80D06B99B9640C, C1CBF67CD890716A
-// reference: 2B79C4A49263A80F, 240AFD368442BEF6
-// reference: 52ACE698227E893F, C001DE1069A2A928
-// reference: D94C3137227E893F, C001DE1069A2A928
-// reference: D1DF51937C3CD1AB, 2CDCC92349A9739C
-// reference: 85FF7B19227E893F, C001DE1069A2A928
-// shader: 8B30, 3C911450D729001E
+// reference: 2584B8EB83D54929, D8A369D59E3997EA
+// program: 0000000000000000, 0000000000000000, D8A369D59E3997EA
+// reference: FDE874DFE3F8351D, 43234E20D4995F36
+// reference: 2E6BB3264AFE2D78, 43234E20D4995F36
+// reference: B66007C474F255B8, 0FE813B2D8221036
+// reference: 65E3C03D99B9640C, 0FE813B2D8221036
+// reference: 2B79C4A49263A80F, 8E95BC59233B07C4
+// reference: 52ACE698227E893F, B53CC394CDC34ED2
+// reference: 812F2161227E893F, B53CC394CDC34ED2
+// reference: 89BC41C57C3CD1AB, 43859B2C0A985AE4
+// reference: DD9C6B4F227E893F, B53CC394CDC34ED2
+// reference: A15B3EF1E3F8351D, 43234E20D4995F36
+// reference: 72D8F9084AFE2D78, 43234E20D4995F36
+// reference: EAD34DEA74F255B8, 0FE813B2D8221036
+// reference: 39508A1399B9640C, 0FE813B2D8221036
+// reference: 77CA8E8A9263A80F, 8E95BC59233B07C4
+// reference: 0E1FACB6227E893F, B53CC394CDC34ED2
+// reference: 9786E2FCC6492BFE, 21647988483E7BCD
+// shader: 8B30, 95BC7BB2A1BEF267
+
+precision highp int;
+precision highp float;
+precision highp samplerBuffer;
+precision highp usampler2D;
+precision highp uimage2D;
 in vec4 primary_color;
 in vec2 texcoord0;
 in vec2 texcoord1;
@@ -8515,10 +8665,16 @@ if (int(last_tex_env_out.a * 255.0) <= alphatest_ref) discard;
 gl_FragDepth = depth;
 color = byteround(last_tex_env_out);
 }
-// reference: B8DE6256C61D02A5, 3C911450D729001E
-// program: ACF8A8F69E37F330, AD7922A63ED54CA7, 3C911450D729001E
-// reference: D94C3137CF35B88B, C001DE1069A2A928
-// shader: 8B30, 486F35DA19253AE6
+// reference: B8DE6256C61D02A5, 95BC7BB2A1BEF267
+// program: 43234E20D4995F36, AD7922A63ED54CA7, 95BC7BB2A1BEF267
+// reference: DD9C6B4FCF35B88B, B53CC394CDC34ED2
+// shader: 8B30, 96D572D2A28D3FDA
+
+precision highp int;
+precision highp float;
+precision highp samplerBuffer;
+precision highp usampler2D;
+precision highp uimage2D;
 in vec4 primary_color;
 in vec2 texcoord0;
 in vec2 texcoord1;
@@ -8695,10 +8851,16 @@ if (int(last_tex_env_out.a * 255.0) <= alphatest_ref) discard;
 gl_FragDepth = depth;
 color = byteround(last_tex_env_out);
 }
-// reference: 27E831FEBDC30601, 486F35DA19253AE6
-// program: C001DE1069A2A928, 3B3AE026C742C7D5, 486F35DA19253AE6
-// reference: 7608A370E3F8351D, ACF8A8F69E37F330
-// shader: 8B30, F5DDC939BC9C6C67
+// reference: 27E831FEBDC30601, 96D572D2A28D3FDA
+// program: B53CC394CDC34ED2, 3B3AE026C742C7D5, 96D572D2A28D3FDA
+// reference: 72D8F908E3F8351D, 43234E20D4995F36
+// shader: 8B30, 900B5DDD25891EB8
+
+precision highp int;
+precision highp float;
+precision highp samplerBuffer;
+precision highp usampler2D;
+precision highp uimage2D;
 in vec4 primary_color;
 in vec2 texcoord0;
 in vec2 texcoord1;
@@ -8879,9 +9041,15 @@ if (int(last_tex_env_out.a * 255.0) <= alphatest_ref) discard;
 gl_FragDepth = depth;
 color = byteround(last_tex_env_out);
 }
-// reference: 78D5602B05A86F64, F5DDC939BC9C6C67
-// program: ACF8A8F69E37F330, AD7922A63ED54CA7, F5DDC939BC9C6C67
-// shader: 8B30, 9E50965921BA44B1
+// reference: 78D5602B05A86F64, 900B5DDD25891EB8
+// program: 43234E20D4995F36, AD7922A63ED54CA7, 900B5DDD25891EB8
+// shader: 8B30, BC7950FA775CC9B1
+
+precision highp int;
+precision highp float;
+precision highp samplerBuffer;
+precision highp usampler2D;
+precision highp uimage2D;
 in vec4 primary_color;
 in vec2 texcoord0;
 in vec2 texcoord1;
@@ -9054,9 +9222,15 @@ if (int(last_tex_env_out.a * 255.0) <= alphatest_ref) discard;
 gl_FragDepth = depth;
 color = byteround(last_tex_env_out);
 }
-// reference: 67F94115C3ABB93C, 9E50965921BA44B1
-// program: C001DE1069A2A928, 3B3AE026C742C7D5, 9E50965921BA44B1
-// shader: 8B30, 1E3704707924A6C1
+// reference: 67F94115C3ABB93C, BC7950FA775CC9B1
+// program: B53CC394CDC34ED2, 3B3AE026C742C7D5, BC7950FA775CC9B1
+// shader: 8B30, C02E1E0FFD68B90E
+
+precision highp int;
+precision highp float;
+precision highp samplerBuffer;
+precision highp usampler2D;
+precision highp uimage2D;
 in vec4 primary_color;
 in vec2 texcoord0;
 in vec2 texcoord1;
@@ -9221,9 +9395,9 @@ if (int(last_tex_env_out.a * 255.0) <= alphatest_ref) discard;
 gl_FragDepth = depth;
 color = byteround(last_tex_env_out);
 }
-// reference: 5D26AA23537E44C9, 1E3704707924A6C1
-// program: C001DE1069A2A928, 3B3AE026C742C7D5, 1E3704707924A6C1
-// shader: 8B31, 14B77E650BC3771D
+// reference: 5D26AA23537E44C9, C02E1E0FFD68B90E
+// program: B53CC394CDC34ED2, 3B3AE026C742C7D5, C02E1E0FFD68B90E
+// shader: 8B31, 4940142D60DA9543
 
 struct pica_uniforms {
     bool b[16];
@@ -9256,7 +9430,14 @@ void main() {
     exec_shader();
 }
 
-// accurate_mul: off
+
+#define mul_s(x, y) (x * y)
+#define fma_s(x, y, z) fma(x, y, z)
+#define rcp_s(x) (1.0 / x)
+#define rsq_s(x) inversesqrt(x)
+#define dot_s(x, y) dot(x, y)
+#define dot_3(x, y) dot(x, y)
+
 bvec2 conditional_code = bvec2(false);
 ivec3 address_registers = ivec3(0);
 vec4 reg_tmp0 = vec4(0.0, 0.0, 0.0, 1.0);
@@ -9609,7 +9790,7 @@ bool sub_94_97() {
     reg_tmp7.xy = (uniforms.f[69 + address_registers.y].wzzz).xy;
     return false;
 }
-// reference: A0955C54FD590D6E, 14B77E650BC3771D
+// reference: FC26167AFD590D6E, 4940142D60DA9543
 // shader: 8DD9, 5D764F9A6220D694
 
 layout(triangles) in;
@@ -9736,7 +9917,13 @@ void main() {
     EmitPrim(prim_buffer[0], prim_buffer[1], prim_buffer[2]);
 }
 // reference: 5DAD5699F59B3586, 5D764F9A6220D694
-// shader: 8B30, 5D4D21CD52B7BAA3
+// shader: 8B30, 463F3556D7ADC1A0
+
+precision highp int;
+precision highp float;
+precision highp samplerBuffer;
+precision highp usampler2D;
+precision highp uimage2D;
 in vec4 primary_color;
 in vec2 texcoord0;
 in vec2 texcoord1;
@@ -9907,10 +10094,16 @@ combiner_buffer = next_combiner_buffer;
 gl_FragDepth = depth;
 color = byteround(last_tex_env_out);
 }
-// reference: 5EE503B3094035EB, 5D4D21CD52B7BAA3
-// program: 14B77E650BC3771D, 5D764F9A6220D694, 5D4D21CD52B7BAA3
-// reference: 2B758BFBFD590D6E, 14B77E650BC3771D
-// shader: 8B30, D94D6FD0E5FB1F38
+// reference: 5EE503B3094035EB, 463F3556D7ADC1A0
+// program: 4940142D60DA9543, 5D764F9A6220D694, 463F3556D7ADC1A0
+// reference: 2FA5D183FD590D6E, 4940142D60DA9543
+// shader: 8B30, 649FD97BF38D2EEE
+
+precision highp int;
+precision highp float;
+precision highp samplerBuffer;
+precision highp usampler2D;
+precision highp uimage2D;
 in vec4 primary_color;
 in vec2 texcoord0;
 in vec2 texcoord1;
@@ -10081,9 +10274,15 @@ combiner_buffer = next_combiner_buffer;
 gl_FragDepth = depth;
 color = byteround(last_tex_env_out);
 }
-// reference: B3479752BD42567C, D94D6FD0E5FB1F38
-// program: 14B77E650BC3771D, 5D764F9A6220D694, D94D6FD0E5FB1F38
-// shader: 8B30, 3D95B7123AC71DC5
+// reference: B3479752BD42567C, 649FD97BF38D2EEE
+// program: 4940142D60DA9543, 5D764F9A6220D694, 649FD97BF38D2EEE
+// shader: 8B30, 9DFEA7C783095BCD
+
+precision highp int;
+precision highp float;
+precision highp samplerBuffer;
+precision highp usampler2D;
+precision highp uimage2D;
 in vec4 primary_color;
 in vec2 texcoord0;
 in vec2 texcoord1;
@@ -10287,9 +10486,15 @@ if (int(last_tex_env_out.a * 255.0) <= alphatest_ref) discard;
 gl_FragDepth = depth;
 color = byteround(last_tex_env_out);
 }
-// reference: B4D7ED8C701728C7, 3D95B7123AC71DC5
-// program: C001DE1069A2A928, 3B3AE026C742C7D5, 3D95B7123AC71DC5
-// shader: 8B30, 92949AF407C13033
+// reference: B4D7ED8C701728C7, 9DFEA7C783095BCD
+// program: B53CC394CDC34ED2, 3B3AE026C742C7D5, 9DFEA7C783095BCD
+// shader: 8B30, 7F39219A0B9E9479
+
+precision highp int;
+precision highp float;
+precision highp samplerBuffer;
+precision highp usampler2D;
+precision highp uimage2D;
 in vec4 primary_color;
 in vec2 texcoord0;
 in vec2 texcoord1;
@@ -10478,21 +10683,27 @@ combiner_buffer = next_combiner_buffer;
 gl_FragDepth = depth;
 color = byteround(last_tex_env_out);
 }
-// reference: 3B86F61BC863764A, 92949AF407C13033
-// program: C001DE1069A2A928, 3B3AE026C742C7D5, 92949AF407C13033
-// reference: FA5EE625196E23A2, 3D95B7123AC71DC5
-// reference: 51511626FE35BA0C, 3CF8F53428B9171F
-// reference: B1A5DBDE4D845B60, C9CF8EA0E81D1AE8
-// reference: 1EC8268EF7368957, C0CCCAC4CC5047B0
-// reference: 1EC8268EE4436578, 96837EE35947BDEC
-// reference: B8DE6256C7DF6892, 3C911450D729001E
-// reference: 27E831FEBC016C36, 486F35DA19253AE6
-// reference: 78D5602B046A0553, F5DDC939BC9C6C67
-// reference: 67F94115C269D30B, 9E50965921BA44B1
-// reference: 5D26AA2352BC2EFE, 1E3704707924A6C1
-// reference: 3B86F61BBAD3AF86, 92949AF407C13033
-// reference: FA5EE6256BDEFA6E, 3D95B7123AC71DC5
-// shader: 8B30, 1B6F15357976293C
+// reference: 3B86F61BC863764A, 7F39219A0B9E9479
+// program: B53CC394CDC34ED2, 3B3AE026C742C7D5, 7F39219A0B9E9479
+// reference: FA5EE625196E23A2, 9DFEA7C783095BCD
+// reference: 51511626FE35BA0C, 8A76329CB25030B1
+// reference: B1A5DBDE4D845B60, D375021927AD9455
+// reference: 1EC8268EF7368957, FB2B5B4178346715
+// reference: 1EC8268EE4436578, C32574EA415A8ECF
+// reference: B8DE6256C7DF6892, 95BC7BB2A1BEF267
+// reference: 27E831FEBC016C36, 96D572D2A28D3FDA
+// reference: 78D5602B046A0553, 900B5DDD25891EB8
+// reference: 67F94115C269D30B, BC7950FA775CC9B1
+// reference: 5D26AA2352BC2EFE, C02E1E0FFD68B90E
+// reference: 3B86F61BBAD3AF86, 7F39219A0B9E9479
+// reference: FA5EE6256BDEFA6E, 9DFEA7C783095BCD
+// shader: 8B30, FB41A17829976A8A
+
+precision highp int;
+precision highp float;
+precision highp samplerBuffer;
+precision highp usampler2D;
+precision highp uimage2D;
 in vec4 primary_color;
 in vec2 texcoord0;
 in vec2 texcoord1;
@@ -10653,9 +10864,15 @@ combiner_buffer = next_combiner_buffer;
 gl_FragDepth = depth;
 color = byteround(last_tex_env_out);
 }
-// reference: 3712860A85B60B38, 1B6F15357976293C
-// program: 0000000000000000, 0000000000000000, 1B6F15357976293C
-// shader: 8B30, 2727EB94754BE360
+// reference: 3712860A85B60B38, FB41A17829976A8A
+// program: 0000000000000000, 0000000000000000, FB41A17829976A8A
+// shader: 8B30, 7F10E54AA2D65A92
+
+precision highp int;
+precision highp float;
+precision highp samplerBuffer;
+precision highp usampler2D;
+precision highp uimage2D;
 in vec4 primary_color;
 in vec2 texcoord0;
 in vec2 texcoord1;
@@ -10819,9 +11036,19 @@ combiner_buffer = next_combiner_buffer;
 gl_FragDepth = depth;
 color = byteround(last_tex_env_out);
 }
-// reference: 3712860A96C3E717, 2727EB94754BE360
-// program: 0000000000000000, 0000000000000000, 2727EB94754BE360
-// shader: 8B30, 5F134EE8291C119D
+// reference: 3712860A96C3E717, 7F10E54AA2D65A92
+// program: 0000000000000000, 0000000000000000, 7F10E54AA2D65A92
+// reference: 812F2161CF35B88B, B53CC394CDC34ED2
+// reference: 2E6BB326E3F8351D, 43234E20D4995F36
+// reference: A0955C54FD590D6E, 4940142D60DA9543
+// reference: 73169BADFD590D6E, 4940142D60DA9543
+// shader: 8B30, 826C82419F1F0C4E
+
+precision highp int;
+precision highp float;
+precision highp samplerBuffer;
+precision highp usampler2D;
+precision highp uimage2D;
 in vec4 primary_color;
 in vec2 texcoord0;
 in vec2 texcoord1;
@@ -10995,9 +11222,15 @@ if (int(last_tex_env_out.a * 255.0) <= alphatest_ref) discard;
 gl_FragDepth = depth;
 color = byteround(last_tex_env_out);
 }
-// reference: 4CC18EDE51A15DE1, 5F134EE8291C119D
-// program: 14B77E650BC3771D, 5D764F9A6220D694, 5F134EE8291C119D
-// shader: 8B30, 1F8282EE6AE22A99
+// reference: 4CC18EDE51A15DE1, 826C82419F1F0C4E
+// program: 4940142D60DA9543, 5D764F9A6220D694, 826C82419F1F0C4E
+// shader: 8B30, 87B62F75A45F7690
+
+precision highp int;
+precision highp float;
+precision highp samplerBuffer;
+precision highp usampler2D;
+precision highp uimage2D;
 in vec4 primary_color;
 in vec2 texcoord0;
 in vec2 texcoord1;
@@ -11171,9 +11404,15 @@ combiner_buffer = next_combiner_buffer;
 gl_FragDepth = depth;
 color = byteround(last_tex_env_out);
 }
-// reference: 4EDD109007CB3B96, 1F8282EE6AE22A99
-// program: 14B77E650BC3771D, 5D764F9A6220D694, 1F8282EE6AE22A99
-// shader: 8B30, 17D22125FA1BFC48
+// reference: 4EDD109007CB3B96, 87B62F75A45F7690
+// program: 4940142D60DA9543, 5D764F9A6220D694, 87B62F75A45F7690
+// shader: 8B30, 474579C9BB3E8249
+
+precision highp int;
+precision highp float;
+precision highp samplerBuffer;
+precision highp usampler2D;
+precision highp uimage2D;
 in vec4 primary_color;
 in vec2 texcoord0;
 in vec2 texcoord1;
@@ -11347,9 +11586,15 @@ combiner_buffer = next_combiner_buffer;
 gl_FragDepth = depth;
 color = byteround(last_tex_env_out);
 }
-// reference: A37F8471B3C95801, 17D22125FA1BFC48
-// program: 14B77E650BC3771D, 5D764F9A6220D694, 17D22125FA1BFC48
-// shader: 8B30, 3C62C6780FDAD014
+// reference: A37F8471B3C95801, 474579C9BB3E8249
+// program: 4940142D60DA9543, 5D764F9A6220D694, 474579C9BB3E8249
+// shader: 8B30, 5CF300C592A02100
+
+precision highp int;
+precision highp float;
+precision highp samplerBuffer;
+precision highp usampler2D;
+precision highp uimage2D;
 in vec4 primary_color;
 in vec2 texcoord0;
 in vec2 texcoord1;
@@ -11522,9 +11767,15 @@ combiner_buffer = next_combiner_buffer;
 gl_FragDepth = depth;
 color = byteround(last_tex_env_out);
 }
-// reference: C17C8CC094DB4DF6, 3C62C6780FDAD014
-// program: 0000000000000000, 0000000000000000, 3C62C6780FDAD014
-// shader: 8B30, 0CE9B5845A7FF71A
+// reference: C17C8CC094DB4DF6, 5CF300C592A02100
+// program: 0000000000000000, 0000000000000000, 5CF300C592A02100
+// shader: 8B30, A46FA211BB2DB0B6
+
+precision highp int;
+precision highp float;
+precision highp samplerBuffer;
+precision highp usampler2D;
+precision highp uimage2D;
 in vec4 primary_color;
 in vec2 texcoord0;
 in vec2 texcoord1;
@@ -11684,10 +11935,16 @@ combiner_buffer = next_combiner_buffer;
 gl_FragDepth = depth;
 color = byteround(last_tex_env_out);
 }
-// reference: 3F41287AC90399D2, 0CE9B5845A7FF71A
-// program: 240AFD368442BEF6, 3B3AE026C742C7D5, 0CE9B5845A7FF71A
-// reference: A099130B9263A80F, 240AFD368442BEF6
-// shader: 8B30, 576B8582D6DB7606
+// reference: 3F41287AC90399D2, A46FA211BB2DB0B6
+// program: 8E95BC59233B07C4, 3B3AE026C742C7D5, A46FA211BB2DB0B6
+// reference: F8FA035D9263A80F, 8E95BC59233B07C4
+// shader: 8B30, 73E202FB36B8AAFC
+
+precision highp int;
+precision highp float;
+precision highp samplerBuffer;
+precision highp usampler2D;
+precision highp uimage2D;
 in vec4 primary_color;
 in vec2 texcoord0;
 in vec2 texcoord1;
@@ -11849,9 +12106,15 @@ if (int(last_tex_env_out.a * 255.0) <= alphatest_ref) discard;
 gl_FragDepth = depth;
 color = byteround(last_tex_env_out);
 }
-// reference: 3F41287ADE540368, 576B8582D6DB7606
-// program: 240AFD368442BEF6, 3B3AE026C742C7D5, 576B8582D6DB7606
-// shader: 8B30, 9449D41C31A05D67
+// reference: 3F41287ADE540368, 73E202FB36B8AAFC
+// program: 8E95BC59233B07C4, 3B3AE026C742C7D5, 73E202FB36B8AAFC
+// shader: 8B30, CCCAFDE548B6C210
+
+precision highp int;
+precision highp float;
+precision highp samplerBuffer;
+precision highp usampler2D;
+precision highp uimage2D;
 in vec4 primary_color;
 in vec2 texcoord0;
 in vec2 texcoord1;
@@ -12012,9 +12275,15 @@ if (int(last_tex_env_out.a * 255.0) <= alphatest_ref) discard;
 gl_FragDepth = depth;
 color = byteround(last_tex_env_out);
 }
-// reference: 3F41287A25B472D1, 9449D41C31A05D67
-// program: 240AFD368442BEF6, 3B3AE026C742C7D5, 9449D41C31A05D67
-// shader: 8B30, BF865376D9D23EDB
+// reference: 3F41287A25B472D1, CCCAFDE548B6C210
+// program: 8E95BC59233B07C4, 3B3AE026C742C7D5, CCCAFDE548B6C210
+// shader: 8B30, 2BB9C8FEDE51C537
+
+precision highp int;
+precision highp float;
+precision highp samplerBuffer;
+precision highp usampler2D;
+precision highp uimage2D;
 in vec4 primary_color;
 in vec2 texcoord0;
 in vec2 texcoord1;
@@ -12175,9 +12444,9 @@ combiner_buffer = next_combiner_buffer;
 gl_FragDepth = depth;
 color = byteround(last_tex_env_out);
 }
-// reference: 3F41287A32E3E86B, BF865376D9D23EDB
-// program: 240AFD368442BEF6, 3B3AE026C742C7D5, BF865376D9D23EDB
-// shader: 8B31, 509576D77ED5EF63
+// reference: 3F41287A32E3E86B, 2BB9C8FEDE51C537
+// program: 8E95BC59233B07C4, 3B3AE026C742C7D5, 2BB9C8FEDE51C537
+// shader: 8B31, 0689D143D2AD9D39
 
 struct pica_uniforms {
     bool b[16];
@@ -12221,7 +12490,14 @@ void main() {
     exec_shader();
 }
 
-// accurate_mul: off
+
+#define mul_s(x, y) (x * y)
+#define fma_s(x, y, z) fma(x, y, z)
+#define rcp_s(x) (1.0 / x)
+#define rsq_s(x) inversesqrt(x)
+#define dot_s(x, y) dot(x, y)
+#define dot_3(x, y) dot(x, y)
+
 bvec2 conditional_code = bvec2(false);
 ivec3 address_registers = ivec3(0);
 vec4 reg_tmp0 = vec4(0.0, 0.0, 0.0, 1.0);
@@ -12926,8 +13202,14 @@ bool sub_291_292() {
     vs_out_attr6 = uniforms.f[93].xxxx;
     return false;
 }
-// reference: B4A87EE3BCFC7E9F, 509576D77ED5EF63
-// shader: 8B30, B979DBAF7725CCEE
+// reference: B4A87EE3BCFC7E9F, 0689D143D2AD9D39
+// shader: 8B30, C34494D22660C66B
+
+precision highp int;
+precision highp float;
+precision highp samplerBuffer;
+precision highp usampler2D;
+precision highp uimage2D;
 in vec4 primary_color;
 in vec2 texcoord0;
 in vec2 texcoord1;
@@ -13135,11 +13417,17 @@ combiner_buffer = next_combiner_buffer;
 gl_FragDepth = depth;
 color = byteround(last_tex_env_out);
 }
-// reference: 5F0671EACC4DD647, B979DBAF7725CCEE
-// program: 509576D77ED5EF63, AD7922A63ED54CA7, B979DBAF7725CCEE
-// reference: CDEC4233774A5024, C001DE1069A2A928
-// reference: 3F48A94CBCFC7E9F, 509576D77ED5EF63
-// shader: 8B30, A15A1D91CC8DD944
+// reference: 5F0671EACC4DD647, C34494D22660C66B
+// program: 0689D143D2AD9D39, AD7922A63ED54CA7, C34494D22660C66B
+// reference: 958F5265774A5024, B53CC394CDC34ED2
+// reference: 672BB91ABCFC7E9F, 0689D143D2AD9D39
+// shader: 8B30, 1FD530643EBF6310
+
+precision highp int;
+precision highp float;
+precision highp samplerBuffer;
+precision highp usampler2D;
+precision highp uimage2D;
 in vec4 primary_color;
 in vec2 texcoord0;
 in vec2 texcoord1;
@@ -13345,9 +13633,15 @@ if (int(last_tex_env_out.a * 255.0) <= alphatest_ref) discard;
 gl_FragDepth = depth;
 color = byteround(last_tex_env_out);
 }
-// reference: B12A0E40B45AA4E0, A15A1D91CC8DD944
-// program: 509576D77ED5EF63, AD7922A63ED54CA7, A15A1D91CC8DD944
-// shader: 8B30, 3CD50218521E3321
+// reference: B12A0E40B45AA4E0, 1FD530643EBF6310
+// program: 0689D143D2AD9D39, AD7922A63ED54CA7, 1FD530643EBF6310
+// shader: 8B30, F8D8B77880FA2767
+
+precision highp int;
+precision highp float;
+precision highp samplerBuffer;
+precision highp usampler2D;
+precision highp uimage2D;
 in vec4 primary_color;
 in vec2 texcoord0;
 in vec2 texcoord1;
@@ -13554,10 +13848,16 @@ combiner_buffer = next_combiner_buffer;
 gl_FragDepth = depth;
 color = byteround(last_tex_env_out);
 }
-// reference: DC3E8225D70CEFD5, 3CD50218521E3321
-// program: 509576D77ED5EF63, AD7922A63ED54CA7, 3CD50218521E3321
-// reference: 3F48A94C51B74F2B, 509576D77ED5EF63
-// shader: 8B30, 6A97528E8B227A66
+// reference: DC3E8225D70CEFD5, F8D8B77880FA2767
+// program: 0689D143D2AD9D39, AD7922A63ED54CA7, F8D8B77880FA2767
+// reference: 672BB91A51B74F2B, 0689D143D2AD9D39
+// shader: 8B30, CE237B51622B3E30
+
+precision highp int;
+precision highp float;
+precision highp samplerBuffer;
+precision highp usampler2D;
+precision highp uimage2D;
 in vec4 primary_color;
 in vec2 texcoord0;
 in vec2 texcoord1;
@@ -13768,11 +14068,11 @@ if (int(last_tex_env_out.a * 255.0) <= alphatest_ref) discard;
 gl_FragDepth = depth;
 color = byteround(last_tex_env_out);
 }
-// reference: 84DA377BD8C3A21E, 6A97528E8B227A66
-// program: 509576D77ED5EF63, AD7922A63ED54CA7, 6A97528E8B227A66
-// reference: 3F48A94C1E4D0B60, 509576D77ED5EF63
-// reference: CDEC4233D5FB25DB, C001DE1069A2A928
-// shader: 8B31, AD93682DAD6129ED
+// reference: 84DA377BD8C3A21E, CE237B51622B3E30
+// program: 0689D143D2AD9D39, AD7922A63ED54CA7, CE237B51622B3E30
+// reference: 672BB91A1E4D0B60, 0689D143D2AD9D39
+// reference: 958F5265D5FB25DB, B53CC394CDC34ED2
+// shader: 8B31, EA1759025ABBF62B
 
 struct pica_uniforms {
     bool b[16];
@@ -13816,7 +14116,14 @@ void main() {
     exec_shader();
 }
 
-// accurate_mul: off
+
+#define mul_s(x, y) (x * y)
+#define fma_s(x, y, z) fma(x, y, z)
+#define rcp_s(x) (1.0 / x)
+#define rsq_s(x) inversesqrt(x)
+#define dot_s(x, y) dot(x, y)
+#define dot_3(x, y) dot(x, y)
+
 bvec2 conditional_code = bvec2(false);
 ivec3 address_registers = ivec3(0);
 vec4 reg_tmp0 = vec4(0.0, 0.0, 0.0, 1.0);
@@ -14541,8 +14848,14 @@ bool sub_389_390() {
     reg_tmp0.x = (-reg_tmp0.wwww).x;
     return false;
 }
-// reference: 3F48A94C95B3159B, AD93682DAD6129ED
-// shader: 8B30, D566BFDDBFEA718F
+// reference: 672BB91A95B3159B, EA1759025ABBF62B
+// shader: 8B30, CF00B95E545BC859
+
+precision highp int;
+precision highp float;
+precision highp samplerBuffer;
+precision highp usampler2D;
+precision highp uimage2D;
 in vec4 primary_color;
 in vec2 texcoord0;
 in vec2 texcoord1;
@@ -14749,23 +15062,29 @@ combiner_buffer = next_combiner_buffer;
 gl_FragDepth = depth;
 color = byteround(last_tex_env_out);
 }
-// reference: ED24DFEC4B2956A3, D566BFDDBFEA718F
-// program: AD93682DAD6129ED, AD7922A63ED54CA7, D566BFDDBFEA718F
-// reference: CDEC42339A016190, C001DE1069A2A928
-// reference: A2C074C021C68CA3, C1CBF67CD890716A
-// reference: 2920A36FCC8DBD17, C1CBF67CD890716A
-// reference: 460C959C774A5024, C001DE1069A2A928
-// reference: B4352F50A86DD475, 14B77E650BC3771D
-// reference: 3FD5F8FFA86DD475, 14B77E650BC3771D
-// reference: 3FD9B7A0C7577114, 240AFD368442BEF6
-// reference: B439600FC7577114, 240AFD368442BEF6
-// reference: 5F0671EABEFD0F8B, B979DBAF7725CCEE
-// reference: B12A0E40C6EA7D2C, A15A1D91CC8DD944
-// reference: DC3E8225A5BC3619, 3CD50218521E3321
-// reference: 84DA377BAA737BD2, 6A97528E8B227A66
-// reference: ED24DFEC39998F6F, D566BFDDBFEA718F
-// reference: 97B5F800B7719DF6, 14B77E650BC3771D
-// shader: 8B30, CBB10D7BCB29BEB0
+// reference: ED24DFEC4B2956A3, CF00B95E545BC859
+// program: EA1759025ABBF62B, AD7922A63ED54CA7, CF00B95E545BC859
+// reference: 958F52659A016190, B53CC394CDC34ED2
+// reference: A2C074C021C68CA3, 0FE813B2D8221036
+// reference: 7143B339CC8DBD17, 0FE813B2D8221036
+// reference: 460C959C774A5024, B53CC394CDC34ED2
+// reference: B4352F50A86DD475, 4940142D60DA9543
+// reference: 67B6E8A9A86DD475, 4940142D60DA9543
+// reference: 3FD9B7A0C7577114, 8E95BC59233B07C4
+// reference: EC5A7059C7577114, 8E95BC59233B07C4
+// reference: 5F0671EABEFD0F8B, C34494D22660C66B
+// reference: B12A0E40C6EA7D2C, 1FD530643EBF6310
+// reference: DC3E8225A5BC3619, F8D8B77880FA2767
+// reference: 84DA377BAA737BD2, CE237B51622B3E30
+// reference: ED24DFEC39998F6F, CF00B95E545BC859
+// reference: 97B5F800B7719DF6, 4940142D60DA9543
+// shader: 8B30, 0B496AE87480A30D
+
+precision highp int;
+precision highp float;
+precision highp samplerBuffer;
+precision highp usampler2D;
+precision highp uimage2D;
 in vec4 primary_color;
 in vec2 texcoord0;
 in vec2 texcoord1;
@@ -14944,10 +15263,16 @@ if (int(last_tex_env_out.a * 255.0) <= alphatest_ref) discard;
 gl_FragDepth = depth;
 color = byteround(last_tex_env_out);
 }
-// reference: DF03A27AC00E02D7, CBB10D7BCB29BEB0
-// program: 14B77E650BC3771D, 5D764F9A6220D694, CBB10D7BCB29BEB0
-// reference: 1C552FAF5A3AAC42, 14B77E650BC3771D
-// shader: 8B30, 3D447A74AAC47455
+// reference: DF03A27AC00E02D7, 0B496AE87480A30D
+// program: 4940142D60DA9543, 5D764F9A6220D694, 0B496AE87480A30D
+// reference: 44363FF95A3AAC42, 4940142D60DA9543
+// shader: 8B30, ED7F62B87BCBA8C3
+
+precision highp int;
+precision highp float;
+precision highp samplerBuffer;
+precision highp usampler2D;
+precision highp uimage2D;
 in vec4 primary_color;
 in vec2 texcoord0;
 in vec2 texcoord1;
@@ -15126,9 +15451,15 @@ if (int(last_tex_env_out.a * 255.0) <= alphatest_ref) discard;
 gl_FragDepth = depth;
 color = byteround(last_tex_env_out);
 }
-// reference: 109B468541F1146D, 3D447A74AAC47455
-// program: 14B77E650BC3771D, 5D764F9A6220D694, 3D447A74AAC47455
-// shader: 8B30, AABD2353381F3806
+// reference: 109B468541F1146D, ED7F62B87BCBA8C3
+// program: 4940142D60DA9543, 5D764F9A6220D694, ED7F62B87BCBA8C3
+// shader: 8B30, 2BA493C40C92F2E9
+
+precision highp int;
+precision highp float;
+precision highp samplerBuffer;
+precision highp usampler2D;
+precision highp uimage2D;
 in vec4 primary_color;
 in vec2 texcoord0;
 in vec2 texcoord1;
@@ -15307,9 +15638,15 @@ if (int(last_tex_env_out.a * 255.0) <= alphatest_ref) discard;
 gl_FragDepth = depth;
 color = byteround(last_tex_env_out);
 }
-// reference: 109B46850F099D77, AABD2353381F3806
-// program: 14B77E650BC3771D, 5D764F9A6220D694, AABD2353381F3806
-// shader: 8B30, 734CDAB7446D8AED
+// reference: 109B46850F099D77, 2BA493C40C92F2E9
+// program: 4940142D60DA9543, 5D764F9A6220D694, 2BA493C40C92F2E9
+// shader: 8B30, 9984ECD2B5F69CEC
+
+precision highp int;
+precision highp float;
+precision highp samplerBuffer;
+precision highp usampler2D;
+precision highp uimage2D;
 in vec4 primary_color;
 in vec2 texcoord0;
 in vec2 texcoord1;
@@ -15487,10 +15824,16 @@ combiner_buffer = next_combiner_buffer;
 gl_FragDepth = depth;
 color = byteround(last_tex_env_out);
 }
-// reference: 52BEA064057412C0, 734CDAB7446D8AED
-// program: 0000000000000000, 0000000000000000, 734CDAB7446D8AED
-// reference: FEFFE99930F57863, A80DAD6C59C27BF3
-// shader: 8B30, C4808BFF75FE7555
+// reference: 52BEA064057412C0, 9984ECD2B5F69CEC
+// program: 0000000000000000, 0000000000000000, 9984ECD2B5F69CEC
+// reference: FEFFE99930F57863, 30DAB74CA24CBC58
+// shader: 8B30, 1F030ECE96E28DBD
+
+precision highp int;
+precision highp float;
+precision highp samplerBuffer;
+precision highp usampler2D;
+precision highp uimage2D;
 in vec4 primary_color;
 in vec2 texcoord0;
 in vec2 texcoord1;
@@ -15697,12 +16040,18 @@ last_tex_env_out.rgb = mix(fog_color.rgb, last_tex_env_out.rgb, fog_factor);
 gl_FragDepth = depth;
 color = byteround(last_tex_env_out);
 }
-// reference: 73CF2797DC429360, C4808BFF75FE7555
-// program: C001DE1069A2A928, 3B3AE026C742C7D5, C4808BFF75FE7555
-// reference: 6FCEE7E4B3103BD1, 2CDCC92349A9739C
-// reference: D290B1ECDA334771, 0475C09A7BDCD95D
-// reference: 3BEECD6EED526345, C001DE1069A2A928
-// shader: 8B30, C65FA8D4B020D989
+// reference: 73CF2797DC429360, 1F030ECE96E28DBD
+// program: B53CC394CDC34ED2, 3B3AE026C742C7D5, 1F030ECE96E28DBD
+// reference: 37ADF7B2B3103BD1, 43859B2C0A985AE4
+// reference: D290B1ECDA334771, 18CD6F34EF819318
+// reference: 638DDD38ED526345, B53CC394CDC34ED2
+// shader: 8B30, FEB1E39313EC6A3F
+
+precision highp int;
+precision highp float;
+precision highp samplerBuffer;
+precision highp usampler2D;
+precision highp uimage2D;
 in vec4 primary_color;
 in vec2 texcoord0;
 in vec2 texcoord1;
@@ -15903,9 +16252,15 @@ if (int(last_tex_env_out.a * 255.0) <= alphatest_ref) discard;
 gl_FragDepth = depth;
 color = byteround(last_tex_env_out);
 }
-// reference: A4AC234A598C7306, C65FA8D4B020D989
-// program: C001DE1069A2A928, 3B3AE026C742C7D5, C65FA8D4B020D989
-// shader: 8B30, 998EFF1E41A9B749
+// reference: A4AC234A598C7306, FEB1E39313EC6A3F
+// program: B53CC394CDC34ED2, 3B3AE026C742C7D5, FEB1E39313EC6A3F
+// shader: 8B30, 08C077175A6FECF5
+
+precision highp int;
+precision highp float;
+precision highp samplerBuffer;
+precision highp usampler2D;
+precision highp uimage2D;
 in vec4 primary_color;
 in vec2 texcoord0;
 in vec2 texcoord1;
@@ -16113,18 +16468,24 @@ last_tex_env_out.rgb = mix(fog_color.rgb, last_tex_env_out.rgb, fog_factor);
 gl_FragDepth = depth;
 color = byteround(last_tex_env_out);
 }
-// reference: 73CF279730F57863, 998EFF1E41A9B749
-// program: C001DE1069A2A928, 3B3AE026C742C7D5, 998EFF1E41A9B749
-// reference: 54C2FB9DBBDEBFC2, C1CBF67CD890716A
-// reference: DF222C3256958E76, C1CBF67CD890716A
-// reference: B00E1AC1ED526345, C001DE1069A2A928
-// reference: B076E230598C7306, A80DAD6C59C27BF3
-// reference: 3D462C3EB53B9805, C4808BFF75FE7555
-// reference: D290B1ECA8839EBD, 0475C09A7BDCD95D
-// reference: B076E230093F19DA, A80DAD6C59C27BF3
-// reference: 61B7775D2D69AE97, 14B77E650BC3771D
-// reference: EA57A0F2C0229F23, 14B77E650BC3771D
-// shader: 8B30, 5CB430354F5D8965
+// reference: 73CF279730F57863, 08C077175A6FECF5
+// program: B53CC394CDC34ED2, 3B3AE026C742C7D5, 08C077175A6FECF5
+// reference: 54C2FB9DBBDEBFC2, 0FE813B2D8221036
+// reference: 87413C6456958E76, 0FE813B2D8221036
+// reference: B00E1AC1ED526345, B53CC394CDC34ED2
+// reference: B076E230598C7306, 30DAB74CA24CBC58
+// reference: 3D462C3EB53B9805, 1F030ECE96E28DBD
+// reference: D290B1ECA8839EBD, 18CD6F34EF819318
+// reference: 61B7775D2D69AE97, 4940142D60DA9543
+// reference: B234B0A4C0229F23, 4940142D60DA9543
+// reference: B076E230093F19DA, 30DAB74CA24CBC58
+// shader: 8B30, B29EF1BFC4D10886
+
+precision highp int;
+precision highp float;
+precision highp samplerBuffer;
+precision highp usampler2D;
+precision highp uimage2D;
 in vec4 primary_color;
 in vec2 texcoord0;
 in vec2 texcoord1;
@@ -16332,11 +16693,17 @@ last_tex_env_out.rgb = mix(fog_color.rgb, last_tex_env_out.rgb, fog_factor);
 gl_FragDepth = depth;
 color = byteround(last_tex_env_out);
 }
-// reference: AD7E7D8830F57863, 5CB430354F5D8965
-// program: C001DE1069A2A928, 3B3AE026C742C7D5, 5CB430354F5D8965
-// reference: E3F77621598C7306, 5CB430354F5D8965
-// reference: F41F49964245A1AF, C65FA8D4B020D989
-// shader: 8B30, F59B30115D8438B6
+// reference: AD7E7D8830F57863, B29EF1BFC4D10886
+// program: B53CC394CDC34ED2, 3B3AE026C742C7D5, B29EF1BFC4D10886
+// reference: E3F77621598C7306, B29EF1BFC4D10886
+// reference: F41F49964245A1AF, FEB1E39313EC6A3F
+// shader: 8B30, EBBB74BA3C410F00
+
+precision highp int;
+precision highp float;
+precision highp samplerBuffer;
+precision highp usampler2D;
+precision highp uimage2D;
 in vec4 primary_color;
 in vec2 texcoord0;
 in vec2 texcoord1;
@@ -16539,13 +16906,19 @@ if (int(last_tex_env_out.a * 255.0) <= alphatest_ref) discard;
 gl_FragDepth = depth;
 color = byteround(last_tex_env_out);
 }
-// reference: 6A152C6920E06655, F59B30115D8438B6
-// program: C001DE1069A2A928, 3B3AE026C742C7D5, F59B30115D8438B6
-// reference: A4AC234A30F57863, C65FA8D4B020D989
-// reference: 3D462C3E598C7306, 998EFF1E41A9B749
-// reference: 249C27C049996D30, F59B30115D8438B6
-// reference: BA96423F2B3CAACA, C65FA8D4B020D989
-// shader: 8B30, C5DB5092725AF5B3
+// reference: 6A152C6920E06655, EBBB74BA3C410F00
+// program: B53CC394CDC34ED2, 3B3AE026C742C7D5, EBBB74BA3C410F00
+// reference: A4AC234A30F57863, FEB1E39313EC6A3F
+// reference: 3D462C3E598C7306, 08C077175A6FECF5
+// reference: 249C27C049996D30, EBBB74BA3C410F00
+// reference: BA96423F2B3CAACA, FEB1E39313EC6A3F
+// shader: 8B30, 94EFF7129B3A7297
+
+precision highp int;
+precision highp float;
+precision highp samplerBuffer;
+precision highp usampler2D;
+precision highp uimage2D;
 in vec4 primary_color;
 in vec2 texcoord0;
 in vec2 texcoord1;
@@ -16736,10 +17109,16 @@ if (int(last_tex_env_out.a * 255.0) <= alphatest_ref) discard;
 gl_FragDepth = depth;
 color = byteround(last_tex_env_out);
 }
-// reference: 2E03A7A39A321123, C5DB5092725AF5B3
-// program: C001DE1069A2A928, 3B3AE026C742C7D5, C5DB5092725AF5B3
-// reference: 4237A00D3275E714, 14B77E650BC3771D
-// shader: 8B30, 98E670CD4A4073CF
+// reference: 2E03A7A39A321123, 94EFF7129B3A7297
+// program: B53CC394CDC34ED2, 3B3AE026C742C7D5, 94EFF7129B3A7297
+// reference: 4237A00D3275E714, 4940142D60DA9543
+// shader: 8B30, EEAE121FA6ED4B2C
+
+precision highp int;
+precision highp float;
+precision highp samplerBuffer;
+precision highp usampler2D;
+precision highp uimage2D;
 in vec4 primary_color;
 in vec2 texcoord0;
 in vec2 texcoord1;
@@ -16910,10 +17289,16 @@ if (int(last_tex_env_out.a * 255.0) <= alphatest_ref) discard;
 gl_FragDepth = depth;
 color = byteround(last_tex_env_out);
 }
-// reference: 34639C16C7A787CC, 98E670CD4A4073CF
-// program: 14B77E650BC3771D, 5D764F9A6220D694, 98E670CD4A4073CF
-// reference: C9D777A23275E714, 14B77E650BC3771D
-// shader: 8B30, 2D26082F83749D4D
+// reference: 34639C16C7A787CC, EEAE121FA6ED4B2C
+// program: 4940142D60DA9543, 5D764F9A6220D694, EEAE121FA6ED4B2C
+// reference: 91B467F43275E714, 4940142D60DA9543
+// shader: 8B30, C4595F0271285F33
+
+precision highp int;
+precision highp float;
+precision highp samplerBuffer;
+precision highp usampler2D;
+precision highp uimage2D;
 in vec4 primary_color;
 in vec2 texcoord0;
 in vec2 texcoord1;
@@ -17084,12 +17469,18 @@ if (int(last_tex_env_out.a * 255.0) <= alphatest_ref) discard;
 gl_FragDepth = depth;
 color = byteround(last_tex_env_out);
 }
-// reference: FBFB78E946589176, 2D26082F83749D4D
-// program: 14B77E650BC3771D, 5D764F9A6220D694, 2D26082F83749D4D
-// reference: 835C2386598C7306, C65FA8D4B020D989
-// reference: CDD5282F598C7306, C65FA8D4B020D989
-// reference: 9D6642F330F57863, C65FA8D4B020D989
-// shader: 8B30, ECBD46CB3AB813AA
+// reference: FBFB78E946589176, C4595F0271285F33
+// program: 4940142D60DA9543, 5D764F9A6220D694, C4595F0271285F33
+// reference: 835C2386598C7306, FEB1E39313EC6A3F
+// reference: CDD5282F598C7306, FEB1E39313EC6A3F
+// reference: 9D6642F330F57863, FEB1E39313EC6A3F
+// shader: 8B30, C9735C9D5E47A267
+
+precision highp int;
+precision highp float;
+precision highp samplerBuffer;
+precision highp usampler2D;
+precision highp uimage2D;
 in vec4 primary_color;
 in vec2 texcoord0;
 in vec2 texcoord1;
@@ -17263,9 +17654,15 @@ last_tex_env_out.rgb = mix(fog_color.rgb, last_tex_env_out.rgb, fog_factor);
 gl_FragDepth = depth;
 color = byteround(last_tex_env_out);
 }
-// reference: 5663366CE658CA72, ECBD46CB3AB813AA
-// program: C001DE1069A2A928, 3B3AE026C742C7D5, ECBD46CB3AB813AA
-// shader: 8B30, 6715745505C97BC1
+// reference: 5663366CE658CA72, C9735C9D5E47A267
+// program: B53CC394CDC34ED2, 3B3AE026C742C7D5, C9735C9D5E47A267
+// shader: 8B30, C27F787C261C6045
+
+precision highp int;
+precision highp float;
+precision highp samplerBuffer;
+precision highp usampler2D;
+precision highp uimage2D;
 in vec4 primary_color;
 in vec2 texcoord0;
 in vec2 texcoord1;
@@ -17433,9 +17830,15 @@ combiner_buffer = next_combiner_buffer;
 gl_FragDepth = depth;
 color = byteround(last_tex_env_out);
 }
-// reference: 6C4AD557D7ECD73C, 6715745505C97BC1
-// program: C001DE1069A2A928, 3B3AE026C742C7D5, 6715745505C97BC1
-// shader: 8B30, 329B6D9537E22F79
+// reference: 6C4AD557D7ECD73C, C27F787C261C6045
+// program: B53CC394CDC34ED2, 3B3AE026C742C7D5, C27F787C261C6045
+// shader: 8B30, B2510175F7B31C54
+
+precision highp int;
+precision highp float;
+precision highp samplerBuffer;
+precision highp usampler2D;
+precision highp uimage2D;
 in vec4 primary_color;
 in vec2 texcoord0;
 in vec2 texcoord1;
@@ -17610,11 +18013,11 @@ last_tex_env_out.rgb = mix(fog_color.rgb, last_tex_env_out.rgb, fog_factor);
 gl_FragDepth = depth;
 color = byteround(last_tex_env_out);
 }
-// reference: 3FCB4146D7ECD73C, 329B6D9537E22F79
-// program: C001DE1069A2A928, 3B3AE026C742C7D5, 329B6D9537E22F79
-// reference: E42E304BB3103BD1, 2CDCC92349A9739C
-// reference: CCAAD099B34A4C14, 0475C09A7BDCD95D
-// shader: 8B31, A782B127E06C7789
+// reference: 3FCB4146D7ECD73C, B2510175F7B31C54
+// program: B53CC394CDC34ED2, 3B3AE026C742C7D5, B2510175F7B31C54
+// reference: E42E304BB3103BD1, 43859B2C0A985AE4
+// reference: CCAAD099B34A4C14, 18CD6F34EF819318
+// shader: 8B31, 0FF09FAB127C26AC
 
 struct pica_uniforms {
     bool b[16];
@@ -17657,7 +18060,14 @@ void main() {
     exec_shader();
 }
 
-// accurate_mul: off
+
+#define mul_s(x, y) (x * y)
+#define fma_s(x, y, z) fma(x, y, z)
+#define rcp_s(x) (1.0 / x)
+#define rsq_s(x) inversesqrt(x)
+#define dot_s(x, y) dot(x, y)
+#define dot_3(x, y) dot(x, y)
+
 bvec2 conditional_code = bvec2(false);
 ivec3 address_registers = ivec3(0);
 vec4 reg_tmp0 = vec4(0.0, 0.0, 0.0, 1.0);
@@ -18400,8 +18810,14 @@ bool sub_322_323() {
     vs_out_attr6 = uniforms.f[93].xxxx;
     return false;
 }
-// reference: 130FB197AE7DDD53, A782B127E06C7789
-// shader: 8B30, E2DE49F741F33F57
+// reference: 4B6CA1C1AE7DDD53, 0FF09FAB127C26AC
+// shader: 8B30, C8B5858A114E6B90
+
+precision highp int;
+precision highp float;
+precision highp samplerBuffer;
+precision highp usampler2D;
+precision highp uimage2D;
 in vec4 primary_color;
 in vec2 texcoord0;
 in vec2 texcoord1;
@@ -18604,11 +19020,17 @@ last_tex_env_out.rgb = mix(fog_color.rgb, last_tex_env_out.rgb, fog_factor);
 gl_FragDepth = depth;
 color = byteround(last_tex_env_out);
 }
-// reference: FF55FDA3DA2EB17B, E2DE49F741F33F57
-// program: A782B127E06C7789, AD7922A63ED54CA7, E2DE49F741F33F57
-// reference: 5FFA7F71B3103BD1, 2CDCC92349A9739C
-// reference: 0BDA55FBED526345, C001DE1069A2A928
-// shader: 8B30, 816A27B887C53A55
+// reference: FF55FDA3DA2EB17B, C8B5858A114E6B90
+// program: 0FF09FAB127C26AC, AD7922A63ED54CA7, C8B5858A114E6B90
+// reference: 07996F27B3103BD1, 43859B2C0A985AE4
+// reference: 53B945ADED526345, B53CC394CDC34ED2
+// shader: 8B30, 98677AC22B9A3E1A
+
+precision highp int;
+precision highp float;
+precision highp samplerBuffer;
+precision highp usampler2D;
+precision highp uimage2D;
 in vec4 primary_color;
 in vec2 texcoord0;
 in vec2 texcoord1;
@@ -18822,10 +19244,16 @@ last_tex_env_out.rgb = mix(fog_color.rgb, last_tex_env_out.rgb, fog_factor);
 gl_FragDepth = depth;
 color = byteround(last_tex_env_out);
 }
-// reference: B076BA924A098938, 816A27B887C53A55
-// program: C001DE1069A2A928, 3B3AE026C742C7D5, 816A27B887C53A55
-// reference: A49EC7BC2CD4DF67, ACF8A8F69E37F330
-// shader: 8B30, 049AB54314CE58AE
+// reference: B076BA924A098938, 98677AC22B9A3E1A
+// program: B53CC394CDC34ED2, 3B3AE026C742C7D5, 98677AC22B9A3E1A
+// reference: FCFDD7EA2CD4DF67, 43234E20D4995F36
+// shader: 8B30, 8E06880DAF4C5A3B
+
+precision highp int;
+precision highp float;
+precision highp samplerBuffer;
+precision highp usampler2D;
+precision highp uimage2D;
 in vec4 primary_color;
 in vec2 texcoord0;
 in vec2 texcoord1;
@@ -19024,19 +19452,25 @@ if (int(last_tex_env_out.a * 255.0) <= alphatest_ref) discard;
 gl_FragDepth = depth;
 color = byteround(last_tex_env_out);
 }
-// reference: 0DE195E0E8DDC34C, 049AB54314CE58AE
-// program: ACF8A8F69E37F330, AD7922A63ED54CA7, 049AB54314CE58AE
-// reference: 0BDA55FB001952F1, C001DE1069A2A928
-// reference: 64F66308BBDEBFC2, C1CBF67CD890716A
-// reference: EF16B4A756958E76, C1CBF67CD890716A
-// reference: 5183EFC82D69AE97, 14B77E650BC3771D
-// reference: DA633867C0229F23, 14B77E650BC3771D
-// reference: 803A8254ED526345, C001DE1069A2A928
-// reference: D41AA8DEB3103BD1, 2CDCC92349A9739C
-// reference: 43689E4981A4C829, 049AB54314CE58AE
-// reference: FEFFB13B2370825D, 816A27B887C53A55
-// reference: 5FFA7F715E5B0A65, 2CDCC92349A9739C
-// shader: 8B30, 886D5C8A999ED9A7
+// reference: 0DE195E0E8DDC34C, 8E06880DAF4C5A3B
+// program: 43234E20D4995F36, AD7922A63ED54CA7, 8E06880DAF4C5A3B
+// reference: 53B945AD001952F1, B53CC394CDC34ED2
+// reference: 64F66308BBDEBFC2, 0FE813B2D8221036
+// reference: B775A4F156958E76, 0FE813B2D8221036
+// reference: 5183EFC82D69AE97, 4940142D60DA9543
+// reference: 82002831C0229F23, 4940142D60DA9543
+// reference: 803A8254ED526345, B53CC394CDC34ED2
+// reference: D41AA8DEB3103BD1, 43859B2C0A985AE4
+// reference: 43689E4981A4C829, 8E06880DAF4C5A3B
+// reference: FEFFB13B2370825D, 98677AC22B9A3E1A
+// reference: 07996F275E5B0A65, 43859B2C0A985AE4
+// shader: 8B30, B498EC348B20D31B
+
+precision highp int;
+precision highp float;
+precision highp samplerBuffer;
+precision highp usampler2D;
+precision highp uimage2D;
 in vec4 primary_color;
 in vec2 texcoord0;
 in vec2 texcoord1;
@@ -19198,10 +19632,16 @@ if (int(last_tex_env_out.a * 255.0) <= alphatest_ref) discard;
 gl_FragDepth = depth;
 color = byteround(last_tex_env_out);
 }
-// reference: 34C63732FDCBFBEE, 886D5C8A999ED9A7
-// program: C001DE1069A2A928, 3B3AE026C742C7D5, 886D5C8A999ED9A7
-// reference: 720338983275E714, 14B77E650BC3771D
-// shader: 8B30, 43DF66D40AA64E5D
+// reference: 34C63732FDCBFBEE, B498EC348B20D31B
+// program: B53CC394CDC34ED2, 3B3AE026C742C7D5, B498EC348B20D31B
+// reference: 720338983275E714, 4940142D60DA9543
+// shader: 8B30, B030A82CBA64FC16
+
+precision highp int;
+precision highp float;
+precision highp samplerBuffer;
+precision highp usampler2D;
+precision highp uimage2D;
 in vec4 primary_color;
 in vec2 texcoord0;
 in vec2 texcoord1;
@@ -19372,10 +19812,16 @@ if (int(last_tex_env_out.a * 255.0) <= alphatest_ref) discard;
 gl_FragDepth = depth;
 color = byteround(last_tex_env_out);
 }
-// reference: 2EA60C87F30E1C8E, 43DF66D40AA64E5D
-// program: 14B77E650BC3771D, 5D764F9A6220D694, 43DF66D40AA64E5D
-// reference: F9E3EF373275E714, 14B77E650BC3771D
-// shader: 8B30, EF9F9DC63A539EB5
+// reference: 2EA60C87F30E1C8E, B030A82CBA64FC16
+// program: 4940142D60DA9543, 5D764F9A6220D694, B030A82CBA64FC16
+// reference: A180FF613275E714, 4940142D60DA9543
+// shader: 8B30, 46C5DF23DB8936F3
+
+precision highp int;
+precision highp float;
+precision highp samplerBuffer;
+precision highp usampler2D;
+precision highp uimage2D;
 in vec4 primary_color;
 in vec2 texcoord0;
 in vec2 texcoord1;
@@ -19546,10 +19992,10 @@ if (int(last_tex_env_out.a * 255.0) <= alphatest_ref) discard;
 gl_FragDepth = depth;
 color = byteround(last_tex_env_out);
 }
-// reference: E13EE87872F10A34, EF9F9DC63A539EB5
-// program: 14B77E650BC3771D, 5D764F9A6220D694, EF9F9DC63A539EB5
-// reference: 9D6642F34245A1AF, C65FA8D4B020D989
-// shader: 8B31, A37C9A270FDA9BBA
+// reference: E13EE87872F10A34, 46C5DF23DB8936F3
+// program: 4940142D60DA9543, 5D764F9A6220D694, 46C5DF23DB8936F3
+// reference: 9D6642F34245A1AF, FEB1E39313EC6A3F
+// shader: 8B31, 55A031B6E5834CA4
 
 struct pica_uniforms {
     bool b[16];
@@ -19591,7 +20037,14 @@ void main() {
     exec_shader();
 }
 
-// accurate_mul: off
+
+#define mul_s(x, y) (x * y)
+#define fma_s(x, y, z) fma(x, y, z)
+#define rcp_s(x) (1.0 / x)
+#define rsq_s(x) inversesqrt(x)
+#define dot_s(x, y) dot(x, y)
+#define dot_3(x, y) dot(x, y)
+
 bvec2 conditional_code = bvec2(false);
 ivec3 address_registers = ivec3(0);
 vec4 reg_tmp0 = vec4(0.0, 0.0, 0.0, 1.0);
@@ -20570,8 +21023,14 @@ bool sub_366_373() {
     reg_tmp6 = fma_s(reg_tmp1, reg_tmp14, -reg_tmp2);
     return false;
 }
-// reference: F9EFA068730E1AC1, A37C9A270FDA9BBA
-// shader: 8B30, DE675B580E3DB471
+// reference: F9EFA068730E1AC1, 55A031B6E5834CA4
+// shader: 8B30, 964E0B11E50F8F6E
+
+precision highp int;
+precision highp float;
+precision highp samplerBuffer;
+precision highp usampler2D;
+precision highp uimage2D;
 in vec4 primary_color;
 in vec2 texcoord0;
 in vec2 texcoord1;
@@ -20734,10 +21193,16 @@ if (int(last_tex_env_out.a * 255.0) <= alphatest_ref) discard;
 gl_FragDepth = depth;
 color = byteround(last_tex_env_out);
 }
-// reference: FB35E2F4B7D17575, DE675B580E3DB471
-// program: A37C9A270FDA9BBA, 3B3AE026C742C7D5, DE675B580E3DB471
-// reference: 720F77C7730E1AC1, A37C9A270FDA9BBA
-// shader: 8B30, 17172644A44AFAC9
+// reference: FB35E2F4B7D17575, 964E0B11E50F8F6E
+// program: 55A031B6E5834CA4, 3B3AE026C742C7D5, 964E0B11E50F8F6E
+// reference: 2A6C6791730E1AC1, 55A031B6E5834CA4
+// shader: 8B30, 09998F9B86E3CF69
+
+precision highp int;
+precision highp float;
+precision highp samplerBuffer;
+precision highp usampler2D;
+precision highp uimage2D;
 in vec4 primary_color;
 in vec2 texcoord0;
 in vec2 texcoord1;
@@ -20899,13 +21364,13 @@ if (int(last_tex_env_out.a * 255.0) <= alphatest_ref) discard;
 gl_FragDepth = depth;
 color = byteround(last_tex_env_out);
 }
-// reference: FB35E2F47BA2E1ED, 17172644A44AFAC9
-// program: A37C9A270FDA9BBA, 3B3AE026C742C7D5, 17172644A44AFAC9
-// reference: 720F77C75D4F4275, 240AFD368442BEF6
-// reference: 3F41287A4ACE2CDA, BF309EAB6D1CFB0A
-// reference: CDD5282F30F57863, C65FA8D4B020D989
-// reference: 9786E2FC598C7306, A80DAD6C59C27BF3
-// shader: 8B31, DFEC791DBC8D7BC2
+// reference: FB35E2F47BA2E1ED, 09998F9B86E3CF69
+// program: 55A031B6E5834CA4, 3B3AE026C742C7D5, 09998F9B86E3CF69
+// reference: 2A6C67915D4F4275, 8E95BC59233B07C4
+// reference: 3F41287A4ACE2CDA, 24B822D609CE0531
+// reference: CDD5282F30F57863, FEB1E39313EC6A3F
+// reference: 9786E2FC598C7306, 30DAB74CA24CBC58
+// shader: 8B31, 558054435D69E626
 
 struct pica_uniforms {
     bool b[16];
@@ -20950,7 +21415,14 @@ void main() {
     exec_shader();
 }
 
-// accurate_mul: off
+
+#define mul_s(x, y) (x * y)
+#define fma_s(x, y, z) fma(x, y, z)
+#define rcp_s(x) (1.0 / x)
+#define rsq_s(x) inversesqrt(x)
+#define dot_s(x, y) dot(x, y)
+#define dot_3(x, y) dot(x, y)
+
 bvec2 conditional_code = bvec2(false);
 ivec3 address_registers = ivec3(0);
 vec4 reg_tmp0 = vec4(0.0, 0.0, 0.0, 1.0);
@@ -22202,8 +22674,14 @@ bool sub_413_414() {
     vs_out_attr6 = uniforms.f[93].xxxx;
     return false;
 }
-// reference: 7621A91257D4DFCE, DFEC791DBC8D7BC2
-// shader: 8B30, 02B107BC9316136C
+// reference: 2E42B94457D4DFCE, 558054435D69E626
+// shader: 8B30, CB541D02F0C32C04
+
+precision highp int;
+precision highp float;
+precision highp samplerBuffer;
+precision highp usampler2D;
+precision highp uimage2D;
 in vec4 primary_color;
 in vec2 texcoord0;
 in vec2 texcoord1;
@@ -22407,10 +22885,16 @@ if (int(last_tex_env_out.a * 255.0) <= alphatest_ref) discard;
 gl_FragDepth = depth;
 color = byteround(last_tex_env_out);
 }
-// reference: D4BB8111827A9D9D, 02B107BC9316136C
-// program: DFEC791DBC8D7BC2, AD7922A63ED54CA7, 02B107BC9316136C
-// reference: ED44DB6BA6A1C448, C001DE1069A2A928
-// shader: 8B30, EE36F10E62D5F355
+// reference: D4BB8111827A9D9D, CB541D02F0C32C04
+// program: 558054435D69E626, AD7922A63ED54CA7, CB541D02F0C32C04
+// reference: B527CB3DA6A1C448, B53CC394CDC34ED2
+// shader: 8B30, 7FEC81B3194413E4
+
+precision highp int;
+precision highp float;
+precision highp samplerBuffer;
+precision highp usampler2D;
+precision highp uimage2D;
 in vec4 primary_color;
 in vec2 texcoord0;
 in vec2 texcoord1;
@@ -22578,45 +23062,51 @@ if (int(last_tex_env_out.a * 255.0) <= alphatest_ref) discard;
 gl_FragDepth = depth;
 color = byteround(last_tex_env_out);
 }
-// reference: BD6A322E2CB44EC7, EE36F10E62D5F355
-// program: C001DE1069A2A928, 3B3AE026C742C7D5, EE36F10E62D5F355
-// reference: 8268ED98F02D18CF, C1CBF67CD890716A
-// reference: 09883A371D66297B, C1CBF67CD890716A
-// reference: B71D6158669A099A, 14B77E650BC3771D
-// reference: 1F712EF838FDBDCC, A37C9A270FDA9BBA
-// reference: 9491F95738FDBDCC, A37C9A270FDA9BBA
-// reference: 9491F95716BCE578, 240AFD368442BEF6
-// reference: 66A40CC4A6A1C448, C001DE1069A2A928
-// reference: D4BB8111F0CA4451, 02B107BC9316136C
-// reference: 9786E2FC2B3CAACA, A80DAD6C59C27BF3
-// reference: 8E874704B3103BD1, 2CDCC92349A9739C
-// reference: DAA76D8EED526345, C001DE1069A2A928
-// reference: B58B5B7DBBDEBFC2, C1CBF67CD890716A
-// reference: 3E6B8CD256958E76, C1CBF67CD890716A
-// reference: 5147BA21ED526345, C001DE1069A2A928
-// reference: 80FED7BD2D69AE97, 14B77E650BC3771D
-// reference: 0B1E0012C0229F23, 14B77E650BC3771D
-// reference: F41F49962B3CAACA, C65FA8D4B020D989
-// reference: 9D6642F3604612BF, C65FA8D4B020D989
-// reference: EA2528E3598C7306, C65FA8D4B020D989
-// reference: A37E00ED3275E714, 14B77E650BC3771D
-// reference: 289ED7423275E714, 14B77E650BC3771D
-// reference: 056790ABB3103BD1, 2CDCC92349A9739C
-// reference: 146A1ACAAE7DDD53, A782B127E06C7789
-// reference: 589FD42CB3103BD1, 2CDCC92349A9739C
-// reference: 0CBFFEA6ED526345, C001DE1069A2A928
-// reference: A3FB6CE12CD4DF67, ACF8A8F69E37F330
-// reference: 0CBFFEA6001952F1, C001DE1069A2A928
-// reference: 6393C855BBDEBFC2, C1CBF67CD890716A
-// reference: E8731FFA56958E76, C1CBF67CD890716A
-// reference: 56E644952D69AE97, 14B77E650BC3771D
-// reference: DD06933AC0229F23, 14B77E650BC3771D
-// reference: 875F2909ED526345, C001DE1069A2A928
-// reference: D37F0383B3103BD1, 2CDCC92349A9739C
-// reference: 589FD42C5E5B0A65, 2CDCC92349A9739C
-// reference: 756693C53275E714, 14B77E650BC3771D
-// reference: FE86446A3275E714, 14B77E650BC3771D
-// shader: 8B30, 5623C6DEA8518310
+// reference: BD6A322E2CB44EC7, 7FEC81B3194413E4
+// program: B53CC394CDC34ED2, 3B3AE026C742C7D5, 7FEC81B3194413E4
+// reference: 8268ED98F02D18CF, 0FE813B2D8221036
+// reference: 51EB2A611D66297B, 0FE813B2D8221036
+// reference: B71D6158669A099A, 4940142D60DA9543
+// reference: 1F712EF838FDBDCC, 55A031B6E5834CA4
+// reference: CCF2E90138FDBDCC, 55A031B6E5834CA4
+// reference: CCF2E90116BCE578, 8E95BC59233B07C4
+// reference: 66A40CC4A6A1C448, B53CC394CDC34ED2
+// reference: D4BB8111F0CA4451, CB541D02F0C32C04
+// reference: 9786E2FC2B3CAACA, 30DAB74CA24CBC58
+// reference: D6E45752B3103BD1, 43859B2C0A985AE4
+// reference: 82C47DD8ED526345, B53CC394CDC34ED2
+// reference: B58B5B7DBBDEBFC2, 0FE813B2D8221036
+// reference: 66089C8456958E76, 0FE813B2D8221036
+// reference: 5147BA21ED526345, B53CC394CDC34ED2
+// reference: 80FED7BD2D69AE97, 4940142D60DA9543
+// reference: 537D1044C0229F23, 4940142D60DA9543
+// reference: F41F49962B3CAACA, FEB1E39313EC6A3F
+// reference: 9D6642F3604612BF, FEB1E39313EC6A3F
+// reference: EA2528E3598C7306, FEB1E39313EC6A3F
+// reference: A37E00ED3275E714, 4940142D60DA9543
+// reference: 70FDC7143275E714, 4940142D60DA9543
+// reference: 056790ABB3103BD1, 43859B2C0A985AE4
+// reference: 4C090A9CAE7DDD53, 0FF09FAB127C26AC
+// reference: 00FCC47AB3103BD1, 43859B2C0A985AE4
+// reference: 54DCEEF0ED526345, B53CC394CDC34ED2
+// reference: FB987CB72CD4DF67, 43234E20D4995F36
+// reference: 54DCEEF0001952F1, B53CC394CDC34ED2
+// reference: 6393C855BBDEBFC2, 0FE813B2D8221036
+// reference: B0100FAC56958E76, 0FE813B2D8221036
+// reference: 56E644952D69AE97, 4940142D60DA9543
+// reference: 8565836CC0229F23, 4940142D60DA9543
+// reference: 875F2909ED526345, B53CC394CDC34ED2
+// reference: D37F0383B3103BD1, 43859B2C0A985AE4
+// reference: 00FCC47A5E5B0A65, 43859B2C0A985AE4
+// reference: 756693C53275E714, 4940142D60DA9543
+// reference: A6E5543C3275E714, 4940142D60DA9543
+// shader: 8B30, 3A6EACDEFFC82EA8
+
+precision highp int;
+precision highp float;
+precision highp samplerBuffer;
+precision highp usampler2D;
+precision highp uimage2D;
 in vec4 primary_color;
 in vec2 texcoord0;
 in vec2 texcoord1;
@@ -22829,9 +23319,15 @@ last_tex_env_out.rgb = mix(fog_color.rgb, last_tex_env_out.rgb, fog_factor);
 gl_FragDepth = depth;
 color = byteround(last_tex_env_out);
 }
-// reference: 21EDAFA39853BD6D, 5623C6DEA8518310
-// program: ACF8A8F69E37F330, AD7922A63ED54CA7, 5623C6DEA8518310
-// shader: 8B30, C5EE5F0E334360D0
+// reference: 21EDAFA39853BD6D, 3A6EACDEFFC82EA8
+// program: 43234E20D4995F36, AD7922A63ED54CA7, 3A6EACDEFFC82EA8
+// shader: 8B30, CE59663341BA1DD1
+
+precision highp int;
+precision highp float;
+precision highp samplerBuffer;
+precision highp usampler2D;
+precision highp uimage2D;
 in vec4 primary_color;
 in vec2 texcoord0;
 in vec2 texcoord1;
@@ -23009,9 +23505,15 @@ combiner_buffer = next_combiner_buffer;
 gl_FragDepth = depth;
 color = byteround(last_tex_env_out);
 }
-// reference: 9D26449B848B047A, C5EE5F0E334360D0
-// program: 0000000000000000, 0000000000000000, C5EE5F0E334360D0
-// shader: 8B30, A3158A1D98A17330
+// reference: 9D26449B848B047A, CE59663341BA1DD1
+// program: 0000000000000000, 0000000000000000, CE59663341BA1DD1
+// shader: 8B30, D8AE0D8009889E56
+
+precision highp int;
+precision highp float;
+precision highp samplerBuffer;
+precision highp usampler2D;
+precision highp uimage2D;
 in vec4 primary_color;
 in vec2 texcoord0;
 in vec2 texcoord1;
@@ -23224,10 +23726,16 @@ last_tex_env_out.rgb = mix(fog_color.rgb, last_tex_env_out.rgb, fog_factor);
 gl_FragDepth = depth;
 color = byteround(last_tex_env_out);
 }
-// reference: 69CBDDCF3F3047A9, A3158A1D98A17330
-// program: 2CDCC92349A9739C, 3B3AE026C742C7D5, A3158A1D98A17330
-// reference: 146A1ACAE4373546, A782B127E06C7789
-// shader: 8B30, FDC2EBF575390B05
+// reference: 69CBDDCF3F3047A9, D8AE0D8009889E56
+// program: 43859B2C0A985AE4, 3B3AE026C742C7D5, D8AE0D8009889E56
+// reference: 4C090A9CE4373546, 0FF09FAB127C26AC
+// shader: 8B30, 922FCDA8A4758983
+
+precision highp int;
+precision highp float;
+precision highp samplerBuffer;
+precision highp usampler2D;
+precision highp uimage2D;
 in vec4 primary_color;
 in vec2 texcoord0;
 in vec2 texcoord1;
@@ -23434,15 +23942,21 @@ if (int(last_tex_env_out.a * 255.0) <= alphatest_ref) discard;
 gl_FragDepth = depth;
 color = byteround(last_tex_env_out);
 }
-// reference: A18415F3EE364076, FDC2EBF575390B05
-// program: 2CDCC92349A9739C, 3B3AE026C742C7D5, FDC2EBF575390B05
-// reference: B12E8202ED526345, C001DE1069A2A928
-// reference: 1E6A10452CD4DF67, ACF8A8F69E37F330
-// reference: B12E8202001952F1, C001DE1069A2A928
-// reference: 6F64A40AF12AB608, 5623C6DEA8518310
-// reference: EF0D1E5A874F4B13, FDC2EBF575390B05
-// reference: 1E6A1045C19FEED3, ACF8A8F69E37F330
-// shader: 8B30, 9CFD6367078273AD
+// reference: A18415F3EE364076, 922FCDA8A4758983
+// program: 43859B2C0A985AE4, 3B3AE026C742C7D5, 922FCDA8A4758983
+// reference: E94D9254ED526345, B53CC394CDC34ED2
+// reference: 460900132CD4DF67, 43234E20D4995F36
+// reference: E94D9254001952F1, B53CC394CDC34ED2
+// reference: 6F64A40AF12AB608, 3A6EACDEFFC82EA8
+// reference: EF0D1E5A874F4B13, 922FCDA8A4758983
+// reference: 46090013C19FEED3, 43234E20D4995F36
+// shader: 8B30, 82B30867377518C0
+
+precision highp int;
+precision highp float;
+precision highp samplerBuffer;
+precision highp usampler2D;
+precision highp uimage2D;
 in vec4 primary_color;
 in vec2 texcoord0;
 in vec2 texcoord1;
@@ -23650,12 +24164,7043 @@ last_tex_env_out.rgb = mix(fog_color.rgb, last_tex_env_out.rgb, fog_factor);
 gl_FragDepth = depth;
 color = byteround(last_tex_env_out);
 }
-// reference: F72DB75B598C7306, 9CFD6367078273AD
-// program: C001DE1069A2A928, 3B3AE026C742C7D5, 9CFD6367078273AD
-// reference: FE8A0B355D4F4275, 240AFD368442BEF6
-// reference: 756ADC9A5D4F4275, 240AFD368442BEF6
-// reference: B4A87EE395B3159B, AD93682DAD6129ED
-// shader: 8B30, 3ECC3DDDC2FFAB8C
+// reference: F72DB75B598C7306, 82B30867377518C0
+// program: B53CC394CDC34ED2, 3B3AE026C742C7D5, 82B30867377518C0
+// shader: 8B31, 559D364E86318AE6
+
+struct pica_uniforms {
+    bool b[16];
+    uvec4 i[4];
+    vec4 f[96];
+};
+
+bool exec_shader();
+
+#define uniforms vs_uniforms
+layout (std140) uniform vs_config {
+    pica_uniforms uniforms;
+};
+
+layout(location = 0) in vec4 vs_in_reg0;
+layout(location = 1) in vec4 vs_in_reg1;
+layout(location = 2) in vec4 vs_in_reg2;
+layout(location = 3) in vec4 vs_in_reg3;
+layout(location = 4) in vec4 vs_in_reg4;
+layout(location = 5) in vec4 vs_in_reg5;
+layout(location = 6) in vec4 vs_in_reg6;
+layout(location = 7) in vec4 vs_in_reg7;
+layout(location = 8) in vec4 vs_in_reg8;
+
+ out vec4 vs_out_attr0;
+ out vec4 vs_out_attr1;
+ out vec4 vs_out_attr2;
+ out vec4 vs_out_attr3;
+ out vec4 vs_out_attr4;
+ out vec4 vs_out_attr5;
+
+void main() {
+    vs_out_attr0 = vec4(0.0, 0.0, 0.0, 1.0);
+    vs_out_attr1 = vec4(0.0, 0.0, 0.0, 1.0);
+    vs_out_attr2 = vec4(0.0, 0.0, 0.0, 1.0);
+    vs_out_attr3 = vec4(0.0, 0.0, 0.0, 1.0);
+    vs_out_attr4 = vec4(0.0, 0.0, 0.0, 1.0);
+    vs_out_attr5 = vec4(0.0, 0.0, 0.0, 1.0);
+
+    exec_shader();
+}
+
+
+#define mul_s(x, y) mix(x * y, vec4(0.0), isnan(x * y))
+#define mul_3(x, y) mix(x * y, vec3(0.0), isnan(x * y))
+#define fma_s(x, y, z) (mul_s(x, y) + z)
+float rcp_s(float x) {
+    if (x == 0.0) return x;
+    return 1.0 / x;
+}
+float rsq_s(float x) {
+    if (x > 0.0) return inversesqrt(x);
+    return 0.0;
+}
+#define dot_s(x, y) dot(x, y)
+#define dot_3(x, y) dot(mul_3(x, y), vec3(1.0))
+
+bvec2 conditional_code = bvec2(false);
+ivec3 address_registers = ivec3(0);
+vec4 reg_tmp0 = vec4(0.0, 0.0, 0.0, 1.0);
+vec4 reg_tmp1 = vec4(0.0, 0.0, 0.0, 1.0);
+vec4 reg_tmp2 = vec4(0.0, 0.0, 0.0, 1.0);
+vec4 reg_tmp3 = vec4(0.0, 0.0, 0.0, 1.0);
+vec4 reg_tmp4 = vec4(0.0, 0.0, 0.0, 1.0);
+vec4 reg_tmp5 = vec4(0.0, 0.0, 0.0, 1.0);
+vec4 reg_tmp6 = vec4(0.0, 0.0, 0.0, 1.0);
+vec4 reg_tmp7 = vec4(0.0, 0.0, 0.0, 1.0);
+vec4 reg_tmp8 = vec4(0.0, 0.0, 0.0, 1.0);
+vec4 reg_tmp9 = vec4(0.0, 0.0, 0.0, 1.0);
+vec4 reg_tmp10 = vec4(0.0, 0.0, 0.0, 1.0);
+vec4 reg_tmp11 = vec4(0.0, 0.0, 0.0, 1.0);
+vec4 reg_tmp12 = vec4(0.0, 0.0, 0.0, 1.0);
+vec4 reg_tmp13 = vec4(0.0, 0.0, 0.0, 1.0);
+vec4 reg_tmp14 = vec4(0.0, 0.0, 0.0, 1.0);
+vec4 reg_tmp15 = vec4(0.0, 0.0, 0.0, 1.0);
+
+bool sub_0_4096();
+bool sub_7_12();
+bool sub_9_10();
+bool sub_14_15();
+bool sub_18_30();
+bool sub_20_21();
+bool sub_21_25();
+bool sub_22_23();
+bool sub_23_24();
+bool sub_30_40();
+bool sub_44_45();
+bool sub_45_49();
+bool sub_46_47();
+bool sub_47_48();
+bool sub_56_61();
+bool sub_61_70();
+bool sub_70_83();
+bool sub_83_251();
+bool sub_89_189();
+bool sub_96_125();
+bool sub_107_111();
+bool sub_125_184();
+bool sub_126_158();
+bool sub_137_141();
+bool sub_158_183();
+bool sub_169_173();
+bool sub_189_250();
+bool sub_192_202();
+bool sub_202_207();
+bool sub_208_220();
+bool sub_220_245();
+bool sub_221_239();
+bool sub_239_244();
+bool sub_251_268();
+bool sub_268_344();
+bool sub_307_327();
+bool sub_308_313();
+bool sub_313_326();
+bool sub_317_320();
+bool sub_320_325();
+bool sub_327_340();
+bool sub_328_333();
+bool sub_333_339();
+
+bool exec_shader() {
+    sub_0_4096();
+    return true;
+}
+
+bool sub_0_4096() {
+    // 0: call
+    {
+        sub_83_251();
+    }
+    // 1: mov
+    reg_tmp8.xy = (uniforms.f[93].xxxx).xy;
+    // 2: mov
+    reg_tmp0.y = (uniforms.f[7].wwww).y;
+    // 3: cmp
+    conditional_code = notEqual(uniforms.f[93].xx, reg_tmp0.xy);
+    // 4: mov
+    reg_tmp9.xyz = (uniforms.f[93].xxxx).xyz;
+    // 5: mov
+    reg_tmp9.w = (uniforms.f[21].wwww).w;
+    // 6: ifc
+    if (conditional_code.y) {
+        sub_7_12();
+    }
+    // 12: cmp
+    conditional_code = equal(uniforms.f[93].xx, reg_tmp8.xy);
+    // 13: ifc
+    if (all(conditional_code)) {
+        sub_14_15();
+    }
+    // 15: max
+    vs_out_attr3 = max(uniforms.f[93].xxxx, reg_tmp9);
+    // 16: mov
+    reg_tmp0.xy = (uniforms.f[10].xxxx).xy;
+    // 17: ifu
+    if (uniforms.b[9]) {
+        sub_18_30();
+    } else {
+        sub_30_40();
+    }
+    // 40: nop
+    // 41: mov
+    reg_tmp0.xy = (uniforms.f[10].yyyy).xy;
+    // 42: cmp
+    conditional_code = equal(uniforms.f[93].yz, reg_tmp0.xy);
+    // 43: ifc
+    if (all(not(conditional_code))) {
+        sub_44_45();
+    } else {
+        sub_45_49();
+    }
+    // 49: mov
+    reg_tmp6.zw = (uniforms.f[93].xxyy).zw;
+    // 50: dp4
+    reg_tmp4.x = dot_s(uniforms.f[14].xywz, reg_tmp6);
+    // 51: dp4
+    reg_tmp4.y = dot_s(uniforms.f[15].xywz, reg_tmp6);
+    // 52: mov
+    vs_out_attr5 = reg_tmp4;
+    // 53: nop
+    // 54: end
+    return true;
+}
+bool sub_7_12() {
+    // 7: mul
+    reg_tmp0 = mul_s(uniforms.f[7].wwww, vs_in_reg3);
+    // 8: ifu
+    if (uniforms.b[7]) {
+        sub_9_10();
+    }
+    // 10: mul
+    reg_tmp9.xyz = (mul_s(uniforms.f[20].wwww, reg_tmp0.xyzz)).xyz;
+    // 11: mov
+    reg_tmp8.x = (uniforms.f[93].yyyy).x;
+    return false;
+}
+bool sub_9_10() {
+    // 9: mul
+    reg_tmp9.w = (mul_s(reg_tmp9.wwww, reg_tmp0.wwww)).w;
+    return false;
+}
+bool sub_14_15() {
+    // 14: mov
+    reg_tmp9 = uniforms.f[21];
+    return false;
+}
+bool sub_18_30() {
+    // 18: cmp
+    conditional_code = equal(uniforms.f[93].yz, reg_tmp0.xy);
+    // 19: ifc
+    if (all(not(conditional_code))) {
+        sub_20_21();
+    } else {
+        sub_21_25();
+    }
+    // 25: mov
+    reg_tmp6.zw = (uniforms.f[93].xxyy).zw;
+    // 26: dp4
+    reg_tmp3.x = dot_s(uniforms.f[11].xywz, reg_tmp6);
+    // 27: dp4
+    reg_tmp3.y = dot_s(uniforms.f[12].xywz, reg_tmp6);
+    // 28: mov
+    reg_tmp3.zw = (uniforms.f[93].xxxx).zw;
+    // 29: mov
+    vs_out_attr4 = reg_tmp3;
+    return false;
+}
+bool sub_20_21() {
+    // 20: mul
+    reg_tmp6.xy = (mul_s(uniforms.f[8].xxxx, vs_in_reg4.xyyy)).xy;
+    return false;
+}
+bool sub_21_25() {
+    // 21: ifc
+    if (all(bvec2(conditional_code.x, !conditional_code.y))) {
+        sub_22_23();
+    } else {
+        sub_23_24();
+    }
+    // 24: nop
+    return false;
+}
+bool sub_22_23() {
+    // 22: mul
+    reg_tmp6.xy = (mul_s(uniforms.f[8].yyyy, vs_in_reg5.xyyy)).xy;
+    return false;
+}
+bool sub_23_24() {
+    // 23: mul
+    reg_tmp6.xy = (mul_s(uniforms.f[8].zzzz, vs_in_reg6.xyyy)).xy;
+    return false;
+}
+bool sub_30_40() {
+    // 30: cmp
+    conditional_code = equal(uniforms.f[95].xy, reg_tmp0.xy);
+    // 31: mov
+    reg_tmp6.zw = (uniforms.f[93].xxyy).zw;
+    // 32: mov
+    reg_tmp6 = reg_tmp10;
+    // 33: dp4
+    reg_tmp3.x = dot_s(uniforms.f[11], reg_tmp6);
+    // 34: dp4
+    reg_tmp3.y = dot_s(uniforms.f[12], reg_tmp6);
+    // 35: dp4
+    reg_tmp3.z = dot_s(uniforms.f[13], reg_tmp6);
+    // 36: mul
+    reg_tmp0.xy = (mul_s(uniforms.f[19].xyyy, reg_tmp3.zzzz)).xy;
+    // 37: add
+    reg_tmp3.xy = (reg_tmp3.xyyy + reg_tmp0.xyyy).xy;
+    // 38: nop
+    // 39: mov
+    vs_out_attr4 = reg_tmp3;
+    return false;
+}
+bool sub_44_45() {
+    // 44: mul
+    reg_tmp6.xy = (mul_s(uniforms.f[8].xxxx, vs_in_reg4.xyyy)).xy;
+    return false;
+}
+bool sub_45_49() {
+    // 45: ifc
+    if (all(bvec2(conditional_code.x, !conditional_code.y))) {
+        sub_46_47();
+    } else {
+        sub_47_48();
+    }
+    // 48: nop
+    return false;
+}
+bool sub_46_47() {
+    // 46: mul
+    reg_tmp6.xy = (mul_s(uniforms.f[8].yyyy, vs_in_reg5.xyyy)).xy;
+    return false;
+}
+bool sub_47_48() {
+    // 47: mul
+    reg_tmp6.xy = (mul_s(uniforms.f[8].zzzz, vs_in_reg6.xyyy)).xy;
+    return false;
+}
+bool sub_56_61() {
+    // 56: mova
+    address_registers.x = (ivec2(reg_tmp1.xx)).x;
+    // 57: dp4
+    reg_tmp3.x = dot_s(uniforms.f[25 + address_registers.x], reg_tmp15);
+    // 58: dp4
+    reg_tmp3.y = dot_s(uniforms.f[26 + address_registers.x], reg_tmp15);
+    // 59: dp4
+    reg_tmp3.z = dot_s(uniforms.f[27 + address_registers.x], reg_tmp15);
+    // 60: mad
+    reg_tmp7 = fma_s(reg_tmp1.wwww, reg_tmp3, reg_tmp7);
+    return false;
+}
+bool sub_61_70() {
+    // 61: mova
+    address_registers.x = (ivec2(reg_tmp1.xx)).x;
+    // 62: dp4
+    reg_tmp3.x = dot_s(uniforms.f[25 + address_registers.x], reg_tmp15);
+    // 63: dp4
+    reg_tmp3.y = dot_s(uniforms.f[26 + address_registers.x], reg_tmp15);
+    // 64: dp4
+    reg_tmp3.z = dot_s(uniforms.f[27 + address_registers.x], reg_tmp15);
+    // 65: dp3
+    reg_tmp4.x = dot_3(uniforms.f[25 + address_registers.x].xyz, reg_tmp14.xyz);
+    // 66: dp3
+    reg_tmp4.y = dot_3(uniforms.f[26 + address_registers.x].xyz, reg_tmp14.xyz);
+    // 67: dp3
+    reg_tmp4.z = dot_3(uniforms.f[27 + address_registers.x].xyz, reg_tmp14.xyz);
+    // 68: mad
+    reg_tmp7 = fma_s(reg_tmp1.wwww, reg_tmp3, reg_tmp7);
+    // 69: mad
+    reg_tmp12 = fma_s(reg_tmp1.wwww, reg_tmp4, reg_tmp12);
+    return false;
+}
+bool sub_70_83() {
+    // 70: mova
+    address_registers.x = (ivec2(reg_tmp1.xx)).x;
+    // 71: dp4
+    reg_tmp3.x = dot_s(uniforms.f[25 + address_registers.x], reg_tmp15);
+    // 72: dp4
+    reg_tmp3.y = dot_s(uniforms.f[26 + address_registers.x], reg_tmp15);
+    // 73: dp4
+    reg_tmp3.z = dot_s(uniforms.f[27 + address_registers.x], reg_tmp15);
+    // 74: dp3
+    reg_tmp4.x = dot_3(uniforms.f[25 + address_registers.x].xyz, reg_tmp14.xyz);
+    // 75: dp3
+    reg_tmp4.y = dot_3(uniforms.f[26 + address_registers.x].xyz, reg_tmp14.xyz);
+    // 76: dp3
+    reg_tmp4.z = dot_3(uniforms.f[27 + address_registers.x].xyz, reg_tmp14.xyz);
+    // 77: dp3
+    reg_tmp5.x = dot_3(uniforms.f[25 + address_registers.x].xyz, reg_tmp13.xyz);
+    // 78: dp3
+    reg_tmp5.y = dot_3(uniforms.f[26 + address_registers.x].xyz, reg_tmp13.xyz);
+    // 79: dp3
+    reg_tmp5.z = dot_3(uniforms.f[27 + address_registers.x].xyz, reg_tmp13.xyz);
+    // 80: mad
+    reg_tmp7 = fma_s(reg_tmp1.wwww, reg_tmp3, reg_tmp7);
+    // 81: mad
+    reg_tmp12 = fma_s(reg_tmp1.wwww, reg_tmp4, reg_tmp12);
+    // 82: mad
+    reg_tmp11 = fma_s(reg_tmp1.wwww, reg_tmp5, reg_tmp11);
+    return false;
+}
+bool sub_83_251() {
+    // 83: mul
+    reg_tmp15.xyz = (mul_s(uniforms.f[7].xxxx, vs_in_reg0)).xyz;
+    // 84: mul
+    reg_tmp14.xyz = (mul_s(uniforms.f[7].yyyy, vs_in_reg1)).xyz;
+    // 85: mul
+    reg_tmp13.xyz = (mul_s(uniforms.f[7].zzzz, vs_in_reg2)).xyz;
+    // 86: add
+    reg_tmp15.xyz = (uniforms.f[6] + reg_tmp15).xyz;
+    // 87: mov
+    reg_tmp15.w = (uniforms.f[93].yyyy).w;
+    // 88: ifu
+    if (uniforms.b[1]) {
+        sub_89_189();
+    } else {
+        sub_189_250();
+    }
+    // 250: nop
+    return false;
+}
+bool sub_89_189() {
+    // 89: mov
+    reg_tmp0 = uniforms.f[7];
+    // 90: cmp
+    conditional_code = notEqual(uniforms.f[93].xx, reg_tmp0.yz);
+    // 91: mov
+    reg_tmp7 = uniforms.f[93].xxxx;
+    // 92: mov
+    reg_tmp12 = uniforms.f[93].xxxx;
+    // 93: mov
+    reg_tmp11 = uniforms.f[93].xxxx;
+    // 94: mul
+    reg_tmp2 = mul_s(uniforms.f[93].wwww, vs_in_reg7);
+    // 95: ifc
+    if (all(bvec2(conditional_code.x, !conditional_code.y))) {
+        sub_96_125();
+    } else {
+        sub_125_184();
+    }
+    // 184: mov
+    vs_out_attr2 = -reg_tmp15;
+    // 185: dp4
+    vs_out_attr0.x = dot_s(uniforms.f[86], reg_tmp15);
+    // 186: dp4
+    vs_out_attr0.y = dot_s(uniforms.f[87], reg_tmp15);
+    // 187: dp4
+    vs_out_attr0.z = dot_s(uniforms.f[88], reg_tmp15);
+    // 188: dp4
+    vs_out_attr0.w = dot_s(uniforms.f[89], reg_tmp15);
+    return false;
+}
+bool sub_96_125() {
+    // 96: cmp
+    conditional_code = notEqual(uniforms.f[93].xx, vs_in_reg8.zw);
+    // 97: mov
+    reg_tmp1.xy = (reg_tmp2.xxxx).xy;
+    // 98: mul
+    reg_tmp1.w = (mul_s(uniforms.f[8].wwww, vs_in_reg8.xxxx)).w;
+    // 99: call
+    {
+        sub_61_70();
+    }
+    // 100: mov
+    reg_tmp1.xy = (reg_tmp2.yyyy).xy;
+    // 101: mul
+    reg_tmp1.w = (mul_s(uniforms.f[8].wwww, vs_in_reg8.yyyy)).w;
+    // 102: call
+    {
+        sub_61_70();
+    }
+    // 103: mov
+    reg_tmp1.xy = (reg_tmp2.zzzz).xy;
+    // 104: mul
+    reg_tmp1.w = (mul_s(uniforms.f[8].wwww, vs_in_reg8.zzzz)).w;
+    // 105: callc
+    if (conditional_code.x) {
+        sub_61_70();
+    }
+    // 106: ifu
+    if (uniforms.b[8]) {
+        sub_107_111();
+    }
+    // 111: mov
+    reg_tmp7.w = (uniforms.f[93].yyyy).w;
+    // 112: dp4
+    reg_tmp10.x = dot_s(uniforms.f[0], reg_tmp7);
+    // 113: dp4
+    reg_tmp10.y = dot_s(uniforms.f[1], reg_tmp7);
+    // 114: dp4
+    reg_tmp10.z = dot_s(uniforms.f[2], reg_tmp7);
+    // 115: mov
+    reg_tmp10.w = (uniforms.f[93].yyyy).w;
+    // 116: dp4
+    reg_tmp15.x = dot_s(uniforms.f[90], reg_tmp10);
+    // 117: dp4
+    reg_tmp15.y = dot_s(uniforms.f[91], reg_tmp10);
+    // 118: dp4
+    reg_tmp15.z = dot_s(uniforms.f[92], reg_tmp10);
+    // 119: mov
+    reg_tmp15.w = (uniforms.f[93].yyyy).w;
+    // 120: dp3
+    reg_tmp14.x = dot_3(uniforms.f[3].xyz, reg_tmp12.xyz);
+    // 121: dp3
+    reg_tmp14.y = dot_3(uniforms.f[4].xyz, reg_tmp12.xyz);
+    // 122: dp3
+    reg_tmp14.z = dot_3(uniforms.f[5].xyz, reg_tmp12.xyz);
+    // 123: call
+    {
+        sub_251_268();
+    }
+    // 124: nop
+    return false;
+}
+bool sub_107_111() {
+    // 107: mov
+    reg_tmp1.xy = (reg_tmp2.wwww).xy;
+    // 108: mul
+    reg_tmp1.w = (mul_s(uniforms.f[8].wwww, vs_in_reg8.wwww)).w;
+    // 109: callc
+    if (conditional_code.y) {
+        sub_61_70();
+    }
+    // 110: nop
+    return false;
+}
+bool sub_125_184() {
+    // 125: ifc
+    if (all(conditional_code)) {
+        sub_126_158();
+    } else {
+        sub_158_183();
+    }
+    // 183: nop
+    return false;
+}
+bool sub_126_158() {
+    // 126: cmp
+    conditional_code = notEqual(uniforms.f[93].xx, vs_in_reg8.zw);
+    // 127: mov
+    reg_tmp1.xy = (reg_tmp2.xxxx).xy;
+    // 128: mul
+    reg_tmp1.w = (mul_s(uniforms.f[8].wwww, vs_in_reg8.xxxx)).w;
+    // 129: call
+    {
+        sub_70_83();
+    }
+    // 130: mov
+    reg_tmp1.xy = (reg_tmp2.yyyy).xy;
+    // 131: mul
+    reg_tmp1.w = (mul_s(uniforms.f[8].wwww, vs_in_reg8.yyyy)).w;
+    // 132: call
+    {
+        sub_70_83();
+    }
+    // 133: mov
+    reg_tmp1.xy = (reg_tmp2.zzzz).xy;
+    // 134: mul
+    reg_tmp1.w = (mul_s(uniforms.f[8].wwww, vs_in_reg8.zzzz)).w;
+    // 135: callc
+    if (conditional_code.x) {
+        sub_70_83();
+    }
+    // 136: ifu
+    if (uniforms.b[8]) {
+        sub_137_141();
+    }
+    // 141: mov
+    reg_tmp7.w = (uniforms.f[93].yyyy).w;
+    // 142: dp4
+    reg_tmp10.x = dot_s(uniforms.f[0], reg_tmp7);
+    // 143: dp4
+    reg_tmp10.y = dot_s(uniforms.f[1], reg_tmp7);
+    // 144: dp4
+    reg_tmp10.z = dot_s(uniforms.f[2], reg_tmp7);
+    // 145: mov
+    reg_tmp10.w = (uniforms.f[93].yyyy).w;
+    // 146: dp3
+    reg_tmp13.x = dot_3(uniforms.f[3].xyz, reg_tmp11.xyz);
+    // 147: dp3
+    reg_tmp13.y = dot_3(uniforms.f[4].xyz, reg_tmp11.xyz);
+    // 148: dp3
+    reg_tmp13.z = dot_3(uniforms.f[5].xyz, reg_tmp11.xyz);
+    // 149: dp3
+    reg_tmp14.x = dot_3(uniforms.f[3].xyz, reg_tmp12.xyz);
+    // 150: dp3
+    reg_tmp14.y = dot_3(uniforms.f[4].xyz, reg_tmp12.xyz);
+    // 151: dp3
+    reg_tmp14.z = dot_3(uniforms.f[5].xyz, reg_tmp12.xyz);
+    // 152: dp4
+    reg_tmp15.x = dot_s(uniforms.f[90], reg_tmp10);
+    // 153: dp4
+    reg_tmp15.y = dot_s(uniforms.f[91], reg_tmp10);
+    // 154: dp4
+    reg_tmp15.z = dot_s(uniforms.f[92], reg_tmp10);
+    // 155: mov
+    reg_tmp15.w = (uniforms.f[93].yyyy).w;
+    // 156: call
+    {
+        sub_268_344();
+    }
+    // 157: nop
+    return false;
+}
+bool sub_137_141() {
+    // 137: mov
+    reg_tmp1.xy = (reg_tmp2.wwww).xy;
+    // 138: mul
+    reg_tmp1.w = (mul_s(uniforms.f[8].wwww, vs_in_reg8.wwww)).w;
+    // 139: callc
+    if (conditional_code.y) {
+        sub_70_83();
+    }
+    // 140: nop
+    return false;
+}
+bool sub_158_183() {
+    // 158: cmp
+    conditional_code = notEqual(uniforms.f[93].xx, vs_in_reg8.zw);
+    // 159: mov
+    reg_tmp1.xy = (reg_tmp2.xxxx).xy;
+    // 160: mul
+    reg_tmp1.w = (mul_s(uniforms.f[8].wwww, vs_in_reg8.xxxx)).w;
+    // 161: call
+    {
+        sub_56_61();
+    }
+    // 162: mov
+    reg_tmp1.xy = (reg_tmp2.yyyy).xy;
+    // 163: mul
+    reg_tmp1.w = (mul_s(uniforms.f[8].wwww, vs_in_reg8.yyyy)).w;
+    // 164: call
+    {
+        sub_56_61();
+    }
+    // 165: mov
+    reg_tmp1.xy = (reg_tmp2.zzzz).xy;
+    // 166: mul
+    reg_tmp1.w = (mul_s(uniforms.f[8].wwww, vs_in_reg8.zzzz)).w;
+    // 167: callc
+    if (conditional_code.x) {
+        sub_56_61();
+    }
+    // 168: ifu
+    if (uniforms.b[8]) {
+        sub_169_173();
+    }
+    // 173: mov
+    reg_tmp7.w = (uniforms.f[93].yyyy).w;
+    // 174: dp4
+    reg_tmp10.x = dot_s(uniforms.f[0], reg_tmp7);
+    // 175: dp4
+    reg_tmp10.y = dot_s(uniforms.f[1], reg_tmp7);
+    // 176: dp4
+    reg_tmp10.z = dot_s(uniforms.f[2], reg_tmp7);
+    // 177: mov
+    reg_tmp10.w = (uniforms.f[93].yyyy).w;
+    // 178: dp4
+    reg_tmp15.x = dot_s(uniforms.f[90], reg_tmp10);
+    // 179: dp4
+    reg_tmp15.y = dot_s(uniforms.f[91], reg_tmp10);
+    // 180: dp4
+    reg_tmp15.z = dot_s(uniforms.f[92], reg_tmp10);
+    // 181: mov
+    reg_tmp15.w = (uniforms.f[93].yyyy).w;
+    // 182: mov
+    vs_out_attr1 = uniforms.f[93].xxxx;
+    return false;
+}
+bool sub_169_173() {
+    // 169: mov
+    reg_tmp1.xy = (reg_tmp2.wwww).xy;
+    // 170: mul
+    reg_tmp1.w = (mul_s(uniforms.f[8].wwww, vs_in_reg8.wwww)).w;
+    // 171: callc
+    if (conditional_code.y) {
+        sub_56_61();
+    }
+    // 172: nop
+    return false;
+}
+bool sub_189_250() {
+    // 189: mov
+    reg_tmp0 = uniforms.f[7];
+    // 190: cmp
+    conditional_code = notEqual(uniforms.f[93].xx, reg_tmp0.yz);
+    // 191: ifu
+    if (uniforms.b[2]) {
+        sub_192_202();
+    } else {
+        sub_202_207();
+    }
+    // 207: ifc
+    if (all(bvec2(conditional_code.x, !conditional_code.y))) {
+        sub_208_220();
+    } else {
+        sub_220_245();
+    }
+    // 245: mov
+    vs_out_attr2 = -reg_tmp15;
+    // 246: dp4
+    vs_out_attr0.x = dot_s(uniforms.f[86], reg_tmp15);
+    // 247: dp4
+    vs_out_attr0.y = dot_s(uniforms.f[87], reg_tmp15);
+    // 248: dp4
+    vs_out_attr0.z = dot_s(uniforms.f[88], reg_tmp15);
+    // 249: dp4
+    vs_out_attr0.w = dot_s(uniforms.f[89], reg_tmp15);
+    return false;
+}
+bool sub_192_202() {
+    // 192: mul
+    reg_tmp1.x = (mul_s(uniforms.f[93].wwww, vs_in_reg7.xxxx)).x;
+    // 193: mova
+    address_registers.x = (ivec2(reg_tmp1.xx)).x;
+    // 194: dp4
+    reg_tmp7.x = dot_s(uniforms.f[25 + address_registers.x], reg_tmp15);
+    // 195: dp4
+    reg_tmp7.y = dot_s(uniforms.f[26 + address_registers.x], reg_tmp15);
+    // 196: dp4
+    reg_tmp7.z = dot_s(uniforms.f[27 + address_registers.x], reg_tmp15);
+    // 197: mov
+    reg_tmp7.w = (uniforms.f[93].yyyy).w;
+    // 198: dp4
+    reg_tmp10.x = dot_s(uniforms.f[0], reg_tmp7);
+    // 199: dp4
+    reg_tmp10.y = dot_s(uniforms.f[1], reg_tmp7);
+    // 200: dp4
+    reg_tmp10.z = dot_s(uniforms.f[2], reg_tmp7);
+    // 201: mov
+    reg_tmp10.w = (uniforms.f[93].yyyy).w;
+    return false;
+}
+bool sub_202_207() {
+    // 202: mova
+    address_registers.x = (ivec2(uniforms.f[93].xx)).x;
+    // 203: dp4
+    reg_tmp10.x = dot_s(uniforms.f[25], reg_tmp15);
+    // 204: dp4
+    reg_tmp10.y = dot_s(uniforms.f[26], reg_tmp15);
+    // 205: dp4
+    reg_tmp10.z = dot_s(uniforms.f[27], reg_tmp15);
+    // 206: mov
+    reg_tmp10.w = (uniforms.f[93].yyyy).w;
+    return false;
+}
+bool sub_208_220() {
+    // 208: dp3
+    reg_tmp12.x = dot_3(uniforms.f[25 + address_registers.x].xyz, reg_tmp14.xyz);
+    // 209: dp3
+    reg_tmp12.y = dot_3(uniforms.f[26 + address_registers.x].xyz, reg_tmp14.xyz);
+    // 210: dp3
+    reg_tmp12.z = dot_3(uniforms.f[27 + address_registers.x].xyz, reg_tmp14.xyz);
+    // 211: dp4
+    reg_tmp15.x = dot_s(uniforms.f[90], reg_tmp10);
+    // 212: dp4
+    reg_tmp15.y = dot_s(uniforms.f[91], reg_tmp10);
+    // 213: dp4
+    reg_tmp15.z = dot_s(uniforms.f[92], reg_tmp10);
+    // 214: mov
+    reg_tmp15.w = (uniforms.f[93].yyyy).w;
+    // 215: dp3
+    reg_tmp14.x = dot_3(uniforms.f[3].xyz, reg_tmp12.xyz);
+    // 216: dp3
+    reg_tmp14.y = dot_3(uniforms.f[4].xyz, reg_tmp12.xyz);
+    // 217: dp3
+    reg_tmp14.z = dot_3(uniforms.f[5].xyz, reg_tmp12.xyz);
+    // 218: call
+    {
+        sub_251_268();
+    }
+    // 219: nop
+    return false;
+}
+bool sub_220_245() {
+    // 220: ifc
+    if (all(conditional_code)) {
+        sub_221_239();
+    } else {
+        sub_239_244();
+    }
+    // 244: nop
+    return false;
+}
+bool sub_221_239() {
+    // 221: dp3
+    reg_tmp12.x = dot_3(uniforms.f[25 + address_registers.x].xyz, reg_tmp14.xyz);
+    // 222: dp3
+    reg_tmp12.y = dot_3(uniforms.f[26 + address_registers.x].xyz, reg_tmp14.xyz);
+    // 223: dp3
+    reg_tmp12.z = dot_3(uniforms.f[27 + address_registers.x].xyz, reg_tmp14.xyz);
+    // 224: dp3
+    reg_tmp11.x = dot_3(uniforms.f[25 + address_registers.x].xyz, reg_tmp13.xyz);
+    // 225: dp3
+    reg_tmp11.y = dot_3(uniforms.f[26 + address_registers.x].xyz, reg_tmp13.xyz);
+    // 226: dp3
+    reg_tmp11.z = dot_3(uniforms.f[27 + address_registers.x].xyz, reg_tmp13.xyz);
+    // 227: dp4
+    reg_tmp15.x = dot_s(uniforms.f[90], reg_tmp10);
+    // 228: dp4
+    reg_tmp15.y = dot_s(uniforms.f[91], reg_tmp10);
+    // 229: dp4
+    reg_tmp15.z = dot_s(uniforms.f[92], reg_tmp10);
+    // 230: mov
+    reg_tmp15.w = (uniforms.f[93].yyyy).w;
+    // 231: dp3
+    reg_tmp14.x = dot_3(uniforms.f[3].xyz, reg_tmp12.xyz);
+    // 232: dp3
+    reg_tmp14.y = dot_3(uniforms.f[4].xyz, reg_tmp12.xyz);
+    // 233: dp3
+    reg_tmp14.z = dot_3(uniforms.f[5].xyz, reg_tmp12.xyz);
+    // 234: dp3
+    reg_tmp13.x = dot_3(uniforms.f[3].xyz, reg_tmp11.xyz);
+    // 235: dp3
+    reg_tmp13.y = dot_3(uniforms.f[4].xyz, reg_tmp11.xyz);
+    // 236: dp3
+    reg_tmp13.z = dot_3(uniforms.f[5].xyz, reg_tmp11.xyz);
+    // 237: call
+    {
+        sub_268_344();
+    }
+    // 238: nop
+    return false;
+}
+bool sub_239_244() {
+    // 239: dp4
+    reg_tmp15.x = dot_s(uniforms.f[90], reg_tmp10);
+    // 240: dp4
+    reg_tmp15.y = dot_s(uniforms.f[91], reg_tmp10);
+    // 241: dp4
+    reg_tmp15.z = dot_s(uniforms.f[92], reg_tmp10);
+    // 242: mov
+    reg_tmp15.w = (uniforms.f[93].yyyy).w;
+    // 243: mov
+    vs_out_attr1 = uniforms.f[93].xxxx;
+    return false;
+}
+bool sub_251_268() {
+    uint jmp_to = 251u;
+    while (true) {
+        switch (jmp_to) {
+        case 251u: {
+            // 251: dp3
+            reg_tmp6.x = dot_3(reg_tmp14.xyz, reg_tmp14.xyz);
+            // 252: dp3
+            reg_tmp7.x = dot_3(reg_tmp12.xyz, reg_tmp12.xyz);
+            // 253: rsq
+            reg_tmp6.x = rsq_s(reg_tmp6.x);
+            // 254: rsq
+            reg_tmp7.x = rsq_s(reg_tmp7.x);
+            // 255: mul
+            reg_tmp14.xyz = (mul_s(reg_tmp14.xyzz, reg_tmp6.xxxx)).xyz;
+            // 256: mul
+            reg_tmp12.xyz = (mul_s(reg_tmp12.xyzz, reg_tmp7.xxxx)).xyz;
+            // 257: mov
+            reg_tmp0 = uniforms.f[93].yxxx;
+            // 258: jmpu
+            if (!uniforms.b[15]) {
+                { jmp_to = 267u; break; }
+            }
+            // 259: add
+            reg_tmp4 = uniforms.f[93].yyyy + reg_tmp14.zzzz;
+            // 260: mul
+            reg_tmp4 = mul_s(uniforms.f[94].zzzz, reg_tmp4);
+            // 261: cmp
+            conditional_code = greaterThanEqual(uniforms.f[93].xx, reg_tmp4.xx);
+            // 262: rsq
+            reg_tmp4 = vec4(rsq_s(reg_tmp4.x));
+            // 263: mul
+            reg_tmp5 = mul_s(uniforms.f[94].zzzz, reg_tmp14);
+            // 264: jmpc
+            if (conditional_code.x) {
+                { jmp_to = 267u; break; }
+            }
+            // 265: rcp
+            reg_tmp0.z = rcp_s(reg_tmp4.x);
+            // 266: mul
+            reg_tmp0.xy = (mul_s(reg_tmp5, reg_tmp4)).xy;
+        }
+        case 267u: {
+            // 267: mov
+            vs_out_attr1 = reg_tmp0;
+        }
+        default: return false;
+        }
+    }
+    return false;
+}
+bool sub_268_344() {
+    uint jmp_to = 268u;
+    while (true) {
+        switch (jmp_to) {
+        case 268u: {
+            // 268: dp3
+            reg_tmp6.x = dot_3(reg_tmp14.xyz, reg_tmp14.xyz);
+            // 269: dp3
+            reg_tmp7.x = dot_3(reg_tmp12.xyz, reg_tmp12.xyz);
+            // 270: rsq
+            reg_tmp6.x = rsq_s(reg_tmp6.x);
+            // 271: rsq
+            reg_tmp7.x = rsq_s(reg_tmp7.x);
+            // 272: mul
+            reg_tmp14.xyz = (mul_s(reg_tmp14.xyzz, reg_tmp6.xxxx)).xyz;
+            // 273: mul
+            reg_tmp12.xyz = (mul_s(reg_tmp12.xyzz, reg_tmp7.xxxx)).xyz;
+            // 274: mul
+            reg_tmp13.xyz = (mul_s(reg_tmp13.xyzz, reg_tmp6.xxxx)).xyz;
+            // 275: mul
+            reg_tmp11.xyz = (mul_s(reg_tmp11.xyzz, reg_tmp7.xxxx)).xyz;
+            // 276: mov
+            reg_tmp0 = uniforms.f[93].yxxx;
+            // 277: jmpu
+            if (!uniforms.b[15]) {
+                { jmp_to = 343u; break; }
+            }
+            // 278: mul
+            reg_tmp13.xyz = (mul_s(reg_tmp13.xyzz, reg_tmp6.xxxx)).xyz;
+            // 279: mul
+            reg_tmp11.xyz = (mul_s(reg_tmp11.xyzz, reg_tmp7.xxxx)).xyz;
+            // 280: mul
+            reg_tmp5 = mul_s(reg_tmp14.yzxx, reg_tmp13.zxyy);
+            // 281: mad
+            reg_tmp5 = fma_s(-reg_tmp13.yzxx, reg_tmp14.zxyy, reg_tmp5);
+            // 282: dp3
+            reg_tmp5.w = dot_3(reg_tmp5.xyz, reg_tmp5.xyz);
+            // 283: rsq
+            reg_tmp5.w = rsq_s(reg_tmp5.w);
+            // 284: mul
+            reg_tmp5 = mul_s(reg_tmp5, reg_tmp5.wwww);
+            // 285: add
+            reg_tmp6.w = (reg_tmp14.zzzz + reg_tmp5.yyyy).w;
+            // 286: mul
+            reg_tmp13 = mul_s(reg_tmp5.yzxx, reg_tmp14.zxyy);
+            // 287: mad
+            reg_tmp13 = fma_s(-reg_tmp14.yzxx, reg_tmp5.zxyy, reg_tmp13);
+            // 288: add
+            reg_tmp6.w = (reg_tmp13.xxxx + reg_tmp6).w;
+            // 289: mov
+            reg_tmp13.w = (reg_tmp5.zzzz).w;
+            // 290: mov
+            reg_tmp5.z = (reg_tmp13.xxxx).z;
+            // 291: add
+            reg_tmp6.w = (uniforms.f[93].yyyy + reg_tmp6).w;
+            // 292: mov
+            reg_tmp14.w = (reg_tmp5.xxxx).w;
+            // 293: mov
+            reg_tmp5.x = (reg_tmp14.zzzz).x;
+            // 294: cmp
+            conditional_code = lessThan(uniforms.f[94].yy, reg_tmp6.ww);
+            // 295: mov
+            reg_tmp6.x = (uniforms.f[93].yyyy).x;
+            // 296: mov
+            reg_tmp6.y = (-uniforms.f[93].yyyy).y;
+            // 297: jmpc
+            if (!conditional_code.x) {
+                { jmp_to = 305u; break; }
+            }
+            // 298: add
+            reg_tmp7.xz = (reg_tmp13.wwyy + -reg_tmp14.yyww).xz;
+            // 299: add
+            reg_tmp7.y = (reg_tmp14.xxxx + -reg_tmp13.zzzz).y;
+            // 300: mov
+            reg_tmp7.w = (reg_tmp6).w;
+            // 301: dp4
+            reg_tmp6 = vec4(dot_s(reg_tmp7, reg_tmp7));
+            // 302: rsq
+            reg_tmp6 = vec4(rsq_s(reg_tmp6.x));
+            // 303: mul
+            reg_tmp0 = mul_s(reg_tmp7, reg_tmp6);
+            // 304: jmpu
+            if (uniforms.b[0]) {
+                { jmp_to = 343u; break; }
+            }
+        }
+        case 305u: {
+            // 305: cmp
+            conditional_code = greaterThan(reg_tmp5.zy, reg_tmp5.yx);
+            // 306: ifc
+            if (conditional_code.x) {
+                sub_307_327();
+            } else {
+                sub_327_340();
+            }
+            // 340: dp4
+            reg_tmp6 = vec4(dot_s(reg_tmp8, reg_tmp8));
+            // 341: rsq
+            reg_tmp6 = vec4(rsq_s(reg_tmp6.x));
+            // 342: mul
+            reg_tmp0 = mul_s(reg_tmp8, reg_tmp6);
+        }
+        case 343u: {
+            // 343: mov
+            vs_out_attr1 = reg_tmp0;
+        }
+        default: return false;
+        }
+    }
+    return false;
+}
+bool sub_307_327() {
+    // 307: ifc
+    if (conditional_code.y) {
+        sub_308_313();
+    } else {
+        sub_313_326();
+    }
+    // 326: mov
+    reg_tmp8.w = (-reg_tmp8).w;
+    return false;
+}
+bool sub_308_313() {
+    // 308: mul
+    reg_tmp8 = mul_s(reg_tmp13.yyzw, reg_tmp6.xxxy);
+    // 309: add
+    reg_tmp8.x = (uniforms.f[93].yyyy + -reg_tmp5.yyyy).x;
+    // 310: add
+    reg_tmp9 = reg_tmp5.zzzz + -reg_tmp5.xxxx;
+    // 311: add
+    reg_tmp8.yzw = (reg_tmp8 + reg_tmp14.wwxy).yzw;
+    // 312: add
+    reg_tmp8.x = (reg_tmp9 + reg_tmp8).x;
+    return false;
+}
+bool sub_313_326() {
+    // 313: cmp
+    conditional_code = greaterThan(reg_tmp5.zz, reg_tmp5.xx);
+    // 314: mul
+    reg_tmp8 = mul_s(reg_tmp13.yyzw, reg_tmp6.xxxy);
+    // 315: add
+    reg_tmp8.x = (uniforms.f[93].yyyy + -reg_tmp5.yyyy).x;
+    // 316: ifc
+    if (conditional_code.x) {
+        sub_317_320();
+    } else {
+        sub_320_325();
+    }
+    // 325: nop
+    return false;
+}
+bool sub_317_320() {
+    // 317: add
+    reg_tmp9 = reg_tmp5.zzzz + -reg_tmp5.xxxx;
+    // 318: add
+    reg_tmp8.yzw = (reg_tmp8 + reg_tmp14.wwxy).yzw;
+    // 319: add
+    reg_tmp8.x = (reg_tmp9 + reg_tmp8).x;
+    return false;
+}
+bool sub_320_325() {
+    // 320: mul
+    reg_tmp8 = mul_s(reg_tmp13.zwwy, reg_tmp6.xxxy);
+    // 321: add
+    reg_tmp8.z = (uniforms.f[93].yyyy + -reg_tmp5.zzzz).z;
+    // 322: add
+    reg_tmp9 = reg_tmp5.xxxx + -reg_tmp5.yyyy;
+    // 323: add
+    reg_tmp8.xyw = (reg_tmp8 + reg_tmp14.xyyw).xyw;
+    // 324: add
+    reg_tmp8.z = (reg_tmp9 + reg_tmp8).z;
+    return false;
+}
+bool sub_327_340() {
+    // 327: ifc
+    if (conditional_code.y) {
+        sub_328_333();
+    } else {
+        sub_333_339();
+    }
+    // 339: nop
+    return false;
+}
+bool sub_328_333() {
+    // 328: mul
+    reg_tmp8 = mul_s(reg_tmp13.yywz, reg_tmp6.xxxy);
+    // 329: add
+    reg_tmp8.y = (uniforms.f[93].yyyy + -reg_tmp5.zzzz).y;
+    // 330: add
+    reg_tmp9 = reg_tmp5.yyyy + -reg_tmp5.xxxx;
+    // 331: add
+    reg_tmp8.xzw = (reg_tmp8 + reg_tmp14.wwyx).xzw;
+    // 332: add
+    reg_tmp8.y = (reg_tmp9 + reg_tmp8).y;
+    return false;
+}
+bool sub_333_339() {
+    // 333: mul
+    reg_tmp8 = mul_s(reg_tmp13.zwwy, reg_tmp6.xxxy);
+    // 334: add
+    reg_tmp8.z = (uniforms.f[93].yyyy + -reg_tmp5.zzzz).z;
+    // 335: add
+    reg_tmp9 = reg_tmp5.xxxx + -reg_tmp5.yyyy;
+    // 336: add
+    reg_tmp8.xyw = (reg_tmp8 + reg_tmp14.xyyw).xyw;
+    // 337: add
+    reg_tmp8.z = (reg_tmp9 + reg_tmp8).z;
+    // 338: mov
+    reg_tmp8.w = (-reg_tmp8).w;
+    return false;
+}
+// reference: 54DCEEF01CC2CC2E, 559D364E86318AE6
+// program: 559D364E86318AE6, 3B3AE026C742C7D5, 30DAB74CA24CBC58
+// program: 559D364E86318AE6, 3B3AE026C742C7D5, B29EF1BFC4D10886
+// shader: 8B31, 3FCC2EE227F0CC04
+
+struct pica_uniforms {
+    bool b[16];
+    uvec4 i[4];
+    vec4 f[96];
+};
+
+bool exec_shader();
+
+#define uniforms vs_uniforms
+layout (std140) uniform vs_config {
+    pica_uniforms uniforms;
+};
+
+layout(location = 0) in vec4 vs_in_reg0;
+layout(location = 1) in vec4 vs_in_reg1;
+layout(location = 2) in vec4 vs_in_reg2;
+layout(location = 3) in vec4 vs_in_reg3;
+layout(location = 4) in vec4 vs_in_reg4;
+layout(location = 5) in vec4 vs_in_reg5;
+layout(location = 6) in vec4 vs_in_reg6;
+layout(location = 7) in vec4 vs_in_reg7;
+layout(location = 8) in vec4 vs_in_reg8;
+
+ out vec4 vs_out_attr0;
+ out vec4 vs_out_attr1;
+ out vec4 vs_out_attr2;
+ out vec4 vs_out_attr3;
+ out vec4 vs_out_attr4;
+ out vec4 vs_out_attr5;
+
+void main() {
+    vs_out_attr0 = vec4(0.0, 0.0, 0.0, 1.0);
+    vs_out_attr1 = vec4(0.0, 0.0, 0.0, 1.0);
+    vs_out_attr2 = vec4(0.0, 0.0, 0.0, 1.0);
+    vs_out_attr3 = vec4(0.0, 0.0, 0.0, 1.0);
+    vs_out_attr4 = vec4(0.0, 0.0, 0.0, 1.0);
+    vs_out_attr5 = vec4(0.0, 0.0, 0.0, 1.0);
+
+    exec_shader();
+}
+
+
+#define mul_s(x, y) mix(x * y, vec4(0.0), isnan(x * y))
+#define mul_3(x, y) mix(x * y, vec3(0.0), isnan(x * y))
+#define fma_s(x, y, z) (mul_s(x, y) + z)
+float rcp_s(float x) {
+    if (x == 0.0) return x;
+    return 1.0 / x;
+}
+float rsq_s(float x) {
+    if (x > 0.0) return inversesqrt(x);
+    return 0.0;
+}
+#define dot_s(x, y) dot(x, y)
+#define dot_3(x, y) dot(mul_3(x, y), vec3(1.0))
+
+bvec2 conditional_code = bvec2(false);
+ivec3 address_registers = ivec3(0);
+vec4 reg_tmp0 = vec4(0.0, 0.0, 0.0, 1.0);
+vec4 reg_tmp1 = vec4(0.0, 0.0, 0.0, 1.0);
+vec4 reg_tmp2 = vec4(0.0, 0.0, 0.0, 1.0);
+vec4 reg_tmp3 = vec4(0.0, 0.0, 0.0, 1.0);
+vec4 reg_tmp4 = vec4(0.0, 0.0, 0.0, 1.0);
+vec4 reg_tmp5 = vec4(0.0, 0.0, 0.0, 1.0);
+vec4 reg_tmp6 = vec4(0.0, 0.0, 0.0, 1.0);
+vec4 reg_tmp7 = vec4(0.0, 0.0, 0.0, 1.0);
+vec4 reg_tmp8 = vec4(0.0, 0.0, 0.0, 1.0);
+vec4 reg_tmp9 = vec4(0.0, 0.0, 0.0, 1.0);
+vec4 reg_tmp10 = vec4(0.0, 0.0, 0.0, 1.0);
+vec4 reg_tmp11 = vec4(0.0, 0.0, 0.0, 1.0);
+vec4 reg_tmp12 = vec4(0.0, 0.0, 0.0, 1.0);
+vec4 reg_tmp13 = vec4(0.0, 0.0, 0.0, 1.0);
+vec4 reg_tmp14 = vec4(0.0, 0.0, 0.0, 1.0);
+vec4 reg_tmp15 = vec4(0.0, 0.0, 0.0, 1.0);
+
+bool sub_0_4096();
+bool sub_7_12();
+bool sub_9_10();
+bool sub_14_15();
+bool sub_18_30();
+bool sub_20_21();
+bool sub_21_25();
+bool sub_22_23();
+bool sub_23_24();
+bool sub_30_40();
+bool sub_44_45();
+bool sub_45_49();
+bool sub_46_47();
+bool sub_47_48();
+bool sub_56_61();
+bool sub_61_70();
+bool sub_70_83();
+bool sub_83_293();
+bool sub_89_210();
+bool sub_96_130();
+bool sub_107_111();
+bool sub_130_199();
+bool sub_131_168();
+bool sub_142_146();
+bool sub_168_198();
+bool sub_179_183();
+bool sub_208_209();
+bool sub_210_292();
+bool sub_211_221();
+bool sub_221_226();
+bool sub_229_246();
+bool sub_246_281();
+bool sub_247_270();
+bool sub_270_280();
+bool sub_290_291();
+bool sub_293_310();
+bool sub_310_386();
+bool sub_349_369();
+bool sub_350_355();
+bool sub_355_368();
+bool sub_359_362();
+bool sub_362_367();
+bool sub_369_382();
+bool sub_370_375();
+bool sub_375_381();
+
+bool exec_shader() {
+    sub_0_4096();
+    return true;
+}
+
+bool sub_0_4096() {
+    // 0: call
+    {
+        sub_83_293();
+    }
+    // 1: mov
+    reg_tmp8.xy = (uniforms.f[93].xxxx).xy;
+    // 2: mov
+    reg_tmp0.y = (uniforms.f[7].wwww).y;
+    // 3: cmp
+    conditional_code = notEqual(uniforms.f[93].xx, reg_tmp0.xy);
+    // 4: mov
+    reg_tmp9.xyz = (uniforms.f[93].xxxx).xyz;
+    // 5: mov
+    reg_tmp9.w = (uniforms.f[21].wwww).w;
+    // 6: ifc
+    if (conditional_code.y) {
+        sub_7_12();
+    }
+    // 12: cmp
+    conditional_code = equal(uniforms.f[93].xx, reg_tmp8.xy);
+    // 13: ifc
+    if (all(conditional_code)) {
+        sub_14_15();
+    }
+    // 15: max
+    vs_out_attr3 = max(uniforms.f[93].xxxx, reg_tmp9);
+    // 16: mov
+    reg_tmp0.xy = (uniforms.f[10].xxxx).xy;
+    // 17: ifu
+    if (uniforms.b[9]) {
+        sub_18_30();
+    } else {
+        sub_30_40();
+    }
+    // 40: nop
+    // 41: mov
+    reg_tmp0.xy = (uniforms.f[10].yyyy).xy;
+    // 42: cmp
+    conditional_code = equal(uniforms.f[93].yz, reg_tmp0.xy);
+    // 43: ifc
+    if (all(not(conditional_code))) {
+        sub_44_45();
+    } else {
+        sub_45_49();
+    }
+    // 49: mov
+    reg_tmp6.zw = (uniforms.f[93].xxyy).zw;
+    // 50: dp4
+    reg_tmp4.x = dot_s(uniforms.f[14].xywz, reg_tmp6);
+    // 51: dp4
+    reg_tmp4.y = dot_s(uniforms.f[15].xywz, reg_tmp6);
+    // 52: mov
+    vs_out_attr5 = reg_tmp4;
+    // 53: nop
+    // 54: end
+    return true;
+}
+bool sub_7_12() {
+    // 7: mul
+    reg_tmp0 = mul_s(uniforms.f[7].wwww, vs_in_reg3);
+    // 8: ifu
+    if (uniforms.b[7]) {
+        sub_9_10();
+    }
+    // 10: mul
+    reg_tmp9.xyz = (mul_s(uniforms.f[20].wwww, reg_tmp0.xyzz)).xyz;
+    // 11: mov
+    reg_tmp8.x = (uniforms.f[93].yyyy).x;
+    return false;
+}
+bool sub_9_10() {
+    // 9: mul
+    reg_tmp9.w = (mul_s(reg_tmp9.wwww, reg_tmp0.wwww)).w;
+    return false;
+}
+bool sub_14_15() {
+    // 14: mov
+    reg_tmp9 = uniforms.f[21];
+    return false;
+}
+bool sub_18_30() {
+    // 18: cmp
+    conditional_code = equal(uniforms.f[93].yz, reg_tmp0.xy);
+    // 19: ifc
+    if (all(not(conditional_code))) {
+        sub_20_21();
+    } else {
+        sub_21_25();
+    }
+    // 25: mov
+    reg_tmp6.zw = (uniforms.f[93].xxyy).zw;
+    // 26: dp4
+    reg_tmp3.x = dot_s(uniforms.f[11].xywz, reg_tmp6);
+    // 27: dp4
+    reg_tmp3.y = dot_s(uniforms.f[12].xywz, reg_tmp6);
+    // 28: mov
+    reg_tmp3.zw = (uniforms.f[93].xxxx).zw;
+    // 29: mov
+    vs_out_attr4 = reg_tmp3;
+    return false;
+}
+bool sub_20_21() {
+    // 20: mul
+    reg_tmp6.xy = (mul_s(uniforms.f[8].xxxx, vs_in_reg4.xyyy)).xy;
+    return false;
+}
+bool sub_21_25() {
+    // 21: ifc
+    if (all(bvec2(conditional_code.x, !conditional_code.y))) {
+        sub_22_23();
+    } else {
+        sub_23_24();
+    }
+    // 24: nop
+    return false;
+}
+bool sub_22_23() {
+    // 22: mul
+    reg_tmp6.xy = (mul_s(uniforms.f[8].yyyy, vs_in_reg5.xyyy)).xy;
+    return false;
+}
+bool sub_23_24() {
+    // 23: mul
+    reg_tmp6.xy = (mul_s(uniforms.f[8].zzzz, vs_in_reg6.xyyy)).xy;
+    return false;
+}
+bool sub_30_40() {
+    // 30: cmp
+    conditional_code = equal(uniforms.f[95].xy, reg_tmp0.xy);
+    // 31: mov
+    reg_tmp6.zw = (uniforms.f[93].xxyy).zw;
+    // 32: mov
+    reg_tmp6 = reg_tmp10;
+    // 33: dp4
+    reg_tmp3.x = dot_s(uniforms.f[11], reg_tmp6);
+    // 34: dp4
+    reg_tmp3.y = dot_s(uniforms.f[12], reg_tmp6);
+    // 35: dp4
+    reg_tmp3.z = dot_s(uniforms.f[13], reg_tmp6);
+    // 36: mul
+    reg_tmp0.xy = (mul_s(uniforms.f[19].xyyy, reg_tmp3.zzzz)).xy;
+    // 37: add
+    reg_tmp3.xy = (reg_tmp3.xyyy + reg_tmp0.xyyy).xy;
+    // 38: nop
+    // 39: mov
+    vs_out_attr4 = reg_tmp3;
+    return false;
+}
+bool sub_44_45() {
+    // 44: mul
+    reg_tmp6.xy = (mul_s(uniforms.f[8].xxxx, vs_in_reg4.xyyy)).xy;
+    return false;
+}
+bool sub_45_49() {
+    // 45: ifc
+    if (all(bvec2(conditional_code.x, !conditional_code.y))) {
+        sub_46_47();
+    } else {
+        sub_47_48();
+    }
+    // 48: nop
+    return false;
+}
+bool sub_46_47() {
+    // 46: mul
+    reg_tmp6.xy = (mul_s(uniforms.f[8].yyyy, vs_in_reg5.xyyy)).xy;
+    return false;
+}
+bool sub_47_48() {
+    // 47: mul
+    reg_tmp6.xy = (mul_s(uniforms.f[8].zzzz, vs_in_reg6.xyyy)).xy;
+    return false;
+}
+bool sub_56_61() {
+    // 56: mova
+    address_registers.x = (ivec2(reg_tmp1.xx)).x;
+    // 57: dp4
+    reg_tmp3.x = dot_s(uniforms.f[25 + address_registers.x], reg_tmp15);
+    // 58: dp4
+    reg_tmp3.y = dot_s(uniforms.f[26 + address_registers.x], reg_tmp15);
+    // 59: dp4
+    reg_tmp3.z = dot_s(uniforms.f[27 + address_registers.x], reg_tmp15);
+    // 60: mad
+    reg_tmp7 = fma_s(reg_tmp1.wwww, reg_tmp3, reg_tmp7);
+    return false;
+}
+bool sub_61_70() {
+    // 61: mova
+    address_registers.x = (ivec2(reg_tmp1.xx)).x;
+    // 62: dp4
+    reg_tmp3.x = dot_s(uniforms.f[25 + address_registers.x], reg_tmp15);
+    // 63: dp4
+    reg_tmp3.y = dot_s(uniforms.f[26 + address_registers.x], reg_tmp15);
+    // 64: dp4
+    reg_tmp3.z = dot_s(uniforms.f[27 + address_registers.x], reg_tmp15);
+    // 65: dp3
+    reg_tmp4.x = dot_3(uniforms.f[25 + address_registers.x].xyz, reg_tmp14.xyz);
+    // 66: dp3
+    reg_tmp4.y = dot_3(uniforms.f[26 + address_registers.x].xyz, reg_tmp14.xyz);
+    // 67: dp3
+    reg_tmp4.z = dot_3(uniforms.f[27 + address_registers.x].xyz, reg_tmp14.xyz);
+    // 68: mad
+    reg_tmp7 = fma_s(reg_tmp1.wwww, reg_tmp3, reg_tmp7);
+    // 69: mad
+    reg_tmp12 = fma_s(reg_tmp1.wwww, reg_tmp4, reg_tmp12);
+    return false;
+}
+bool sub_70_83() {
+    // 70: mova
+    address_registers.x = (ivec2(reg_tmp1.xx)).x;
+    // 71: dp4
+    reg_tmp3.x = dot_s(uniforms.f[25 + address_registers.x], reg_tmp15);
+    // 72: dp4
+    reg_tmp3.y = dot_s(uniforms.f[26 + address_registers.x], reg_tmp15);
+    // 73: dp4
+    reg_tmp3.z = dot_s(uniforms.f[27 + address_registers.x], reg_tmp15);
+    // 74: dp3
+    reg_tmp4.x = dot_3(uniforms.f[25 + address_registers.x].xyz, reg_tmp14.xyz);
+    // 75: dp3
+    reg_tmp4.y = dot_3(uniforms.f[26 + address_registers.x].xyz, reg_tmp14.xyz);
+    // 76: dp3
+    reg_tmp4.z = dot_3(uniforms.f[27 + address_registers.x].xyz, reg_tmp14.xyz);
+    // 77: dp3
+    reg_tmp5.x = dot_3(uniforms.f[25 + address_registers.x].xyz, reg_tmp13.xyz);
+    // 78: dp3
+    reg_tmp5.y = dot_3(uniforms.f[26 + address_registers.x].xyz, reg_tmp13.xyz);
+    // 79: dp3
+    reg_tmp5.z = dot_3(uniforms.f[27 + address_registers.x].xyz, reg_tmp13.xyz);
+    // 80: mad
+    reg_tmp7 = fma_s(reg_tmp1.wwww, reg_tmp3, reg_tmp7);
+    // 81: mad
+    reg_tmp12 = fma_s(reg_tmp1.wwww, reg_tmp4, reg_tmp12);
+    // 82: mad
+    reg_tmp11 = fma_s(reg_tmp1.wwww, reg_tmp5, reg_tmp11);
+    return false;
+}
+bool sub_83_293() {
+    // 83: mul
+    reg_tmp15.xyz = (mul_s(uniforms.f[7].xxxx, vs_in_reg0)).xyz;
+    // 84: mul
+    reg_tmp14.xyz = (mul_s(uniforms.f[7].yyyy, vs_in_reg1)).xyz;
+    // 85: mul
+    reg_tmp13.xyz = (mul_s(uniforms.f[7].zzzz, vs_in_reg2)).xyz;
+    // 86: add
+    reg_tmp15.xyz = (uniforms.f[6] + reg_tmp15).xyz;
+    // 87: mov
+    reg_tmp15.w = (uniforms.f[93].yyyy).w;
+    // 88: ifu
+    if (uniforms.b[1]) {
+        sub_89_210();
+    } else {
+        sub_210_292();
+    }
+    // 292: nop
+    return false;
+}
+bool sub_89_210() {
+    // 89: mov
+    reg_tmp0 = uniforms.f[7];
+    // 90: cmp
+    conditional_code = notEqual(uniforms.f[93].xx, reg_tmp0.yz);
+    // 91: mov
+    reg_tmp7 = uniforms.f[93].xxxx;
+    // 92: mov
+    reg_tmp12 = uniforms.f[93].xxxx;
+    // 93: mov
+    reg_tmp11 = uniforms.f[93].xxxx;
+    // 94: mul
+    reg_tmp2 = mul_s(uniforms.f[93].wwww, vs_in_reg7);
+    // 95: ifc
+    if (all(bvec2(conditional_code.x, !conditional_code.y))) {
+        sub_96_130();
+    } else {
+        sub_130_199();
+    }
+    // 199: mov
+    vs_out_attr2 = -reg_tmp15;
+    // 200: dp4
+    reg_tmp0.x = dot_s(uniforms.f[86], reg_tmp15);
+    // 201: dp4
+    reg_tmp0.y = dot_s(uniforms.f[87], reg_tmp15);
+    // 202: dp4
+    reg_tmp0.z = dot_s(uniforms.f[88], reg_tmp15);
+    // 203: dp4
+    reg_tmp0.w = dot_s(uniforms.f[89], reg_tmp15);
+    // 204: mov
+    reg_tmp1.x = (-reg_tmp0.wwww).x;
+    // 205: mul
+    reg_tmp1.y = (mul_s(uniforms.f[95].zzzz, -reg_tmp0.wwww)).y;
+    // 206: cmp
+    conditional_code.x = reg_tmp0.xxxx.x > reg_tmp1.xyyy.x;
+    conditional_code.y = reg_tmp0.xxxx.y < reg_tmp1.xyyy.y;
+    // 207: ifc
+    if (all(conditional_code)) {
+        sub_208_209();
+    }
+    // 209: mov
+    vs_out_attr0 = reg_tmp0;
+    return false;
+}
+bool sub_96_130() {
+    // 96: cmp
+    conditional_code = notEqual(uniforms.f[93].xx, vs_in_reg8.zw);
+    // 97: mov
+    reg_tmp1.xy = (reg_tmp2.xxxx).xy;
+    // 98: mul
+    reg_tmp1.w = (mul_s(uniforms.f[8].wwww, vs_in_reg8.xxxx)).w;
+    // 99: call
+    {
+        sub_61_70();
+    }
+    // 100: mov
+    reg_tmp1.xy = (reg_tmp2.yyyy).xy;
+    // 101: mul
+    reg_tmp1.w = (mul_s(uniforms.f[8].wwww, vs_in_reg8.yyyy)).w;
+    // 102: call
+    {
+        sub_61_70();
+    }
+    // 103: mov
+    reg_tmp1.xy = (reg_tmp2.zzzz).xy;
+    // 104: mul
+    reg_tmp1.w = (mul_s(uniforms.f[8].wwww, vs_in_reg8.zzzz)).w;
+    // 105: callc
+    if (conditional_code.x) {
+        sub_61_70();
+    }
+    // 106: ifu
+    if (uniforms.b[8]) {
+        sub_107_111();
+    }
+    // 111: mov
+    reg_tmp7.w = (uniforms.f[93].yyyy).w;
+    // 112: dp4
+    reg_tmp10.x = dot_s(uniforms.f[0], reg_tmp7);
+    // 113: dp4
+    reg_tmp10.y = dot_s(uniforms.f[1], reg_tmp7);
+    // 114: dp4
+    reg_tmp10.z = dot_s(uniforms.f[2], reg_tmp7);
+    // 115: mov
+    reg_tmp10.w = (uniforms.f[93].yyyy).w;
+    // 116: mov
+    reg_tmp7 = reg_tmp10;
+    // 117: dp4
+    reg_tmp10.x = dot_s(uniforms.f[22], reg_tmp7);
+    // 118: dp4
+    reg_tmp10.y = dot_s(uniforms.f[23], reg_tmp7);
+    // 119: dp4
+    reg_tmp10.z = dot_s(uniforms.f[24], reg_tmp7);
+    // 120: mov
+    reg_tmp10.w = (uniforms.f[93].yyyy).w;
+    // 121: dp4
+    reg_tmp15.x = dot_s(uniforms.f[90], reg_tmp10);
+    // 122: dp4
+    reg_tmp15.y = dot_s(uniforms.f[91], reg_tmp10);
+    // 123: dp4
+    reg_tmp15.z = dot_s(uniforms.f[92], reg_tmp10);
+    // 124: mov
+    reg_tmp15.w = (uniforms.f[93].yyyy).w;
+    // 125: dp3
+    reg_tmp14.x = dot_3(uniforms.f[3].xyz, reg_tmp12.xyz);
+    // 126: dp3
+    reg_tmp14.y = dot_3(uniforms.f[4].xyz, reg_tmp12.xyz);
+    // 127: dp3
+    reg_tmp14.z = dot_3(uniforms.f[5].xyz, reg_tmp12.xyz);
+    // 128: call
+    {
+        sub_293_310();
+    }
+    // 129: nop
+    return false;
+}
+bool sub_107_111() {
+    // 107: mov
+    reg_tmp1.xy = (reg_tmp2.wwww).xy;
+    // 108: mul
+    reg_tmp1.w = (mul_s(uniforms.f[8].wwww, vs_in_reg8.wwww)).w;
+    // 109: callc
+    if (conditional_code.y) {
+        sub_61_70();
+    }
+    // 110: nop
+    return false;
+}
+bool sub_130_199() {
+    // 130: ifc
+    if (all(conditional_code)) {
+        sub_131_168();
+    } else {
+        sub_168_198();
+    }
+    // 198: nop
+    return false;
+}
+bool sub_131_168() {
+    // 131: cmp
+    conditional_code = notEqual(uniforms.f[93].xx, vs_in_reg8.zw);
+    // 132: mov
+    reg_tmp1.xy = (reg_tmp2.xxxx).xy;
+    // 133: mul
+    reg_tmp1.w = (mul_s(uniforms.f[8].wwww, vs_in_reg8.xxxx)).w;
+    // 134: call
+    {
+        sub_70_83();
+    }
+    // 135: mov
+    reg_tmp1.xy = (reg_tmp2.yyyy).xy;
+    // 136: mul
+    reg_tmp1.w = (mul_s(uniforms.f[8].wwww, vs_in_reg8.yyyy)).w;
+    // 137: call
+    {
+        sub_70_83();
+    }
+    // 138: mov
+    reg_tmp1.xy = (reg_tmp2.zzzz).xy;
+    // 139: mul
+    reg_tmp1.w = (mul_s(uniforms.f[8].wwww, vs_in_reg8.zzzz)).w;
+    // 140: callc
+    if (conditional_code.x) {
+        sub_70_83();
+    }
+    // 141: ifu
+    if (uniforms.b[8]) {
+        sub_142_146();
+    }
+    // 146: mov
+    reg_tmp7.w = (uniforms.f[93].yyyy).w;
+    // 147: dp4
+    reg_tmp10.x = dot_s(uniforms.f[0], reg_tmp7);
+    // 148: dp4
+    reg_tmp10.y = dot_s(uniforms.f[1], reg_tmp7);
+    // 149: dp4
+    reg_tmp10.z = dot_s(uniforms.f[2], reg_tmp7);
+    // 150: mov
+    reg_tmp10.w = (uniforms.f[93].yyyy).w;
+    // 151: mov
+    reg_tmp7 = reg_tmp10;
+    // 152: dp4
+    reg_tmp10.x = dot_s(uniforms.f[22], reg_tmp7);
+    // 153: dp4
+    reg_tmp10.y = dot_s(uniforms.f[23], reg_tmp7);
+    // 154: dp4
+    reg_tmp10.z = dot_s(uniforms.f[24], reg_tmp7);
+    // 155: mov
+    reg_tmp10.w = (uniforms.f[93].yyyy).w;
+    // 156: dp3
+    reg_tmp13.x = dot_3(uniforms.f[3].xyz, reg_tmp11.xyz);
+    // 157: dp3
+    reg_tmp13.y = dot_3(uniforms.f[4].xyz, reg_tmp11.xyz);
+    // 158: dp3
+    reg_tmp13.z = dot_3(uniforms.f[5].xyz, reg_tmp11.xyz);
+    // 159: dp3
+    reg_tmp14.x = dot_3(uniforms.f[3].xyz, reg_tmp12.xyz);
+    // 160: dp3
+    reg_tmp14.y = dot_3(uniforms.f[4].xyz, reg_tmp12.xyz);
+    // 161: dp3
+    reg_tmp14.z = dot_3(uniforms.f[5].xyz, reg_tmp12.xyz);
+    // 162: dp4
+    reg_tmp15.x = dot_s(uniforms.f[90], reg_tmp10);
+    // 163: dp4
+    reg_tmp15.y = dot_s(uniforms.f[91], reg_tmp10);
+    // 164: dp4
+    reg_tmp15.z = dot_s(uniforms.f[92], reg_tmp10);
+    // 165: mov
+    reg_tmp15.w = (uniforms.f[93].yyyy).w;
+    // 166: call
+    {
+        sub_310_386();
+    }
+    // 167: nop
+    return false;
+}
+bool sub_142_146() {
+    // 142: mov
+    reg_tmp1.xy = (reg_tmp2.wwww).xy;
+    // 143: mul
+    reg_tmp1.w = (mul_s(uniforms.f[8].wwww, vs_in_reg8.wwww)).w;
+    // 144: callc
+    if (conditional_code.y) {
+        sub_70_83();
+    }
+    // 145: nop
+    return false;
+}
+bool sub_168_198() {
+    // 168: cmp
+    conditional_code = notEqual(uniforms.f[93].xx, vs_in_reg8.zw);
+    // 169: mov
+    reg_tmp1.xy = (reg_tmp2.xxxx).xy;
+    // 170: mul
+    reg_tmp1.w = (mul_s(uniforms.f[8].wwww, vs_in_reg8.xxxx)).w;
+    // 171: call
+    {
+        sub_56_61();
+    }
+    // 172: mov
+    reg_tmp1.xy = (reg_tmp2.yyyy).xy;
+    // 173: mul
+    reg_tmp1.w = (mul_s(uniforms.f[8].wwww, vs_in_reg8.yyyy)).w;
+    // 174: call
+    {
+        sub_56_61();
+    }
+    // 175: mov
+    reg_tmp1.xy = (reg_tmp2.zzzz).xy;
+    // 176: mul
+    reg_tmp1.w = (mul_s(uniforms.f[8].wwww, vs_in_reg8.zzzz)).w;
+    // 177: callc
+    if (conditional_code.x) {
+        sub_56_61();
+    }
+    // 178: ifu
+    if (uniforms.b[8]) {
+        sub_179_183();
+    }
+    // 183: mov
+    reg_tmp7.w = (uniforms.f[93].yyyy).w;
+    // 184: dp4
+    reg_tmp10.x = dot_s(uniforms.f[0], reg_tmp7);
+    // 185: dp4
+    reg_tmp10.y = dot_s(uniforms.f[1], reg_tmp7);
+    // 186: dp4
+    reg_tmp10.z = dot_s(uniforms.f[2], reg_tmp7);
+    // 187: mov
+    reg_tmp10.w = (uniforms.f[93].yyyy).w;
+    // 188: mov
+    reg_tmp7 = reg_tmp10;
+    // 189: dp4
+    reg_tmp10.x = dot_s(uniforms.f[22], reg_tmp7);
+    // 190: dp4
+    reg_tmp10.y = dot_s(uniforms.f[23], reg_tmp7);
+    // 191: dp4
+    reg_tmp10.z = dot_s(uniforms.f[24], reg_tmp7);
+    // 192: mov
+    reg_tmp10.w = (uniforms.f[93].yyyy).w;
+    // 193: dp4
+    reg_tmp15.x = dot_s(uniforms.f[90], reg_tmp10);
+    // 194: dp4
+    reg_tmp15.y = dot_s(uniforms.f[91], reg_tmp10);
+    // 195: dp4
+    reg_tmp15.z = dot_s(uniforms.f[92], reg_tmp10);
+    // 196: mov
+    reg_tmp15.w = (uniforms.f[93].yyyy).w;
+    // 197: mov
+    vs_out_attr1 = uniforms.f[93].xxxx;
+    return false;
+}
+bool sub_179_183() {
+    // 179: mov
+    reg_tmp1.xy = (reg_tmp2.wwww).xy;
+    // 180: mul
+    reg_tmp1.w = (mul_s(uniforms.f[8].wwww, vs_in_reg8.wwww)).w;
+    // 181: callc
+    if (conditional_code.y) {
+        sub_56_61();
+    }
+    // 182: nop
+    return false;
+}
+bool sub_208_209() {
+    // 208: mov
+    reg_tmp0.x = (-reg_tmp0.wwww).x;
+    return false;
+}
+bool sub_210_292() {
+    // 210: ifu
+    if (uniforms.b[2]) {
+        sub_211_221();
+    } else {
+        sub_221_226();
+    }
+    // 226: mov
+    reg_tmp0 = uniforms.f[7];
+    // 227: cmp
+    conditional_code = notEqual(uniforms.f[93].xx, reg_tmp0.yz);
+    // 228: ifc
+    if (all(bvec2(conditional_code.x, !conditional_code.y))) {
+        sub_229_246();
+    } else {
+        sub_246_281();
+    }
+    // 281: mov
+    vs_out_attr2 = -reg_tmp15;
+    // 282: dp4
+    reg_tmp0.x = dot_s(uniforms.f[86], reg_tmp15);
+    // 283: dp4
+    reg_tmp0.y = dot_s(uniforms.f[87], reg_tmp15);
+    // 284: dp4
+    reg_tmp0.z = dot_s(uniforms.f[88], reg_tmp15);
+    // 285: dp4
+    reg_tmp0.w = dot_s(uniforms.f[89], reg_tmp15);
+    // 286: mov
+    reg_tmp1.x = (-reg_tmp0.wwww).x;
+    // 287: mul
+    reg_tmp1.y = (mul_s(uniforms.f[95].zzzz, -reg_tmp0.wwww)).y;
+    // 288: cmp
+    conditional_code.x = reg_tmp0.xxxx.x > reg_tmp1.xyyy.x;
+    conditional_code.y = reg_tmp0.xxxx.y < reg_tmp1.xyyy.y;
+    // 289: ifc
+    if (all(conditional_code)) {
+        sub_290_291();
+    }
+    // 291: mov
+    vs_out_attr0 = reg_tmp0;
+    return false;
+}
+bool sub_211_221() {
+    // 211: mul
+    reg_tmp1.x = (mul_s(uniforms.f[93].wwww, vs_in_reg7.xxxx)).x;
+    // 212: mova
+    address_registers.x = (ivec2(reg_tmp1.xx)).x;
+    // 213: dp4
+    reg_tmp7.x = dot_s(uniforms.f[25 + address_registers.x], reg_tmp15);
+    // 214: dp4
+    reg_tmp7.y = dot_s(uniforms.f[26 + address_registers.x], reg_tmp15);
+    // 215: dp4
+    reg_tmp7.z = dot_s(uniforms.f[27 + address_registers.x], reg_tmp15);
+    // 216: mov
+    reg_tmp7.w = (uniforms.f[93].yyyy).w;
+    // 217: dp4
+    reg_tmp10.x = dot_s(uniforms.f[0], reg_tmp7);
+    // 218: dp4
+    reg_tmp10.y = dot_s(uniforms.f[1], reg_tmp7);
+    // 219: dp4
+    reg_tmp10.z = dot_s(uniforms.f[2], reg_tmp7);
+    // 220: mov
+    reg_tmp10.w = (uniforms.f[93].yyyy).w;
+    return false;
+}
+bool sub_221_226() {
+    // 221: mova
+    address_registers.x = (ivec2(uniforms.f[93].xx)).x;
+    // 222: dp4
+    reg_tmp10.x = dot_s(uniforms.f[25], reg_tmp15);
+    // 223: dp4
+    reg_tmp10.y = dot_s(uniforms.f[26], reg_tmp15);
+    // 224: dp4
+    reg_tmp10.z = dot_s(uniforms.f[27], reg_tmp15);
+    // 225: mov
+    reg_tmp10.w = (uniforms.f[93].yyyy).w;
+    return false;
+}
+bool sub_229_246() {
+    // 229: dp3
+    reg_tmp12.x = dot_3(uniforms.f[25 + address_registers.x].xyz, reg_tmp14.xyz);
+    // 230: dp3
+    reg_tmp12.y = dot_3(uniforms.f[26 + address_registers.x].xyz, reg_tmp14.xyz);
+    // 231: dp3
+    reg_tmp12.z = dot_3(uniforms.f[27 + address_registers.x].xyz, reg_tmp14.xyz);
+    // 232: mov
+    reg_tmp7 = reg_tmp10;
+    // 233: dp4
+    reg_tmp10.x = dot_s(uniforms.f[22], reg_tmp7);
+    // 234: dp4
+    reg_tmp10.y = dot_s(uniforms.f[23], reg_tmp7);
+    // 235: dp4
+    reg_tmp10.z = dot_s(uniforms.f[24], reg_tmp7);
+    // 236: mov
+    reg_tmp10.w = (uniforms.f[93].yyyy).w;
+    // 237: dp4
+    reg_tmp15.x = dot_s(uniforms.f[90], reg_tmp10);
+    // 238: dp4
+    reg_tmp15.y = dot_s(uniforms.f[91], reg_tmp10);
+    // 239: dp4
+    reg_tmp15.z = dot_s(uniforms.f[92], reg_tmp10);
+    // 240: mov
+    reg_tmp15.w = (uniforms.f[93].yyyy).w;
+    // 241: dp3
+    reg_tmp14.x = dot_3(uniforms.f[3].xyz, reg_tmp12.xyz);
+    // 242: dp3
+    reg_tmp14.y = dot_3(uniforms.f[4].xyz, reg_tmp12.xyz);
+    // 243: dp3
+    reg_tmp14.z = dot_3(uniforms.f[5].xyz, reg_tmp12.xyz);
+    // 244: call
+    {
+        sub_293_310();
+    }
+    // 245: nop
+    return false;
+}
+bool sub_246_281() {
+    // 246: ifc
+    if (all(conditional_code)) {
+        sub_247_270();
+    } else {
+        sub_270_280();
+    }
+    // 280: nop
+    return false;
+}
+bool sub_247_270() {
+    // 247: dp3
+    reg_tmp12.x = dot_3(uniforms.f[25 + address_registers.x].xyz, reg_tmp14.xyz);
+    // 248: dp3
+    reg_tmp12.y = dot_3(uniforms.f[26 + address_registers.x].xyz, reg_tmp14.xyz);
+    // 249: dp3
+    reg_tmp12.z = dot_3(uniforms.f[27 + address_registers.x].xyz, reg_tmp14.xyz);
+    // 250: dp3
+    reg_tmp11.x = dot_3(uniforms.f[25 + address_registers.x].xyz, reg_tmp13.xyz);
+    // 251: dp3
+    reg_tmp11.y = dot_3(uniforms.f[26 + address_registers.x].xyz, reg_tmp13.xyz);
+    // 252: dp3
+    reg_tmp11.z = dot_3(uniforms.f[27 + address_registers.x].xyz, reg_tmp13.xyz);
+    // 253: mov
+    reg_tmp7 = reg_tmp10;
+    // 254: dp4
+    reg_tmp10.x = dot_s(uniforms.f[22], reg_tmp7);
+    // 255: dp4
+    reg_tmp10.y = dot_s(uniforms.f[23], reg_tmp7);
+    // 256: dp4
+    reg_tmp10.z = dot_s(uniforms.f[24], reg_tmp7);
+    // 257: mov
+    reg_tmp10.w = (uniforms.f[93].yyyy).w;
+    // 258: dp4
+    reg_tmp15.x = dot_s(uniforms.f[90], reg_tmp10);
+    // 259: dp4
+    reg_tmp15.y = dot_s(uniforms.f[91], reg_tmp10);
+    // 260: dp4
+    reg_tmp15.z = dot_s(uniforms.f[92], reg_tmp10);
+    // 261: mov
+    reg_tmp15.w = (uniforms.f[93].yyyy).w;
+    // 262: dp3
+    reg_tmp14.x = dot_3(uniforms.f[3].xyz, reg_tmp12.xyz);
+    // 263: dp3
+    reg_tmp14.y = dot_3(uniforms.f[4].xyz, reg_tmp12.xyz);
+    // 264: dp3
+    reg_tmp14.z = dot_3(uniforms.f[5].xyz, reg_tmp12.xyz);
+    // 265: dp3
+    reg_tmp13.x = dot_3(uniforms.f[3].xyz, reg_tmp11.xyz);
+    // 266: dp3
+    reg_tmp13.y = dot_3(uniforms.f[4].xyz, reg_tmp11.xyz);
+    // 267: dp3
+    reg_tmp13.z = dot_3(uniforms.f[5].xyz, reg_tmp11.xyz);
+    // 268: call
+    {
+        sub_310_386();
+    }
+    // 269: nop
+    return false;
+}
+bool sub_270_280() {
+    // 270: mov
+    reg_tmp7 = reg_tmp10;
+    // 271: dp4
+    reg_tmp10.x = dot_s(uniforms.f[22], reg_tmp7);
+    // 272: dp4
+    reg_tmp10.y = dot_s(uniforms.f[23], reg_tmp7);
+    // 273: dp4
+    reg_tmp10.z = dot_s(uniforms.f[24], reg_tmp7);
+    // 274: mov
+    reg_tmp10.w = (uniforms.f[93].yyyy).w;
+    // 275: dp4
+    reg_tmp15.x = dot_s(uniforms.f[90], reg_tmp10);
+    // 276: dp4
+    reg_tmp15.y = dot_s(uniforms.f[91], reg_tmp10);
+    // 277: dp4
+    reg_tmp15.z = dot_s(uniforms.f[92], reg_tmp10);
+    // 278: mov
+    reg_tmp15.w = (uniforms.f[93].yyyy).w;
+    // 279: mov
+    vs_out_attr1 = uniforms.f[93].xxxx;
+    return false;
+}
+bool sub_290_291() {
+    // 290: mov
+    reg_tmp0.x = (-reg_tmp0.wwww).x;
+    return false;
+}
+bool sub_293_310() {
+    uint jmp_to = 293u;
+    while (true) {
+        switch (jmp_to) {
+        case 293u: {
+            // 293: dp3
+            reg_tmp6.x = dot_3(reg_tmp14.xyz, reg_tmp14.xyz);
+            // 294: dp3
+            reg_tmp7.x = dot_3(reg_tmp12.xyz, reg_tmp12.xyz);
+            // 295: rsq
+            reg_tmp6.x = rsq_s(reg_tmp6.x);
+            // 296: rsq
+            reg_tmp7.x = rsq_s(reg_tmp7.x);
+            // 297: mul
+            reg_tmp14.xyz = (mul_s(reg_tmp14.xyzz, reg_tmp6.xxxx)).xyz;
+            // 298: mul
+            reg_tmp12.xyz = (mul_s(reg_tmp12.xyzz, reg_tmp7.xxxx)).xyz;
+            // 299: mov
+            reg_tmp0 = uniforms.f[93].yxxx;
+            // 300: jmpu
+            if (!uniforms.b[15]) {
+                { jmp_to = 309u; break; }
+            }
+            // 301: add
+            reg_tmp4 = uniforms.f[93].yyyy + reg_tmp14.zzzz;
+            // 302: mul
+            reg_tmp4 = mul_s(uniforms.f[94].zzzz, reg_tmp4);
+            // 303: cmp
+            conditional_code = greaterThanEqual(uniforms.f[93].xx, reg_tmp4.xx);
+            // 304: rsq
+            reg_tmp4 = vec4(rsq_s(reg_tmp4.x));
+            // 305: mul
+            reg_tmp5 = mul_s(uniforms.f[94].zzzz, reg_tmp14);
+            // 306: jmpc
+            if (conditional_code.x) {
+                { jmp_to = 309u; break; }
+            }
+            // 307: rcp
+            reg_tmp0.z = rcp_s(reg_tmp4.x);
+            // 308: mul
+            reg_tmp0.xy = (mul_s(reg_tmp5, reg_tmp4)).xy;
+        }
+        case 309u: {
+            // 309: mov
+            vs_out_attr1 = reg_tmp0;
+        }
+        default: return false;
+        }
+    }
+    return false;
+}
+bool sub_310_386() {
+    uint jmp_to = 310u;
+    while (true) {
+        switch (jmp_to) {
+        case 310u: {
+            // 310: dp3
+            reg_tmp6.x = dot_3(reg_tmp14.xyz, reg_tmp14.xyz);
+            // 311: dp3
+            reg_tmp7.x = dot_3(reg_tmp12.xyz, reg_tmp12.xyz);
+            // 312: rsq
+            reg_tmp6.x = rsq_s(reg_tmp6.x);
+            // 313: rsq
+            reg_tmp7.x = rsq_s(reg_tmp7.x);
+            // 314: mul
+            reg_tmp14.xyz = (mul_s(reg_tmp14.xyzz, reg_tmp6.xxxx)).xyz;
+            // 315: mul
+            reg_tmp12.xyz = (mul_s(reg_tmp12.xyzz, reg_tmp7.xxxx)).xyz;
+            // 316: mul
+            reg_tmp13.xyz = (mul_s(reg_tmp13.xyzz, reg_tmp6.xxxx)).xyz;
+            // 317: mul
+            reg_tmp11.xyz = (mul_s(reg_tmp11.xyzz, reg_tmp7.xxxx)).xyz;
+            // 318: mov
+            reg_tmp0 = uniforms.f[93].yxxx;
+            // 319: jmpu
+            if (!uniforms.b[15]) {
+                { jmp_to = 385u; break; }
+            }
+            // 320: mul
+            reg_tmp13.xyz = (mul_s(reg_tmp13.xyzz, reg_tmp6.xxxx)).xyz;
+            // 321: mul
+            reg_tmp11.xyz = (mul_s(reg_tmp11.xyzz, reg_tmp7.xxxx)).xyz;
+            // 322: mul
+            reg_tmp5 = mul_s(reg_tmp14.yzxx, reg_tmp13.zxyy);
+            // 323: mad
+            reg_tmp5 = fma_s(-reg_tmp13.yzxx, reg_tmp14.zxyy, reg_tmp5);
+            // 324: dp3
+            reg_tmp5.w = dot_3(reg_tmp5.xyz, reg_tmp5.xyz);
+            // 325: rsq
+            reg_tmp5.w = rsq_s(reg_tmp5.w);
+            // 326: mul
+            reg_tmp5 = mul_s(reg_tmp5, reg_tmp5.wwww);
+            // 327: add
+            reg_tmp6.w = (reg_tmp14.zzzz + reg_tmp5.yyyy).w;
+            // 328: mul
+            reg_tmp13 = mul_s(reg_tmp5.yzxx, reg_tmp14.zxyy);
+            // 329: mad
+            reg_tmp13 = fma_s(-reg_tmp14.yzxx, reg_tmp5.zxyy, reg_tmp13);
+            // 330: add
+            reg_tmp6.w = (reg_tmp13.xxxx + reg_tmp6).w;
+            // 331: mov
+            reg_tmp13.w = (reg_tmp5.zzzz).w;
+            // 332: mov
+            reg_tmp5.z = (reg_tmp13.xxxx).z;
+            // 333: add
+            reg_tmp6.w = (uniforms.f[93].yyyy + reg_tmp6).w;
+            // 334: mov
+            reg_tmp14.w = (reg_tmp5.xxxx).w;
+            // 335: mov
+            reg_tmp5.x = (reg_tmp14.zzzz).x;
+            // 336: cmp
+            conditional_code = lessThan(uniforms.f[94].yy, reg_tmp6.ww);
+            // 337: mov
+            reg_tmp6.x = (uniforms.f[93].yyyy).x;
+            // 338: mov
+            reg_tmp6.y = (-uniforms.f[93].yyyy).y;
+            // 339: jmpc
+            if (!conditional_code.x) {
+                { jmp_to = 347u; break; }
+            }
+            // 340: add
+            reg_tmp7.xz = (reg_tmp13.wwyy + -reg_tmp14.yyww).xz;
+            // 341: add
+            reg_tmp7.y = (reg_tmp14.xxxx + -reg_tmp13.zzzz).y;
+            // 342: mov
+            reg_tmp7.w = (reg_tmp6).w;
+            // 343: dp4
+            reg_tmp6 = vec4(dot_s(reg_tmp7, reg_tmp7));
+            // 344: rsq
+            reg_tmp6 = vec4(rsq_s(reg_tmp6.x));
+            // 345: mul
+            reg_tmp0 = mul_s(reg_tmp7, reg_tmp6);
+            // 346: jmpu
+            if (uniforms.b[0]) {
+                { jmp_to = 385u; break; }
+            }
+        }
+        case 347u: {
+            // 347: cmp
+            conditional_code = greaterThan(reg_tmp5.zy, reg_tmp5.yx);
+            // 348: ifc
+            if (conditional_code.x) {
+                sub_349_369();
+            } else {
+                sub_369_382();
+            }
+            // 382: dp4
+            reg_tmp6 = vec4(dot_s(reg_tmp8, reg_tmp8));
+            // 383: rsq
+            reg_tmp6 = vec4(rsq_s(reg_tmp6.x));
+            // 384: mul
+            reg_tmp0 = mul_s(reg_tmp8, reg_tmp6);
+        }
+        case 385u: {
+            // 385: mov
+            vs_out_attr1 = reg_tmp0;
+        }
+        default: return false;
+        }
+    }
+    return false;
+}
+bool sub_349_369() {
+    // 349: ifc
+    if (conditional_code.y) {
+        sub_350_355();
+    } else {
+        sub_355_368();
+    }
+    // 368: mov
+    reg_tmp8.w = (-reg_tmp8).w;
+    return false;
+}
+bool sub_350_355() {
+    // 350: mul
+    reg_tmp8 = mul_s(reg_tmp13.yyzw, reg_tmp6.xxxy);
+    // 351: add
+    reg_tmp8.x = (uniforms.f[93].yyyy + -reg_tmp5.yyyy).x;
+    // 352: add
+    reg_tmp9 = reg_tmp5.zzzz + -reg_tmp5.xxxx;
+    // 353: add
+    reg_tmp8.yzw = (reg_tmp8 + reg_tmp14.wwxy).yzw;
+    // 354: add
+    reg_tmp8.x = (reg_tmp9 + reg_tmp8).x;
+    return false;
+}
+bool sub_355_368() {
+    // 355: cmp
+    conditional_code = greaterThan(reg_tmp5.zz, reg_tmp5.xx);
+    // 356: mul
+    reg_tmp8 = mul_s(reg_tmp13.yyzw, reg_tmp6.xxxy);
+    // 357: add
+    reg_tmp8.x = (uniforms.f[93].yyyy + -reg_tmp5.yyyy).x;
+    // 358: ifc
+    if (conditional_code.x) {
+        sub_359_362();
+    } else {
+        sub_362_367();
+    }
+    // 367: nop
+    return false;
+}
+bool sub_359_362() {
+    // 359: add
+    reg_tmp9 = reg_tmp5.zzzz + -reg_tmp5.xxxx;
+    // 360: add
+    reg_tmp8.yzw = (reg_tmp8 + reg_tmp14.wwxy).yzw;
+    // 361: add
+    reg_tmp8.x = (reg_tmp9 + reg_tmp8).x;
+    return false;
+}
+bool sub_362_367() {
+    // 362: mul
+    reg_tmp8 = mul_s(reg_tmp13.zwwy, reg_tmp6.xxxy);
+    // 363: add
+    reg_tmp8.z = (uniforms.f[93].yyyy + -reg_tmp5.zzzz).z;
+    // 364: add
+    reg_tmp9 = reg_tmp5.xxxx + -reg_tmp5.yyyy;
+    // 365: add
+    reg_tmp8.xyw = (reg_tmp8 + reg_tmp14.xyyw).xyw;
+    // 366: add
+    reg_tmp8.z = (reg_tmp9 + reg_tmp8).z;
+    return false;
+}
+bool sub_369_382() {
+    // 369: ifc
+    if (conditional_code.y) {
+        sub_370_375();
+    } else {
+        sub_375_381();
+    }
+    // 381: nop
+    return false;
+}
+bool sub_370_375() {
+    // 370: mul
+    reg_tmp8 = mul_s(reg_tmp13.yywz, reg_tmp6.xxxy);
+    // 371: add
+    reg_tmp8.y = (uniforms.f[93].yyyy + -reg_tmp5.zzzz).y;
+    // 372: add
+    reg_tmp9 = reg_tmp5.yyyy + -reg_tmp5.xxxx;
+    // 373: add
+    reg_tmp8.xzw = (reg_tmp8 + reg_tmp14.wwyx).xzw;
+    // 374: add
+    reg_tmp8.y = (reg_tmp9 + reg_tmp8).y;
+    return false;
+}
+bool sub_375_381() {
+    // 375: mul
+    reg_tmp8 = mul_s(reg_tmp13.zwwy, reg_tmp6.xxxy);
+    // 376: add
+    reg_tmp8.z = (uniforms.f[93].yyyy + -reg_tmp5.zzzz).z;
+    // 377: add
+    reg_tmp9 = reg_tmp5.xxxx + -reg_tmp5.yyyy;
+    // 378: add
+    reg_tmp8.xyw = (reg_tmp8 + reg_tmp14.xyyw).xyw;
+    // 379: add
+    reg_tmp8.z = (reg_tmp9 + reg_tmp8).z;
+    // 380: mov
+    reg_tmp8.w = (-reg_tmp8).w;
+    return false;
+}
+// reference: 00FCC47A428094BA, 3FCC2EE227F0CC04
+// program: 3FCC2EE227F0CC04, 3B3AE026C742C7D5, 18CD6F34EF819318
+// program: 559D364E86318AE6, 3B3AE026C742C7D5, 82B30867377518C0
+// program: 559D364E86318AE6, 3B3AE026C742C7D5, FEB1E39313EC6A3F
+// shader: 8B31, 295A6D3137A5ECE7
+
+struct pica_uniforms {
+    bool b[16];
+    uvec4 i[4];
+    vec4 f[96];
+};
+
+bool exec_shader();
+
+#define uniforms vs_uniforms
+layout (std140) uniform vs_config {
+    pica_uniforms uniforms;
+};
+
+layout(location = 0) in vec4 vs_in_reg0;
+layout(location = 1) in vec4 vs_in_reg1;
+layout(location = 2) in vec4 vs_in_reg2;
+layout(location = 3) in vec4 vs_in_reg3;
+layout(location = 4) in vec4 vs_in_reg4;
+layout(location = 5) in vec4 vs_in_reg5;
+layout(location = 6) in vec4 vs_in_reg6;
+
+ out vec4 vs_out_attr0;
+ out vec4 vs_out_attr1;
+ out vec4 vs_out_attr2;
+ out vec4 vs_out_attr3;
+ out vec4 vs_out_attr4;
+ out vec4 vs_out_attr5;
+ out vec4 vs_out_attr6;
+
+void main() {
+    vs_out_attr0 = vec4(0.0, 0.0, 0.0, 1.0);
+    vs_out_attr1 = vec4(0.0, 0.0, 0.0, 1.0);
+    vs_out_attr2 = vec4(0.0, 0.0, 0.0, 1.0);
+    vs_out_attr3 = vec4(0.0, 0.0, 0.0, 1.0);
+    vs_out_attr4 = vec4(0.0, 0.0, 0.0, 1.0);
+    vs_out_attr5 = vec4(0.0, 0.0, 0.0, 1.0);
+    vs_out_attr6 = vec4(0.0, 0.0, 0.0, 1.0);
+
+    exec_shader();
+}
+
+
+#define mul_s(x, y) mix(x * y, vec4(0.0), isnan(x * y))
+#define mul_3(x, y) mix(x * y, vec3(0.0), isnan(x * y))
+#define fma_s(x, y, z) (mul_s(x, y) + z)
+float rcp_s(float x) {
+    if (x == 0.0) return x;
+    return 1.0 / x;
+}
+float rsq_s(float x) {
+    if (x > 0.0) return inversesqrt(x);
+    return 0.0;
+}
+#define dot_s(x, y) dot(x, y)
+#define dot_3(x, y) dot(mul_3(x, y), vec3(1.0))
+
+bvec2 conditional_code = bvec2(false);
+ivec3 address_registers = ivec3(0);
+vec4 reg_tmp0 = vec4(0.0, 0.0, 0.0, 1.0);
+vec4 reg_tmp1 = vec4(0.0, 0.0, 0.0, 1.0);
+vec4 reg_tmp2 = vec4(0.0, 0.0, 0.0, 1.0);
+vec4 reg_tmp3 = vec4(0.0, 0.0, 0.0, 1.0);
+vec4 reg_tmp4 = vec4(0.0, 0.0, 0.0, 1.0);
+vec4 reg_tmp5 = vec4(0.0, 0.0, 0.0, 1.0);
+vec4 reg_tmp6 = vec4(0.0, 0.0, 0.0, 1.0);
+vec4 reg_tmp7 = vec4(0.0, 0.0, 0.0, 1.0);
+vec4 reg_tmp8 = vec4(0.0, 0.0, 0.0, 1.0);
+vec4 reg_tmp9 = vec4(0.0, 0.0, 0.0, 1.0);
+vec4 reg_tmp10 = vec4(0.0, 0.0, 0.0, 1.0);
+vec4 reg_tmp11 = vec4(0.0, 0.0, 0.0, 1.0);
+vec4 reg_tmp12 = vec4(0.0, 0.0, 0.0, 1.0);
+vec4 reg_tmp13 = vec4(0.0, 0.0, 0.0, 1.0);
+vec4 reg_tmp14 = vec4(0.0, 0.0, 0.0, 1.0);
+vec4 reg_tmp15 = vec4(0.0, 0.0, 0.0, 1.0);
+
+bool sub_0_4096();
+bool sub_34_73();
+bool sub_73_90();
+bool sub_166_183();
+bool sub_172_177();
+bool sub_174_175();
+bool sub_181_182();
+bool sub_183_229();
+bool sub_187_228();
+bool sub_192_194();
+bool sub_194_218();
+bool sub_197_202();
+bool sub_208_217();
+bool sub_212_213();
+bool sub_213_216();
+bool sub_220_227();
+bool sub_229_239();
+bool sub_236_237();
+bool sub_239_266();
+bool sub_241_246();
+bool sub_246_265();
+bool sub_249_255();
+bool sub_255_264();
+bool sub_256_260();
+bool sub_260_263();
+bool sub_266_274();
+bool sub_268_269();
+bool sub_269_273();
+bool sub_270_271();
+bool sub_271_272();
+bool sub_274_281();
+bool sub_281_285();
+bool sub_285_309();
+bool sub_287_291();
+bool sub_291_308();
+bool sub_292_306();
+bool sub_295_302();
+bool sub_302_305();
+bool sub_306_307();
+bool sub_309_325();
+bool sub_311_315();
+bool sub_315_324();
+bool sub_316_322();
+bool sub_322_323();
+
+bool exec_shader() {
+    sub_0_4096();
+    return true;
+}
+
+bool sub_0_4096() {
+    // 0: call
+    {
+        sub_34_73();
+    }
+    // 1: call
+    {
+        sub_166_183();
+    }
+    // 2: call
+    {
+        sub_239_266();
+    }
+    // 3: call
+    {
+        sub_285_309();
+    }
+    // 4: call
+    {
+        sub_309_325();
+    }
+    // 5: end
+    return true;
+}
+bool sub_34_73() {
+    // 34: mul
+    reg_tmp15.xyz = (mul_s(uniforms.f[7].xxxx, vs_in_reg0)).xyz;
+    // 35: mul
+    reg_tmp14.xyz = (mul_s(uniforms.f[7].yyyy, vs_in_reg1)).xyz;
+    // 36: mul
+    reg_tmp13.xyz = (mul_s(uniforms.f[7].zzzz, vs_in_reg2)).xyz;
+    // 37: add
+    reg_tmp15.xyz = (uniforms.f[6] + reg_tmp15).xyz;
+    // 38: mov
+    reg_tmp15.w = (uniforms.f[93].yyyy).w;
+    // 39: mov
+    reg_tmp0 = uniforms.f[7];
+    // 40: dp4
+    reg_tmp10.x = dot_s(uniforms.f[25], reg_tmp15);
+    // 41: dp4
+    reg_tmp10.y = dot_s(uniforms.f[26], reg_tmp15);
+    // 42: dp4
+    reg_tmp10.z = dot_s(uniforms.f[27], reg_tmp15);
+    // 43: mov
+    reg_tmp10.w = (uniforms.f[93].yyyy).w;
+    // 44: dp3
+    reg_tmp12.x = dot_3(uniforms.f[25].xyz, reg_tmp14.xyz);
+    // 45: dp3
+    reg_tmp12.y = dot_3(uniforms.f[26].xyz, reg_tmp14.xyz);
+    // 46: dp3
+    reg_tmp12.z = dot_3(uniforms.f[27].xyz, reg_tmp14.xyz);
+    // 47: dp4
+    reg_tmp15.x = dot_s(uniforms.f[90], reg_tmp10);
+    // 48: dp4
+    reg_tmp15.y = dot_s(uniforms.f[91], reg_tmp10);
+    // 49: dp4
+    reg_tmp15.z = dot_s(uniforms.f[92], reg_tmp10);
+    // 50: mov
+    reg_tmp15.w = (uniforms.f[93].yyyy).w;
+    // 51: dp3
+    reg_tmp14.x = dot_3(uniforms.f[3].xyz, reg_tmp12.xyz);
+    // 52: dp3
+    reg_tmp14.y = dot_3(uniforms.f[4].xyz, reg_tmp12.xyz);
+    // 53: dp3
+    reg_tmp14.z = dot_3(uniforms.f[5].xyz, reg_tmp12.xyz);
+    // 54: call
+    {
+        sub_73_90();
+    }
+    // 55: nop
+    // 56: mov
+    vs_out_attr2 = -reg_tmp15;
+    // 57: mov
+    reg_tmp0.x = (uniforms.f[93].yyyy).x;
+    // 58: mova
+    address_registers.x = (ivec2(vs_in_reg3.xx)).x;
+    // 59: mul
+    reg_tmp0.x = (mul_s(uniforms.f[28 + address_registers.x].xxxx, reg_tmp0.xxxx)).x;
+    // 60: mova
+    address_registers.x = (ivec2(vs_in_reg3.yy)).x;
+    // 61: mul
+    reg_tmp0.x = (mul_s(uniforms.f[28 + address_registers.x].yyyy, reg_tmp0.xxxx)).x;
+    // 62: nop
+    // 63: mova
+    address_registers.x = (ivec2(vs_in_reg3.zz)).x;
+    // 64: mul
+    reg_tmp0.x = (mul_s(uniforms.f[28 + address_registers.x].zzzz, reg_tmp0.xxxx)).x;
+    // 65: mova
+    address_registers.x = (ivec2(vs_in_reg3.ww)).x;
+    // 66: mul
+    reg_tmp0.x = (mul_s(uniforms.f[28 + address_registers.x].wwww, reg_tmp0.xxxx)).x;
+    // 67: mul
+    reg_tmp15.xyz = (mul_s(reg_tmp15.xyzz, reg_tmp0.xxxx)).xyz;
+    // 68: dp4
+    vs_out_attr0.x = dot_s(uniforms.f[86], reg_tmp15);
+    // 69: dp4
+    vs_out_attr0.y = dot_s(uniforms.f[87], reg_tmp15);
+    // 70: dp4
+    vs_out_attr0.z = dot_s(uniforms.f[88], reg_tmp15);
+    // 71: dp4
+    vs_out_attr0.w = dot_s(uniforms.f[89], reg_tmp15);
+    // 72: nop
+    return false;
+}
+bool sub_73_90() {
+    uint jmp_to = 73u;
+    while (true) {
+        switch (jmp_to) {
+        case 73u: {
+            // 73: dp3
+            reg_tmp6.x = dot_3(reg_tmp14.xyz, reg_tmp14.xyz);
+            // 74: dp3
+            reg_tmp7.x = dot_3(reg_tmp12.xyz, reg_tmp12.xyz);
+            // 75: rsq
+            reg_tmp6.x = rsq_s(reg_tmp6.x);
+            // 76: rsq
+            reg_tmp7.x = rsq_s(reg_tmp7.x);
+            // 77: mul
+            reg_tmp14.xyz = (mul_s(reg_tmp14.xyzz, reg_tmp6.xxxx)).xyz;
+            // 78: mul
+            reg_tmp12.xyz = (mul_s(reg_tmp12.xyzz, reg_tmp7.xxxx)).xyz;
+            // 79: mov
+            reg_tmp0 = uniforms.f[93].yxxx;
+            // 80: jmpu
+            if (!uniforms.b[15]) {
+                { jmp_to = 89u; break; }
+            }
+            // 81: add
+            reg_tmp4 = uniforms.f[93].yyyy + reg_tmp14.zzzz;
+            // 82: mul
+            reg_tmp4 = mul_s(uniforms.f[94].zzzz, reg_tmp4);
+            // 83: cmp
+            conditional_code = greaterThanEqual(uniforms.f[93].xx, reg_tmp4.xx);
+            // 84: rsq
+            reg_tmp4 = vec4(rsq_s(reg_tmp4.x));
+            // 85: mul
+            reg_tmp5 = mul_s(uniforms.f[94].zzzz, reg_tmp14);
+            // 86: jmpc
+            if (conditional_code.x) {
+                { jmp_to = 89u; break; }
+            }
+            // 87: rcp
+            reg_tmp0.z = rcp_s(reg_tmp4.x);
+            // 88: mul
+            reg_tmp0.xy = (mul_s(reg_tmp5, reg_tmp4)).xy;
+        }
+        case 89u: {
+            // 89: mov
+            vs_out_attr1 = reg_tmp0;
+        }
+        default: return false;
+        }
+    }
+    return false;
+}
+bool sub_166_183() {
+    // 166: mov
+    reg_tmp8.xy = (uniforms.f[93].xxxx).xy;
+    // 167: mov
+    reg_tmp0.y = (uniforms.f[7].wwww).y;
+    // 168: cmp
+    conditional_code = notEqual(uniforms.f[93].xx, reg_tmp0.xy);
+    // 169: mov
+    reg_tmp9.xyz = (uniforms.f[93].xxxx).xyz;
+    // 170: mov
+    reg_tmp9.w = (uniforms.f[21].wwww).w;
+    // 171: ifc
+    if (conditional_code.y) {
+        sub_172_177();
+    }
+    // 177: callu
+    if (uniforms.b[12]) {
+        sub_183_229();
+    }
+    // 178: callu
+    if (uniforms.b[5]) {
+        sub_229_239();
+    }
+    // 179: cmp
+    conditional_code = equal(uniforms.f[93].xx, reg_tmp8.xy);
+    // 180: ifc
+    if (all(conditional_code)) {
+        sub_181_182();
+    }
+    // 182: max
+    vs_out_attr3 = max(uniforms.f[93].xxxx, reg_tmp9);
+    return false;
+}
+bool sub_172_177() {
+    // 172: mul
+    reg_tmp0 = mul_s(uniforms.f[7].wwww, vs_in_reg3);
+    // 173: ifu
+    if (uniforms.b[7]) {
+        sub_174_175();
+    }
+    // 175: mul
+    reg_tmp9.xyz = (mul_s(uniforms.f[20].wwww, reg_tmp0.xyzz)).xyz;
+    // 176: mov
+    reg_tmp8.x = (uniforms.f[93].yyyy).x;
+    return false;
+}
+bool sub_174_175() {
+    // 174: mul
+    reg_tmp9.w = (mul_s(reg_tmp9.wwww, reg_tmp0.wwww)).w;
+    return false;
+}
+bool sub_181_182() {
+    // 181: mov
+    reg_tmp9 = uniforms.f[21];
+    return false;
+}
+bool sub_183_229() {
+    // 183: mov
+    reg_tmp1 = uniforms.f[20];
+    // 184: mov
+    reg_tmp2 = uniforms.f[21];
+    // 185: mov
+    reg_tmp3 = uniforms.f[93].xxxx;
+    // 186: loop
+    address_registers.z = int(uniforms.i[0].y);
+    for (uint loop186 = 0u; loop186 <= uniforms.i[0].x; address_registers.z += int(uniforms.i[0].z), ++loop186) {
+        sub_187_228();
+    }
+    // 228: mov
+    reg_tmp8.x = (uniforms.f[93].yyyy).x;
+    return false;
+}
+bool sub_187_228() {
+    // 187: mova
+    address_registers.x = (ivec2(reg_tmp3.xy)).x;
+    // 188: mov
+    reg_tmp4.x = (uniforms.f[49 + address_registers.x].wwww).x;
+    // 189: mov
+    reg_tmp4.y = (uniforms.f[51 + address_registers.x].wwww).y;
+    // 190: cmp
+    conditional_code = equal(uniforms.f[93].xy, reg_tmp4.xy);
+    // 191: ifc
+    if (conditional_code.x) {
+        sub_192_194();
+    } else {
+        sub_194_218();
+    }
+    // 218: cmp
+    conditional_code.x = uniforms.f[93].xxxx.x == reg_tmp6.xyyy.x;
+    conditional_code.y = uniforms.f[93].xxxx.y < reg_tmp6.xyyy.y;
+    // 219: ifc
+    if (conditional_code.y) {
+        sub_220_227();
+    }
+    // 227: add
+    reg_tmp3 = -uniforms.f[95].wwww + reg_tmp3;
+    return false;
+}
+bool sub_192_194() {
+    // 192: dp3
+    reg_tmp6.x = dot_3(uniforms.f[49 + address_registers.x].xyz, reg_tmp14.xyz);
+    // 193: mov
+    reg_tmp6.y = (uniforms.f[93].yyyy).y;
+    return false;
+}
+bool sub_194_218() {
+    // 194: add
+    reg_tmp4 = uniforms.f[49 + address_registers.x] + -reg_tmp15;
+    // 195: mov
+    reg_tmp6.y = (uniforms.f[93].yyyy).y;
+    // 196: ifc
+    if (conditional_code.y) {
+        sub_197_202();
+    }
+    // 202: mov
+    reg_tmp5 = uniforms.f[50 + address_registers.x];
+    // 203: cmp
+    conditional_code = equal(uniforms.f[93].yy, reg_tmp5.ww);
+    // 204: dp3
+    reg_tmp4.w = dot_3(reg_tmp4.xyz, reg_tmp4.xyz);
+    // 205: rsq
+    reg_tmp4.w = rsq_s(reg_tmp4.w);
+    // 206: mul
+    reg_tmp4 = mul_s(reg_tmp4, reg_tmp4.wwww);
+    // 207: ifc
+    if (conditional_code.x) {
+        sub_208_217();
+    }
+    // 217: dp3
+    reg_tmp6.x = dot_3(reg_tmp14.xyz, reg_tmp4.xyz);
+    return false;
+}
+bool sub_197_202() {
+    // 197: mov
+    reg_tmp5.x = (uniforms.f[93].yyyy).x;
+    // 198: dp3
+    reg_tmp5.z = dot_3(reg_tmp4.xyz, reg_tmp4.xyz);
+    // 199: mul
+    reg_tmp5.y = (mul_s(reg_tmp5.zzzz, reg_tmp5.zzzz)).y;
+    // 200: dp3
+    reg_tmp6.y = dot_3(uniforms.f[51 + address_registers.x].xyz, reg_tmp5.xyz);
+    // 201: rcp
+    reg_tmp6.y = rcp_s(reg_tmp6.y);
+    return false;
+}
+bool sub_208_217() {
+    // 208: dp3
+    reg_tmp5.x = dot_3(uniforms.f[50 + address_registers.x].xyz, -reg_tmp4.xyz);
+    // 209: slti
+    reg_tmp5.y = (vec4(lessThan(reg_tmp5.xxxx, uniforms.f[52 + address_registers.x].yyyy))).y;
+    // 210: cmp
+    conditional_code = equal(uniforms.f[93].yy, reg_tmp5.xy);
+    // 211: ifc
+    if (conditional_code.y) {
+        sub_212_213();
+    } else {
+        sub_213_216();
+    }
+    // 216: mul
+    reg_tmp6.y = (mul_s(reg_tmp6.yyyy, reg_tmp5.xxxx)).y;
+    return false;
+}
+bool sub_212_213() {
+    // 212: mov
+    reg_tmp5.x = (uniforms.f[93].xxxx).x;
+    return false;
+}
+bool sub_213_216() {
+    // 213: log
+    reg_tmp5.y = log2(reg_tmp5.x);
+    // 214: mul
+    reg_tmp5.y = (mul_s(uniforms.f[52 + address_registers.x].xxxx, reg_tmp5.yyyy)).y;
+    // 215: exp
+    reg_tmp5.x = exp2(reg_tmp5.y);
+    return false;
+}
+bool sub_220_227() {
+    // 220: max
+    reg_tmp6.x = (max(uniforms.f[93].xxxx, reg_tmp6.xxxx)).x;
+    // 221: mad
+    reg_tmp9.xyz = (fma_s(reg_tmp1.xyzz, uniforms.f[47 + address_registers.x].xyzz, reg_tmp9.xyzz)).xyz;
+    // 222: mul
+    reg_tmp4 = mul_s(uniforms.f[48 + address_registers.x], reg_tmp2);
+    // 223: mul
+    reg_tmp5.xyz = (mul_s(reg_tmp6.xxxx, reg_tmp4.xyzz)).xyz;
+    // 224: mul
+    reg_tmp5.xyz = (mul_s(reg_tmp6.yyyy, reg_tmp5.xyzz)).xyz;
+    // 225: add
+    reg_tmp9.xyz = (reg_tmp9.xyzz + reg_tmp5.xyzz).xyz;
+    // 226: add
+    reg_tmp9.w = (reg_tmp9.wwww + reg_tmp4.wwww).w;
+    return false;
+}
+bool sub_229_239() {
+    // 229: dp3
+    reg_tmp1 = vec4(dot_3(uniforms.f[24].xyz, reg_tmp14.xyz));
+    // 230: mov
+    reg_tmp2 = uniforms.f[24].wwww;
+    // 231: mad
+    reg_tmp1 = fma_s(reg_tmp1, reg_tmp2, reg_tmp2);
+    // 232: mov
+    reg_tmp3 = uniforms.f[22];
+    // 233: add
+    reg_tmp2 = uniforms.f[23] + -reg_tmp3;
+    // 234: mad
+    reg_tmp4 = fma_s(reg_tmp2, reg_tmp1, reg_tmp3);
+    // 235: ifu
+    if (uniforms.b[6]) {
+        sub_236_237();
+    }
+    // 237: mad
+    reg_tmp9.xyz = (fma_s(reg_tmp4, uniforms.f[21], reg_tmp9)).xyz;
+    // 238: mov
+    reg_tmp8.x = (uniforms.f[93].yyyy).x;
+    return false;
+}
+bool sub_236_237() {
+    // 236: mul
+    reg_tmp4 = mul_s(reg_tmp4, reg_tmp9.wwww);
+    return false;
+}
+bool sub_239_266() {
+    // 239: mov
+    reg_tmp0.xy = (uniforms.f[10].xxxx).xy;
+    // 240: ifu
+    if (uniforms.b[9]) {
+        sub_241_246();
+    } else {
+        sub_246_265();
+    }
+    // 265: nop
+    return false;
+}
+bool sub_241_246() {
+    // 241: call
+    {
+        sub_266_274();
+    }
+    // 242: dp4
+    reg_tmp3.x = dot_s(uniforms.f[11].xywz, reg_tmp6);
+    // 243: dp4
+    reg_tmp3.y = dot_s(uniforms.f[12].xywz, reg_tmp6);
+    // 244: mov
+    reg_tmp3.zw = (uniforms.f[93].xxxx).zw;
+    // 245: mov
+    vs_out_attr4 = reg_tmp3;
+    return false;
+}
+bool sub_246_265() {
+    // 246: cmp
+    conditional_code = equal(uniforms.f[95].xy, reg_tmp0.xy);
+    // 247: mov
+    reg_tmp6.zw = (uniforms.f[93].xxyy).zw;
+    // 248: ifc
+    if (all(not(conditional_code))) {
+        sub_249_255();
+    } else {
+        sub_255_264();
+    }
+    // 264: mov
+    vs_out_attr4 = reg_tmp3;
+    return false;
+}
+bool sub_249_255() {
+    // 249: mov
+    reg_tmp6 = reg_tmp10;
+    // 250: dp4
+    reg_tmp3.x = dot_s(uniforms.f[11], reg_tmp6);
+    // 251: dp4
+    reg_tmp3.y = dot_s(uniforms.f[12], reg_tmp6);
+    // 252: dp4
+    reg_tmp3.z = dot_s(uniforms.f[13], reg_tmp6);
+    // 253: mul
+    reg_tmp0.xy = (mul_s(uniforms.f[19].xyyy, reg_tmp3.zzzz)).xy;
+    // 254: add
+    reg_tmp3.xy = (reg_tmp3.xyyy + reg_tmp0.xyyy).xy;
+    return false;
+}
+bool sub_255_264() {
+    // 255: ifc
+    if (all(bvec2(conditional_code.x, !conditional_code.y))) {
+        sub_256_260();
+    } else {
+        sub_260_263();
+    }
+    // 263: nop
+    return false;
+}
+bool sub_256_260() {
+    // 256: call
+    {
+        sub_274_281();
+    }
+    // 257: dp3
+    reg_tmp3.x = dot_3(uniforms.f[11].xyz, reg_tmp6.xyz);
+    // 258: dp3
+    reg_tmp3.y = dot_3(uniforms.f[12].xyz, reg_tmp6.xyz);
+    // 259: dp3
+    reg_tmp3.z = dot_3(uniforms.f[13].xyz, reg_tmp6.xyz);
+    return false;
+}
+bool sub_260_263() {
+    // 260: call
+    {
+        sub_281_285();
+    }
+    // 261: dp4
+    reg_tmp3.x = dot_s(uniforms.f[11], reg_tmp6);
+    // 262: dp4
+    reg_tmp3.y = dot_s(uniforms.f[12], reg_tmp6);
+    return false;
+}
+bool sub_266_274() {
+    // 266: cmp
+    conditional_code = equal(uniforms.f[93].yz, reg_tmp0.xy);
+    // 267: ifc
+    if (all(not(conditional_code))) {
+        sub_268_269();
+    } else {
+        sub_269_273();
+    }
+    // 273: mov
+    reg_tmp6.zw = (uniforms.f[93].xxyy).zw;
+    return false;
+}
+bool sub_268_269() {
+    // 268: mul
+    reg_tmp6.xy = (mul_s(uniforms.f[8].xxxx, vs_in_reg4.xyyy)).xy;
+    return false;
+}
+bool sub_269_273() {
+    // 269: ifc
+    if (all(bvec2(conditional_code.x, !conditional_code.y))) {
+        sub_270_271();
+    } else {
+        sub_271_272();
+    }
+    // 272: nop
+    return false;
+}
+bool sub_270_271() {
+    // 270: mul
+    reg_tmp6.xy = (mul_s(uniforms.f[8].yyyy, vs_in_reg5.xyyy)).xy;
+    return false;
+}
+bool sub_271_272() {
+    // 271: mul
+    reg_tmp6.xy = (mul_s(uniforms.f[8].zzzz, vs_in_reg6.xyyy)).xy;
+    return false;
+}
+bool sub_274_281() {
+    // 274: mov
+    reg_tmp2 = -reg_tmp15;
+    // 275: dp3
+    reg_tmp2.w = dot_3(reg_tmp2.xyz, reg_tmp2.xyz);
+    // 276: rsq
+    reg_tmp2.w = rsq_s(reg_tmp2.w);
+    // 277: mul
+    reg_tmp2 = mul_s(reg_tmp2, reg_tmp2.wwww);
+    // 278: dp3
+    reg_tmp1 = vec4(dot_3(reg_tmp2.xyz, reg_tmp14.xyz));
+    // 279: add
+    reg_tmp1 = reg_tmp1 + reg_tmp1;
+    // 280: mad
+    reg_tmp6 = fma_s(reg_tmp1, reg_tmp14, -reg_tmp2);
+    return false;
+}
+bool sub_281_285() {
+    // 281: mov
+    reg_tmp1.xy = (uniforms.f[94].zzzz).xy;
+    // 282: mov
+    reg_tmp1.zw = (uniforms.f[93].xxxx).zw;
+    // 283: mad
+    reg_tmp6 = fma_s(reg_tmp14, reg_tmp1, reg_tmp1);
+    // 284: mov
+    reg_tmp6.zw = (uniforms.f[93].xxyy).zw;
+    return false;
+}
+bool sub_285_309() {
+    // 285: mov
+    reg_tmp0.xy = (uniforms.f[10].yyyy).xy;
+    // 286: ifu
+    if (uniforms.b[10]) {
+        sub_287_291();
+    } else {
+        sub_291_308();
+    }
+    // 308: nop
+    return false;
+}
+bool sub_287_291() {
+    // 287: call
+    {
+        sub_266_274();
+    }
+    // 288: dp4
+    reg_tmp4.x = dot_s(uniforms.f[14].xywz, reg_tmp6);
+    // 289: dp4
+    reg_tmp4.y = dot_s(uniforms.f[15].xywz, reg_tmp6);
+    // 290: mov
+    vs_out_attr5 = reg_tmp4;
+    return false;
+}
+bool sub_291_308() {
+    // 291: ifu
+    if (uniforms.b[13]) {
+        sub_292_306();
+    } else {
+        sub_306_307();
+    }
+    // 307: nop
+    return false;
+}
+bool sub_292_306() {
+    // 292: cmp
+    conditional_code = equal(uniforms.f[95].xy, reg_tmp0.xy);
+    // 293: mov
+    reg_tmp6.zw = (uniforms.f[93].xxyy).zw;
+    // 294: ifc
+    if (all(not(conditional_code))) {
+        sub_295_302();
+    } else {
+        sub_302_305();
+    }
+    // 305: mov
+    vs_out_attr5 = reg_tmp4;
+    return false;
+}
+bool sub_295_302() {
+    // 295: mov
+    reg_tmp6 = reg_tmp10;
+    // 296: dp4
+    reg_tmp4.x = dot_s(uniforms.f[14], reg_tmp6);
+    // 297: dp4
+    reg_tmp4.y = dot_s(uniforms.f[15], reg_tmp6);
+    // 298: dp4
+    reg_tmp4.z = dot_s(uniforms.f[16], reg_tmp6);
+    // 299: rcp
+    reg_tmp6.w = rcp_s(reg_tmp4.z);
+    // 300: mul
+    reg_tmp4.xy = (mul_s(reg_tmp4.xyyy, reg_tmp6.wwww)).xy;
+    // 301: add
+    reg_tmp4.xy = (uniforms.f[19].zwww + reg_tmp4.xyyy).xy;
+    return false;
+}
+bool sub_302_305() {
+    // 302: call
+    {
+        sub_281_285();
+    }
+    // 303: dp4
+    reg_tmp4.x = dot_s(uniforms.f[14], reg_tmp6);
+    // 304: dp4
+    reg_tmp4.y = dot_s(uniforms.f[15], reg_tmp6);
+    return false;
+}
+bool sub_306_307() {
+    // 306: mov
+    vs_out_attr5 = uniforms.f[93].xxxx;
+    return false;
+}
+bool sub_309_325() {
+    // 309: mov
+    reg_tmp0.xy = (uniforms.f[10].zzzz).xy;
+    // 310: ifu
+    if (uniforms.b[11]) {
+        sub_311_315();
+    } else {
+        sub_315_324();
+    }
+    // 324: nop
+    return false;
+}
+bool sub_311_315() {
+    // 311: call
+    {
+        sub_266_274();
+    }
+    // 312: dp4
+    reg_tmp5.x = dot_s(uniforms.f[17].xywz, reg_tmp6);
+    // 313: dp4
+    reg_tmp5.y = dot_s(uniforms.f[18].xywz, reg_tmp6);
+    // 314: mov
+    vs_out_attr6 = reg_tmp5;
+    return false;
+}
+bool sub_315_324() {
+    // 315: ifu
+    if (uniforms.b[14]) {
+        sub_316_322();
+    } else {
+        sub_322_323();
+    }
+    // 323: nop
+    return false;
+}
+bool sub_316_322() {
+    // 316: mov
+    reg_tmp6.zw = (uniforms.f[93].xxyy).zw;
+    // 317: mov
+    reg_tmp5.zw = (reg_tmp6.zwww).zw;
+    // 318: call
+    {
+        sub_281_285();
+    }
+    // 319: dp4
+    reg_tmp5.x = dot_s(uniforms.f[17], reg_tmp6);
+    // 320: dp4
+    reg_tmp5.y = dot_s(uniforms.f[18], reg_tmp6);
+    // 321: mov
+    vs_out_attr6 = reg_tmp5;
+    return false;
+}
+bool sub_322_323() {
+    // 322: mov
+    vs_out_attr6 = uniforms.f[93].xxxx;
+    return false;
+}
+// reference: 4C090A9C15A79A2D, 295A6D3137A5ECE7
+// program: 295A6D3137A5ECE7, AD7922A63ED54CA7, C8B5858A114E6B90
+// program: 559D364E86318AE6, 3B3AE026C742C7D5, 98677AC22B9A3E1A
+// shader: 8B31, E2197E57DCEC2F0E
+
+struct pica_uniforms {
+    bool b[16];
+    uvec4 i[4];
+    vec4 f[96];
+};
+
+bool exec_shader();
+
+#define uniforms vs_uniforms
+layout (std140) uniform vs_config {
+    pica_uniforms uniforms;
+};
+
+layout(location = 0) in vec4 vs_in_reg0;
+layout(location = 1) in vec4 vs_in_reg1;
+layout(location = 2) in vec4 vs_in_reg2;
+layout(location = 3) in vec4 vs_in_reg3;
+layout(location = 4) in vec4 vs_in_reg4;
+layout(location = 5) in vec4 vs_in_reg5;
+layout(location = 6) in vec4 vs_in_reg6;
+layout(location = 7) in vec4 vs_in_reg7;
+layout(location = 8) in vec4 vs_in_reg8;
+
+ out vec4 vs_out_attr0;
+ out vec4 vs_out_attr1;
+ out vec4 vs_out_attr2;
+ out vec4 vs_out_attr3;
+ out vec4 vs_out_attr4;
+ out vec4 vs_out_attr5;
+ out vec4 vs_out_attr6;
+
+void main() {
+    vs_out_attr0 = vec4(0.0, 0.0, 0.0, 1.0);
+    vs_out_attr1 = vec4(0.0, 0.0, 0.0, 1.0);
+    vs_out_attr2 = vec4(0.0, 0.0, 0.0, 1.0);
+    vs_out_attr3 = vec4(0.0, 0.0, 0.0, 1.0);
+    vs_out_attr4 = vec4(0.0, 0.0, 0.0, 1.0);
+    vs_out_attr5 = vec4(0.0, 0.0, 0.0, 1.0);
+    vs_out_attr6 = vec4(0.0, 0.0, 0.0, 1.0);
+
+    exec_shader();
+}
+
+
+#define mul_s(x, y) mix(x * y, vec4(0.0), isnan(x * y))
+#define mul_3(x, y) mix(x * y, vec3(0.0), isnan(x * y))
+#define fma_s(x, y, z) (mul_s(x, y) + z)
+float rcp_s(float x) {
+    if (x == 0.0) return x;
+    return 1.0 / x;
+}
+float rsq_s(float x) {
+    if (x > 0.0) return inversesqrt(x);
+    return 0.0;
+}
+#define dot_s(x, y) dot(x, y)
+#define dot_3(x, y) dot(mul_3(x, y), vec3(1.0))
+
+bvec2 conditional_code = bvec2(false);
+ivec3 address_registers = ivec3(0);
+vec4 reg_tmp0 = vec4(0.0, 0.0, 0.0, 1.0);
+vec4 reg_tmp1 = vec4(0.0, 0.0, 0.0, 1.0);
+vec4 reg_tmp2 = vec4(0.0, 0.0, 0.0, 1.0);
+vec4 reg_tmp3 = vec4(0.0, 0.0, 0.0, 1.0);
+vec4 reg_tmp4 = vec4(0.0, 0.0, 0.0, 1.0);
+vec4 reg_tmp5 = vec4(0.0, 0.0, 0.0, 1.0);
+vec4 reg_tmp6 = vec4(0.0, 0.0, 0.0, 1.0);
+vec4 reg_tmp7 = vec4(0.0, 0.0, 0.0, 1.0);
+vec4 reg_tmp8 = vec4(0.0, 0.0, 0.0, 1.0);
+vec4 reg_tmp9 = vec4(0.0, 0.0, 0.0, 1.0);
+vec4 reg_tmp10 = vec4(0.0, 0.0, 0.0, 1.0);
+vec4 reg_tmp11 = vec4(0.0, 0.0, 0.0, 1.0);
+vec4 reg_tmp12 = vec4(0.0, 0.0, 0.0, 1.0);
+vec4 reg_tmp13 = vec4(0.0, 0.0, 0.0, 1.0);
+vec4 reg_tmp14 = vec4(0.0, 0.0, 0.0, 1.0);
+vec4 reg_tmp15 = vec4(0.0, 0.0, 0.0, 1.0);
+
+bool sub_56_61();
+bool sub_61_70();
+bool sub_70_83();
+bool sub_83_251();
+bool sub_89_189();
+bool sub_96_125();
+bool sub_107_111();
+bool sub_125_184();
+bool sub_126_158();
+bool sub_137_141();
+bool sub_158_183();
+bool sub_169_173();
+bool sub_189_250();
+bool sub_192_202();
+bool sub_202_207();
+bool sub_208_220();
+bool sub_220_245();
+bool sub_221_239();
+bool sub_239_244();
+bool sub_251_268();
+bool sub_268_344();
+bool sub_307_327();
+bool sub_308_313();
+bool sub_313_326();
+bool sub_317_320();
+bool sub_320_325();
+bool sub_327_340();
+bool sub_328_333();
+bool sub_333_339();
+bool sub_344_4096();
+bool sub_351_356();
+bool sub_353_354();
+bool sub_358_359();
+bool sub_362_374();
+bool sub_364_365();
+bool sub_365_369();
+bool sub_366_367();
+bool sub_367_368();
+bool sub_374_384();
+bool sub_388_389();
+bool sub_389_393();
+bool sub_390_391();
+bool sub_391_392();
+bool sub_401_402();
+bool sub_402_406();
+bool sub_403_404();
+bool sub_404_405();
+
+bool exec_shader() {
+    sub_344_4096();
+    return true;
+}
+
+bool sub_56_61() {
+    // 56: mova
+    address_registers.x = (ivec2(reg_tmp1.xx)).x;
+    // 57: dp4
+    reg_tmp3.x = dot_s(uniforms.f[25 + address_registers.x], reg_tmp15);
+    // 58: dp4
+    reg_tmp3.y = dot_s(uniforms.f[26 + address_registers.x], reg_tmp15);
+    // 59: dp4
+    reg_tmp3.z = dot_s(uniforms.f[27 + address_registers.x], reg_tmp15);
+    // 60: mad
+    reg_tmp7 = fma_s(reg_tmp1.wwww, reg_tmp3, reg_tmp7);
+    return false;
+}
+bool sub_61_70() {
+    // 61: mova
+    address_registers.x = (ivec2(reg_tmp1.xx)).x;
+    // 62: dp4
+    reg_tmp3.x = dot_s(uniforms.f[25 + address_registers.x], reg_tmp15);
+    // 63: dp4
+    reg_tmp3.y = dot_s(uniforms.f[26 + address_registers.x], reg_tmp15);
+    // 64: dp4
+    reg_tmp3.z = dot_s(uniforms.f[27 + address_registers.x], reg_tmp15);
+    // 65: dp3
+    reg_tmp4.x = dot_3(uniforms.f[25 + address_registers.x].xyz, reg_tmp14.xyz);
+    // 66: dp3
+    reg_tmp4.y = dot_3(uniforms.f[26 + address_registers.x].xyz, reg_tmp14.xyz);
+    // 67: dp3
+    reg_tmp4.z = dot_3(uniforms.f[27 + address_registers.x].xyz, reg_tmp14.xyz);
+    // 68: mad
+    reg_tmp7 = fma_s(reg_tmp1.wwww, reg_tmp3, reg_tmp7);
+    // 69: mad
+    reg_tmp12 = fma_s(reg_tmp1.wwww, reg_tmp4, reg_tmp12);
+    return false;
+}
+bool sub_70_83() {
+    // 70: mova
+    address_registers.x = (ivec2(reg_tmp1.xx)).x;
+    // 71: dp4
+    reg_tmp3.x = dot_s(uniforms.f[25 + address_registers.x], reg_tmp15);
+    // 72: dp4
+    reg_tmp3.y = dot_s(uniforms.f[26 + address_registers.x], reg_tmp15);
+    // 73: dp4
+    reg_tmp3.z = dot_s(uniforms.f[27 + address_registers.x], reg_tmp15);
+    // 74: dp3
+    reg_tmp4.x = dot_3(uniforms.f[25 + address_registers.x].xyz, reg_tmp14.xyz);
+    // 75: dp3
+    reg_tmp4.y = dot_3(uniforms.f[26 + address_registers.x].xyz, reg_tmp14.xyz);
+    // 76: dp3
+    reg_tmp4.z = dot_3(uniforms.f[27 + address_registers.x].xyz, reg_tmp14.xyz);
+    // 77: dp3
+    reg_tmp5.x = dot_3(uniforms.f[25 + address_registers.x].xyz, reg_tmp13.xyz);
+    // 78: dp3
+    reg_tmp5.y = dot_3(uniforms.f[26 + address_registers.x].xyz, reg_tmp13.xyz);
+    // 79: dp3
+    reg_tmp5.z = dot_3(uniforms.f[27 + address_registers.x].xyz, reg_tmp13.xyz);
+    // 80: mad
+    reg_tmp7 = fma_s(reg_tmp1.wwww, reg_tmp3, reg_tmp7);
+    // 81: mad
+    reg_tmp12 = fma_s(reg_tmp1.wwww, reg_tmp4, reg_tmp12);
+    // 82: mad
+    reg_tmp11 = fma_s(reg_tmp1.wwww, reg_tmp5, reg_tmp11);
+    return false;
+}
+bool sub_83_251() {
+    // 83: mul
+    reg_tmp15.xyz = (mul_s(uniforms.f[7].xxxx, vs_in_reg0)).xyz;
+    // 84: mul
+    reg_tmp14.xyz = (mul_s(uniforms.f[7].yyyy, vs_in_reg1)).xyz;
+    // 85: mul
+    reg_tmp13.xyz = (mul_s(uniforms.f[7].zzzz, vs_in_reg2)).xyz;
+    // 86: add
+    reg_tmp15.xyz = (uniforms.f[6] + reg_tmp15).xyz;
+    // 87: mov
+    reg_tmp15.w = (uniforms.f[93].yyyy).w;
+    // 88: ifu
+    if (uniforms.b[1]) {
+        sub_89_189();
+    } else {
+        sub_189_250();
+    }
+    // 250: nop
+    return false;
+}
+bool sub_89_189() {
+    // 89: mov
+    reg_tmp0 = uniforms.f[7];
+    // 90: cmp
+    conditional_code = notEqual(uniforms.f[93].xx, reg_tmp0.yz);
+    // 91: mov
+    reg_tmp7 = uniforms.f[93].xxxx;
+    // 92: mov
+    reg_tmp12 = uniforms.f[93].xxxx;
+    // 93: mov
+    reg_tmp11 = uniforms.f[93].xxxx;
+    // 94: mul
+    reg_tmp2 = mul_s(uniforms.f[93].wwww, vs_in_reg7);
+    // 95: ifc
+    if (all(bvec2(conditional_code.x, !conditional_code.y))) {
+        sub_96_125();
+    } else {
+        sub_125_184();
+    }
+    // 184: mov
+    vs_out_attr2 = -reg_tmp15;
+    // 185: dp4
+    vs_out_attr0.x = dot_s(uniforms.f[86], reg_tmp15);
+    // 186: dp4
+    vs_out_attr0.y = dot_s(uniforms.f[87], reg_tmp15);
+    // 187: dp4
+    vs_out_attr0.z = dot_s(uniforms.f[88], reg_tmp15);
+    // 188: dp4
+    vs_out_attr0.w = dot_s(uniforms.f[89], reg_tmp15);
+    return false;
+}
+bool sub_96_125() {
+    // 96: cmp
+    conditional_code = notEqual(uniforms.f[93].xx, vs_in_reg8.zw);
+    // 97: mov
+    reg_tmp1.xy = (reg_tmp2.xxxx).xy;
+    // 98: mul
+    reg_tmp1.w = (mul_s(uniforms.f[8].wwww, vs_in_reg8.xxxx)).w;
+    // 99: call
+    {
+        sub_61_70();
+    }
+    // 100: mov
+    reg_tmp1.xy = (reg_tmp2.yyyy).xy;
+    // 101: mul
+    reg_tmp1.w = (mul_s(uniforms.f[8].wwww, vs_in_reg8.yyyy)).w;
+    // 102: call
+    {
+        sub_61_70();
+    }
+    // 103: mov
+    reg_tmp1.xy = (reg_tmp2.zzzz).xy;
+    // 104: mul
+    reg_tmp1.w = (mul_s(uniforms.f[8].wwww, vs_in_reg8.zzzz)).w;
+    // 105: callc
+    if (conditional_code.x) {
+        sub_61_70();
+    }
+    // 106: ifu
+    if (uniforms.b[8]) {
+        sub_107_111();
+    }
+    // 111: mov
+    reg_tmp7.w = (uniforms.f[93].yyyy).w;
+    // 112: dp4
+    reg_tmp10.x = dot_s(uniforms.f[0], reg_tmp7);
+    // 113: dp4
+    reg_tmp10.y = dot_s(uniforms.f[1], reg_tmp7);
+    // 114: dp4
+    reg_tmp10.z = dot_s(uniforms.f[2], reg_tmp7);
+    // 115: mov
+    reg_tmp10.w = (uniforms.f[93].yyyy).w;
+    // 116: dp4
+    reg_tmp15.x = dot_s(uniforms.f[90], reg_tmp10);
+    // 117: dp4
+    reg_tmp15.y = dot_s(uniforms.f[91], reg_tmp10);
+    // 118: dp4
+    reg_tmp15.z = dot_s(uniforms.f[92], reg_tmp10);
+    // 119: mov
+    reg_tmp15.w = (uniforms.f[93].yyyy).w;
+    // 120: dp3
+    reg_tmp14.x = dot_3(uniforms.f[3].xyz, reg_tmp12.xyz);
+    // 121: dp3
+    reg_tmp14.y = dot_3(uniforms.f[4].xyz, reg_tmp12.xyz);
+    // 122: dp3
+    reg_tmp14.z = dot_3(uniforms.f[5].xyz, reg_tmp12.xyz);
+    // 123: call
+    {
+        sub_251_268();
+    }
+    // 124: nop
+    return false;
+}
+bool sub_107_111() {
+    // 107: mov
+    reg_tmp1.xy = (reg_tmp2.wwww).xy;
+    // 108: mul
+    reg_tmp1.w = (mul_s(uniforms.f[8].wwww, vs_in_reg8.wwww)).w;
+    // 109: callc
+    if (conditional_code.y) {
+        sub_61_70();
+    }
+    // 110: nop
+    return false;
+}
+bool sub_125_184() {
+    // 125: ifc
+    if (all(conditional_code)) {
+        sub_126_158();
+    } else {
+        sub_158_183();
+    }
+    // 183: nop
+    return false;
+}
+bool sub_126_158() {
+    // 126: cmp
+    conditional_code = notEqual(uniforms.f[93].xx, vs_in_reg8.zw);
+    // 127: mov
+    reg_tmp1.xy = (reg_tmp2.xxxx).xy;
+    // 128: mul
+    reg_tmp1.w = (mul_s(uniforms.f[8].wwww, vs_in_reg8.xxxx)).w;
+    // 129: call
+    {
+        sub_70_83();
+    }
+    // 130: mov
+    reg_tmp1.xy = (reg_tmp2.yyyy).xy;
+    // 131: mul
+    reg_tmp1.w = (mul_s(uniforms.f[8].wwww, vs_in_reg8.yyyy)).w;
+    // 132: call
+    {
+        sub_70_83();
+    }
+    // 133: mov
+    reg_tmp1.xy = (reg_tmp2.zzzz).xy;
+    // 134: mul
+    reg_tmp1.w = (mul_s(uniforms.f[8].wwww, vs_in_reg8.zzzz)).w;
+    // 135: callc
+    if (conditional_code.x) {
+        sub_70_83();
+    }
+    // 136: ifu
+    if (uniforms.b[8]) {
+        sub_137_141();
+    }
+    // 141: mov
+    reg_tmp7.w = (uniforms.f[93].yyyy).w;
+    // 142: dp4
+    reg_tmp10.x = dot_s(uniforms.f[0], reg_tmp7);
+    // 143: dp4
+    reg_tmp10.y = dot_s(uniforms.f[1], reg_tmp7);
+    // 144: dp4
+    reg_tmp10.z = dot_s(uniforms.f[2], reg_tmp7);
+    // 145: mov
+    reg_tmp10.w = (uniforms.f[93].yyyy).w;
+    // 146: dp3
+    reg_tmp13.x = dot_3(uniforms.f[3].xyz, reg_tmp11.xyz);
+    // 147: dp3
+    reg_tmp13.y = dot_3(uniforms.f[4].xyz, reg_tmp11.xyz);
+    // 148: dp3
+    reg_tmp13.z = dot_3(uniforms.f[5].xyz, reg_tmp11.xyz);
+    // 149: dp3
+    reg_tmp14.x = dot_3(uniforms.f[3].xyz, reg_tmp12.xyz);
+    // 150: dp3
+    reg_tmp14.y = dot_3(uniforms.f[4].xyz, reg_tmp12.xyz);
+    // 151: dp3
+    reg_tmp14.z = dot_3(uniforms.f[5].xyz, reg_tmp12.xyz);
+    // 152: dp4
+    reg_tmp15.x = dot_s(uniforms.f[90], reg_tmp10);
+    // 153: dp4
+    reg_tmp15.y = dot_s(uniforms.f[91], reg_tmp10);
+    // 154: dp4
+    reg_tmp15.z = dot_s(uniforms.f[92], reg_tmp10);
+    // 155: mov
+    reg_tmp15.w = (uniforms.f[93].yyyy).w;
+    // 156: call
+    {
+        sub_268_344();
+    }
+    // 157: nop
+    return false;
+}
+bool sub_137_141() {
+    // 137: mov
+    reg_tmp1.xy = (reg_tmp2.wwww).xy;
+    // 138: mul
+    reg_tmp1.w = (mul_s(uniforms.f[8].wwww, vs_in_reg8.wwww)).w;
+    // 139: callc
+    if (conditional_code.y) {
+        sub_70_83();
+    }
+    // 140: nop
+    return false;
+}
+bool sub_158_183() {
+    // 158: cmp
+    conditional_code = notEqual(uniforms.f[93].xx, vs_in_reg8.zw);
+    // 159: mov
+    reg_tmp1.xy = (reg_tmp2.xxxx).xy;
+    // 160: mul
+    reg_tmp1.w = (mul_s(uniforms.f[8].wwww, vs_in_reg8.xxxx)).w;
+    // 161: call
+    {
+        sub_56_61();
+    }
+    // 162: mov
+    reg_tmp1.xy = (reg_tmp2.yyyy).xy;
+    // 163: mul
+    reg_tmp1.w = (mul_s(uniforms.f[8].wwww, vs_in_reg8.yyyy)).w;
+    // 164: call
+    {
+        sub_56_61();
+    }
+    // 165: mov
+    reg_tmp1.xy = (reg_tmp2.zzzz).xy;
+    // 166: mul
+    reg_tmp1.w = (mul_s(uniforms.f[8].wwww, vs_in_reg8.zzzz)).w;
+    // 167: callc
+    if (conditional_code.x) {
+        sub_56_61();
+    }
+    // 168: ifu
+    if (uniforms.b[8]) {
+        sub_169_173();
+    }
+    // 173: mov
+    reg_tmp7.w = (uniforms.f[93].yyyy).w;
+    // 174: dp4
+    reg_tmp10.x = dot_s(uniforms.f[0], reg_tmp7);
+    // 175: dp4
+    reg_tmp10.y = dot_s(uniforms.f[1], reg_tmp7);
+    // 176: dp4
+    reg_tmp10.z = dot_s(uniforms.f[2], reg_tmp7);
+    // 177: mov
+    reg_tmp10.w = (uniforms.f[93].yyyy).w;
+    // 178: dp4
+    reg_tmp15.x = dot_s(uniforms.f[90], reg_tmp10);
+    // 179: dp4
+    reg_tmp15.y = dot_s(uniforms.f[91], reg_tmp10);
+    // 180: dp4
+    reg_tmp15.z = dot_s(uniforms.f[92], reg_tmp10);
+    // 181: mov
+    reg_tmp15.w = (uniforms.f[93].yyyy).w;
+    // 182: mov
+    vs_out_attr1 = uniforms.f[93].xxxx;
+    return false;
+}
+bool sub_169_173() {
+    // 169: mov
+    reg_tmp1.xy = (reg_tmp2.wwww).xy;
+    // 170: mul
+    reg_tmp1.w = (mul_s(uniforms.f[8].wwww, vs_in_reg8.wwww)).w;
+    // 171: callc
+    if (conditional_code.y) {
+        sub_56_61();
+    }
+    // 172: nop
+    return false;
+}
+bool sub_189_250() {
+    // 189: mov
+    reg_tmp0 = uniforms.f[7];
+    // 190: cmp
+    conditional_code = notEqual(uniforms.f[93].xx, reg_tmp0.yz);
+    // 191: ifu
+    if (uniforms.b[2]) {
+        sub_192_202();
+    } else {
+        sub_202_207();
+    }
+    // 207: ifc
+    if (all(bvec2(conditional_code.x, !conditional_code.y))) {
+        sub_208_220();
+    } else {
+        sub_220_245();
+    }
+    // 245: mov
+    vs_out_attr2 = -reg_tmp15;
+    // 246: dp4
+    vs_out_attr0.x = dot_s(uniforms.f[86], reg_tmp15);
+    // 247: dp4
+    vs_out_attr0.y = dot_s(uniforms.f[87], reg_tmp15);
+    // 248: dp4
+    vs_out_attr0.z = dot_s(uniforms.f[88], reg_tmp15);
+    // 249: dp4
+    vs_out_attr0.w = dot_s(uniforms.f[89], reg_tmp15);
+    return false;
+}
+bool sub_192_202() {
+    // 192: mul
+    reg_tmp1.x = (mul_s(uniforms.f[93].wwww, vs_in_reg7.xxxx)).x;
+    // 193: mova
+    address_registers.x = (ivec2(reg_tmp1.xx)).x;
+    // 194: dp4
+    reg_tmp7.x = dot_s(uniforms.f[25 + address_registers.x], reg_tmp15);
+    // 195: dp4
+    reg_tmp7.y = dot_s(uniforms.f[26 + address_registers.x], reg_tmp15);
+    // 196: dp4
+    reg_tmp7.z = dot_s(uniforms.f[27 + address_registers.x], reg_tmp15);
+    // 197: mov
+    reg_tmp7.w = (uniforms.f[93].yyyy).w;
+    // 198: dp4
+    reg_tmp10.x = dot_s(uniforms.f[0], reg_tmp7);
+    // 199: dp4
+    reg_tmp10.y = dot_s(uniforms.f[1], reg_tmp7);
+    // 200: dp4
+    reg_tmp10.z = dot_s(uniforms.f[2], reg_tmp7);
+    // 201: mov
+    reg_tmp10.w = (uniforms.f[93].yyyy).w;
+    return false;
+}
+bool sub_202_207() {
+    // 202: mova
+    address_registers.x = (ivec2(uniforms.f[93].xx)).x;
+    // 203: dp4
+    reg_tmp10.x = dot_s(uniforms.f[25], reg_tmp15);
+    // 204: dp4
+    reg_tmp10.y = dot_s(uniforms.f[26], reg_tmp15);
+    // 205: dp4
+    reg_tmp10.z = dot_s(uniforms.f[27], reg_tmp15);
+    // 206: mov
+    reg_tmp10.w = (uniforms.f[93].yyyy).w;
+    return false;
+}
+bool sub_208_220() {
+    // 208: dp3
+    reg_tmp12.x = dot_3(uniforms.f[25 + address_registers.x].xyz, reg_tmp14.xyz);
+    // 209: dp3
+    reg_tmp12.y = dot_3(uniforms.f[26 + address_registers.x].xyz, reg_tmp14.xyz);
+    // 210: dp3
+    reg_tmp12.z = dot_3(uniforms.f[27 + address_registers.x].xyz, reg_tmp14.xyz);
+    // 211: dp4
+    reg_tmp15.x = dot_s(uniforms.f[90], reg_tmp10);
+    // 212: dp4
+    reg_tmp15.y = dot_s(uniforms.f[91], reg_tmp10);
+    // 213: dp4
+    reg_tmp15.z = dot_s(uniforms.f[92], reg_tmp10);
+    // 214: mov
+    reg_tmp15.w = (uniforms.f[93].yyyy).w;
+    // 215: dp3
+    reg_tmp14.x = dot_3(uniforms.f[3].xyz, reg_tmp12.xyz);
+    // 216: dp3
+    reg_tmp14.y = dot_3(uniforms.f[4].xyz, reg_tmp12.xyz);
+    // 217: dp3
+    reg_tmp14.z = dot_3(uniforms.f[5].xyz, reg_tmp12.xyz);
+    // 218: call
+    {
+        sub_251_268();
+    }
+    // 219: nop
+    return false;
+}
+bool sub_220_245() {
+    // 220: ifc
+    if (all(conditional_code)) {
+        sub_221_239();
+    } else {
+        sub_239_244();
+    }
+    // 244: nop
+    return false;
+}
+bool sub_221_239() {
+    // 221: dp3
+    reg_tmp12.x = dot_3(uniforms.f[25 + address_registers.x].xyz, reg_tmp14.xyz);
+    // 222: dp3
+    reg_tmp12.y = dot_3(uniforms.f[26 + address_registers.x].xyz, reg_tmp14.xyz);
+    // 223: dp3
+    reg_tmp12.z = dot_3(uniforms.f[27 + address_registers.x].xyz, reg_tmp14.xyz);
+    // 224: dp3
+    reg_tmp11.x = dot_3(uniforms.f[25 + address_registers.x].xyz, reg_tmp13.xyz);
+    // 225: dp3
+    reg_tmp11.y = dot_3(uniforms.f[26 + address_registers.x].xyz, reg_tmp13.xyz);
+    // 226: dp3
+    reg_tmp11.z = dot_3(uniforms.f[27 + address_registers.x].xyz, reg_tmp13.xyz);
+    // 227: dp4
+    reg_tmp15.x = dot_s(uniforms.f[90], reg_tmp10);
+    // 228: dp4
+    reg_tmp15.y = dot_s(uniforms.f[91], reg_tmp10);
+    // 229: dp4
+    reg_tmp15.z = dot_s(uniforms.f[92], reg_tmp10);
+    // 230: mov
+    reg_tmp15.w = (uniforms.f[93].yyyy).w;
+    // 231: dp3
+    reg_tmp14.x = dot_3(uniforms.f[3].xyz, reg_tmp12.xyz);
+    // 232: dp3
+    reg_tmp14.y = dot_3(uniforms.f[4].xyz, reg_tmp12.xyz);
+    // 233: dp3
+    reg_tmp14.z = dot_3(uniforms.f[5].xyz, reg_tmp12.xyz);
+    // 234: dp3
+    reg_tmp13.x = dot_3(uniforms.f[3].xyz, reg_tmp11.xyz);
+    // 235: dp3
+    reg_tmp13.y = dot_3(uniforms.f[4].xyz, reg_tmp11.xyz);
+    // 236: dp3
+    reg_tmp13.z = dot_3(uniforms.f[5].xyz, reg_tmp11.xyz);
+    // 237: call
+    {
+        sub_268_344();
+    }
+    // 238: nop
+    return false;
+}
+bool sub_239_244() {
+    // 239: dp4
+    reg_tmp15.x = dot_s(uniforms.f[90], reg_tmp10);
+    // 240: dp4
+    reg_tmp15.y = dot_s(uniforms.f[91], reg_tmp10);
+    // 241: dp4
+    reg_tmp15.z = dot_s(uniforms.f[92], reg_tmp10);
+    // 242: mov
+    reg_tmp15.w = (uniforms.f[93].yyyy).w;
+    // 243: mov
+    vs_out_attr1 = uniforms.f[93].xxxx;
+    return false;
+}
+bool sub_251_268() {
+    uint jmp_to = 251u;
+    while (true) {
+        switch (jmp_to) {
+        case 251u: {
+            // 251: dp3
+            reg_tmp6.x = dot_3(reg_tmp14.xyz, reg_tmp14.xyz);
+            // 252: dp3
+            reg_tmp7.x = dot_3(reg_tmp12.xyz, reg_tmp12.xyz);
+            // 253: rsq
+            reg_tmp6.x = rsq_s(reg_tmp6.x);
+            // 254: rsq
+            reg_tmp7.x = rsq_s(reg_tmp7.x);
+            // 255: mul
+            reg_tmp14.xyz = (mul_s(reg_tmp14.xyzz, reg_tmp6.xxxx)).xyz;
+            // 256: mul
+            reg_tmp12.xyz = (mul_s(reg_tmp12.xyzz, reg_tmp7.xxxx)).xyz;
+            // 257: mov
+            reg_tmp0 = uniforms.f[93].yxxx;
+            // 258: jmpu
+            if (!uniforms.b[15]) {
+                { jmp_to = 267u; break; }
+            }
+            // 259: add
+            reg_tmp4 = uniforms.f[93].yyyy + reg_tmp14.zzzz;
+            // 260: mul
+            reg_tmp4 = mul_s(uniforms.f[94].zzzz, reg_tmp4);
+            // 261: cmp
+            conditional_code = greaterThanEqual(uniforms.f[93].xx, reg_tmp4.xx);
+            // 262: rsq
+            reg_tmp4 = vec4(rsq_s(reg_tmp4.x));
+            // 263: mul
+            reg_tmp5 = mul_s(uniforms.f[94].zzzz, reg_tmp14);
+            // 264: jmpc
+            if (conditional_code.x) {
+                { jmp_to = 267u; break; }
+            }
+            // 265: rcp
+            reg_tmp0.z = rcp_s(reg_tmp4.x);
+            // 266: mul
+            reg_tmp0.xy = (mul_s(reg_tmp5, reg_tmp4)).xy;
+        }
+        case 267u: {
+            // 267: mov
+            vs_out_attr1 = reg_tmp0;
+        }
+        default: return false;
+        }
+    }
+    return false;
+}
+bool sub_268_344() {
+    uint jmp_to = 268u;
+    while (true) {
+        switch (jmp_to) {
+        case 268u: {
+            // 268: dp3
+            reg_tmp6.x = dot_3(reg_tmp14.xyz, reg_tmp14.xyz);
+            // 269: dp3
+            reg_tmp7.x = dot_3(reg_tmp12.xyz, reg_tmp12.xyz);
+            // 270: rsq
+            reg_tmp6.x = rsq_s(reg_tmp6.x);
+            // 271: rsq
+            reg_tmp7.x = rsq_s(reg_tmp7.x);
+            // 272: mul
+            reg_tmp14.xyz = (mul_s(reg_tmp14.xyzz, reg_tmp6.xxxx)).xyz;
+            // 273: mul
+            reg_tmp12.xyz = (mul_s(reg_tmp12.xyzz, reg_tmp7.xxxx)).xyz;
+            // 274: mul
+            reg_tmp13.xyz = (mul_s(reg_tmp13.xyzz, reg_tmp6.xxxx)).xyz;
+            // 275: mul
+            reg_tmp11.xyz = (mul_s(reg_tmp11.xyzz, reg_tmp7.xxxx)).xyz;
+            // 276: mov
+            reg_tmp0 = uniforms.f[93].yxxx;
+            // 277: jmpu
+            if (!uniforms.b[15]) {
+                { jmp_to = 343u; break; }
+            }
+            // 278: mul
+            reg_tmp13.xyz = (mul_s(reg_tmp13.xyzz, reg_tmp6.xxxx)).xyz;
+            // 279: mul
+            reg_tmp11.xyz = (mul_s(reg_tmp11.xyzz, reg_tmp7.xxxx)).xyz;
+            // 280: mul
+            reg_tmp5 = mul_s(reg_tmp14.yzxx, reg_tmp13.zxyy);
+            // 281: mad
+            reg_tmp5 = fma_s(-reg_tmp13.yzxx, reg_tmp14.zxyy, reg_tmp5);
+            // 282: dp3
+            reg_tmp5.w = dot_3(reg_tmp5.xyz, reg_tmp5.xyz);
+            // 283: rsq
+            reg_tmp5.w = rsq_s(reg_tmp5.w);
+            // 284: mul
+            reg_tmp5 = mul_s(reg_tmp5, reg_tmp5.wwww);
+            // 285: add
+            reg_tmp6.w = (reg_tmp14.zzzz + reg_tmp5.yyyy).w;
+            // 286: mul
+            reg_tmp13 = mul_s(reg_tmp5.yzxx, reg_tmp14.zxyy);
+            // 287: mad
+            reg_tmp13 = fma_s(-reg_tmp14.yzxx, reg_tmp5.zxyy, reg_tmp13);
+            // 288: add
+            reg_tmp6.w = (reg_tmp13.xxxx + reg_tmp6).w;
+            // 289: mov
+            reg_tmp13.w = (reg_tmp5.zzzz).w;
+            // 290: mov
+            reg_tmp5.z = (reg_tmp13.xxxx).z;
+            // 291: add
+            reg_tmp6.w = (uniforms.f[93].yyyy + reg_tmp6).w;
+            // 292: mov
+            reg_tmp14.w = (reg_tmp5.xxxx).w;
+            // 293: mov
+            reg_tmp5.x = (reg_tmp14.zzzz).x;
+            // 294: cmp
+            conditional_code = lessThan(uniforms.f[94].yy, reg_tmp6.ww);
+            // 295: mov
+            reg_tmp6.x = (uniforms.f[93].yyyy).x;
+            // 296: mov
+            reg_tmp6.y = (-uniforms.f[93].yyyy).y;
+            // 297: jmpc
+            if (!conditional_code.x) {
+                { jmp_to = 305u; break; }
+            }
+            // 298: add
+            reg_tmp7.xz = (reg_tmp13.wwyy + -reg_tmp14.yyww).xz;
+            // 299: add
+            reg_tmp7.y = (reg_tmp14.xxxx + -reg_tmp13.zzzz).y;
+            // 300: mov
+            reg_tmp7.w = (reg_tmp6).w;
+            // 301: dp4
+            reg_tmp6 = vec4(dot_s(reg_tmp7, reg_tmp7));
+            // 302: rsq
+            reg_tmp6 = vec4(rsq_s(reg_tmp6.x));
+            // 303: mul
+            reg_tmp0 = mul_s(reg_tmp7, reg_tmp6);
+            // 304: jmpu
+            if (uniforms.b[0]) {
+                { jmp_to = 343u; break; }
+            }
+        }
+        case 305u: {
+            // 305: cmp
+            conditional_code = greaterThan(reg_tmp5.zy, reg_tmp5.yx);
+            // 306: ifc
+            if (conditional_code.x) {
+                sub_307_327();
+            } else {
+                sub_327_340();
+            }
+            // 340: dp4
+            reg_tmp6 = vec4(dot_s(reg_tmp8, reg_tmp8));
+            // 341: rsq
+            reg_tmp6 = vec4(rsq_s(reg_tmp6.x));
+            // 342: mul
+            reg_tmp0 = mul_s(reg_tmp8, reg_tmp6);
+        }
+        case 343u: {
+            // 343: mov
+            vs_out_attr1 = reg_tmp0;
+        }
+        default: return false;
+        }
+    }
+    return false;
+}
+bool sub_307_327() {
+    // 307: ifc
+    if (conditional_code.y) {
+        sub_308_313();
+    } else {
+        sub_313_326();
+    }
+    // 326: mov
+    reg_tmp8.w = (-reg_tmp8).w;
+    return false;
+}
+bool sub_308_313() {
+    // 308: mul
+    reg_tmp8 = mul_s(reg_tmp13.yyzw, reg_tmp6.xxxy);
+    // 309: add
+    reg_tmp8.x = (uniforms.f[93].yyyy + -reg_tmp5.yyyy).x;
+    // 310: add
+    reg_tmp9 = reg_tmp5.zzzz + -reg_tmp5.xxxx;
+    // 311: add
+    reg_tmp8.yzw = (reg_tmp8 + reg_tmp14.wwxy).yzw;
+    // 312: add
+    reg_tmp8.x = (reg_tmp9 + reg_tmp8).x;
+    return false;
+}
+bool sub_313_326() {
+    // 313: cmp
+    conditional_code = greaterThan(reg_tmp5.zz, reg_tmp5.xx);
+    // 314: mul
+    reg_tmp8 = mul_s(reg_tmp13.yyzw, reg_tmp6.xxxy);
+    // 315: add
+    reg_tmp8.x = (uniforms.f[93].yyyy + -reg_tmp5.yyyy).x;
+    // 316: ifc
+    if (conditional_code.x) {
+        sub_317_320();
+    } else {
+        sub_320_325();
+    }
+    // 325: nop
+    return false;
+}
+bool sub_317_320() {
+    // 317: add
+    reg_tmp9 = reg_tmp5.zzzz + -reg_tmp5.xxxx;
+    // 318: add
+    reg_tmp8.yzw = (reg_tmp8 + reg_tmp14.wwxy).yzw;
+    // 319: add
+    reg_tmp8.x = (reg_tmp9 + reg_tmp8).x;
+    return false;
+}
+bool sub_320_325() {
+    // 320: mul
+    reg_tmp8 = mul_s(reg_tmp13.zwwy, reg_tmp6.xxxy);
+    // 321: add
+    reg_tmp8.z = (uniforms.f[93].yyyy + -reg_tmp5.zzzz).z;
+    // 322: add
+    reg_tmp9 = reg_tmp5.xxxx + -reg_tmp5.yyyy;
+    // 323: add
+    reg_tmp8.xyw = (reg_tmp8 + reg_tmp14.xyyw).xyw;
+    // 324: add
+    reg_tmp8.z = (reg_tmp9 + reg_tmp8).z;
+    return false;
+}
+bool sub_327_340() {
+    // 327: ifc
+    if (conditional_code.y) {
+        sub_328_333();
+    } else {
+        sub_333_339();
+    }
+    // 339: nop
+    return false;
+}
+bool sub_328_333() {
+    // 328: mul
+    reg_tmp8 = mul_s(reg_tmp13.yywz, reg_tmp6.xxxy);
+    // 329: add
+    reg_tmp8.y = (uniforms.f[93].yyyy + -reg_tmp5.zzzz).y;
+    // 330: add
+    reg_tmp9 = reg_tmp5.yyyy + -reg_tmp5.xxxx;
+    // 331: add
+    reg_tmp8.xzw = (reg_tmp8 + reg_tmp14.wwyx).xzw;
+    // 332: add
+    reg_tmp8.y = (reg_tmp9 + reg_tmp8).y;
+    return false;
+}
+bool sub_333_339() {
+    // 333: mul
+    reg_tmp8 = mul_s(reg_tmp13.zwwy, reg_tmp6.xxxy);
+    // 334: add
+    reg_tmp8.z = (uniforms.f[93].yyyy + -reg_tmp5.zzzz).z;
+    // 335: add
+    reg_tmp9 = reg_tmp5.xxxx + -reg_tmp5.yyyy;
+    // 336: add
+    reg_tmp8.xyw = (reg_tmp8 + reg_tmp14.xyyw).xyw;
+    // 337: add
+    reg_tmp8.z = (reg_tmp9 + reg_tmp8).z;
+    // 338: mov
+    reg_tmp8.w = (-reg_tmp8).w;
+    return false;
+}
+bool sub_344_4096() {
+    // 344: call
+    {
+        sub_83_251();
+    }
+    // 345: mov
+    reg_tmp8.xy = (uniforms.f[93].xxxx).xy;
+    // 346: mov
+    reg_tmp0.y = (uniforms.f[7].wwww).y;
+    // 347: cmp
+    conditional_code = notEqual(uniforms.f[93].xx, reg_tmp0.xy);
+    // 348: mov
+    reg_tmp9.xyz = (uniforms.f[93].xxxx).xyz;
+    // 349: mov
+    reg_tmp9.w = (uniforms.f[21].wwww).w;
+    // 350: ifc
+    if (conditional_code.y) {
+        sub_351_356();
+    }
+    // 356: cmp
+    conditional_code = equal(uniforms.f[93].xx, reg_tmp8.xy);
+    // 357: ifc
+    if (all(conditional_code)) {
+        sub_358_359();
+    }
+    // 359: max
+    vs_out_attr3 = max(uniforms.f[93].xxxx, reg_tmp9);
+    // 360: mov
+    reg_tmp0.xy = (uniforms.f[10].xxxx).xy;
+    // 361: ifu
+    if (uniforms.b[9]) {
+        sub_362_374();
+    } else {
+        sub_374_384();
+    }
+    // 384: nop
+    // 385: mov
+    reg_tmp0.xy = (uniforms.f[10].yyyy).xy;
+    // 386: cmp
+    conditional_code = equal(uniforms.f[93].yz, reg_tmp0.xy);
+    // 387: ifc
+    if (all(not(conditional_code))) {
+        sub_388_389();
+    } else {
+        sub_389_393();
+    }
+    // 393: mov
+    reg_tmp6.zw = (uniforms.f[93].xxyy).zw;
+    // 394: dp4
+    reg_tmp4.x = dot_s(uniforms.f[14].xywz, reg_tmp6);
+    // 395: dp4
+    reg_tmp4.y = dot_s(uniforms.f[15].xywz, reg_tmp6);
+    // 396: mov
+    vs_out_attr5 = reg_tmp4;
+    // 397: nop
+    // 398: mov
+    reg_tmp0.xy = (uniforms.f[10].zzzz).xy;
+    // 399: cmp
+    conditional_code = equal(uniforms.f[93].yz, reg_tmp0.xy);
+    // 400: ifc
+    if (all(not(conditional_code))) {
+        sub_401_402();
+    } else {
+        sub_402_406();
+    }
+    // 406: mov
+    reg_tmp6.zw = (uniforms.f[93].xxyy).zw;
+    // 407: dp4
+    reg_tmp5.x = dot_s(uniforms.f[17].xywz, reg_tmp6);
+    // 408: dp4
+    reg_tmp5.y = dot_s(uniforms.f[18].xywz, reg_tmp6);
+    // 409: mov
+    vs_out_attr6 = reg_tmp5;
+    // 410: nop
+    // 411: end
+    return true;
+}
+bool sub_351_356() {
+    // 351: mul
+    reg_tmp0 = mul_s(uniforms.f[7].wwww, vs_in_reg3);
+    // 352: ifu
+    if (uniforms.b[7]) {
+        sub_353_354();
+    }
+    // 354: mul
+    reg_tmp9.xyz = (mul_s(uniforms.f[20].wwww, reg_tmp0.xyzz)).xyz;
+    // 355: mov
+    reg_tmp8.x = (uniforms.f[93].yyyy).x;
+    return false;
+}
+bool sub_353_354() {
+    // 353: mul
+    reg_tmp9.w = (mul_s(reg_tmp9.wwww, reg_tmp0.wwww)).w;
+    return false;
+}
+bool sub_358_359() {
+    // 358: mov
+    reg_tmp9 = uniforms.f[21];
+    return false;
+}
+bool sub_362_374() {
+    // 362: cmp
+    conditional_code = equal(uniforms.f[93].yz, reg_tmp0.xy);
+    // 363: ifc
+    if (all(not(conditional_code))) {
+        sub_364_365();
+    } else {
+        sub_365_369();
+    }
+    // 369: mov
+    reg_tmp6.zw = (uniforms.f[93].xxyy).zw;
+    // 370: dp4
+    reg_tmp3.x = dot_s(uniforms.f[11].xywz, reg_tmp6);
+    // 371: dp4
+    reg_tmp3.y = dot_s(uniforms.f[12].xywz, reg_tmp6);
+    // 372: mov
+    reg_tmp3.zw = (uniforms.f[93].xxxx).zw;
+    // 373: mov
+    vs_out_attr4 = reg_tmp3;
+    return false;
+}
+bool sub_364_365() {
+    // 364: mul
+    reg_tmp6.xy = (mul_s(uniforms.f[8].xxxx, vs_in_reg4.xyyy)).xy;
+    return false;
+}
+bool sub_365_369() {
+    // 365: ifc
+    if (all(bvec2(conditional_code.x, !conditional_code.y))) {
+        sub_366_367();
+    } else {
+        sub_367_368();
+    }
+    // 368: nop
+    return false;
+}
+bool sub_366_367() {
+    // 366: mul
+    reg_tmp6.xy = (mul_s(uniforms.f[8].yyyy, vs_in_reg5.xyyy)).xy;
+    return false;
+}
+bool sub_367_368() {
+    // 367: mul
+    reg_tmp6.xy = (mul_s(uniforms.f[8].zzzz, vs_in_reg6.xyyy)).xy;
+    return false;
+}
+bool sub_374_384() {
+    // 374: cmp
+    conditional_code = equal(uniforms.f[95].xy, reg_tmp0.xy);
+    // 375: mov
+    reg_tmp6.zw = (uniforms.f[93].xxyy).zw;
+    // 376: mov
+    reg_tmp6 = reg_tmp10;
+    // 377: dp4
+    reg_tmp3.x = dot_s(uniforms.f[11], reg_tmp6);
+    // 378: dp4
+    reg_tmp3.y = dot_s(uniforms.f[12], reg_tmp6);
+    // 379: dp4
+    reg_tmp3.z = dot_s(uniforms.f[13], reg_tmp6);
+    // 380: mul
+    reg_tmp0.xy = (mul_s(uniforms.f[19].xyyy, reg_tmp3.zzzz)).xy;
+    // 381: add
+    reg_tmp3.xy = (reg_tmp3.xyyy + reg_tmp0.xyyy).xy;
+    // 382: nop
+    // 383: mov
+    vs_out_attr4 = reg_tmp3;
+    return false;
+}
+bool sub_388_389() {
+    // 388: mul
+    reg_tmp6.xy = (mul_s(uniforms.f[8].xxxx, vs_in_reg4.xyyy)).xy;
+    return false;
+}
+bool sub_389_393() {
+    // 389: ifc
+    if (all(bvec2(conditional_code.x, !conditional_code.y))) {
+        sub_390_391();
+    } else {
+        sub_391_392();
+    }
+    // 392: nop
+    return false;
+}
+bool sub_390_391() {
+    // 390: mul
+    reg_tmp6.xy = (mul_s(uniforms.f[8].yyyy, vs_in_reg5.xyyy)).xy;
+    return false;
+}
+bool sub_391_392() {
+    // 391: mul
+    reg_tmp6.xy = (mul_s(uniforms.f[8].zzzz, vs_in_reg6.xyyy)).xy;
+    return false;
+}
+bool sub_401_402() {
+    // 401: mul
+    reg_tmp6.xy = (mul_s(uniforms.f[8].xxxx, vs_in_reg4.xyyy)).xy;
+    return false;
+}
+bool sub_402_406() {
+    // 402: ifc
+    if (all(bvec2(conditional_code.x, !conditional_code.y))) {
+        sub_403_404();
+    } else {
+        sub_404_405();
+    }
+    // 405: nop
+    return false;
+}
+bool sub_403_404() {
+    // 403: mul
+    reg_tmp6.xy = (mul_s(uniforms.f[8].yyyy, vs_in_reg5.xyyy)).xy;
+    return false;
+}
+bool sub_404_405() {
+    // 404: mul
+    reg_tmp6.xy = (mul_s(uniforms.f[8].zzzz, vs_in_reg6.xyyy)).xy;
+    return false;
+}
+// reference: FB987CB7DD44700C, E2197E57DCEC2F0E
+// program: E2197E57DCEC2F0E, AD7922A63ED54CA7, 8E06880DAF4C5A3B
+// reference: 54DCEEF0F189FD9A, 559D364E86318AE6
+// program: 3FCC2EE227F0CC04, 3B3AE026C742C7D5, 922FCDA8A4758983
+// shader: 8B31, AF99CF0A54E81442
+
+struct pica_uniforms {
+    bool b[16];
+    uvec4 i[4];
+    vec4 f[96];
+};
+
+bool exec_shader();
+
+#define uniforms vs_uniforms
+layout (std140) uniform vs_config {
+    pica_uniforms uniforms;
+};
+
+layout(location = 0) in vec4 vs_in_reg0;
+layout(location = 3) in vec4 vs_in_reg3;
+layout(location = 4) in vec4 vs_in_reg4;
+layout(location = 5) in vec4 vs_in_reg5;
+layout(location = 6) in vec4 vs_in_reg6;
+
+ out vec4 vs_out_attr0;
+ out vec4 vs_out_attr1;
+ out vec4 vs_out_attr2;
+ out vec4 vs_out_attr3;
+ out vec4 vs_out_attr4;
+ out vec4 vs_out_attr5;
+ out vec4 vs_out_attr6;
+
+void main() {
+    vs_out_attr0 = vec4(0.0, 0.0, 0.0, 1.0);
+    vs_out_attr1 = vec4(0.0, 0.0, 0.0, 1.0);
+    vs_out_attr2 = vec4(0.0, 0.0, 0.0, 1.0);
+    vs_out_attr3 = vec4(0.0, 0.0, 0.0, 1.0);
+    vs_out_attr4 = vec4(0.0, 0.0, 0.0, 1.0);
+    vs_out_attr5 = vec4(0.0, 0.0, 0.0, 1.0);
+    vs_out_attr6 = vec4(0.0, 0.0, 0.0, 1.0);
+
+    exec_shader();
+}
+
+
+#define mul_s(x, y) mix(x * y, vec4(0.0), isnan(x * y))
+#define mul_3(x, y) mix(x * y, vec3(0.0), isnan(x * y))
+#define fma_s(x, y, z) (mul_s(x, y) + z)
+float rcp_s(float x) {
+    if (x == 0.0) return x;
+    return 1.0 / x;
+}
+float rsq_s(float x) {
+    if (x > 0.0) return inversesqrt(x);
+    return 0.0;
+}
+#define dot_s(x, y) dot(x, y)
+#define dot_3(x, y) dot(mul_3(x, y), vec3(1.0))
+
+bvec2 conditional_code = bvec2(false);
+ivec3 address_registers = ivec3(0);
+vec4 reg_tmp0 = vec4(0.0, 0.0, 0.0, 1.0);
+vec4 reg_tmp1 = vec4(0.0, 0.0, 0.0, 1.0);
+vec4 reg_tmp2 = vec4(0.0, 0.0, 0.0, 1.0);
+vec4 reg_tmp3 = vec4(0.0, 0.0, 0.0, 1.0);
+vec4 reg_tmp4 = vec4(0.0, 0.0, 0.0, 1.0);
+vec4 reg_tmp5 = vec4(0.0, 0.0, 0.0, 1.0);
+vec4 reg_tmp6 = vec4(0.0, 0.0, 0.0, 1.0);
+vec4 reg_tmp7 = vec4(0.0, 0.0, 0.0, 1.0);
+vec4 reg_tmp8 = vec4(0.0, 0.0, 0.0, 1.0);
+vec4 reg_tmp9 = vec4(0.0, 0.0, 0.0, 1.0);
+vec4 reg_tmp10 = vec4(0.0, 0.0, 0.0, 1.0);
+vec4 reg_tmp11 = vec4(0.0, 0.0, 0.0, 1.0);
+vec4 reg_tmp12 = vec4(0.0, 0.0, 0.0, 1.0);
+vec4 reg_tmp13 = vec4(0.0, 0.0, 0.0, 1.0);
+vec4 reg_tmp14 = vec4(0.0, 0.0, 0.0, 1.0);
+vec4 reg_tmp15 = vec4(0.0, 0.0, 0.0, 1.0);
+
+bool sub_0_4096();
+bool sub_10_28();
+bool sub_16_21();
+bool sub_18_19();
+bool sub_25_26();
+bool sub_28_74();
+bool sub_32_73();
+bool sub_37_39();
+bool sub_39_63();
+bool sub_42_47();
+bool sub_53_62();
+bool sub_57_58();
+bool sub_58_61();
+bool sub_65_72();
+bool sub_74_84();
+bool sub_81_82();
+bool sub_84_111();
+bool sub_86_91();
+bool sub_91_110();
+bool sub_94_100();
+bool sub_100_109();
+bool sub_101_105();
+bool sub_105_108();
+bool sub_111_119();
+bool sub_113_114();
+bool sub_114_118();
+bool sub_115_116();
+bool sub_116_117();
+bool sub_119_126();
+bool sub_126_130();
+bool sub_130_154();
+bool sub_132_136();
+bool sub_136_153();
+bool sub_137_151();
+bool sub_140_147();
+bool sub_147_150();
+bool sub_151_152();
+bool sub_154_170();
+bool sub_156_160();
+bool sub_160_169();
+bool sub_161_167();
+bool sub_167_168();
+
+bool exec_shader() {
+    sub_0_4096();
+    return true;
+}
+
+bool sub_0_4096() {
+    // 0: mov
+    reg_tmp0 = vs_in_reg0;
+    // 1: mov
+    vs_out_attr0 = reg_tmp0;
+    // 2: mov
+    vs_out_attr2 = reg_tmp0;
+    // 3: mov
+    vs_out_attr1 = reg_tmp0;
+    // 4: call
+    {
+        sub_10_28();
+    }
+    // 5: call
+    {
+        sub_84_111();
+    }
+    // 6: call
+    {
+        sub_130_154();
+    }
+    // 7: call
+    {
+        sub_154_170();
+    }
+    // 8: end
+    return true;
+}
+bool sub_10_28() {
+    // 10: mov
+    reg_tmp8.xy = (uniforms.f[93].xxxx).xy;
+    // 11: mov
+    reg_tmp0.y = (uniforms.f[7].wwww).y;
+    // 12: cmp
+    conditional_code = notEqual(uniforms.f[93].xx, reg_tmp0.xy);
+    // 13: mov
+    reg_tmp9.xyz = (uniforms.f[93].xxxx).xyz;
+    // 14: mov
+    reg_tmp9.w = (uniforms.f[21].wwww).w;
+    // 15: ifc
+    if (conditional_code.y) {
+        sub_16_21();
+    }
+    // 21: callu
+    if (uniforms.b[12]) {
+        sub_28_74();
+    }
+    // 22: callu
+    if (uniforms.b[5]) {
+        sub_74_84();
+    }
+    // 23: cmp
+    conditional_code = equal(uniforms.f[93].xx, reg_tmp8.xy);
+    // 24: ifc
+    if (all(conditional_code)) {
+        sub_25_26();
+    }
+    // 26: add
+    reg_tmp9 = uniforms.f[74] + reg_tmp9;
+    // 27: max
+    vs_out_attr3 = max(uniforms.f[93].xxxx, reg_tmp9);
+    return false;
+}
+bool sub_16_21() {
+    // 16: mul
+    reg_tmp0 = mul_s(uniforms.f[7].wwww, vs_in_reg3);
+    // 17: ifu
+    if (uniforms.b[7]) {
+        sub_18_19();
+    }
+    // 19: mul
+    reg_tmp9.xyz = (mul_s(uniforms.f[20].wwww, reg_tmp0.xyzz)).xyz;
+    // 20: mov
+    reg_tmp8.x = (uniforms.f[93].yyyy).x;
+    return false;
+}
+bool sub_18_19() {
+    // 18: mul
+    reg_tmp9.w = (mul_s(reg_tmp9.wwww, reg_tmp0.wwww)).w;
+    return false;
+}
+bool sub_25_26() {
+    // 25: mov
+    reg_tmp9 = uniforms.f[21];
+    return false;
+}
+bool sub_28_74() {
+    // 28: mov
+    reg_tmp1 = uniforms.f[20];
+    // 29: mov
+    reg_tmp2 = uniforms.f[21];
+    // 30: mov
+    reg_tmp3 = uniforms.f[93].xxxx;
+    // 31: loop
+    address_registers.z = int(uniforms.i[0].y);
+    for (uint loop31 = 0u; loop31 <= uniforms.i[0].x; address_registers.z += int(uniforms.i[0].z), ++loop31) {
+        sub_32_73();
+    }
+    // 73: mov
+    reg_tmp8.x = (uniforms.f[93].yyyy).x;
+    return false;
+}
+bool sub_32_73() {
+    // 32: mova
+    address_registers.x = (ivec2(reg_tmp3.xy)).x;
+    // 33: mov
+    reg_tmp4.x = (uniforms.f[69 + address_registers.x].wwww).x;
+    // 34: mov
+    reg_tmp4.y = (uniforms.f[71 + address_registers.x].wwww).y;
+    // 35: cmp
+    conditional_code = equal(uniforms.f[93].xy, reg_tmp4.xy);
+    // 36: ifc
+    if (conditional_code.x) {
+        sub_37_39();
+    } else {
+        sub_39_63();
+    }
+    // 63: cmp
+    conditional_code.x = uniforms.f[93].xxxx.x == reg_tmp6.xyyy.x;
+    conditional_code.y = uniforms.f[93].xxxx.y < reg_tmp6.xyyy.y;
+    // 64: ifc
+    if (conditional_code.y) {
+        sub_65_72();
+    }
+    // 72: add
+    reg_tmp3 = -uniforms.f[95].wwww + reg_tmp3;
+    return false;
+}
+bool sub_37_39() {
+    // 37: dp3
+    reg_tmp6.x = dot_3(uniforms.f[69 + address_registers.x].xyz, reg_tmp14.xyz);
+    // 38: mov
+    reg_tmp6.y = (uniforms.f[93].yyyy).y;
+    return false;
+}
+bool sub_39_63() {
+    // 39: add
+    reg_tmp4 = uniforms.f[69 + address_registers.x] + -reg_tmp15;
+    // 40: mov
+    reg_tmp6.y = (uniforms.f[93].yyyy).y;
+    // 41: ifc
+    if (conditional_code.y) {
+        sub_42_47();
+    }
+    // 47: mov
+    reg_tmp5 = uniforms.f[70 + address_registers.x];
+    // 48: cmp
+    conditional_code = equal(uniforms.f[93].yy, reg_tmp5.ww);
+    // 49: dp3
+    reg_tmp4.w = dot_3(reg_tmp4.xyz, reg_tmp4.xyz);
+    // 50: rsq
+    reg_tmp4.w = rsq_s(reg_tmp4.w);
+    // 51: mul
+    reg_tmp4 = mul_s(reg_tmp4, reg_tmp4.wwww);
+    // 52: ifc
+    if (conditional_code.x) {
+        sub_53_62();
+    }
+    // 62: dp3
+    reg_tmp6.x = dot_3(reg_tmp14.xyz, reg_tmp4.xyz);
+    return false;
+}
+bool sub_42_47() {
+    // 42: mov
+    reg_tmp5.x = (uniforms.f[93].yyyy).x;
+    // 43: dp3
+    reg_tmp5.z = dot_3(reg_tmp4.xyz, reg_tmp4.xyz);
+    // 44: mul
+    reg_tmp5.y = (mul_s(reg_tmp5.zzzz, reg_tmp5.zzzz)).y;
+    // 45: dp3
+    reg_tmp6.y = dot_3(uniforms.f[71 + address_registers.x].xyz, reg_tmp5.xyz);
+    // 46: rcp
+    reg_tmp6.y = rcp_s(reg_tmp6.y);
+    return false;
+}
+bool sub_53_62() {
+    // 53: dp3
+    reg_tmp5.x = dot_3(uniforms.f[70 + address_registers.x].xyz, -reg_tmp4.xyz);
+    // 54: slti
+    reg_tmp5.y = (vec4(lessThan(reg_tmp5.xxxx, uniforms.f[72 + address_registers.x].yyyy))).y;
+    // 55: cmp
+    conditional_code = equal(uniforms.f[93].yy, reg_tmp5.xy);
+    // 56: ifc
+    if (conditional_code.y) {
+        sub_57_58();
+    } else {
+        sub_58_61();
+    }
+    // 61: mul
+    reg_tmp6.y = (mul_s(reg_tmp6.yyyy, reg_tmp5.xxxx)).y;
+    return false;
+}
+bool sub_57_58() {
+    // 57: mov
+    reg_tmp5.x = (uniforms.f[93].xxxx).x;
+    return false;
+}
+bool sub_58_61() {
+    // 58: log
+    reg_tmp5.y = log2(reg_tmp5.x);
+    // 59: mul
+    reg_tmp5.y = (mul_s(uniforms.f[72 + address_registers.x].xxxx, reg_tmp5.yyyy)).y;
+    // 60: exp
+    reg_tmp5.x = exp2(reg_tmp5.y);
+    return false;
+}
+bool sub_65_72() {
+    // 65: max
+    reg_tmp6.x = (max(uniforms.f[93].xxxx, reg_tmp6.xxxx)).x;
+    // 66: mad
+    reg_tmp9.xyz = (fma_s(reg_tmp1.xyzz, uniforms.f[67 + address_registers.x].xyzz, reg_tmp9.xyzz)).xyz;
+    // 67: mul
+    reg_tmp4 = mul_s(uniforms.f[68 + address_registers.x], reg_tmp2);
+    // 68: mul
+    reg_tmp5.xyz = (mul_s(reg_tmp6.xxxx, reg_tmp4.xyzz)).xyz;
+    // 69: mul
+    reg_tmp5.xyz = (mul_s(reg_tmp6.yyyy, reg_tmp5.xyzz)).xyz;
+    // 70: add
+    reg_tmp9.xyz = (reg_tmp9.xyzz + reg_tmp5.xyzz).xyz;
+    // 71: add
+    reg_tmp9.w = (reg_tmp9.wwww + reg_tmp4.wwww).w;
+    return false;
+}
+bool sub_74_84() {
+    // 74: dp3
+    reg_tmp1 = vec4(dot_3(uniforms.f[24].xyz, reg_tmp14.xyz));
+    // 75: mov
+    reg_tmp2 = uniforms.f[24].wwww;
+    // 76: mad
+    reg_tmp1 = fma_s(reg_tmp1, reg_tmp2, reg_tmp2);
+    // 77: mov
+    reg_tmp3 = uniforms.f[22];
+    // 78: add
+    reg_tmp2 = uniforms.f[23] + -reg_tmp3;
+    // 79: mad
+    reg_tmp4 = fma_s(reg_tmp2, reg_tmp1, reg_tmp3);
+    // 80: ifu
+    if (uniforms.b[6]) {
+        sub_81_82();
+    }
+    // 82: mad
+    reg_tmp9.xyz = (fma_s(reg_tmp4, uniforms.f[21], reg_tmp9)).xyz;
+    // 83: mov
+    reg_tmp8.x = (uniforms.f[93].yyyy).x;
+    return false;
+}
+bool sub_81_82() {
+    // 81: mul
+    reg_tmp4 = mul_s(reg_tmp4, reg_tmp9.wwww);
+    return false;
+}
+bool sub_84_111() {
+    // 84: mov
+    reg_tmp0.xy = (uniforms.f[10].xxxx).xy;
+    // 85: ifu
+    if (uniforms.b[9]) {
+        sub_86_91();
+    } else {
+        sub_91_110();
+    }
+    // 110: nop
+    return false;
+}
+bool sub_86_91() {
+    // 86: call
+    {
+        sub_111_119();
+    }
+    // 87: dp4
+    reg_tmp3.x = dot_s(uniforms.f[11].xywz, reg_tmp6);
+    // 88: dp4
+    reg_tmp3.y = dot_s(uniforms.f[12].xywz, reg_tmp6);
+    // 89: mov
+    reg_tmp3.zw = (uniforms.f[93].xxxx).zw;
+    // 90: mov
+    vs_out_attr4 = reg_tmp3;
+    return false;
+}
+bool sub_91_110() {
+    // 91: cmp
+    conditional_code = equal(uniforms.f[95].xy, reg_tmp0.xy);
+    // 92: mov
+    reg_tmp6.zw = (uniforms.f[93].xxyy).zw;
+    // 93: ifc
+    if (all(not(conditional_code))) {
+        sub_94_100();
+    } else {
+        sub_100_109();
+    }
+    // 109: mov
+    vs_out_attr4 = reg_tmp3;
+    return false;
+}
+bool sub_94_100() {
+    // 94: mov
+    reg_tmp6 = reg_tmp10;
+    // 95: dp4
+    reg_tmp3.x = dot_s(uniforms.f[11], reg_tmp6);
+    // 96: dp4
+    reg_tmp3.y = dot_s(uniforms.f[12], reg_tmp6);
+    // 97: dp4
+    reg_tmp3.z = dot_s(uniforms.f[13], reg_tmp6);
+    // 98: mul
+    reg_tmp0.xy = (mul_s(uniforms.f[19].xyyy, reg_tmp3.zzzz)).xy;
+    // 99: add
+    reg_tmp3.xy = (reg_tmp3.xyyy + reg_tmp0.xyyy).xy;
+    return false;
+}
+bool sub_100_109() {
+    // 100: ifc
+    if (all(bvec2(conditional_code.x, !conditional_code.y))) {
+        sub_101_105();
+    } else {
+        sub_105_108();
+    }
+    // 108: nop
+    return false;
+}
+bool sub_101_105() {
+    // 101: call
+    {
+        sub_119_126();
+    }
+    // 102: dp3
+    reg_tmp3.x = dot_3(uniforms.f[11].xyz, reg_tmp6.xyz);
+    // 103: dp3
+    reg_tmp3.y = dot_3(uniforms.f[12].xyz, reg_tmp6.xyz);
+    // 104: dp3
+    reg_tmp3.z = dot_3(uniforms.f[13].xyz, reg_tmp6.xyz);
+    return false;
+}
+bool sub_105_108() {
+    // 105: call
+    {
+        sub_126_130();
+    }
+    // 106: dp4
+    reg_tmp3.x = dot_s(uniforms.f[11], reg_tmp6);
+    // 107: dp4
+    reg_tmp3.y = dot_s(uniforms.f[12], reg_tmp6);
+    return false;
+}
+bool sub_111_119() {
+    // 111: cmp
+    conditional_code = equal(uniforms.f[93].yz, reg_tmp0.xy);
+    // 112: ifc
+    if (all(not(conditional_code))) {
+        sub_113_114();
+    } else {
+        sub_114_118();
+    }
+    // 118: mov
+    reg_tmp6.zw = (uniforms.f[93].xxyy).zw;
+    return false;
+}
+bool sub_113_114() {
+    // 113: mul
+    reg_tmp6.xy = (mul_s(uniforms.f[8].xxxx, vs_in_reg4.xyyy)).xy;
+    return false;
+}
+bool sub_114_118() {
+    // 114: ifc
+    if (all(bvec2(conditional_code.x, !conditional_code.y))) {
+        sub_115_116();
+    } else {
+        sub_116_117();
+    }
+    // 117: nop
+    return false;
+}
+bool sub_115_116() {
+    // 115: mul
+    reg_tmp6.xy = (mul_s(uniforms.f[8].yyyy, vs_in_reg5.xyyy)).xy;
+    return false;
+}
+bool sub_116_117() {
+    // 116: mul
+    reg_tmp6.xy = (mul_s(uniforms.f[8].zzzz, vs_in_reg6.xyyy)).xy;
+    return false;
+}
+bool sub_119_126() {
+    // 119: mov
+    reg_tmp2 = -reg_tmp15;
+    // 120: dp3
+    reg_tmp2.w = dot_3(reg_tmp2.xyz, reg_tmp2.xyz);
+    // 121: rsq
+    reg_tmp2.w = rsq_s(reg_tmp2.w);
+    // 122: mul
+    reg_tmp2 = mul_s(reg_tmp2, reg_tmp2.wwww);
+    // 123: dp3
+    reg_tmp1 = vec4(dot_3(reg_tmp2.xyz, reg_tmp14.xyz));
+    // 124: add
+    reg_tmp1 = reg_tmp1 + reg_tmp1;
+    // 125: mad
+    reg_tmp6 = fma_s(reg_tmp1, reg_tmp14, -reg_tmp2);
+    return false;
+}
+bool sub_126_130() {
+    // 126: mov
+    reg_tmp1.xy = (uniforms.f[94].zzzz).xy;
+    // 127: mov
+    reg_tmp1.zw = (uniforms.f[93].xxxx).zw;
+    // 128: mad
+    reg_tmp6 = fma_s(reg_tmp14, reg_tmp1, reg_tmp1);
+    // 129: mov
+    reg_tmp6.zw = (uniforms.f[93].xxyy).zw;
+    return false;
+}
+bool sub_130_154() {
+    // 130: mov
+    reg_tmp0.xy = (uniforms.f[10].yyyy).xy;
+    // 131: ifu
+    if (uniforms.b[10]) {
+        sub_132_136();
+    } else {
+        sub_136_153();
+    }
+    // 153: nop
+    return false;
+}
+bool sub_132_136() {
+    // 132: call
+    {
+        sub_111_119();
+    }
+    // 133: dp4
+    reg_tmp4.x = dot_s(uniforms.f[14].xywz, reg_tmp6);
+    // 134: dp4
+    reg_tmp4.y = dot_s(uniforms.f[15].xywz, reg_tmp6);
+    // 135: mov
+    vs_out_attr5 = reg_tmp4;
+    return false;
+}
+bool sub_136_153() {
+    // 136: ifu
+    if (uniforms.b[13]) {
+        sub_137_151();
+    } else {
+        sub_151_152();
+    }
+    // 152: nop
+    return false;
+}
+bool sub_137_151() {
+    // 137: cmp
+    conditional_code = equal(uniforms.f[95].xy, reg_tmp0.xy);
+    // 138: mov
+    reg_tmp6.zw = (uniforms.f[93].xxyy).zw;
+    // 139: ifc
+    if (all(not(conditional_code))) {
+        sub_140_147();
+    } else {
+        sub_147_150();
+    }
+    // 150: mov
+    vs_out_attr5 = reg_tmp4;
+    return false;
+}
+bool sub_140_147() {
+    // 140: mov
+    reg_tmp6 = reg_tmp10;
+    // 141: dp4
+    reg_tmp4.x = dot_s(uniforms.f[14], reg_tmp6);
+    // 142: dp4
+    reg_tmp4.y = dot_s(uniforms.f[15], reg_tmp6);
+    // 143: dp4
+    reg_tmp4.z = dot_s(uniforms.f[16], reg_tmp6);
+    // 144: rcp
+    reg_tmp6.w = rcp_s(reg_tmp4.z);
+    // 145: mul
+    reg_tmp4.xy = (mul_s(reg_tmp4.xyyy, reg_tmp6.wwww)).xy;
+    // 146: add
+    reg_tmp4.xy = (uniforms.f[19].zwww + reg_tmp4.xyyy).xy;
+    return false;
+}
+bool sub_147_150() {
+    // 147: call
+    {
+        sub_126_130();
+    }
+    // 148: dp4
+    reg_tmp4.x = dot_s(uniforms.f[14], reg_tmp6);
+    // 149: dp4
+    reg_tmp4.y = dot_s(uniforms.f[15], reg_tmp6);
+    return false;
+}
+bool sub_151_152() {
+    // 151: mov
+    vs_out_attr5 = uniforms.f[93].xxxx;
+    return false;
+}
+bool sub_154_170() {
+    // 154: mov
+    reg_tmp0.xy = (uniforms.f[10].zzzz).xy;
+    // 155: ifu
+    if (uniforms.b[11]) {
+        sub_156_160();
+    } else {
+        sub_160_169();
+    }
+    // 169: nop
+    return false;
+}
+bool sub_156_160() {
+    // 156: call
+    {
+        sub_111_119();
+    }
+    // 157: dp4
+    reg_tmp5.x = dot_s(uniforms.f[17].xywz, reg_tmp6);
+    // 158: dp4
+    reg_tmp5.y = dot_s(uniforms.f[18].xywz, reg_tmp6);
+    // 159: mov
+    vs_out_attr6 = reg_tmp5;
+    return false;
+}
+bool sub_160_169() {
+    // 160: ifu
+    if (uniforms.b[14]) {
+        sub_161_167();
+    } else {
+        sub_167_168();
+    }
+    // 168: nop
+    return false;
+}
+bool sub_161_167() {
+    // 161: mov
+    reg_tmp6.zw = (uniforms.f[93].xxyy).zw;
+    // 162: mov
+    reg_tmp5.zw = (reg_tmp6.zwww).zw;
+    // 163: call
+    {
+        sub_126_130();
+    }
+    // 164: dp4
+    reg_tmp5.x = dot_s(uniforms.f[17], reg_tmp6);
+    // 165: dp4
+    reg_tmp5.y = dot_s(uniforms.f[18], reg_tmp6);
+    // 166: mov
+    vs_out_attr6 = reg_tmp5;
+    return false;
+}
+bool sub_167_168() {
+    // 167: mov
+    vs_out_attr6 = uniforms.f[93].xxxx;
+    return false;
+}
+// reference: 6393C8554A4E10A9, AF99CF0A54E81442
+// program: AF99CF0A54E81442, AD7922A63ED54CA7, D375021927AD9455
+// reference: B0100FACA705211D, AF99CF0A54E81442
+// program: AF99CF0A54E81442, AD7922A63ED54CA7, FB2B5B4178346715
+// shader: 8B31, E140255169676482
+
+struct pica_uniforms {
+    bool b[16];
+    uvec4 i[4];
+    vec4 f[96];
+};
+
+bool exec_shader();
+
+#define uniforms vs_uniforms
+layout (std140) uniform vs_config {
+    pica_uniforms uniforms;
+};
+
+layout(location = 0) in vec4 vs_in_reg0;
+
+ out vec4 vs_out_attr0;
+ out vec4 vs_out_attr1;
+ out vec4 vs_out_attr2;
+ out vec4 vs_out_attr3;
+ out vec4 vs_out_attr4;
+
+void main() {
+    vs_out_attr0 = vec4(0.0, 0.0, 0.0, 1.0);
+    vs_out_attr1 = vec4(0.0, 0.0, 0.0, 1.0);
+    vs_out_attr2 = vec4(0.0, 0.0, 0.0, 1.0);
+    vs_out_attr3 = vec4(0.0, 0.0, 0.0, 1.0);
+    vs_out_attr4 = vec4(0.0, 0.0, 0.0, 1.0);
+
+    exec_shader();
+}
+
+
+#define mul_s(x, y) mix(x * y, vec4(0.0), isnan(x * y))
+#define mul_3(x, y) mix(x * y, vec3(0.0), isnan(x * y))
+#define fma_s(x, y, z) (mul_s(x, y) + z)
+float rcp_s(float x) {
+    if (x == 0.0) return x;
+    return 1.0 / x;
+}
+float rsq_s(float x) {
+    if (x > 0.0) return inversesqrt(x);
+    return 0.0;
+}
+#define dot_s(x, y) dot(x, y)
+#define dot_3(x, y) dot(mul_3(x, y), vec3(1.0))
+
+bvec2 conditional_code = bvec2(false);
+ivec3 address_registers = ivec3(0);
+vec4 reg_tmp0 = vec4(0.0, 0.0, 0.0, 1.0);
+vec4 reg_tmp1 = vec4(0.0, 0.0, 0.0, 1.0);
+vec4 reg_tmp2 = vec4(0.0, 0.0, 0.0, 1.0);
+vec4 reg_tmp3 = vec4(0.0, 0.0, 0.0, 1.0);
+vec4 reg_tmp4 = vec4(0.0, 0.0, 0.0, 1.0);
+vec4 reg_tmp5 = vec4(0.0, 0.0, 0.0, 1.0);
+vec4 reg_tmp6 = vec4(0.0, 0.0, 0.0, 1.0);
+vec4 reg_tmp7 = vec4(0.0, 0.0, 0.0, 1.0);
+vec4 reg_tmp8 = vec4(0.0, 0.0, 0.0, 1.0);
+vec4 reg_tmp9 = vec4(0.0, 0.0, 0.0, 1.0);
+vec4 reg_tmp10 = vec4(0.0, 0.0, 0.0, 1.0);
+vec4 reg_tmp11 = vec4(0.0, 0.0, 0.0, 1.0);
+vec4 reg_tmp12 = vec4(0.0, 0.0, 0.0, 1.0);
+vec4 reg_tmp13 = vec4(0.0, 0.0, 0.0, 1.0);
+vec4 reg_tmp14 = vec4(0.0, 0.0, 0.0, 1.0);
+vec4 reg_tmp15 = vec4(0.0, 0.0, 0.0, 1.0);
+
+bool sub_0_4096();
+bool sub_22_27();
+bool sub_33_35();
+bool sub_35_46();
+bool sub_38_39();
+bool sub_40_41();
+bool sub_42_43();
+bool sub_44_45();
+bool sub_48_51();
+bool sub_52_55();
+bool sub_56_59();
+bool sub_60_63();
+bool sub_65_99();
+bool sub_67_86();
+bool sub_70_73();
+bool sub_74_77();
+bool sub_78_81();
+bool sub_82_85();
+bool sub_88_98();
+bool sub_90_93();
+bool sub_94_97();
+
+bool exec_shader() {
+    sub_0_4096();
+    return true;
+}
+
+bool sub_0_4096() {
+    // 0: mova
+    address_registers.x = (ivec2(vs_in_reg0.xy)).x;
+    // 1: mov
+    reg_tmp0 = uniforms.f[6 + address_registers.x].wzyx;
+    // 2: mov
+    reg_tmp1.xy = (vs_in_reg0.zwzw).xy;
+    // 3: mov
+    reg_tmp1.zw = (uniforms.f[5].xyxy).zw;
+    // 4: mova
+    address_registers.xy = ivec2(reg_tmp0.xy);
+    // 5: mov
+    reg_tmp2.xw = (uniforms.f[64 + address_registers.y].wwyy).xw;
+    // 6: mov
+    reg_tmp2.yz = (uniforms.f[5].xxxx).yz;
+    // 7: dp4
+    reg_tmp4.x = dot_s(reg_tmp1, reg_tmp2);
+    // 8: mov
+    reg_tmp2.yw = (uniforms.f[64 + address_registers.y].zzxx).yw;
+    // 9: mov
+    reg_tmp2.xz = (uniforms.f[5].xxxx).xz;
+    // 10: dp4
+    reg_tmp4.y = dot_s(reg_tmp1, reg_tmp2);
+    // 11: mov
+    reg_tmp4.zw = (reg_tmp1.zwzw).zw;
+    // 12: dp4
+    reg_tmp3.x = dot_s(uniforms.f[32 + address_registers.x].wzyx, reg_tmp4);
+    // 13: dp4
+    reg_tmp3.y = dot_s(uniforms.f[33 + address_registers.x].wzyx, reg_tmp4);
+    // 14: dp4
+    reg_tmp3.z = dot_s(uniforms.f[34 + address_registers.x].wzyx, reg_tmp4);
+    // 15: mov
+    reg_tmp3.w = (reg_tmp1.wwww).w;
+    // 16: mov
+    reg_tmp4.z = (uniforms.f[34 + address_registers.x].xxxx).z;
+    // 17: max
+    reg_tmp4.z = (abs(reg_tmp4.zzzz)).z;
+    // 18: add
+    reg_tmp4.z = (uniforms.f[4].yyyy + reg_tmp4.zzzz).z;
+    // 19: mov
+    reg_tmp4.x = (uniforms.f[4].wwww).x;
+    // 20: cmp
+    conditional_code = notEqual(uniforms.f[5].xx, reg_tmp4.xz);
+    // 21: ifc
+    if (all(conditional_code)) {
+        sub_22_27();
+    }
+    // 27: dp4
+    vs_out_attr0.x = dot_s(uniforms.f[0].wzyx, reg_tmp3);
+    // 28: dp4
+    vs_out_attr0.y = dot_s(uniforms.f[1].wzyx, reg_tmp3);
+    // 29: dp4
+    vs_out_attr0.z = dot_s(uniforms.f[2].wzyx, reg_tmp3);
+    // 30: dp4
+    vs_out_attr0.w = dot_s(uniforms.f[3].wzyx, reg_tmp3);
+    // 31: cmp
+    conditional_code = greaterThanEqual(uniforms.f[5].yy, reg_tmp0.ww);
+    // 32: ifc
+    if (all(conditional_code)) {
+        sub_33_35();
+    } else {
+        sub_35_46();
+    }
+    // 46: cmp
+    conditional_code = notEqual(uniforms.f[5].xx, reg_tmp1.xy);
+    // 47: ifc
+    if (all(not(conditional_code))) {
+        sub_48_51();
+    }
+    // 51: ifc
+    if (all(bvec2(conditional_code.x, !conditional_code.y))) {
+        sub_52_55();
+    }
+    // 55: ifc
+    if (all(bvec2(!conditional_code.x, conditional_code.y))) {
+        sub_56_59();
+    }
+    // 59: ifc
+    if (all(conditional_code)) {
+        sub_60_63();
+    }
+    // 63: mov
+    reg_tmp8 = uniforms.f[5].xxxx;
+    // 64: loop
+    address_registers.z = int(uniforms.i[0].y);
+    for (uint loop64 = 0u; loop64 <= uniforms.i[0].x; address_registers.z += int(uniforms.i[0].z), ++loop64) {
+        sub_65_99();
+    }
+    // 99: mov
+    vs_out_attr2 = reg_tmp5;
+    // 100: mov
+    vs_out_attr3 = reg_tmp6;
+    // 101: mov
+    vs_out_attr4 = reg_tmp7;
+    // 102: end
+    return true;
+}
+bool sub_22_27() {
+    // 22: mov
+    reg_tmp4.x = (uniforms.f[4].wwww).x;
+    // 23: add
+    reg_tmp4.y = (-uniforms.f[4].zzzz + reg_tmp4.zzzz).y;
+    // 24: rcp
+    reg_tmp4.z = rcp_s(reg_tmp4.z);
+    // 25: mul
+    reg_tmp4.z = (mul_s(reg_tmp4.yyyy, reg_tmp4.zzzz)).z;
+    // 26: mad
+    reg_tmp3.x = (fma_s(reg_tmp4.xxxx, reg_tmp4.zzzz, reg_tmp3.xxxx)).x;
+    return false;
+}
+bool sub_33_35() {
+    // 33: mov
+    vs_out_attr1.xyz = (uniforms.f[5].yyyy).xyz;
+    // 34: mov
+    vs_out_attr1.w = (reg_tmp0.wwww).w;
+    return false;
+}
+bool sub_35_46() {
+    // 35: mova
+    address_registers.y = (ivec2(reg_tmp0.ww)).y;
+    // 36: cmp
+    conditional_code = notEqual(uniforms.f[5].xx, reg_tmp1.xy);
+    // 37: ifc
+    if (all(not(conditional_code))) {
+        sub_38_39();
+    }
+    // 39: ifc
+    if (all(bvec2(conditional_code.x, !conditional_code.y))) {
+        sub_40_41();
+    }
+    // 41: ifc
+    if (all(bvec2(!conditional_code.x, conditional_code.y))) {
+        sub_42_43();
+    }
+    // 43: ifc
+    if (all(conditional_code)) {
+        sub_44_45();
+    }
+    // 45: nop
+    return false;
+}
+bool sub_38_39() {
+    // 38: mov
+    vs_out_attr1 = uniforms.f[32 + address_registers.y].wzyx;
+    return false;
+}
+bool sub_40_41() {
+    // 40: mov
+    vs_out_attr1 = uniforms.f[33 + address_registers.y].wzyx;
+    return false;
+}
+bool sub_42_43() {
+    // 42: mov
+    vs_out_attr1 = uniforms.f[34 + address_registers.y].wzyx;
+    return false;
+}
+bool sub_44_45() {
+    // 44: mov
+    vs_out_attr1 = uniforms.f[35 + address_registers.y].wzyx;
+    return false;
+}
+bool sub_48_51() {
+    // 48: mov
+    reg_tmp5 = uniforms.f[5].xyyy;
+    // 49: mov
+    reg_tmp6 = uniforms.f[5].xyyy;
+    // 50: mov
+    reg_tmp7 = uniforms.f[5].xyyy;
+    return false;
+}
+bool sub_52_55() {
+    // 52: mov
+    reg_tmp5 = uniforms.f[5].yyyy;
+    // 53: mov
+    reg_tmp6 = uniforms.f[5].yyyy;
+    // 54: mov
+    reg_tmp7 = uniforms.f[5].yyyy;
+    return false;
+}
+bool sub_56_59() {
+    // 56: mov
+    reg_tmp5 = uniforms.f[5].xxyy;
+    // 57: mov
+    reg_tmp6 = uniforms.f[5].xxyy;
+    // 58: mov
+    reg_tmp7 = uniforms.f[5].xxyy;
+    return false;
+}
+bool sub_60_63() {
+    // 60: mov
+    reg_tmp5 = uniforms.f[5].yxyy;
+    // 61: mov
+    reg_tmp6 = uniforms.f[5].yxyy;
+    // 62: mov
+    reg_tmp7 = uniforms.f[5].yxyy;
+    return false;
+}
+bool sub_65_99() {
+    // 65: cmp
+    conditional_code = equal(uniforms.f[5].yy, reg_tmp8.xy);
+    // 66: ifc
+    if (all(conditional_code)) {
+        sub_67_86();
+    }
+    // 86: cmp
+    conditional_code = lessThan(uniforms.f[5].ww, reg_tmp8.xy);
+    // 87: ifc
+    if (all(conditional_code)) {
+        sub_88_98();
+    }
+    // 98: add
+    reg_tmp8 = uniforms.f[5].yyyy + reg_tmp8;
+    return false;
+}
+bool sub_67_86() {
+    // 67: mova
+    address_registers.y = (ivec2(reg_tmp0.zz)).y;
+    // 68: cmp
+    conditional_code = notEqual(uniforms.f[5].xx, reg_tmp1.xy);
+    // 69: ifc
+    if (all(not(conditional_code))) {
+        sub_70_73();
+    }
+    // 73: ifc
+    if (all(bvec2(conditional_code.x, !conditional_code.y))) {
+        sub_74_77();
+    }
+    // 77: ifc
+    if (all(bvec2(!conditional_code.x, conditional_code.y))) {
+        sub_78_81();
+    }
+    // 81: ifc
+    if (all(conditional_code)) {
+        sub_82_85();
+    }
+    // 85: nop
+    return false;
+}
+bool sub_70_73() {
+    // 70: mov
+    reg_tmp5.xy = (uniforms.f[64 + address_registers.y].wzzz).xy;
+    // 71: mov
+    reg_tmp6.xy = (uniforms.f[65 + address_registers.y].wzzz).xy;
+    // 72: mov
+    reg_tmp7.xy = (uniforms.f[66 + address_registers.y].wzzz).xy;
+    return false;
+}
+bool sub_74_77() {
+    // 74: mov
+    reg_tmp5.xy = (uniforms.f[64 + address_registers.y].yzzz).xy;
+    // 75: mov
+    reg_tmp6.xy = (uniforms.f[65 + address_registers.y].yzzz).xy;
+    // 76: mov
+    reg_tmp7.xy = (uniforms.f[66 + address_registers.y].yzzz).xy;
+    return false;
+}
+bool sub_78_81() {
+    // 78: mov
+    reg_tmp5.xy = (uniforms.f[64 + address_registers.y].wxxx).xy;
+    // 79: mov
+    reg_tmp6.xy = (uniforms.f[65 + address_registers.y].wxxx).xy;
+    // 80: mov
+    reg_tmp7.xy = (uniforms.f[66 + address_registers.y].wxxx).xy;
+    return false;
+}
+bool sub_82_85() {
+    // 82: mov
+    reg_tmp5.xy = (uniforms.f[64 + address_registers.y].yxxx).xy;
+    // 83: mov
+    reg_tmp6.xy = (uniforms.f[65 + address_registers.y].yxxx).xy;
+    // 84: mov
+    reg_tmp7.xy = (uniforms.f[66 + address_registers.y].yxxx).xy;
+    return false;
+}
+bool sub_88_98() {
+    // 88: cmp
+    conditional_code = notEqual(uniforms.f[5].xx, reg_tmp1.xy);
+    // 89: ifc
+    if (all(bvec2(conditional_code.x, !conditional_code.y))) {
+        sub_90_93();
+    }
+    // 93: ifc
+    if (all(bvec2(!conditional_code.x, conditional_code.y))) {
+        sub_94_97();
+    }
+    // 97: nop
+    return false;
+}
+bool sub_90_93() {
+    // 90: mov
+    reg_tmp5.xy = (uniforms.f[67 + address_registers.y].yxxx).xy;
+    // 91: mov
+    reg_tmp6.xy = (uniforms.f[68 + address_registers.y].yxxx).xy;
+    // 92: mov
+    reg_tmp7.xy = (uniforms.f[69 + address_registers.y].yxxx).xy;
+    return false;
+}
+bool sub_94_97() {
+    // 94: mov
+    reg_tmp5.xy = (uniforms.f[67 + address_registers.y].wzzz).xy;
+    // 95: mov
+    reg_tmp6.xy = (uniforms.f[68 + address_registers.y].wzzz).xy;
+    // 96: mov
+    reg_tmp7.xy = (uniforms.f[69 + address_registers.y].wzzz).xy;
+    return false;
+}
+// reference: 56E64495DCF901FC, E140255169676482
+// program: E140255169676482, 5D764F9A6220D694, 0B496AE87480A30D
+// reference: 8565836C31B23048, E140255169676482
+// program: E140255169676482, 5D764F9A6220D694, ED7F62B87BCBA8C3
+// reference: 875F29091CC2CC2E, 559D364E86318AE6
+// program: 559D364E86318AE6, 3B3AE026C742C7D5, C9735C9D5E47A267
+// program: 559D364E86318AE6, 3B3AE026C742C7D5, C27F787C261C6045
+// program: 559D364E86318AE6, 3B3AE026C742C7D5, B2510175F7B31C54
+// reference: D37F0383428094BA, 3FCC2EE227F0CC04
+// program: 3FCC2EE227F0CC04, 3B3AE026C742C7D5, D8AE0D8009889E56
+// shader: 8B31, 60C3F6F1EF977FEA
+
+struct pica_uniforms {
+    bool b[16];
+    uvec4 i[4];
+    vec4 f[96];
+};
+
+bool exec_shader();
+
+#define uniforms vs_uniforms
+layout (std140) uniform vs_config {
+    pica_uniforms uniforms;
+};
+
+layout(location = 0) in vec4 vs_in_reg0;
+layout(location = 1) in vec4 vs_in_reg1;
+layout(location = 3) in vec4 vs_in_reg3;
+layout(location = 4) in vec4 vs_in_reg4;
+layout(location = 5) in vec4 vs_in_reg5;
+layout(location = 6) in vec4 vs_in_reg6;
+layout(location = 7) in vec4 vs_in_reg7;
+layout(location = 8) in vec4 vs_in_reg8;
+
+ out vec4 vs_out_attr0;
+ out vec4 vs_out_attr1;
+ out vec4 vs_out_attr2;
+ out vec4 vs_out_attr3;
+ out vec4 vs_out_attr4;
+ out vec4 vs_out_attr5;
+
+void main() {
+    vs_out_attr0 = vec4(0.0, 0.0, 0.0, 1.0);
+    vs_out_attr1 = vec4(0.0, 0.0, 0.0, 1.0);
+    vs_out_attr2 = vec4(0.0, 0.0, 0.0, 1.0);
+    vs_out_attr3 = vec4(0.0, 0.0, 0.0, 1.0);
+    vs_out_attr4 = vec4(0.0, 0.0, 0.0, 1.0);
+    vs_out_attr5 = vec4(0.0, 0.0, 0.0, 1.0);
+
+    exec_shader();
+}
+
+
+#define mul_s(x, y) mix(x * y, vec4(0.0), isnan(x * y))
+#define mul_3(x, y) mix(x * y, vec3(0.0), isnan(x * y))
+#define fma_s(x, y, z) (mul_s(x, y) + z)
+float rcp_s(float x) {
+    if (x == 0.0) return x;
+    return 1.0 / x;
+}
+float rsq_s(float x) {
+    if (x > 0.0) return inversesqrt(x);
+    return 0.0;
+}
+#define dot_s(x, y) dot(x, y)
+#define dot_3(x, y) dot(mul_3(x, y), vec3(1.0))
+
+bvec2 conditional_code = bvec2(false);
+ivec3 address_registers = ivec3(0);
+vec4 reg_tmp0 = vec4(0.0, 0.0, 0.0, 1.0);
+vec4 reg_tmp1 = vec4(0.0, 0.0, 0.0, 1.0);
+vec4 reg_tmp2 = vec4(0.0, 0.0, 0.0, 1.0);
+vec4 reg_tmp3 = vec4(0.0, 0.0, 0.0, 1.0);
+vec4 reg_tmp4 = vec4(0.0, 0.0, 0.0, 1.0);
+vec4 reg_tmp5 = vec4(0.0, 0.0, 0.0, 1.0);
+vec4 reg_tmp6 = vec4(0.0, 0.0, 0.0, 1.0);
+vec4 reg_tmp7 = vec4(0.0, 0.0, 0.0, 1.0);
+vec4 reg_tmp8 = vec4(0.0, 0.0, 0.0, 1.0);
+vec4 reg_tmp9 = vec4(0.0, 0.0, 0.0, 1.0);
+vec4 reg_tmp10 = vec4(0.0, 0.0, 0.0, 1.0);
+vec4 reg_tmp11 = vec4(0.0, 0.0, 0.0, 1.0);
+vec4 reg_tmp12 = vec4(0.0, 0.0, 0.0, 1.0);
+vec4 reg_tmp13 = vec4(0.0, 0.0, 0.0, 1.0);
+vec4 reg_tmp14 = vec4(0.0, 0.0, 0.0, 1.0);
+vec4 reg_tmp15 = vec4(0.0, 0.0, 0.0, 1.0);
+
+bool sub_0_4096();
+bool sub_6_11();
+bool sub_11_20();
+bool sub_20_29();
+bool sub_37_197();
+bool sub_42_139();
+bool sub_48_76();
+bool sub_59_63();
+bool sub_76_129();
+bool sub_77_104();
+bool sub_88_92();
+bool sub_104_128();
+bool sub_115_119();
+bool sub_137_138();
+bool sub_139_194();
+bool sub_142_152();
+bool sub_152_157();
+bool sub_158_168();
+bool sub_168_184();
+bool sub_169_179();
+bool sub_179_183();
+bool sub_192_193();
+bool sub_197_214();
+bool sub_203_208();
+bool sub_205_206();
+bool sub_212_213();
+bool sub_214_260();
+bool sub_218_259();
+bool sub_223_225();
+bool sub_225_249();
+bool sub_228_233();
+bool sub_239_248();
+bool sub_243_244();
+bool sub_244_247();
+bool sub_251_258();
+bool sub_260_270();
+bool sub_267_268();
+bool sub_270_279();
+bool sub_297_321();
+bool sub_299_303();
+bool sub_303_320();
+bool sub_304_318();
+bool sub_307_314();
+bool sub_314_317();
+bool sub_318_319();
+bool sub_321_329();
+bool sub_323_324();
+bool sub_324_328();
+bool sub_325_326();
+bool sub_326_327();
+bool sub_329_333();
+
+bool exec_shader() {
+    sub_0_4096();
+    return true;
+}
+
+bool sub_0_4096() {
+    // 0: call
+    {
+        sub_37_197();
+    }
+    // 1: call
+    {
+        sub_197_214();
+    }
+    // 2: call
+    {
+        sub_270_279();
+    }
+    // 3: call
+    {
+        sub_297_321();
+    }
+    // 4: end
+    return true;
+}
+bool sub_6_11() {
+    // 6: mova
+    address_registers.x = (ivec2(reg_tmp1.xx)).x;
+    // 7: dp4
+    reg_tmp3.x = dot_s(uniforms.f[25 + address_registers.x], reg_tmp15);
+    // 8: dp4
+    reg_tmp3.y = dot_s(uniforms.f[26 + address_registers.x], reg_tmp15);
+    // 9: dp4
+    reg_tmp3.z = dot_s(uniforms.f[27 + address_registers.x], reg_tmp15);
+    // 10: mad
+    reg_tmp7 = fma_s(reg_tmp1.wwww, reg_tmp3, reg_tmp7);
+    return false;
+}
+bool sub_11_20() {
+    // 11: mova
+    address_registers.x = (ivec2(reg_tmp1.xx)).x;
+    // 12: dp4
+    reg_tmp3.x = dot_s(uniforms.f[25 + address_registers.x], reg_tmp15);
+    // 13: dp4
+    reg_tmp3.y = dot_s(uniforms.f[26 + address_registers.x], reg_tmp15);
+    // 14: dp4
+    reg_tmp3.z = dot_s(uniforms.f[27 + address_registers.x], reg_tmp15);
+    // 15: dp3
+    reg_tmp4.x = dot_3(uniforms.f[25 + address_registers.x].xyz, reg_tmp14.xyz);
+    // 16: dp3
+    reg_tmp4.y = dot_3(uniforms.f[26 + address_registers.x].xyz, reg_tmp14.xyz);
+    // 17: dp3
+    reg_tmp4.z = dot_3(uniforms.f[27 + address_registers.x].xyz, reg_tmp14.xyz);
+    // 18: mad
+    reg_tmp7 = fma_s(reg_tmp1.wwww, reg_tmp3, reg_tmp7);
+    // 19: mad
+    reg_tmp12 = fma_s(reg_tmp1.wwww, reg_tmp4, reg_tmp12);
+    return false;
+}
+bool sub_20_29() {
+    // 20: mova
+    address_registers.x = (ivec2(reg_tmp1.xx)).x;
+    // 21: dp4
+    reg_tmp3.x = dot_s(uniforms.f[25 + address_registers.x], reg_tmp15);
+    // 22: dp4
+    reg_tmp3.y = dot_s(uniforms.f[26 + address_registers.x], reg_tmp15);
+    // 23: dp4
+    reg_tmp3.z = dot_s(uniforms.f[27 + address_registers.x], reg_tmp15);
+    // 24: dp3
+    reg_tmp4.x = dot_3(uniforms.f[25 + address_registers.x].xyz, reg_tmp14.xyz);
+    // 25: dp3
+    reg_tmp4.y = dot_3(uniforms.f[26 + address_registers.x].xyz, reg_tmp14.xyz);
+    // 26: dp3
+    reg_tmp4.z = dot_3(uniforms.f[27 + address_registers.x].xyz, reg_tmp14.xyz);
+    // 27: mad
+    reg_tmp7 = fma_s(reg_tmp1.wwww, reg_tmp3, reg_tmp7);
+    // 28: mad
+    reg_tmp12 = fma_s(reg_tmp1.wwww, reg_tmp4, reg_tmp12);
+    return false;
+}
+bool sub_37_197() {
+    // 37: mul
+    reg_tmp15.xyz = (mul_s(uniforms.f[7].xxxx, vs_in_reg0)).xyz;
+    // 38: mul
+    reg_tmp14.xyz = (mul_s(uniforms.f[7].yyyy, vs_in_reg1)).xyz;
+    // 39: add
+    reg_tmp15.xyz = (uniforms.f[6] + reg_tmp15).xyz;
+    // 40: mov
+    reg_tmp15.w = (uniforms.f[93].yyyy).w;
+    // 41: ifu
+    if (uniforms.b[1]) {
+        sub_42_139();
+    } else {
+        sub_139_194();
+    }
+    // 194: nop
+    // 195: mov
+    vs_out_attr1 = uniforms.f[93].xxxx;
+    // 196: mov
+    vs_out_attr2 = uniforms.f[93].xxxx;
+    return false;
+}
+bool sub_42_139() {
+    // 42: mov
+    reg_tmp0 = uniforms.f[7];
+    // 43: cmp
+    conditional_code = notEqual(uniforms.f[93].xx, reg_tmp0.yz);
+    // 44: mov
+    reg_tmp7 = uniforms.f[93].xxxx;
+    // 45: mov
+    reg_tmp12 = uniforms.f[93].xxxx;
+    // 46: mul
+    reg_tmp2 = mul_s(uniforms.f[93].wwww, vs_in_reg7);
+    // 47: ifc
+    if (all(bvec2(conditional_code.x, !conditional_code.y))) {
+        sub_48_76();
+    } else {
+        sub_76_129();
+    }
+    // 129: dp4
+    reg_tmp0.x = dot_s(uniforms.f[86], reg_tmp15);
+    // 130: dp4
+    reg_tmp0.y = dot_s(uniforms.f[87], reg_tmp15);
+    // 131: dp4
+    reg_tmp0.z = dot_s(uniforms.f[88], reg_tmp15);
+    // 132: dp4
+    reg_tmp0.w = dot_s(uniforms.f[89], reg_tmp15);
+    // 133: mov
+    reg_tmp1.x = (-reg_tmp0.wwww).x;
+    // 134: mul
+    reg_tmp1.y = (mul_s(uniforms.f[95].zzzz, -reg_tmp0.wwww)).y;
+    // 135: cmp
+    conditional_code.x = reg_tmp0.xxxx.x > reg_tmp1.xyyy.x;
+    conditional_code.y = reg_tmp0.xxxx.y < reg_tmp1.xyyy.y;
+    // 136: ifc
+    if (all(conditional_code)) {
+        sub_137_138();
+    }
+    // 138: mov
+    vs_out_attr0 = reg_tmp0;
+    return false;
+}
+bool sub_48_76() {
+    // 48: cmp
+    conditional_code = notEqual(uniforms.f[93].xx, vs_in_reg8.zw);
+    // 49: mov
+    reg_tmp1.xy = (reg_tmp2.xxxx).xy;
+    // 50: mul
+    reg_tmp1.w = (mul_s(uniforms.f[8].wwww, vs_in_reg8.xxxx)).w;
+    // 51: call
+    {
+        sub_11_20();
+    }
+    // 52: mov
+    reg_tmp1.xy = (reg_tmp2.yyyy).xy;
+    // 53: mul
+    reg_tmp1.w = (mul_s(uniforms.f[8].wwww, vs_in_reg8.yyyy)).w;
+    // 54: call
+    {
+        sub_11_20();
+    }
+    // 55: mov
+    reg_tmp1.xy = (reg_tmp2.zzzz).xy;
+    // 56: mul
+    reg_tmp1.w = (mul_s(uniforms.f[8].wwww, vs_in_reg8.zzzz)).w;
+    // 57: callc
+    if (conditional_code.x) {
+        sub_11_20();
+    }
+    // 58: ifu
+    if (uniforms.b[8]) {
+        sub_59_63();
+    }
+    // 63: mov
+    reg_tmp7.w = (uniforms.f[93].yyyy).w;
+    // 64: dp4
+    reg_tmp10.x = dot_s(uniforms.f[0], reg_tmp7);
+    // 65: dp4
+    reg_tmp10.y = dot_s(uniforms.f[1], reg_tmp7);
+    // 66: dp4
+    reg_tmp10.z = dot_s(uniforms.f[2], reg_tmp7);
+    // 67: mov
+    reg_tmp10.w = (uniforms.f[93].yyyy).w;
+    // 68: dp3
+    reg_tmp14.x = dot_3(uniforms.f[3].xyz, reg_tmp12.xyz);
+    // 69: dp3
+    reg_tmp14.y = dot_3(uniforms.f[4].xyz, reg_tmp12.xyz);
+    // 70: dp3
+    reg_tmp14.z = dot_3(uniforms.f[5].xyz, reg_tmp12.xyz);
+    // 71: dp4
+    reg_tmp15.x = dot_s(uniforms.f[90], reg_tmp10);
+    // 72: dp4
+    reg_tmp15.y = dot_s(uniforms.f[91], reg_tmp10);
+    // 73: dp4
+    reg_tmp15.z = dot_s(uniforms.f[92], reg_tmp10);
+    // 74: mov
+    reg_tmp15.w = (uniforms.f[93].yyyy).w;
+    // 75: nop
+    return false;
+}
+bool sub_59_63() {
+    // 59: mov
+    reg_tmp1.xy = (reg_tmp2.wwww).xy;
+    // 60: mul
+    reg_tmp1.w = (mul_s(uniforms.f[8].wwww, vs_in_reg8.wwww)).w;
+    // 61: callc
+    if (conditional_code.y) {
+        sub_11_20();
+    }
+    // 62: nop
+    return false;
+}
+bool sub_76_129() {
+    // 76: ifc
+    if (all(conditional_code)) {
+        sub_77_104();
+    } else {
+        sub_104_128();
+    }
+    // 128: nop
+    return false;
+}
+bool sub_77_104() {
+    // 77: cmp
+    conditional_code = notEqual(uniforms.f[93].xx, vs_in_reg8.zw);
+    // 78: mov
+    reg_tmp1.xy = (reg_tmp2.xxxx).xy;
+    // 79: mul
+    reg_tmp1.w = (mul_s(uniforms.f[8].wwww, vs_in_reg8.xxxx)).w;
+    // 80: call
+    {
+        sub_20_29();
+    }
+    // 81: mov
+    reg_tmp1.xy = (reg_tmp2.yyyy).xy;
+    // 82: mul
+    reg_tmp1.w = (mul_s(uniforms.f[8].wwww, vs_in_reg8.yyyy)).w;
+    // 83: call
+    {
+        sub_20_29();
+    }
+    // 84: mov
+    reg_tmp1.xy = (reg_tmp2.zzzz).xy;
+    // 85: mul
+    reg_tmp1.w = (mul_s(uniforms.f[8].wwww, vs_in_reg8.zzzz)).w;
+    // 86: callc
+    if (conditional_code.x) {
+        sub_20_29();
+    }
+    // 87: ifu
+    if (uniforms.b[8]) {
+        sub_88_92();
+    }
+    // 92: mov
+    reg_tmp7.w = (uniforms.f[93].yyyy).w;
+    // 93: dp4
+    reg_tmp10.x = dot_s(uniforms.f[0], reg_tmp7);
+    // 94: dp4
+    reg_tmp10.y = dot_s(uniforms.f[1], reg_tmp7);
+    // 95: dp4
+    reg_tmp10.z = dot_s(uniforms.f[2], reg_tmp7);
+    // 96: mov
+    reg_tmp10.w = (uniforms.f[93].yyyy).w;
+    // 97: dp3
+    reg_tmp14.x = dot_3(uniforms.f[3].xyz, reg_tmp12.xyz);
+    // 98: dp3
+    reg_tmp14.y = dot_3(uniforms.f[4].xyz, reg_tmp12.xyz);
+    // 99: dp3
+    reg_tmp14.z = dot_3(uniforms.f[5].xyz, reg_tmp12.xyz);
+    // 100: dp4
+    reg_tmp15.x = dot_s(uniforms.f[90], reg_tmp10);
+    // 101: dp4
+    reg_tmp15.y = dot_s(uniforms.f[91], reg_tmp10);
+    // 102: dp4
+    reg_tmp15.z = dot_s(uniforms.f[92], reg_tmp10);
+    // 103: mov
+    reg_tmp15.w = (uniforms.f[93].yyyy).w;
+    return false;
+}
+bool sub_88_92() {
+    // 88: mov
+    reg_tmp1.xy = (reg_tmp2.wwww).xy;
+    // 89: mul
+    reg_tmp1.w = (mul_s(uniforms.f[8].wwww, vs_in_reg8.wwww)).w;
+    // 90: callc
+    if (conditional_code.y) {
+        sub_20_29();
+    }
+    // 91: nop
+    return false;
+}
+bool sub_104_128() {
+    // 104: cmp
+    conditional_code = notEqual(uniforms.f[93].xx, vs_in_reg8.zw);
+    // 105: mov
+    reg_tmp1.xy = (reg_tmp2.xxxx).xy;
+    // 106: mul
+    reg_tmp1.w = (mul_s(uniforms.f[8].wwww, vs_in_reg8.xxxx)).w;
+    // 107: call
+    {
+        sub_6_11();
+    }
+    // 108: mov
+    reg_tmp1.xy = (reg_tmp2.yyyy).xy;
+    // 109: mul
+    reg_tmp1.w = (mul_s(uniforms.f[8].wwww, vs_in_reg8.yyyy)).w;
+    // 110: call
+    {
+        sub_6_11();
+    }
+    // 111: mov
+    reg_tmp1.xy = (reg_tmp2.zzzz).xy;
+    // 112: mul
+    reg_tmp1.w = (mul_s(uniforms.f[8].wwww, vs_in_reg8.zzzz)).w;
+    // 113: callc
+    if (conditional_code.x) {
+        sub_6_11();
+    }
+    // 114: ifu
+    if (uniforms.b[8]) {
+        sub_115_119();
+    }
+    // 119: mov
+    reg_tmp7.w = (uniforms.f[93].yyyy).w;
+    // 120: dp4
+    reg_tmp10.x = dot_s(uniforms.f[0], reg_tmp7);
+    // 121: dp4
+    reg_tmp10.y = dot_s(uniforms.f[1], reg_tmp7);
+    // 122: dp4
+    reg_tmp10.z = dot_s(uniforms.f[2], reg_tmp7);
+    // 123: mov
+    reg_tmp10.w = (uniforms.f[93].yyyy).w;
+    // 124: dp4
+    reg_tmp15.x = dot_s(uniforms.f[90], reg_tmp10);
+    // 125: dp4
+    reg_tmp15.y = dot_s(uniforms.f[91], reg_tmp10);
+    // 126: dp4
+    reg_tmp15.z = dot_s(uniforms.f[92], reg_tmp10);
+    // 127: mov
+    reg_tmp15.w = (uniforms.f[93].yyyy).w;
+    return false;
+}
+bool sub_115_119() {
+    // 115: mov
+    reg_tmp1.xy = (reg_tmp2.wwww).xy;
+    // 116: mul
+    reg_tmp1.w = (mul_s(uniforms.f[8].wwww, vs_in_reg8.wwww)).w;
+    // 117: callc
+    if (conditional_code.y) {
+        sub_6_11();
+    }
+    // 118: nop
+    return false;
+}
+bool sub_137_138() {
+    // 137: mov
+    reg_tmp0.x = (-reg_tmp0.wwww).x;
+    return false;
+}
+bool sub_139_194() {
+    // 139: mov
+    reg_tmp0 = uniforms.f[7];
+    // 140: cmp
+    conditional_code = notEqual(uniforms.f[93].xx, reg_tmp0.yz);
+    // 141: ifu
+    if (uniforms.b[2]) {
+        sub_142_152();
+    } else {
+        sub_152_157();
+    }
+    // 157: ifc
+    if (all(bvec2(conditional_code.x, !conditional_code.y))) {
+        sub_158_168();
+    } else {
+        sub_168_184();
+    }
+    // 184: dp4
+    reg_tmp0.x = dot_s(uniforms.f[86], reg_tmp15);
+    // 185: dp4
+    reg_tmp0.y = dot_s(uniforms.f[87], reg_tmp15);
+    // 186: dp4
+    reg_tmp0.z = dot_s(uniforms.f[88], reg_tmp15);
+    // 187: dp4
+    reg_tmp0.w = dot_s(uniforms.f[89], reg_tmp15);
+    // 188: mov
+    reg_tmp1.x = (-reg_tmp0.wwww).x;
+    // 189: mul
+    reg_tmp1.y = (mul_s(uniforms.f[95].zzzz, -reg_tmp0.wwww)).y;
+    // 190: cmp
+    conditional_code.x = reg_tmp0.xxxx.x > reg_tmp1.xyyy.x;
+    conditional_code.y = reg_tmp0.xxxx.y < reg_tmp1.xyyy.y;
+    // 191: ifc
+    if (all(conditional_code)) {
+        sub_192_193();
+    }
+    // 193: mov
+    vs_out_attr0 = reg_tmp0;
+    return false;
+}
+bool sub_142_152() {
+    // 142: mul
+    reg_tmp1.x = (mul_s(uniforms.f[93].wwww, vs_in_reg7.xxxx)).x;
+    // 143: mova
+    address_registers.x = (ivec2(reg_tmp1.xx)).x;
+    // 144: dp4
+    reg_tmp7.x = dot_s(uniforms.f[25 + address_registers.x], reg_tmp15);
+    // 145: dp4
+    reg_tmp7.y = dot_s(uniforms.f[26 + address_registers.x], reg_tmp15);
+    // 146: dp4
+    reg_tmp7.z = dot_s(uniforms.f[27 + address_registers.x], reg_tmp15);
+    // 147: mov
+    reg_tmp7.w = (uniforms.f[93].yyyy).w;
+    // 148: dp4
+    reg_tmp10.x = dot_s(uniforms.f[0], reg_tmp7);
+    // 149: dp4
+    reg_tmp10.y = dot_s(uniforms.f[1], reg_tmp7);
+    // 150: dp4
+    reg_tmp10.z = dot_s(uniforms.f[2], reg_tmp7);
+    // 151: mov
+    reg_tmp10.w = (uniforms.f[93].yyyy).w;
+    return false;
+}
+bool sub_152_157() {
+    // 152: mova
+    address_registers.x = (ivec2(uniforms.f[93].xx)).x;
+    // 153: dp4
+    reg_tmp10.x = dot_s(uniforms.f[25], reg_tmp15);
+    // 154: dp4
+    reg_tmp10.y = dot_s(uniforms.f[26], reg_tmp15);
+    // 155: dp4
+    reg_tmp10.z = dot_s(uniforms.f[27], reg_tmp15);
+    // 156: mov
+    reg_tmp10.w = (uniforms.f[93].yyyy).w;
+    return false;
+}
+bool sub_158_168() {
+    // 158: dp3
+    reg_tmp12.x = dot_3(uniforms.f[25 + address_registers.x].xyz, reg_tmp14.xyz);
+    // 159: dp3
+    reg_tmp12.y = dot_3(uniforms.f[26 + address_registers.x].xyz, reg_tmp14.xyz);
+    // 160: dp3
+    reg_tmp12.z = dot_3(uniforms.f[27 + address_registers.x].xyz, reg_tmp14.xyz);
+    // 161: dp3
+    reg_tmp14.x = dot_3(uniforms.f[3].xyz, reg_tmp12.xyz);
+    // 162: dp3
+    reg_tmp14.y = dot_3(uniforms.f[4].xyz, reg_tmp12.xyz);
+    // 163: dp3
+    reg_tmp14.z = dot_3(uniforms.f[5].xyz, reg_tmp12.xyz);
+    // 164: dp4
+    reg_tmp15.x = dot_s(uniforms.f[90], reg_tmp10);
+    // 165: dp4
+    reg_tmp15.y = dot_s(uniforms.f[91], reg_tmp10);
+    // 166: dp4
+    reg_tmp15.z = dot_s(uniforms.f[92], reg_tmp10);
+    // 167: mov
+    reg_tmp15.w = (uniforms.f[93].yyyy).w;
+    return false;
+}
+bool sub_168_184() {
+    // 168: ifc
+    if (all(conditional_code)) {
+        sub_169_179();
+    } else {
+        sub_179_183();
+    }
+    // 183: nop
+    return false;
+}
+bool sub_169_179() {
+    // 169: dp3
+    reg_tmp12.x = dot_3(uniforms.f[25 + address_registers.x].xyz, reg_tmp14.xyz);
+    // 170: dp3
+    reg_tmp12.y = dot_3(uniforms.f[26 + address_registers.x].xyz, reg_tmp14.xyz);
+    // 171: dp3
+    reg_tmp12.z = dot_3(uniforms.f[27 + address_registers.x].xyz, reg_tmp14.xyz);
+    // 172: dp3
+    reg_tmp14.x = dot_3(uniforms.f[3].xyz, reg_tmp12.xyz);
+    // 173: dp3
+    reg_tmp14.y = dot_3(uniforms.f[4].xyz, reg_tmp12.xyz);
+    // 174: dp3
+    reg_tmp14.z = dot_3(uniforms.f[5].xyz, reg_tmp12.xyz);
+    // 175: dp4
+    reg_tmp15.x = dot_s(uniforms.f[90], reg_tmp10);
+    // 176: dp4
+    reg_tmp15.y = dot_s(uniforms.f[91], reg_tmp10);
+    // 177: dp4
+    reg_tmp15.z = dot_s(uniforms.f[92], reg_tmp10);
+    // 178: mov
+    reg_tmp15.w = (uniforms.f[93].yyyy).w;
+    return false;
+}
+bool sub_179_183() {
+    // 179: dp4
+    reg_tmp15.x = dot_s(uniforms.f[90], reg_tmp10);
+    // 180: dp4
+    reg_tmp15.y = dot_s(uniforms.f[91], reg_tmp10);
+    // 181: dp4
+    reg_tmp15.z = dot_s(uniforms.f[92], reg_tmp10);
+    // 182: mov
+    reg_tmp15.w = (uniforms.f[93].yyyy).w;
+    return false;
+}
+bool sub_192_193() {
+    // 192: mov
+    reg_tmp0.x = (-reg_tmp0.wwww).x;
+    return false;
+}
+bool sub_197_214() {
+    // 197: mov
+    reg_tmp8.xy = (uniforms.f[93].xxxx).xy;
+    // 198: mov
+    reg_tmp0.y = (uniforms.f[7].wwww).y;
+    // 199: cmp
+    conditional_code = notEqual(uniforms.f[93].xx, reg_tmp0.xy);
+    // 200: mov
+    reg_tmp9.xyz = (uniforms.f[93].xxxx).xyz;
+    // 201: mov
+    reg_tmp9.w = (uniforms.f[21].wwww).w;
+    // 202: ifc
+    if (conditional_code.y) {
+        sub_203_208();
+    }
+    // 208: callu
+    if (uniforms.b[12]) {
+        sub_214_260();
+    }
+    // 209: callu
+    if (uniforms.b[5]) {
+        sub_260_270();
+    }
+    // 210: cmp
+    conditional_code = equal(uniforms.f[93].xx, reg_tmp8.xy);
+    // 211: ifc
+    if (all(conditional_code)) {
+        sub_212_213();
+    }
+    // 213: max
+    vs_out_attr3 = max(uniforms.f[93].xxxx, reg_tmp9);
+    return false;
+}
+bool sub_203_208() {
+    // 203: mul
+    reg_tmp0 = mul_s(uniforms.f[7].wwww, vs_in_reg3);
+    // 204: ifu
+    if (uniforms.b[7]) {
+        sub_205_206();
+    }
+    // 206: mul
+    reg_tmp9.xyz = (mul_s(uniforms.f[20].wwww, reg_tmp0.xyzz)).xyz;
+    // 207: mov
+    reg_tmp8.x = (uniforms.f[93].yyyy).x;
+    return false;
+}
+bool sub_205_206() {
+    // 205: mul
+    reg_tmp9.w = (mul_s(reg_tmp9.wwww, reg_tmp0.wwww)).w;
+    return false;
+}
+bool sub_212_213() {
+    // 212: mov
+    reg_tmp9 = uniforms.f[21];
+    return false;
+}
+bool sub_214_260() {
+    // 214: mov
+    reg_tmp1 = uniforms.f[20];
+    // 215: mov
+    reg_tmp2 = uniforms.f[21];
+    // 216: mov
+    reg_tmp3 = uniforms.f[93].xxxx;
+    // 217: loop
+    address_registers.z = int(uniforms.i[0].y);
+    for (uint loop217 = 0u; loop217 <= uniforms.i[0].x; address_registers.z += int(uniforms.i[0].z), ++loop217) {
+        sub_218_259();
+    }
+    // 259: mov
+    reg_tmp8.x = (uniforms.f[93].yyyy).x;
+    return false;
+}
+bool sub_218_259() {
+    // 218: mova
+    address_registers.x = (ivec2(reg_tmp3.xy)).x;
+    // 219: mov
+    reg_tmp4.x = (uniforms.f[81 + address_registers.x].wwww).x;
+    // 220: mov
+    reg_tmp4.y = (uniforms.f[83 + address_registers.x].wwww).y;
+    // 221: cmp
+    conditional_code = equal(uniforms.f[93].xy, reg_tmp4.xy);
+    // 222: ifc
+    if (conditional_code.x) {
+        sub_223_225();
+    } else {
+        sub_225_249();
+    }
+    // 249: cmp
+    conditional_code.x = uniforms.f[93].xxxx.x == reg_tmp6.xyyy.x;
+    conditional_code.y = uniforms.f[93].xxxx.y < reg_tmp6.xyyy.y;
+    // 250: ifc
+    if (conditional_code.y) {
+        sub_251_258();
+    }
+    // 258: add
+    reg_tmp3 = -uniforms.f[95].wwww + reg_tmp3;
+    return false;
+}
+bool sub_223_225() {
+    // 223: dp3
+    reg_tmp6.x = dot_3(uniforms.f[81 + address_registers.x].xyz, reg_tmp14.xyz);
+    // 224: mov
+    reg_tmp6.y = (uniforms.f[93].yyyy).y;
+    return false;
+}
+bool sub_225_249() {
+    // 225: add
+    reg_tmp4 = uniforms.f[81 + address_registers.x] + -reg_tmp15;
+    // 226: mov
+    reg_tmp6.y = (uniforms.f[93].yyyy).y;
+    // 227: ifc
+    if (conditional_code.y) {
+        sub_228_233();
+    }
+    // 233: mov
+    reg_tmp5 = uniforms.f[82 + address_registers.x];
+    // 234: cmp
+    conditional_code = equal(uniforms.f[93].yy, reg_tmp5.ww);
+    // 235: dp3
+    reg_tmp4.w = dot_3(reg_tmp4.xyz, reg_tmp4.xyz);
+    // 236: rsq
+    reg_tmp4.w = rsq_s(reg_tmp4.w);
+    // 237: mul
+    reg_tmp4 = mul_s(reg_tmp4, reg_tmp4.wwww);
+    // 238: ifc
+    if (conditional_code.x) {
+        sub_239_248();
+    }
+    // 248: dp3
+    reg_tmp6.x = dot_3(reg_tmp14.xyz, reg_tmp4.xyz);
+    return false;
+}
+bool sub_228_233() {
+    // 228: mov
+    reg_tmp5.x = (uniforms.f[93].yyyy).x;
+    // 229: dp3
+    reg_tmp5.z = dot_3(reg_tmp4.xyz, reg_tmp4.xyz);
+    // 230: mul
+    reg_tmp5.y = (mul_s(reg_tmp5.zzzz, reg_tmp5.zzzz)).y;
+    // 231: dp3
+    reg_tmp6.y = dot_3(uniforms.f[83 + address_registers.x].xyz, reg_tmp5.xyz);
+    // 232: rcp
+    reg_tmp6.y = rcp_s(reg_tmp6.y);
+    return false;
+}
+bool sub_239_248() {
+    // 239: dp3
+    reg_tmp5.x = dot_3(uniforms.f[82 + address_registers.x].xyz, -reg_tmp4.xyz);
+    // 240: slti
+    reg_tmp5.y = (vec4(lessThan(reg_tmp5.xxxx, uniforms.f[84 + address_registers.x].yyyy))).y;
+    // 241: cmp
+    conditional_code = equal(uniforms.f[93].yy, reg_tmp5.xy);
+    // 242: ifc
+    if (conditional_code.y) {
+        sub_243_244();
+    } else {
+        sub_244_247();
+    }
+    // 247: mul
+    reg_tmp6.y = (mul_s(reg_tmp6.yyyy, reg_tmp5.xxxx)).y;
+    return false;
+}
+bool sub_243_244() {
+    // 243: mov
+    reg_tmp5.x = (uniforms.f[93].xxxx).x;
+    return false;
+}
+bool sub_244_247() {
+    // 244: log
+    reg_tmp5.y = log2(reg_tmp5.x);
+    // 245: mul
+    reg_tmp5.y = (mul_s(uniforms.f[84 + address_registers.x].xxxx, reg_tmp5.yyyy)).y;
+    // 246: exp
+    reg_tmp5.x = exp2(reg_tmp5.y);
+    return false;
+}
+bool sub_251_258() {
+    // 251: max
+    reg_tmp6.x = (max(uniforms.f[93].xxxx, reg_tmp6.xxxx)).x;
+    // 252: mad
+    reg_tmp9.xyz = (fma_s(reg_tmp1.xyzz, uniforms.f[79 + address_registers.x].xyzz, reg_tmp9.xyzz)).xyz;
+    // 253: mul
+    reg_tmp4 = mul_s(uniforms.f[80 + address_registers.x], reg_tmp2);
+    // 254: mul
+    reg_tmp5.xyz = (mul_s(reg_tmp6.xxxx, reg_tmp4.xyzz)).xyz;
+    // 255: mul
+    reg_tmp5.xyz = (mul_s(reg_tmp6.yyyy, reg_tmp5.xyzz)).xyz;
+    // 256: add
+    reg_tmp9.xyz = (reg_tmp9.xyzz + reg_tmp5.xyzz).xyz;
+    // 257: add
+    reg_tmp9.w = (reg_tmp9.wwww + reg_tmp4.wwww).w;
+    return false;
+}
+bool sub_260_270() {
+    // 260: dp3
+    reg_tmp1 = vec4(dot_3(uniforms.f[24].xyz, reg_tmp14.xyz));
+    // 261: mov
+    reg_tmp2 = uniforms.f[24].wwww;
+    // 262: mad
+    reg_tmp1 = fma_s(reg_tmp1, reg_tmp2, reg_tmp2);
+    // 263: mov
+    reg_tmp3 = uniforms.f[22];
+    // 264: add
+    reg_tmp2 = uniforms.f[23] + -reg_tmp3;
+    // 265: mad
+    reg_tmp4 = fma_s(reg_tmp2, reg_tmp1, reg_tmp3);
+    // 266: ifu
+    if (uniforms.b[6]) {
+        sub_267_268();
+    }
+    // 268: mad
+    reg_tmp9.xyz = (fma_s(reg_tmp4, uniforms.f[21], reg_tmp9)).xyz;
+    // 269: mov
+    reg_tmp8.x = (uniforms.f[93].yyyy).x;
+    return false;
+}
+bool sub_267_268() {
+    // 267: mul
+    reg_tmp4 = mul_s(reg_tmp4, reg_tmp9.wwww);
+    return false;
+}
+bool sub_270_279() {
+    // 270: dp3
+    reg_tmp5.x = dot_3(uniforms.f[90].xyz, reg_tmp12.xyz);
+    // 271: dp3
+    reg_tmp5.y = dot_3(uniforms.f[91].xyz, reg_tmp12.xyz);
+    // 272: dp3
+    reg_tmp5.z = dot_3(uniforms.f[92].xyz, reg_tmp12.xyz);
+    // 273: dp4
+    reg_tmp4.x = dot_s(reg_tmp5.xyzz, reg_tmp5.xyzz);
+    // 274: rsq
+    reg_tmp4.x = rsq_s(reg_tmp4.x);
+    // 275: mul
+    reg_tmp4.xyz = (mul_s(reg_tmp5.xyzz, reg_tmp4.xxxx)).xyz;
+    // 276: mul
+    reg_tmp4 = mul_s(uniforms.f[94].zzzz, reg_tmp4);
+    // 277: add
+    reg_tmp12 = uniforms.f[94].zzzz + reg_tmp4;
+    // 278: mov
+    vs_out_attr4 = reg_tmp12;
+    return false;
+}
+bool sub_297_321() {
+    // 297: mov
+    reg_tmp0.xy = (uniforms.f[10].yyyy).xy;
+    // 298: ifu
+    if (uniforms.b[10]) {
+        sub_299_303();
+    } else {
+        sub_303_320();
+    }
+    // 320: nop
+    return false;
+}
+bool sub_299_303() {
+    // 299: call
+    {
+        sub_321_329();
+    }
+    // 300: dp4
+    reg_tmp4.x = dot_s(uniforms.f[14].xywz, reg_tmp6);
+    // 301: dp4
+    reg_tmp4.y = dot_s(uniforms.f[15].xywz, reg_tmp6);
+    // 302: mov
+    vs_out_attr5 = reg_tmp4;
+    return false;
+}
+bool sub_303_320() {
+    // 303: ifu
+    if (uniforms.b[13]) {
+        sub_304_318();
+    } else {
+        sub_318_319();
+    }
+    // 319: nop
+    return false;
+}
+bool sub_304_318() {
+    // 304: cmp
+    conditional_code = equal(uniforms.f[95].xy, reg_tmp0.xy);
+    // 305: mov
+    reg_tmp6.zw = (uniforms.f[93].xxyy).zw;
+    // 306: ifc
+    if (all(not(conditional_code))) {
+        sub_307_314();
+    } else {
+        sub_314_317();
+    }
+    // 317: mov
+    vs_out_attr5 = reg_tmp4;
+    return false;
+}
+bool sub_307_314() {
+    // 307: mov
+    reg_tmp6 = reg_tmp10;
+    // 308: dp4
+    reg_tmp4.x = dot_s(uniforms.f[14], reg_tmp6);
+    // 309: dp4
+    reg_tmp4.y = dot_s(uniforms.f[15], reg_tmp6);
+    // 310: dp4
+    reg_tmp4.z = dot_s(uniforms.f[16], reg_tmp6);
+    // 311: rcp
+    reg_tmp6.w = rcp_s(reg_tmp4.z);
+    // 312: mul
+    reg_tmp4.xy = (mul_s(reg_tmp4.xyyy, reg_tmp6.wwww)).xy;
+    // 313: add
+    reg_tmp4.xy = (uniforms.f[19].zwww + reg_tmp4.xyyy).xy;
+    return false;
+}
+bool sub_314_317() {
+    // 314: call
+    {
+        sub_329_333();
+    }
+    // 315: dp4
+    reg_tmp4.x = dot_s(uniforms.f[14], reg_tmp6);
+    // 316: dp4
+    reg_tmp4.y = dot_s(uniforms.f[15], reg_tmp6);
+    return false;
+}
+bool sub_318_319() {
+    // 318: mov
+    vs_out_attr5 = uniforms.f[93].xxxx;
+    return false;
+}
+bool sub_321_329() {
+    // 321: cmp
+    conditional_code = equal(uniforms.f[93].yz, reg_tmp0.xy);
+    // 322: ifc
+    if (all(not(conditional_code))) {
+        sub_323_324();
+    } else {
+        sub_324_328();
+    }
+    // 328: mov
+    reg_tmp6.zw = (uniforms.f[93].xxyy).zw;
+    return false;
+}
+bool sub_323_324() {
+    // 323: mul
+    reg_tmp6.xy = (mul_s(uniforms.f[8].xxxx, vs_in_reg4.xyyy)).xy;
+    return false;
+}
+bool sub_324_328() {
+    // 324: ifc
+    if (all(bvec2(conditional_code.x, !conditional_code.y))) {
+        sub_325_326();
+    } else {
+        sub_326_327();
+    }
+    // 327: nop
+    return false;
+}
+bool sub_325_326() {
+    // 325: mul
+    reg_tmp6.xy = (mul_s(uniforms.f[8].yyyy, vs_in_reg5.xyyy)).xy;
+    return false;
+}
+bool sub_326_327() {
+    // 326: mul
+    reg_tmp6.xy = (mul_s(uniforms.f[8].zzzz, vs_in_reg6.xyyy)).xy;
+    return false;
+}
+bool sub_329_333() {
+    // 329: mov
+    reg_tmp1.xy = (uniforms.f[94].zzzz).xy;
+    // 330: mov
+    reg_tmp1.zw = (uniforms.f[93].xxxx).zw;
+    // 331: mad
+    reg_tmp6 = fma_s(reg_tmp14, reg_tmp1, reg_tmp1);
+    // 332: mov
+    reg_tmp6.zw = (uniforms.f[93].xxyy).zw;
+    return false;
+}
+// reference: FE8A0B35ACDFED1E, 60C3F6F1EF977FEA
+// program: 60C3F6F1EF977FEA, 3B3AE026C742C7D5, 2BB9C8FEDE51C537
+// reference: 2D09CCCCACDFED1E, 60C3F6F1EF977FEA
+// program: 60C3F6F1EF977FEA, 3B3AE026C742C7D5, A46FA211BB2DB0B6
+// program: 60C3F6F1EF977FEA, 3B3AE026C742C7D5, 73E202FB36B8AAFC
+// shader: 8B31, D5A4033DA0EA77E4
+
+struct pica_uniforms {
+    bool b[16];
+    uvec4 i[4];
+    vec4 f[96];
+};
+
+bool exec_shader();
+
+#define uniforms vs_uniforms
+layout (std140) uniform vs_config {
+    pica_uniforms uniforms;
+};
+
+layout(location = 0) in vec4 vs_in_reg0;
+layout(location = 1) in vec4 vs_in_reg1;
+layout(location = 2) in vec4 vs_in_reg2;
+layout(location = 4) in vec4 vs_in_reg4;
+layout(location = 5) in vec4 vs_in_reg5;
+layout(location = 6) in vec4 vs_in_reg6;
+layout(location = 7) in vec4 vs_in_reg7;
+layout(location = 8) in vec4 vs_in_reg8;
+
+ out vec4 vs_out_attr0;
+ out vec4 vs_out_attr1;
+ out vec4 vs_out_attr2;
+ out vec4 vs_out_attr3;
+ out vec4 vs_out_attr4;
+ out vec4 vs_out_attr5;
+ out vec4 vs_out_attr6;
+
+void main() {
+    vs_out_attr0 = vec4(0.0, 0.0, 0.0, 1.0);
+    vs_out_attr1 = vec4(0.0, 0.0, 0.0, 1.0);
+    vs_out_attr2 = vec4(0.0, 0.0, 0.0, 1.0);
+    vs_out_attr3 = vec4(0.0, 0.0, 0.0, 1.0);
+    vs_out_attr4 = vec4(0.0, 0.0, 0.0, 1.0);
+    vs_out_attr5 = vec4(0.0, 0.0, 0.0, 1.0);
+    vs_out_attr6 = vec4(0.0, 0.0, 0.0, 1.0);
+
+    exec_shader();
+}
+
+
+#define mul_s(x, y) mix(x * y, vec4(0.0), isnan(x * y))
+#define mul_3(x, y) mix(x * y, vec3(0.0), isnan(x * y))
+#define fma_s(x, y, z) (mul_s(x, y) + z)
+float rcp_s(float x) {
+    if (x == 0.0) return x;
+    return 1.0 / x;
+}
+float rsq_s(float x) {
+    if (x > 0.0) return inversesqrt(x);
+    return 0.0;
+}
+#define dot_s(x, y) dot(x, y)
+#define dot_3(x, y) dot(mul_3(x, y), vec3(1.0))
+
+bvec2 conditional_code = bvec2(false);
+ivec3 address_registers = ivec3(0);
+vec4 reg_tmp0 = vec4(0.0, 0.0, 0.0, 1.0);
+vec4 reg_tmp1 = vec4(0.0, 0.0, 0.0, 1.0);
+vec4 reg_tmp2 = vec4(0.0, 0.0, 0.0, 1.0);
+vec4 reg_tmp3 = vec4(0.0, 0.0, 0.0, 1.0);
+vec4 reg_tmp4 = vec4(0.0, 0.0, 0.0, 1.0);
+vec4 reg_tmp5 = vec4(0.0, 0.0, 0.0, 1.0);
+vec4 reg_tmp6 = vec4(0.0, 0.0, 0.0, 1.0);
+vec4 reg_tmp7 = vec4(0.0, 0.0, 0.0, 1.0);
+vec4 reg_tmp8 = vec4(0.0, 0.0, 0.0, 1.0);
+vec4 reg_tmp9 = vec4(0.0, 0.0, 0.0, 1.0);
+vec4 reg_tmp10 = vec4(0.0, 0.0, 0.0, 1.0);
+vec4 reg_tmp11 = vec4(0.0, 0.0, 0.0, 1.0);
+vec4 reg_tmp12 = vec4(0.0, 0.0, 0.0, 1.0);
+vec4 reg_tmp13 = vec4(0.0, 0.0, 0.0, 1.0);
+vec4 reg_tmp14 = vec4(0.0, 0.0, 0.0, 1.0);
+vec4 reg_tmp15 = vec4(0.0, 0.0, 0.0, 1.0);
+
+bool sub_156_205();
+bool sub_181_187();
+bool sub_188_195();
+bool sub_196_204();
+bool sub_205_232();
+bool sub_207_212();
+bool sub_212_231();
+bool sub_215_221();
+bool sub_221_230();
+bool sub_222_226();
+bool sub_226_229();
+bool sub_232_240();
+bool sub_234_235();
+bool sub_235_239();
+bool sub_236_237();
+bool sub_237_238();
+bool sub_240_247();
+bool sub_247_254();
+bool sub_254_278();
+bool sub_256_260();
+bool sub_260_277();
+bool sub_261_275();
+bool sub_264_271();
+bool sub_271_274();
+bool sub_275_276();
+bool sub_278_294();
+bool sub_280_284();
+bool sub_284_293();
+bool sub_285_291();
+bool sub_291_292();
+bool sub_294_4096();
+bool sub_296_298();
+bool sub_298_299();
+bool sub_304_325();
+bool sub_325_339();
+bool sub_339_391();
+bool sub_363_367();
+bool sub_389_390();
+
+bool exec_shader() {
+    sub_294_4096();
+    return true;
+}
+
+bool sub_156_205() {
+    // 156: mov
+    reg_tmp1.xyz = (uniforms.f[93].xxyx).xyz;
+    // 157: dp3
+    reg_tmp8.x = dot_3(uniforms.f[0].xyz, reg_tmp12.xyz);
+    // 158: dp3
+    reg_tmp8.y = dot_3(uniforms.f[1].xyz, reg_tmp12.xyz);
+    // 159: dp3
+    reg_tmp8.z = dot_3(uniforms.f[2].xyz, reg_tmp12.xyz);
+    // 160: dp3
+    reg_tmp14.x = dot_3(uniforms.f[90].xyz, reg_tmp8.xyz);
+    // 161: dp3
+    reg_tmp14.y = dot_3(uniforms.f[91].xyz, reg_tmp8.xyz);
+    // 162: dp3
+    reg_tmp14.z = dot_3(uniforms.f[92].xyz, reg_tmp8.xyz);
+    // 163: mov
+    reg_tmp14.w = (uniforms.f[93].xxxx).w;
+    // 164: mov
+    reg_tmp8 = reg_tmp14;
+    // 165: dp4
+    reg_tmp14.x = dot_s(reg_tmp8, reg_tmp8);
+    // 166: rsq
+    reg_tmp14.x = rsq_s(reg_tmp14.x);
+    // 167: mul
+    reg_tmp14 = mul_s(reg_tmp8, reg_tmp14.xxxx);
+    // 168: mov
+    reg_tmp0 = uniforms.f[23];
+    // 169: dp3
+    reg_tmp8.x = dot_3(uniforms.f[0].xyz, reg_tmp0.xyz);
+    // 170: dp3
+    reg_tmp8.y = dot_3(uniforms.f[1].xyz, reg_tmp0.xyz);
+    // 171: dp3
+    reg_tmp8.z = dot_3(uniforms.f[2].xyz, reg_tmp0.xyz);
+    // 172: dp3
+    reg_tmp6.x = dot_3(uniforms.f[90].xyz, reg_tmp8.xyz);
+    // 173: dp3
+    reg_tmp6.y = dot_3(uniforms.f[91].xyz, reg_tmp8.xyz);
+    // 174: dp3
+    reg_tmp6.z = dot_3(uniforms.f[92].xyz, reg_tmp8.xyz);
+    // 175: add
+    reg_tmp8.xyz = (reg_tmp6.xyzz + reg_tmp1.xyzz).xyz;
+    // 176: mov
+    reg_tmp8.w = (uniforms.f[93].xxxx).w;
+    // 177: dp4
+    reg_tmp0.x = dot_s(reg_tmp8, reg_tmp8);
+    // 178: rsq
+    reg_tmp0.x = rsq_s(reg_tmp0.x);
+    // 179: mul
+    reg_tmp0 = mul_s(reg_tmp8, reg_tmp0.xxxx);
+    // 180: ifu
+    if (uniforms.b[5]) {
+        sub_181_187();
+    }
+    // 187: ifu
+    if (uniforms.b[3]) {
+        sub_188_195();
+    }
+    // 195: ifu
+    if (uniforms.b[4]) {
+        sub_196_204();
+    }
+    // 204: mov
+    vs_out_attr3 = reg_tmp2;
+    return false;
+}
+bool sub_181_187() {
+    // 181: dp3
+    reg_tmp8.x = dot_3(reg_tmp14.xyz, -reg_tmp6.xyz);
+    // 182: dp3
+    reg_tmp8.y = dot_3(reg_tmp1.xyz, -reg_tmp6.xyz);
+    // 183: max
+    reg_tmp8 = max(uniforms.f[93].xxxx, reg_tmp8);
+    // 184: mul
+    reg_tmp8.y = (mul_s(uniforms.f[94].zzzz, reg_tmp8.yyyy)).y;
+    // 185: add
+    reg_tmp8.y = (uniforms.f[94].zzzz + reg_tmp8.yyyy).y;
+    // 186: mul
+    reg_tmp2.y = (mul_s(reg_tmp8.xxxx, reg_tmp8.yyyy)).y;
+    return false;
+}
+bool sub_188_195() {
+    // 188: dp3
+    reg_tmp9.z = dot_3(reg_tmp14.xyz, reg_tmp0.xyz);
+    // 189: max
+    reg_tmp9.z = (max(uniforms.f[93].xxxx, reg_tmp9.zzzz)).z;
+    // 190: min
+    reg_tmp9.z = (min(uniforms.f[93].yyyy, reg_tmp9.zzzz)).z;
+    // 191: log
+    reg_tmp9.z = log2(reg_tmp9.z);
+    // 192: mul
+    reg_tmp9.z = (mul_s(uniforms.f[22].zzzz, reg_tmp9.zzzz)).z;
+    // 193: exp
+    reg_tmp9.z = exp2(reg_tmp9.z);
+    // 194: mul
+    reg_tmp2.z = (mul_s(uniforms.f[22].wwww, reg_tmp9.zzzz)).z;
+    return false;
+}
+bool sub_196_204() {
+    // 196: dp3
+    reg_tmp9.x = dot_3(reg_tmp14.xyz, reg_tmp1.xyz);
+    // 197: max
+    reg_tmp9.x = (max(uniforms.f[93].xxxx, reg_tmp9.xxxx)).x;
+    // 198: min
+    reg_tmp9.x = (min(uniforms.f[93].yyyy, reg_tmp9.xxxx)).x;
+    // 199: add
+    reg_tmp9.x = (uniforms.f[93].yyyy + -reg_tmp9.xxxx).x;
+    // 200: log
+    reg_tmp9.x = log2(reg_tmp9.x);
+    // 201: mul
+    reg_tmp9.x = (mul_s(uniforms.f[22].xxxx, reg_tmp9.xxxx)).x;
+    // 202: exp
+    reg_tmp9.x = exp2(reg_tmp9.x);
+    // 203: mul
+    reg_tmp2.w = (mul_s(uniforms.f[22].yyyy, reg_tmp9.xxxx)).w;
+    return false;
+}
+bool sub_205_232() {
+    // 205: mov
+    reg_tmp0.xy = (uniforms.f[10].xxxx).xy;
+    // 206: ifu
+    if (uniforms.b[9]) {
+        sub_207_212();
+    } else {
+        sub_212_231();
+    }
+    // 231: nop
+    return false;
+}
+bool sub_207_212() {
+    // 207: call
+    {
+        sub_232_240();
+    }
+    // 208: dp4
+    reg_tmp3.x = dot_s(uniforms.f[11].xywz, reg_tmp6);
+    // 209: dp4
+    reg_tmp3.y = dot_s(uniforms.f[12].xywz, reg_tmp6);
+    // 210: mov
+    reg_tmp3.zw = (uniforms.f[93].xxxx).zw;
+    // 211: mov
+    vs_out_attr4 = reg_tmp3;
+    return false;
+}
+bool sub_212_231() {
+    // 212: cmp
+    conditional_code = equal(uniforms.f[95].xy, reg_tmp0.xy);
+    // 213: mov
+    reg_tmp6.zw = (uniforms.f[93].xxyy).zw;
+    // 214: ifc
+    if (all(not(conditional_code))) {
+        sub_215_221();
+    } else {
+        sub_221_230();
+    }
+    // 230: mov
+    vs_out_attr4 = reg_tmp3;
+    return false;
+}
+bool sub_215_221() {
+    // 215: mov
+    reg_tmp6 = reg_tmp10;
+    // 216: dp4
+    reg_tmp3.x = dot_s(uniforms.f[11], reg_tmp6);
+    // 217: dp4
+    reg_tmp3.y = dot_s(uniforms.f[12], reg_tmp6);
+    // 218: dp4
+    reg_tmp3.z = dot_s(uniforms.f[13], reg_tmp6);
+    // 219: mul
+    reg_tmp0.xy = (mul_s(uniforms.f[19].xyyy, reg_tmp3.zzzz)).xy;
+    // 220: add
+    reg_tmp3.xy = (reg_tmp3.xyyy + reg_tmp0.xyyy).xy;
+    return false;
+}
+bool sub_221_230() {
+    // 221: ifc
+    if (all(bvec2(conditional_code.x, !conditional_code.y))) {
+        sub_222_226();
+    } else {
+        sub_226_229();
+    }
+    // 229: nop
+    return false;
+}
+bool sub_222_226() {
+    // 222: call
+    {
+        sub_240_247();
+    }
+    // 223: dp3
+    reg_tmp3.x = dot_3(uniforms.f[11].xyz, reg_tmp6.xyz);
+    // 224: dp3
+    reg_tmp3.y = dot_3(uniforms.f[12].xyz, reg_tmp6.xyz);
+    // 225: dp3
+    reg_tmp3.z = dot_3(uniforms.f[13].xyz, reg_tmp6.xyz);
+    return false;
+}
+bool sub_226_229() {
+    // 226: call
+    {
+        sub_247_254();
+    }
+    // 227: dp4
+    reg_tmp3.x = dot_s(uniforms.f[11], reg_tmp6);
+    // 228: dp4
+    reg_tmp3.y = dot_s(uniforms.f[12], reg_tmp6);
+    return false;
+}
+bool sub_232_240() {
+    // 232: cmp
+    conditional_code = equal(uniforms.f[93].yz, reg_tmp0.xy);
+    // 233: ifc
+    if (all(not(conditional_code))) {
+        sub_234_235();
+    } else {
+        sub_235_239();
+    }
+    // 239: mov
+    reg_tmp6.zw = (uniforms.f[93].xxyy).zw;
+    return false;
+}
+bool sub_234_235() {
+    // 234: mul
+    reg_tmp6.xy = (mul_s(uniforms.f[8].xxxx, vs_in_reg4.xyyy)).xy;
+    return false;
+}
+bool sub_235_239() {
+    // 235: ifc
+    if (all(bvec2(conditional_code.x, !conditional_code.y))) {
+        sub_236_237();
+    } else {
+        sub_237_238();
+    }
+    // 238: nop
+    return false;
+}
+bool sub_236_237() {
+    // 236: mul
+    reg_tmp6.xy = (mul_s(uniforms.f[8].yyyy, vs_in_reg5.xyyy)).xy;
+    return false;
+}
+bool sub_237_238() {
+    // 237: mul
+    reg_tmp6.xy = (mul_s(uniforms.f[8].zzzz, vs_in_reg6.xyyy)).xy;
+    return false;
+}
+bool sub_240_247() {
+    // 240: mov
+    reg_tmp2 = -reg_tmp15;
+    // 241: dp3
+    reg_tmp2.w = dot_3(reg_tmp2.xyz, reg_tmp2.xyz);
+    // 242: rsq
+    reg_tmp2.w = rsq_s(reg_tmp2.w);
+    // 243: mul
+    reg_tmp2 = mul_s(reg_tmp2, reg_tmp2.wwww);
+    // 244: dp3
+    reg_tmp1 = vec4(dot_3(reg_tmp2.xyz, reg_tmp14.xyz));
+    // 245: add
+    reg_tmp1 = reg_tmp1 + reg_tmp1;
+    // 246: mad
+    reg_tmp6 = fma_s(reg_tmp1, reg_tmp14, -reg_tmp2);
+    return false;
+}
+bool sub_247_254() {
+    // 247: mov
+    reg_tmp1.xy = (uniforms.f[94].zzzz).xy;
+    // 248: mov
+    reg_tmp1.zw = (uniforms.f[93].xxxx).zw;
+    // 249: dp3
+    reg_tmp6.x = dot_3(reg_tmp14.xyz, reg_tmp14.xyz);
+    // 250: rsq
+    reg_tmp6.x = rsq_s(reg_tmp6.x);
+    // 251: mul
+    reg_tmp14.xyz = (mul_s(reg_tmp14.xyzz, reg_tmp6.xxxx)).xyz;
+    // 252: mad
+    reg_tmp6 = fma_s(reg_tmp14, reg_tmp1, reg_tmp1);
+    // 253: mov
+    reg_tmp6.zw = (uniforms.f[93].xxyy).zw;
+    return false;
+}
+bool sub_254_278() {
+    // 254: mov
+    reg_tmp0.xy = (uniforms.f[10].yyyy).xy;
+    // 255: ifu
+    if (uniforms.b[10]) {
+        sub_256_260();
+    } else {
+        sub_260_277();
+    }
+    // 277: nop
+    return false;
+}
+bool sub_256_260() {
+    // 256: call
+    {
+        sub_232_240();
+    }
+    // 257: dp4
+    reg_tmp4.x = dot_s(uniforms.f[14].xywz, reg_tmp6);
+    // 258: dp4
+    reg_tmp4.y = dot_s(uniforms.f[15].xywz, reg_tmp6);
+    // 259: mov
+    vs_out_attr5 = reg_tmp4;
+    return false;
+}
+bool sub_260_277() {
+    // 260: ifu
+    if (uniforms.b[13]) {
+        sub_261_275();
+    } else {
+        sub_275_276();
+    }
+    // 276: nop
+    return false;
+}
+bool sub_261_275() {
+    // 261: cmp
+    conditional_code = equal(uniforms.f[95].xy, reg_tmp0.xy);
+    // 262: mov
+    reg_tmp6.zw = (uniforms.f[93].xxyy).zw;
+    // 263: ifc
+    if (all(not(conditional_code))) {
+        sub_264_271();
+    } else {
+        sub_271_274();
+    }
+    // 274: mov
+    vs_out_attr5 = reg_tmp4;
+    return false;
+}
+bool sub_264_271() {
+    // 264: mov
+    reg_tmp6 = reg_tmp10;
+    // 265: dp4
+    reg_tmp4.x = dot_s(uniforms.f[14], reg_tmp6);
+    // 266: dp4
+    reg_tmp4.y = dot_s(uniforms.f[15], reg_tmp6);
+    // 267: dp4
+    reg_tmp4.z = dot_s(uniforms.f[16], reg_tmp6);
+    // 268: rcp
+    reg_tmp6.w = rcp_s(reg_tmp4.z);
+    // 269: mul
+    reg_tmp4.xy = (mul_s(reg_tmp4.xyyy, reg_tmp6.wwww)).xy;
+    // 270: add
+    reg_tmp4.xy = (uniforms.f[19].zwww + reg_tmp4.xyyy).xy;
+    return false;
+}
+bool sub_271_274() {
+    // 271: call
+    {
+        sub_247_254();
+    }
+    // 272: dp4
+    reg_tmp4.x = dot_s(uniforms.f[14], reg_tmp6);
+    // 273: dp4
+    reg_tmp4.y = dot_s(uniforms.f[15], reg_tmp6);
+    return false;
+}
+bool sub_275_276() {
+    // 275: mov
+    vs_out_attr5 = uniforms.f[93].xxxx;
+    return false;
+}
+bool sub_278_294() {
+    // 278: mov
+    reg_tmp0.xy = (uniforms.f[10].zzzz).xy;
+    // 279: ifu
+    if (uniforms.b[11]) {
+        sub_280_284();
+    } else {
+        sub_284_293();
+    }
+    // 293: nop
+    return false;
+}
+bool sub_280_284() {
+    // 280: call
+    {
+        sub_232_240();
+    }
+    // 281: dp4
+    reg_tmp5.x = dot_s(uniforms.f[17].xywz, reg_tmp6);
+    // 282: dp4
+    reg_tmp5.y = dot_s(uniforms.f[18].xywz, reg_tmp6);
+    // 283: mov
+    vs_out_attr6 = reg_tmp5;
+    return false;
+}
+bool sub_284_293() {
+    // 284: ifu
+    if (uniforms.b[14]) {
+        sub_285_291();
+    } else {
+        sub_291_292();
+    }
+    // 292: nop
+    return false;
+}
+bool sub_285_291() {
+    // 285: mov
+    reg_tmp6.zw = (uniforms.f[93].xxyy).zw;
+    // 286: mov
+    reg_tmp5.zw = (reg_tmp6.zwww).zw;
+    // 287: call
+    {
+        sub_247_254();
+    }
+    // 288: dp4
+    reg_tmp5.x = dot_s(uniforms.f[17], reg_tmp6);
+    // 289: dp4
+    reg_tmp5.y = dot_s(uniforms.f[18], reg_tmp6);
+    // 290: mov
+    vs_out_attr6 = reg_tmp5;
+    return false;
+}
+bool sub_291_292() {
+    // 291: mov
+    vs_out_attr6 = uniforms.f[93].xxxx;
+    return false;
+}
+bool sub_294_4096() {
+    // 294: call
+    {
+        sub_339_391();
+    }
+    // 295: ifu
+    if (uniforms.b[6]) {
+        sub_296_298();
+    } else {
+        sub_298_299();
+    }
+    // 299: call
+    {
+        sub_205_232();
+    }
+    // 300: call
+    {
+        sub_254_278();
+    }
+    // 301: call
+    {
+        sub_278_294();
+    }
+    // 302: end
+    return true;
+}
+bool sub_296_298() {
+    // 296: call
+    {
+        sub_156_205();
+    }
+    // 297: nop
+    return false;
+}
+bool sub_298_299() {
+    // 298: mov
+    vs_out_attr3 = uniforms.f[93].yyyy;
+    return false;
+}
+bool sub_304_325() {
+    // 304: mova
+    address_registers.x = (ivec2(reg_tmp1.xx)).x;
+    // 305: dp4
+    reg_tmp3.x = dot_s(uniforms.f[25 + address_registers.x], reg_tmp15);
+    // 306: dp4
+    reg_tmp3.y = dot_s(uniforms.f[26 + address_registers.x], reg_tmp15);
+    // 307: dp4
+    reg_tmp3.z = dot_s(uniforms.f[27 + address_registers.x], reg_tmp15);
+    // 308: mad
+    reg_tmp7 = fma_s(reg_tmp1.wwww, reg_tmp3, reg_tmp7);
+    // 309: dp3
+    reg_tmp3.x = dot_3(uniforms.f[25 + address_registers.x].xyz, reg_tmp14.xyz);
+    // 310: dp3
+    reg_tmp3.y = dot_3(uniforms.f[26 + address_registers.x].xyz, reg_tmp14.xyz);
+    // 311: dp3
+    reg_tmp3.z = dot_3(uniforms.f[27 + address_registers.x].xyz, reg_tmp14.xyz);
+    // 312: mad
+    reg_tmp12 = fma_s(reg_tmp1.wwww, reg_tmp3, reg_tmp12);
+    // 313: dp3
+    reg_tmp3.x = dot_3(uniforms.f[25 + address_registers.x].xyz, reg_tmp13.xyz);
+    // 314: dp3
+    reg_tmp3.y = dot_3(uniforms.f[26 + address_registers.x].xyz, reg_tmp13.xyz);
+    // 315: dp3
+    reg_tmp3.z = dot_3(uniforms.f[27 + address_registers.x].xyz, reg_tmp13.xyz);
+    // 316: mad
+    reg_tmp11 = fma_s(reg_tmp1.wwww, reg_tmp3, reg_tmp11);
+    // 317: dp3
+    reg_tmp3.x = dot_3(uniforms.f[25 + address_registers.x].xyz, reg_tmp5.xyz);
+    // 318: dp3
+    reg_tmp3.y = dot_3(uniforms.f[26 + address_registers.x].xyz, reg_tmp5.xyz);
+    // 319: dp3
+    reg_tmp3.z = dot_3(uniforms.f[27 + address_registers.x].xyz, reg_tmp5.xyz);
+    // 320: mad
+    reg_tmp9 = fma_s(reg_tmp1.wwww, reg_tmp3, reg_tmp9);
+    // 321: dp3
+    reg_tmp3.x = dot_3(uniforms.f[25 + address_registers.x].xyz, reg_tmp6.xyz);
+    // 322: dp3
+    reg_tmp3.y = dot_3(uniforms.f[26 + address_registers.x].xyz, reg_tmp6.xyz);
+    // 323: dp3
+    reg_tmp3.z = dot_3(uniforms.f[27 + address_registers.x].xyz, reg_tmp6.xyz);
+    // 324: mad
+    reg_tmp8 = fma_s(reg_tmp1.wwww, reg_tmp3, reg_tmp8);
+    return false;
+}
+bool sub_325_339() {
+    // 325: mul
+    reg_tmp0.xyz = (mul_s(reg_tmp9.yzxx, reg_tmp8.zxyy)).xyz;
+    // 326: mad
+    reg_tmp0.xyz = (fma_s(-reg_tmp8.yzxx, reg_tmp9.zxyy, reg_tmp0)).xyz;
+    // 327: mov
+    reg_tmp1 = uniforms.f[23];
+    // 328: dp4
+    reg_tmp2.x = dot_s(reg_tmp1.xyzz, reg_tmp1.xyzz);
+    // 329: rsq
+    reg_tmp2.x = rsq_s(reg_tmp2.x);
+    // 330: mul
+    reg_tmp2.xyz = (mul_s(reg_tmp1.xyzz, reg_tmp2.xxxx)).xyz;
+    // 331: dp3
+    reg_tmp1.x = dot_3(reg_tmp2.xyz, reg_tmp8.xyz);
+    // 332: dp3
+    reg_tmp1.y = dot_3(reg_tmp2.xyz, reg_tmp0.xyz);
+    // 333: dp3
+    reg_tmp1.z = dot_3(reg_tmp2.xyz, reg_tmp9.xyz);
+    // 334: dp4
+    reg_tmp2.x = dot_s(reg_tmp1.xyzz, reg_tmp1.xyzz);
+    // 335: rsq
+    reg_tmp2.x = rsq_s(reg_tmp2.x);
+    // 336: mul
+    reg_tmp2.xyz = (mul_s(reg_tmp1.xyzz, reg_tmp2.xxxx)).xyz;
+    // 337: mov
+    reg_tmp2.w = (uniforms.f[93].yyyy).w;
+    // 338: mov
+    vs_out_attr2 = reg_tmp2;
+    return false;
+}
+bool sub_339_391() {
+    // 339: mul
+    reg_tmp15.xyz = (mul_s(uniforms.f[7].xxxx, vs_in_reg0)).xyz;
+    // 340: mul
+    reg_tmp14.xyz = (mul_s(uniforms.f[7].yyyy, vs_in_reg1)).xyz;
+    // 341: mul
+    reg_tmp13.xyz = (mul_s(uniforms.f[7].zzzz, vs_in_reg2)).xyz;
+    // 342: add
+    reg_tmp15.xyz = (uniforms.f[6] + reg_tmp15).xyz;
+    // 343: mov
+    reg_tmp15.w = (uniforms.f[93].yyyy).w;
+    // 344: mov
+    reg_tmp5 = uniforms.f[93].xxyy;
+    // 345: mov
+    reg_tmp6 = uniforms.f[93].yxxy;
+    // 346: mov
+    reg_tmp7 = uniforms.f[93].xxxx;
+    // 347: mov
+    reg_tmp12 = uniforms.f[93].xxxx;
+    // 348: mov
+    reg_tmp11 = uniforms.f[93].xxxx;
+    // 349: mov
+    reg_tmp9 = uniforms.f[93].xxxx;
+    // 350: mov
+    reg_tmp8 = uniforms.f[93].xxxx;
+    // 351: mul
+    reg_tmp2 = mul_s(uniforms.f[93].wwww, vs_in_reg7);
+    // 352: cmp
+    conditional_code = notEqual(uniforms.f[93].xx, vs_in_reg8.zw);
+    // 353: mov
+    reg_tmp1.xy = (reg_tmp2.xxxx).xy;
+    // 354: mul
+    reg_tmp1.w = (mul_s(uniforms.f[8].wwww, vs_in_reg8.xxxx)).w;
+    // 355: call
+    {
+        sub_304_325();
+    }
+    // 356: mov
+    reg_tmp1.xy = (reg_tmp2.yyyy).xy;
+    // 357: mul
+    reg_tmp1.w = (mul_s(uniforms.f[8].wwww, vs_in_reg8.yyyy)).w;
+    // 358: call
+    {
+        sub_304_325();
+    }
+    // 359: mov
+    reg_tmp1.xy = (reg_tmp2.zzzz).xy;
+    // 360: mul
+    reg_tmp1.w = (mul_s(uniforms.f[8].wwww, vs_in_reg8.zzzz)).w;
+    // 361: callc
+    if (conditional_code.x) {
+        sub_304_325();
+    }
+    // 362: ifu
+    if (uniforms.b[8]) {
+        sub_363_367();
+    }
+    // 367: mov
+    reg_tmp7.w = (uniforms.f[93].yyyy).w;
+    // 368: mov
+    reg_tmp10 = reg_tmp7;
+    // 369: dp3
+    reg_tmp13.x = dot_3(uniforms.f[3].xyz, reg_tmp11.xyz);
+    // 370: dp3
+    reg_tmp13.y = dot_3(uniforms.f[4].xyz, reg_tmp11.xyz);
+    // 371: dp3
+    reg_tmp13.z = dot_3(uniforms.f[5].xyz, reg_tmp11.xyz);
+    // 372: dp3
+    reg_tmp14.x = dot_3(uniforms.f[3].xyz, reg_tmp12.xyz);
+    // 373: dp3
+    reg_tmp14.y = dot_3(uniforms.f[4].xyz, reg_tmp12.xyz);
+    // 374: dp3
+    reg_tmp14.z = dot_3(uniforms.f[5].xyz, reg_tmp12.xyz);
+    // 375: dp4
+    reg_tmp15.x = dot_s(uniforms.f[90], reg_tmp10);
+    // 376: dp4
+    reg_tmp15.y = dot_s(uniforms.f[91], reg_tmp10);
+    // 377: dp4
+    reg_tmp15.z = dot_s(uniforms.f[92], reg_tmp10);
+    // 378: mov
+    reg_tmp15.w = (uniforms.f[93].yyyy).w;
+    // 379: call
+    {
+        sub_325_339();
+    }
+    // 380: mov
+    vs_out_attr1 = uniforms.f[93].xxxy;
+    // 381: dp4
+    reg_tmp0.x = dot_s(uniforms.f[86], reg_tmp15);
+    // 382: dp4
+    reg_tmp0.y = dot_s(uniforms.f[87], reg_tmp15);
+    // 383: dp4
+    reg_tmp0.z = dot_s(uniforms.f[88], reg_tmp15);
+    // 384: dp4
+    reg_tmp0.w = dot_s(uniforms.f[89], reg_tmp15);
+    // 385: mov
+    reg_tmp1.x = (-reg_tmp0.wwww).x;
+    // 386: mul
+    reg_tmp1.y = (mul_s(uniforms.f[95].zzzz, -reg_tmp0.wwww)).y;
+    // 387: cmp
+    conditional_code.x = reg_tmp0.xxxx.x > reg_tmp1.xyyy.x;
+    conditional_code.y = reg_tmp0.xxxx.y < reg_tmp1.xyyy.y;
+    // 388: ifc
+    if (all(conditional_code)) {
+        sub_389_390();
+    }
+    // 390: mov
+    vs_out_attr0 = reg_tmp0;
+    return false;
+}
+bool sub_363_367() {
+    // 363: mov
+    reg_tmp1.xy = (reg_tmp2.wwww).xy;
+    // 364: mul
+    reg_tmp1.w = (mul_s(uniforms.f[8].wwww, vs_in_reg8.wwww)).w;
+    // 365: callc
+    if (conditional_code.y) {
+        sub_304_325();
+    }
+    // 366: nop
+    return false;
+}
+bool sub_389_390() {
+    // 389: mov
+    reg_tmp0.x = (-reg_tmp0.wwww).x;
+    return false;
+}
+// reference: B4A87EE36423BAF0, D5A4033DA0EA77E4
+// shader: 8B30, CDA1D6F70BB061E5
+
+precision highp int;
+precision highp float;
+precision highp samplerBuffer;
+precision highp usampler2D;
+precision highp uimage2D;
 in vec4 primary_color;
 in vec2 texcoord0;
 in vec2 texcoord1;
@@ -23863,10 +31408,16 @@ combiner_buffer = next_combiner_buffer;
 gl_FragDepth = depth;
 color = byteround(last_tex_env_out);
 }
-// reference: 0B9AB2F0C1215669, 3ECC3DDDC2FFAB8C
-// program: AD93682DAD6129ED, AD7922A63ED54CA7, 3ECC3DDDC2FFAB8C
-// reference: 3F48A94C78F8242F, AD93682DAD6129ED
-// shader: 8B30, F472DEF3F2EB2685
+// reference: 0B9AB2F0C1215669, CDA1D6F70BB061E5
+// program: D5A4033DA0EA77E4, AD7922A63ED54CA7, CDA1D6F70BB061E5
+// reference: 672BB91A89688B44, D5A4033DA0EA77E4
+// shader: 8B30, 1C819725D7DBB6AB
+
+precision highp int;
+precision highp float;
+precision highp samplerBuffer;
+precision highp usampler2D;
+precision highp uimage2D;
 in vec4 primary_color;
 in vec2 texcoord0;
 in vec2 texcoord1;
@@ -24074,9 +31625,15 @@ combiner_buffer = next_combiner_buffer;
 gl_FragDepth = depth;
 color = byteround(last_tex_env_out);
 }
-// reference: 36B39F31DB788A48, F472DEF3F2EB2685
-// program: AD93682DAD6129ED, AD7922A63ED54CA7, F472DEF3F2EB2685
-// shader: 8B30, AEDB45D682B528D6
+// reference: 36B39F31DB788A48, 1C819725D7DBB6AB
+// program: D5A4033DA0EA77E4, AD7922A63ED54CA7, 1C819725D7DBB6AB
+// shader: 8B30, 3E5CAFDBABD516C0
+
+precision highp int;
+precision highp float;
+precision highp samplerBuffer;
+precision highp usampler2D;
+precision highp uimage2D;
 in vec4 primary_color;
 in vec2 texcoord0;
 in vec2 texcoord1;
@@ -24283,9 +31840,16 @@ combiner_buffer = next_combiner_buffer;
 gl_FragDepth = depth;
 color = byteround(last_tex_env_out);
 }
-// reference: 8F80DB008F132B0F, AEDB45D682B528D6
-// program: AD93682DAD6129ED, AD7922A63ED54CA7, AEDB45D682B528D6
-// shader: 8B30, FD4BA23911C4221C
+// reference: 8F80DB008F132B0F, 3E5CAFDBABD516C0
+// program: D5A4033DA0EA77E4, AD7922A63ED54CA7, 3E5CAFDBABD516C0
+// reference: 958F52656B91CEFB, 559D364E86318AE6
+// shader: 8B30, 215AFE611584BC2A
+
+precision highp int;
+precision highp float;
+precision highp samplerBuffer;
+precision highp usampler2D;
+precision highp uimage2D;
 in vec4 primary_color;
 in vec2 texcoord0;
 in vec2 texcoord1;
@@ -24485,9 +32049,16 @@ combiner_buffer = next_combiner_buffer;
 gl_FragDepth = depth;
 color = byteround(last_tex_env_out);
 }
-// reference: A47917CFB53B9805, FD4BA23911C4221C
-// program: C001DE1069A2A928, 3B3AE026C742C7D5, FD4BA23911C4221C
-// shader: 8B30, 6E1A1BAA21CC2477
+// reference: A47917CFB53B9805, 215AFE611584BC2A
+// program: 559D364E86318AE6, 3B3AE026C742C7D5, 215AFE611584BC2A
+// reference: 672BB91A6423BAF0, D5A4033DA0EA77E4
+// shader: 8B30, 69DD80CC605B4B8F
+
+precision highp int;
+precision highp float;
+precision highp samplerBuffer;
+precision highp usampler2D;
+precision highp uimage2D;
 in vec4 primary_color;
 in vec2 texcoord0;
 in vec2 texcoord1;
@@ -24691,9 +32262,15 @@ combiner_buffer = next_combiner_buffer;
 gl_FragDepth = depth;
 color = byteround(last_tex_env_out);
 }
-// reference: 54CD5E717BE6DB03, 6E1A1BAA21CC2477
-// program: AD93682DAD6129ED, AD7922A63ED54CA7, 6E1A1BAA21CC2477
-// shader: 8B30, D4CFD11B54FB1FD2
+// reference: 54CD5E717BE6DB03, 69DD80CC605B4B8F
+// program: D5A4033DA0EA77E4, AD7922A63ED54CA7, 69DD80CC605B4B8F
+// shader: 8B30, C25017BD6DFD1FD9
+
+precision highp int;
+precision highp float;
+precision highp samplerBuffer;
+precision highp usampler2D;
+precision highp uimage2D;
 in vec4 primary_color;
 in vec2 texcoord0;
 in vec2 texcoord1;
@@ -24894,9 +32471,16 @@ if (int(last_tex_env_out.a * 255.0) <= alphatest_ref) discard;
 gl_FragDepth = depth;
 color = byteround(last_tex_env_out);
 }
-// reference: A47917CF598C7306, D4CFD11B54FB1FD2
-// program: C001DE1069A2A928, 3B3AE026C742C7D5, D4CFD11B54FB1FD2
-// shader: 8B30, 777440EB9FF228FC
+// reference: A47917CF598C7306, C25017BD6DFD1FD9
+// program: 559D364E86318AE6, 3B3AE026C742C7D5, C25017BD6DFD1FD9
+// reference: 958F526586DAFF4F, 559D364E86318AE6
+// shader: 8B30, F67CD9340BD8A6A9
+
+precision highp int;
+precision highp float;
+precision highp samplerBuffer;
+precision highp usampler2D;
+precision highp uimage2D;
 in vec4 primary_color;
 in vec2 texcoord0;
 in vec2 texcoord1;
@@ -25105,9 +32689,18 @@ if (int(last_tex_env_out.a * 255.0) <= alphatest_ref) discard;
 gl_FragDepth = depth;
 color = byteround(last_tex_env_out);
 }
-// reference: 3DD4B6B5D7FB89DC, 777440EB9FF228FC
-// program: AD93682DAD6129ED, AD7922A63ED54CA7, 777440EB9FF228FC
-// shader: 8B30, CB4E504CBF23E508
+// reference: 3DD4B6B5D7FB89DC, F67CD9340BD8A6A9
+// program: D5A4033DA0EA77E4, AD7922A63ED54CA7, F67CD9340BD8A6A9
+// reference: A2C074C0D05623C8, AF99CF0A54E81442
+// program: AF99CF0A54E81442, AD7922A63ED54CA7, 8A76329CB25030B1
+// reference: 7143B3393D1D127C, AF99CF0A54E81442
+// shader: 8B30, BC898C4DAB0810F3
+
+precision highp int;
+precision highp float;
+precision highp samplerBuffer;
+precision highp usampler2D;
+precision highp uimage2D;
 in vec4 primary_color;
 in vec2 texcoord0;
 in vec2 texcoord1;
@@ -25285,9 +32878,15 @@ combiner_buffer = next_combiner_buffer;
 gl_FragDepth = depth;
 color = byteround(last_tex_env_out);
 }
-// reference: 731022577335C8D6, CB4E504CBF23E508
-// program: 0000000000000000, 0000000000000000, CB4E504CBF23E508
-// shader: 8B30, 472C9A9693AAAC39
+// reference: 731022577335C8D6, BC898C4DAB0810F3
+// program: 0000000000000000, 0000000000000000, BC898C4DAB0810F3
+// shader: 8B30, A86C24F1F27F6A4E
+
+precision highp int;
+precision highp float;
+precision highp samplerBuffer;
+precision highp usampler2D;
+precision highp uimage2D;
 in vec4 primary_color;
 in vec2 texcoord0;
 in vec2 texcoord1;
@@ -25465,9 +33064,12 @@ combiner_buffer = next_combiner_buffer;
 gl_FragDepth = depth;
 color = byteround(last_tex_env_out);
 }
-// reference: 93752490D6D7AEB0, 472C9A9693AAAC39
-// program: 0000000000000000, 0000000000000000, 472C9A9693AAAC39
-// shader: 8B31, E74813900DE930DF
+// reference: 93752490D6D7AEB0, A86C24F1F27F6A4E
+// program: 0000000000000000, 0000000000000000, A86C24F1F27F6A4E
+// reference: 3FD9B7A036C7DE7F, 60C3F6F1EF977FEA
+// program: 60C3F6F1EF977FEA, 3B3AE026C742C7D5, 24B822D609CE0531
+// reference: EC5A705936C7DE7F, 60C3F6F1EF977FEA
+// shader: 8B31, 1ED6A2745339D55C
 
 struct pica_uniforms {
     bool b[16];
@@ -25511,7 +33113,21 @@ void main() {
     exec_shader();
 }
 
-// accurate_mul: off
+
+#define mul_s(x, y) mix(x * y, vec4(0.0), isnan(x * y))
+#define mul_3(x, y) mix(x * y, vec3(0.0), isnan(x * y))
+#define fma_s(x, y, z) (mul_s(x, y) + z)
+float rcp_s(float x) {
+    if (x == 0.0) return x;
+    return 1.0 / x;
+}
+float rsq_s(float x) {
+    if (x > 0.0) return inversesqrt(x);
+    return 0.0;
+}
+#define dot_s(x, y) dot(x, y)
+#define dot_3(x, y) dot(mul_3(x, y), vec3(1.0))
+
 bvec2 conditional_code = bvec2(false);
 ivec3 address_registers = ivec3(0);
 vec4 reg_tmp0 = vec4(0.0, 0.0, 0.0, 1.0);
@@ -26805,8 +34421,14 @@ bool sub_434_435() {
     vs_out_attr6 = uniforms.f[93].xxxx;
     return false;
 }
-// reference: CA0D86999D47DFB4, E74813900DE930DF
-// shader: 8B30, CDB39E96B272A49C
+// reference: CA0D86996CD770DF, 1ED6A2745339D55C
+// shader: 8B30, 6320E09DD2EF8330
+
+precision highp int;
+precision highp float;
+precision highp samplerBuffer;
+precision highp usampler2D;
+precision highp uimage2D;
 in vec4 primary_color;
 in vec2 texcoord0;
 in vec2 texcoord1;
@@ -27013,29 +34635,39 @@ if (int(last_tex_env_out.a * 255.0) <= alphatest_ref) discard;
 gl_FragDepth = depth;
 color = byteround(last_tex_env_out);
 }
-// reference: 7F0640F2B459BF76, CDB39E96B272A49C
-// program: E74813900DE930DF, AD7922A63ED54CA7, CDB39E96B272A49C
-// reference: 41ED51369D47DFB4, E74813900DE930DF
-// reference: 356AF5223E7A56C2, C001DE1069A2A928
-// reference: 9786E2FCB53B9805, 2F5A06CF335EF98F
-// reference: DF942603E33C8D9F, EE36F10E62D5F355
-// reference: 5A46C3D168F68A45, C1CBF67CD890716A
-// reference: D1A6147E85BDBBF1, C1CBF67CD890716A
-// reference: C75F00B18E6777F2, 240AFD368442BEF6
-// reference: 4CBFD71E8E6777F2, 240AFD368442BEF6
-// reference: 36B39F31A9C85384, F472DEF3F2EB2685
-// reference: 8F80DB00FDA3F2C3, AEDB45D682B528D6
-// reference: 54CD5E71095602CF, 6E1A1BAA21CC2477
-// reference: A47917CF2B3CAACA, D4CFD11B54FB1FD2
-// reference: 3DD4B6B5A54B5010, 777440EB9FF228FC
-// reference: 9786E2FCC78B41C9, 2F5A06CF335EF98F
-// reference: 7F0640F2C6E966BA, CDB39E96B272A49C
-// reference: DF942603918C5453, EE36F10E62D5F355
-// reference: E4D398BE130AAAA4, 14B77E650BC3771D
-// reference: 6F334F11FE419B10, 14B77E650BC3771D
-// reference: 2584B8EB8217231E, 3E7E129BEAA89F4B
-// reference: 508EAA39A8109DF3, 14B77E650BC3771D
-// shader: 8B30, BAC240B31B587DA8
+// reference: 7F0640F2B459BF76, 6320E09DD2EF8330
+// program: 1ED6A2745339D55C, AD7922A63ED54CA7, 6320E09DD2EF8330
+// reference: 198E41606CD770DF, 1ED6A2745339D55C
+// reference: 6D09E574CFEAF9A9, 559D364E86318AE6
+// reference: 9786E2FCB53B9805, 21647988483E7BCD
+// program: 559D364E86318AE6, 3B3AE026C742C7D5, 21647988483E7BCD
+// reference: DF942603E33C8D9F, 7FEC81B3194413E4
+// program: 559D364E86318AE6, 3B3AE026C742C7D5, 7FEC81B3194413E4
+// reference: 5A46C3D19966252E, AF99CF0A54E81442
+// reference: 89C50428742D149A, AF99CF0A54E81442
+// reference: C75F00B17FF7D899, 60C3F6F1EF977FEA
+// reference: 14DCC7487FF7D899, 60C3F6F1EF977FEA
+// reference: 36B39F31A9C85384, 1C819725D7DBB6AB
+// reference: 8F80DB00FDA3F2C3, 3E5CAFDBABD516C0
+// reference: 54CD5E71095602CF, 69DD80CC605B4B8F
+// reference: A47917CF2B3CAACA, C25017BD6DFD1FD9
+// reference: 3DD4B6B5A54B5010, F67CD9340BD8A6A9
+// reference: 9786E2FCC78B41C9, 21647988483E7BCD
+// reference: 7F0640F2C6E966BA, 6320E09DD2EF8330
+// reference: DF942603918C5453, 7FEC81B3194413E4
+// reference: BCB088E8E29A05CF, E140255169676482
+// reference: 44363FF9ABAA0329, E140255169676482
+// program: E140255169676482, 5D764F9A6220D694, 2BA493C40C92F2E9
+// reference: 6F334F110FD1347B, E140255169676482
+// reference: 2584B8EB8217231E, D8A369D59E3997EA
+// reference: 508EAA3959803298, E140255169676482
+// shader: 8B30, 111FE465C686BF45
+
+precision highp int;
+precision highp float;
+precision highp samplerBuffer;
+precision highp usampler2D;
+precision highp uimage2D;
 in vec4 primary_color;
 in vec2 texcoord0;
 in vec2 texcoord1;
@@ -27206,9 +34838,15 @@ if (int(last_tex_env_out.a * 255.0) <= alphatest_ref) discard;
 gl_FragDepth = depth;
 color = byteround(last_tex_env_out);
 }
-// reference: 34639C1695C496CF, BAC240B31B587DA8
-// program: 14B77E650BC3771D, 5D764F9A6220D694, BAC240B31B587DA8
-// shader: 8B30, B0E92226B94B24DF
+// reference: 34639C1695C496CF, 111FE465C686BF45
+// program: E140255169676482, 5D764F9A6220D694, 111FE465C686BF45
+// shader: 8B30, 16123FB0C9519B51
+
+precision highp int;
+precision highp float;
+precision highp samplerBuffer;
+precision highp usampler2D;
+precision highp uimage2D;
 in vec4 primary_color;
 in vec2 texcoord0;
 in vec2 texcoord1;
@@ -27378,11 +35016,17 @@ combiner_buffer = next_combiner_buffer;
 gl_FragDepth = depth;
 color = byteround(last_tex_env_out);
 }
-// reference: B9DE9E0850BE86D8, B0E92226B94B24DF
-// program: 0000000000000000, 0000000000000000, B0E92226B94B24DF
-// reference: D9B40EDFF671E620, C1CBF67CD890716A
-// reference: 5254D9701B3AD794, C1CBF67CD890716A
-// shader: 8B30, DB2F8A56EDAD0AA7
+// reference: B9DE9E0850BE86D8, 16123FB0C9519B51
+// program: 0000000000000000, 0000000000000000, 16123FB0C9519B51
+// reference: D9B40EDF07E1494B, AF99CF0A54E81442
+// reference: 0A37C926EAAA78FF, AF99CF0A54E81442
+// shader: 8B30, 1E54EFAB20B0B715
+
+precision highp int;
+precision highp float;
+precision highp samplerBuffer;
+precision highp usampler2D;
+precision highp uimage2D;
 in vec4 primary_color;
 in vec2 texcoord0;
 in vec2 texcoord1;
@@ -27553,10 +35197,16 @@ if (int(last_tex_env_out.a * 255.0) <= alphatest_ref) discard;
 gl_FragDepth = depth;
 color = byteround(last_tex_env_out);
 }
-// reference: FBFB78E9143B8075, DB2F8A56EDAD0AA7
-// program: 14B77E650BC3771D, 5D764F9A6220D694, DB2F8A56EDAD0AA7
-// reference: DB6E7D96455BAC47, 14B77E650BC3771D
-// shader: 8B30, 0D12978499FC84D3
+// reference: FBFB78E9143B8075, 1E54EFAB20B0B715
+// program: E140255169676482, 5D764F9A6220D694, 1E54EFAB20B0B715
+// reference: 830D6DC0B4CB032C, E140255169676482
+// shader: 8B30, 706545182ADD045D
+
+precision highp int;
+precision highp float;
+precision highp samplerBuffer;
+precision highp usampler2D;
+precision highp uimage2D;
 in vec4 primary_color;
 in vec2 texcoord0;
 in vec2 texcoord1;
@@ -27727,9 +35377,15 @@ if (int(last_tex_env_out.a * 255.0) <= alphatest_ref) discard;
 gl_FragDepth = depth;
 color = byteround(last_tex_env_out);
 }
-// reference: 888996B8143B8075, 0D12978499FC84D3
-// program: 14B77E650BC3771D, 5D764F9A6220D694, 0D12978499FC84D3
-// shader: 8B30, 7C58652BD222BE0A
+// reference: 888996B8143B8075, 706545182ADD045D
+// program: E140255169676482, 5D764F9A6220D694, 706545182ADD045D
+// shader: 8B30, 10ADC50FC532FE6E
+
+precision highp int;
+precision highp float;
+precision highp samplerBuffer;
+precision highp usampler2D;
+precision highp uimage2D;
 in vec4 primary_color;
 in vec2 texcoord0;
 in vec2 texcoord1;
@@ -27905,10 +35561,16 @@ combiner_buffer = next_combiner_buffer;
 gl_FragDepth = depth;
 color = byteround(last_tex_env_out);
 }
-// reference: ABF0C5439B17931E, 7C58652BD222BE0A
-// program: C1CBF67CD890716A, AD7922A63ED54CA7, 7C58652BD222BE0A
-// reference: 9DF163813E7A56C2, C001DE1069A2A928
-// shader: 8B30, F1AF4DCF748D1D13
+// reference: ABF0C5439B17931E, 10ADC50FC532FE6E
+// program: AF99CF0A54E81442, AD7922A63ED54CA7, 10ADC50FC532FE6E
+// reference: 9DF16381CFEAF9A9, 559D364E86318AE6
+// shader: 8B30, 7FA902B64EBCB461
+
+precision highp int;
+precision highp float;
+precision highp samplerBuffer;
+precision highp usampler2D;
+precision highp uimage2D;
 in vec4 primary_color;
 in vec2 texcoord0;
 in vec2 texcoord1;
@@ -28075,11 +35737,11 @@ combiner_buffer = next_combiner_buffer;
 gl_FragDepth = depth;
 color = byteround(last_tex_env_out);
 }
-// reference: 05E2A27DE658CA72, F1AF4DCF748D1D13
-// program: C001DE1069A2A928, 3B3AE026C742C7D5, F1AF4DCF748D1D13
-// reference: 1611B42E3E7A56C2, C001DE1069A2A928
-// reference: 487D8D2DBEC85929, 6715745505C97BC1
-// shader: 8B31, 3F536DE4E13B4200
+// reference: 05E2A27DE658CA72, 7FA902B64EBCB461
+// program: 559D364E86318AE6, 3B3AE026C742C7D5, 7FA902B64EBCB461
+// reference: 4E72A478CFEAF9A9, 559D364E86318AE6
+// reference: 487D8D2DBEC85929, C27F787C261C6045
+// shader: 8B31, 39C6900A0B5851A4
 
 struct pica_uniforms {
     bool b[16];
@@ -28124,7 +35786,21 @@ void main() {
     exec_shader();
 }
 
-// accurate_mul: off
+
+#define mul_s(x, y) mix(x * y, vec4(0.0), isnan(x * y))
+#define mul_3(x, y) mix(x * y, vec3(0.0), isnan(x * y))
+#define fma_s(x, y, z) (mul_s(x, y) + z)
+float rcp_s(float x) {
+    if (x == 0.0) return x;
+    return 1.0 / x;
+}
+float rsq_s(float x) {
+    if (x > 0.0) return inversesqrt(x);
+    return 0.0;
+}
+#define dot_s(x, y) dot(x, y)
+#define dot_3(x, y) dot(mul_3(x, y), vec3(1.0))
+
 bvec2 conditional_code = bvec2(false);
 ivec3 address_registers = ivec3(0);
 vec4 reg_tmp0 = vec4(0.0, 0.0, 0.0, 1.0);
@@ -29451,8 +37127,14 @@ bool sub_432_433() {
     vs_out_attr6 = uniforms.f[93].xxxx;
     return false;
 }
-// reference: 1215CD0DAE62B1E2, 3F536DE4E13B4200
-// shader: 8B30, BED7510752FF8E3A
+// reference: 4A76DD5B5FF21E89, 39C6900A0B5851A4
+// shader: 8B30, 84E276AEB008DB5C
+
+precision highp int;
+precision highp float;
+precision highp samplerBuffer;
+precision highp usampler2D;
+precision highp uimage2D;
 in vec4 primary_color;
 in vec2 texcoord0;
 in vec2 texcoord1;
@@ -29617,10 +37299,16 @@ if (int(last_tex_env_out.a * 255.0) <= alphatest_ref) discard;
 gl_FragDepth = depth;
 color = byteround(last_tex_env_out);
 }
-// reference: ADBCFE8FA738729C, BED7510752FF8E3A
-// program: 3F536DE4E13B4200, AD7922A63ED54CA7, BED7510752FF8E3A
-// reference: 59FCF5CC1B5527A2, C001DE1069A2A928
-// shader: 8B30, ACF56B31AF5E599E
+// reference: ADBCFE8FA738729C, 84E276AEB008DB5C
+// program: 39C6900A0B5851A4, AD7922A63ED54CA7, 84E276AEB008DB5C
+// reference: 019FE59AEAC588C9, 559D364E86318AE6
+// shader: 8B30, 315EA8EB5C41C833
+
+precision highp int;
+precision highp float;
+precision highp samplerBuffer;
+precision highp usampler2D;
+precision highp uimage2D;
 in vec4 primary_color;
 in vec2 texcoord0;
 in vec2 texcoord1;
@@ -29822,10 +37510,11 @@ combiner_buffer = next_combiner_buffer;
 gl_FragDepth = depth;
 color = byteround(last_tex_env_out);
 }
-// reference: 53DF4DD0BEE7549A, ACF56B31AF5E599E
-// program: C001DE1069A2A928, 3B3AE026C742C7D5, ACF56B31AF5E599E
-// reference: 53DF4DD05250BF99, F59B30115D8438B6
-// shader: 8B31, FF7C5E804508ECEA
+// reference: 53DF4DD0BEE7549A, 315EA8EB5C41C833
+// program: 559D364E86318AE6, 3B3AE026C742C7D5, 315EA8EB5C41C833
+// reference: 53DF4DD05250BF99, EBBB74BA3C410F00
+// program: 559D364E86318AE6, 3B3AE026C742C7D5, EBBB74BA3C410F00
+// shader: 8B31, 8BEF752FB8C5B5CA
 
 struct pica_uniforms {
     bool b[16];
@@ -29869,7 +37558,21 @@ void main() {
     exec_shader();
 }
 
-// accurate_mul: off
+
+#define mul_s(x, y) mix(x * y, vec4(0.0), isnan(x * y))
+#define mul_3(x, y) mix(x * y, vec3(0.0), isnan(x * y))
+#define fma_s(x, y, z) (mul_s(x, y) + z)
+float rcp_s(float x) {
+    if (x == 0.0) return x;
+    return 1.0 / x;
+}
+float rsq_s(float x) {
+    if (x > 0.0) return inversesqrt(x);
+    return 0.0;
+}
+#define dot_s(x, y) dot(x, y)
+#define dot_3(x, y) dot(mul_3(x, y), vec3(1.0))
+
 bvec2 conditional_code = bvec2(false);
 ivec3 address_registers = ivec3(0);
 vec4 reg_tmp0 = vec4(0.0, 0.0, 0.0, 1.0);
@@ -30875,8 +38578,14 @@ bool sub_367_368() {
     vs_out_attr6 = uniforms.f[93].xxxx;
     return false;
 }
-// reference: 2140397E543DE30F, FF7C5E804508ECEA
-// shader: 8B30, 68D05B602E6F7209
+// reference: 79232928A5AD4C64, 8BEF752FB8C5B5CA
+// shader: 8B30, 29F9C9D1D8063EF7
+
+precision highp int;
+precision highp float;
+precision highp samplerBuffer;
+precision highp usampler2D;
+precision highp uimage2D;
 in vec4 primary_color;
 in vec2 texcoord0;
 in vec2 texcoord1;
@@ -31070,10 +38779,16 @@ if (int(last_tex_env_out.a * 255.0) <= alphatest_ref) discard;
 gl_FragDepth = depth;
 color = byteround(last_tex_env_out);
 }
-// reference: 23275838ECE33F11, 68D05B602E6F7209
-// program: FF7C5E804508ECEA, AD7922A63ED54CA7, 68D05B602E6F7209
-// reference: 83FEC0FA1B5527A2, C001DE1069A2A928
-// shader: 8B30, 7D60F33FCD68477C
+// reference: 23275838ECE33F11, 29F9C9D1D8063EF7
+// program: 8BEF752FB8C5B5CA, AD7922A63ED54CA7, 29F9C9D1D8063EF7
+// reference: 83FEC0FAEAC588C9, 559D364E86318AE6
+// shader: 8B30, EC68C55D9E1FD734
+
+precision highp int;
+precision highp float;
+precision highp samplerBuffer;
+precision highp usampler2D;
+precision highp uimage2D;
 in vec4 primary_color;
 in vec2 texcoord0;
 in vec2 texcoord1;
@@ -31233,11 +38948,11 @@ combiner_buffer = next_combiner_buffer;
 gl_FragDepth = depth;
 color = byteround(last_tex_env_out);
 }
-// reference: 6B359CC76816558B, 7D60F33FCD68477C
-// program: C001DE1069A2A928, 3B3AE026C742C7D5, 7D60F33FCD68477C
-// reference: 71CB3569AB480692, 240AFD368442BEF6
-// reference: 6B359CC7914E6501, 7D60F33FCD68477C
-// shader: 8B31, 9FE2005C3A6F24A2
+// reference: 6B359CC76816558B, EC68C55D9E1FD734
+// program: 559D364E86318AE6, 3B3AE026C742C7D5, EC68C55D9E1FD734
+// reference: 29A8253F5AD8A9F9, 60C3F6F1EF977FEA
+// reference: 6B359CC7914E6501, EC68C55D9E1FD734
+// shader: 8B31, 984E7B0D8312B589
 
 struct pica_uniforms {
     bool b[16];
@@ -31278,7 +38993,21 @@ void main() {
     exec_shader();
 }
 
-// accurate_mul: off
+
+#define mul_s(x, y) mix(x * y, vec4(0.0), isnan(x * y))
+#define mul_3(x, y) mix(x * y, vec3(0.0), isnan(x * y))
+#define fma_s(x, y, z) (mul_s(x, y) + z)
+float rcp_s(float x) {
+    if (x == 0.0) return x;
+    return 1.0 / x;
+}
+float rsq_s(float x) {
+    if (x > 0.0) return inversesqrt(x);
+    return 0.0;
+}
+#define dot_s(x, y) dot(x, y)
+#define dot_3(x, y) dot(mul_3(x, y), vec3(1.0))
+
 bvec2 conditional_code = bvec2(false);
 ivec3 address_registers = ivec3(0);
 vec4 reg_tmp0 = vec4(0.0, 0.0, 0.0, 1.0);
@@ -31481,27 +39210,33 @@ bool sub_462_463() {
     reg_tmp0.x = (-reg_tmp0.wwww).x;
     return false;
 }
-// reference: 3F48A94CC2B48095, 9FE2005C3A6F24A2
-// reference: 5978E236AAB36C82, BF309EAB6D1CFB0A
-// program: 9FE2005C3A6F24A2, AD7922A63ED54CA7, BF309EAB6D1CFB0A
-// reference: 7F396EB57E609F55, C1CBF67CD890716A
-// reference: F4D9B91A932BAEE1, C1CBF67CD890716A
-// reference: 5555804DD2DDECB6, 14B77E650BC3771D
-// reference: DEB557E23F96DD02, 14B77E650BC3771D
-// reference: DC6F24AB8CBC9765, C1CBF67CD890716A
-// reference: 982A49F5774A5024, C001DE1069A2A928
-// reference: 13CA9E5A774A5024, C001DE1069A2A928
-// reference: 487D8D2DCC7880E5, 6715745505C97BC1
-// reference: 85AB6B97E7B351AC, 3F536DE4E13B4200
-// reference: CE4253565284C7EC, C001DE1069A2A928
-// reference: 249C27C0A52E8633, ACF56B31AF5E599E
-// reference: E24DFC031DEC0341, FF7C5E804508ECEA
-// reference: 54643228F72AEDB8, 68D05B602E6F7209
-// reference: 40F305875284C7EC, C001DE1069A2A928
-// reference: B2C6F014E299E6DC, 240AFD368442BEF6
-// reference: 4A4CE275E8D78E00, 14B77E650BC3771D
-// reference: C1AC35DA059CBFB4, 14B77E650BC3771D
-// shader: 8B30, 4915F4007CF96987
+// reference: 672BB91A33242FFE, 984E7B0D8312B589
+// reference: 5978E236AAB36C82, 24B822D609CE0531
+// program: 984E7B0D8312B589, AD7922A63ED54CA7, 24B822D609CE0531
+// reference: 7F396EB58FF0303E, AF99CF0A54E81442
+// reference: ACBAA94C62BB018A, AF99CF0A54E81442
+// reference: 5555804D234D43DD, E140255169676482
+// reference: 86D647B4CE067269, E140255169676482
+// reference: DC6F24AB7D2C380E, AF99CF0A54E81442
+// reference: 982A49F586DAFF4F, 559D364E86318AE6
+// reference: 4BA98E0C86DAFF4F, 559D364E86318AE6
+// reference: 487D8D2DCC7880E5, C27F787C261C6045
+// reference: DDC87BC11623FEC7, 39C6900A0B5851A4
+// reference: 96214300A3146887, 559D364E86318AE6
+// reference: 249C27C0A52E8633, 315EA8EB5C41C833
+// reference: BA2EEC55EC7CAC2A, 8BEF752FB8C5B5CA
+// reference: 54643228F72AEDB8, 29F9C9D1D8063EF7
+// reference: 40F30587A3146887, 559D364E86318AE6
+// reference: EAA5E042130949B7, 60C3F6F1EF977FEA
+// reference: 4A4CE2751947216B, E140255169676482
+// reference: 99CF258CF40C10DF, E140255169676482
+// shader: 8B30, E712D1F015FA0270
+
+precision highp int;
+precision highp float;
+precision highp samplerBuffer;
+precision highp usampler2D;
+precision highp uimage2D;
 in vec4 primary_color;
 in vec2 texcoord0;
 in vec2 texcoord1;
@@ -31680,5441 +39415,10 @@ if (int(last_tex_env_out.a * 255.0) <= alphatest_ref) discard;
 gl_FragDepth = depth;
 color = byteround(last_tex_env_out);
 }
-// reference: 63E9A8D441F1146D, 4915F4007CF96987
-// program: 14B77E650BC3771D, 5D764F9A6220D694, 4915F4007CF96987
-// reference: 6997BE1FCCD8BE68, A37C9A270FDA9BBA
-// reference: E27769B0CCD8BE68, A37C9A270FDA9BBA
-// reference: E27769B0E299E6DC, 240AFD368442BEF6
-// reference: CB13D2285284C7EC, C001DE1069A2A928
-// reference: 1C76F6D773DF8722, 7D60F33FCD68477C
-// program: E74813900DE930DF, AD7922A63ED54CA7, 02B107BC9316136C
-// reference: 87BFD9A4EC124F18, C1CBF67CD890716A
-// reference: 0C5F0E0B01597EAC, C1CBF67CD890716A
-// reference: B2CA55647AA55E4D, 14B77E650BC3771D
-// reference: 392A82CB97EE6FF9, 14B77E650BC3771D
-// reference: BE8A228D3E7A56C2, C001DE1069A2A928
-// reference: AA9A7B6285095E26, A37C9A270FDA9BBA
-// reference: 217AACCD85095E26, A37C9A270FDA9BBA
-// reference: 217AACCDAB480692, 240AFD368442BEF6
-// reference: 081E17551B5527A2, C001DE1069A2A928
-// reference: 41ED5136700CEE00, E74813900DE930DF
-// reference: AA9A7B62AB480692, 240AFD368442BEF6
-// reference: 508EAA393C99A4B7, 14B77E650BC3771D
-// shader: 8B30, 97F37F89351F0E50
-in vec4 primary_color;
-in vec2 texcoord0;
-in vec2 texcoord1;
-in vec2 texcoord2;
-in float texcoord0_w;
-in vec4 normquat;
-in vec3 view;
-
-#ifndef CITRA_GLES
-in vec4 gl_FragCoord;
-#endif // CITRA_GLES
-out vec4 color;
-
-uniform sampler2D tex0;
-uniform sampler2D tex1;
-uniform sampler2D tex2;
-uniform samplerCube tex_cube;
-uniform samplerBuffer texture_buffer_lut_lf;
-uniform samplerBuffer texture_buffer_lut_rg;
-uniform samplerBuffer texture_buffer_lut_rgba;
-
-#define NUM_TEV_STAGES 6
-#define NUM_LIGHTS 8
-#define NUM_LIGHTING_SAMPLERS 24
-
-struct LightSrc {
-    vec3 specular_0;
-    vec3 specular_1;
-    vec3 diffuse;
-    vec3 ambient;
-    vec3 position;
-    vec3 spot_direction;
-    float dist_atten_bias;
-    float dist_atten_scale;
-};
-
-layout (std140) uniform shader_data {
-    int alphatest_ref;
-    float depth_scale;
-    float depth_offset;
-    float shadow_bias_constant;
-    float shadow_bias_linear;
-    int scissor_x1;
-    int scissor_y1;
-    int scissor_x2;
-    int scissor_y2;
-    int fog_lut_offset;
-    int proctex_noise_lut_offset;
-    int proctex_color_map_offset;
-    int proctex_alpha_map_offset;
-    int proctex_lut_offset;
-    int proctex_diff_lut_offset;
-    float proctex_bias;
-    vec3 fog_color;
-    vec2 proctex_noise_f;
-    vec2 proctex_noise_a;
-    vec2 proctex_noise_p;
-    vec4 const_color[NUM_TEV_STAGES];
-    vec4 tev_combiner_buffer_color;
-    vec4 clip_coef;
-};
-
-layout (std140) uniform shader_light_data {
-    ivec4 lighting_lut_offset[NUM_LIGHTING_SAMPLERS / 4];
-    vec3 lighting_global_ambient;
-    LightSrc light_src[NUM_LIGHTS];
-    float lut_scale_d0;
-    float lut_scale_d1;
-    float lut_scale_sp;
-    float lut_scale_fr;
-    float lut_scale_rb;
-    float lut_scale_rg;
-    float lut_scale_rr;
-    int shadow_texture_bias;
-};
-
-// Rotate the vector v by the quaternion q
-vec3 quaternion_rotate(vec4 q, vec3 v) {
-    return v + 2.0 * cross(q.xyz, cross(q.xyz, v) + q.w * v);
-}
-
-float LookupLightingLUT(int lut_index, int index, float delta) {
-    vec2 entry = texelFetch(texture_buffer_lut_lf, lighting_lut_offset[lut_index >> 2][lut_index & 3] + index).rg;
-    return entry.r + entry.g * delta;
-}
-
-float LookupLightingLUTUnsigned(int lut_index, float pos) {
-    int index = clamp(int(pos * 256.0), 0, 255);
-    float delta = pos * 256.0 - float(index);
-    return LookupLightingLUT(lut_index, index, delta);
-}
-
-float LookupLightingLUTSigned(int lut_index, float pos) {
-    int index = clamp(int(pos * 128.0), -128, 127);
-    float delta = pos * 128.0 - float(index);
-    if (index < 0) index += 256;
-    return LookupLightingLUT(lut_index, index, delta);
-}
-
-float byteround(float x) {
-    return round(x * 255.0) * (1.0 / 255.0);
-}
-
-vec2 byteround(vec2 x) {
-    return round(x * 255.0) * (1.0 / 255.0);
-}
-
-vec3 byteround(vec3 x) {
-    return round(x * 255.0) * (1.0 / 255.0);
-}
-
-vec4 byteround(vec4 x) {
-    return round(x * 255.0) * (1.0 / 255.0);
-}
-
-// PICA's LOD formula for 2D textures.
-// This LOD formula is the same as the LOD lower limit defined in OpenGL.
-// f(x, y) >= max{m_u, m_v, m_w}
-// (See OpenGL 4.6 spec, 8.14.1 - Scale Factor and Level-of-Detail)
-float getLod(vec2 coord) {
-    vec2 d = max(abs(dFdx(coord)), abs(dFdy(coord)));
-    return log2(max(d.x, d.y));
-}
-
-vec4 shadowTexture(vec2 uv, float w) {
-    return vec4(1.0);
-}
-
-vec4 shadowTextureCube(vec2 uv, float w) {
-    return vec4(1.0);
-}
-
-void main() {
-vec4 rounded_primary_color = byteround(primary_color);
-vec4 primary_fragment_color = vec4(0.0);
-vec4 secondary_fragment_color = vec4(0.0);
-float z_over_w = 2.0 * gl_FragCoord.z - 1.0;
-float depth = z_over_w * depth_scale + depth_offset;
-vec4 texcolor0 = textureLod(tex0, texcoord0, getLod(texcoord0 * vec2(textureSize(tex0, 0))));
-vec4 combiner_buffer = vec4(0.0);
-vec4 next_combiner_buffer = tev_combiner_buffer_color;
-vec4 last_tex_env_out = vec4(0.0);
-vec3 color_output_0 = byteround(clamp((rounded_primary_color.rgb) * (texcolor0.rgb) + (const_color[0].rgb) * (vec3(1.0) - (texcolor0.rgb)), vec3(0.0), vec3(1.0)));
-float alpha_output_0 = byteround(clamp((texcolor0.a) * (rounded_primary_color.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_0, alpha_output_0), vec4(0.0), vec4(1.0));
-combiner_buffer = next_combiner_buffer;
-
-combiner_buffer = next_combiner_buffer;
-
-combiner_buffer = next_combiner_buffer;
-
-vec3 color_output_3 = byteround(clamp((const_color[3].rgb) * (vec3(1.0) - texcolor0.rgb), vec3(0.0), vec3(1.0)));
-float alpha_output_3 = byteround(clamp((const_color[3].a) * (1.0 - texcolor0.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_3, alpha_output_3), vec4(0.0), vec4(1.0));
-combiner_buffer = next_combiner_buffer;
-
-vec3 color_output_4 = byteround(clamp((const_color[4].rgb) * (texcolor0.rgb) + (last_tex_env_out.rgb), vec3(0.0), vec3(1.0)));
-float alpha_output_4 = byteround(clamp((const_color[4].a) * (texcolor0.a) + (last_tex_env_out.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_4, alpha_output_4), vec4(0.0), vec4(1.0));
-combiner_buffer = next_combiner_buffer;
-
-vec3 color_output_5 = byteround(clamp((rounded_primary_color.rgb) * (last_tex_env_out.rgb), vec3(0.0), vec3(1.0)));
-float alpha_output_5 = byteround(clamp((rounded_primary_color.a) * (last_tex_env_out.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_5, alpha_output_5), vec4(0.0), vec4(1.0));
-combiner_buffer = next_combiner_buffer;
-
-if (int(last_tex_env_out.a * 255.0) <= alphatest_ref) discard;
-gl_FragDepth = depth;
-color = byteround(last_tex_env_out);
-}
-// reference: 26F5A2F79265BEE9, 97F37F89351F0E50
-// program: 14B77E650BC3771D, 5D764F9A6220D694, 97F37F89351F0E50
-// reference: DB6E7D96D1D29503, 14B77E650BC3771D
-// shader: 8B30, F1C746E8BCB0FDA0
-in vec4 primary_color;
-in vec2 texcoord0;
-in vec2 texcoord1;
-in vec2 texcoord2;
-in float texcoord0_w;
-in vec4 normquat;
-in vec3 view;
-
-#ifndef CITRA_GLES
-in vec4 gl_FragCoord;
-#endif // CITRA_GLES
-out vec4 color;
-
-uniform sampler2D tex0;
-uniform sampler2D tex1;
-uniform sampler2D tex2;
-uniform samplerCube tex_cube;
-uniform samplerBuffer texture_buffer_lut_lf;
-uniform samplerBuffer texture_buffer_lut_rg;
-uniform samplerBuffer texture_buffer_lut_rgba;
-
-#define NUM_TEV_STAGES 6
-#define NUM_LIGHTS 8
-#define NUM_LIGHTING_SAMPLERS 24
-
-struct LightSrc {
-    vec3 specular_0;
-    vec3 specular_1;
-    vec3 diffuse;
-    vec3 ambient;
-    vec3 position;
-    vec3 spot_direction;
-    float dist_atten_bias;
-    float dist_atten_scale;
-};
-
-layout (std140) uniform shader_data {
-    int alphatest_ref;
-    float depth_scale;
-    float depth_offset;
-    float shadow_bias_constant;
-    float shadow_bias_linear;
-    int scissor_x1;
-    int scissor_y1;
-    int scissor_x2;
-    int scissor_y2;
-    int fog_lut_offset;
-    int proctex_noise_lut_offset;
-    int proctex_color_map_offset;
-    int proctex_alpha_map_offset;
-    int proctex_lut_offset;
-    int proctex_diff_lut_offset;
-    float proctex_bias;
-    vec3 fog_color;
-    vec2 proctex_noise_f;
-    vec2 proctex_noise_a;
-    vec2 proctex_noise_p;
-    vec4 const_color[NUM_TEV_STAGES];
-    vec4 tev_combiner_buffer_color;
-    vec4 clip_coef;
-};
-
-layout (std140) uniform shader_light_data {
-    ivec4 lighting_lut_offset[NUM_LIGHTING_SAMPLERS / 4];
-    vec3 lighting_global_ambient;
-    LightSrc light_src[NUM_LIGHTS];
-    float lut_scale_d0;
-    float lut_scale_d1;
-    float lut_scale_sp;
-    float lut_scale_fr;
-    float lut_scale_rb;
-    float lut_scale_rg;
-    float lut_scale_rr;
-    int shadow_texture_bias;
-};
-
-// Rotate the vector v by the quaternion q
-vec3 quaternion_rotate(vec4 q, vec3 v) {
-    return v + 2.0 * cross(q.xyz, cross(q.xyz, v) + q.w * v);
-}
-
-float LookupLightingLUT(int lut_index, int index, float delta) {
-    vec2 entry = texelFetch(texture_buffer_lut_lf, lighting_lut_offset[lut_index >> 2][lut_index & 3] + index).rg;
-    return entry.r + entry.g * delta;
-}
-
-float LookupLightingLUTUnsigned(int lut_index, float pos) {
-    int index = clamp(int(pos * 256.0), 0, 255);
-    float delta = pos * 256.0 - float(index);
-    return LookupLightingLUT(lut_index, index, delta);
-}
-
-float LookupLightingLUTSigned(int lut_index, float pos) {
-    int index = clamp(int(pos * 128.0), -128, 127);
-    float delta = pos * 128.0 - float(index);
-    if (index < 0) index += 256;
-    return LookupLightingLUT(lut_index, index, delta);
-}
-
-float byteround(float x) {
-    return round(x * 255.0) * (1.0 / 255.0);
-}
-
-vec2 byteround(vec2 x) {
-    return round(x * 255.0) * (1.0 / 255.0);
-}
-
-vec3 byteround(vec3 x) {
-    return round(x * 255.0) * (1.0 / 255.0);
-}
-
-vec4 byteround(vec4 x) {
-    return round(x * 255.0) * (1.0 / 255.0);
-}
-
-// PICA's LOD formula for 2D textures.
-// This LOD formula is the same as the LOD lower limit defined in OpenGL.
-// f(x, y) >= max{m_u, m_v, m_w}
-// (See OpenGL 4.6 spec, 8.14.1 - Scale Factor and Level-of-Detail)
-float getLod(vec2 coord) {
-    vec2 d = max(abs(dFdx(coord)), abs(dFdy(coord)));
-    return log2(max(d.x, d.y));
-}
-
-vec4 shadowTexture(vec2 uv, float w) {
-    return vec4(1.0);
-}
-
-vec4 shadowTextureCube(vec2 uv, float w) {
-    return vec4(1.0);
-}
-
-void main() {
-vec4 rounded_primary_color = byteround(primary_color);
-vec4 primary_fragment_color = vec4(0.0);
-vec4 secondary_fragment_color = vec4(0.0);
-float z_over_w = 2.0 * gl_FragCoord.z - 1.0;
-float depth = z_over_w * depth_scale + depth_offset;
-vec4 texcolor0 = textureLod(tex0, texcoord0, getLod(texcoord0 * vec2(textureSize(tex0, 0))));
-vec4 combiner_buffer = vec4(0.0);
-vec4 next_combiner_buffer = tev_combiner_buffer_color;
-vec4 last_tex_env_out = vec4(0.0);
-vec3 color_output_0 = byteround(clamp((rounded_primary_color.rgb) * (texcolor0.rgb) + (const_color[0].rgb) * (vec3(1.0) - (texcolor0.rgb)), vec3(0.0), vec3(1.0)));
-float alpha_output_0 = byteround(clamp((texcolor0.a) * (rounded_primary_color.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_0, alpha_output_0), vec4(0.0), vec4(1.0));
-combiner_buffer = next_combiner_buffer;
-
-combiner_buffer = next_combiner_buffer;
-
-combiner_buffer = next_combiner_buffer;
-
-vec3 color_output_3 = byteround(clamp((vec3(1.0) - texcolor0.rgb) * (const_color[3].rgb), vec3(0.0), vec3(1.0)));
-float alpha_output_3 = byteround(clamp((texcolor0.a) * (const_color[3].a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_3, alpha_output_3), vec4(0.0), vec4(1.0));
-combiner_buffer = next_combiner_buffer;
-
-vec3 color_output_4 = byteround(clamp((texcolor0.rgb) * (const_color[4].rgb) + (last_tex_env_out.rgb), vec3(0.0), vec3(1.0)));
-float alpha_output_4 = byteround(clamp((1.0 - texcolor0.a) * (const_color[4].a) + (last_tex_env_out.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_4, alpha_output_4), vec4(0.0), vec4(1.0));
-combiner_buffer = next_combiner_buffer;
-
-vec3 color_output_5 = byteround(clamp((rounded_primary_color.rgb) * (last_tex_env_out.rgb), vec3(0.0), vec3(1.0)));
-float alpha_output_5 = byteround(clamp((rounded_primary_color.a) * (last_tex_env_out.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_5, alpha_output_5), vec4(0.0), vec4(1.0));
-combiner_buffer = next_combiner_buffer;
-
-if (int(last_tex_env_out.a * 255.0) <= alphatest_ref) discard;
-gl_FragDepth = depth;
-color = byteround(last_tex_env_out);
-}
-// reference: E96D4608139AA853, F1C746E8BCB0FDA0
-// program: 14B77E650BC3771D, 5D764F9A6220D694, F1C746E8BCB0FDA0
-// shader: 8B30, F3B09FD1226197E2
-in vec4 primary_color;
-in vec2 texcoord0;
-in vec2 texcoord1;
-in vec2 texcoord2;
-in float texcoord0_w;
-in vec4 normquat;
-in vec3 view;
-
-#ifndef CITRA_GLES
-in vec4 gl_FragCoord;
-#endif // CITRA_GLES
-out vec4 color;
-
-uniform sampler2D tex0;
-uniform sampler2D tex1;
-uniform sampler2D tex2;
-uniform samplerCube tex_cube;
-uniform samplerBuffer texture_buffer_lut_lf;
-uniform samplerBuffer texture_buffer_lut_rg;
-uniform samplerBuffer texture_buffer_lut_rgba;
-
-#define NUM_TEV_STAGES 6
-#define NUM_LIGHTS 8
-#define NUM_LIGHTING_SAMPLERS 24
-
-struct LightSrc {
-    vec3 specular_0;
-    vec3 specular_1;
-    vec3 diffuse;
-    vec3 ambient;
-    vec3 position;
-    vec3 spot_direction;
-    float dist_atten_bias;
-    float dist_atten_scale;
-};
-
-layout (std140) uniform shader_data {
-    int alphatest_ref;
-    float depth_scale;
-    float depth_offset;
-    float shadow_bias_constant;
-    float shadow_bias_linear;
-    int scissor_x1;
-    int scissor_y1;
-    int scissor_x2;
-    int scissor_y2;
-    int fog_lut_offset;
-    int proctex_noise_lut_offset;
-    int proctex_color_map_offset;
-    int proctex_alpha_map_offset;
-    int proctex_lut_offset;
-    int proctex_diff_lut_offset;
-    float proctex_bias;
-    vec3 fog_color;
-    vec2 proctex_noise_f;
-    vec2 proctex_noise_a;
-    vec2 proctex_noise_p;
-    vec4 const_color[NUM_TEV_STAGES];
-    vec4 tev_combiner_buffer_color;
-    vec4 clip_coef;
-};
-
-layout (std140) uniform shader_light_data {
-    ivec4 lighting_lut_offset[NUM_LIGHTING_SAMPLERS / 4];
-    vec3 lighting_global_ambient;
-    LightSrc light_src[NUM_LIGHTS];
-    float lut_scale_d0;
-    float lut_scale_d1;
-    float lut_scale_sp;
-    float lut_scale_fr;
-    float lut_scale_rb;
-    float lut_scale_rg;
-    float lut_scale_rr;
-    int shadow_texture_bias;
-};
-
-// Rotate the vector v by the quaternion q
-vec3 quaternion_rotate(vec4 q, vec3 v) {
-    return v + 2.0 * cross(q.xyz, cross(q.xyz, v) + q.w * v);
-}
-
-float LookupLightingLUT(int lut_index, int index, float delta) {
-    vec2 entry = texelFetch(texture_buffer_lut_lf, lighting_lut_offset[lut_index >> 2][lut_index & 3] + index).rg;
-    return entry.r + entry.g * delta;
-}
-
-float LookupLightingLUTUnsigned(int lut_index, float pos) {
-    int index = clamp(int(pos * 256.0), 0, 255);
-    float delta = pos * 256.0 - float(index);
-    return LookupLightingLUT(lut_index, index, delta);
-}
-
-float LookupLightingLUTSigned(int lut_index, float pos) {
-    int index = clamp(int(pos * 128.0), -128, 127);
-    float delta = pos * 128.0 - float(index);
-    if (index < 0) index += 256;
-    return LookupLightingLUT(lut_index, index, delta);
-}
-
-float byteround(float x) {
-    return round(x * 255.0) * (1.0 / 255.0);
-}
-
-vec2 byteround(vec2 x) {
-    return round(x * 255.0) * (1.0 / 255.0);
-}
-
-vec3 byteround(vec3 x) {
-    return round(x * 255.0) * (1.0 / 255.0);
-}
-
-vec4 byteround(vec4 x) {
-    return round(x * 255.0) * (1.0 / 255.0);
-}
-
-// PICA's LOD formula for 2D textures.
-// This LOD formula is the same as the LOD lower limit defined in OpenGL.
-// f(x, y) >= max{m_u, m_v, m_w}
-// (See OpenGL 4.6 spec, 8.14.1 - Scale Factor and Level-of-Detail)
-float getLod(vec2 coord) {
-    vec2 d = max(abs(dFdx(coord)), abs(dFdy(coord)));
-    return log2(max(d.x, d.y));
-}
-
-vec4 shadowTexture(vec2 uv, float w) {
-    return vec4(1.0);
-}
-
-vec4 shadowTextureCube(vec2 uv, float w) {
-    return vec4(1.0);
-}
-
-void main() {
-vec4 rounded_primary_color = byteround(primary_color);
-vec4 primary_fragment_color = vec4(0.0);
-vec4 secondary_fragment_color = vec4(0.0);
-float z_over_w = 2.0 * gl_FragCoord.z - 1.0;
-float depth = z_over_w * depth_scale + depth_offset;
-vec4 texcolor0 = textureLod(tex0, texcoord0, getLod(texcoord0 * vec2(textureSize(tex0, 0))));
-vec4 combiner_buffer = vec4(0.0);
-vec4 next_combiner_buffer = tev_combiner_buffer_color;
-vec4 last_tex_env_out = vec4(0.0);
-vec3 color_output_0 = byteround(clamp((rounded_primary_color.rgb) * (texcolor0.rgb) + (const_color[0].rgb) * (vec3(1.0) - (texcolor0.rgb)), vec3(0.0), vec3(1.0)));
-float alpha_output_0 = byteround(clamp((texcolor0.a) * (rounded_primary_color.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_0, alpha_output_0), vec4(0.0), vec4(1.0));
-combiner_buffer = next_combiner_buffer;
-
-combiner_buffer = next_combiner_buffer;
-
-combiner_buffer = next_combiner_buffer;
-
-vec3 color_output_3 = byteround(clamp((vec3(1.0) - texcolor0.rgb) * (const_color[3].rgb), vec3(0.0), vec3(1.0)));
-float alpha_output_3 = byteround(clamp((texcolor0.a) * (const_color[3].a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_3, alpha_output_3), vec4(0.0), vec4(1.0));
-combiner_buffer = next_combiner_buffer;
-
-vec3 color_output_4 = byteround(clamp((texcolor0.rgb) * (const_color[4].rgb) + (last_tex_env_out.rgb), vec3(0.0), vec3(1.0)));
-float alpha_output_4 = byteround(clamp((1.0 - texcolor0.a) * (const_color[4].a) + (last_tex_env_out.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_4, alpha_output_4), vec4(0.0), vec4(1.0));
-combiner_buffer = next_combiner_buffer;
-
-vec3 color_output_5 = byteround(clamp((rounded_primary_color.rgb), vec3(0.0), vec3(1.0)));
-float alpha_output_5 = byteround(clamp((rounded_primary_color.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_5, alpha_output_5), vec4(0.0), vec4(1.0));
-combiner_buffer = next_combiner_buffer;
-
-gl_FragDepth = depth;
-color = byteround(last_tex_env_out);
-}
-// reference: 64D04416D6E0B844, F3B09FD1226197E2
-// program: 0000000000000000, 0000000000000000, F3B09FD1226197E2
-// reference: 673221A64DD9FB25, C1CBF67CD890716A
-// reference: ECD2F609A092CA91, C1CBF67CD890716A
-// reference: C4C67A368D3FEC93, 14B77E650BC3771D
-// reference: 4F26AD996074DD27, 14B77E650BC3771D
-// shader: 8B30, 58F4E4013B98E5F1
-in vec4 primary_color;
-in vec2 texcoord0;
-in vec2 texcoord1;
-in vec2 texcoord2;
-in float texcoord0_w;
-in vec4 normquat;
-in vec3 view;
-
-#ifndef CITRA_GLES
-in vec4 gl_FragCoord;
-#endif // CITRA_GLES
-out vec4 color;
-
-uniform sampler2D tex0;
-uniform sampler2D tex1;
-uniform sampler2D tex2;
-uniform samplerCube tex_cube;
-uniform samplerBuffer texture_buffer_lut_lf;
-uniform samplerBuffer texture_buffer_lut_rg;
-uniform samplerBuffer texture_buffer_lut_rgba;
-
-#define NUM_TEV_STAGES 6
-#define NUM_LIGHTS 8
-#define NUM_LIGHTING_SAMPLERS 24
-
-struct LightSrc {
-    vec3 specular_0;
-    vec3 specular_1;
-    vec3 diffuse;
-    vec3 ambient;
-    vec3 position;
-    vec3 spot_direction;
-    float dist_atten_bias;
-    float dist_atten_scale;
-};
-
-layout (std140) uniform shader_data {
-    int alphatest_ref;
-    float depth_scale;
-    float depth_offset;
-    float shadow_bias_constant;
-    float shadow_bias_linear;
-    int scissor_x1;
-    int scissor_y1;
-    int scissor_x2;
-    int scissor_y2;
-    int fog_lut_offset;
-    int proctex_noise_lut_offset;
-    int proctex_color_map_offset;
-    int proctex_alpha_map_offset;
-    int proctex_lut_offset;
-    int proctex_diff_lut_offset;
-    float proctex_bias;
-    vec3 fog_color;
-    vec2 proctex_noise_f;
-    vec2 proctex_noise_a;
-    vec2 proctex_noise_p;
-    vec4 const_color[NUM_TEV_STAGES];
-    vec4 tev_combiner_buffer_color;
-    vec4 clip_coef;
-};
-
-layout (std140) uniform shader_light_data {
-    ivec4 lighting_lut_offset[NUM_LIGHTING_SAMPLERS / 4];
-    vec3 lighting_global_ambient;
-    LightSrc light_src[NUM_LIGHTS];
-    float lut_scale_d0;
-    float lut_scale_d1;
-    float lut_scale_sp;
-    float lut_scale_fr;
-    float lut_scale_rb;
-    float lut_scale_rg;
-    float lut_scale_rr;
-    int shadow_texture_bias;
-};
-
-// Rotate the vector v by the quaternion q
-vec3 quaternion_rotate(vec4 q, vec3 v) {
-    return v + 2.0 * cross(q.xyz, cross(q.xyz, v) + q.w * v);
-}
-
-float LookupLightingLUT(int lut_index, int index, float delta) {
-    vec2 entry = texelFetch(texture_buffer_lut_lf, lighting_lut_offset[lut_index >> 2][lut_index & 3] + index).rg;
-    return entry.r + entry.g * delta;
-}
-
-float LookupLightingLUTUnsigned(int lut_index, float pos) {
-    int index = clamp(int(pos * 256.0), 0, 255);
-    float delta = pos * 256.0 - float(index);
-    return LookupLightingLUT(lut_index, index, delta);
-}
-
-float LookupLightingLUTSigned(int lut_index, float pos) {
-    int index = clamp(int(pos * 128.0), -128, 127);
-    float delta = pos * 128.0 - float(index);
-    if (index < 0) index += 256;
-    return LookupLightingLUT(lut_index, index, delta);
-}
-
-float byteround(float x) {
-    return round(x * 255.0) * (1.0 / 255.0);
-}
-
-vec2 byteround(vec2 x) {
-    return round(x * 255.0) * (1.0 / 255.0);
-}
-
-vec3 byteround(vec3 x) {
-    return round(x * 255.0) * (1.0 / 255.0);
-}
-
-vec4 byteround(vec4 x) {
-    return round(x * 255.0) * (1.0 / 255.0);
-}
-
-// PICA's LOD formula for 2D textures.
-// This LOD formula is the same as the LOD lower limit defined in OpenGL.
-// f(x, y) >= max{m_u, m_v, m_w}
-// (See OpenGL 4.6 spec, 8.14.1 - Scale Factor and Level-of-Detail)
-float getLod(vec2 coord) {
-    vec2 d = max(abs(dFdx(coord)), abs(dFdy(coord)));
-    return log2(max(d.x, d.y));
-}
-
-vec4 shadowTexture(vec2 uv, float w) {
-    return vec4(1.0);
-}
-
-vec4 shadowTextureCube(vec2 uv, float w) {
-    return vec4(1.0);
-}
-
-void main() {
-vec4 rounded_primary_color = byteround(primary_color);
-vec4 primary_fragment_color = vec4(0.0);
-vec4 secondary_fragment_color = vec4(0.0);
-float z_over_w = 2.0 * gl_FragCoord.z - 1.0;
-float depth = z_over_w * depth_scale + depth_offset;
-vec4 texcolor0 = textureLod(tex0, texcoord0, getLod(texcoord0 * vec2(textureSize(tex0, 0))));
-vec4 combiner_buffer = vec4(0.0);
-vec4 next_combiner_buffer = tev_combiner_buffer_color;
-vec4 last_tex_env_out = vec4(0.0);
-vec3 color_output_0 = byteround(clamp((rounded_primary_color.rgb) * (texcolor0.rgb) + (const_color[0].rgb) * (vec3(1.0) - (texcolor0.rgb)), vec3(0.0), vec3(1.0)));
-float alpha_output_0 = byteround(clamp((texcolor0.a) * (rounded_primary_color.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_0, alpha_output_0), vec4(0.0), vec4(1.0));
-combiner_buffer = next_combiner_buffer;
-
-combiner_buffer = next_combiner_buffer;
-
-combiner_buffer = next_combiner_buffer;
-
-vec3 color_output_3 = byteround(clamp((const_color[3].rgb) * (vec3(1.0) - texcolor0.rgb), vec3(0.0), vec3(1.0)));
-float alpha_output_3 = byteround(clamp((const_color[3].a) * (1.0 - texcolor0.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_3, alpha_output_3), vec4(0.0), vec4(1.0));
-combiner_buffer = next_combiner_buffer;
-
-vec3 color_output_4 = byteround(clamp((const_color[4].rgb) * (texcolor0.rgb) + (last_tex_env_out.rgb), vec3(0.0), vec3(1.0)));
-float alpha_output_4 = byteround(clamp((const_color[4].a) * (texcolor0.a) + (last_tex_env_out.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_4, alpha_output_4), vec4(0.0), vec4(1.0));
-combiner_buffer = next_combiner_buffer;
-
-vec3 color_output_5 = byteround(clamp((rounded_primary_color.rgb), vec3(0.0), vec3(1.0)));
-float alpha_output_5 = byteround(clamp((rounded_primary_color.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_5, alpha_output_5), vec4(0.0), vec4(1.0));
-combiner_buffer = next_combiner_buffer;
-
-gl_FragDepth = depth;
-color = byteround(last_tex_env_out);
-}
-// reference: AB48A0E9571FAEFE, 58F4E4013B98E5F1
-// program: 0000000000000000, 0000000000000000, 58F4E4013B98E5F1
-// reference: 09B9B38E1B5527A2, C001DE1069A2A928
-// reference: 825964211B5527A2, C001DE1069A2A928
-// reference: 9DCFAF22AE62B1E2, 3F536DE4E13B4200
-// reference: D62697E31B5527A2, C001DE1069A2A928
-// reference: 6997BE1FE299E6DC, 240AFD368442BEF6
-// shader: 8B30, BDA667948FBBF9AB
-in vec4 primary_color;
-in vec2 texcoord0;
-in vec2 texcoord1;
-in vec2 texcoord2;
-in float texcoord0_w;
-in vec4 normquat;
-in vec3 view;
-
-#ifndef CITRA_GLES
-in vec4 gl_FragCoord;
-#endif // CITRA_GLES
-out vec4 color;
-
-uniform sampler2D tex0;
-uniform sampler2D tex1;
-uniform sampler2D tex2;
-uniform samplerCube tex_cube;
-uniform samplerBuffer texture_buffer_lut_lf;
-uniform samplerBuffer texture_buffer_lut_rg;
-uniform samplerBuffer texture_buffer_lut_rgba;
-
-#define NUM_TEV_STAGES 6
-#define NUM_LIGHTS 8
-#define NUM_LIGHTING_SAMPLERS 24
-
-struct LightSrc {
-    vec3 specular_0;
-    vec3 specular_1;
-    vec3 diffuse;
-    vec3 ambient;
-    vec3 position;
-    vec3 spot_direction;
-    float dist_atten_bias;
-    float dist_atten_scale;
-};
-
-layout (std140) uniform shader_data {
-    int alphatest_ref;
-    float depth_scale;
-    float depth_offset;
-    float shadow_bias_constant;
-    float shadow_bias_linear;
-    int scissor_x1;
-    int scissor_y1;
-    int scissor_x2;
-    int scissor_y2;
-    int fog_lut_offset;
-    int proctex_noise_lut_offset;
-    int proctex_color_map_offset;
-    int proctex_alpha_map_offset;
-    int proctex_lut_offset;
-    int proctex_diff_lut_offset;
-    float proctex_bias;
-    vec3 fog_color;
-    vec2 proctex_noise_f;
-    vec2 proctex_noise_a;
-    vec2 proctex_noise_p;
-    vec4 const_color[NUM_TEV_STAGES];
-    vec4 tev_combiner_buffer_color;
-    vec4 clip_coef;
-};
-
-layout (std140) uniform shader_light_data {
-    ivec4 lighting_lut_offset[NUM_LIGHTING_SAMPLERS / 4];
-    vec3 lighting_global_ambient;
-    LightSrc light_src[NUM_LIGHTS];
-    float lut_scale_d0;
-    float lut_scale_d1;
-    float lut_scale_sp;
-    float lut_scale_fr;
-    float lut_scale_rb;
-    float lut_scale_rg;
-    float lut_scale_rr;
-    int shadow_texture_bias;
-};
-
-// Rotate the vector v by the quaternion q
-vec3 quaternion_rotate(vec4 q, vec3 v) {
-    return v + 2.0 * cross(q.xyz, cross(q.xyz, v) + q.w * v);
-}
-
-float LookupLightingLUT(int lut_index, int index, float delta) {
-    vec2 entry = texelFetch(texture_buffer_lut_lf, lighting_lut_offset[lut_index >> 2][lut_index & 3] + index).rg;
-    return entry.r + entry.g * delta;
-}
-
-float LookupLightingLUTUnsigned(int lut_index, float pos) {
-    int index = clamp(int(pos * 256.0), 0, 255);
-    float delta = pos * 256.0 - float(index);
-    return LookupLightingLUT(lut_index, index, delta);
-}
-
-float LookupLightingLUTSigned(int lut_index, float pos) {
-    int index = clamp(int(pos * 128.0), -128, 127);
-    float delta = pos * 128.0 - float(index);
-    if (index < 0) index += 256;
-    return LookupLightingLUT(lut_index, index, delta);
-}
-
-float byteround(float x) {
-    return round(x * 255.0) * (1.0 / 255.0);
-}
-
-vec2 byteround(vec2 x) {
-    return round(x * 255.0) * (1.0 / 255.0);
-}
-
-vec3 byteround(vec3 x) {
-    return round(x * 255.0) * (1.0 / 255.0);
-}
-
-vec4 byteround(vec4 x) {
-    return round(x * 255.0) * (1.0 / 255.0);
-}
-
-// PICA's LOD formula for 2D textures.
-// This LOD formula is the same as the LOD lower limit defined in OpenGL.
-// f(x, y) >= max{m_u, m_v, m_w}
-// (See OpenGL 4.6 spec, 8.14.1 - Scale Factor and Level-of-Detail)
-float getLod(vec2 coord) {
-    vec2 d = max(abs(dFdx(coord)), abs(dFdy(coord)));
-    return log2(max(d.x, d.y));
-}
-
-vec4 shadowTexture(vec2 uv, float w) {
-    return vec4(1.0);
-}
-
-vec4 shadowTextureCube(vec2 uv, float w) {
-    return vec4(1.0);
-}
-
-void main() {
-vec4 rounded_primary_color = byteround(primary_color);
-vec4 primary_fragment_color = vec4(0.0);
-vec4 secondary_fragment_color = vec4(0.0);
-float z_over_w = 2.0 * gl_FragCoord.z - 1.0;
-float depth = z_over_w * depth_scale + depth_offset;
-vec4 texcolor0 = textureLod(tex0, texcoord0, getLod(texcoord0 * vec2(textureSize(tex0, 0))));
-vec4 texcolor1 = textureLod(tex1, texcoord1, getLod(texcoord1 * vec2(textureSize(tex1, 0))));
-vec4 texcolor2 = textureLod(tex2, texcoord2, getLod(texcoord2 * vec2(textureSize(tex2, 0))));
-vec4 combiner_buffer = vec4(0.0);
-vec4 next_combiner_buffer = tev_combiner_buffer_color;
-vec4 last_tex_env_out = vec4(0.0);
-vec3 color_output_0 = byteround(clamp((vec3(1.0) - texcolor0.rrr) - (vec3(1.0) - texcolor1.rrr), vec3(0.0), vec3(1.0)));
-float alpha_output_0 = byteround(clamp((1.0 - texcolor0.r) - (1.0 - texcolor2.r), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_0 * 4.0, alpha_output_0 * 4.0), vec4(0.0), vec4(1.0));
-combiner_buffer = next_combiner_buffer;
-
-vec3 color_output_1 = byteround(clamp((last_tex_env_out.rgb) + (last_tex_env_out.aaa), vec3(0.0), vec3(1.0)));
-float alpha_output_1 = byteround(clamp((last_tex_env_out.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_1 * 4.0, alpha_output_1 * 1.0), vec4(0.0), vec4(1.0));
-combiner_buffer = next_combiner_buffer;
-
-vec3 color_output_2 = byteround(clamp((last_tex_env_out.rgb) + (last_tex_env_out.rgb), vec3(0.0), vec3(1.0)));
-float alpha_output_2 = byteround(clamp((last_tex_env_out.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_2 * 4.0, alpha_output_2 * 1.0), vec4(0.0), vec4(1.0));
-combiner_buffer = next_combiner_buffer;
-
-vec3 color_output_3 = byteround(clamp((texcolor0.rgb) * (const_color[3].aaa) + (texcolor1.rgb) * (vec3(1.0) - (const_color[3].aaa)), vec3(0.0), vec3(1.0)));
-float alpha_output_3 = byteround(clamp((texcolor0.a) * (const_color[3].a) + (texcolor1.a) * (1.0 - (const_color[3].a)), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_3, alpha_output_3), vec4(0.0), vec4(1.0));
-combiner_buffer = next_combiner_buffer;
-
-vec3 color_output_4 = byteround(clamp((const_color[4].rgb) * (last_tex_env_out.rgb) + (combiner_buffer.rgb) * (vec3(1.0) - (last_tex_env_out.rgb)), vec3(0.0), vec3(1.0)));
-float alpha_output_4 = byteround(clamp((const_color[4].a) * (last_tex_env_out.a) + (combiner_buffer.a) * (1.0 - (last_tex_env_out.a)), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_4, alpha_output_4), vec4(0.0), vec4(1.0));
-combiner_buffer = next_combiner_buffer;
-
-vec3 color_output_5 = byteround(clamp((rounded_primary_color.rgb) * (last_tex_env_out.rgb), vec3(0.0), vec3(1.0)));
-float alpha_output_5 = byteround(clamp((rounded_primary_color.a) * (last_tex_env_out.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_5, alpha_output_5), vec4(0.0), vec4(1.0));
-combiner_buffer = next_combiner_buffer;
-
-if (int(last_tex_env_out.a * 255.0) <= alphatest_ref) discard;
-gl_FragDepth = depth;
-color = byteround(last_tex_env_out);
-}
-// reference: 33E2E469B0619717, BDA667948FBBF9AB
-// program: 14B77E650BC3771D, 5D764F9A6220D694, BDA667948FBBF9AB
-// shader: 8B31, 8989E12CE78F7854
-
-struct pica_uniforms {
-    bool b[16];
-    uvec4 i[4];
-    vec4 f[96];
-};
-
-bool exec_shader();
-
-#define uniforms vs_uniforms
-layout (std140) uniform vs_config {
-    pica_uniforms uniforms;
-};
-
-layout(location = 0) in vec4 vs_in_reg0;
-layout(location = 3) in vec4 vs_in_reg3;
-layout(location = 4) in vec4 vs_in_reg4;
-layout(location = 5) in vec4 vs_in_reg5;
-layout(location = 6) in vec4 vs_in_reg6;
-
- out vec4 vs_out_attr0;
- out vec4 vs_out_attr1;
- out vec4 vs_out_attr2;
- out vec4 vs_out_attr3;
- out vec4 vs_out_attr4;
- out vec4 vs_out_attr5;
- out vec4 vs_out_attr6;
-
-void main() {
-    vs_out_attr0 = vec4(0.0, 0.0, 0.0, 1.0);
-    vs_out_attr1 = vec4(0.0, 0.0, 0.0, 1.0);
-    vs_out_attr2 = vec4(0.0, 0.0, 0.0, 1.0);
-    vs_out_attr3 = vec4(0.0, 0.0, 0.0, 1.0);
-    vs_out_attr4 = vec4(0.0, 0.0, 0.0, 1.0);
-    vs_out_attr5 = vec4(0.0, 0.0, 0.0, 1.0);
-    vs_out_attr6 = vec4(0.0, 0.0, 0.0, 1.0);
-
-    exec_shader();
-}
-
-// accurate_mul: safe
-bvec2 conditional_code = bvec2(false);
-ivec3 address_registers = ivec3(0);
-vec4 reg_tmp0 = vec4(0.0, 0.0, 0.0, 1.0);
-vec4 reg_tmp1 = vec4(0.0, 0.0, 0.0, 1.0);
-vec4 reg_tmp2 = vec4(0.0, 0.0, 0.0, 1.0);
-vec4 reg_tmp3 = vec4(0.0, 0.0, 0.0, 1.0);
-vec4 reg_tmp4 = vec4(0.0, 0.0, 0.0, 1.0);
-vec4 reg_tmp5 = vec4(0.0, 0.0, 0.0, 1.0);
-vec4 reg_tmp6 = vec4(0.0, 0.0, 0.0, 1.0);
-vec4 reg_tmp7 = vec4(0.0, 0.0, 0.0, 1.0);
-vec4 reg_tmp8 = vec4(0.0, 0.0, 0.0, 1.0);
-vec4 reg_tmp9 = vec4(0.0, 0.0, 0.0, 1.0);
-vec4 reg_tmp10 = vec4(0.0, 0.0, 0.0, 1.0);
-vec4 reg_tmp11 = vec4(0.0, 0.0, 0.0, 1.0);
-vec4 reg_tmp12 = vec4(0.0, 0.0, 0.0, 1.0);
-vec4 reg_tmp13 = vec4(0.0, 0.0, 0.0, 1.0);
-vec4 reg_tmp14 = vec4(0.0, 0.0, 0.0, 1.0);
-vec4 reg_tmp15 = vec4(0.0, 0.0, 0.0, 1.0);
-
-bool sub_0_4096();
-bool sub_10_28();
-bool sub_16_21();
-bool sub_18_19();
-bool sub_25_26();
-bool sub_28_74();
-bool sub_32_73();
-bool sub_37_39();
-bool sub_39_63();
-bool sub_42_47();
-bool sub_53_62();
-bool sub_57_58();
-bool sub_58_61();
-bool sub_65_72();
-bool sub_74_84();
-bool sub_81_82();
-bool sub_84_111();
-bool sub_86_91();
-bool sub_91_110();
-bool sub_94_100();
-bool sub_100_109();
-bool sub_101_105();
-bool sub_105_108();
-bool sub_111_119();
-bool sub_113_114();
-bool sub_114_118();
-bool sub_115_116();
-bool sub_116_117();
-bool sub_119_126();
-bool sub_126_130();
-bool sub_130_154();
-bool sub_132_136();
-bool sub_136_153();
-bool sub_137_151();
-bool sub_140_147();
-bool sub_147_150();
-bool sub_151_152();
-bool sub_154_170();
-bool sub_156_160();
-bool sub_160_169();
-bool sub_161_167();
-bool sub_167_168();
-
-bool exec_shader() {
-    sub_0_4096();
-    return true;
-}
-
-bool sub_0_4096() {
-    // 0: mov
-    reg_tmp0 = vs_in_reg0;
-    // 1: mov
-    vs_out_attr0 = reg_tmp0;
-    // 2: mov
-    vs_out_attr2 = reg_tmp0;
-    // 3: mov
-    vs_out_attr1 = reg_tmp0;
-    // 4: call
-    {
-        sub_10_28();
-    }
-    // 5: call
-    {
-        sub_84_111();
-    }
-    // 6: call
-    {
-        sub_130_154();
-    }
-    // 7: call
-    {
-        sub_154_170();
-    }
-    // 8: end
-    return true;
-}
-bool sub_10_28() {
-    // 10: mov
-    reg_tmp8.xy = (uniforms.f[93].xxxx).xy;
-    // 11: mov
-    reg_tmp0.y = (uniforms.f[7].wwww).y;
-    // 12: cmp
-    conditional_code = notEqual(uniforms.f[93].xx, reg_tmp0.xy);
-    // 13: mov
-    reg_tmp9.xyz = (uniforms.f[93].xxxx).xyz;
-    // 14: mov
-    reg_tmp9.w = (uniforms.f[21].wwww).w;
-    // 15: ifc
-    if (conditional_code.y) {
-        sub_16_21();
-    }
-    // 21: callu
-    if (uniforms.b[12]) {
-        sub_28_74();
-    }
-    // 22: callu
-    if (uniforms.b[5]) {
-        sub_74_84();
-    }
-    // 23: cmp
-    conditional_code = equal(uniforms.f[93].xx, reg_tmp8.xy);
-    // 24: ifc
-    if (all(conditional_code)) {
-        sub_25_26();
-    }
-    // 26: add
-    reg_tmp9 = uniforms.f[74] + reg_tmp9;
-    // 27: max
-    vs_out_attr3 = max(uniforms.f[93].xxxx, reg_tmp9);
-    return false;
-}
-bool sub_16_21() {
-    // 16: mul
-    reg_tmp0 = mul_s(uniforms.f[7].wwww, vs_in_reg3);
-    // 17: ifu
-    if (uniforms.b[7]) {
-        sub_18_19();
-    }
-    // 19: mul
-    reg_tmp9.xyz = (mul_s(uniforms.f[20].wwww, reg_tmp0.xyzz)).xyz;
-    // 20: mov
-    reg_tmp8.x = (uniforms.f[93].yyyy).x;
-    return false;
-}
-bool sub_18_19() {
-    // 18: mul
-    reg_tmp9.w = (mul_s(reg_tmp9.wwww, reg_tmp0.wwww)).w;
-    return false;
-}
-bool sub_25_26() {
-    // 25: mov
-    reg_tmp9 = uniforms.f[21];
-    return false;
-}
-bool sub_28_74() {
-    // 28: mov
-    reg_tmp1 = uniforms.f[20];
-    // 29: mov
-    reg_tmp2 = uniforms.f[21];
-    // 30: mov
-    reg_tmp3 = uniforms.f[93].xxxx;
-    // 31: loop
-    address_registers.z = int(uniforms.i[0].y);
-    for (uint loop31 = 0u; loop31 <= uniforms.i[0].x; address_registers.z += int(uniforms.i[0].z), ++loop31) {
-        sub_32_73();
-    }
-    // 73: mov
-    reg_tmp8.x = (uniforms.f[93].yyyy).x;
-    return false;
-}
-bool sub_32_73() {
-    // 32: mova
-    address_registers.x = (ivec2(reg_tmp3.xy)).x;
-    // 33: mov
-    reg_tmp4.x = (uniforms.f[69 + address_registers.x].wwww).x;
-    // 34: mov
-    reg_tmp4.y = (uniforms.f[71 + address_registers.x].wwww).y;
-    // 35: cmp
-    conditional_code = equal(uniforms.f[93].xy, reg_tmp4.xy);
-    // 36: ifc
-    if (conditional_code.x) {
-        sub_37_39();
-    } else {
-        sub_39_63();
-    }
-    // 63: cmp
-    conditional_code.x = uniforms.f[93].xxxx.x == reg_tmp6.xyyy.x;
-    conditional_code.y = uniforms.f[93].xxxx.y < reg_tmp6.xyyy.y;
-    // 64: ifc
-    if (conditional_code.y) {
-        sub_65_72();
-    }
-    // 72: add
-    reg_tmp3 = -uniforms.f[95].wwww + reg_tmp3;
-    return false;
-}
-bool sub_37_39() {
-    // 37: dp3
-    reg_tmp6.x = dot_3(uniforms.f[69 + address_registers.x].xyz, reg_tmp14.xyz);
-    // 38: mov
-    reg_tmp6.y = (uniforms.f[93].yyyy).y;
-    return false;
-}
-bool sub_39_63() {
-    // 39: add
-    reg_tmp4 = uniforms.f[69 + address_registers.x] + -reg_tmp15;
-    // 40: mov
-    reg_tmp6.y = (uniforms.f[93].yyyy).y;
-    // 41: ifc
-    if (conditional_code.y) {
-        sub_42_47();
-    }
-    // 47: mov
-    reg_tmp5 = uniforms.f[70 + address_registers.x];
-    // 48: cmp
-    conditional_code = equal(uniforms.f[93].yy, reg_tmp5.ww);
-    // 49: dp3
-    reg_tmp4.w = dot_3(reg_tmp4.xyz, reg_tmp4.xyz);
-    // 50: rsq
-    reg_tmp4.w = rsq_s(reg_tmp4.w);
-    // 51: mul
-    reg_tmp4 = mul_s(reg_tmp4, reg_tmp4.wwww);
-    // 52: ifc
-    if (conditional_code.x) {
-        sub_53_62();
-    }
-    // 62: dp3
-    reg_tmp6.x = dot_3(reg_tmp14.xyz, reg_tmp4.xyz);
-    return false;
-}
-bool sub_42_47() {
-    // 42: mov
-    reg_tmp5.x = (uniforms.f[93].yyyy).x;
-    // 43: dp3
-    reg_tmp5.z = dot_3(reg_tmp4.xyz, reg_tmp4.xyz);
-    // 44: mul
-    reg_tmp5.y = (mul_s(reg_tmp5.zzzz, reg_tmp5.zzzz)).y;
-    // 45: dp3
-    reg_tmp6.y = dot_3(uniforms.f[71 + address_registers.x].xyz, reg_tmp5.xyz);
-    // 46: rcp
-    reg_tmp6.y = rcp_s(reg_tmp6.y);
-    return false;
-}
-bool sub_53_62() {
-    // 53: dp3
-    reg_tmp5.x = dot_3(uniforms.f[70 + address_registers.x].xyz, -reg_tmp4.xyz);
-    // 54: slti
-    reg_tmp5.y = (vec4(lessThan(reg_tmp5.xxxx, uniforms.f[72 + address_registers.x].yyyy))).y;
-    // 55: cmp
-    conditional_code = equal(uniforms.f[93].yy, reg_tmp5.xy);
-    // 56: ifc
-    if (conditional_code.y) {
-        sub_57_58();
-    } else {
-        sub_58_61();
-    }
-    // 61: mul
-    reg_tmp6.y = (mul_s(reg_tmp6.yyyy, reg_tmp5.xxxx)).y;
-    return false;
-}
-bool sub_57_58() {
-    // 57: mov
-    reg_tmp5.x = (uniforms.f[93].xxxx).x;
-    return false;
-}
-bool sub_58_61() {
-    // 58: log
-    reg_tmp5.y = log2(reg_tmp5.x);
-    // 59: mul
-    reg_tmp5.y = (mul_s(uniforms.f[72 + address_registers.x].xxxx, reg_tmp5.yyyy)).y;
-    // 60: exp
-    reg_tmp5.x = exp2(reg_tmp5.y);
-    return false;
-}
-bool sub_65_72() {
-    // 65: max
-    reg_tmp6.x = (max(uniforms.f[93].xxxx, reg_tmp6.xxxx)).x;
-    // 66: mad
-    reg_tmp9.xyz = (fma_s(reg_tmp1.xyzz, uniforms.f[67 + address_registers.x].xyzz, reg_tmp9.xyzz)).xyz;
-    // 67: mul
-    reg_tmp4 = mul_s(uniforms.f[68 + address_registers.x], reg_tmp2);
-    // 68: mul
-    reg_tmp5.xyz = (mul_s(reg_tmp6.xxxx, reg_tmp4.xyzz)).xyz;
-    // 69: mul
-    reg_tmp5.xyz = (mul_s(reg_tmp6.yyyy, reg_tmp5.xyzz)).xyz;
-    // 70: add
-    reg_tmp9.xyz = (reg_tmp9.xyzz + reg_tmp5.xyzz).xyz;
-    // 71: add
-    reg_tmp9.w = (reg_tmp9.wwww + reg_tmp4.wwww).w;
-    return false;
-}
-bool sub_74_84() {
-    // 74: dp3
-    reg_tmp1 = vec4(dot_3(uniforms.f[24].xyz, reg_tmp14.xyz));
-    // 75: mov
-    reg_tmp2 = uniforms.f[24].wwww;
-    // 76: mad
-    reg_tmp1 = fma_s(reg_tmp1, reg_tmp2, reg_tmp2);
-    // 77: mov
-    reg_tmp3 = uniforms.f[22];
-    // 78: add
-    reg_tmp2 = uniforms.f[23] + -reg_tmp3;
-    // 79: mad
-    reg_tmp4 = fma_s(reg_tmp2, reg_tmp1, reg_tmp3);
-    // 80: ifu
-    if (uniforms.b[6]) {
-        sub_81_82();
-    }
-    // 82: mad
-    reg_tmp9.xyz = (fma_s(reg_tmp4, uniforms.f[21], reg_tmp9)).xyz;
-    // 83: mov
-    reg_tmp8.x = (uniforms.f[93].yyyy).x;
-    return false;
-}
-bool sub_81_82() {
-    // 81: mul
-    reg_tmp4 = mul_s(reg_tmp4, reg_tmp9.wwww);
-    return false;
-}
-bool sub_84_111() {
-    // 84: mov
-    reg_tmp0.xy = (uniforms.f[10].xxxx).xy;
-    // 85: ifu
-    if (uniforms.b[9]) {
-        sub_86_91();
-    } else {
-        sub_91_110();
-    }
-    // 110: nop
-    return false;
-}
-bool sub_86_91() {
-    // 86: call
-    {
-        sub_111_119();
-    }
-    // 87: dp4
-    reg_tmp3.x = dot_s(uniforms.f[11].xywz, reg_tmp6);
-    // 88: dp4
-    reg_tmp3.y = dot_s(uniforms.f[12].xywz, reg_tmp6);
-    // 89: mov
-    reg_tmp3.zw = (uniforms.f[93].xxxx).zw;
-    // 90: mov
-    vs_out_attr4 = reg_tmp3;
-    return false;
-}
-bool sub_91_110() {
-    // 91: cmp
-    conditional_code = equal(uniforms.f[95].xy, reg_tmp0.xy);
-    // 92: mov
-    reg_tmp6.zw = (uniforms.f[93].xxyy).zw;
-    // 93: ifc
-    if (all(not(conditional_code))) {
-        sub_94_100();
-    } else {
-        sub_100_109();
-    }
-    // 109: mov
-    vs_out_attr4 = reg_tmp3;
-    return false;
-}
-bool sub_94_100() {
-    // 94: mov
-    reg_tmp6 = reg_tmp10;
-    // 95: dp4
-    reg_tmp3.x = dot_s(uniforms.f[11], reg_tmp6);
-    // 96: dp4
-    reg_tmp3.y = dot_s(uniforms.f[12], reg_tmp6);
-    // 97: dp4
-    reg_tmp3.z = dot_s(uniforms.f[13], reg_tmp6);
-    // 98: mul
-    reg_tmp0.xy = (mul_s(uniforms.f[19].xyyy, reg_tmp3.zzzz)).xy;
-    // 99: add
-    reg_tmp3.xy = (reg_tmp3.xyyy + reg_tmp0.xyyy).xy;
-    return false;
-}
-bool sub_100_109() {
-    // 100: ifc
-    if (all(bvec2(conditional_code.x, !conditional_code.y))) {
-        sub_101_105();
-    } else {
-        sub_105_108();
-    }
-    // 108: nop
-    return false;
-}
-bool sub_101_105() {
-    // 101: call
-    {
-        sub_119_126();
-    }
-    // 102: dp3
-    reg_tmp3.x = dot_3(uniforms.f[11].xyz, reg_tmp6.xyz);
-    // 103: dp3
-    reg_tmp3.y = dot_3(uniforms.f[12].xyz, reg_tmp6.xyz);
-    // 104: dp3
-    reg_tmp3.z = dot_3(uniforms.f[13].xyz, reg_tmp6.xyz);
-    return false;
-}
-bool sub_105_108() {
-    // 105: call
-    {
-        sub_126_130();
-    }
-    // 106: dp4
-    reg_tmp3.x = dot_s(uniforms.f[11], reg_tmp6);
-    // 107: dp4
-    reg_tmp3.y = dot_s(uniforms.f[12], reg_tmp6);
-    return false;
-}
-bool sub_111_119() {
-    // 111: cmp
-    conditional_code = equal(uniforms.f[93].yz, reg_tmp0.xy);
-    // 112: ifc
-    if (all(not(conditional_code))) {
-        sub_113_114();
-    } else {
-        sub_114_118();
-    }
-    // 118: mov
-    reg_tmp6.zw = (uniforms.f[93].xxyy).zw;
-    return false;
-}
-bool sub_113_114() {
-    // 113: mul
-    reg_tmp6.xy = (mul_s(uniforms.f[8].xxxx, vs_in_reg4.xyyy)).xy;
-    return false;
-}
-bool sub_114_118() {
-    // 114: ifc
-    if (all(bvec2(conditional_code.x, !conditional_code.y))) {
-        sub_115_116();
-    } else {
-        sub_116_117();
-    }
-    // 117: nop
-    return false;
-}
-bool sub_115_116() {
-    // 115: mul
-    reg_tmp6.xy = (mul_s(uniforms.f[8].yyyy, vs_in_reg5.xyyy)).xy;
-    return false;
-}
-bool sub_116_117() {
-    // 116: mul
-    reg_tmp6.xy = (mul_s(uniforms.f[8].zzzz, vs_in_reg6.xyyy)).xy;
-    return false;
-}
-bool sub_119_126() {
-    // 119: mov
-    reg_tmp2 = -reg_tmp15;
-    // 120: dp3
-    reg_tmp2.w = dot_3(reg_tmp2.xyz, reg_tmp2.xyz);
-    // 121: rsq
-    reg_tmp2.w = rsq_s(reg_tmp2.w);
-    // 122: mul
-    reg_tmp2 = mul_s(reg_tmp2, reg_tmp2.wwww);
-    // 123: dp3
-    reg_tmp1 = vec4(dot_3(reg_tmp2.xyz, reg_tmp14.xyz));
-    // 124: add
-    reg_tmp1 = reg_tmp1 + reg_tmp1;
-    // 125: mad
-    reg_tmp6 = fma_s(reg_tmp1, reg_tmp14, -reg_tmp2);
-    return false;
-}
-bool sub_126_130() {
-    // 126: mov
-    reg_tmp1.xy = (uniforms.f[94].zzzz).xy;
-    // 127: mov
-    reg_tmp1.zw = (uniforms.f[93].xxxx).zw;
-    // 128: mad
-    reg_tmp6 = fma_s(reg_tmp14, reg_tmp1, reg_tmp1);
-    // 129: mov
-    reg_tmp6.zw = (uniforms.f[93].xxyy).zw;
-    return false;
-}
-bool sub_130_154() {
-    // 130: mov
-    reg_tmp0.xy = (uniforms.f[10].yyyy).xy;
-    // 131: ifu
-    if (uniforms.b[10]) {
-        sub_132_136();
-    } else {
-        sub_136_153();
-    }
-    // 153: nop
-    return false;
-}
-bool sub_132_136() {
-    // 132: call
-    {
-        sub_111_119();
-    }
-    // 133: dp4
-    reg_tmp4.x = dot_s(uniforms.f[14].xywz, reg_tmp6);
-    // 134: dp4
-    reg_tmp4.y = dot_s(uniforms.f[15].xywz, reg_tmp6);
-    // 135: mov
-    vs_out_attr5 = reg_tmp4;
-    return false;
-}
-bool sub_136_153() {
-    // 136: ifu
-    if (uniforms.b[13]) {
-        sub_137_151();
-    } else {
-        sub_151_152();
-    }
-    // 152: nop
-    return false;
-}
-bool sub_137_151() {
-    // 137: cmp
-    conditional_code = equal(uniforms.f[95].xy, reg_tmp0.xy);
-    // 138: mov
-    reg_tmp6.zw = (uniforms.f[93].xxyy).zw;
-    // 139: ifc
-    if (all(not(conditional_code))) {
-        sub_140_147();
-    } else {
-        sub_147_150();
-    }
-    // 150: mov
-    vs_out_attr5 = reg_tmp4;
-    return false;
-}
-bool sub_140_147() {
-    // 140: mov
-    reg_tmp6 = reg_tmp10;
-    // 141: dp4
-    reg_tmp4.x = dot_s(uniforms.f[14], reg_tmp6);
-    // 142: dp4
-    reg_tmp4.y = dot_s(uniforms.f[15], reg_tmp6);
-    // 143: dp4
-    reg_tmp4.z = dot_s(uniforms.f[16], reg_tmp6);
-    // 144: rcp
-    reg_tmp6.w = rcp_s(reg_tmp4.z);
-    // 145: mul
-    reg_tmp4.xy = (mul_s(reg_tmp4.xyyy, reg_tmp6.wwww)).xy;
-    // 146: add
-    reg_tmp4.xy = (uniforms.f[19].zwww + reg_tmp4.xyyy).xy;
-    return false;
-}
-bool sub_147_150() {
-    // 147: call
-    {
-        sub_126_130();
-    }
-    // 148: dp4
-    reg_tmp4.x = dot_s(uniforms.f[14], reg_tmp6);
-    // 149: dp4
-    reg_tmp4.y = dot_s(uniforms.f[15], reg_tmp6);
-    return false;
-}
-bool sub_151_152() {
-    // 151: mov
-    vs_out_attr5 = uniforms.f[93].xxxx;
-    return false;
-}
-bool sub_154_170() {
-    // 154: mov
-    reg_tmp0.xy = (uniforms.f[10].zzzz).xy;
-    // 155: ifu
-    if (uniforms.b[11]) {
-        sub_156_160();
-    } else {
-        sub_160_169();
-    }
-    // 169: nop
-    return false;
-}
-bool sub_156_160() {
-    // 156: call
-    {
-        sub_111_119();
-    }
-    // 157: dp4
-    reg_tmp5.x = dot_s(uniforms.f[17].xywz, reg_tmp6);
-    // 158: dp4
-    reg_tmp5.y = dot_s(uniforms.f[18].xywz, reg_tmp6);
-    // 159: mov
-    vs_out_attr6 = reg_tmp5;
-    return false;
-}
-bool sub_160_169() {
-    // 160: ifu
-    if (uniforms.b[14]) {
-        sub_161_167();
-    } else {
-        sub_167_168();
-    }
-    // 168: nop
-    return false;
-}
-bool sub_161_167() {
-    // 161: mov
-    reg_tmp6.zw = (uniforms.f[93].xxyy).zw;
-    // 162: mov
-    reg_tmp5.zw = (reg_tmp6.zwww).zw;
-    // 163: call
-    {
-        sub_126_130();
-    }
-    // 164: dp4
-    reg_tmp5.x = dot_s(uniforms.f[17], reg_tmp6);
-    // 165: dp4
-    reg_tmp5.y = dot_s(uniforms.f[18], reg_tmp6);
-    // 166: mov
-    vs_out_attr6 = reg_tmp5;
-    return false;
-}
-bool sub_167_168() {
-    // 167: mov
-    vs_out_attr6 = uniforms.f[93].xxxx;
-    return false;
-}
-// reference: 7F396EB58FF0303E, 8989E12CE78F7854
-// program: 8989E12CE78F7854, AD7922A63ED54CA7, 3CF8F53428B9171F
-// reference: F4D9B91A62BB018A, 8989E12CE78F7854
-// program: 8989E12CE78F7854, AD7922A63ED54CA7, C9CF8EA0E81D1AE8
-// program: 8989E12CE78F7854, AD7922A63ED54CA7, C0CCCAC4CC5047B0
-// shader: 8B31, 627E0D8521A7913E
-
-struct pica_uniforms {
-    bool b[16];
-    uvec4 i[4];
-    vec4 f[96];
-};
-
-bool exec_shader();
-
-#define uniforms vs_uniforms
-layout (std140) uniform vs_config {
-    pica_uniforms uniforms;
-};
-
-layout(location = 0) in vec4 vs_in_reg0;
-
- out vec4 vs_out_attr0;
- out vec4 vs_out_attr1;
- out vec4 vs_out_attr2;
- out vec4 vs_out_attr3;
- out vec4 vs_out_attr4;
-
-void main() {
-    vs_out_attr0 = vec4(0.0, 0.0, 0.0, 1.0);
-    vs_out_attr1 = vec4(0.0, 0.0, 0.0, 1.0);
-    vs_out_attr2 = vec4(0.0, 0.0, 0.0, 1.0);
-    vs_out_attr3 = vec4(0.0, 0.0, 0.0, 1.0);
-    vs_out_attr4 = vec4(0.0, 0.0, 0.0, 1.0);
-
-    exec_shader();
-}
-
-// accurate_mul: safe
-bvec2 conditional_code = bvec2(false);
-ivec3 address_registers = ivec3(0);
-vec4 reg_tmp0 = vec4(0.0, 0.0, 0.0, 1.0);
-vec4 reg_tmp1 = vec4(0.0, 0.0, 0.0, 1.0);
-vec4 reg_tmp2 = vec4(0.0, 0.0, 0.0, 1.0);
-vec4 reg_tmp3 = vec4(0.0, 0.0, 0.0, 1.0);
-vec4 reg_tmp4 = vec4(0.0, 0.0, 0.0, 1.0);
-vec4 reg_tmp5 = vec4(0.0, 0.0, 0.0, 1.0);
-vec4 reg_tmp6 = vec4(0.0, 0.0, 0.0, 1.0);
-vec4 reg_tmp7 = vec4(0.0, 0.0, 0.0, 1.0);
-vec4 reg_tmp8 = vec4(0.0, 0.0, 0.0, 1.0);
-vec4 reg_tmp9 = vec4(0.0, 0.0, 0.0, 1.0);
-vec4 reg_tmp10 = vec4(0.0, 0.0, 0.0, 1.0);
-vec4 reg_tmp11 = vec4(0.0, 0.0, 0.0, 1.0);
-vec4 reg_tmp12 = vec4(0.0, 0.0, 0.0, 1.0);
-vec4 reg_tmp13 = vec4(0.0, 0.0, 0.0, 1.0);
-vec4 reg_tmp14 = vec4(0.0, 0.0, 0.0, 1.0);
-vec4 reg_tmp15 = vec4(0.0, 0.0, 0.0, 1.0);
-
-bool sub_0_4096();
-bool sub_22_27();
-bool sub_33_35();
-bool sub_35_46();
-bool sub_38_39();
-bool sub_40_41();
-bool sub_42_43();
-bool sub_44_45();
-bool sub_48_51();
-bool sub_52_55();
-bool sub_56_59();
-bool sub_60_63();
-bool sub_65_99();
-bool sub_67_86();
-bool sub_70_73();
-bool sub_74_77();
-bool sub_78_81();
-bool sub_82_85();
-bool sub_88_98();
-bool sub_90_93();
-bool sub_94_97();
-
-bool exec_shader() {
-    sub_0_4096();
-    return true;
-}
-
-bool sub_0_4096() {
-    // 0: mova
-    address_registers.x = (ivec2(vs_in_reg0.xy)).x;
-    // 1: mov
-    reg_tmp0 = uniforms.f[6 + address_registers.x].wzyx;
-    // 2: mov
-    reg_tmp1.xy = (vs_in_reg0.zwzw).xy;
-    // 3: mov
-    reg_tmp1.zw = (uniforms.f[5].xyxy).zw;
-    // 4: mova
-    address_registers.xy = ivec2(reg_tmp0.xy);
-    // 5: mov
-    reg_tmp2.xw = (uniforms.f[64 + address_registers.y].wwyy).xw;
-    // 6: mov
-    reg_tmp2.yz = (uniforms.f[5].xxxx).yz;
-    // 7: dp4
-    reg_tmp4.x = dot_s(reg_tmp1, reg_tmp2);
-    // 8: mov
-    reg_tmp2.yw = (uniforms.f[64 + address_registers.y].zzxx).yw;
-    // 9: mov
-    reg_tmp2.xz = (uniforms.f[5].xxxx).xz;
-    // 10: dp4
-    reg_tmp4.y = dot_s(reg_tmp1, reg_tmp2);
-    // 11: mov
-    reg_tmp4.zw = (reg_tmp1.zwzw).zw;
-    // 12: dp4
-    reg_tmp3.x = dot_s(uniforms.f[32 + address_registers.x].wzyx, reg_tmp4);
-    // 13: dp4
-    reg_tmp3.y = dot_s(uniforms.f[33 + address_registers.x].wzyx, reg_tmp4);
-    // 14: dp4
-    reg_tmp3.z = dot_s(uniforms.f[34 + address_registers.x].wzyx, reg_tmp4);
-    // 15: mov
-    reg_tmp3.w = (reg_tmp1.wwww).w;
-    // 16: mov
-    reg_tmp4.z = (uniforms.f[34 + address_registers.x].xxxx).z;
-    // 17: max
-    reg_tmp4.z = (abs(reg_tmp4.zzzz)).z;
-    // 18: add
-    reg_tmp4.z = (uniforms.f[4].yyyy + reg_tmp4.zzzz).z;
-    // 19: mov
-    reg_tmp4.x = (uniforms.f[4].wwww).x;
-    // 20: cmp
-    conditional_code = notEqual(uniforms.f[5].xx, reg_tmp4.xz);
-    // 21: ifc
-    if (all(conditional_code)) {
-        sub_22_27();
-    }
-    // 27: dp4
-    vs_out_attr0.x = dot_s(uniforms.f[0].wzyx, reg_tmp3);
-    // 28: dp4
-    vs_out_attr0.y = dot_s(uniforms.f[1].wzyx, reg_tmp3);
-    // 29: dp4
-    vs_out_attr0.z = dot_s(uniforms.f[2].wzyx, reg_tmp3);
-    // 30: dp4
-    vs_out_attr0.w = dot_s(uniforms.f[3].wzyx, reg_tmp3);
-    // 31: cmp
-    conditional_code = greaterThanEqual(uniforms.f[5].yy, reg_tmp0.ww);
-    // 32: ifc
-    if (all(conditional_code)) {
-        sub_33_35();
-    } else {
-        sub_35_46();
-    }
-    // 46: cmp
-    conditional_code = notEqual(uniforms.f[5].xx, reg_tmp1.xy);
-    // 47: ifc
-    if (all(not(conditional_code))) {
-        sub_48_51();
-    }
-    // 51: ifc
-    if (all(bvec2(conditional_code.x, !conditional_code.y))) {
-        sub_52_55();
-    }
-    // 55: ifc
-    if (all(bvec2(!conditional_code.x, conditional_code.y))) {
-        sub_56_59();
-    }
-    // 59: ifc
-    if (all(conditional_code)) {
-        sub_60_63();
-    }
-    // 63: mov
-    reg_tmp8 = uniforms.f[5].xxxx;
-    // 64: loop
-    address_registers.z = int(uniforms.i[0].y);
-    for (uint loop64 = 0u; loop64 <= uniforms.i[0].x; address_registers.z += int(uniforms.i[0].z), ++loop64) {
-        sub_65_99();
-    }
-    // 99: mov
-    vs_out_attr2 = reg_tmp5;
-    // 100: mov
-    vs_out_attr3 = reg_tmp6;
-    // 101: mov
-    vs_out_attr4 = reg_tmp7;
-    // 102: end
-    return true;
-}
-bool sub_22_27() {
-    // 22: mov
-    reg_tmp4.x = (uniforms.f[4].wwww).x;
-    // 23: add
-    reg_tmp4.y = (-uniforms.f[4].zzzz + reg_tmp4.zzzz).y;
-    // 24: rcp
-    reg_tmp4.z = rcp_s(reg_tmp4.z);
-    // 25: mul
-    reg_tmp4.z = (mul_s(reg_tmp4.yyyy, reg_tmp4.zzzz)).z;
-    // 26: mad
-    reg_tmp3.x = (fma_s(reg_tmp4.xxxx, reg_tmp4.zzzz, reg_tmp3.xxxx)).x;
-    return false;
-}
-bool sub_33_35() {
-    // 33: mov
-    vs_out_attr1.xyz = (uniforms.f[5].yyyy).xyz;
-    // 34: mov
-    vs_out_attr1.w = (reg_tmp0.wwww).w;
-    return false;
-}
-bool sub_35_46() {
-    // 35: mova
-    address_registers.y = (ivec2(reg_tmp0.ww)).y;
-    // 36: cmp
-    conditional_code = notEqual(uniforms.f[5].xx, reg_tmp1.xy);
-    // 37: ifc
-    if (all(not(conditional_code))) {
-        sub_38_39();
-    }
-    // 39: ifc
-    if (all(bvec2(conditional_code.x, !conditional_code.y))) {
-        sub_40_41();
-    }
-    // 41: ifc
-    if (all(bvec2(!conditional_code.x, conditional_code.y))) {
-        sub_42_43();
-    }
-    // 43: ifc
-    if (all(conditional_code)) {
-        sub_44_45();
-    }
-    // 45: nop
-    return false;
-}
-bool sub_38_39() {
-    // 38: mov
-    vs_out_attr1 = uniforms.f[32 + address_registers.y].wzyx;
-    return false;
-}
-bool sub_40_41() {
-    // 40: mov
-    vs_out_attr1 = uniforms.f[33 + address_registers.y].wzyx;
-    return false;
-}
-bool sub_42_43() {
-    // 42: mov
-    vs_out_attr1 = uniforms.f[34 + address_registers.y].wzyx;
-    return false;
-}
-bool sub_44_45() {
-    // 44: mov
-    vs_out_attr1 = uniforms.f[35 + address_registers.y].wzyx;
-    return false;
-}
-bool sub_48_51() {
-    // 48: mov
-    reg_tmp5 = uniforms.f[5].xyyy;
-    // 49: mov
-    reg_tmp6 = uniforms.f[5].xyyy;
-    // 50: mov
-    reg_tmp7 = uniforms.f[5].xyyy;
-    return false;
-}
-bool sub_52_55() {
-    // 52: mov
-    reg_tmp5 = uniforms.f[5].yyyy;
-    // 53: mov
-    reg_tmp6 = uniforms.f[5].yyyy;
-    // 54: mov
-    reg_tmp7 = uniforms.f[5].yyyy;
-    return false;
-}
-bool sub_56_59() {
-    // 56: mov
-    reg_tmp5 = uniforms.f[5].xxyy;
-    // 57: mov
-    reg_tmp6 = uniforms.f[5].xxyy;
-    // 58: mov
-    reg_tmp7 = uniforms.f[5].xxyy;
-    return false;
-}
-bool sub_60_63() {
-    // 60: mov
-    reg_tmp5 = uniforms.f[5].yxyy;
-    // 61: mov
-    reg_tmp6 = uniforms.f[5].yxyy;
-    // 62: mov
-    reg_tmp7 = uniforms.f[5].yxyy;
-    return false;
-}
-bool sub_65_99() {
-    // 65: cmp
-    conditional_code = equal(uniforms.f[5].yy, reg_tmp8.xy);
-    // 66: ifc
-    if (all(conditional_code)) {
-        sub_67_86();
-    }
-    // 86: cmp
-    conditional_code = lessThan(uniforms.f[5].ww, reg_tmp8.xy);
-    // 87: ifc
-    if (all(conditional_code)) {
-        sub_88_98();
-    }
-    // 98: add
-    reg_tmp8 = uniforms.f[5].yyyy + reg_tmp8;
-    return false;
-}
-bool sub_67_86() {
-    // 67: mova
-    address_registers.y = (ivec2(reg_tmp0.zz)).y;
-    // 68: cmp
-    conditional_code = notEqual(uniforms.f[5].xx, reg_tmp1.xy);
-    // 69: ifc
-    if (all(not(conditional_code))) {
-        sub_70_73();
-    }
-    // 73: ifc
-    if (all(bvec2(conditional_code.x, !conditional_code.y))) {
-        sub_74_77();
-    }
-    // 77: ifc
-    if (all(bvec2(!conditional_code.x, conditional_code.y))) {
-        sub_78_81();
-    }
-    // 81: ifc
-    if (all(conditional_code)) {
-        sub_82_85();
-    }
-    // 85: nop
-    return false;
-}
-bool sub_70_73() {
-    // 70: mov
-    reg_tmp5.xy = (uniforms.f[64 + address_registers.y].wzzz).xy;
-    // 71: mov
-    reg_tmp6.xy = (uniforms.f[65 + address_registers.y].wzzz).xy;
-    // 72: mov
-    reg_tmp7.xy = (uniforms.f[66 + address_registers.y].wzzz).xy;
-    return false;
-}
-bool sub_74_77() {
-    // 74: mov
-    reg_tmp5.xy = (uniforms.f[64 + address_registers.y].yzzz).xy;
-    // 75: mov
-    reg_tmp6.xy = (uniforms.f[65 + address_registers.y].yzzz).xy;
-    // 76: mov
-    reg_tmp7.xy = (uniforms.f[66 + address_registers.y].yzzz).xy;
-    return false;
-}
-bool sub_78_81() {
-    // 78: mov
-    reg_tmp5.xy = (uniforms.f[64 + address_registers.y].wxxx).xy;
-    // 79: mov
-    reg_tmp6.xy = (uniforms.f[65 + address_registers.y].wxxx).xy;
-    // 80: mov
-    reg_tmp7.xy = (uniforms.f[66 + address_registers.y].wxxx).xy;
-    return false;
-}
-bool sub_82_85() {
-    // 82: mov
-    reg_tmp5.xy = (uniforms.f[64 + address_registers.y].yxxx).xy;
-    // 83: mov
-    reg_tmp6.xy = (uniforms.f[65 + address_registers.y].yxxx).xy;
-    // 84: mov
-    reg_tmp7.xy = (uniforms.f[66 + address_registers.y].yxxx).xy;
-    return false;
-}
-bool sub_88_98() {
-    // 88: cmp
-    conditional_code = notEqual(uniforms.f[5].xx, reg_tmp1.xy);
-    // 89: ifc
-    if (all(bvec2(conditional_code.x, !conditional_code.y))) {
-        sub_90_93();
-    }
-    // 93: ifc
-    if (all(bvec2(!conditional_code.x, conditional_code.y))) {
-        sub_94_97();
-    }
-    // 97: nop
-    return false;
-}
-bool sub_90_93() {
-    // 90: mov
-    reg_tmp5.xy = (uniforms.f[67 + address_registers.y].yxxx).xy;
-    // 91: mov
-    reg_tmp6.xy = (uniforms.f[68 + address_registers.y].yxxx).xy;
-    // 92: mov
-    reg_tmp7.xy = (uniforms.f[69 + address_registers.y].yxxx).xy;
-    return false;
-}
-bool sub_94_97() {
-    // 94: mov
-    reg_tmp5.xy = (uniforms.f[67 + address_registers.y].wzzz).xy;
-    // 95: mov
-    reg_tmp6.xy = (uniforms.f[68 + address_registers.y].wzzz).xy;
-    // 96: mov
-    reg_tmp7.xy = (uniforms.f[69 + address_registers.y].wzzz).xy;
-    return false;
-}
-// reference: 4A4CE2751947216B, 627E0D8521A7913E
-// program: 627E0D8521A7913E, 5D764F9A6220D694, CBB10D7BCB29BEB0
-// reference: C1AC35DAF40C10DF, 627E0D8521A7913E
-// program: 627E0D8521A7913E, 5D764F9A6220D694, 4915F4007CF96987
-// program: 627E0D8521A7913E, 5D764F9A6220D694, BDA667948FBBF9AB
-// shader: 8B31, 72F5D85BD2AC207B
-
-struct pica_uniforms {
-    bool b[16];
-    uvec4 i[4];
-    vec4 f[96];
-};
-
-bool exec_shader();
-
-#define uniforms vs_uniforms
-layout (std140) uniform vs_config {
-    pica_uniforms uniforms;
-};
-
-layout(location = 0) in vec4 vs_in_reg0;
-layout(location = 1) in vec4 vs_in_reg1;
-layout(location = 2) in vec4 vs_in_reg2;
-layout(location = 3) in vec4 vs_in_reg3;
-layout(location = 4) in vec4 vs_in_reg4;
-layout(location = 5) in vec4 vs_in_reg5;
-layout(location = 6) in vec4 vs_in_reg6;
-layout(location = 7) in vec4 vs_in_reg7;
-layout(location = 8) in vec4 vs_in_reg8;
-
- out vec4 vs_out_attr0;
- out vec4 vs_out_attr1;
- out vec4 vs_out_attr2;
- out vec4 vs_out_attr3;
- out vec4 vs_out_attr4;
- out vec4 vs_out_attr5;
-
-void main() {
-    vs_out_attr0 = vec4(0.0, 0.0, 0.0, 1.0);
-    vs_out_attr1 = vec4(0.0, 0.0, 0.0, 1.0);
-    vs_out_attr2 = vec4(0.0, 0.0, 0.0, 1.0);
-    vs_out_attr3 = vec4(0.0, 0.0, 0.0, 1.0);
-    vs_out_attr4 = vec4(0.0, 0.0, 0.0, 1.0);
-    vs_out_attr5 = vec4(0.0, 0.0, 0.0, 1.0);
-
-    exec_shader();
-}
-
-// accurate_mul: safe
-bvec2 conditional_code = bvec2(false);
-ivec3 address_registers = ivec3(0);
-vec4 reg_tmp0 = vec4(0.0, 0.0, 0.0, 1.0);
-vec4 reg_tmp1 = vec4(0.0, 0.0, 0.0, 1.0);
-vec4 reg_tmp2 = vec4(0.0, 0.0, 0.0, 1.0);
-vec4 reg_tmp3 = vec4(0.0, 0.0, 0.0, 1.0);
-vec4 reg_tmp4 = vec4(0.0, 0.0, 0.0, 1.0);
-vec4 reg_tmp5 = vec4(0.0, 0.0, 0.0, 1.0);
-vec4 reg_tmp6 = vec4(0.0, 0.0, 0.0, 1.0);
-vec4 reg_tmp7 = vec4(0.0, 0.0, 0.0, 1.0);
-vec4 reg_tmp8 = vec4(0.0, 0.0, 0.0, 1.0);
-vec4 reg_tmp9 = vec4(0.0, 0.0, 0.0, 1.0);
-vec4 reg_tmp10 = vec4(0.0, 0.0, 0.0, 1.0);
-vec4 reg_tmp11 = vec4(0.0, 0.0, 0.0, 1.0);
-vec4 reg_tmp12 = vec4(0.0, 0.0, 0.0, 1.0);
-vec4 reg_tmp13 = vec4(0.0, 0.0, 0.0, 1.0);
-vec4 reg_tmp14 = vec4(0.0, 0.0, 0.0, 1.0);
-vec4 reg_tmp15 = vec4(0.0, 0.0, 0.0, 1.0);
-
-bool sub_0_4096();
-bool sub_7_12();
-bool sub_9_10();
-bool sub_14_15();
-bool sub_18_30();
-bool sub_20_21();
-bool sub_21_25();
-bool sub_22_23();
-bool sub_23_24();
-bool sub_30_40();
-bool sub_44_45();
-bool sub_45_49();
-bool sub_46_47();
-bool sub_47_48();
-bool sub_56_61();
-bool sub_61_70();
-bool sub_70_83();
-bool sub_83_251();
-bool sub_89_189();
-bool sub_96_125();
-bool sub_107_111();
-bool sub_125_184();
-bool sub_126_158();
-bool sub_137_141();
-bool sub_158_183();
-bool sub_169_173();
-bool sub_189_250();
-bool sub_192_202();
-bool sub_202_207();
-bool sub_208_220();
-bool sub_220_245();
-bool sub_221_239();
-bool sub_239_244();
-bool sub_251_268();
-bool sub_268_344();
-bool sub_307_327();
-bool sub_308_313();
-bool sub_313_326();
-bool sub_317_320();
-bool sub_320_325();
-bool sub_327_340();
-bool sub_328_333();
-bool sub_333_339();
-
-bool exec_shader() {
-    sub_0_4096();
-    return true;
-}
-
-bool sub_0_4096() {
-    // 0: call
-    {
-        sub_83_251();
-    }
-    // 1: mov
-    reg_tmp8.xy = (uniforms.f[93].xxxx).xy;
-    // 2: mov
-    reg_tmp0.y = (uniforms.f[7].wwww).y;
-    // 3: cmp
-    conditional_code = notEqual(uniforms.f[93].xx, reg_tmp0.xy);
-    // 4: mov
-    reg_tmp9.xyz = (uniforms.f[93].xxxx).xyz;
-    // 5: mov
-    reg_tmp9.w = (uniforms.f[21].wwww).w;
-    // 6: ifc
-    if (conditional_code.y) {
-        sub_7_12();
-    }
-    // 12: cmp
-    conditional_code = equal(uniforms.f[93].xx, reg_tmp8.xy);
-    // 13: ifc
-    if (all(conditional_code)) {
-        sub_14_15();
-    }
-    // 15: max
-    vs_out_attr3 = max(uniforms.f[93].xxxx, reg_tmp9);
-    // 16: mov
-    reg_tmp0.xy = (uniforms.f[10].xxxx).xy;
-    // 17: ifu
-    if (uniforms.b[9]) {
-        sub_18_30();
-    } else {
-        sub_30_40();
-    }
-    // 40: nop
-    // 41: mov
-    reg_tmp0.xy = (uniforms.f[10].yyyy).xy;
-    // 42: cmp
-    conditional_code = equal(uniforms.f[93].yz, reg_tmp0.xy);
-    // 43: ifc
-    if (all(not(conditional_code))) {
-        sub_44_45();
-    } else {
-        sub_45_49();
-    }
-    // 49: mov
-    reg_tmp6.zw = (uniforms.f[93].xxyy).zw;
-    // 50: dp4
-    reg_tmp4.x = dot_s(uniforms.f[14].xywz, reg_tmp6);
-    // 51: dp4
-    reg_tmp4.y = dot_s(uniforms.f[15].xywz, reg_tmp6);
-    // 52: mov
-    vs_out_attr5 = reg_tmp4;
-    // 53: nop
-    // 54: end
-    return true;
-}
-bool sub_7_12() {
-    // 7: mul
-    reg_tmp0 = mul_s(uniforms.f[7].wwww, vs_in_reg3);
-    // 8: ifu
-    if (uniforms.b[7]) {
-        sub_9_10();
-    }
-    // 10: mul
-    reg_tmp9.xyz = (mul_s(uniforms.f[20].wwww, reg_tmp0.xyzz)).xyz;
-    // 11: mov
-    reg_tmp8.x = (uniforms.f[93].yyyy).x;
-    return false;
-}
-bool sub_9_10() {
-    // 9: mul
-    reg_tmp9.w = (mul_s(reg_tmp9.wwww, reg_tmp0.wwww)).w;
-    return false;
-}
-bool sub_14_15() {
-    // 14: mov
-    reg_tmp9 = uniforms.f[21];
-    return false;
-}
-bool sub_18_30() {
-    // 18: cmp
-    conditional_code = equal(uniforms.f[93].yz, reg_tmp0.xy);
-    // 19: ifc
-    if (all(not(conditional_code))) {
-        sub_20_21();
-    } else {
-        sub_21_25();
-    }
-    // 25: mov
-    reg_tmp6.zw = (uniforms.f[93].xxyy).zw;
-    // 26: dp4
-    reg_tmp3.x = dot_s(uniforms.f[11].xywz, reg_tmp6);
-    // 27: dp4
-    reg_tmp3.y = dot_s(uniforms.f[12].xywz, reg_tmp6);
-    // 28: mov
-    reg_tmp3.zw = (uniforms.f[93].xxxx).zw;
-    // 29: mov
-    vs_out_attr4 = reg_tmp3;
-    return false;
-}
-bool sub_20_21() {
-    // 20: mul
-    reg_tmp6.xy = (mul_s(uniforms.f[8].xxxx, vs_in_reg4.xyyy)).xy;
-    return false;
-}
-bool sub_21_25() {
-    // 21: ifc
-    if (all(bvec2(conditional_code.x, !conditional_code.y))) {
-        sub_22_23();
-    } else {
-        sub_23_24();
-    }
-    // 24: nop
-    return false;
-}
-bool sub_22_23() {
-    // 22: mul
-    reg_tmp6.xy = (mul_s(uniforms.f[8].yyyy, vs_in_reg5.xyyy)).xy;
-    return false;
-}
-bool sub_23_24() {
-    // 23: mul
-    reg_tmp6.xy = (mul_s(uniforms.f[8].zzzz, vs_in_reg6.xyyy)).xy;
-    return false;
-}
-bool sub_30_40() {
-    // 30: cmp
-    conditional_code = equal(uniforms.f[95].xy, reg_tmp0.xy);
-    // 31: mov
-    reg_tmp6.zw = (uniforms.f[93].xxyy).zw;
-    // 32: mov
-    reg_tmp6 = reg_tmp10;
-    // 33: dp4
-    reg_tmp3.x = dot_s(uniforms.f[11], reg_tmp6);
-    // 34: dp4
-    reg_tmp3.y = dot_s(uniforms.f[12], reg_tmp6);
-    // 35: dp4
-    reg_tmp3.z = dot_s(uniforms.f[13], reg_tmp6);
-    // 36: mul
-    reg_tmp0.xy = (mul_s(uniforms.f[19].xyyy, reg_tmp3.zzzz)).xy;
-    // 37: add
-    reg_tmp3.xy = (reg_tmp3.xyyy + reg_tmp0.xyyy).xy;
-    // 38: nop
-    // 39: mov
-    vs_out_attr4 = reg_tmp3;
-    return false;
-}
-bool sub_44_45() {
-    // 44: mul
-    reg_tmp6.xy = (mul_s(uniforms.f[8].xxxx, vs_in_reg4.xyyy)).xy;
-    return false;
-}
-bool sub_45_49() {
-    // 45: ifc
-    if (all(bvec2(conditional_code.x, !conditional_code.y))) {
-        sub_46_47();
-    } else {
-        sub_47_48();
-    }
-    // 48: nop
-    return false;
-}
-bool sub_46_47() {
-    // 46: mul
-    reg_tmp6.xy = (mul_s(uniforms.f[8].yyyy, vs_in_reg5.xyyy)).xy;
-    return false;
-}
-bool sub_47_48() {
-    // 47: mul
-    reg_tmp6.xy = (mul_s(uniforms.f[8].zzzz, vs_in_reg6.xyyy)).xy;
-    return false;
-}
-bool sub_56_61() {
-    // 56: mova
-    address_registers.x = (ivec2(reg_tmp1.xx)).x;
-    // 57: dp4
-    reg_tmp3.x = dot_s(uniforms.f[25 + address_registers.x], reg_tmp15);
-    // 58: dp4
-    reg_tmp3.y = dot_s(uniforms.f[26 + address_registers.x], reg_tmp15);
-    // 59: dp4
-    reg_tmp3.z = dot_s(uniforms.f[27 + address_registers.x], reg_tmp15);
-    // 60: mad
-    reg_tmp7 = fma_s(reg_tmp1.wwww, reg_tmp3, reg_tmp7);
-    return false;
-}
-bool sub_61_70() {
-    // 61: mova
-    address_registers.x = (ivec2(reg_tmp1.xx)).x;
-    // 62: dp4
-    reg_tmp3.x = dot_s(uniforms.f[25 + address_registers.x], reg_tmp15);
-    // 63: dp4
-    reg_tmp3.y = dot_s(uniforms.f[26 + address_registers.x], reg_tmp15);
-    // 64: dp4
-    reg_tmp3.z = dot_s(uniforms.f[27 + address_registers.x], reg_tmp15);
-    // 65: dp3
-    reg_tmp4.x = dot_3(uniforms.f[25 + address_registers.x].xyz, reg_tmp14.xyz);
-    // 66: dp3
-    reg_tmp4.y = dot_3(uniforms.f[26 + address_registers.x].xyz, reg_tmp14.xyz);
-    // 67: dp3
-    reg_tmp4.z = dot_3(uniforms.f[27 + address_registers.x].xyz, reg_tmp14.xyz);
-    // 68: mad
-    reg_tmp7 = fma_s(reg_tmp1.wwww, reg_tmp3, reg_tmp7);
-    // 69: mad
-    reg_tmp12 = fma_s(reg_tmp1.wwww, reg_tmp4, reg_tmp12);
-    return false;
-}
-bool sub_70_83() {
-    // 70: mova
-    address_registers.x = (ivec2(reg_tmp1.xx)).x;
-    // 71: dp4
-    reg_tmp3.x = dot_s(uniforms.f[25 + address_registers.x], reg_tmp15);
-    // 72: dp4
-    reg_tmp3.y = dot_s(uniforms.f[26 + address_registers.x], reg_tmp15);
-    // 73: dp4
-    reg_tmp3.z = dot_s(uniforms.f[27 + address_registers.x], reg_tmp15);
-    // 74: dp3
-    reg_tmp4.x = dot_3(uniforms.f[25 + address_registers.x].xyz, reg_tmp14.xyz);
-    // 75: dp3
-    reg_tmp4.y = dot_3(uniforms.f[26 + address_registers.x].xyz, reg_tmp14.xyz);
-    // 76: dp3
-    reg_tmp4.z = dot_3(uniforms.f[27 + address_registers.x].xyz, reg_tmp14.xyz);
-    // 77: dp3
-    reg_tmp5.x = dot_3(uniforms.f[25 + address_registers.x].xyz, reg_tmp13.xyz);
-    // 78: dp3
-    reg_tmp5.y = dot_3(uniforms.f[26 + address_registers.x].xyz, reg_tmp13.xyz);
-    // 79: dp3
-    reg_tmp5.z = dot_3(uniforms.f[27 + address_registers.x].xyz, reg_tmp13.xyz);
-    // 80: mad
-    reg_tmp7 = fma_s(reg_tmp1.wwww, reg_tmp3, reg_tmp7);
-    // 81: mad
-    reg_tmp12 = fma_s(reg_tmp1.wwww, reg_tmp4, reg_tmp12);
-    // 82: mad
-    reg_tmp11 = fma_s(reg_tmp1.wwww, reg_tmp5, reg_tmp11);
-    return false;
-}
-bool sub_83_251() {
-    // 83: mul
-    reg_tmp15.xyz = (mul_s(uniforms.f[7].xxxx, vs_in_reg0)).xyz;
-    // 84: mul
-    reg_tmp14.xyz = (mul_s(uniforms.f[7].yyyy, vs_in_reg1)).xyz;
-    // 85: mul
-    reg_tmp13.xyz = (mul_s(uniforms.f[7].zzzz, vs_in_reg2)).xyz;
-    // 86: add
-    reg_tmp15.xyz = (uniforms.f[6] + reg_tmp15).xyz;
-    // 87: mov
-    reg_tmp15.w = (uniforms.f[93].yyyy).w;
-    // 88: ifu
-    if (uniforms.b[1]) {
-        sub_89_189();
-    } else {
-        sub_189_250();
-    }
-    // 250: nop
-    return false;
-}
-bool sub_89_189() {
-    // 89: mov
-    reg_tmp0 = uniforms.f[7];
-    // 90: cmp
-    conditional_code = notEqual(uniforms.f[93].xx, reg_tmp0.yz);
-    // 91: mov
-    reg_tmp7 = uniforms.f[93].xxxx;
-    // 92: mov
-    reg_tmp12 = uniforms.f[93].xxxx;
-    // 93: mov
-    reg_tmp11 = uniforms.f[93].xxxx;
-    // 94: mul
-    reg_tmp2 = mul_s(uniforms.f[93].wwww, vs_in_reg7);
-    // 95: ifc
-    if (all(bvec2(conditional_code.x, !conditional_code.y))) {
-        sub_96_125();
-    } else {
-        sub_125_184();
-    }
-    // 184: mov
-    vs_out_attr2 = -reg_tmp15;
-    // 185: dp4
-    vs_out_attr0.x = dot_s(uniforms.f[86], reg_tmp15);
-    // 186: dp4
-    vs_out_attr0.y = dot_s(uniforms.f[87], reg_tmp15);
-    // 187: dp4
-    vs_out_attr0.z = dot_s(uniforms.f[88], reg_tmp15);
-    // 188: dp4
-    vs_out_attr0.w = dot_s(uniforms.f[89], reg_tmp15);
-    return false;
-}
-bool sub_96_125() {
-    // 96: cmp
-    conditional_code = notEqual(uniforms.f[93].xx, vs_in_reg8.zw);
-    // 97: mov
-    reg_tmp1.xy = (reg_tmp2.xxxx).xy;
-    // 98: mul
-    reg_tmp1.w = (mul_s(uniforms.f[8].wwww, vs_in_reg8.xxxx)).w;
-    // 99: call
-    {
-        sub_61_70();
-    }
-    // 100: mov
-    reg_tmp1.xy = (reg_tmp2.yyyy).xy;
-    // 101: mul
-    reg_tmp1.w = (mul_s(uniforms.f[8].wwww, vs_in_reg8.yyyy)).w;
-    // 102: call
-    {
-        sub_61_70();
-    }
-    // 103: mov
-    reg_tmp1.xy = (reg_tmp2.zzzz).xy;
-    // 104: mul
-    reg_tmp1.w = (mul_s(uniforms.f[8].wwww, vs_in_reg8.zzzz)).w;
-    // 105: callc
-    if (conditional_code.x) {
-        sub_61_70();
-    }
-    // 106: ifu
-    if (uniforms.b[8]) {
-        sub_107_111();
-    }
-    // 111: mov
-    reg_tmp7.w = (uniforms.f[93].yyyy).w;
-    // 112: dp4
-    reg_tmp10.x = dot_s(uniforms.f[0], reg_tmp7);
-    // 113: dp4
-    reg_tmp10.y = dot_s(uniforms.f[1], reg_tmp7);
-    // 114: dp4
-    reg_tmp10.z = dot_s(uniforms.f[2], reg_tmp7);
-    // 115: mov
-    reg_tmp10.w = (uniforms.f[93].yyyy).w;
-    // 116: dp4
-    reg_tmp15.x = dot_s(uniforms.f[90], reg_tmp10);
-    // 117: dp4
-    reg_tmp15.y = dot_s(uniforms.f[91], reg_tmp10);
-    // 118: dp4
-    reg_tmp15.z = dot_s(uniforms.f[92], reg_tmp10);
-    // 119: mov
-    reg_tmp15.w = (uniforms.f[93].yyyy).w;
-    // 120: dp3
-    reg_tmp14.x = dot_3(uniforms.f[3].xyz, reg_tmp12.xyz);
-    // 121: dp3
-    reg_tmp14.y = dot_3(uniforms.f[4].xyz, reg_tmp12.xyz);
-    // 122: dp3
-    reg_tmp14.z = dot_3(uniforms.f[5].xyz, reg_tmp12.xyz);
-    // 123: call
-    {
-        sub_251_268();
-    }
-    // 124: nop
-    return false;
-}
-bool sub_107_111() {
-    // 107: mov
-    reg_tmp1.xy = (reg_tmp2.wwww).xy;
-    // 108: mul
-    reg_tmp1.w = (mul_s(uniforms.f[8].wwww, vs_in_reg8.wwww)).w;
-    // 109: callc
-    if (conditional_code.y) {
-        sub_61_70();
-    }
-    // 110: nop
-    return false;
-}
-bool sub_125_184() {
-    // 125: ifc
-    if (all(conditional_code)) {
-        sub_126_158();
-    } else {
-        sub_158_183();
-    }
-    // 183: nop
-    return false;
-}
-bool sub_126_158() {
-    // 126: cmp
-    conditional_code = notEqual(uniforms.f[93].xx, vs_in_reg8.zw);
-    // 127: mov
-    reg_tmp1.xy = (reg_tmp2.xxxx).xy;
-    // 128: mul
-    reg_tmp1.w = (mul_s(uniforms.f[8].wwww, vs_in_reg8.xxxx)).w;
-    // 129: call
-    {
-        sub_70_83();
-    }
-    // 130: mov
-    reg_tmp1.xy = (reg_tmp2.yyyy).xy;
-    // 131: mul
-    reg_tmp1.w = (mul_s(uniforms.f[8].wwww, vs_in_reg8.yyyy)).w;
-    // 132: call
-    {
-        sub_70_83();
-    }
-    // 133: mov
-    reg_tmp1.xy = (reg_tmp2.zzzz).xy;
-    // 134: mul
-    reg_tmp1.w = (mul_s(uniforms.f[8].wwww, vs_in_reg8.zzzz)).w;
-    // 135: callc
-    if (conditional_code.x) {
-        sub_70_83();
-    }
-    // 136: ifu
-    if (uniforms.b[8]) {
-        sub_137_141();
-    }
-    // 141: mov
-    reg_tmp7.w = (uniforms.f[93].yyyy).w;
-    // 142: dp4
-    reg_tmp10.x = dot_s(uniforms.f[0], reg_tmp7);
-    // 143: dp4
-    reg_tmp10.y = dot_s(uniforms.f[1], reg_tmp7);
-    // 144: dp4
-    reg_tmp10.z = dot_s(uniforms.f[2], reg_tmp7);
-    // 145: mov
-    reg_tmp10.w = (uniforms.f[93].yyyy).w;
-    // 146: dp3
-    reg_tmp13.x = dot_3(uniforms.f[3].xyz, reg_tmp11.xyz);
-    // 147: dp3
-    reg_tmp13.y = dot_3(uniforms.f[4].xyz, reg_tmp11.xyz);
-    // 148: dp3
-    reg_tmp13.z = dot_3(uniforms.f[5].xyz, reg_tmp11.xyz);
-    // 149: dp3
-    reg_tmp14.x = dot_3(uniforms.f[3].xyz, reg_tmp12.xyz);
-    // 150: dp3
-    reg_tmp14.y = dot_3(uniforms.f[4].xyz, reg_tmp12.xyz);
-    // 151: dp3
-    reg_tmp14.z = dot_3(uniforms.f[5].xyz, reg_tmp12.xyz);
-    // 152: dp4
-    reg_tmp15.x = dot_s(uniforms.f[90], reg_tmp10);
-    // 153: dp4
-    reg_tmp15.y = dot_s(uniforms.f[91], reg_tmp10);
-    // 154: dp4
-    reg_tmp15.z = dot_s(uniforms.f[92], reg_tmp10);
-    // 155: mov
-    reg_tmp15.w = (uniforms.f[93].yyyy).w;
-    // 156: call
-    {
-        sub_268_344();
-    }
-    // 157: nop
-    return false;
-}
-bool sub_137_141() {
-    // 137: mov
-    reg_tmp1.xy = (reg_tmp2.wwww).xy;
-    // 138: mul
-    reg_tmp1.w = (mul_s(uniforms.f[8].wwww, vs_in_reg8.wwww)).w;
-    // 139: callc
-    if (conditional_code.y) {
-        sub_70_83();
-    }
-    // 140: nop
-    return false;
-}
-bool sub_158_183() {
-    // 158: cmp
-    conditional_code = notEqual(uniforms.f[93].xx, vs_in_reg8.zw);
-    // 159: mov
-    reg_tmp1.xy = (reg_tmp2.xxxx).xy;
-    // 160: mul
-    reg_tmp1.w = (mul_s(uniforms.f[8].wwww, vs_in_reg8.xxxx)).w;
-    // 161: call
-    {
-        sub_56_61();
-    }
-    // 162: mov
-    reg_tmp1.xy = (reg_tmp2.yyyy).xy;
-    // 163: mul
-    reg_tmp1.w = (mul_s(uniforms.f[8].wwww, vs_in_reg8.yyyy)).w;
-    // 164: call
-    {
-        sub_56_61();
-    }
-    // 165: mov
-    reg_tmp1.xy = (reg_tmp2.zzzz).xy;
-    // 166: mul
-    reg_tmp1.w = (mul_s(uniforms.f[8].wwww, vs_in_reg8.zzzz)).w;
-    // 167: callc
-    if (conditional_code.x) {
-        sub_56_61();
-    }
-    // 168: ifu
-    if (uniforms.b[8]) {
-        sub_169_173();
-    }
-    // 173: mov
-    reg_tmp7.w = (uniforms.f[93].yyyy).w;
-    // 174: dp4
-    reg_tmp10.x = dot_s(uniforms.f[0], reg_tmp7);
-    // 175: dp4
-    reg_tmp10.y = dot_s(uniforms.f[1], reg_tmp7);
-    // 176: dp4
-    reg_tmp10.z = dot_s(uniforms.f[2], reg_tmp7);
-    // 177: mov
-    reg_tmp10.w = (uniforms.f[93].yyyy).w;
-    // 178: dp4
-    reg_tmp15.x = dot_s(uniforms.f[90], reg_tmp10);
-    // 179: dp4
-    reg_tmp15.y = dot_s(uniforms.f[91], reg_tmp10);
-    // 180: dp4
-    reg_tmp15.z = dot_s(uniforms.f[92], reg_tmp10);
-    // 181: mov
-    reg_tmp15.w = (uniforms.f[93].yyyy).w;
-    // 182: mov
-    vs_out_attr1 = uniforms.f[93].xxxx;
-    return false;
-}
-bool sub_169_173() {
-    // 169: mov
-    reg_tmp1.xy = (reg_tmp2.wwww).xy;
-    // 170: mul
-    reg_tmp1.w = (mul_s(uniforms.f[8].wwww, vs_in_reg8.wwww)).w;
-    // 171: callc
-    if (conditional_code.y) {
-        sub_56_61();
-    }
-    // 172: nop
-    return false;
-}
-bool sub_189_250() {
-    // 189: mov
-    reg_tmp0 = uniforms.f[7];
-    // 190: cmp
-    conditional_code = notEqual(uniforms.f[93].xx, reg_tmp0.yz);
-    // 191: ifu
-    if (uniforms.b[2]) {
-        sub_192_202();
-    } else {
-        sub_202_207();
-    }
-    // 207: ifc
-    if (all(bvec2(conditional_code.x, !conditional_code.y))) {
-        sub_208_220();
-    } else {
-        sub_220_245();
-    }
-    // 245: mov
-    vs_out_attr2 = -reg_tmp15;
-    // 246: dp4
-    vs_out_attr0.x = dot_s(uniforms.f[86], reg_tmp15);
-    // 247: dp4
-    vs_out_attr0.y = dot_s(uniforms.f[87], reg_tmp15);
-    // 248: dp4
-    vs_out_attr0.z = dot_s(uniforms.f[88], reg_tmp15);
-    // 249: dp4
-    vs_out_attr0.w = dot_s(uniforms.f[89], reg_tmp15);
-    return false;
-}
-bool sub_192_202() {
-    // 192: mul
-    reg_tmp1.x = (mul_s(uniforms.f[93].wwww, vs_in_reg7.xxxx)).x;
-    // 193: mova
-    address_registers.x = (ivec2(reg_tmp1.xx)).x;
-    // 194: dp4
-    reg_tmp7.x = dot_s(uniforms.f[25 + address_registers.x], reg_tmp15);
-    // 195: dp4
-    reg_tmp7.y = dot_s(uniforms.f[26 + address_registers.x], reg_tmp15);
-    // 196: dp4
-    reg_tmp7.z = dot_s(uniforms.f[27 + address_registers.x], reg_tmp15);
-    // 197: mov
-    reg_tmp7.w = (uniforms.f[93].yyyy).w;
-    // 198: dp4
-    reg_tmp10.x = dot_s(uniforms.f[0], reg_tmp7);
-    // 199: dp4
-    reg_tmp10.y = dot_s(uniforms.f[1], reg_tmp7);
-    // 200: dp4
-    reg_tmp10.z = dot_s(uniforms.f[2], reg_tmp7);
-    // 201: mov
-    reg_tmp10.w = (uniforms.f[93].yyyy).w;
-    return false;
-}
-bool sub_202_207() {
-    // 202: mova
-    address_registers.x = (ivec2(uniforms.f[93].xx)).x;
-    // 203: dp4
-    reg_tmp10.x = dot_s(uniforms.f[25], reg_tmp15);
-    // 204: dp4
-    reg_tmp10.y = dot_s(uniforms.f[26], reg_tmp15);
-    // 205: dp4
-    reg_tmp10.z = dot_s(uniforms.f[27], reg_tmp15);
-    // 206: mov
-    reg_tmp10.w = (uniforms.f[93].yyyy).w;
-    return false;
-}
-bool sub_208_220() {
-    // 208: dp3
-    reg_tmp12.x = dot_3(uniforms.f[25 + address_registers.x].xyz, reg_tmp14.xyz);
-    // 209: dp3
-    reg_tmp12.y = dot_3(uniforms.f[26 + address_registers.x].xyz, reg_tmp14.xyz);
-    // 210: dp3
-    reg_tmp12.z = dot_3(uniforms.f[27 + address_registers.x].xyz, reg_tmp14.xyz);
-    // 211: dp4
-    reg_tmp15.x = dot_s(uniforms.f[90], reg_tmp10);
-    // 212: dp4
-    reg_tmp15.y = dot_s(uniforms.f[91], reg_tmp10);
-    // 213: dp4
-    reg_tmp15.z = dot_s(uniforms.f[92], reg_tmp10);
-    // 214: mov
-    reg_tmp15.w = (uniforms.f[93].yyyy).w;
-    // 215: dp3
-    reg_tmp14.x = dot_3(uniforms.f[3].xyz, reg_tmp12.xyz);
-    // 216: dp3
-    reg_tmp14.y = dot_3(uniforms.f[4].xyz, reg_tmp12.xyz);
-    // 217: dp3
-    reg_tmp14.z = dot_3(uniforms.f[5].xyz, reg_tmp12.xyz);
-    // 218: call
-    {
-        sub_251_268();
-    }
-    // 219: nop
-    return false;
-}
-bool sub_220_245() {
-    // 220: ifc
-    if (all(conditional_code)) {
-        sub_221_239();
-    } else {
-        sub_239_244();
-    }
-    // 244: nop
-    return false;
-}
-bool sub_221_239() {
-    // 221: dp3
-    reg_tmp12.x = dot_3(uniforms.f[25 + address_registers.x].xyz, reg_tmp14.xyz);
-    // 222: dp3
-    reg_tmp12.y = dot_3(uniforms.f[26 + address_registers.x].xyz, reg_tmp14.xyz);
-    // 223: dp3
-    reg_tmp12.z = dot_3(uniforms.f[27 + address_registers.x].xyz, reg_tmp14.xyz);
-    // 224: dp3
-    reg_tmp11.x = dot_3(uniforms.f[25 + address_registers.x].xyz, reg_tmp13.xyz);
-    // 225: dp3
-    reg_tmp11.y = dot_3(uniforms.f[26 + address_registers.x].xyz, reg_tmp13.xyz);
-    // 226: dp3
-    reg_tmp11.z = dot_3(uniforms.f[27 + address_registers.x].xyz, reg_tmp13.xyz);
-    // 227: dp4
-    reg_tmp15.x = dot_s(uniforms.f[90], reg_tmp10);
-    // 228: dp4
-    reg_tmp15.y = dot_s(uniforms.f[91], reg_tmp10);
-    // 229: dp4
-    reg_tmp15.z = dot_s(uniforms.f[92], reg_tmp10);
-    // 230: mov
-    reg_tmp15.w = (uniforms.f[93].yyyy).w;
-    // 231: dp3
-    reg_tmp14.x = dot_3(uniforms.f[3].xyz, reg_tmp12.xyz);
-    // 232: dp3
-    reg_tmp14.y = dot_3(uniforms.f[4].xyz, reg_tmp12.xyz);
-    // 233: dp3
-    reg_tmp14.z = dot_3(uniforms.f[5].xyz, reg_tmp12.xyz);
-    // 234: dp3
-    reg_tmp13.x = dot_3(uniforms.f[3].xyz, reg_tmp11.xyz);
-    // 235: dp3
-    reg_tmp13.y = dot_3(uniforms.f[4].xyz, reg_tmp11.xyz);
-    // 236: dp3
-    reg_tmp13.z = dot_3(uniforms.f[5].xyz, reg_tmp11.xyz);
-    // 237: call
-    {
-        sub_268_344();
-    }
-    // 238: nop
-    return false;
-}
-bool sub_239_244() {
-    // 239: dp4
-    reg_tmp15.x = dot_s(uniforms.f[90], reg_tmp10);
-    // 240: dp4
-    reg_tmp15.y = dot_s(uniforms.f[91], reg_tmp10);
-    // 241: dp4
-    reg_tmp15.z = dot_s(uniforms.f[92], reg_tmp10);
-    // 242: mov
-    reg_tmp15.w = (uniforms.f[93].yyyy).w;
-    // 243: mov
-    vs_out_attr1 = uniforms.f[93].xxxx;
-    return false;
-}
-bool sub_251_268() {
-    uint jmp_to = 251u;
-    while (true) {
-        switch (jmp_to) {
-        case 251u: {
-            // 251: dp3
-            reg_tmp6.x = dot_3(reg_tmp14.xyz, reg_tmp14.xyz);
-            // 252: dp3
-            reg_tmp7.x = dot_3(reg_tmp12.xyz, reg_tmp12.xyz);
-            // 253: rsq
-            reg_tmp6.x = rsq_s(reg_tmp6.x);
-            // 254: rsq
-            reg_tmp7.x = rsq_s(reg_tmp7.x);
-            // 255: mul
-            reg_tmp14.xyz = (mul_s(reg_tmp14.xyzz, reg_tmp6.xxxx)).xyz;
-            // 256: mul
-            reg_tmp12.xyz = (mul_s(reg_tmp12.xyzz, reg_tmp7.xxxx)).xyz;
-            // 257: mov
-            reg_tmp0 = uniforms.f[93].yxxx;
-            // 258: jmpu
-            if (!uniforms.b[15]) {
-                { jmp_to = 267u; break; }
-            }
-            // 259: add
-            reg_tmp4 = uniforms.f[93].yyyy + reg_tmp14.zzzz;
-            // 260: mul
-            reg_tmp4 = mul_s(uniforms.f[94].zzzz, reg_tmp4);
-            // 261: cmp
-            conditional_code = greaterThanEqual(uniforms.f[93].xx, reg_tmp4.xx);
-            // 262: rsq
-            reg_tmp4 = vec4(rsq_s(reg_tmp4.x));
-            // 263: mul
-            reg_tmp5 = mul_s(uniforms.f[94].zzzz, reg_tmp14);
-            // 264: jmpc
-            if (conditional_code.x) {
-                { jmp_to = 267u; break; }
-            }
-            // 265: rcp
-            reg_tmp0.z = rcp_s(reg_tmp4.x);
-            // 266: mul
-            reg_tmp0.xy = (mul_s(reg_tmp5, reg_tmp4)).xy;
-        }
-        case 267u: {
-            // 267: mov
-            vs_out_attr1 = reg_tmp0;
-        }
-        default: return false;
-        }
-    }
-    return false;
-}
-bool sub_268_344() {
-    uint jmp_to = 268u;
-    while (true) {
-        switch (jmp_to) {
-        case 268u: {
-            // 268: dp3
-            reg_tmp6.x = dot_3(reg_tmp14.xyz, reg_tmp14.xyz);
-            // 269: dp3
-            reg_tmp7.x = dot_3(reg_tmp12.xyz, reg_tmp12.xyz);
-            // 270: rsq
-            reg_tmp6.x = rsq_s(reg_tmp6.x);
-            // 271: rsq
-            reg_tmp7.x = rsq_s(reg_tmp7.x);
-            // 272: mul
-            reg_tmp14.xyz = (mul_s(reg_tmp14.xyzz, reg_tmp6.xxxx)).xyz;
-            // 273: mul
-            reg_tmp12.xyz = (mul_s(reg_tmp12.xyzz, reg_tmp7.xxxx)).xyz;
-            // 274: mul
-            reg_tmp13.xyz = (mul_s(reg_tmp13.xyzz, reg_tmp6.xxxx)).xyz;
-            // 275: mul
-            reg_tmp11.xyz = (mul_s(reg_tmp11.xyzz, reg_tmp7.xxxx)).xyz;
-            // 276: mov
-            reg_tmp0 = uniforms.f[93].yxxx;
-            // 277: jmpu
-            if (!uniforms.b[15]) {
-                { jmp_to = 343u; break; }
-            }
-            // 278: mul
-            reg_tmp13.xyz = (mul_s(reg_tmp13.xyzz, reg_tmp6.xxxx)).xyz;
-            // 279: mul
-            reg_tmp11.xyz = (mul_s(reg_tmp11.xyzz, reg_tmp7.xxxx)).xyz;
-            // 280: mul
-            reg_tmp5 = mul_s(reg_tmp14.yzxx, reg_tmp13.zxyy);
-            // 281: mad
-            reg_tmp5 = fma_s(-reg_tmp13.yzxx, reg_tmp14.zxyy, reg_tmp5);
-            // 282: dp3
-            reg_tmp5.w = dot_3(reg_tmp5.xyz, reg_tmp5.xyz);
-            // 283: rsq
-            reg_tmp5.w = rsq_s(reg_tmp5.w);
-            // 284: mul
-            reg_tmp5 = mul_s(reg_tmp5, reg_tmp5.wwww);
-            // 285: add
-            reg_tmp6.w = (reg_tmp14.zzzz + reg_tmp5.yyyy).w;
-            // 286: mul
-            reg_tmp13 = mul_s(reg_tmp5.yzxx, reg_tmp14.zxyy);
-            // 287: mad
-            reg_tmp13 = fma_s(-reg_tmp14.yzxx, reg_tmp5.zxyy, reg_tmp13);
-            // 288: add
-            reg_tmp6.w = (reg_tmp13.xxxx + reg_tmp6).w;
-            // 289: mov
-            reg_tmp13.w = (reg_tmp5.zzzz).w;
-            // 290: mov
-            reg_tmp5.z = (reg_tmp13.xxxx).z;
-            // 291: add
-            reg_tmp6.w = (uniforms.f[93].yyyy + reg_tmp6).w;
-            // 292: mov
-            reg_tmp14.w = (reg_tmp5.xxxx).w;
-            // 293: mov
-            reg_tmp5.x = (reg_tmp14.zzzz).x;
-            // 294: cmp
-            conditional_code = lessThan(uniforms.f[94].yy, reg_tmp6.ww);
-            // 295: mov
-            reg_tmp6.x = (uniforms.f[93].yyyy).x;
-            // 296: mov
-            reg_tmp6.y = (-uniforms.f[93].yyyy).y;
-            // 297: jmpc
-            if (!conditional_code.x) {
-                { jmp_to = 305u; break; }
-            }
-            // 298: add
-            reg_tmp7.xz = (reg_tmp13.wwyy + -reg_tmp14.yyww).xz;
-            // 299: add
-            reg_tmp7.y = (reg_tmp14.xxxx + -reg_tmp13.zzzz).y;
-            // 300: mov
-            reg_tmp7.w = (reg_tmp6).w;
-            // 301: dp4
-            reg_tmp6 = vec4(dot_s(reg_tmp7, reg_tmp7));
-            // 302: rsq
-            reg_tmp6 = vec4(rsq_s(reg_tmp6.x));
-            // 303: mul
-            reg_tmp0 = mul_s(reg_tmp7, reg_tmp6);
-            // 304: jmpu
-            if (uniforms.b[0]) {
-                { jmp_to = 343u; break; }
-            }
-        }
-        case 305u: {
-            // 305: cmp
-            conditional_code = greaterThan(reg_tmp5.zy, reg_tmp5.yx);
-            // 306: ifc
-            if (conditional_code.x) {
-                sub_307_327();
-            } else {
-                sub_327_340();
-            }
-            // 340: dp4
-            reg_tmp6 = vec4(dot_s(reg_tmp8, reg_tmp8));
-            // 341: rsq
-            reg_tmp6 = vec4(rsq_s(reg_tmp6.x));
-            // 342: mul
-            reg_tmp0 = mul_s(reg_tmp8, reg_tmp6);
-        }
-        case 343u: {
-            // 343: mov
-            vs_out_attr1 = reg_tmp0;
-        }
-        default: return false;
-        }
-    }
-    return false;
-}
-bool sub_307_327() {
-    // 307: ifc
-    if (conditional_code.y) {
-        sub_308_313();
-    } else {
-        sub_313_326();
-    }
-    // 326: mov
-    reg_tmp8.w = (-reg_tmp8).w;
-    return false;
-}
-bool sub_308_313() {
-    // 308: mul
-    reg_tmp8 = mul_s(reg_tmp13.yyzw, reg_tmp6.xxxy);
-    // 309: add
-    reg_tmp8.x = (uniforms.f[93].yyyy + -reg_tmp5.yyyy).x;
-    // 310: add
-    reg_tmp9 = reg_tmp5.zzzz + -reg_tmp5.xxxx;
-    // 311: add
-    reg_tmp8.yzw = (reg_tmp8 + reg_tmp14.wwxy).yzw;
-    // 312: add
-    reg_tmp8.x = (reg_tmp9 + reg_tmp8).x;
-    return false;
-}
-bool sub_313_326() {
-    // 313: cmp
-    conditional_code = greaterThan(reg_tmp5.zz, reg_tmp5.xx);
-    // 314: mul
-    reg_tmp8 = mul_s(reg_tmp13.yyzw, reg_tmp6.xxxy);
-    // 315: add
-    reg_tmp8.x = (uniforms.f[93].yyyy + -reg_tmp5.yyyy).x;
-    // 316: ifc
-    if (conditional_code.x) {
-        sub_317_320();
-    } else {
-        sub_320_325();
-    }
-    // 325: nop
-    return false;
-}
-bool sub_317_320() {
-    // 317: add
-    reg_tmp9 = reg_tmp5.zzzz + -reg_tmp5.xxxx;
-    // 318: add
-    reg_tmp8.yzw = (reg_tmp8 + reg_tmp14.wwxy).yzw;
-    // 319: add
-    reg_tmp8.x = (reg_tmp9 + reg_tmp8).x;
-    return false;
-}
-bool sub_320_325() {
-    // 320: mul
-    reg_tmp8 = mul_s(reg_tmp13.zwwy, reg_tmp6.xxxy);
-    // 321: add
-    reg_tmp8.z = (uniforms.f[93].yyyy + -reg_tmp5.zzzz).z;
-    // 322: add
-    reg_tmp9 = reg_tmp5.xxxx + -reg_tmp5.yyyy;
-    // 323: add
-    reg_tmp8.xyw = (reg_tmp8 + reg_tmp14.xyyw).xyw;
-    // 324: add
-    reg_tmp8.z = (reg_tmp9 + reg_tmp8).z;
-    return false;
-}
-bool sub_327_340() {
-    // 327: ifc
-    if (conditional_code.y) {
-        sub_328_333();
-    } else {
-        sub_333_339();
-    }
-    // 339: nop
-    return false;
-}
-bool sub_328_333() {
-    // 328: mul
-    reg_tmp8 = mul_s(reg_tmp13.yywz, reg_tmp6.xxxy);
-    // 329: add
-    reg_tmp8.y = (uniforms.f[93].yyyy + -reg_tmp5.zzzz).y;
-    // 330: add
-    reg_tmp9 = reg_tmp5.yyyy + -reg_tmp5.xxxx;
-    // 331: add
-    reg_tmp8.xzw = (reg_tmp8 + reg_tmp14.wwyx).xzw;
-    // 332: add
-    reg_tmp8.y = (reg_tmp9 + reg_tmp8).y;
-    return false;
-}
-bool sub_333_339() {
-    // 333: mul
-    reg_tmp8 = mul_s(reg_tmp13.zwwy, reg_tmp6.xxxy);
-    // 334: add
-    reg_tmp8.z = (uniforms.f[93].yyyy + -reg_tmp5.zzzz).z;
-    // 335: add
-    reg_tmp9 = reg_tmp5.xxxx + -reg_tmp5.yyyy;
-    // 336: add
-    reg_tmp8.xyw = (reg_tmp8 + reg_tmp14.xyyw).xyw;
-    // 337: add
-    reg_tmp8.z = (reg_tmp9 + reg_tmp8).z;
-    // 338: mov
-    reg_tmp8.w = (-reg_tmp8).w;
-    return false;
-}
-// reference: 460C959C86DAFF4F, 72F5D85BD2AC207B
-// program: 72F5D85BD2AC207B, 3B3AE026C742C7D5, F1AF4DCF748D1D13
-// reference: CDEC423386DAFF4F, 72F5D85BD2AC207B
-// program: 72F5D85BD2AC207B, 3B3AE026C742C7D5, 6715745505C97BC1
-// shader: 8B31, D77A7C8777F60DC1
-
-struct pica_uniforms {
-    bool b[16];
-    uvec4 i[4];
-    vec4 f[96];
-};
-
-bool exec_shader();
-
-#define uniforms vs_uniforms
-layout (std140) uniform vs_config {
-    pica_uniforms uniforms;
-};
-
-layout(location = 0) in vec4 vs_in_reg0;
-layout(location = 1) in vec4 vs_in_reg1;
-layout(location = 2) in vec4 vs_in_reg2;
-layout(location = 3) in vec4 vs_in_reg3;
-layout(location = 4) in vec4 vs_in_reg4;
-layout(location = 5) in vec4 vs_in_reg5;
-layout(location = 6) in vec4 vs_in_reg6;
-layout(location = 7) in vec4 vs_in_reg7;
-layout(location = 8) in vec4 vs_in_reg8;
-
- out vec4 vs_out_attr0;
- out vec4 vs_out_attr1;
- out vec4 vs_out_attr2;
- out vec4 vs_out_attr3;
- out vec4 vs_out_attr4;
- out vec4 vs_out_attr5;
- out vec4 vs_out_attr6;
-
-void main() {
-    vs_out_attr0 = vec4(0.0, 0.0, 0.0, 1.0);
-    vs_out_attr1 = vec4(0.0, 0.0, 0.0, 1.0);
-    vs_out_attr2 = vec4(0.0, 0.0, 0.0, 1.0);
-    vs_out_attr3 = vec4(0.0, 0.0, 0.0, 1.0);
-    vs_out_attr4 = vec4(0.0, 0.0, 0.0, 1.0);
-    vs_out_attr5 = vec4(0.0, 0.0, 0.0, 1.0);
-    vs_out_attr6 = vec4(0.0, 0.0, 0.0, 1.0);
-
-    exec_shader();
-}
-
-// accurate_mul: safe
-bvec2 conditional_code = bvec2(false);
-ivec3 address_registers = ivec3(0);
-vec4 reg_tmp0 = vec4(0.0, 0.0, 0.0, 1.0);
-vec4 reg_tmp1 = vec4(0.0, 0.0, 0.0, 1.0);
-vec4 reg_tmp2 = vec4(0.0, 0.0, 0.0, 1.0);
-vec4 reg_tmp3 = vec4(0.0, 0.0, 0.0, 1.0);
-vec4 reg_tmp4 = vec4(0.0, 0.0, 0.0, 1.0);
-vec4 reg_tmp5 = vec4(0.0, 0.0, 0.0, 1.0);
-vec4 reg_tmp6 = vec4(0.0, 0.0, 0.0, 1.0);
-vec4 reg_tmp7 = vec4(0.0, 0.0, 0.0, 1.0);
-vec4 reg_tmp8 = vec4(0.0, 0.0, 0.0, 1.0);
-vec4 reg_tmp9 = vec4(0.0, 0.0, 0.0, 1.0);
-vec4 reg_tmp10 = vec4(0.0, 0.0, 0.0, 1.0);
-vec4 reg_tmp11 = vec4(0.0, 0.0, 0.0, 1.0);
-vec4 reg_tmp12 = vec4(0.0, 0.0, 0.0, 1.0);
-vec4 reg_tmp13 = vec4(0.0, 0.0, 0.0, 1.0);
-vec4 reg_tmp14 = vec4(0.0, 0.0, 0.0, 1.0);
-vec4 reg_tmp15 = vec4(0.0, 0.0, 0.0, 1.0);
-
-bool sub_0_4096();
-bool sub_7_12();
-bool sub_12_21();
-bool sub_21_34();
-bool sub_34_214();
-bool sub_40_146();
-bool sub_47_76();
-bool sub_58_62();
-bool sub_76_135();
-bool sub_77_109();
-bool sub_88_92();
-bool sub_109_134();
-bool sub_120_124();
-bool sub_144_145();
-bool sub_146_213();
-bool sub_149_159();
-bool sub_159_164();
-bool sub_165_177();
-bool sub_177_202();
-bool sub_178_196();
-bool sub_196_201();
-bool sub_211_212();
-bool sub_214_231();
-bool sub_231_307();
-bool sub_270_290();
-bool sub_271_276();
-bool sub_276_289();
-bool sub_280_283();
-bool sub_283_288();
-bool sub_290_303();
-bool sub_291_296();
-bool sub_296_302();
-bool sub_307_321();
-bool sub_313_318();
-bool sub_315_316();
-bool sub_321_339();
-bool sub_326_337();
-bool sub_339_349();
-bool sub_346_347();
-bool sub_349_376();
-bool sub_351_356();
-bool sub_356_375();
-bool sub_359_365();
-bool sub_365_374();
-bool sub_366_370();
-bool sub_370_373();
-bool sub_376_384();
-bool sub_378_379();
-bool sub_379_383();
-bool sub_380_381();
-bool sub_381_382();
-bool sub_384_391();
-bool sub_391_395();
-bool sub_395_419();
-bool sub_397_401();
-bool sub_401_418();
-bool sub_402_416();
-bool sub_405_412();
-bool sub_412_415();
-bool sub_416_417();
-bool sub_419_435();
-bool sub_421_425();
-bool sub_425_434();
-bool sub_426_432();
-bool sub_432_433();
-
-bool exec_shader() {
-    sub_0_4096();
-    return true;
-}
-
-bool sub_0_4096() {
-    // 0: call
-    {
-        sub_34_214();
-    }
-    // 1: call
-    {
-        sub_307_321();
-    }
-    // 2: call
-    {
-        sub_349_376();
-    }
-    // 3: call
-    {
-        sub_395_419();
-    }
-    // 4: call
-    {
-        sub_419_435();
-    }
-    // 5: end
-    return true;
-}
-bool sub_7_12() {
-    // 7: mova
-    address_registers.x = (ivec2(reg_tmp1.xx)).x;
-    // 8: dp4
-    reg_tmp3.x = dot_s(uniforms.f[25 + address_registers.x], reg_tmp15);
-    // 9: dp4
-    reg_tmp3.y = dot_s(uniforms.f[26 + address_registers.x], reg_tmp15);
-    // 10: dp4
-    reg_tmp3.z = dot_s(uniforms.f[27 + address_registers.x], reg_tmp15);
-    // 11: mad
-    reg_tmp7 = fma_s(reg_tmp1.wwww, reg_tmp3, reg_tmp7);
-    return false;
-}
-bool sub_12_21() {
-    // 12: mova
-    address_registers.x = (ivec2(reg_tmp1.xx)).x;
-    // 13: dp4
-    reg_tmp3.x = dot_s(uniforms.f[25 + address_registers.x], reg_tmp15);
-    // 14: dp4
-    reg_tmp3.y = dot_s(uniforms.f[26 + address_registers.x], reg_tmp15);
-    // 15: dp4
-    reg_tmp3.z = dot_s(uniforms.f[27 + address_registers.x], reg_tmp15);
-    // 16: dp3
-    reg_tmp4.x = dot_3(uniforms.f[25 + address_registers.x].xyz, reg_tmp14.xyz);
-    // 17: dp3
-    reg_tmp4.y = dot_3(uniforms.f[26 + address_registers.x].xyz, reg_tmp14.xyz);
-    // 18: dp3
-    reg_tmp4.z = dot_3(uniforms.f[27 + address_registers.x].xyz, reg_tmp14.xyz);
-    // 19: mad
-    reg_tmp7 = fma_s(reg_tmp1.wwww, reg_tmp3, reg_tmp7);
-    // 20: mad
-    reg_tmp12 = fma_s(reg_tmp1.wwww, reg_tmp4, reg_tmp12);
-    return false;
-}
-bool sub_21_34() {
-    // 21: mova
-    address_registers.x = (ivec2(reg_tmp1.xx)).x;
-    // 22: dp4
-    reg_tmp3.x = dot_s(uniforms.f[25 + address_registers.x], reg_tmp15);
-    // 23: dp4
-    reg_tmp3.y = dot_s(uniforms.f[26 + address_registers.x], reg_tmp15);
-    // 24: dp4
-    reg_tmp3.z = dot_s(uniforms.f[27 + address_registers.x], reg_tmp15);
-    // 25: dp3
-    reg_tmp4.x = dot_3(uniforms.f[25 + address_registers.x].xyz, reg_tmp14.xyz);
-    // 26: dp3
-    reg_tmp4.y = dot_3(uniforms.f[26 + address_registers.x].xyz, reg_tmp14.xyz);
-    // 27: dp3
-    reg_tmp4.z = dot_3(uniforms.f[27 + address_registers.x].xyz, reg_tmp14.xyz);
-    // 28: dp3
-    reg_tmp5.x = dot_3(uniforms.f[25 + address_registers.x].xyz, reg_tmp13.xyz);
-    // 29: dp3
-    reg_tmp5.y = dot_3(uniforms.f[26 + address_registers.x].xyz, reg_tmp13.xyz);
-    // 30: dp3
-    reg_tmp5.z = dot_3(uniforms.f[27 + address_registers.x].xyz, reg_tmp13.xyz);
-    // 31: mad
-    reg_tmp7 = fma_s(reg_tmp1.wwww, reg_tmp3, reg_tmp7);
-    // 32: mad
-    reg_tmp12 = fma_s(reg_tmp1.wwww, reg_tmp4, reg_tmp12);
-    // 33: mad
-    reg_tmp11 = fma_s(reg_tmp1.wwww, reg_tmp5, reg_tmp11);
-    return false;
-}
-bool sub_34_214() {
-    // 34: mul
-    reg_tmp15.xyz = (mul_s(uniforms.f[7].xxxx, vs_in_reg0)).xyz;
-    // 35: mul
-    reg_tmp14.xyz = (mul_s(uniforms.f[7].yyyy, vs_in_reg1)).xyz;
-    // 36: mul
-    reg_tmp13.xyz = (mul_s(uniforms.f[7].zzzz, vs_in_reg2)).xyz;
-    // 37: add
-    reg_tmp15.xyz = (uniforms.f[6] + reg_tmp15).xyz;
-    // 38: mov
-    reg_tmp15.w = (uniforms.f[93].yyyy).w;
-    // 39: ifu
-    if (uniforms.b[1]) {
-        sub_40_146();
-    } else {
-        sub_146_213();
-    }
-    // 213: nop
-    return false;
-}
-bool sub_40_146() {
-    // 40: mov
-    reg_tmp0 = uniforms.f[7];
-    // 41: cmp
-    conditional_code = notEqual(uniforms.f[93].xx, reg_tmp0.yz);
-    // 42: mov
-    reg_tmp7 = uniforms.f[93].xxxx;
-    // 43: mov
-    reg_tmp12 = uniforms.f[93].xxxx;
-    // 44: mov
-    reg_tmp11 = uniforms.f[93].xxxx;
-    // 45: mul
-    reg_tmp2 = mul_s(uniforms.f[93].wwww, vs_in_reg7);
-    // 46: ifc
-    if (all(bvec2(conditional_code.x, !conditional_code.y))) {
-        sub_47_76();
-    } else {
-        sub_76_135();
-    }
-    // 135: mov
-    vs_out_attr2 = -reg_tmp15;
-    // 136: dp4
-    reg_tmp0.x = dot_s(uniforms.f[86], reg_tmp15);
-    // 137: dp4
-    reg_tmp0.y = dot_s(uniforms.f[87], reg_tmp15);
-    // 138: dp4
-    reg_tmp0.z = dot_s(uniforms.f[88], reg_tmp15);
-    // 139: dp4
-    reg_tmp0.w = dot_s(uniforms.f[89], reg_tmp15);
-    // 140: mov
-    reg_tmp1.x = (-reg_tmp0.wwww).x;
-    // 141: mul
-    reg_tmp1.y = (mul_s(uniforms.f[95].zzzz, -reg_tmp0.wwww)).y;
-    // 142: cmp
-    conditional_code.x = reg_tmp0.xxxx.x > reg_tmp1.xyyy.x;
-    conditional_code.y = reg_tmp0.xxxx.y < reg_tmp1.xyyy.y;
-    // 143: ifc
-    if (all(conditional_code)) {
-        sub_144_145();
-    }
-    // 145: mov
-    vs_out_attr0 = reg_tmp0;
-    return false;
-}
-bool sub_47_76() {
-    // 47: cmp
-    conditional_code = notEqual(uniforms.f[93].xx, vs_in_reg8.zw);
-    // 48: mov
-    reg_tmp1.xy = (reg_tmp2.xxxx).xy;
-    // 49: mul
-    reg_tmp1.w = (mul_s(uniforms.f[8].wwww, vs_in_reg8.xxxx)).w;
-    // 50: call
-    {
-        sub_12_21();
-    }
-    // 51: mov
-    reg_tmp1.xy = (reg_tmp2.yyyy).xy;
-    // 52: mul
-    reg_tmp1.w = (mul_s(uniforms.f[8].wwww, vs_in_reg8.yyyy)).w;
-    // 53: call
-    {
-        sub_12_21();
-    }
-    // 54: mov
-    reg_tmp1.xy = (reg_tmp2.zzzz).xy;
-    // 55: mul
-    reg_tmp1.w = (mul_s(uniforms.f[8].wwww, vs_in_reg8.zzzz)).w;
-    // 56: callc
-    if (conditional_code.x) {
-        sub_12_21();
-    }
-    // 57: ifu
-    if (uniforms.b[8]) {
-        sub_58_62();
-    }
-    // 62: mov
-    reg_tmp7.w = (uniforms.f[93].yyyy).w;
-    // 63: dp4
-    reg_tmp10.x = dot_s(uniforms.f[0], reg_tmp7);
-    // 64: dp4
-    reg_tmp10.y = dot_s(uniforms.f[1], reg_tmp7);
-    // 65: dp4
-    reg_tmp10.z = dot_s(uniforms.f[2], reg_tmp7);
-    // 66: mov
-    reg_tmp10.w = (uniforms.f[93].yyyy).w;
-    // 67: dp4
-    reg_tmp15.x = dot_s(uniforms.f[90], reg_tmp10);
-    // 68: dp4
-    reg_tmp15.y = dot_s(uniforms.f[91], reg_tmp10);
-    // 69: dp4
-    reg_tmp15.z = dot_s(uniforms.f[92], reg_tmp10);
-    // 70: mov
-    reg_tmp15.w = (uniforms.f[93].yyyy).w;
-    // 71: dp3
-    reg_tmp14.x = dot_3(uniforms.f[3].xyz, reg_tmp12.xyz);
-    // 72: dp3
-    reg_tmp14.y = dot_3(uniforms.f[4].xyz, reg_tmp12.xyz);
-    // 73: dp3
-    reg_tmp14.z = dot_3(uniforms.f[5].xyz, reg_tmp12.xyz);
-    // 74: call
-    {
-        sub_214_231();
-    }
-    // 75: nop
-    return false;
-}
-bool sub_58_62() {
-    // 58: mov
-    reg_tmp1.xy = (reg_tmp2.wwww).xy;
-    // 59: mul
-    reg_tmp1.w = (mul_s(uniforms.f[8].wwww, vs_in_reg8.wwww)).w;
-    // 60: callc
-    if (conditional_code.y) {
-        sub_12_21();
-    }
-    // 61: nop
-    return false;
-}
-bool sub_76_135() {
-    // 76: ifc
-    if (all(conditional_code)) {
-        sub_77_109();
-    } else {
-        sub_109_134();
-    }
-    // 134: nop
-    return false;
-}
-bool sub_77_109() {
-    // 77: cmp
-    conditional_code = notEqual(uniforms.f[93].xx, vs_in_reg8.zw);
-    // 78: mov
-    reg_tmp1.xy = (reg_tmp2.xxxx).xy;
-    // 79: mul
-    reg_tmp1.w = (mul_s(uniforms.f[8].wwww, vs_in_reg8.xxxx)).w;
-    // 80: call
-    {
-        sub_21_34();
-    }
-    // 81: mov
-    reg_tmp1.xy = (reg_tmp2.yyyy).xy;
-    // 82: mul
-    reg_tmp1.w = (mul_s(uniforms.f[8].wwww, vs_in_reg8.yyyy)).w;
-    // 83: call
-    {
-        sub_21_34();
-    }
-    // 84: mov
-    reg_tmp1.xy = (reg_tmp2.zzzz).xy;
-    // 85: mul
-    reg_tmp1.w = (mul_s(uniforms.f[8].wwww, vs_in_reg8.zzzz)).w;
-    // 86: callc
-    if (conditional_code.x) {
-        sub_21_34();
-    }
-    // 87: ifu
-    if (uniforms.b[8]) {
-        sub_88_92();
-    }
-    // 92: mov
-    reg_tmp7.w = (uniforms.f[93].yyyy).w;
-    // 93: dp4
-    reg_tmp10.x = dot_s(uniforms.f[0], reg_tmp7);
-    // 94: dp4
-    reg_tmp10.y = dot_s(uniforms.f[1], reg_tmp7);
-    // 95: dp4
-    reg_tmp10.z = dot_s(uniforms.f[2], reg_tmp7);
-    // 96: mov
-    reg_tmp10.w = (uniforms.f[93].yyyy).w;
-    // 97: dp3
-    reg_tmp13.x = dot_3(uniforms.f[3].xyz, reg_tmp11.xyz);
-    // 98: dp3
-    reg_tmp13.y = dot_3(uniforms.f[4].xyz, reg_tmp11.xyz);
-    // 99: dp3
-    reg_tmp13.z = dot_3(uniforms.f[5].xyz, reg_tmp11.xyz);
-    // 100: dp3
-    reg_tmp14.x = dot_3(uniforms.f[3].xyz, reg_tmp12.xyz);
-    // 101: dp3
-    reg_tmp14.y = dot_3(uniforms.f[4].xyz, reg_tmp12.xyz);
-    // 102: dp3
-    reg_tmp14.z = dot_3(uniforms.f[5].xyz, reg_tmp12.xyz);
-    // 103: dp4
-    reg_tmp15.x = dot_s(uniforms.f[90], reg_tmp10);
-    // 104: dp4
-    reg_tmp15.y = dot_s(uniforms.f[91], reg_tmp10);
-    // 105: dp4
-    reg_tmp15.z = dot_s(uniforms.f[92], reg_tmp10);
-    // 106: mov
-    reg_tmp15.w = (uniforms.f[93].yyyy).w;
-    // 107: call
-    {
-        sub_231_307();
-    }
-    // 108: nop
-    return false;
-}
-bool sub_88_92() {
-    // 88: mov
-    reg_tmp1.xy = (reg_tmp2.wwww).xy;
-    // 89: mul
-    reg_tmp1.w = (mul_s(uniforms.f[8].wwww, vs_in_reg8.wwww)).w;
-    // 90: callc
-    if (conditional_code.y) {
-        sub_21_34();
-    }
-    // 91: nop
-    return false;
-}
-bool sub_109_134() {
-    // 109: cmp
-    conditional_code = notEqual(uniforms.f[93].xx, vs_in_reg8.zw);
-    // 110: mov
-    reg_tmp1.xy = (reg_tmp2.xxxx).xy;
-    // 111: mul
-    reg_tmp1.w = (mul_s(uniforms.f[8].wwww, vs_in_reg8.xxxx)).w;
-    // 112: call
-    {
-        sub_7_12();
-    }
-    // 113: mov
-    reg_tmp1.xy = (reg_tmp2.yyyy).xy;
-    // 114: mul
-    reg_tmp1.w = (mul_s(uniforms.f[8].wwww, vs_in_reg8.yyyy)).w;
-    // 115: call
-    {
-        sub_7_12();
-    }
-    // 116: mov
-    reg_tmp1.xy = (reg_tmp2.zzzz).xy;
-    // 117: mul
-    reg_tmp1.w = (mul_s(uniforms.f[8].wwww, vs_in_reg8.zzzz)).w;
-    // 118: callc
-    if (conditional_code.x) {
-        sub_7_12();
-    }
-    // 119: ifu
-    if (uniforms.b[8]) {
-        sub_120_124();
-    }
-    // 124: mov
-    reg_tmp7.w = (uniforms.f[93].yyyy).w;
-    // 125: dp4
-    reg_tmp10.x = dot_s(uniforms.f[0], reg_tmp7);
-    // 126: dp4
-    reg_tmp10.y = dot_s(uniforms.f[1], reg_tmp7);
-    // 127: dp4
-    reg_tmp10.z = dot_s(uniforms.f[2], reg_tmp7);
-    // 128: mov
-    reg_tmp10.w = (uniforms.f[93].yyyy).w;
-    // 129: dp4
-    reg_tmp15.x = dot_s(uniforms.f[90], reg_tmp10);
-    // 130: dp4
-    reg_tmp15.y = dot_s(uniforms.f[91], reg_tmp10);
-    // 131: dp4
-    reg_tmp15.z = dot_s(uniforms.f[92], reg_tmp10);
-    // 132: mov
-    reg_tmp15.w = (uniforms.f[93].yyyy).w;
-    // 133: mov
-    vs_out_attr1 = uniforms.f[93].xxxx;
-    return false;
-}
-bool sub_120_124() {
-    // 120: mov
-    reg_tmp1.xy = (reg_tmp2.wwww).xy;
-    // 121: mul
-    reg_tmp1.w = (mul_s(uniforms.f[8].wwww, vs_in_reg8.wwww)).w;
-    // 122: callc
-    if (conditional_code.y) {
-        sub_7_12();
-    }
-    // 123: nop
-    return false;
-}
-bool sub_144_145() {
-    // 144: mov
-    reg_tmp0.x = (-reg_tmp0.wwww).x;
-    return false;
-}
-bool sub_146_213() {
-    // 146: mov
-    reg_tmp0 = uniforms.f[7];
-    // 147: cmp
-    conditional_code = notEqual(uniforms.f[93].xx, reg_tmp0.yz);
-    // 148: ifu
-    if (uniforms.b[2]) {
-        sub_149_159();
-    } else {
-        sub_159_164();
-    }
-    // 164: ifc
-    if (all(bvec2(conditional_code.x, !conditional_code.y))) {
-        sub_165_177();
-    } else {
-        sub_177_202();
-    }
-    // 202: mov
-    vs_out_attr2 = -reg_tmp15;
-    // 203: dp4
-    reg_tmp0.x = dot_s(uniforms.f[86], reg_tmp15);
-    // 204: dp4
-    reg_tmp0.y = dot_s(uniforms.f[87], reg_tmp15);
-    // 205: dp4
-    reg_tmp0.z = dot_s(uniforms.f[88], reg_tmp15);
-    // 206: dp4
-    reg_tmp0.w = dot_s(uniforms.f[89], reg_tmp15);
-    // 207: mov
-    reg_tmp1.x = (-reg_tmp0.wwww).x;
-    // 208: mul
-    reg_tmp1.y = (mul_s(uniforms.f[95].zzzz, -reg_tmp0.wwww)).y;
-    // 209: cmp
-    conditional_code.x = reg_tmp0.xxxx.x > reg_tmp1.xyyy.x;
-    conditional_code.y = reg_tmp0.xxxx.y < reg_tmp1.xyyy.y;
-    // 210: ifc
-    if (all(conditional_code)) {
-        sub_211_212();
-    }
-    // 212: mov
-    vs_out_attr0 = reg_tmp0;
-    return false;
-}
-bool sub_149_159() {
-    // 149: mul
-    reg_tmp1.x = (mul_s(uniforms.f[93].wwww, vs_in_reg7.xxxx)).x;
-    // 150: mova
-    address_registers.x = (ivec2(reg_tmp1.xx)).x;
-    // 151: dp4
-    reg_tmp7.x = dot_s(uniforms.f[25 + address_registers.x], reg_tmp15);
-    // 152: dp4
-    reg_tmp7.y = dot_s(uniforms.f[26 + address_registers.x], reg_tmp15);
-    // 153: dp4
-    reg_tmp7.z = dot_s(uniforms.f[27 + address_registers.x], reg_tmp15);
-    // 154: mov
-    reg_tmp7.w = (uniforms.f[93].yyyy).w;
-    // 155: dp4
-    reg_tmp10.x = dot_s(uniforms.f[0], reg_tmp7);
-    // 156: dp4
-    reg_tmp10.y = dot_s(uniforms.f[1], reg_tmp7);
-    // 157: dp4
-    reg_tmp10.z = dot_s(uniforms.f[2], reg_tmp7);
-    // 158: mov
-    reg_tmp10.w = (uniforms.f[93].yyyy).w;
-    return false;
-}
-bool sub_159_164() {
-    // 159: mova
-    address_registers.x = (ivec2(uniforms.f[93].xx)).x;
-    // 160: dp4
-    reg_tmp10.x = dot_s(uniforms.f[25], reg_tmp15);
-    // 161: dp4
-    reg_tmp10.y = dot_s(uniforms.f[26], reg_tmp15);
-    // 162: dp4
-    reg_tmp10.z = dot_s(uniforms.f[27], reg_tmp15);
-    // 163: mov
-    reg_tmp10.w = (uniforms.f[93].yyyy).w;
-    return false;
-}
-bool sub_165_177() {
-    // 165: dp3
-    reg_tmp12.x = dot_3(uniforms.f[25 + address_registers.x].xyz, reg_tmp14.xyz);
-    // 166: dp3
-    reg_tmp12.y = dot_3(uniforms.f[26 + address_registers.x].xyz, reg_tmp14.xyz);
-    // 167: dp3
-    reg_tmp12.z = dot_3(uniforms.f[27 + address_registers.x].xyz, reg_tmp14.xyz);
-    // 168: dp4
-    reg_tmp15.x = dot_s(uniforms.f[90], reg_tmp10);
-    // 169: dp4
-    reg_tmp15.y = dot_s(uniforms.f[91], reg_tmp10);
-    // 170: dp4
-    reg_tmp15.z = dot_s(uniforms.f[92], reg_tmp10);
-    // 171: mov
-    reg_tmp15.w = (uniforms.f[93].yyyy).w;
-    // 172: dp3
-    reg_tmp14.x = dot_3(uniforms.f[3].xyz, reg_tmp12.xyz);
-    // 173: dp3
-    reg_tmp14.y = dot_3(uniforms.f[4].xyz, reg_tmp12.xyz);
-    // 174: dp3
-    reg_tmp14.z = dot_3(uniforms.f[5].xyz, reg_tmp12.xyz);
-    // 175: call
-    {
-        sub_214_231();
-    }
-    // 176: nop
-    return false;
-}
-bool sub_177_202() {
-    // 177: ifc
-    if (all(conditional_code)) {
-        sub_178_196();
-    } else {
-        sub_196_201();
-    }
-    // 201: nop
-    return false;
-}
-bool sub_178_196() {
-    // 178: dp3
-    reg_tmp12.x = dot_3(uniforms.f[25 + address_registers.x].xyz, reg_tmp14.xyz);
-    // 179: dp3
-    reg_tmp12.y = dot_3(uniforms.f[26 + address_registers.x].xyz, reg_tmp14.xyz);
-    // 180: dp3
-    reg_tmp12.z = dot_3(uniforms.f[27 + address_registers.x].xyz, reg_tmp14.xyz);
-    // 181: dp3
-    reg_tmp11.x = dot_3(uniforms.f[25 + address_registers.x].xyz, reg_tmp13.xyz);
-    // 182: dp3
-    reg_tmp11.y = dot_3(uniforms.f[26 + address_registers.x].xyz, reg_tmp13.xyz);
-    // 183: dp3
-    reg_tmp11.z = dot_3(uniforms.f[27 + address_registers.x].xyz, reg_tmp13.xyz);
-    // 184: dp4
-    reg_tmp15.x = dot_s(uniforms.f[90], reg_tmp10);
-    // 185: dp4
-    reg_tmp15.y = dot_s(uniforms.f[91], reg_tmp10);
-    // 186: dp4
-    reg_tmp15.z = dot_s(uniforms.f[92], reg_tmp10);
-    // 187: mov
-    reg_tmp15.w = (uniforms.f[93].yyyy).w;
-    // 188: dp3
-    reg_tmp14.x = dot_3(uniforms.f[3].xyz, reg_tmp12.xyz);
-    // 189: dp3
-    reg_tmp14.y = dot_3(uniforms.f[4].xyz, reg_tmp12.xyz);
-    // 190: dp3
-    reg_tmp14.z = dot_3(uniforms.f[5].xyz, reg_tmp12.xyz);
-    // 191: dp3
-    reg_tmp13.x = dot_3(uniforms.f[3].xyz, reg_tmp11.xyz);
-    // 192: dp3
-    reg_tmp13.y = dot_3(uniforms.f[4].xyz, reg_tmp11.xyz);
-    // 193: dp3
-    reg_tmp13.z = dot_3(uniforms.f[5].xyz, reg_tmp11.xyz);
-    // 194: call
-    {
-        sub_231_307();
-    }
-    // 195: nop
-    return false;
-}
-bool sub_196_201() {
-    // 196: dp4
-    reg_tmp15.x = dot_s(uniforms.f[90], reg_tmp10);
-    // 197: dp4
-    reg_tmp15.y = dot_s(uniforms.f[91], reg_tmp10);
-    // 198: dp4
-    reg_tmp15.z = dot_s(uniforms.f[92], reg_tmp10);
-    // 199: mov
-    reg_tmp15.w = (uniforms.f[93].yyyy).w;
-    // 200: mov
-    vs_out_attr1 = uniforms.f[93].xxxx;
-    return false;
-}
-bool sub_211_212() {
-    // 211: mov
-    reg_tmp0.x = (-reg_tmp0.wwww).x;
-    return false;
-}
-bool sub_214_231() {
-    uint jmp_to = 214u;
-    while (true) {
-        switch (jmp_to) {
-        case 214u: {
-            // 214: dp3
-            reg_tmp6.x = dot_3(reg_tmp14.xyz, reg_tmp14.xyz);
-            // 215: dp3
-            reg_tmp7.x = dot_3(reg_tmp12.xyz, reg_tmp12.xyz);
-            // 216: rsq
-            reg_tmp6.x = rsq_s(reg_tmp6.x);
-            // 217: rsq
-            reg_tmp7.x = rsq_s(reg_tmp7.x);
-            // 218: mul
-            reg_tmp14.xyz = (mul_s(reg_tmp14.xyzz, reg_tmp6.xxxx)).xyz;
-            // 219: mul
-            reg_tmp12.xyz = (mul_s(reg_tmp12.xyzz, reg_tmp7.xxxx)).xyz;
-            // 220: mov
-            reg_tmp0 = uniforms.f[93].yxxx;
-            // 221: jmpu
-            if (!uniforms.b[15]) {
-                { jmp_to = 230u; break; }
-            }
-            // 222: add
-            reg_tmp4 = uniforms.f[93].yyyy + reg_tmp14.zzzz;
-            // 223: mul
-            reg_tmp4 = mul_s(uniforms.f[94].zzzz, reg_tmp4);
-            // 224: cmp
-            conditional_code = greaterThanEqual(uniforms.f[93].xx, reg_tmp4.xx);
-            // 225: rsq
-            reg_tmp4 = vec4(rsq_s(reg_tmp4.x));
-            // 226: mul
-            reg_tmp5 = mul_s(uniforms.f[94].zzzz, reg_tmp14);
-            // 227: jmpc
-            if (conditional_code.x) {
-                { jmp_to = 230u; break; }
-            }
-            // 228: rcp
-            reg_tmp0.z = rcp_s(reg_tmp4.x);
-            // 229: mul
-            reg_tmp0.xy = (mul_s(reg_tmp5, reg_tmp4)).xy;
-        }
-        case 230u: {
-            // 230: mov
-            vs_out_attr1 = reg_tmp0;
-        }
-        default: return false;
-        }
-    }
-    return false;
-}
-bool sub_231_307() {
-    uint jmp_to = 231u;
-    while (true) {
-        switch (jmp_to) {
-        case 231u: {
-            // 231: dp3
-            reg_tmp6.x = dot_3(reg_tmp14.xyz, reg_tmp14.xyz);
-            // 232: dp3
-            reg_tmp7.x = dot_3(reg_tmp12.xyz, reg_tmp12.xyz);
-            // 233: rsq
-            reg_tmp6.x = rsq_s(reg_tmp6.x);
-            // 234: rsq
-            reg_tmp7.x = rsq_s(reg_tmp7.x);
-            // 235: mul
-            reg_tmp14.xyz = (mul_s(reg_tmp14.xyzz, reg_tmp6.xxxx)).xyz;
-            // 236: mul
-            reg_tmp12.xyz = (mul_s(reg_tmp12.xyzz, reg_tmp7.xxxx)).xyz;
-            // 237: mul
-            reg_tmp13.xyz = (mul_s(reg_tmp13.xyzz, reg_tmp6.xxxx)).xyz;
-            // 238: mul
-            reg_tmp11.xyz = (mul_s(reg_tmp11.xyzz, reg_tmp7.xxxx)).xyz;
-            // 239: mov
-            reg_tmp0 = uniforms.f[93].yxxx;
-            // 240: jmpu
-            if (!uniforms.b[15]) {
-                { jmp_to = 306u; break; }
-            }
-            // 241: mul
-            reg_tmp13.xyz = (mul_s(reg_tmp13.xyzz, reg_tmp6.xxxx)).xyz;
-            // 242: mul
-            reg_tmp11.xyz = (mul_s(reg_tmp11.xyzz, reg_tmp7.xxxx)).xyz;
-            // 243: mul
-            reg_tmp5 = mul_s(reg_tmp14.yzxx, reg_tmp13.zxyy);
-            // 244: mad
-            reg_tmp5 = fma_s(-reg_tmp13.yzxx, reg_tmp14.zxyy, reg_tmp5);
-            // 245: dp3
-            reg_tmp5.w = dot_3(reg_tmp5.xyz, reg_tmp5.xyz);
-            // 246: rsq
-            reg_tmp5.w = rsq_s(reg_tmp5.w);
-            // 247: mul
-            reg_tmp5 = mul_s(reg_tmp5, reg_tmp5.wwww);
-            // 248: add
-            reg_tmp6.w = (reg_tmp14.zzzz + reg_tmp5.yyyy).w;
-            // 249: mul
-            reg_tmp13 = mul_s(reg_tmp5.yzxx, reg_tmp14.zxyy);
-            // 250: mad
-            reg_tmp13 = fma_s(-reg_tmp14.yzxx, reg_tmp5.zxyy, reg_tmp13);
-            // 251: add
-            reg_tmp6.w = (reg_tmp13.xxxx + reg_tmp6).w;
-            // 252: mov
-            reg_tmp13.w = (reg_tmp5.zzzz).w;
-            // 253: mov
-            reg_tmp5.z = (reg_tmp13.xxxx).z;
-            // 254: add
-            reg_tmp6.w = (uniforms.f[93].yyyy + reg_tmp6).w;
-            // 255: mov
-            reg_tmp14.w = (reg_tmp5.xxxx).w;
-            // 256: mov
-            reg_tmp5.x = (reg_tmp14.zzzz).x;
-            // 257: cmp
-            conditional_code = lessThan(uniforms.f[94].yy, reg_tmp6.ww);
-            // 258: mov
-            reg_tmp6.x = (uniforms.f[93].yyyy).x;
-            // 259: mov
-            reg_tmp6.y = (-uniforms.f[93].yyyy).y;
-            // 260: jmpc
-            if (!conditional_code.x) {
-                { jmp_to = 268u; break; }
-            }
-            // 261: add
-            reg_tmp7.xz = (reg_tmp13.wwyy + -reg_tmp14.yyww).xz;
-            // 262: add
-            reg_tmp7.y = (reg_tmp14.xxxx + -reg_tmp13.zzzz).y;
-            // 263: mov
-            reg_tmp7.w = (reg_tmp6).w;
-            // 264: dp4
-            reg_tmp6 = vec4(dot_s(reg_tmp7, reg_tmp7));
-            // 265: rsq
-            reg_tmp6 = vec4(rsq_s(reg_tmp6.x));
-            // 266: mul
-            reg_tmp0 = mul_s(reg_tmp7, reg_tmp6);
-            // 267: jmpu
-            if (uniforms.b[0]) {
-                { jmp_to = 306u; break; }
-            }
-        }
-        case 268u: {
-            // 268: cmp
-            conditional_code = greaterThan(reg_tmp5.zy, reg_tmp5.yx);
-            // 269: ifc
-            if (conditional_code.x) {
-                sub_270_290();
-            } else {
-                sub_290_303();
-            }
-            // 303: dp4
-            reg_tmp6 = vec4(dot_s(reg_tmp8, reg_tmp8));
-            // 304: rsq
-            reg_tmp6 = vec4(rsq_s(reg_tmp6.x));
-            // 305: mul
-            reg_tmp0 = mul_s(reg_tmp8, reg_tmp6);
-        }
-        case 306u: {
-            // 306: mov
-            vs_out_attr1 = reg_tmp0;
-        }
-        default: return false;
-        }
-    }
-    return false;
-}
-bool sub_270_290() {
-    // 270: ifc
-    if (conditional_code.y) {
-        sub_271_276();
-    } else {
-        sub_276_289();
-    }
-    // 289: mov
-    reg_tmp8.w = (-reg_tmp8).w;
-    return false;
-}
-bool sub_271_276() {
-    // 271: mul
-    reg_tmp8 = mul_s(reg_tmp13.yyzw, reg_tmp6.xxxy);
-    // 272: add
-    reg_tmp8.x = (uniforms.f[93].yyyy + -reg_tmp5.yyyy).x;
-    // 273: add
-    reg_tmp9 = reg_tmp5.zzzz + -reg_tmp5.xxxx;
-    // 274: add
-    reg_tmp8.yzw = (reg_tmp8 + reg_tmp14.wwxy).yzw;
-    // 275: add
-    reg_tmp8.x = (reg_tmp9 + reg_tmp8).x;
-    return false;
-}
-bool sub_276_289() {
-    // 276: cmp
-    conditional_code = greaterThan(reg_tmp5.zz, reg_tmp5.xx);
-    // 277: mul
-    reg_tmp8 = mul_s(reg_tmp13.yyzw, reg_tmp6.xxxy);
-    // 278: add
-    reg_tmp8.x = (uniforms.f[93].yyyy + -reg_tmp5.yyyy).x;
-    // 279: ifc
-    if (conditional_code.x) {
-        sub_280_283();
-    } else {
-        sub_283_288();
-    }
-    // 288: nop
-    return false;
-}
-bool sub_280_283() {
-    // 280: add
-    reg_tmp9 = reg_tmp5.zzzz + -reg_tmp5.xxxx;
-    // 281: add
-    reg_tmp8.yzw = (reg_tmp8 + reg_tmp14.wwxy).yzw;
-    // 282: add
-    reg_tmp8.x = (reg_tmp9 + reg_tmp8).x;
-    return false;
-}
-bool sub_283_288() {
-    // 283: mul
-    reg_tmp8 = mul_s(reg_tmp13.zwwy, reg_tmp6.xxxy);
-    // 284: add
-    reg_tmp8.z = (uniforms.f[93].yyyy + -reg_tmp5.zzzz).z;
-    // 285: add
-    reg_tmp9 = reg_tmp5.xxxx + -reg_tmp5.yyyy;
-    // 286: add
-    reg_tmp8.xyw = (reg_tmp8 + reg_tmp14.xyyw).xyw;
-    // 287: add
-    reg_tmp8.z = (reg_tmp9 + reg_tmp8).z;
-    return false;
-}
-bool sub_290_303() {
-    // 290: ifc
-    if (conditional_code.y) {
-        sub_291_296();
-    } else {
-        sub_296_302();
-    }
-    // 302: nop
-    return false;
-}
-bool sub_291_296() {
-    // 291: mul
-    reg_tmp8 = mul_s(reg_tmp13.yywz, reg_tmp6.xxxy);
-    // 292: add
-    reg_tmp8.y = (uniforms.f[93].yyyy + -reg_tmp5.zzzz).y;
-    // 293: add
-    reg_tmp9 = reg_tmp5.yyyy + -reg_tmp5.xxxx;
-    // 294: add
-    reg_tmp8.xzw = (reg_tmp8 + reg_tmp14.wwyx).xzw;
-    // 295: add
-    reg_tmp8.y = (reg_tmp9 + reg_tmp8).y;
-    return false;
-}
-bool sub_296_302() {
-    // 296: mul
-    reg_tmp8 = mul_s(reg_tmp13.zwwy, reg_tmp6.xxxy);
-    // 297: add
-    reg_tmp8.z = (uniforms.f[93].yyyy + -reg_tmp5.zzzz).z;
-    // 298: add
-    reg_tmp9 = reg_tmp5.xxxx + -reg_tmp5.yyyy;
-    // 299: add
-    reg_tmp8.xyw = (reg_tmp8 + reg_tmp14.xyyw).xyw;
-    // 300: add
-    reg_tmp8.z = (reg_tmp9 + reg_tmp8).z;
-    // 301: mov
-    reg_tmp8.w = (-reg_tmp8).w;
-    return false;
-}
-bool sub_307_321() {
-    // 307: mov
-    reg_tmp8.xy = (uniforms.f[93].xxxx).xy;
-    // 308: mov
-    reg_tmp0.y = (uniforms.f[7].wwww).y;
-    // 309: cmp
-    conditional_code = notEqual(uniforms.f[93].xx, reg_tmp0.xy);
-    // 310: mov
-    reg_tmp9.xyz = (uniforms.f[93].xxxx).xyz;
-    // 311: mov
-    reg_tmp9.w = (uniforms.f[21].wwww).w;
-    // 312: ifc
-    if (conditional_code.y) {
-        sub_313_318();
-    }
-    // 318: callu
-    if (uniforms.b[12]) {
-        sub_321_339();
-    }
-    // 319: callu
-    if (uniforms.b[5]) {
-        sub_339_349();
-    }
-    // 320: max
-    vs_out_attr3 = max(uniforms.f[93].xxxx, reg_tmp9);
-    return false;
-}
-bool sub_313_318() {
-    // 313: mul
-    reg_tmp0 = mul_s(uniforms.f[7].wwww, vs_in_reg3);
-    // 314: ifu
-    if (uniforms.b[7]) {
-        sub_315_316();
-    }
-    // 316: mul
-    reg_tmp9.xyz = (mul_s(uniforms.f[20].wwww, reg_tmp0.xyzz)).xyz;
-    // 317: mov
-    reg_tmp8.x = (uniforms.f[93].yyyy).x;
-    return false;
-}
-bool sub_315_316() {
-    // 315: mul
-    reg_tmp9.w = (mul_s(reg_tmp9.wwww, reg_tmp0.wwww)).w;
-    return false;
-}
-bool sub_321_339() {
-    // 321: mov
-    reg_tmp1 = uniforms.f[20];
-    // 322: mov
-    reg_tmp2 = uniforms.f[21];
-    // 323: mov
-    reg_tmp3 = uniforms.f[93].xxxx;
-    // 324: mov
-    reg_tmp0 = uniforms.f[93].xxxx;
-    // 325: loop
-    address_registers.z = int(uniforms.i[0].y);
-    for (uint loop325 = 0u; loop325 <= uniforms.i[0].x; address_registers.z += int(uniforms.i[0].z), ++loop325) {
-        sub_326_337();
-    }
-    // 337: mul
-    reg_tmp9.xyz = (mul_s(reg_tmp9.xyzz, reg_tmp0.xyzz)).xyz;
-    // 338: mov
-    reg_tmp8.x = (uniforms.f[93].yyyy).x;
-    return false;
-}
-bool sub_326_337() {
-    // 326: mova
-    address_registers.x = (ivec2(reg_tmp3.xy)).x;
-    // 327: mov
-    reg_tmp4.x = (uniforms.f[81 + address_registers.x].wwww).x;
-    // 328: mov
-    reg_tmp4.y = (uniforms.f[83 + address_registers.x].wwww).y;
-    // 329: dp3
-    reg_tmp6.x = dot_3(uniforms.f[81 + address_registers.x].xyz, reg_tmp14.xyz);
-    // 330: max
-    reg_tmp6.x = (max(uniforms.f[93].xxxx, reg_tmp6.xxxx)).x;
-    // 331: mad
-    reg_tmp0.xyz = (fma_s(reg_tmp1.xyzz, uniforms.f[79 + address_registers.x].xyzz, reg_tmp0.xyzz)).xyz;
-    // 332: mul
-    reg_tmp4 = mul_s(uniforms.f[80 + address_registers.x], reg_tmp2);
-    // 333: mul
-    reg_tmp5.xyz = (mul_s(reg_tmp6.xxxx, reg_tmp4.xyzz)).xyz;
-    // 334: add
-    reg_tmp0.xyz = (reg_tmp0.xyzz + reg_tmp5.xyzz).xyz;
-    // 335: add
-    reg_tmp0.w = (reg_tmp0.wwww + reg_tmp4.wwww).w;
-    // 336: add
-    reg_tmp3 = -uniforms.f[95].wwww + reg_tmp3;
-    return false;
-}
-bool sub_339_349() {
-    // 339: dp3
-    reg_tmp1 = vec4(dot_3(uniforms.f[24].xyz, reg_tmp14.xyz));
-    // 340: mov
-    reg_tmp2 = uniforms.f[24].wwww;
-    // 341: mad
-    reg_tmp1 = fma_s(reg_tmp1, reg_tmp2, reg_tmp2);
-    // 342: mov
-    reg_tmp3 = uniforms.f[22];
-    // 343: add
-    reg_tmp2 = uniforms.f[23] + -reg_tmp3;
-    // 344: mad
-    reg_tmp4 = fma_s(reg_tmp2, reg_tmp1, reg_tmp3);
-    // 345: ifu
-    if (uniforms.b[6]) {
-        sub_346_347();
-    }
-    // 347: mad
-    reg_tmp9.xyz = (fma_s(reg_tmp4, uniforms.f[21], reg_tmp9)).xyz;
-    // 348: mov
-    reg_tmp8.x = (uniforms.f[93].yyyy).x;
-    return false;
-}
-bool sub_346_347() {
-    // 346: mul
-    reg_tmp4 = mul_s(reg_tmp4, reg_tmp9.wwww);
-    return false;
-}
-bool sub_349_376() {
-    // 349: mov
-    reg_tmp0.xy = (uniforms.f[10].xxxx).xy;
-    // 350: ifu
-    if (uniforms.b[9]) {
-        sub_351_356();
-    } else {
-        sub_356_375();
-    }
-    // 375: nop
-    return false;
-}
-bool sub_351_356() {
-    // 351: call
-    {
-        sub_376_384();
-    }
-    // 352: dp4
-    reg_tmp3.x = dot_s(uniforms.f[11].xywz, reg_tmp6);
-    // 353: dp4
-    reg_tmp3.y = dot_s(uniforms.f[12].xywz, reg_tmp6);
-    // 354: mov
-    reg_tmp3.zw = (uniforms.f[93].xxxx).zw;
-    // 355: mov
-    vs_out_attr4 = reg_tmp3;
-    return false;
-}
-bool sub_356_375() {
-    // 356: cmp
-    conditional_code = equal(uniforms.f[95].xy, reg_tmp0.xy);
-    // 357: mov
-    reg_tmp6.zw = (uniforms.f[93].xxyy).zw;
-    // 358: ifc
-    if (all(not(conditional_code))) {
-        sub_359_365();
-    } else {
-        sub_365_374();
-    }
-    // 374: mov
-    vs_out_attr4 = reg_tmp3;
-    return false;
-}
-bool sub_359_365() {
-    // 359: mov
-    reg_tmp6 = reg_tmp10;
-    // 360: dp4
-    reg_tmp3.x = dot_s(uniforms.f[11], reg_tmp6);
-    // 361: dp4
-    reg_tmp3.y = dot_s(uniforms.f[12], reg_tmp6);
-    // 362: dp4
-    reg_tmp3.z = dot_s(uniforms.f[13], reg_tmp6);
-    // 363: mul
-    reg_tmp0.xy = (mul_s(uniforms.f[19].xyyy, reg_tmp3.zzzz)).xy;
-    // 364: add
-    reg_tmp3.xy = (reg_tmp3.xyyy + reg_tmp0.xyyy).xy;
-    return false;
-}
-bool sub_365_374() {
-    // 365: ifc
-    if (all(bvec2(conditional_code.x, !conditional_code.y))) {
-        sub_366_370();
-    } else {
-        sub_370_373();
-    }
-    // 373: nop
-    return false;
-}
-bool sub_366_370() {
-    // 366: call
-    {
-        sub_384_391();
-    }
-    // 367: dp3
-    reg_tmp3.x = dot_3(uniforms.f[11].xyz, reg_tmp6.xyz);
-    // 368: dp3
-    reg_tmp3.y = dot_3(uniforms.f[12].xyz, reg_tmp6.xyz);
-    // 369: dp3
-    reg_tmp3.z = dot_3(uniforms.f[13].xyz, reg_tmp6.xyz);
-    return false;
-}
-bool sub_370_373() {
-    // 370: call
-    {
-        sub_391_395();
-    }
-    // 371: dp4
-    reg_tmp3.x = dot_s(uniforms.f[11], reg_tmp6);
-    // 372: dp4
-    reg_tmp3.y = dot_s(uniforms.f[12], reg_tmp6);
-    return false;
-}
-bool sub_376_384() {
-    // 376: cmp
-    conditional_code = equal(uniforms.f[93].yz, reg_tmp0.xy);
-    // 377: ifc
-    if (all(not(conditional_code))) {
-        sub_378_379();
-    } else {
-        sub_379_383();
-    }
-    // 383: mov
-    reg_tmp6.zw = (uniforms.f[93].xxyy).zw;
-    return false;
-}
-bool sub_378_379() {
-    // 378: mul
-    reg_tmp6.xy = (mul_s(uniforms.f[8].xxxx, vs_in_reg4.xyyy)).xy;
-    return false;
-}
-bool sub_379_383() {
-    // 379: ifc
-    if (all(bvec2(conditional_code.x, !conditional_code.y))) {
-        sub_380_381();
-    } else {
-        sub_381_382();
-    }
-    // 382: nop
-    return false;
-}
-bool sub_380_381() {
-    // 380: mul
-    reg_tmp6.xy = (mul_s(uniforms.f[8].yyyy, vs_in_reg5.xyyy)).xy;
-    return false;
-}
-bool sub_381_382() {
-    // 381: mul
-    reg_tmp6.xy = (mul_s(uniforms.f[8].zzzz, vs_in_reg6.xyyy)).xy;
-    return false;
-}
-bool sub_384_391() {
-    // 384: mov
-    reg_tmp2 = -reg_tmp15;
-    // 385: dp3
-    reg_tmp2.w = dot_3(reg_tmp2.xyz, reg_tmp2.xyz);
-    // 386: rsq
-    reg_tmp2.w = rsq_s(reg_tmp2.w);
-    // 387: mul
-    reg_tmp2 = mul_s(reg_tmp2, reg_tmp2.wwww);
-    // 388: dp3
-    reg_tmp1 = vec4(dot_3(reg_tmp2.xyz, reg_tmp14.xyz));
-    // 389: add
-    reg_tmp1 = reg_tmp1 + reg_tmp1;
-    // 390: mad
-    reg_tmp6 = fma_s(reg_tmp1, reg_tmp14, -reg_tmp2);
-    return false;
-}
-bool sub_391_395() {
-    // 391: mov
-    reg_tmp1.xy = (uniforms.f[94].zzzz).xy;
-    // 392: mov
-    reg_tmp1.zw = (uniforms.f[93].xxxx).zw;
-    // 393: mad
-    reg_tmp6 = fma_s(reg_tmp14, reg_tmp1, reg_tmp1);
-    // 394: mov
-    reg_tmp6.zw = (uniforms.f[93].xxyy).zw;
-    return false;
-}
-bool sub_395_419() {
-    // 395: mov
-    reg_tmp0.xy = (uniforms.f[10].yyyy).xy;
-    // 396: ifu
-    if (uniforms.b[10]) {
-        sub_397_401();
-    } else {
-        sub_401_418();
-    }
-    // 418: nop
-    return false;
-}
-bool sub_397_401() {
-    // 397: call
-    {
-        sub_376_384();
-    }
-    // 398: dp4
-    reg_tmp4.x = dot_s(uniforms.f[14].xywz, reg_tmp6);
-    // 399: dp4
-    reg_tmp4.y = dot_s(uniforms.f[15].xywz, reg_tmp6);
-    // 400: mov
-    vs_out_attr5 = reg_tmp4;
-    return false;
-}
-bool sub_401_418() {
-    // 401: ifu
-    if (uniforms.b[13]) {
-        sub_402_416();
-    } else {
-        sub_416_417();
-    }
-    // 417: nop
-    return false;
-}
-bool sub_402_416() {
-    // 402: cmp
-    conditional_code = equal(uniforms.f[95].xy, reg_tmp0.xy);
-    // 403: mov
-    reg_tmp6.zw = (uniforms.f[93].xxyy).zw;
-    // 404: ifc
-    if (all(not(conditional_code))) {
-        sub_405_412();
-    } else {
-        sub_412_415();
-    }
-    // 415: mov
-    vs_out_attr5 = reg_tmp4;
-    return false;
-}
-bool sub_405_412() {
-    // 405: mov
-    reg_tmp6 = reg_tmp10;
-    // 406: dp4
-    reg_tmp4.x = dot_s(uniforms.f[14], reg_tmp6);
-    // 407: dp4
-    reg_tmp4.y = dot_s(uniforms.f[15], reg_tmp6);
-    // 408: dp4
-    reg_tmp4.z = dot_s(uniforms.f[16], reg_tmp6);
-    // 409: rcp
-    reg_tmp6.w = rcp_s(reg_tmp4.z);
-    // 410: mul
-    reg_tmp4.xy = (mul_s(reg_tmp4.xyyy, reg_tmp6.wwww)).xy;
-    // 411: add
-    reg_tmp4.xy = (uniforms.f[19].zwww + reg_tmp4.xyyy).xy;
-    return false;
-}
-bool sub_412_415() {
-    // 412: call
-    {
-        sub_391_395();
-    }
-    // 413: dp4
-    reg_tmp4.x = dot_s(uniforms.f[14], reg_tmp6);
-    // 414: dp4
-    reg_tmp4.y = dot_s(uniforms.f[15], reg_tmp6);
-    return false;
-}
-bool sub_416_417() {
-    // 416: mov
-    vs_out_attr5 = uniforms.f[93].xxxx;
-    return false;
-}
-bool sub_419_435() {
-    // 419: mov
-    reg_tmp0.xy = (uniforms.f[10].zzzz).xy;
-    // 420: ifu
-    if (uniforms.b[11]) {
-        sub_421_425();
-    } else {
-        sub_425_434();
-    }
-    // 434: nop
-    return false;
-}
-bool sub_421_425() {
-    // 421: call
-    {
-        sub_376_384();
-    }
-    // 422: dp4
-    reg_tmp5.x = dot_s(uniforms.f[17].xywz, reg_tmp6);
-    // 423: dp4
-    reg_tmp5.y = dot_s(uniforms.f[18].xywz, reg_tmp6);
-    // 424: mov
-    vs_out_attr6 = reg_tmp5;
-    return false;
-}
-bool sub_425_434() {
-    // 425: ifu
-    if (uniforms.b[14]) {
-        sub_426_432();
-    } else {
-        sub_432_433();
-    }
-    // 433: nop
-    return false;
-}
-bool sub_426_432() {
-    // 426: mov
-    reg_tmp6.zw = (uniforms.f[93].xxyy).zw;
-    // 427: mov
-    reg_tmp5.zw = (reg_tmp6.zwww).zw;
-    // 428: call
-    {
-        sub_391_395();
-    }
-    // 429: dp4
-    reg_tmp5.x = dot_s(uniforms.f[17], reg_tmp6);
-    // 430: dp4
-    reg_tmp5.y = dot_s(uniforms.f[18], reg_tmp6);
-    // 431: mov
-    vs_out_attr6 = reg_tmp5;
-    return false;
-}
-bool sub_432_433() {
-    // 432: mov
-    vs_out_attr6 = uniforms.f[93].xxxx;
-    return false;
-}
-// reference: 85AB6B971623FEC7, D77A7C8777F60DC1
-// program: D77A7C8777F60DC1, AD7922A63ED54CA7, BED7510752FF8E3A
-// reference: CE425356A3146887, 72F5D85BD2AC207B
-// program: 72F5D85BD2AC207B, 3B3AE026C742C7D5, ACF56B31AF5E599E
-// program: 72F5D85BD2AC207B, 3B3AE026C742C7D5, F59B30115D8438B6
-// shader: 8B31, 237E20ADB8512109
-
-struct pica_uniforms {
-    bool b[16];
-    uvec4 i[4];
-    vec4 f[96];
-};
-
-bool exec_shader();
-
-#define uniforms vs_uniforms
-layout (std140) uniform vs_config {
-    pica_uniforms uniforms;
-};
-
-layout(location = 0) in vec4 vs_in_reg0;
-layout(location = 1) in vec4 vs_in_reg1;
-layout(location = 2) in vec4 vs_in_reg2;
-layout(location = 3) in vec4 vs_in_reg3;
-layout(location = 4) in vec4 vs_in_reg4;
-layout(location = 5) in vec4 vs_in_reg5;
-layout(location = 6) in vec4 vs_in_reg6;
-layout(location = 7) in vec4 vs_in_reg7;
-
- out vec4 vs_out_attr0;
- out vec4 vs_out_attr1;
- out vec4 vs_out_attr2;
- out vec4 vs_out_attr3;
- out vec4 vs_out_attr4;
- out vec4 vs_out_attr5;
- out vec4 vs_out_attr6;
-
-void main() {
-    vs_out_attr0 = vec4(0.0, 0.0, 0.0, 1.0);
-    vs_out_attr1 = vec4(0.0, 0.0, 0.0, 1.0);
-    vs_out_attr2 = vec4(0.0, 0.0, 0.0, 1.0);
-    vs_out_attr3 = vec4(0.0, 0.0, 0.0, 1.0);
-    vs_out_attr4 = vec4(0.0, 0.0, 0.0, 1.0);
-    vs_out_attr5 = vec4(0.0, 0.0, 0.0, 1.0);
-    vs_out_attr6 = vec4(0.0, 0.0, 0.0, 1.0);
-
-    exec_shader();
-}
-
-// accurate_mul: safe
-bvec2 conditional_code = bvec2(false);
-ivec3 address_registers = ivec3(0);
-vec4 reg_tmp0 = vec4(0.0, 0.0, 0.0, 1.0);
-vec4 reg_tmp1 = vec4(0.0, 0.0, 0.0, 1.0);
-vec4 reg_tmp2 = vec4(0.0, 0.0, 0.0, 1.0);
-vec4 reg_tmp3 = vec4(0.0, 0.0, 0.0, 1.0);
-vec4 reg_tmp4 = vec4(0.0, 0.0, 0.0, 1.0);
-vec4 reg_tmp5 = vec4(0.0, 0.0, 0.0, 1.0);
-vec4 reg_tmp6 = vec4(0.0, 0.0, 0.0, 1.0);
-vec4 reg_tmp7 = vec4(0.0, 0.0, 0.0, 1.0);
-vec4 reg_tmp8 = vec4(0.0, 0.0, 0.0, 1.0);
-vec4 reg_tmp9 = vec4(0.0, 0.0, 0.0, 1.0);
-vec4 reg_tmp10 = vec4(0.0, 0.0, 0.0, 1.0);
-vec4 reg_tmp11 = vec4(0.0, 0.0, 0.0, 1.0);
-vec4 reg_tmp12 = vec4(0.0, 0.0, 0.0, 1.0);
-vec4 reg_tmp13 = vec4(0.0, 0.0, 0.0, 1.0);
-vec4 reg_tmp14 = vec4(0.0, 0.0, 0.0, 1.0);
-vec4 reg_tmp15 = vec4(0.0, 0.0, 0.0, 1.0);
-
-bool sub_0_4096();
-bool sub_33_83();
-bool sub_83_191();
-bool sub_91_101();
-bool sub_101_106();
-bool sub_148_160();
-bool sub_160_185();
-bool sub_161_179();
-bool sub_179_184();
-bool sub_191_208();
-bool sub_208_284();
-bool sub_247_267();
-bool sub_248_253();
-bool sub_253_266();
-bool sub_257_260();
-bool sub_260_265();
-bool sub_267_280();
-bool sub_268_273();
-bool sub_273_279();
-bool sub_284_311();
-bool sub_286_291();
-bool sub_291_310();
-bool sub_294_300();
-bool sub_300_309();
-bool sub_301_305();
-bool sub_305_308();
-bool sub_311_319();
-bool sub_313_314();
-bool sub_314_318();
-bool sub_315_316();
-bool sub_316_317();
-bool sub_319_326();
-bool sub_326_330();
-bool sub_330_354();
-bool sub_332_336();
-bool sub_336_353();
-bool sub_337_351();
-bool sub_340_347();
-bool sub_347_350();
-bool sub_351_352();
-bool sub_354_370();
-bool sub_356_360();
-bool sub_360_369();
-bool sub_361_367();
-bool sub_367_368();
-
-bool exec_shader() {
-    sub_0_4096();
-    return true;
-}
-
-bool sub_0_4096() {
-    // 0: call
-    {
-        sub_83_191();
-    }
-    // 1: call
-    {
-        sub_284_311();
-    }
-    // 2: call
-    {
-        sub_330_354();
-    }
-    // 3: call
-    {
-        sub_354_370();
-    }
-    // 4: end
-    return true;
-}
-bool sub_33_83() {
-    // 33: add
-    reg_tmp0.xyz = (reg_tmp6.xyzz + -reg_tmp1.xyzz).xyz;
-    // 34: mov
-    reg_tmp0.w = (uniforms.f[93].yyyy).w;
-    // 35: dp4
-    reg_tmp3.x = dot_s(reg_tmp0, reg_tmp0);
-    // 36: rsq
-    reg_tmp3.x = rsq_s(reg_tmp3.x);
-    // 37: mul
-    reg_tmp3 = mul_s(reg_tmp0, reg_tmp3.xxxx);
-    // 38: mov
-    reg_tmp2.x = (-reg_tmp3.zzzz).x;
-    // 39: mov
-    reg_tmp2.y = (reg_tmp3.yyyy).y;
-    // 40: mov
-    reg_tmp2.z = (reg_tmp3.xxxx).z;
-    // 41: add
-    reg_tmp4.xyz = (reg_tmp6.xyzz + -reg_tmp10.xyzz).xyz;
-    // 42: dp3
-    reg_tmp0 = vec4(dot_3(-reg_tmp4.xyz, reg_tmp2.xyz));
-    // 43: sgei
-    reg_tmp0 = vec4(greaterThanEqual(reg_tmp0, uniforms.f[93].xxxx));
-    // 44: mul
-    reg_tmp3 = mul_s(reg_tmp2, reg_tmp0);
-    // 45: add
-    reg_tmp0 = uniforms.f[93].yyyy + -reg_tmp0;
-    // 46: mad
-    reg_tmp3 = fma_s(-reg_tmp2, reg_tmp0, reg_tmp3);
-    // 47: mul
-    reg_tmp3 = mul_s(reg_tmp3, reg_tmp7.zzzz);
-    // 48: add
-    reg_tmp9 = reg_tmp6 + -reg_tmp1;
-    // 49: mad
-    reg_tmp9 = fma_s(reg_tmp9, reg_tmp5.zzzz, reg_tmp1);
-    // 50: add
-    reg_tmp9 = reg_tmp9 + reg_tmp3;
-    // 51: add
-    reg_tmp9 = reg_tmp9 + -reg_tmp10;
-    // 52: mad
-    reg_tmp9 = fma_s(reg_tmp9, reg_tmp7.wwww, reg_tmp10);
-    // 53: add
-    reg_tmp3.xyz = (reg_tmp9.xyzz + -reg_tmp10.xyzz).xyz;
-    // 54: add
-    reg_tmp0.xyz = (reg_tmp6.xyzz + -reg_tmp1.xyzz).xyz;
-    // 55: mov
-    reg_tmp0.w = (uniforms.f[93].yyyy).w;
-    // 56: dp4
-    reg_tmp2.x = dot_s(reg_tmp0, reg_tmp0);
-    // 57: rsq
-    reg_tmp2.x = rsq_s(reg_tmp2.x);
-    // 58: mul
-    reg_tmp2 = mul_s(reg_tmp0, reg_tmp2.xxxx);
-    // 59: add
-    reg_tmp0.xyz = (reg_tmp10.xyzz + -reg_tmp1.xyzz).xyz;
-    // 60: mov
-    reg_tmp0.w = (uniforms.f[93].yyyy).w;
-    // 61: dp4
-    reg_tmp9.x = dot_s(reg_tmp0, reg_tmp0);
-    // 62: rsq
-    reg_tmp9.x = rsq_s(reg_tmp9.x);
-    // 63: mul
-    reg_tmp9 = mul_s(reg_tmp0, reg_tmp9.xxxx);
-    // 64: dp3
-    reg_tmp8.x = dot_3(reg_tmp9.xyz, reg_tmp2.xyz);
-    // 65: min
-    reg_tmp8.x = (min(uniforms.f[93].yyyy, reg_tmp8.xxxx)).x;
-    // 66: max
-    reg_tmp8.x = (max(uniforms.f[93].xxxx, reg_tmp8.xxxx)).x;
-    // 67: add
-    reg_tmp5.x = (reg_tmp8.xxxx + -reg_tmp8.zzzz).x;
-    // 68: max
-    reg_tmp5.x = (max(uniforms.f[93].xxxx, reg_tmp5.xxxx)).x;
-    // 69: mov
-    reg_tmp0.w = (reg_tmp8.wwww).w;
-    // 70: add
-    reg_tmp0.w = (reg_tmp0.wwww + -reg_tmp8.zzzz).w;
-    // 71: rcp
-    reg_tmp0.w = rcp_s(reg_tmp0.w);
-    // 72: mul
-    reg_tmp5.x = (mul_s(reg_tmp5.xxxx, reg_tmp0.wwww)).x;
-    // 73: min
-    reg_tmp5.x = (min(uniforms.f[93].yyyy, reg_tmp5.xxxx)).x;
-    // 74: log
-    reg_tmp5.x = log2(reg_tmp5.x);
-    // 75: mul
-    reg_tmp5.x = (mul_s(reg_tmp5.xxxx, reg_tmp7.xxxx)).x;
-    // 76: exp
-    reg_tmp5.x = exp2(reg_tmp5.x);
-    // 77: mul
-    reg_tmp0 = mul_s(uniforms.f[7].wwww, vs_in_reg3);
-    // 78: mul
-    reg_tmp5.x = (mul_s(reg_tmp5.xxxx, reg_tmp0.wwww)).x;
-    // 79: mul
-    reg_tmp3 = mul_s(reg_tmp3, reg_tmp5.xxxx);
-    // 80: add
-    reg_tmp10.xyz = (reg_tmp10.xyzz + reg_tmp3.xyzz).xyz;
-    // 81: sge
-    reg_tmp0.w = (vec4(greaterThanEqual(reg_tmp8.xxxx, reg_tmp8.yyyy))).w;
-    // 82: add
-    reg_tmp5.y = (reg_tmp5.yyyy + reg_tmp0.wwww).y;
-    return false;
-}
-bool sub_83_191() {
-    // 83: mul
-    reg_tmp15.xyz = (mul_s(uniforms.f[7].xxxx, vs_in_reg0)).xyz;
-    // 84: mul
-    reg_tmp14.xyz = (mul_s(uniforms.f[7].yyyy, vs_in_reg1)).xyz;
-    // 85: mul
-    reg_tmp13.xyz = (mul_s(uniforms.f[7].zzzz, vs_in_reg2)).xyz;
-    // 86: add
-    reg_tmp15.xyz = (uniforms.f[6] + reg_tmp15).xyz;
-    // 87: mov
-    reg_tmp15.w = (uniforms.f[93].yyyy).w;
-    // 88: mov
-    reg_tmp0 = uniforms.f[7];
-    // 89: cmp
-    conditional_code = notEqual(uniforms.f[93].xx, reg_tmp0.yz);
-    // 90: ifu
-    if (uniforms.b[2]) {
-        sub_91_101();
-    } else {
-        sub_101_106();
-    }
-    // 106: mov
-    reg_tmp1 = uniforms.f[80];
-    // 107: mov
-    reg_tmp1.y = (reg_tmp10.yyyy).y;
-    // 108: mov
-    reg_tmp1.w = (uniforms.f[79].xxxx).w;
-    // 109: mov
-    reg_tmp6 = uniforms.f[81];
-    // 110: mov
-    reg_tmp6.y = (reg_tmp1.yyyy).y;
-    // 111: add
-    reg_tmp0 = reg_tmp6 + -reg_tmp1;
-    // 112: mad
-    reg_tmp6.xyz = (fma_s(reg_tmp0.xyzz, uniforms.f[79].wwww, reg_tmp1)).xyz;
-    // 113: mov
-    reg_tmp7 = uniforms.f[82];
-    // 114: mov
-    reg_tmp8.z = (uniforms.f[85].xxxx).z;
-    // 115: mov
-    reg_tmp8.w = (uniforms.f[85].yyyy).w;
-    // 116: mov
-    reg_tmp8.y = (uniforms.f[81].wwww).y;
-    // 117: mov
-    reg_tmp5.y = (uniforms.f[93].xxxx).y;
-    // 118: add
-    reg_tmp0 = reg_tmp6 + -reg_tmp1;
-    // 119: dp3
-    reg_tmp0.x = dot_3(reg_tmp0.xyz, reg_tmp0.xyz);
-    // 120: rsq
-    reg_tmp0.x = rsq_s(reg_tmp0.x);
-    // 121: rcp
-    reg_tmp0.w = rcp_s(reg_tmp0.x);
-    // 122: add
-    reg_tmp0.y = (uniforms.f[79].yyyy + reg_tmp1.wwww).y;
-    // 123: add
-    reg_tmp0.y = (reg_tmp0.wwww + -reg_tmp0.yyyy).y;
-    // 124: mad
-    reg_tmp0.z = (fma_s(reg_tmp0.yyyy, uniforms.f[94].zzzz, reg_tmp1.wwww)).z;
-    // 125: mul
-    reg_tmp5.z = (mul_s(reg_tmp0.zzzz, reg_tmp0.xxxx)).z;
-    // 126: call
-    {
-        sub_33_83();
-    }
-    // 127: mov
-    reg_tmp6 = uniforms.f[83];
-    // 128: mov
-    reg_tmp6.y = (reg_tmp1.yyyy).y;
-    // 129: add
-    reg_tmp0 = reg_tmp6 + -reg_tmp1;
-    // 130: mad
-    reg_tmp6.xyz = (fma_s(reg_tmp0.xyzz, uniforms.f[79].wwww, reg_tmp1)).xyz;
-    // 131: mov
-    reg_tmp7 = uniforms.f[84];
-    // 132: mov
-    reg_tmp8.z = (uniforms.f[85].zzzz).z;
-    // 133: mov
-    reg_tmp8.w = (uniforms.f[85].wwww).w;
-    // 134: mov
-    reg_tmp8.y = (uniforms.f[83].wwww).y;
-    // 135: add
-    reg_tmp0 = reg_tmp6 + -reg_tmp1;
-    // 136: dp3
-    reg_tmp0.x = dot_3(reg_tmp0.xyz, reg_tmp0.xyz);
-    // 137: rsq
-    reg_tmp0.x = rsq_s(reg_tmp0.x);
-    // 138: rcp
-    reg_tmp0.w = rcp_s(reg_tmp0.x);
-    // 139: add
-    reg_tmp0.y = (uniforms.f[79].yyyy + reg_tmp1.wwww).y;
-    // 140: add
-    reg_tmp0.y = (reg_tmp0.wwww + -reg_tmp0.yyyy).y;
-    // 141: mad
-    reg_tmp0.z = (fma_s(reg_tmp0.yyyy, uniforms.f[94].zzzz, reg_tmp1.wwww)).z;
-    // 142: mul
-    reg_tmp5.z = (mul_s(reg_tmp0.zzzz, reg_tmp0.xxxx)).z;
-    // 143: call
-    {
-        sub_33_83();
-    }
-    // 144: mul
-    reg_tmp0.xyz = (mul_s(uniforms.f[7].wwww, vs_in_reg3.xyzz)).xyz;
-    // 145: add
-    reg_tmp0.w = (uniforms.f[93].yyyy + -reg_tmp5.yyyy).w;
-    // 146: mov
-    vs_out_attr3 = reg_tmp0;
-    // 147: ifc
-    if (all(bvec2(conditional_code.x, !conditional_code.y))) {
-        sub_148_160();
-    } else {
-        sub_160_185();
-    }
-    // 185: mov
-    vs_out_attr2 = -reg_tmp15;
-    // 186: dp4
-    vs_out_attr0.x = dot_s(uniforms.f[86], reg_tmp15);
-    // 187: dp4
-    vs_out_attr0.y = dot_s(uniforms.f[87], reg_tmp15);
-    // 188: dp4
-    vs_out_attr0.z = dot_s(uniforms.f[88], reg_tmp15);
-    // 189: dp4
-    vs_out_attr0.w = dot_s(uniforms.f[89], reg_tmp15);
-    // 190: nop
-    return false;
-}
-bool sub_91_101() {
-    // 91: mul
-    reg_tmp1.x = (mul_s(uniforms.f[93].wwww, vs_in_reg7.xxxx)).x;
-    // 92: mova
-    address_registers.x = (ivec2(reg_tmp1.xx)).x;
-    // 93: dp4
-    reg_tmp7.x = dot_s(uniforms.f[25 + address_registers.x], reg_tmp15);
-    // 94: dp4
-    reg_tmp7.y = dot_s(uniforms.f[26 + address_registers.x], reg_tmp15);
-    // 95: dp4
-    reg_tmp7.z = dot_s(uniforms.f[27 + address_registers.x], reg_tmp15);
-    // 96: mov
-    reg_tmp7.w = (uniforms.f[93].yyyy).w;
-    // 97: dp4
-    reg_tmp10.x = dot_s(uniforms.f[0], reg_tmp7);
-    // 98: dp4
-    reg_tmp10.y = dot_s(uniforms.f[1], reg_tmp7);
-    // 99: dp4
-    reg_tmp10.z = dot_s(uniforms.f[2], reg_tmp7);
-    // 100: mov
-    reg_tmp10.w = (uniforms.f[93].yyyy).w;
-    return false;
-}
-bool sub_101_106() {
-    // 101: mova
-    address_registers.x = (ivec2(uniforms.f[93].xx)).x;
-    // 102: dp4
-    reg_tmp10.x = dot_s(uniforms.f[25], reg_tmp15);
-    // 103: dp4
-    reg_tmp10.y = dot_s(uniforms.f[26], reg_tmp15);
-    // 104: dp4
-    reg_tmp10.z = dot_s(uniforms.f[27], reg_tmp15);
-    // 105: mov
-    reg_tmp10.w = (uniforms.f[93].yyyy).w;
-    return false;
-}
-bool sub_148_160() {
-    // 148: dp3
-    reg_tmp12.x = dot_3(uniforms.f[25 + address_registers.x].xyz, reg_tmp14.xyz);
-    // 149: dp3
-    reg_tmp12.y = dot_3(uniforms.f[26 + address_registers.x].xyz, reg_tmp14.xyz);
-    // 150: dp3
-    reg_tmp12.z = dot_3(uniforms.f[27 + address_registers.x].xyz, reg_tmp14.xyz);
-    // 151: dp4
-    reg_tmp15.x = dot_s(uniforms.f[90], reg_tmp10);
-    // 152: dp4
-    reg_tmp15.y = dot_s(uniforms.f[91], reg_tmp10);
-    // 153: dp4
-    reg_tmp15.z = dot_s(uniforms.f[92], reg_tmp10);
-    // 154: mov
-    reg_tmp15.w = (uniforms.f[93].yyyy).w;
-    // 155: dp3
-    reg_tmp14.x = dot_3(uniforms.f[3].xyz, reg_tmp12.xyz);
-    // 156: dp3
-    reg_tmp14.y = dot_3(uniforms.f[4].xyz, reg_tmp12.xyz);
-    // 157: dp3
-    reg_tmp14.z = dot_3(uniforms.f[5].xyz, reg_tmp12.xyz);
-    // 158: call
-    {
-        sub_191_208();
-    }
-    // 159: nop
-    return false;
-}
-bool sub_160_185() {
-    // 160: ifc
-    if (all(conditional_code)) {
-        sub_161_179();
-    } else {
-        sub_179_184();
-    }
-    // 184: nop
-    return false;
-}
-bool sub_161_179() {
-    // 161: dp3
-    reg_tmp12.x = dot_3(uniforms.f[25 + address_registers.x].xyz, reg_tmp14.xyz);
-    // 162: dp3
-    reg_tmp12.y = dot_3(uniforms.f[26 + address_registers.x].xyz, reg_tmp14.xyz);
-    // 163: dp3
-    reg_tmp12.z = dot_3(uniforms.f[27 + address_registers.x].xyz, reg_tmp14.xyz);
-    // 164: dp3
-    reg_tmp11.x = dot_3(uniforms.f[25 + address_registers.x].xyz, reg_tmp13.xyz);
-    // 165: dp3
-    reg_tmp11.y = dot_3(uniforms.f[26 + address_registers.x].xyz, reg_tmp13.xyz);
-    // 166: dp3
-    reg_tmp11.z = dot_3(uniforms.f[27 + address_registers.x].xyz, reg_tmp13.xyz);
-    // 167: dp4
-    reg_tmp15.x = dot_s(uniforms.f[90], reg_tmp10);
-    // 168: dp4
-    reg_tmp15.y = dot_s(uniforms.f[91], reg_tmp10);
-    // 169: dp4
-    reg_tmp15.z = dot_s(uniforms.f[92], reg_tmp10);
-    // 170: mov
-    reg_tmp15.w = (uniforms.f[93].yyyy).w;
-    // 171: dp3
-    reg_tmp14.x = dot_3(uniforms.f[3].xyz, reg_tmp12.xyz);
-    // 172: dp3
-    reg_tmp14.y = dot_3(uniforms.f[4].xyz, reg_tmp12.xyz);
-    // 173: dp3
-    reg_tmp14.z = dot_3(uniforms.f[5].xyz, reg_tmp12.xyz);
-    // 174: dp3
-    reg_tmp13.x = dot_3(uniforms.f[3].xyz, reg_tmp11.xyz);
-    // 175: dp3
-    reg_tmp13.y = dot_3(uniforms.f[4].xyz, reg_tmp11.xyz);
-    // 176: dp3
-    reg_tmp13.z = dot_3(uniforms.f[5].xyz, reg_tmp11.xyz);
-    // 177: call
-    {
-        sub_208_284();
-    }
-    // 178: nop
-    return false;
-}
-bool sub_179_184() {
-    // 179: dp4
-    reg_tmp15.x = dot_s(uniforms.f[90], reg_tmp10);
-    // 180: dp4
-    reg_tmp15.y = dot_s(uniforms.f[91], reg_tmp10);
-    // 181: dp4
-    reg_tmp15.z = dot_s(uniforms.f[92], reg_tmp10);
-    // 182: mov
-    reg_tmp15.w = (uniforms.f[93].yyyy).w;
-    // 183: mov
-    vs_out_attr1 = uniforms.f[93].xxxx;
-    return false;
-}
-bool sub_191_208() {
-    uint jmp_to = 191u;
-    while (true) {
-        switch (jmp_to) {
-        case 191u: {
-            // 191: dp3
-            reg_tmp6.x = dot_3(reg_tmp14.xyz, reg_tmp14.xyz);
-            // 192: dp3
-            reg_tmp7.x = dot_3(reg_tmp12.xyz, reg_tmp12.xyz);
-            // 193: rsq
-            reg_tmp6.x = rsq_s(reg_tmp6.x);
-            // 194: rsq
-            reg_tmp7.x = rsq_s(reg_tmp7.x);
-            // 195: mul
-            reg_tmp14.xyz = (mul_s(reg_tmp14.xyzz, reg_tmp6.xxxx)).xyz;
-            // 196: mul
-            reg_tmp12.xyz = (mul_s(reg_tmp12.xyzz, reg_tmp7.xxxx)).xyz;
-            // 197: mov
-            reg_tmp0 = uniforms.f[93].yxxx;
-            // 198: jmpu
-            if (!uniforms.b[15]) {
-                { jmp_to = 207u; break; }
-            }
-            // 199: add
-            reg_tmp4 = uniforms.f[93].yyyy + reg_tmp14.zzzz;
-            // 200: mul
-            reg_tmp4 = mul_s(uniforms.f[94].zzzz, reg_tmp4);
-            // 201: cmp
-            conditional_code = greaterThanEqual(uniforms.f[93].xx, reg_tmp4.xx);
-            // 202: rsq
-            reg_tmp4 = vec4(rsq_s(reg_tmp4.x));
-            // 203: mul
-            reg_tmp5 = mul_s(uniforms.f[94].zzzz, reg_tmp14);
-            // 204: jmpc
-            if (conditional_code.x) {
-                { jmp_to = 207u; break; }
-            }
-            // 205: rcp
-            reg_tmp0.z = rcp_s(reg_tmp4.x);
-            // 206: mul
-            reg_tmp0.xy = (mul_s(reg_tmp5, reg_tmp4)).xy;
-        }
-        case 207u: {
-            // 207: mov
-            vs_out_attr1 = reg_tmp0;
-        }
-        default: return false;
-        }
-    }
-    return false;
-}
-bool sub_208_284() {
-    uint jmp_to = 208u;
-    while (true) {
-        switch (jmp_to) {
-        case 208u: {
-            // 208: dp3
-            reg_tmp6.x = dot_3(reg_tmp14.xyz, reg_tmp14.xyz);
-            // 209: dp3
-            reg_tmp7.x = dot_3(reg_tmp12.xyz, reg_tmp12.xyz);
-            // 210: rsq
-            reg_tmp6.x = rsq_s(reg_tmp6.x);
-            // 211: rsq
-            reg_tmp7.x = rsq_s(reg_tmp7.x);
-            // 212: mul
-            reg_tmp14.xyz = (mul_s(reg_tmp14.xyzz, reg_tmp6.xxxx)).xyz;
-            // 213: mul
-            reg_tmp12.xyz = (mul_s(reg_tmp12.xyzz, reg_tmp7.xxxx)).xyz;
-            // 214: mul
-            reg_tmp13.xyz = (mul_s(reg_tmp13.xyzz, reg_tmp6.xxxx)).xyz;
-            // 215: mul
-            reg_tmp11.xyz = (mul_s(reg_tmp11.xyzz, reg_tmp7.xxxx)).xyz;
-            // 216: mov
-            reg_tmp0 = uniforms.f[93].yxxx;
-            // 217: jmpu
-            if (!uniforms.b[15]) {
-                { jmp_to = 283u; break; }
-            }
-            // 218: mul
-            reg_tmp13.xyz = (mul_s(reg_tmp13.xyzz, reg_tmp6.xxxx)).xyz;
-            // 219: mul
-            reg_tmp11.xyz = (mul_s(reg_tmp11.xyzz, reg_tmp7.xxxx)).xyz;
-            // 220: mul
-            reg_tmp5 = mul_s(reg_tmp14.yzxx, reg_tmp13.zxyy);
-            // 221: mad
-            reg_tmp5 = fma_s(-reg_tmp13.yzxx, reg_tmp14.zxyy, reg_tmp5);
-            // 222: dp3
-            reg_tmp5.w = dot_3(reg_tmp5.xyz, reg_tmp5.xyz);
-            // 223: rsq
-            reg_tmp5.w = rsq_s(reg_tmp5.w);
-            // 224: mul
-            reg_tmp5 = mul_s(reg_tmp5, reg_tmp5.wwww);
-            // 225: add
-            reg_tmp6.w = (reg_tmp14.zzzz + reg_tmp5.yyyy).w;
-            // 226: mul
-            reg_tmp13 = mul_s(reg_tmp5.yzxx, reg_tmp14.zxyy);
-            // 227: mad
-            reg_tmp13 = fma_s(-reg_tmp14.yzxx, reg_tmp5.zxyy, reg_tmp13);
-            // 228: add
-            reg_tmp6.w = (reg_tmp13.xxxx + reg_tmp6).w;
-            // 229: mov
-            reg_tmp13.w = (reg_tmp5.zzzz).w;
-            // 230: mov
-            reg_tmp5.z = (reg_tmp13.xxxx).z;
-            // 231: add
-            reg_tmp6.w = (uniforms.f[93].yyyy + reg_tmp6).w;
-            // 232: mov
-            reg_tmp14.w = (reg_tmp5.xxxx).w;
-            // 233: mov
-            reg_tmp5.x = (reg_tmp14.zzzz).x;
-            // 234: cmp
-            conditional_code = lessThan(uniforms.f[94].yy, reg_tmp6.ww);
-            // 235: mov
-            reg_tmp6.x = (uniforms.f[93].yyyy).x;
-            // 236: mov
-            reg_tmp6.y = (-uniforms.f[93].yyyy).y;
-            // 237: jmpc
-            if (!conditional_code.x) {
-                { jmp_to = 245u; break; }
-            }
-            // 238: add
-            reg_tmp7.xz = (reg_tmp13.wwyy + -reg_tmp14.yyww).xz;
-            // 239: add
-            reg_tmp7.y = (reg_tmp14.xxxx + -reg_tmp13.zzzz).y;
-            // 240: mov
-            reg_tmp7.w = (reg_tmp6).w;
-            // 241: dp4
-            reg_tmp6 = vec4(dot_s(reg_tmp7, reg_tmp7));
-            // 242: rsq
-            reg_tmp6 = vec4(rsq_s(reg_tmp6.x));
-            // 243: mul
-            reg_tmp0 = mul_s(reg_tmp7, reg_tmp6);
-            // 244: jmpu
-            if (uniforms.b[0]) {
-                { jmp_to = 283u; break; }
-            }
-        }
-        case 245u: {
-            // 245: cmp
-            conditional_code = greaterThan(reg_tmp5.zy, reg_tmp5.yx);
-            // 246: ifc
-            if (conditional_code.x) {
-                sub_247_267();
-            } else {
-                sub_267_280();
-            }
-            // 280: dp4
-            reg_tmp6 = vec4(dot_s(reg_tmp8, reg_tmp8));
-            // 281: rsq
-            reg_tmp6 = vec4(rsq_s(reg_tmp6.x));
-            // 282: mul
-            reg_tmp0 = mul_s(reg_tmp8, reg_tmp6);
-        }
-        case 283u: {
-            // 283: mov
-            vs_out_attr1 = reg_tmp0;
-        }
-        default: return false;
-        }
-    }
-    return false;
-}
-bool sub_247_267() {
-    // 247: ifc
-    if (conditional_code.y) {
-        sub_248_253();
-    } else {
-        sub_253_266();
-    }
-    // 266: mov
-    reg_tmp8.w = (-reg_tmp8).w;
-    return false;
-}
-bool sub_248_253() {
-    // 248: mul
-    reg_tmp8 = mul_s(reg_tmp13.yyzw, reg_tmp6.xxxy);
-    // 249: add
-    reg_tmp8.x = (uniforms.f[93].yyyy + -reg_tmp5.yyyy).x;
-    // 250: add
-    reg_tmp9 = reg_tmp5.zzzz + -reg_tmp5.xxxx;
-    // 251: add
-    reg_tmp8.yzw = (reg_tmp8 + reg_tmp14.wwxy).yzw;
-    // 252: add
-    reg_tmp8.x = (reg_tmp9 + reg_tmp8).x;
-    return false;
-}
-bool sub_253_266() {
-    // 253: cmp
-    conditional_code = greaterThan(reg_tmp5.zz, reg_tmp5.xx);
-    // 254: mul
-    reg_tmp8 = mul_s(reg_tmp13.yyzw, reg_tmp6.xxxy);
-    // 255: add
-    reg_tmp8.x = (uniforms.f[93].yyyy + -reg_tmp5.yyyy).x;
-    // 256: ifc
-    if (conditional_code.x) {
-        sub_257_260();
-    } else {
-        sub_260_265();
-    }
-    // 265: nop
-    return false;
-}
-bool sub_257_260() {
-    // 257: add
-    reg_tmp9 = reg_tmp5.zzzz + -reg_tmp5.xxxx;
-    // 258: add
-    reg_tmp8.yzw = (reg_tmp8 + reg_tmp14.wwxy).yzw;
-    // 259: add
-    reg_tmp8.x = (reg_tmp9 + reg_tmp8).x;
-    return false;
-}
-bool sub_260_265() {
-    // 260: mul
-    reg_tmp8 = mul_s(reg_tmp13.zwwy, reg_tmp6.xxxy);
-    // 261: add
-    reg_tmp8.z = (uniforms.f[93].yyyy + -reg_tmp5.zzzz).z;
-    // 262: add
-    reg_tmp9 = reg_tmp5.xxxx + -reg_tmp5.yyyy;
-    // 263: add
-    reg_tmp8.xyw = (reg_tmp8 + reg_tmp14.xyyw).xyw;
-    // 264: add
-    reg_tmp8.z = (reg_tmp9 + reg_tmp8).z;
-    return false;
-}
-bool sub_267_280() {
-    // 267: ifc
-    if (conditional_code.y) {
-        sub_268_273();
-    } else {
-        sub_273_279();
-    }
-    // 279: nop
-    return false;
-}
-bool sub_268_273() {
-    // 268: mul
-    reg_tmp8 = mul_s(reg_tmp13.yywz, reg_tmp6.xxxy);
-    // 269: add
-    reg_tmp8.y = (uniforms.f[93].yyyy + -reg_tmp5.zzzz).y;
-    // 270: add
-    reg_tmp9 = reg_tmp5.yyyy + -reg_tmp5.xxxx;
-    // 271: add
-    reg_tmp8.xzw = (reg_tmp8 + reg_tmp14.wwyx).xzw;
-    // 272: add
-    reg_tmp8.y = (reg_tmp9 + reg_tmp8).y;
-    return false;
-}
-bool sub_273_279() {
-    // 273: mul
-    reg_tmp8 = mul_s(reg_tmp13.zwwy, reg_tmp6.xxxy);
-    // 274: add
-    reg_tmp8.z = (uniforms.f[93].yyyy + -reg_tmp5.zzzz).z;
-    // 275: add
-    reg_tmp9 = reg_tmp5.xxxx + -reg_tmp5.yyyy;
-    // 276: add
-    reg_tmp8.xyw = (reg_tmp8 + reg_tmp14.xyyw).xyw;
-    // 277: add
-    reg_tmp8.z = (reg_tmp9 + reg_tmp8).z;
-    // 278: mov
-    reg_tmp8.w = (-reg_tmp8).w;
-    return false;
-}
-bool sub_284_311() {
-    // 284: mov
-    reg_tmp0.xy = (uniforms.f[10].xxxx).xy;
-    // 285: ifu
-    if (uniforms.b[9]) {
-        sub_286_291();
-    } else {
-        sub_291_310();
-    }
-    // 310: nop
-    return false;
-}
-bool sub_286_291() {
-    // 286: call
-    {
-        sub_311_319();
-    }
-    // 287: dp4
-    reg_tmp3.x = dot_s(uniforms.f[11].xywz, reg_tmp6);
-    // 288: dp4
-    reg_tmp3.y = dot_s(uniforms.f[12].xywz, reg_tmp6);
-    // 289: mov
-    reg_tmp3.zw = (uniforms.f[93].xxxx).zw;
-    // 290: mov
-    vs_out_attr4 = reg_tmp3;
-    return false;
-}
-bool sub_291_310() {
-    // 291: cmp
-    conditional_code = equal(uniforms.f[95].xy, reg_tmp0.xy);
-    // 292: mov
-    reg_tmp6.zw = (uniforms.f[93].xxyy).zw;
-    // 293: ifc
-    if (all(not(conditional_code))) {
-        sub_294_300();
-    } else {
-        sub_300_309();
-    }
-    // 309: mov
-    vs_out_attr4 = reg_tmp3;
-    return false;
-}
-bool sub_294_300() {
-    // 294: mov
-    reg_tmp6 = reg_tmp10;
-    // 295: dp4
-    reg_tmp3.x = dot_s(uniforms.f[11], reg_tmp6);
-    // 296: dp4
-    reg_tmp3.y = dot_s(uniforms.f[12], reg_tmp6);
-    // 297: dp4
-    reg_tmp3.z = dot_s(uniforms.f[13], reg_tmp6);
-    // 298: mul
-    reg_tmp0.xy = (mul_s(uniforms.f[19].xyyy, reg_tmp3.zzzz)).xy;
-    // 299: add
-    reg_tmp3.xy = (reg_tmp3.xyyy + reg_tmp0.xyyy).xy;
-    return false;
-}
-bool sub_300_309() {
-    // 300: ifc
-    if (all(bvec2(conditional_code.x, !conditional_code.y))) {
-        sub_301_305();
-    } else {
-        sub_305_308();
-    }
-    // 308: nop
-    return false;
-}
-bool sub_301_305() {
-    // 301: call
-    {
-        sub_319_326();
-    }
-    // 302: dp3
-    reg_tmp3.x = dot_3(uniforms.f[11].xyz, reg_tmp6.xyz);
-    // 303: dp3
-    reg_tmp3.y = dot_3(uniforms.f[12].xyz, reg_tmp6.xyz);
-    // 304: dp3
-    reg_tmp3.z = dot_3(uniforms.f[13].xyz, reg_tmp6.xyz);
-    return false;
-}
-bool sub_305_308() {
-    // 305: call
-    {
-        sub_326_330();
-    }
-    // 306: dp4
-    reg_tmp3.x = dot_s(uniforms.f[11], reg_tmp6);
-    // 307: dp4
-    reg_tmp3.y = dot_s(uniforms.f[12], reg_tmp6);
-    return false;
-}
-bool sub_311_319() {
-    // 311: cmp
-    conditional_code = equal(uniforms.f[93].yz, reg_tmp0.xy);
-    // 312: ifc
-    if (all(not(conditional_code))) {
-        sub_313_314();
-    } else {
-        sub_314_318();
-    }
-    // 318: mov
-    reg_tmp6.zw = (uniforms.f[93].xxyy).zw;
-    return false;
-}
-bool sub_313_314() {
-    // 313: mul
-    reg_tmp6.xy = (mul_s(uniforms.f[8].xxxx, vs_in_reg4.xyyy)).xy;
-    return false;
-}
-bool sub_314_318() {
-    // 314: ifc
-    if (all(bvec2(conditional_code.x, !conditional_code.y))) {
-        sub_315_316();
-    } else {
-        sub_316_317();
-    }
-    // 317: nop
-    return false;
-}
-bool sub_315_316() {
-    // 315: mul
-    reg_tmp6.xy = (mul_s(uniforms.f[8].yyyy, vs_in_reg5.xyyy)).xy;
-    return false;
-}
-bool sub_316_317() {
-    // 316: mul
-    reg_tmp6.xy = (mul_s(uniforms.f[8].zzzz, vs_in_reg6.xyyy)).xy;
-    return false;
-}
-bool sub_319_326() {
-    // 319: mov
-    reg_tmp2 = -reg_tmp15;
-    // 320: dp3
-    reg_tmp2.w = dot_3(reg_tmp2.xyz, reg_tmp2.xyz);
-    // 321: rsq
-    reg_tmp2.w = rsq_s(reg_tmp2.w);
-    // 322: mul
-    reg_tmp2 = mul_s(reg_tmp2, reg_tmp2.wwww);
-    // 323: dp3
-    reg_tmp1 = vec4(dot_3(reg_tmp2.xyz, reg_tmp14.xyz));
-    // 324: add
-    reg_tmp1 = reg_tmp1 + reg_tmp1;
-    // 325: mad
-    reg_tmp6 = fma_s(reg_tmp1, reg_tmp14, -reg_tmp2);
-    return false;
-}
-bool sub_326_330() {
-    // 326: mov
-    reg_tmp1.xy = (uniforms.f[94].zzzz).xy;
-    // 327: mov
-    reg_tmp1.zw = (uniforms.f[93].xxxx).zw;
-    // 328: mad
-    reg_tmp6 = fma_s(reg_tmp14, reg_tmp1, reg_tmp1);
-    // 329: mov
-    reg_tmp6.zw = (uniforms.f[93].xxyy).zw;
-    return false;
-}
-bool sub_330_354() {
-    // 330: mov
-    reg_tmp0.xy = (uniforms.f[10].yyyy).xy;
-    // 331: ifu
-    if (uniforms.b[10]) {
-        sub_332_336();
-    } else {
-        sub_336_353();
-    }
-    // 353: nop
-    return false;
-}
-bool sub_332_336() {
-    // 332: call
-    {
-        sub_311_319();
-    }
-    // 333: dp4
-    reg_tmp4.x = dot_s(uniforms.f[14].xywz, reg_tmp6);
-    // 334: dp4
-    reg_tmp4.y = dot_s(uniforms.f[15].xywz, reg_tmp6);
-    // 335: mov
-    vs_out_attr5 = reg_tmp4;
-    return false;
-}
-bool sub_336_353() {
-    // 336: ifu
-    if (uniforms.b[13]) {
-        sub_337_351();
-    } else {
-        sub_351_352();
-    }
-    // 352: nop
-    return false;
-}
-bool sub_337_351() {
-    // 337: cmp
-    conditional_code = equal(uniforms.f[95].xy, reg_tmp0.xy);
-    // 338: mov
-    reg_tmp6.zw = (uniforms.f[93].xxyy).zw;
-    // 339: ifc
-    if (all(not(conditional_code))) {
-        sub_340_347();
-    } else {
-        sub_347_350();
-    }
-    // 350: mov
-    vs_out_attr5 = reg_tmp4;
-    return false;
-}
-bool sub_340_347() {
-    // 340: mov
-    reg_tmp6 = reg_tmp10;
-    // 341: dp4
-    reg_tmp4.x = dot_s(uniforms.f[14], reg_tmp6);
-    // 342: dp4
-    reg_tmp4.y = dot_s(uniforms.f[15], reg_tmp6);
-    // 343: dp4
-    reg_tmp4.z = dot_s(uniforms.f[16], reg_tmp6);
-    // 344: rcp
-    reg_tmp6.w = rcp_s(reg_tmp4.z);
-    // 345: mul
-    reg_tmp4.xy = (mul_s(reg_tmp4.xyyy, reg_tmp6.wwww)).xy;
-    // 346: add
-    reg_tmp4.xy = (uniforms.f[19].zwww + reg_tmp4.xyyy).xy;
-    return false;
-}
-bool sub_347_350() {
-    // 347: call
-    {
-        sub_326_330();
-    }
-    // 348: dp4
-    reg_tmp4.x = dot_s(uniforms.f[14], reg_tmp6);
-    // 349: dp4
-    reg_tmp4.y = dot_s(uniforms.f[15], reg_tmp6);
-    return false;
-}
-bool sub_351_352() {
-    // 351: mov
-    vs_out_attr5 = uniforms.f[93].xxxx;
-    return false;
-}
-bool sub_354_370() {
-    // 354: mov
-    reg_tmp0.xy = (uniforms.f[10].zzzz).xy;
-    // 355: ifu
-    if (uniforms.b[11]) {
-        sub_356_360();
-    } else {
-        sub_360_369();
-    }
-    // 369: nop
-    return false;
-}
-bool sub_356_360() {
-    // 356: call
-    {
-        sub_311_319();
-    }
-    // 357: dp4
-    reg_tmp5.x = dot_s(uniforms.f[17].xywz, reg_tmp6);
-    // 358: dp4
-    reg_tmp5.y = dot_s(uniforms.f[18].xywz, reg_tmp6);
-    // 359: mov
-    vs_out_attr6 = reg_tmp5;
-    return false;
-}
-bool sub_360_369() {
-    // 360: ifu
-    if (uniforms.b[14]) {
-        sub_361_367();
-    } else {
-        sub_367_368();
-    }
-    // 368: nop
-    return false;
-}
-bool sub_361_367() {
-    // 361: mov
-    reg_tmp6.zw = (uniforms.f[93].xxyy).zw;
-    // 362: mov
-    reg_tmp5.zw = (reg_tmp6.zwww).zw;
-    // 363: call
-    {
-        sub_326_330();
-    }
-    // 364: dp4
-    reg_tmp5.x = dot_s(uniforms.f[17], reg_tmp6);
-    // 365: dp4
-    reg_tmp5.y = dot_s(uniforms.f[18], reg_tmp6);
-    // 366: mov
-    vs_out_attr6 = reg_tmp5;
-    return false;
-}
-bool sub_367_368() {
-    // 367: mov
-    vs_out_attr6 = uniforms.f[93].xxxx;
-    return false;
-}
-// reference: E24DFC03EC7CAC2A, 237E20ADB8512109
-// program: 237E20ADB8512109, AD7922A63ED54CA7, 68D05B602E6F7209
-// shader: 8B31, 1ED783A835626EB7
+// reference: 63E9A8D441F1146D, E712D1F015FA0270
+// program: E140255169676482, 5D764F9A6220D694, E712D1F015FA0270
+// reference: 460C959C86DAFF4F, 559D364E86318AE6
+// shader: 8B31, 66BB066A0743530F
 
 struct pica_uniforms {
     bool b[16];
@@ -37156,7 +39460,21 @@ void main() {
     exec_shader();
 }
 
-// accurate_mul: safe
+
+#define mul_s(x, y) mix(x * y, vec4(0.0), isnan(x * y))
+#define mul_3(x, y) mix(x * y, vec3(0.0), isnan(x * y))
+#define fma_s(x, y, z) (mul_s(x, y) + z)
+float rcp_s(float x) {
+    if (x == 0.0) return x;
+    return 1.0 / x;
+}
+float rsq_s(float x) {
+    if (x > 0.0) return inversesqrt(x);
+    return 0.0;
+}
+#define dot_s(x, y) dot(x, y)
+#define dot_3(x, y) dot(mul_3(x, y), vec3(1.0))
+
 bvec2 conditional_code = bvec2(false);
 ivec3 address_registers = ivec3(0);
 vec4 reg_tmp0 = vec4(0.0, 0.0, 0.0, 1.0);
@@ -37176,7 +39494,6 @@ vec4 reg_tmp13 = vec4(0.0, 0.0, 0.0, 1.0);
 vec4 reg_tmp14 = vec4(0.0, 0.0, 0.0, 1.0);
 vec4 reg_tmp15 = vec4(0.0, 0.0, 0.0, 1.0);
 
-bool sub_0_4096();
 bool sub_6_11();
 bool sub_11_20();
 bool sub_20_29();
@@ -37213,46 +39530,28 @@ bool sub_244_247();
 bool sub_251_258();
 bool sub_260_270();
 bool sub_267_268();
-bool sub_270_279();
-bool sub_297_321();
-bool sub_299_303();
-bool sub_303_320();
-bool sub_304_318();
-bool sub_307_314();
-bool sub_314_317();
-bool sub_318_319();
+bool sub_279_288();
 bool sub_321_329();
 bool sub_323_324();
 bool sub_324_328();
 bool sub_325_326();
 bool sub_326_327();
 bool sub_329_333();
+bool sub_333_4096();
+bool sub_339_366();
+bool sub_341_346();
+bool sub_346_365();
+bool sub_349_355();
+bool sub_355_364();
+bool sub_356_360();
+bool sub_360_363();
+bool sub_366_373();
 
 bool exec_shader() {
-    sub_0_4096();
+    sub_333_4096();
     return true;
 }
 
-bool sub_0_4096() {
-    // 0: call
-    {
-        sub_37_197();
-    }
-    // 1: call
-    {
-        sub_197_214();
-    }
-    // 2: call
-    {
-        sub_270_279();
-    }
-    // 3: call
-    {
-        sub_297_321();
-    }
-    // 4: end
-    return true;
-}
 bool sub_6_11() {
     // 6: mova
     address_registers.x = (ivec2(reg_tmp1.xx)).x;
@@ -37956,108 +40255,25 @@ bool sub_267_268() {
     reg_tmp4 = mul_s(reg_tmp4, reg_tmp9.wwww);
     return false;
 }
-bool sub_270_279() {
-    // 270: dp3
+bool sub_279_288() {
+    // 279: dp3
     reg_tmp5.x = dot_3(uniforms.f[90].xyz, reg_tmp12.xyz);
-    // 271: dp3
+    // 280: dp3
     reg_tmp5.y = dot_3(uniforms.f[91].xyz, reg_tmp12.xyz);
-    // 272: dp3
+    // 281: dp3
     reg_tmp5.z = dot_3(uniforms.f[92].xyz, reg_tmp12.xyz);
-    // 273: dp4
+    // 282: dp4
     reg_tmp4.x = dot_s(reg_tmp5.xyzz, reg_tmp5.xyzz);
-    // 274: rsq
+    // 283: rsq
     reg_tmp4.x = rsq_s(reg_tmp4.x);
-    // 275: mul
+    // 284: mul
     reg_tmp4.xyz = (mul_s(reg_tmp5.xyzz, reg_tmp4.xxxx)).xyz;
-    // 276: mul
+    // 285: mul
     reg_tmp4 = mul_s(uniforms.f[94].zzzz, reg_tmp4);
-    // 277: add
+    // 286: add
     reg_tmp12 = uniforms.f[94].zzzz + reg_tmp4;
-    // 278: mov
-    vs_out_attr4 = reg_tmp12;
-    return false;
-}
-bool sub_297_321() {
-    // 297: mov
-    reg_tmp0.xy = (uniforms.f[10].yyyy).xy;
-    // 298: ifu
-    if (uniforms.b[10]) {
-        sub_299_303();
-    } else {
-        sub_303_320();
-    }
-    // 320: nop
-    return false;
-}
-bool sub_299_303() {
-    // 299: call
-    {
-        sub_321_329();
-    }
-    // 300: dp4
-    reg_tmp4.x = dot_s(uniforms.f[14].xywz, reg_tmp6);
-    // 301: dp4
-    reg_tmp4.y = dot_s(uniforms.f[15].xywz, reg_tmp6);
-    // 302: mov
-    vs_out_attr5 = reg_tmp4;
-    return false;
-}
-bool sub_303_320() {
-    // 303: ifu
-    if (uniforms.b[13]) {
-        sub_304_318();
-    } else {
-        sub_318_319();
-    }
-    // 319: nop
-    return false;
-}
-bool sub_304_318() {
-    // 304: cmp
-    conditional_code = equal(uniforms.f[95].xy, reg_tmp0.xy);
-    // 305: mov
-    reg_tmp6.zw = (uniforms.f[93].xxyy).zw;
-    // 306: ifc
-    if (all(not(conditional_code))) {
-        sub_307_314();
-    } else {
-        sub_314_317();
-    }
-    // 317: mov
-    vs_out_attr5 = reg_tmp4;
-    return false;
-}
-bool sub_307_314() {
-    // 307: mov
-    reg_tmp6 = reg_tmp10;
-    // 308: dp4
-    reg_tmp4.x = dot_s(uniforms.f[14], reg_tmp6);
-    // 309: dp4
-    reg_tmp4.y = dot_s(uniforms.f[15], reg_tmp6);
-    // 310: dp4
-    reg_tmp4.z = dot_s(uniforms.f[16], reg_tmp6);
-    // 311: rcp
-    reg_tmp6.w = rcp_s(reg_tmp4.z);
-    // 312: mul
-    reg_tmp4.xy = (mul_s(reg_tmp4.xyyy, reg_tmp6.wwww)).xy;
-    // 313: add
-    reg_tmp4.xy = (uniforms.f[19].zwww + reg_tmp4.xyyy).xy;
-    return false;
-}
-bool sub_314_317() {
-    // 314: call
-    {
-        sub_329_333();
-    }
-    // 315: dp4
-    reg_tmp4.x = dot_s(uniforms.f[14], reg_tmp6);
-    // 316: dp4
-    reg_tmp4.y = dot_s(uniforms.f[15], reg_tmp6);
-    return false;
-}
-bool sub_318_319() {
-    // 318: mov
-    vs_out_attr5 = uniforms.f[93].xxxx;
+    // 287: mov
+    vs_out_attr5 = reg_tmp12;
     return false;
 }
 bool sub_321_329() {
@@ -38109,1041 +40325,1073 @@ bool sub_329_333() {
     reg_tmp6.zw = (uniforms.f[93].xxyy).zw;
     return false;
 }
-// reference: 6997BE1F130949B7, 1ED783A835626EB7
-// program: 1ED783A835626EB7, 3B3AE026C742C7D5, 0CE9B5845A7FF71A
-// reference: E27769B0130949B7, 1ED783A835626EB7
-// program: 1ED783A835626EB7, 3B3AE026C742C7D5, BF865376D9D23EDB
-// reference: CB13D228A3146887, 72F5D85BD2AC207B
-// program: 72F5D85BD2AC207B, 3B3AE026C742C7D5, 7D60F33FCD68477C
-// reference: B2C6F014130949B7, 1ED783A835626EB7
-// reference: 40F30587A3146887, 72F5D85BD2AC207B
-// shader: 8B31, 1047F5A62D1DF2A3
-
-struct pica_uniforms {
-    bool b[16];
-    uvec4 i[4];
-    vec4 f[96];
-};
-
-bool exec_shader();
-
-#define uniforms vs_uniforms
-layout (std140) uniform vs_config {
-    pica_uniforms uniforms;
-};
-
-layout(location = 0) in vec4 vs_in_reg0;
-layout(location = 1) in vec4 vs_in_reg1;
-layout(location = 2) in vec4 vs_in_reg2;
-layout(location = 7) in vec4 vs_in_reg7;
-layout(location = 8) in vec4 vs_in_reg8;
-
- out vec4 vs_out_attr0;
- out vec4 vs_out_attr1;
- out vec4 vs_out_attr2;
- out vec4 vs_out_attr3;
- out vec4 vs_out_attr4;
- out vec4 vs_out_attr5;
- out vec4 vs_out_attr6;
-
-void main() {
-    vs_out_attr0 = vec4(0.0, 0.0, 0.0, 1.0);
-    vs_out_attr1 = vec4(0.0, 0.0, 0.0, 1.0);
-    vs_out_attr2 = vec4(0.0, 0.0, 0.0, 1.0);
-    vs_out_attr3 = vec4(0.0, 0.0, 0.0, 1.0);
-    vs_out_attr4 = vec4(0.0, 0.0, 0.0, 1.0);
-    vs_out_attr5 = vec4(0.0, 0.0, 0.0, 1.0);
-    vs_out_attr6 = vec4(0.0, 0.0, 0.0, 1.0);
-
-    exec_shader();
-}
-
-// accurate_mul: safe
-bvec2 conditional_code = bvec2(false);
-ivec3 address_registers = ivec3(0);
-vec4 reg_tmp0 = vec4(0.0, 0.0, 0.0, 1.0);
-vec4 reg_tmp1 = vec4(0.0, 0.0, 0.0, 1.0);
-vec4 reg_tmp2 = vec4(0.0, 0.0, 0.0, 1.0);
-vec4 reg_tmp3 = vec4(0.0, 0.0, 0.0, 1.0);
-vec4 reg_tmp4 = vec4(0.0, 0.0, 0.0, 1.0);
-vec4 reg_tmp5 = vec4(0.0, 0.0, 0.0, 1.0);
-vec4 reg_tmp6 = vec4(0.0, 0.0, 0.0, 1.0);
-vec4 reg_tmp7 = vec4(0.0, 0.0, 0.0, 1.0);
-vec4 reg_tmp8 = vec4(0.0, 0.0, 0.0, 1.0);
-vec4 reg_tmp9 = vec4(0.0, 0.0, 0.0, 1.0);
-vec4 reg_tmp10 = vec4(0.0, 0.0, 0.0, 1.0);
-vec4 reg_tmp11 = vec4(0.0, 0.0, 0.0, 1.0);
-vec4 reg_tmp12 = vec4(0.0, 0.0, 0.0, 1.0);
-vec4 reg_tmp13 = vec4(0.0, 0.0, 0.0, 1.0);
-vec4 reg_tmp14 = vec4(0.0, 0.0, 0.0, 1.0);
-vec4 reg_tmp15 = vec4(0.0, 0.0, 0.0, 1.0);
-
-bool sub_391_4096();
-bool sub_398_403();
-bool sub_403_464();
-bool sub_425_429();
-bool sub_462_463();
-
-bool exec_shader() {
-    sub_391_4096();
+bool sub_333_4096() {
+    // 333: call
+    {
+        sub_37_197();
+    }
+    // 334: call
+    {
+        sub_197_214();
+    }
+    // 335: call
+    {
+        sub_339_366();
+    }
+    // 336: call
+    {
+        sub_279_288();
+    }
+    // 337: end
     return true;
 }
-
-bool sub_391_4096() {
-    // 391: call
-    {
-        sub_403_464();
-    }
-    // 392: mov
-    vs_out_attr3 = uniforms.f[93].xxxx;
-    // 393: mov
-    vs_out_attr4 = uniforms.f[93].xxxx;
-    // 394: mov
-    vs_out_attr5 = uniforms.f[93].xxxx;
-    // 395: mov
-    vs_out_attr6 = uniforms.f[93].xxxx;
-    // 396: end
-    return true;
-}
-bool sub_398_403() {
-    // 398: mova
-    address_registers.x = (ivec2(reg_tmp1.xx)).x;
-    // 399: dp4
-    reg_tmp3.x = dot_s(uniforms.f[25 + address_registers.x], reg_tmp15);
-    // 400: dp4
-    reg_tmp3.y = dot_s(uniforms.f[26 + address_registers.x], reg_tmp15);
-    // 401: dp4
-    reg_tmp3.z = dot_s(uniforms.f[27 + address_registers.x], reg_tmp15);
-    // 402: mad
-    reg_tmp7 = fma_s(reg_tmp1.wwww, reg_tmp3, reg_tmp7);
-    return false;
-}
-bool sub_403_464() {
-    // 403: mul
-    reg_tmp15.xyz = (mul_s(uniforms.f[7].xxxx, vs_in_reg0)).xyz;
-    // 404: mul
-    reg_tmp14.xyz = (mul_s(uniforms.f[7].yyyy, vs_in_reg1)).xyz;
-    // 405: mul
-    reg_tmp13.xyz = (mul_s(uniforms.f[7].zzzz, vs_in_reg2)).xyz;
-    // 406: add
-    reg_tmp15.xyz = (uniforms.f[6] + reg_tmp15).xyz;
-    // 407: mov
-    reg_tmp15.w = (uniforms.f[93].yyyy).w;
-    // 408: mov
-    reg_tmp0 = uniforms.f[7];
-    // 409: cmp
-    conditional_code = notEqual(uniforms.f[93].xx, reg_tmp0.yz);
-    // 410: mov
-    reg_tmp7 = uniforms.f[93].xxxx;
-    // 411: mov
-    reg_tmp12 = uniforms.f[93].xxxx;
-    // 412: mov
-    reg_tmp11 = uniforms.f[93].xxxx;
-    // 413: mul
-    reg_tmp2 = mul_s(uniforms.f[93].wwww, vs_in_reg7);
-    // 414: cmp
-    conditional_code = notEqual(uniforms.f[93].xx, vs_in_reg8.zw);
-    // 415: mov
-    reg_tmp1.xy = (reg_tmp2.xxxx).xy;
-    // 416: mul
-    reg_tmp1.w = (mul_s(uniforms.f[8].wwww, vs_in_reg8.xxxx)).w;
-    // 417: call
-    {
-        sub_398_403();
-    }
-    // 418: mov
-    reg_tmp1.xy = (reg_tmp2.yyyy).xy;
-    // 419: mul
-    reg_tmp1.w = (mul_s(uniforms.f[8].wwww, vs_in_reg8.yyyy)).w;
-    // 420: call
-    {
-        sub_398_403();
-    }
-    // 421: mov
-    reg_tmp1.xy = (reg_tmp2.zzzz).xy;
-    // 422: mul
-    reg_tmp1.w = (mul_s(uniforms.f[8].wwww, vs_in_reg8.zzzz)).w;
-    // 423: callc
-    if (conditional_code.x) {
-        sub_398_403();
-    }
-    // 424: ifu
-    if (uniforms.b[8]) {
-        sub_425_429();
-    }
-    // 429: mov
-    reg_tmp7.w = (uniforms.f[93].yyyy).w;
-    // 430: dp4
-    reg_tmp10.x = dot_s(uniforms.f[0], reg_tmp7);
-    // 431: dp4
-    reg_tmp10.y = dot_s(uniforms.f[1], reg_tmp7);
-    // 432: dp4
-    reg_tmp10.z = dot_s(uniforms.f[2], reg_tmp7);
-    // 433: mov
-    reg_tmp10.w = (uniforms.f[93].yyyy).w;
-    // 434: add
-    reg_tmp6.y = (-uniforms.f[85].wwww + reg_tmp10.yyyy).y;
-    // 435: mov
-    reg_tmp9.xyz = (uniforms.f[85].xyzz).xyz;
-    // 436: dp4
-    reg_tmp7.x = dot_s(reg_tmp9.xyzz, reg_tmp9.xyzz);
-    // 437: rsq
-    reg_tmp7.x = rsq_s(reg_tmp7.x);
-    // 438: mul
-    reg_tmp7.xyz = (mul_s(reg_tmp9.xyzz, reg_tmp7.xxxx)).xyz;
-    // 439: rcp
-    reg_tmp8.y = rcp_s(-reg_tmp7.y);
-    // 440: mul
-    reg_tmp8.y = (mul_s(reg_tmp6.yyyy, reg_tmp8.yyyy)).y;
-    // 441: mul
-    reg_tmp7.xyz = (mul_s(reg_tmp7.xyzz, reg_tmp8.yyyy)).xyz;
-    // 442: add
-    reg_tmp10.xyz = (reg_tmp10.xyzz + reg_tmp7.xyzz).xyz;
-    // 443: add
-    reg_tmp10.y = (uniforms.f[94].zzzz + reg_tmp10.yyyy).y;
-    // 444: mov
-    reg_tmp7 = reg_tmp10;
-    // 445: dp4
-    reg_tmp10.x = dot_s(uniforms.f[22], reg_tmp7);
-    // 446: dp4
-    reg_tmp10.y = dot_s(uniforms.f[23], reg_tmp7);
-    // 447: dp4
-    reg_tmp10.z = dot_s(uniforms.f[24], reg_tmp7);
-    // 448: dp4
-    reg_tmp15.x = dot_s(uniforms.f[90], reg_tmp10);
-    // 449: dp4
-    reg_tmp15.y = dot_s(uniforms.f[91], reg_tmp10);
-    // 450: dp4
-    reg_tmp15.z = dot_s(uniforms.f[92], reg_tmp10);
-    // 451: mov
-    reg_tmp15.w = (uniforms.f[93].yyyy).w;
-    // 452: mov
-    vs_out_attr1 = uniforms.f[93].xxxx;
-    // 453: mov
-    vs_out_attr2 = -reg_tmp15;
-    // 454: dp4
-    reg_tmp0.x = dot_s(uniforms.f[86], reg_tmp15);
-    // 455: dp4
-    reg_tmp0.y = dot_s(uniforms.f[87], reg_tmp15);
-    // 456: dp4
-    reg_tmp0.z = dot_s(uniforms.f[88], reg_tmp15);
-    // 457: dp4
-    reg_tmp0.w = dot_s(uniforms.f[89], reg_tmp15);
-    // 458: mov
-    reg_tmp1.x = (-reg_tmp0.wwww).x;
-    // 459: mul
-    reg_tmp1.y = (mul_s(uniforms.f[95].zzzz, -reg_tmp0.wwww)).y;
-    // 460: cmp
-    conditional_code.x = reg_tmp0.xxxx.x > reg_tmp1.xyyy.x;
-    conditional_code.y = reg_tmp0.xxxx.y < reg_tmp1.xyyy.y;
-    // 461: ifc
-    if (all(conditional_code)) {
-        sub_462_463();
-    }
-    // 463: mov
-    vs_out_attr0 = reg_tmp0;
-    return false;
-}
-bool sub_425_429() {
-    // 425: mov
-    reg_tmp1.xy = (reg_tmp2.wwww).xy;
-    // 426: mul
-    reg_tmp1.w = (mul_s(uniforms.f[8].wwww, vs_in_reg8.wwww)).w;
-    // 427: callc
-    if (conditional_code.y) {
-        sub_398_403();
-    }
-    // 428: nop
-    return false;
-}
-bool sub_462_463() {
-    // 462: mov
-    reg_tmp0.x = (-reg_tmp0.wwww).x;
-    return false;
-}
-// reference: 3F48A94C33242FFE, 1047F5A62D1DF2A3
-// program: 1047F5A62D1DF2A3, AD7922A63ED54CA7, BF309EAB6D1CFB0A
-// shader: 8B31, 20595D4CD1B8AA6A
-
-struct pica_uniforms {
-    bool b[16];
-    uvec4 i[4];
-    vec4 f[96];
-};
-
-bool exec_shader();
-
-#define uniforms vs_uniforms
-layout (std140) uniform vs_config {
-    pica_uniforms uniforms;
-};
-
-layout(location = 0) in vec4 vs_in_reg0;
-layout(location = 1) in vec4 vs_in_reg1;
-layout(location = 2) in vec4 vs_in_reg2;
-layout(location = 4) in vec4 vs_in_reg4;
-layout(location = 5) in vec4 vs_in_reg5;
-layout(location = 6) in vec4 vs_in_reg6;
-layout(location = 7) in vec4 vs_in_reg7;
-layout(location = 8) in vec4 vs_in_reg8;
-
- out vec4 vs_out_attr0;
- out vec4 vs_out_attr1;
- out vec4 vs_out_attr2;
- out vec4 vs_out_attr3;
- out vec4 vs_out_attr4;
- out vec4 vs_out_attr5;
- out vec4 vs_out_attr6;
-
-void main() {
-    vs_out_attr0 = vec4(0.0, 0.0, 0.0, 1.0);
-    vs_out_attr1 = vec4(0.0, 0.0, 0.0, 1.0);
-    vs_out_attr2 = vec4(0.0, 0.0, 0.0, 1.0);
-    vs_out_attr3 = vec4(0.0, 0.0, 0.0, 1.0);
-    vs_out_attr4 = vec4(0.0, 0.0, 0.0, 1.0);
-    vs_out_attr5 = vec4(0.0, 0.0, 0.0, 1.0);
-    vs_out_attr6 = vec4(0.0, 0.0, 0.0, 1.0);
-
-    exec_shader();
-}
-
-// accurate_mul: safe
-bvec2 conditional_code = bvec2(false);
-ivec3 address_registers = ivec3(0);
-vec4 reg_tmp0 = vec4(0.0, 0.0, 0.0, 1.0);
-vec4 reg_tmp1 = vec4(0.0, 0.0, 0.0, 1.0);
-vec4 reg_tmp2 = vec4(0.0, 0.0, 0.0, 1.0);
-vec4 reg_tmp3 = vec4(0.0, 0.0, 0.0, 1.0);
-vec4 reg_tmp4 = vec4(0.0, 0.0, 0.0, 1.0);
-vec4 reg_tmp5 = vec4(0.0, 0.0, 0.0, 1.0);
-vec4 reg_tmp6 = vec4(0.0, 0.0, 0.0, 1.0);
-vec4 reg_tmp7 = vec4(0.0, 0.0, 0.0, 1.0);
-vec4 reg_tmp8 = vec4(0.0, 0.0, 0.0, 1.0);
-vec4 reg_tmp9 = vec4(0.0, 0.0, 0.0, 1.0);
-vec4 reg_tmp10 = vec4(0.0, 0.0, 0.0, 1.0);
-vec4 reg_tmp11 = vec4(0.0, 0.0, 0.0, 1.0);
-vec4 reg_tmp12 = vec4(0.0, 0.0, 0.0, 1.0);
-vec4 reg_tmp13 = vec4(0.0, 0.0, 0.0, 1.0);
-vec4 reg_tmp14 = vec4(0.0, 0.0, 0.0, 1.0);
-vec4 reg_tmp15 = vec4(0.0, 0.0, 0.0, 1.0);
-
-bool sub_156_205();
-bool sub_181_187();
-bool sub_188_195();
-bool sub_196_204();
-bool sub_205_232();
-bool sub_207_212();
-bool sub_212_231();
-bool sub_215_221();
-bool sub_221_230();
-bool sub_222_226();
-bool sub_226_229();
-bool sub_232_240();
-bool sub_234_235();
-bool sub_235_239();
-bool sub_236_237();
-bool sub_237_238();
-bool sub_240_247();
-bool sub_247_254();
-bool sub_254_278();
-bool sub_256_260();
-bool sub_260_277();
-bool sub_261_275();
-bool sub_264_271();
-bool sub_271_274();
-bool sub_275_276();
-bool sub_278_294();
-bool sub_280_284();
-bool sub_284_293();
-bool sub_285_291();
-bool sub_291_292();
-bool sub_294_4096();
-bool sub_296_298();
-bool sub_298_299();
-bool sub_304_325();
-bool sub_325_339();
-bool sub_339_391();
-bool sub_363_367();
-bool sub_389_390();
-
-bool exec_shader() {
-    sub_294_4096();
-    return true;
-}
-
-bool sub_156_205() {
-    // 156: mov
-    reg_tmp1.xyz = (uniforms.f[93].xxyx).xyz;
-    // 157: dp3
-    reg_tmp8.x = dot_3(uniforms.f[0].xyz, reg_tmp12.xyz);
-    // 158: dp3
-    reg_tmp8.y = dot_3(uniforms.f[1].xyz, reg_tmp12.xyz);
-    // 159: dp3
-    reg_tmp8.z = dot_3(uniforms.f[2].xyz, reg_tmp12.xyz);
-    // 160: dp3
-    reg_tmp14.x = dot_3(uniforms.f[90].xyz, reg_tmp8.xyz);
-    // 161: dp3
-    reg_tmp14.y = dot_3(uniforms.f[91].xyz, reg_tmp8.xyz);
-    // 162: dp3
-    reg_tmp14.z = dot_3(uniforms.f[92].xyz, reg_tmp8.xyz);
-    // 163: mov
-    reg_tmp14.w = (uniforms.f[93].xxxx).w;
-    // 164: mov
-    reg_tmp8 = reg_tmp14;
-    // 165: dp4
-    reg_tmp14.x = dot_s(reg_tmp8, reg_tmp8);
-    // 166: rsq
-    reg_tmp14.x = rsq_s(reg_tmp14.x);
-    // 167: mul
-    reg_tmp14 = mul_s(reg_tmp8, reg_tmp14.xxxx);
-    // 168: mov
-    reg_tmp0 = uniforms.f[23];
-    // 169: dp3
-    reg_tmp8.x = dot_3(uniforms.f[0].xyz, reg_tmp0.xyz);
-    // 170: dp3
-    reg_tmp8.y = dot_3(uniforms.f[1].xyz, reg_tmp0.xyz);
-    // 171: dp3
-    reg_tmp8.z = dot_3(uniforms.f[2].xyz, reg_tmp0.xyz);
-    // 172: dp3
-    reg_tmp6.x = dot_3(uniforms.f[90].xyz, reg_tmp8.xyz);
-    // 173: dp3
-    reg_tmp6.y = dot_3(uniforms.f[91].xyz, reg_tmp8.xyz);
-    // 174: dp3
-    reg_tmp6.z = dot_3(uniforms.f[92].xyz, reg_tmp8.xyz);
-    // 175: add
-    reg_tmp8.xyz = (reg_tmp6.xyzz + reg_tmp1.xyzz).xyz;
-    // 176: mov
-    reg_tmp8.w = (uniforms.f[93].xxxx).w;
-    // 177: dp4
-    reg_tmp0.x = dot_s(reg_tmp8, reg_tmp8);
-    // 178: rsq
-    reg_tmp0.x = rsq_s(reg_tmp0.x);
-    // 179: mul
-    reg_tmp0 = mul_s(reg_tmp8, reg_tmp0.xxxx);
-    // 180: ifu
-    if (uniforms.b[5]) {
-        sub_181_187();
-    }
-    // 187: ifu
-    if (uniforms.b[3]) {
-        sub_188_195();
-    }
-    // 195: ifu
-    if (uniforms.b[4]) {
-        sub_196_204();
-    }
-    // 204: mov
-    vs_out_attr3 = reg_tmp2;
-    return false;
-}
-bool sub_181_187() {
-    // 181: dp3
-    reg_tmp8.x = dot_3(reg_tmp14.xyz, -reg_tmp6.xyz);
-    // 182: dp3
-    reg_tmp8.y = dot_3(reg_tmp1.xyz, -reg_tmp6.xyz);
-    // 183: max
-    reg_tmp8 = max(uniforms.f[93].xxxx, reg_tmp8);
-    // 184: mul
-    reg_tmp8.y = (mul_s(uniforms.f[94].zzzz, reg_tmp8.yyyy)).y;
-    // 185: add
-    reg_tmp8.y = (uniforms.f[94].zzzz + reg_tmp8.yyyy).y;
-    // 186: mul
-    reg_tmp2.y = (mul_s(reg_tmp8.xxxx, reg_tmp8.yyyy)).y;
-    return false;
-}
-bool sub_188_195() {
-    // 188: dp3
-    reg_tmp9.z = dot_3(reg_tmp14.xyz, reg_tmp0.xyz);
-    // 189: max
-    reg_tmp9.z = (max(uniforms.f[93].xxxx, reg_tmp9.zzzz)).z;
-    // 190: min
-    reg_tmp9.z = (min(uniforms.f[93].yyyy, reg_tmp9.zzzz)).z;
-    // 191: log
-    reg_tmp9.z = log2(reg_tmp9.z);
-    // 192: mul
-    reg_tmp9.z = (mul_s(uniforms.f[22].zzzz, reg_tmp9.zzzz)).z;
-    // 193: exp
-    reg_tmp9.z = exp2(reg_tmp9.z);
-    // 194: mul
-    reg_tmp2.z = (mul_s(uniforms.f[22].wwww, reg_tmp9.zzzz)).z;
-    return false;
-}
-bool sub_196_204() {
-    // 196: dp3
-    reg_tmp9.x = dot_3(reg_tmp14.xyz, reg_tmp1.xyz);
-    // 197: max
-    reg_tmp9.x = (max(uniforms.f[93].xxxx, reg_tmp9.xxxx)).x;
-    // 198: min
-    reg_tmp9.x = (min(uniforms.f[93].yyyy, reg_tmp9.xxxx)).x;
-    // 199: add
-    reg_tmp9.x = (uniforms.f[93].yyyy + -reg_tmp9.xxxx).x;
-    // 200: log
-    reg_tmp9.x = log2(reg_tmp9.x);
-    // 201: mul
-    reg_tmp9.x = (mul_s(uniforms.f[22].xxxx, reg_tmp9.xxxx)).x;
-    // 202: exp
-    reg_tmp9.x = exp2(reg_tmp9.x);
-    // 203: mul
-    reg_tmp2.w = (mul_s(uniforms.f[22].yyyy, reg_tmp9.xxxx)).w;
-    return false;
-}
-bool sub_205_232() {
-    // 205: mov
+bool sub_339_366() {
+    // 339: mov
     reg_tmp0.xy = (uniforms.f[10].xxxx).xy;
-    // 206: ifu
+    // 340: ifu
     if (uniforms.b[9]) {
-        sub_207_212();
+        sub_341_346();
     } else {
-        sub_212_231();
+        sub_346_365();
     }
-    // 231: nop
+    // 365: nop
     return false;
 }
-bool sub_207_212() {
-    // 207: call
+bool sub_341_346() {
+    // 341: call
     {
-        sub_232_240();
+        sub_321_329();
     }
-    // 208: dp4
+    // 342: dp4
     reg_tmp3.x = dot_s(uniforms.f[11].xywz, reg_tmp6);
-    // 209: dp4
+    // 343: dp4
     reg_tmp3.y = dot_s(uniforms.f[12].xywz, reg_tmp6);
-    // 210: mov
+    // 344: mov
     reg_tmp3.zw = (uniforms.f[93].xxxx).zw;
-    // 211: mov
+    // 345: mov
     vs_out_attr4 = reg_tmp3;
     return false;
 }
-bool sub_212_231() {
-    // 212: cmp
+bool sub_346_365() {
+    // 346: cmp
     conditional_code = equal(uniforms.f[95].xy, reg_tmp0.xy);
-    // 213: mov
+    // 347: mov
     reg_tmp6.zw = (uniforms.f[93].xxyy).zw;
-    // 214: ifc
+    // 348: ifc
     if (all(not(conditional_code))) {
-        sub_215_221();
+        sub_349_355();
     } else {
-        sub_221_230();
+        sub_355_364();
     }
-    // 230: mov
+    // 364: mov
     vs_out_attr4 = reg_tmp3;
     return false;
 }
-bool sub_215_221() {
-    // 215: mov
+bool sub_349_355() {
+    // 349: mov
     reg_tmp6 = reg_tmp10;
-    // 216: dp4
+    // 350: dp4
     reg_tmp3.x = dot_s(uniforms.f[11], reg_tmp6);
-    // 217: dp4
+    // 351: dp4
     reg_tmp3.y = dot_s(uniforms.f[12], reg_tmp6);
-    // 218: dp4
+    // 352: dp4
     reg_tmp3.z = dot_s(uniforms.f[13], reg_tmp6);
-    // 219: mul
+    // 353: mul
     reg_tmp0.xy = (mul_s(uniforms.f[19].xyyy, reg_tmp3.zzzz)).xy;
-    // 220: add
+    // 354: add
     reg_tmp3.xy = (reg_tmp3.xyyy + reg_tmp0.xyyy).xy;
     return false;
 }
-bool sub_221_230() {
-    // 221: ifc
+bool sub_355_364() {
+    // 355: ifc
     if (all(bvec2(conditional_code.x, !conditional_code.y))) {
-        sub_222_226();
+        sub_356_360();
     } else {
-        sub_226_229();
+        sub_360_363();
     }
-    // 229: nop
+    // 363: nop
     return false;
 }
-bool sub_222_226() {
-    // 222: call
+bool sub_356_360() {
+    // 356: call
     {
-        sub_240_247();
+        sub_366_373();
     }
-    // 223: dp3
+    // 357: dp3
     reg_tmp3.x = dot_3(uniforms.f[11].xyz, reg_tmp6.xyz);
-    // 224: dp3
+    // 358: dp3
     reg_tmp3.y = dot_3(uniforms.f[12].xyz, reg_tmp6.xyz);
-    // 225: dp3
+    // 359: dp3
     reg_tmp3.z = dot_3(uniforms.f[13].xyz, reg_tmp6.xyz);
     return false;
 }
-bool sub_226_229() {
-    // 226: call
+bool sub_360_363() {
+    // 360: call
     {
-        sub_247_254();
+        sub_329_333();
     }
-    // 227: dp4
+    // 361: dp4
     reg_tmp3.x = dot_s(uniforms.f[11], reg_tmp6);
-    // 228: dp4
+    // 362: dp4
     reg_tmp3.y = dot_s(uniforms.f[12], reg_tmp6);
     return false;
 }
-bool sub_232_240() {
-    // 232: cmp
-    conditional_code = equal(uniforms.f[93].yz, reg_tmp0.xy);
-    // 233: ifc
-    if (all(not(conditional_code))) {
-        sub_234_235();
-    } else {
-        sub_235_239();
-    }
-    // 239: mov
-    reg_tmp6.zw = (uniforms.f[93].xxyy).zw;
-    return false;
-}
-bool sub_234_235() {
-    // 234: mul
-    reg_tmp6.xy = (mul_s(uniforms.f[8].xxxx, vs_in_reg4.xyyy)).xy;
-    return false;
-}
-bool sub_235_239() {
-    // 235: ifc
-    if (all(bvec2(conditional_code.x, !conditional_code.y))) {
-        sub_236_237();
-    } else {
-        sub_237_238();
-    }
-    // 238: nop
-    return false;
-}
-bool sub_236_237() {
-    // 236: mul
-    reg_tmp6.xy = (mul_s(uniforms.f[8].yyyy, vs_in_reg5.xyyy)).xy;
-    return false;
-}
-bool sub_237_238() {
-    // 237: mul
-    reg_tmp6.xy = (mul_s(uniforms.f[8].zzzz, vs_in_reg6.xyyy)).xy;
-    return false;
-}
-bool sub_240_247() {
-    // 240: mov
+bool sub_366_373() {
+    // 366: mov
     reg_tmp2 = -reg_tmp15;
-    // 241: dp3
+    // 367: dp3
     reg_tmp2.w = dot_3(reg_tmp2.xyz, reg_tmp2.xyz);
-    // 242: rsq
+    // 368: rsq
     reg_tmp2.w = rsq_s(reg_tmp2.w);
-    // 243: mul
+    // 369: mul
     reg_tmp2 = mul_s(reg_tmp2, reg_tmp2.wwww);
-    // 244: dp3
+    // 370: dp3
     reg_tmp1 = vec4(dot_3(reg_tmp2.xyz, reg_tmp14.xyz));
-    // 245: add
+    // 371: add
     reg_tmp1 = reg_tmp1 + reg_tmp1;
-    // 246: mad
+    // 372: mad
     reg_tmp6 = fma_s(reg_tmp1, reg_tmp14, -reg_tmp2);
     return false;
 }
-bool sub_247_254() {
-    // 247: mov
-    reg_tmp1.xy = (uniforms.f[94].zzzz).xy;
-    // 248: mov
-    reg_tmp1.zw = (uniforms.f[93].xxxx).zw;
-    // 249: dp3
-    reg_tmp6.x = dot_3(reg_tmp14.xyz, reg_tmp14.xyz);
-    // 250: rsq
-    reg_tmp6.x = rsq_s(reg_tmp6.x);
-    // 251: mul
-    reg_tmp14.xyz = (mul_s(reg_tmp14.xyzz, reg_tmp6.xxxx)).xyz;
-    // 252: mad
-    reg_tmp6 = fma_s(reg_tmp14, reg_tmp1, reg_tmp1);
-    // 253: mov
-    reg_tmp6.zw = (uniforms.f[93].xxyy).zw;
-    return false;
+// reference: 6997BE1F3D481103, 66BB066A0743530F
+// program: 66BB066A0743530F, 3B3AE026C742C7D5, 09998F9B86E3CF69
+// reference: BA1479E63D481103, 66BB066A0743530F
+// program: 66BB066A0743530F, 3B3AE026C742C7D5, 964E0B11E50F8F6E
+// reference: BA1479E6130949B7, 60C3F6F1EF977FEA
+// reference: 9370C27EA3146887, 559D364E86318AE6
+// reference: 1C76F6D773DF8722, EC68C55D9E1FD734
+// program: 1ED6A2745339D55C, AD7922A63ED54CA7, CB541D02F0C32C04
+// reference: 87BFD9A41D82E073, AF99CF0A54E81442
+// reference: 543C1E5DF0C9D1C7, AF99CF0A54E81442
+// reference: B2CA55648B35F126, E140255169676482
+// reference: 6149929D667EC092, E140255169676482
+// reference: BE8A228DCFEAF9A9, 559D364E86318AE6
+// reference: AA9A7B627499F14D, 66BB066A0743530F
+// reference: 7919BC9B7499F14D, 66BB066A0743530F
+// reference: 7919BC9B5AD8A9F9, 60C3F6F1EF977FEA
+// reference: 507D0703EAC588C9, 559D364E86318AE6
+// reference: 198E4160819C416B, 1ED6A2745339D55C
+// reference: AA9A7B625AD8A9F9, 60C3F6F1EF977FEA
+// reference: 508EAA39CD090BDC, E140255169676482
+// shader: 8B30, E6A65EBC7D1F5A7C
+
+precision highp int;
+precision highp float;
+precision highp samplerBuffer;
+precision highp usampler2D;
+precision highp uimage2D;
+in vec4 primary_color;
+in vec2 texcoord0;
+in vec2 texcoord1;
+in vec2 texcoord2;
+in float texcoord0_w;
+in vec4 normquat;
+in vec3 view;
+
+#ifndef CITRA_GLES
+in vec4 gl_FragCoord;
+#endif // CITRA_GLES
+out vec4 color;
+
+uniform sampler2D tex0;
+uniform sampler2D tex1;
+uniform sampler2D tex2;
+uniform samplerCube tex_cube;
+uniform samplerBuffer texture_buffer_lut_lf;
+uniform samplerBuffer texture_buffer_lut_rg;
+uniform samplerBuffer texture_buffer_lut_rgba;
+
+#define NUM_TEV_STAGES 6
+#define NUM_LIGHTS 8
+#define NUM_LIGHTING_SAMPLERS 24
+
+struct LightSrc {
+    vec3 specular_0;
+    vec3 specular_1;
+    vec3 diffuse;
+    vec3 ambient;
+    vec3 position;
+    vec3 spot_direction;
+    float dist_atten_bias;
+    float dist_atten_scale;
+};
+
+layout (std140) uniform shader_data {
+    int alphatest_ref;
+    float depth_scale;
+    float depth_offset;
+    float shadow_bias_constant;
+    float shadow_bias_linear;
+    int scissor_x1;
+    int scissor_y1;
+    int scissor_x2;
+    int scissor_y2;
+    int fog_lut_offset;
+    int proctex_noise_lut_offset;
+    int proctex_color_map_offset;
+    int proctex_alpha_map_offset;
+    int proctex_lut_offset;
+    int proctex_diff_lut_offset;
+    float proctex_bias;
+    vec3 fog_color;
+    vec2 proctex_noise_f;
+    vec2 proctex_noise_a;
+    vec2 proctex_noise_p;
+    vec4 const_color[NUM_TEV_STAGES];
+    vec4 tev_combiner_buffer_color;
+    vec4 clip_coef;
+};
+
+layout (std140) uniform shader_light_data {
+    ivec4 lighting_lut_offset[NUM_LIGHTING_SAMPLERS / 4];
+    vec3 lighting_global_ambient;
+    LightSrc light_src[NUM_LIGHTS];
+    float lut_scale_d0;
+    float lut_scale_d1;
+    float lut_scale_sp;
+    float lut_scale_fr;
+    float lut_scale_rb;
+    float lut_scale_rg;
+    float lut_scale_rr;
+    int shadow_texture_bias;
+};
+
+// Rotate the vector v by the quaternion q
+vec3 quaternion_rotate(vec4 q, vec3 v) {
+    return v + 2.0 * cross(q.xyz, cross(q.xyz, v) + q.w * v);
 }
-bool sub_254_278() {
-    // 254: mov
-    reg_tmp0.xy = (uniforms.f[10].yyyy).xy;
-    // 255: ifu
-    if (uniforms.b[10]) {
-        sub_256_260();
-    } else {
-        sub_260_277();
-    }
-    // 277: nop
-    return false;
+
+float LookupLightingLUT(int lut_index, int index, float delta) {
+    vec2 entry = texelFetch(texture_buffer_lut_lf, lighting_lut_offset[lut_index >> 2][lut_index & 3] + index).rg;
+    return entry.r + entry.g * delta;
 }
-bool sub_256_260() {
-    // 256: call
-    {
-        sub_232_240();
-    }
-    // 257: dp4
-    reg_tmp4.x = dot_s(uniforms.f[14].xywz, reg_tmp6);
-    // 258: dp4
-    reg_tmp4.y = dot_s(uniforms.f[15].xywz, reg_tmp6);
-    // 259: mov
-    vs_out_attr5 = reg_tmp4;
-    return false;
+
+float LookupLightingLUTUnsigned(int lut_index, float pos) {
+    int index = clamp(int(pos * 256.0), 0, 255);
+    float delta = pos * 256.0 - float(index);
+    return LookupLightingLUT(lut_index, index, delta);
 }
-bool sub_260_277() {
-    // 260: ifu
-    if (uniforms.b[13]) {
-        sub_261_275();
-    } else {
-        sub_275_276();
-    }
-    // 276: nop
-    return false;
+
+float LookupLightingLUTSigned(int lut_index, float pos) {
+    int index = clamp(int(pos * 128.0), -128, 127);
+    float delta = pos * 128.0 - float(index);
+    if (index < 0) index += 256;
+    return LookupLightingLUT(lut_index, index, delta);
 }
-bool sub_261_275() {
-    // 261: cmp
-    conditional_code = equal(uniforms.f[95].xy, reg_tmp0.xy);
-    // 262: mov
-    reg_tmp6.zw = (uniforms.f[93].xxyy).zw;
-    // 263: ifc
-    if (all(not(conditional_code))) {
-        sub_264_271();
-    } else {
-        sub_271_274();
-    }
-    // 274: mov
-    vs_out_attr5 = reg_tmp4;
-    return false;
+
+float byteround(float x) {
+    return round(x * 255.0) * (1.0 / 255.0);
 }
-bool sub_264_271() {
-    // 264: mov
-    reg_tmp6 = reg_tmp10;
-    // 265: dp4
-    reg_tmp4.x = dot_s(uniforms.f[14], reg_tmp6);
-    // 266: dp4
-    reg_tmp4.y = dot_s(uniforms.f[15], reg_tmp6);
-    // 267: dp4
-    reg_tmp4.z = dot_s(uniforms.f[16], reg_tmp6);
-    // 268: rcp
-    reg_tmp6.w = rcp_s(reg_tmp4.z);
-    // 269: mul
-    reg_tmp4.xy = (mul_s(reg_tmp4.xyyy, reg_tmp6.wwww)).xy;
-    // 270: add
-    reg_tmp4.xy = (uniforms.f[19].zwww + reg_tmp4.xyyy).xy;
-    return false;
+
+vec2 byteround(vec2 x) {
+    return round(x * 255.0) * (1.0 / 255.0);
 }
-bool sub_271_274() {
-    // 271: call
-    {
-        sub_247_254();
-    }
-    // 272: dp4
-    reg_tmp4.x = dot_s(uniforms.f[14], reg_tmp6);
-    // 273: dp4
-    reg_tmp4.y = dot_s(uniforms.f[15], reg_tmp6);
-    return false;
+
+vec3 byteround(vec3 x) {
+    return round(x * 255.0) * (1.0 / 255.0);
 }
-bool sub_275_276() {
-    // 275: mov
-    vs_out_attr5 = uniforms.f[93].xxxx;
-    return false;
+
+vec4 byteround(vec4 x) {
+    return round(x * 255.0) * (1.0 / 255.0);
 }
-bool sub_278_294() {
-    // 278: mov
-    reg_tmp0.xy = (uniforms.f[10].zzzz).xy;
-    // 279: ifu
-    if (uniforms.b[11]) {
-        sub_280_284();
-    } else {
-        sub_284_293();
-    }
-    // 293: nop
-    return false;
+
+// PICA's LOD formula for 2D textures.
+// This LOD formula is the same as the LOD lower limit defined in OpenGL.
+// f(x, y) >= max{m_u, m_v, m_w}
+// (See OpenGL 4.6 spec, 8.14.1 - Scale Factor and Level-of-Detail)
+float getLod(vec2 coord) {
+    vec2 d = max(abs(dFdx(coord)), abs(dFdy(coord)));
+    return log2(max(d.x, d.y));
 }
-bool sub_280_284() {
-    // 280: call
-    {
-        sub_232_240();
-    }
-    // 281: dp4
-    reg_tmp5.x = dot_s(uniforms.f[17].xywz, reg_tmp6);
-    // 282: dp4
-    reg_tmp5.y = dot_s(uniforms.f[18].xywz, reg_tmp6);
-    // 283: mov
-    vs_out_attr6 = reg_tmp5;
-    return false;
+
+vec4 shadowTexture(vec2 uv, float w) {
+    return vec4(1.0);
 }
-bool sub_284_293() {
-    // 284: ifu
-    if (uniforms.b[14]) {
-        sub_285_291();
-    } else {
-        sub_291_292();
-    }
-    // 292: nop
-    return false;
+
+vec4 shadowTextureCube(vec2 uv, float w) {
+    return vec4(1.0);
 }
-bool sub_285_291() {
-    // 285: mov
-    reg_tmp6.zw = (uniforms.f[93].xxyy).zw;
-    // 286: mov
-    reg_tmp5.zw = (reg_tmp6.zwww).zw;
-    // 287: call
-    {
-        sub_247_254();
-    }
-    // 288: dp4
-    reg_tmp5.x = dot_s(uniforms.f[17], reg_tmp6);
-    // 289: dp4
-    reg_tmp5.y = dot_s(uniforms.f[18], reg_tmp6);
-    // 290: mov
-    vs_out_attr6 = reg_tmp5;
-    return false;
+
+void main() {
+vec4 rounded_primary_color = byteround(primary_color);
+vec4 primary_fragment_color = vec4(0.0);
+vec4 secondary_fragment_color = vec4(0.0);
+float z_over_w = 2.0 * gl_FragCoord.z - 1.0;
+float depth = z_over_w * depth_scale + depth_offset;
+vec4 texcolor0 = textureLod(tex0, texcoord0, getLod(texcoord0 * vec2(textureSize(tex0, 0))));
+vec4 combiner_buffer = vec4(0.0);
+vec4 next_combiner_buffer = tev_combiner_buffer_color;
+vec4 last_tex_env_out = vec4(0.0);
+vec3 color_output_0 = byteround(clamp((rounded_primary_color.rgb) * (texcolor0.rgb) + (const_color[0].rgb) * (vec3(1.0) - (texcolor0.rgb)), vec3(0.0), vec3(1.0)));
+float alpha_output_0 = byteround(clamp((texcolor0.a) * (rounded_primary_color.a), 0.0, 1.0));
+last_tex_env_out = clamp(vec4(color_output_0, alpha_output_0), vec4(0.0), vec4(1.0));
+combiner_buffer = next_combiner_buffer;
+
+combiner_buffer = next_combiner_buffer;
+
+combiner_buffer = next_combiner_buffer;
+
+vec3 color_output_3 = byteround(clamp((const_color[3].rgb) * (vec3(1.0) - texcolor0.rgb), vec3(0.0), vec3(1.0)));
+float alpha_output_3 = byteround(clamp((const_color[3].a) * (1.0 - texcolor0.a), 0.0, 1.0));
+last_tex_env_out = clamp(vec4(color_output_3, alpha_output_3), vec4(0.0), vec4(1.0));
+combiner_buffer = next_combiner_buffer;
+
+vec3 color_output_4 = byteround(clamp((const_color[4].rgb) * (texcolor0.rgb) + (last_tex_env_out.rgb), vec3(0.0), vec3(1.0)));
+float alpha_output_4 = byteround(clamp((const_color[4].a) * (texcolor0.a) + (last_tex_env_out.a), 0.0, 1.0));
+last_tex_env_out = clamp(vec4(color_output_4, alpha_output_4), vec4(0.0), vec4(1.0));
+combiner_buffer = next_combiner_buffer;
+
+vec3 color_output_5 = byteround(clamp((rounded_primary_color.rgb) * (last_tex_env_out.rgb), vec3(0.0), vec3(1.0)));
+float alpha_output_5 = byteround(clamp((rounded_primary_color.a) * (last_tex_env_out.a), 0.0, 1.0));
+last_tex_env_out = clamp(vec4(color_output_5, alpha_output_5), vec4(0.0), vec4(1.0));
+combiner_buffer = next_combiner_buffer;
+
+if (int(last_tex_env_out.a * 255.0) <= alphatest_ref) discard;
+gl_FragDepth = depth;
+color = byteround(last_tex_env_out);
 }
-bool sub_291_292() {
-    // 291: mov
-    vs_out_attr6 = uniforms.f[93].xxxx;
-    return false;
+// reference: 26F5A2F79265BEE9, E6A65EBC7D1F5A7C
+// program: E140255169676482, 5D764F9A6220D694, E6A65EBC7D1F5A7C
+// reference: 830D6DC020423A68, E140255169676482
+// shader: 8B30, 2F92B03EC8DF229E
+
+precision highp int;
+precision highp float;
+precision highp samplerBuffer;
+precision highp usampler2D;
+precision highp uimage2D;
+in vec4 primary_color;
+in vec2 texcoord0;
+in vec2 texcoord1;
+in vec2 texcoord2;
+in float texcoord0_w;
+in vec4 normquat;
+in vec3 view;
+
+#ifndef CITRA_GLES
+in vec4 gl_FragCoord;
+#endif // CITRA_GLES
+out vec4 color;
+
+uniform sampler2D tex0;
+uniform sampler2D tex1;
+uniform sampler2D tex2;
+uniform samplerCube tex_cube;
+uniform samplerBuffer texture_buffer_lut_lf;
+uniform samplerBuffer texture_buffer_lut_rg;
+uniform samplerBuffer texture_buffer_lut_rgba;
+
+#define NUM_TEV_STAGES 6
+#define NUM_LIGHTS 8
+#define NUM_LIGHTING_SAMPLERS 24
+
+struct LightSrc {
+    vec3 specular_0;
+    vec3 specular_1;
+    vec3 diffuse;
+    vec3 ambient;
+    vec3 position;
+    vec3 spot_direction;
+    float dist_atten_bias;
+    float dist_atten_scale;
+};
+
+layout (std140) uniform shader_data {
+    int alphatest_ref;
+    float depth_scale;
+    float depth_offset;
+    float shadow_bias_constant;
+    float shadow_bias_linear;
+    int scissor_x1;
+    int scissor_y1;
+    int scissor_x2;
+    int scissor_y2;
+    int fog_lut_offset;
+    int proctex_noise_lut_offset;
+    int proctex_color_map_offset;
+    int proctex_alpha_map_offset;
+    int proctex_lut_offset;
+    int proctex_diff_lut_offset;
+    float proctex_bias;
+    vec3 fog_color;
+    vec2 proctex_noise_f;
+    vec2 proctex_noise_a;
+    vec2 proctex_noise_p;
+    vec4 const_color[NUM_TEV_STAGES];
+    vec4 tev_combiner_buffer_color;
+    vec4 clip_coef;
+};
+
+layout (std140) uniform shader_light_data {
+    ivec4 lighting_lut_offset[NUM_LIGHTING_SAMPLERS / 4];
+    vec3 lighting_global_ambient;
+    LightSrc light_src[NUM_LIGHTS];
+    float lut_scale_d0;
+    float lut_scale_d1;
+    float lut_scale_sp;
+    float lut_scale_fr;
+    float lut_scale_rb;
+    float lut_scale_rg;
+    float lut_scale_rr;
+    int shadow_texture_bias;
+};
+
+// Rotate the vector v by the quaternion q
+vec3 quaternion_rotate(vec4 q, vec3 v) {
+    return v + 2.0 * cross(q.xyz, cross(q.xyz, v) + q.w * v);
 }
-bool sub_294_4096() {
-    // 294: call
-    {
-        sub_339_391();
-    }
-    // 295: ifu
-    if (uniforms.b[6]) {
-        sub_296_298();
-    } else {
-        sub_298_299();
-    }
-    // 299: call
-    {
-        sub_205_232();
-    }
-    // 300: call
-    {
-        sub_254_278();
-    }
-    // 301: call
-    {
-        sub_278_294();
-    }
-    // 302: end
-    return true;
+
+float LookupLightingLUT(int lut_index, int index, float delta) {
+    vec2 entry = texelFetch(texture_buffer_lut_lf, lighting_lut_offset[lut_index >> 2][lut_index & 3] + index).rg;
+    return entry.r + entry.g * delta;
 }
-bool sub_296_298() {
-    // 296: call
-    {
-        sub_156_205();
-    }
-    // 297: nop
-    return false;
+
+float LookupLightingLUTUnsigned(int lut_index, float pos) {
+    int index = clamp(int(pos * 256.0), 0, 255);
+    float delta = pos * 256.0 - float(index);
+    return LookupLightingLUT(lut_index, index, delta);
 }
-bool sub_298_299() {
-    // 298: mov
-    vs_out_attr3 = uniforms.f[93].yyyy;
-    return false;
+
+float LookupLightingLUTSigned(int lut_index, float pos) {
+    int index = clamp(int(pos * 128.0), -128, 127);
+    float delta = pos * 128.0 - float(index);
+    if (index < 0) index += 256;
+    return LookupLightingLUT(lut_index, index, delta);
 }
-bool sub_304_325() {
-    // 304: mova
-    address_registers.x = (ivec2(reg_tmp1.xx)).x;
-    // 305: dp4
-    reg_tmp3.x = dot_s(uniforms.f[25 + address_registers.x], reg_tmp15);
-    // 306: dp4
-    reg_tmp3.y = dot_s(uniforms.f[26 + address_registers.x], reg_tmp15);
-    // 307: dp4
-    reg_tmp3.z = dot_s(uniforms.f[27 + address_registers.x], reg_tmp15);
-    // 308: mad
-    reg_tmp7 = fma_s(reg_tmp1.wwww, reg_tmp3, reg_tmp7);
-    // 309: dp3
-    reg_tmp3.x = dot_3(uniforms.f[25 + address_registers.x].xyz, reg_tmp14.xyz);
-    // 310: dp3
-    reg_tmp3.y = dot_3(uniforms.f[26 + address_registers.x].xyz, reg_tmp14.xyz);
-    // 311: dp3
-    reg_tmp3.z = dot_3(uniforms.f[27 + address_registers.x].xyz, reg_tmp14.xyz);
-    // 312: mad
-    reg_tmp12 = fma_s(reg_tmp1.wwww, reg_tmp3, reg_tmp12);
-    // 313: dp3
-    reg_tmp3.x = dot_3(uniforms.f[25 + address_registers.x].xyz, reg_tmp13.xyz);
-    // 314: dp3
-    reg_tmp3.y = dot_3(uniforms.f[26 + address_registers.x].xyz, reg_tmp13.xyz);
-    // 315: dp3
-    reg_tmp3.z = dot_3(uniforms.f[27 + address_registers.x].xyz, reg_tmp13.xyz);
-    // 316: mad
-    reg_tmp11 = fma_s(reg_tmp1.wwww, reg_tmp3, reg_tmp11);
-    // 317: dp3
-    reg_tmp3.x = dot_3(uniforms.f[25 + address_registers.x].xyz, reg_tmp5.xyz);
-    // 318: dp3
-    reg_tmp3.y = dot_3(uniforms.f[26 + address_registers.x].xyz, reg_tmp5.xyz);
-    // 319: dp3
-    reg_tmp3.z = dot_3(uniforms.f[27 + address_registers.x].xyz, reg_tmp5.xyz);
-    // 320: mad
-    reg_tmp9 = fma_s(reg_tmp1.wwww, reg_tmp3, reg_tmp9);
-    // 321: dp3
-    reg_tmp3.x = dot_3(uniforms.f[25 + address_registers.x].xyz, reg_tmp6.xyz);
-    // 322: dp3
-    reg_tmp3.y = dot_3(uniforms.f[26 + address_registers.x].xyz, reg_tmp6.xyz);
-    // 323: dp3
-    reg_tmp3.z = dot_3(uniforms.f[27 + address_registers.x].xyz, reg_tmp6.xyz);
-    // 324: mad
-    reg_tmp8 = fma_s(reg_tmp1.wwww, reg_tmp3, reg_tmp8);
-    return false;
+
+float byteround(float x) {
+    return round(x * 255.0) * (1.0 / 255.0);
 }
-bool sub_325_339() {
-    // 325: mul
-    reg_tmp0.xyz = (mul_s(reg_tmp9.yzxx, reg_tmp8.zxyy)).xyz;
-    // 326: mad
-    reg_tmp0.xyz = (fma_s(-reg_tmp8.yzxx, reg_tmp9.zxyy, reg_tmp0)).xyz;
-    // 327: mov
-    reg_tmp1 = uniforms.f[23];
-    // 328: dp4
-    reg_tmp2.x = dot_s(reg_tmp1.xyzz, reg_tmp1.xyzz);
-    // 329: rsq
-    reg_tmp2.x = rsq_s(reg_tmp2.x);
-    // 330: mul
-    reg_tmp2.xyz = (mul_s(reg_tmp1.xyzz, reg_tmp2.xxxx)).xyz;
-    // 331: dp3
-    reg_tmp1.x = dot_3(reg_tmp2.xyz, reg_tmp8.xyz);
-    // 332: dp3
-    reg_tmp1.y = dot_3(reg_tmp2.xyz, reg_tmp0.xyz);
-    // 333: dp3
-    reg_tmp1.z = dot_3(reg_tmp2.xyz, reg_tmp9.xyz);
-    // 334: dp4
-    reg_tmp2.x = dot_s(reg_tmp1.xyzz, reg_tmp1.xyzz);
-    // 335: rsq
-    reg_tmp2.x = rsq_s(reg_tmp2.x);
-    // 336: mul
-    reg_tmp2.xyz = (mul_s(reg_tmp1.xyzz, reg_tmp2.xxxx)).xyz;
-    // 337: mov
-    reg_tmp2.w = (uniforms.f[93].yyyy).w;
-    // 338: mov
-    vs_out_attr2 = reg_tmp2;
-    return false;
+
+vec2 byteround(vec2 x) {
+    return round(x * 255.0) * (1.0 / 255.0);
 }
-bool sub_339_391() {
-    // 339: mul
-    reg_tmp15.xyz = (mul_s(uniforms.f[7].xxxx, vs_in_reg0)).xyz;
-    // 340: mul
-    reg_tmp14.xyz = (mul_s(uniforms.f[7].yyyy, vs_in_reg1)).xyz;
-    // 341: mul
-    reg_tmp13.xyz = (mul_s(uniforms.f[7].zzzz, vs_in_reg2)).xyz;
-    // 342: add
-    reg_tmp15.xyz = (uniforms.f[6] + reg_tmp15).xyz;
-    // 343: mov
-    reg_tmp15.w = (uniforms.f[93].yyyy).w;
-    // 344: mov
-    reg_tmp5 = uniforms.f[93].xxyy;
-    // 345: mov
-    reg_tmp6 = uniforms.f[93].yxxy;
-    // 346: mov
-    reg_tmp7 = uniforms.f[93].xxxx;
-    // 347: mov
-    reg_tmp12 = uniforms.f[93].xxxx;
-    // 348: mov
-    reg_tmp11 = uniforms.f[93].xxxx;
-    // 349: mov
-    reg_tmp9 = uniforms.f[93].xxxx;
-    // 350: mov
-    reg_tmp8 = uniforms.f[93].xxxx;
-    // 351: mul
-    reg_tmp2 = mul_s(uniforms.f[93].wwww, vs_in_reg7);
-    // 352: cmp
-    conditional_code = notEqual(uniforms.f[93].xx, vs_in_reg8.zw);
-    // 353: mov
-    reg_tmp1.xy = (reg_tmp2.xxxx).xy;
-    // 354: mul
-    reg_tmp1.w = (mul_s(uniforms.f[8].wwww, vs_in_reg8.xxxx)).w;
-    // 355: call
-    {
-        sub_304_325();
-    }
-    // 356: mov
-    reg_tmp1.xy = (reg_tmp2.yyyy).xy;
-    // 357: mul
-    reg_tmp1.w = (mul_s(uniforms.f[8].wwww, vs_in_reg8.yyyy)).w;
-    // 358: call
-    {
-        sub_304_325();
-    }
-    // 359: mov
-    reg_tmp1.xy = (reg_tmp2.zzzz).xy;
-    // 360: mul
-    reg_tmp1.w = (mul_s(uniforms.f[8].wwww, vs_in_reg8.zzzz)).w;
-    // 361: callc
-    if (conditional_code.x) {
-        sub_304_325();
-    }
-    // 362: ifu
-    if (uniforms.b[8]) {
-        sub_363_367();
-    }
-    // 367: mov
-    reg_tmp7.w = (uniforms.f[93].yyyy).w;
-    // 368: mov
-    reg_tmp10 = reg_tmp7;
-    // 369: dp3
-    reg_tmp13.x = dot_3(uniforms.f[3].xyz, reg_tmp11.xyz);
-    // 370: dp3
-    reg_tmp13.y = dot_3(uniforms.f[4].xyz, reg_tmp11.xyz);
-    // 371: dp3
-    reg_tmp13.z = dot_3(uniforms.f[5].xyz, reg_tmp11.xyz);
-    // 372: dp3
-    reg_tmp14.x = dot_3(uniforms.f[3].xyz, reg_tmp12.xyz);
-    // 373: dp3
-    reg_tmp14.y = dot_3(uniforms.f[4].xyz, reg_tmp12.xyz);
-    // 374: dp3
-    reg_tmp14.z = dot_3(uniforms.f[5].xyz, reg_tmp12.xyz);
-    // 375: dp4
-    reg_tmp15.x = dot_s(uniforms.f[90], reg_tmp10);
-    // 376: dp4
-    reg_tmp15.y = dot_s(uniforms.f[91], reg_tmp10);
-    // 377: dp4
-    reg_tmp15.z = dot_s(uniforms.f[92], reg_tmp10);
-    // 378: mov
-    reg_tmp15.w = (uniforms.f[93].yyyy).w;
-    // 379: call
-    {
-        sub_325_339();
-    }
-    // 380: mov
-    vs_out_attr1 = uniforms.f[93].xxxy;
-    // 381: dp4
-    reg_tmp0.x = dot_s(uniforms.f[86], reg_tmp15);
-    // 382: dp4
-    reg_tmp0.y = dot_s(uniforms.f[87], reg_tmp15);
-    // 383: dp4
-    reg_tmp0.z = dot_s(uniforms.f[88], reg_tmp15);
-    // 384: dp4
-    reg_tmp0.w = dot_s(uniforms.f[89], reg_tmp15);
-    // 385: mov
-    reg_tmp1.x = (-reg_tmp0.wwww).x;
-    // 386: mul
-    reg_tmp1.y = (mul_s(uniforms.f[95].zzzz, -reg_tmp0.wwww)).y;
-    // 387: cmp
-    conditional_code.x = reg_tmp0.xxxx.x > reg_tmp1.xyyy.x;
-    conditional_code.y = reg_tmp0.xxxx.y < reg_tmp1.xyyy.y;
-    // 388: ifc
-    if (all(conditional_code)) {
-        sub_389_390();
-    }
-    // 390: mov
-    vs_out_attr0 = reg_tmp0;
-    return false;
+
+vec3 byteround(vec3 x) {
+    return round(x * 255.0) * (1.0 / 255.0);
 }
-bool sub_363_367() {
-    // 363: mov
-    reg_tmp1.xy = (reg_tmp2.wwww).xy;
-    // 364: mul
-    reg_tmp1.w = (mul_s(uniforms.f[8].wwww, vs_in_reg8.wwww)).w;
-    // 365: callc
-    if (conditional_code.y) {
-        sub_304_325();
-    }
-    // 366: nop
-    return false;
+
+vec4 byteround(vec4 x) {
+    return round(x * 255.0) * (1.0 / 255.0);
 }
-bool sub_389_390() {
-    // 389: mov
-    reg_tmp0.x = (-reg_tmp0.wwww).x;
-    return false;
+
+// PICA's LOD formula for 2D textures.
+// This LOD formula is the same as the LOD lower limit defined in OpenGL.
+// f(x, y) >= max{m_u, m_v, m_w}
+// (See OpenGL 4.6 spec, 8.14.1 - Scale Factor and Level-of-Detail)
+float getLod(vec2 coord) {
+    vec2 d = max(abs(dFdx(coord)), abs(dFdy(coord)));
+    return log2(max(d.x, d.y));
 }
-// reference: 3F48A94C6423BAF0, 20595D4CD1B8AA6A
-// program: 20595D4CD1B8AA6A, AD7922A63ED54CA7, AEDB45D682B528D6
-// reference: 3F48A94C89688B44, 20595D4CD1B8AA6A
-// program: 20595D4CD1B8AA6A, AD7922A63ED54CA7, 6E1A1BAA21CC2477
-// program: 20595D4CD1B8AA6A, AD7922A63ED54CA7, F472DEF3F2EB2685
-// program: 627E0D8521A7913E, 5D764F9A6220D694, 3D447A74AAC47455
-// reference: 5555804D234D43DD, 627E0D8521A7913E
-// program: 627E0D8521A7913E, 5D764F9A6220D694, 97F37F89351F0E50
-// reference: DEB557E2CE067269, 627E0D8521A7913E
-// reference: 982A49F586DAFF4F, 72F5D85BD2AC207B
-// reference: 13CA9E5A86DAFF4F, 72F5D85BD2AC207B
-// shader: 8B30, FD20BA5D30A09156
+
+vec4 shadowTexture(vec2 uv, float w) {
+    return vec4(1.0);
+}
+
+vec4 shadowTextureCube(vec2 uv, float w) {
+    return vec4(1.0);
+}
+
+void main() {
+vec4 rounded_primary_color = byteround(primary_color);
+vec4 primary_fragment_color = vec4(0.0);
+vec4 secondary_fragment_color = vec4(0.0);
+float z_over_w = 2.0 * gl_FragCoord.z - 1.0;
+float depth = z_over_w * depth_scale + depth_offset;
+vec4 texcolor0 = textureLod(tex0, texcoord0, getLod(texcoord0 * vec2(textureSize(tex0, 0))));
+vec4 combiner_buffer = vec4(0.0);
+vec4 next_combiner_buffer = tev_combiner_buffer_color;
+vec4 last_tex_env_out = vec4(0.0);
+vec3 color_output_0 = byteround(clamp((rounded_primary_color.rgb) * (texcolor0.rgb) + (const_color[0].rgb) * (vec3(1.0) - (texcolor0.rgb)), vec3(0.0), vec3(1.0)));
+float alpha_output_0 = byteround(clamp((texcolor0.a) * (rounded_primary_color.a), 0.0, 1.0));
+last_tex_env_out = clamp(vec4(color_output_0, alpha_output_0), vec4(0.0), vec4(1.0));
+combiner_buffer = next_combiner_buffer;
+
+combiner_buffer = next_combiner_buffer;
+
+combiner_buffer = next_combiner_buffer;
+
+vec3 color_output_3 = byteround(clamp((vec3(1.0) - texcolor0.rgb) * (const_color[3].rgb), vec3(0.0), vec3(1.0)));
+float alpha_output_3 = byteround(clamp((texcolor0.a) * (const_color[3].a), 0.0, 1.0));
+last_tex_env_out = clamp(vec4(color_output_3, alpha_output_3), vec4(0.0), vec4(1.0));
+combiner_buffer = next_combiner_buffer;
+
+vec3 color_output_4 = byteround(clamp((texcolor0.rgb) * (const_color[4].rgb) + (last_tex_env_out.rgb), vec3(0.0), vec3(1.0)));
+float alpha_output_4 = byteround(clamp((1.0 - texcolor0.a) * (const_color[4].a) + (last_tex_env_out.a), 0.0, 1.0));
+last_tex_env_out = clamp(vec4(color_output_4, alpha_output_4), vec4(0.0), vec4(1.0));
+combiner_buffer = next_combiner_buffer;
+
+vec3 color_output_5 = byteround(clamp((rounded_primary_color.rgb) * (last_tex_env_out.rgb), vec3(0.0), vec3(1.0)));
+float alpha_output_5 = byteround(clamp((rounded_primary_color.a) * (last_tex_env_out.a), 0.0, 1.0));
+last_tex_env_out = clamp(vec4(color_output_5, alpha_output_5), vec4(0.0), vec4(1.0));
+combiner_buffer = next_combiner_buffer;
+
+if (int(last_tex_env_out.a * 255.0) <= alphatest_ref) discard;
+gl_FragDepth = depth;
+color = byteround(last_tex_env_out);
+}
+// reference: E96D4608139AA853, 2F92B03EC8DF229E
+// program: E140255169676482, 5D764F9A6220D694, 2F92B03EC8DF229E
+// shader: 8B30, B71BBB2F3051D5FF
+
+precision highp int;
+precision highp float;
+precision highp samplerBuffer;
+precision highp usampler2D;
+precision highp uimage2D;
+in vec4 primary_color;
+in vec2 texcoord0;
+in vec2 texcoord1;
+in vec2 texcoord2;
+in float texcoord0_w;
+in vec4 normquat;
+in vec3 view;
+
+#ifndef CITRA_GLES
+in vec4 gl_FragCoord;
+#endif // CITRA_GLES
+out vec4 color;
+
+uniform sampler2D tex0;
+uniform sampler2D tex1;
+uniform sampler2D tex2;
+uniform samplerCube tex_cube;
+uniform samplerBuffer texture_buffer_lut_lf;
+uniform samplerBuffer texture_buffer_lut_rg;
+uniform samplerBuffer texture_buffer_lut_rgba;
+
+#define NUM_TEV_STAGES 6
+#define NUM_LIGHTS 8
+#define NUM_LIGHTING_SAMPLERS 24
+
+struct LightSrc {
+    vec3 specular_0;
+    vec3 specular_1;
+    vec3 diffuse;
+    vec3 ambient;
+    vec3 position;
+    vec3 spot_direction;
+    float dist_atten_bias;
+    float dist_atten_scale;
+};
+
+layout (std140) uniform shader_data {
+    int alphatest_ref;
+    float depth_scale;
+    float depth_offset;
+    float shadow_bias_constant;
+    float shadow_bias_linear;
+    int scissor_x1;
+    int scissor_y1;
+    int scissor_x2;
+    int scissor_y2;
+    int fog_lut_offset;
+    int proctex_noise_lut_offset;
+    int proctex_color_map_offset;
+    int proctex_alpha_map_offset;
+    int proctex_lut_offset;
+    int proctex_diff_lut_offset;
+    float proctex_bias;
+    vec3 fog_color;
+    vec2 proctex_noise_f;
+    vec2 proctex_noise_a;
+    vec2 proctex_noise_p;
+    vec4 const_color[NUM_TEV_STAGES];
+    vec4 tev_combiner_buffer_color;
+    vec4 clip_coef;
+};
+
+layout (std140) uniform shader_light_data {
+    ivec4 lighting_lut_offset[NUM_LIGHTING_SAMPLERS / 4];
+    vec3 lighting_global_ambient;
+    LightSrc light_src[NUM_LIGHTS];
+    float lut_scale_d0;
+    float lut_scale_d1;
+    float lut_scale_sp;
+    float lut_scale_fr;
+    float lut_scale_rb;
+    float lut_scale_rg;
+    float lut_scale_rr;
+    int shadow_texture_bias;
+};
+
+// Rotate the vector v by the quaternion q
+vec3 quaternion_rotate(vec4 q, vec3 v) {
+    return v + 2.0 * cross(q.xyz, cross(q.xyz, v) + q.w * v);
+}
+
+float LookupLightingLUT(int lut_index, int index, float delta) {
+    vec2 entry = texelFetch(texture_buffer_lut_lf, lighting_lut_offset[lut_index >> 2][lut_index & 3] + index).rg;
+    return entry.r + entry.g * delta;
+}
+
+float LookupLightingLUTUnsigned(int lut_index, float pos) {
+    int index = clamp(int(pos * 256.0), 0, 255);
+    float delta = pos * 256.0 - float(index);
+    return LookupLightingLUT(lut_index, index, delta);
+}
+
+float LookupLightingLUTSigned(int lut_index, float pos) {
+    int index = clamp(int(pos * 128.0), -128, 127);
+    float delta = pos * 128.0 - float(index);
+    if (index < 0) index += 256;
+    return LookupLightingLUT(lut_index, index, delta);
+}
+
+float byteround(float x) {
+    return round(x * 255.0) * (1.0 / 255.0);
+}
+
+vec2 byteround(vec2 x) {
+    return round(x * 255.0) * (1.0 / 255.0);
+}
+
+vec3 byteround(vec3 x) {
+    return round(x * 255.0) * (1.0 / 255.0);
+}
+
+vec4 byteround(vec4 x) {
+    return round(x * 255.0) * (1.0 / 255.0);
+}
+
+// PICA's LOD formula for 2D textures.
+// This LOD formula is the same as the LOD lower limit defined in OpenGL.
+// f(x, y) >= max{m_u, m_v, m_w}
+// (See OpenGL 4.6 spec, 8.14.1 - Scale Factor and Level-of-Detail)
+float getLod(vec2 coord) {
+    vec2 d = max(abs(dFdx(coord)), abs(dFdy(coord)));
+    return log2(max(d.x, d.y));
+}
+
+vec4 shadowTexture(vec2 uv, float w) {
+    return vec4(1.0);
+}
+
+vec4 shadowTextureCube(vec2 uv, float w) {
+    return vec4(1.0);
+}
+
+void main() {
+vec4 rounded_primary_color = byteround(primary_color);
+vec4 primary_fragment_color = vec4(0.0);
+vec4 secondary_fragment_color = vec4(0.0);
+float z_over_w = 2.0 * gl_FragCoord.z - 1.0;
+float depth = z_over_w * depth_scale + depth_offset;
+vec4 texcolor0 = textureLod(tex0, texcoord0, getLod(texcoord0 * vec2(textureSize(tex0, 0))));
+vec4 combiner_buffer = vec4(0.0);
+vec4 next_combiner_buffer = tev_combiner_buffer_color;
+vec4 last_tex_env_out = vec4(0.0);
+vec3 color_output_0 = byteround(clamp((rounded_primary_color.rgb) * (texcolor0.rgb) + (const_color[0].rgb) * (vec3(1.0) - (texcolor0.rgb)), vec3(0.0), vec3(1.0)));
+float alpha_output_0 = byteround(clamp((texcolor0.a) * (rounded_primary_color.a), 0.0, 1.0));
+last_tex_env_out = clamp(vec4(color_output_0, alpha_output_0), vec4(0.0), vec4(1.0));
+combiner_buffer = next_combiner_buffer;
+
+combiner_buffer = next_combiner_buffer;
+
+combiner_buffer = next_combiner_buffer;
+
+vec3 color_output_3 = byteround(clamp((vec3(1.0) - texcolor0.rgb) * (const_color[3].rgb), vec3(0.0), vec3(1.0)));
+float alpha_output_3 = byteround(clamp((texcolor0.a) * (const_color[3].a), 0.0, 1.0));
+last_tex_env_out = clamp(vec4(color_output_3, alpha_output_3), vec4(0.0), vec4(1.0));
+combiner_buffer = next_combiner_buffer;
+
+vec3 color_output_4 = byteround(clamp((texcolor0.rgb) * (const_color[4].rgb) + (last_tex_env_out.rgb), vec3(0.0), vec3(1.0)));
+float alpha_output_4 = byteround(clamp((1.0 - texcolor0.a) * (const_color[4].a) + (last_tex_env_out.a), 0.0, 1.0));
+last_tex_env_out = clamp(vec4(color_output_4, alpha_output_4), vec4(0.0), vec4(1.0));
+combiner_buffer = next_combiner_buffer;
+
+vec3 color_output_5 = byteround(clamp((rounded_primary_color.rgb), vec3(0.0), vec3(1.0)));
+float alpha_output_5 = byteround(clamp((rounded_primary_color.a), 0.0, 1.0));
+last_tex_env_out = clamp(vec4(color_output_5, alpha_output_5), vec4(0.0), vec4(1.0));
+combiner_buffer = next_combiner_buffer;
+
+gl_FragDepth = depth;
+color = byteround(last_tex_env_out);
+}
+// reference: 64D04416D6E0B844, B71BBB2F3051D5FF
+// program: 0000000000000000, 0000000000000000, B71BBB2F3051D5FF
+// reference: 673221A6BC49544E, AF99CF0A54E81442
+// reference: B4B1E65F510265FA, AF99CF0A54E81442
+// reference: C4C67A367CAF43F8, E140255169676482
+// reference: 1745BDCF91E4724C, E140255169676482
+// shader: 8B30, F93C56DFAE996873
+
+precision highp int;
+precision highp float;
+precision highp samplerBuffer;
+precision highp usampler2D;
+precision highp uimage2D;
+in vec4 primary_color;
+in vec2 texcoord0;
+in vec2 texcoord1;
+in vec2 texcoord2;
+in float texcoord0_w;
+in vec4 normquat;
+in vec3 view;
+
+#ifndef CITRA_GLES
+in vec4 gl_FragCoord;
+#endif // CITRA_GLES
+out vec4 color;
+
+uniform sampler2D tex0;
+uniform sampler2D tex1;
+uniform sampler2D tex2;
+uniform samplerCube tex_cube;
+uniform samplerBuffer texture_buffer_lut_lf;
+uniform samplerBuffer texture_buffer_lut_rg;
+uniform samplerBuffer texture_buffer_lut_rgba;
+
+#define NUM_TEV_STAGES 6
+#define NUM_LIGHTS 8
+#define NUM_LIGHTING_SAMPLERS 24
+
+struct LightSrc {
+    vec3 specular_0;
+    vec3 specular_1;
+    vec3 diffuse;
+    vec3 ambient;
+    vec3 position;
+    vec3 spot_direction;
+    float dist_atten_bias;
+    float dist_atten_scale;
+};
+
+layout (std140) uniform shader_data {
+    int alphatest_ref;
+    float depth_scale;
+    float depth_offset;
+    float shadow_bias_constant;
+    float shadow_bias_linear;
+    int scissor_x1;
+    int scissor_y1;
+    int scissor_x2;
+    int scissor_y2;
+    int fog_lut_offset;
+    int proctex_noise_lut_offset;
+    int proctex_color_map_offset;
+    int proctex_alpha_map_offset;
+    int proctex_lut_offset;
+    int proctex_diff_lut_offset;
+    float proctex_bias;
+    vec3 fog_color;
+    vec2 proctex_noise_f;
+    vec2 proctex_noise_a;
+    vec2 proctex_noise_p;
+    vec4 const_color[NUM_TEV_STAGES];
+    vec4 tev_combiner_buffer_color;
+    vec4 clip_coef;
+};
+
+layout (std140) uniform shader_light_data {
+    ivec4 lighting_lut_offset[NUM_LIGHTING_SAMPLERS / 4];
+    vec3 lighting_global_ambient;
+    LightSrc light_src[NUM_LIGHTS];
+    float lut_scale_d0;
+    float lut_scale_d1;
+    float lut_scale_sp;
+    float lut_scale_fr;
+    float lut_scale_rb;
+    float lut_scale_rg;
+    float lut_scale_rr;
+    int shadow_texture_bias;
+};
+
+// Rotate the vector v by the quaternion q
+vec3 quaternion_rotate(vec4 q, vec3 v) {
+    return v + 2.0 * cross(q.xyz, cross(q.xyz, v) + q.w * v);
+}
+
+float LookupLightingLUT(int lut_index, int index, float delta) {
+    vec2 entry = texelFetch(texture_buffer_lut_lf, lighting_lut_offset[lut_index >> 2][lut_index & 3] + index).rg;
+    return entry.r + entry.g * delta;
+}
+
+float LookupLightingLUTUnsigned(int lut_index, float pos) {
+    int index = clamp(int(pos * 256.0), 0, 255);
+    float delta = pos * 256.0 - float(index);
+    return LookupLightingLUT(lut_index, index, delta);
+}
+
+float LookupLightingLUTSigned(int lut_index, float pos) {
+    int index = clamp(int(pos * 128.0), -128, 127);
+    float delta = pos * 128.0 - float(index);
+    if (index < 0) index += 256;
+    return LookupLightingLUT(lut_index, index, delta);
+}
+
+float byteround(float x) {
+    return round(x * 255.0) * (1.0 / 255.0);
+}
+
+vec2 byteround(vec2 x) {
+    return round(x * 255.0) * (1.0 / 255.0);
+}
+
+vec3 byteround(vec3 x) {
+    return round(x * 255.0) * (1.0 / 255.0);
+}
+
+vec4 byteround(vec4 x) {
+    return round(x * 255.0) * (1.0 / 255.0);
+}
+
+// PICA's LOD formula for 2D textures.
+// This LOD formula is the same as the LOD lower limit defined in OpenGL.
+// f(x, y) >= max{m_u, m_v, m_w}
+// (See OpenGL 4.6 spec, 8.14.1 - Scale Factor and Level-of-Detail)
+float getLod(vec2 coord) {
+    vec2 d = max(abs(dFdx(coord)), abs(dFdy(coord)));
+    return log2(max(d.x, d.y));
+}
+
+vec4 shadowTexture(vec2 uv, float w) {
+    return vec4(1.0);
+}
+
+vec4 shadowTextureCube(vec2 uv, float w) {
+    return vec4(1.0);
+}
+
+void main() {
+vec4 rounded_primary_color = byteround(primary_color);
+vec4 primary_fragment_color = vec4(0.0);
+vec4 secondary_fragment_color = vec4(0.0);
+float z_over_w = 2.0 * gl_FragCoord.z - 1.0;
+float depth = z_over_w * depth_scale + depth_offset;
+vec4 texcolor0 = textureLod(tex0, texcoord0, getLod(texcoord0 * vec2(textureSize(tex0, 0))));
+vec4 combiner_buffer = vec4(0.0);
+vec4 next_combiner_buffer = tev_combiner_buffer_color;
+vec4 last_tex_env_out = vec4(0.0);
+vec3 color_output_0 = byteround(clamp((rounded_primary_color.rgb) * (texcolor0.rgb) + (const_color[0].rgb) * (vec3(1.0) - (texcolor0.rgb)), vec3(0.0), vec3(1.0)));
+float alpha_output_0 = byteround(clamp((texcolor0.a) * (rounded_primary_color.a), 0.0, 1.0));
+last_tex_env_out = clamp(vec4(color_output_0, alpha_output_0), vec4(0.0), vec4(1.0));
+combiner_buffer = next_combiner_buffer;
+
+combiner_buffer = next_combiner_buffer;
+
+combiner_buffer = next_combiner_buffer;
+
+vec3 color_output_3 = byteround(clamp((const_color[3].rgb) * (vec3(1.0) - texcolor0.rgb), vec3(0.0), vec3(1.0)));
+float alpha_output_3 = byteround(clamp((const_color[3].a) * (1.0 - texcolor0.a), 0.0, 1.0));
+last_tex_env_out = clamp(vec4(color_output_3, alpha_output_3), vec4(0.0), vec4(1.0));
+combiner_buffer = next_combiner_buffer;
+
+vec3 color_output_4 = byteround(clamp((const_color[4].rgb) * (texcolor0.rgb) + (last_tex_env_out.rgb), vec3(0.0), vec3(1.0)));
+float alpha_output_4 = byteround(clamp((const_color[4].a) * (texcolor0.a) + (last_tex_env_out.a), 0.0, 1.0));
+last_tex_env_out = clamp(vec4(color_output_4, alpha_output_4), vec4(0.0), vec4(1.0));
+combiner_buffer = next_combiner_buffer;
+
+vec3 color_output_5 = byteround(clamp((rounded_primary_color.rgb), vec3(0.0), vec3(1.0)));
+float alpha_output_5 = byteround(clamp((rounded_primary_color.a), 0.0, 1.0));
+last_tex_env_out = clamp(vec4(color_output_5, alpha_output_5), vec4(0.0), vec4(1.0));
+combiner_buffer = next_combiner_buffer;
+
+gl_FragDepth = depth;
+color = byteround(last_tex_env_out);
+}
+// reference: AB48A0E9571FAEFE, F93C56DFAE996873
+// program: 0000000000000000, 0000000000000000, F93C56DFAE996873
+// reference: 09B9B38EEAC588C9, 559D364E86318AE6
+// reference: DA3A7477EAC588C9, 559D364E86318AE6
+// reference: C5ACBF745FF21E89, 39C6900A0B5851A4
+// reference: 8E4587B5EAC588C9, 559D364E86318AE6
+// reference: 6997BE1F130949B7, 60C3F6F1EF977FEA
+// reference: 54643228A7998764, 29F9C9D1D8063EF7
+// shader: 8B30, B973E388F071C125
+
+precision highp int;
+precision highp float;
+precision highp samplerBuffer;
+precision highp usampler2D;
+precision highp uimage2D;
+in vec4 primary_color;
+in vec2 texcoord0;
+in vec2 texcoord1;
+in vec2 texcoord2;
+in float texcoord0_w;
+in vec4 normquat;
+in vec3 view;
+
+#ifndef CITRA_GLES
+in vec4 gl_FragCoord;
+#endif // CITRA_GLES
+out vec4 color;
+
+uniform sampler2D tex0;
+uniform sampler2D tex1;
+uniform sampler2D tex2;
+uniform samplerCube tex_cube;
+uniform samplerBuffer texture_buffer_lut_lf;
+uniform samplerBuffer texture_buffer_lut_rg;
+uniform samplerBuffer texture_buffer_lut_rgba;
+
+#define NUM_TEV_STAGES 6
+#define NUM_LIGHTS 8
+#define NUM_LIGHTING_SAMPLERS 24
+
+struct LightSrc {
+    vec3 specular_0;
+    vec3 specular_1;
+    vec3 diffuse;
+    vec3 ambient;
+    vec3 position;
+    vec3 spot_direction;
+    float dist_atten_bias;
+    float dist_atten_scale;
+};
+
+layout (std140) uniform shader_data {
+    int alphatest_ref;
+    float depth_scale;
+    float depth_offset;
+    float shadow_bias_constant;
+    float shadow_bias_linear;
+    int scissor_x1;
+    int scissor_y1;
+    int scissor_x2;
+    int scissor_y2;
+    int fog_lut_offset;
+    int proctex_noise_lut_offset;
+    int proctex_color_map_offset;
+    int proctex_alpha_map_offset;
+    int proctex_lut_offset;
+    int proctex_diff_lut_offset;
+    float proctex_bias;
+    vec3 fog_color;
+    vec2 proctex_noise_f;
+    vec2 proctex_noise_a;
+    vec2 proctex_noise_p;
+    vec4 const_color[NUM_TEV_STAGES];
+    vec4 tev_combiner_buffer_color;
+    vec4 clip_coef;
+};
+
+layout (std140) uniform shader_light_data {
+    ivec4 lighting_lut_offset[NUM_LIGHTING_SAMPLERS / 4];
+    vec3 lighting_global_ambient;
+    LightSrc light_src[NUM_LIGHTS];
+    float lut_scale_d0;
+    float lut_scale_d1;
+    float lut_scale_sp;
+    float lut_scale_fr;
+    float lut_scale_rb;
+    float lut_scale_rg;
+    float lut_scale_rr;
+    int shadow_texture_bias;
+};
+
+// Rotate the vector v by the quaternion q
+vec3 quaternion_rotate(vec4 q, vec3 v) {
+    return v + 2.0 * cross(q.xyz, cross(q.xyz, v) + q.w * v);
+}
+
+float LookupLightingLUT(int lut_index, int index, float delta) {
+    vec2 entry = texelFetch(texture_buffer_lut_lf, lighting_lut_offset[lut_index >> 2][lut_index & 3] + index).rg;
+    return entry.r + entry.g * delta;
+}
+
+float LookupLightingLUTUnsigned(int lut_index, float pos) {
+    int index = clamp(int(pos * 256.0), 0, 255);
+    float delta = pos * 256.0 - float(index);
+    return LookupLightingLUT(lut_index, index, delta);
+}
+
+float LookupLightingLUTSigned(int lut_index, float pos) {
+    int index = clamp(int(pos * 128.0), -128, 127);
+    float delta = pos * 128.0 - float(index);
+    if (index < 0) index += 256;
+    return LookupLightingLUT(lut_index, index, delta);
+}
+
+float byteround(float x) {
+    return round(x * 255.0) * (1.0 / 255.0);
+}
+
+vec2 byteround(vec2 x) {
+    return round(x * 255.0) * (1.0 / 255.0);
+}
+
+vec3 byteround(vec3 x) {
+    return round(x * 255.0) * (1.0 / 255.0);
+}
+
+vec4 byteround(vec4 x) {
+    return round(x * 255.0) * (1.0 / 255.0);
+}
+
+// PICA's LOD formula for 2D textures.
+// This LOD formula is the same as the LOD lower limit defined in OpenGL.
+// f(x, y) >= max{m_u, m_v, m_w}
+// (See OpenGL 4.6 spec, 8.14.1 - Scale Factor and Level-of-Detail)
+float getLod(vec2 coord) {
+    vec2 d = max(abs(dFdx(coord)), abs(dFdy(coord)));
+    return log2(max(d.x, d.y));
+}
+
+vec4 shadowTexture(vec2 uv, float w) {
+    return vec4(1.0);
+}
+
+vec4 shadowTextureCube(vec2 uv, float w) {
+    return vec4(1.0);
+}
+
+void main() {
+vec4 rounded_primary_color = byteround(primary_color);
+vec4 primary_fragment_color = vec4(0.0);
+vec4 secondary_fragment_color = vec4(0.0);
+float z_over_w = 2.0 * gl_FragCoord.z - 1.0;
+float depth = z_over_w * depth_scale + depth_offset;
+vec4 texcolor0 = textureLod(tex0, texcoord0, getLod(texcoord0 * vec2(textureSize(tex0, 0))));
+vec4 texcolor1 = textureLod(tex1, texcoord1, getLod(texcoord1 * vec2(textureSize(tex1, 0))));
+vec4 texcolor2 = textureLod(tex2, texcoord2, getLod(texcoord2 * vec2(textureSize(tex2, 0))));
+vec4 combiner_buffer = vec4(0.0);
+vec4 next_combiner_buffer = tev_combiner_buffer_color;
+vec4 last_tex_env_out = vec4(0.0);
+vec3 color_output_0 = byteround(clamp((vec3(1.0) - texcolor0.rrr) - (vec3(1.0) - texcolor1.rrr), vec3(0.0), vec3(1.0)));
+float alpha_output_0 = byteround(clamp((1.0 - texcolor0.r) - (1.0 - texcolor2.r), 0.0, 1.0));
+last_tex_env_out = clamp(vec4(color_output_0 * 4.0, alpha_output_0 * 4.0), vec4(0.0), vec4(1.0));
+combiner_buffer = next_combiner_buffer;
+
+vec3 color_output_1 = byteround(clamp((last_tex_env_out.rgb) + (last_tex_env_out.aaa), vec3(0.0), vec3(1.0)));
+float alpha_output_1 = byteround(clamp((last_tex_env_out.a), 0.0, 1.0));
+last_tex_env_out = clamp(vec4(color_output_1 * 4.0, alpha_output_1 * 1.0), vec4(0.0), vec4(1.0));
+combiner_buffer = next_combiner_buffer;
+
+vec3 color_output_2 = byteround(clamp((last_tex_env_out.rgb) + (last_tex_env_out.rgb), vec3(0.0), vec3(1.0)));
+float alpha_output_2 = byteround(clamp((last_tex_env_out.a), 0.0, 1.0));
+last_tex_env_out = clamp(vec4(color_output_2 * 4.0, alpha_output_2 * 1.0), vec4(0.0), vec4(1.0));
+combiner_buffer = next_combiner_buffer;
+
+vec3 color_output_3 = byteround(clamp((texcolor0.rgb) * (const_color[3].aaa) + (texcolor1.rgb) * (vec3(1.0) - (const_color[3].aaa)), vec3(0.0), vec3(1.0)));
+float alpha_output_3 = byteround(clamp((texcolor0.a) * (const_color[3].a) + (texcolor1.a) * (1.0 - (const_color[3].a)), 0.0, 1.0));
+last_tex_env_out = clamp(vec4(color_output_3, alpha_output_3), vec4(0.0), vec4(1.0));
+combiner_buffer = next_combiner_buffer;
+
+vec3 color_output_4 = byteround(clamp((const_color[4].rgb) * (last_tex_env_out.rgb) + (combiner_buffer.rgb) * (vec3(1.0) - (last_tex_env_out.rgb)), vec3(0.0), vec3(1.0)));
+float alpha_output_4 = byteround(clamp((const_color[4].a) * (last_tex_env_out.a) + (combiner_buffer.a) * (1.0 - (last_tex_env_out.a)), 0.0, 1.0));
+last_tex_env_out = clamp(vec4(color_output_4, alpha_output_4), vec4(0.0), vec4(1.0));
+combiner_buffer = next_combiner_buffer;
+
+vec3 color_output_5 = byteround(clamp((rounded_primary_color.rgb) * (last_tex_env_out.rgb), vec3(0.0), vec3(1.0)));
+float alpha_output_5 = byteround(clamp((rounded_primary_color.a) * (last_tex_env_out.a), 0.0, 1.0));
+last_tex_env_out = clamp(vec4(color_output_5, alpha_output_5), vec4(0.0), vec4(1.0));
+combiner_buffer = next_combiner_buffer;
+
+if (int(last_tex_env_out.a * 255.0) <= alphatest_ref) discard;
+gl_FragDepth = depth;
+color = byteround(last_tex_env_out);
+}
+// reference: 33E2E469B0619717, B973E388F071C125
+// program: E140255169676482, 5D764F9A6220D694, B973E388F071C125
+// shader: 8B30, 2454357F17D6B3CC
+
+precision highp int;
+precision highp float;
+precision highp samplerBuffer;
+precision highp usampler2D;
+precision highp uimage2D;
 in vec4 primary_color;
 in vec2 texcoord0;
 in vec2 texcoord1;
@@ -39314,7 +41562,44 @@ if (int(last_tex_env_out.a * 255.0) <= alphatest_ref) discard;
 gl_FragDepth = depth;
 color = byteround(last_tex_env_out);
 }
-// reference: 9A1FA859139AA853, FD20BA5D30A09156
-// program: 627E0D8521A7913E, 5D764F9A6220D694, FD20BA5D30A09156
-// program: 627E0D8521A7913E, 5D764F9A6220D694, BAC240B31B587DA8
-// program: 627E0D8521A7913E, 5D764F9A6220D694, 0D12978499FC84D3
+// reference: 9A1FA859139AA853, 2454357F17D6B3CC
+// program: E140255169676482, 5D764F9A6220D694, 2454357F17D6B3CC
+// reference: A43FE4DBF598B400, AF99CF0A54E81442
+// reference: 77BC232218D385B4, AF99CF0A54E81442
+// reference: 914A681B632FA555, E140255169676482
+// reference: 42C9AFE28E6494E1, E140255169676482
+// reference: 06A17A091623FEC7, 39C6900A0B5851A4
+// reference: 4D4842C8A3146887, 559D364E86318AE6
+// reference: E42E304B428094BA, 3FCC2EE227F0CC04
+// reference: 37ADF7B2428094BA, 3FCC2EE227F0CC04
+// reference: 638DDD381CC2CC2E, 559D364E86318AE6
+// reference: 4B6CA1C115A79A2D, 295A6D3137A5ECE7
+// reference: 07996F27428094BA, 3FCC2EE227F0CC04
+// reference: 53B945AD1CC2CC2E, 559D364E86318AE6
+// reference: FCFDD7EADD44700C, E2197E57DCEC2F0E
+// reference: 53B945ADF189FD9A, 559D364E86318AE6
+// reference: 64F663084A4E10A9, AF99CF0A54E81442
+// reference: B775A4F1A705211D, AF99CF0A54E81442
+// reference: 5183EFC8DCF901FC, E140255169676482
+// reference: 8200283131B23048, E140255169676482
+// reference: 803A82541CC2CC2E, 559D364E86318AE6
+// reference: D41AA8DE428094BA, 3FCC2EE227F0CC04
+// reference: FEFFB13B4A098938, 98677AC22B9A3E1A
+// program: E2197E57DCEC2F0E, AD7922A63ED54CA7, 3A6EACDEFFC82EA8
+// reference: 4B6CA1C15FED7238, 295A6D3137A5ECE7
+// program: 559D364E86318AE6, 3B3AE026C742C7D5, 94EFF7129B3A7297
+// reference: 72033898C3E5487F, E140255169676482
+// program: E140255169676482, 5D764F9A6220D694, EEAE121FA6ED4B2C
+// reference: A180FF61C3E5487F, E140255169676482
+// program: E140255169676482, 5D764F9A6220D694, C4595F0271285F33
+// reference: FCFDD7EA300F41B8, E2197E57DCEC2F0E
+// reference: B1DCF60AB357BA1E, C8B5858A114E6B90
+// reference: 07996F27AFCBA50E, 3FCC2EE227F0CC04
+// reference: EE2839091CC2CC2E, 559D364E86318AE6
+// reference: 416CAB4EDD44700C, E2197E57DCEC2F0E
+// reference: EE283909F189FD9A, 559D364E86318AE6
+// reference: D9671FAC4A4E10A9, AF99CF0A54E81442
+// reference: 0AE4D855A705211D, AF99CF0A54E81442
+// reference: EC12936CDCF901FC, E140255169676482
+// reference: 3F91549531B23048, E140255169676482
+// reference: 3DABFEF01CC2CC2E, 559D364E86318AE6
