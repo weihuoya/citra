@@ -180,6 +180,8 @@
     <string name="frame_limit_enable_description">When enabled, emulation speed will be limited to a specified percentage of normal speed.</string>
     <string name="frame_limit_slider">Speed Limit Percent</string>
     <string name="frame_limit_slider_description">With the default of 100% emulation will be limited to normal speed. Values higher or lower will increase or decrease the speed limit.</string>
+    <string name="setting_use_fence_sync">Enable Memory Reuse</string>
+    <string name="setting_use_fence_sync_description">Turn it on to improve performance, but some games may have display issues or crash in game.</string>
     <string name="setting_custom_textures">Use Custom Textures</string>
     <string name="setting_preload_textures">Preload Custom Textures</string>
     <string name="setting_preload_textures_description">The start up time is getting longer if enabled.</string>

@@ -40,6 +40,7 @@ public final class SettingsFile {
     public static final String KEY_USE_FRAME_LIMIT = "use_frame_limit";
     public static final String KEY_FRAME_LIMIT = "frame_limit";
     public static final String KEY_FACTOR_3D = "factor_3d";
+    public static final String KEY_USE_FENCE_SYNC = "use_fence_sync";
     public static final String KEY_CUSTOM_TEXTURES = "custom_textures";
     public static final String KEY_PRELOAD_TEXTURES = "preload_textures";
     public static final String KEY_LAYOUT_OPTION = "layout_option";

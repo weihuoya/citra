@@ -438,6 +438,7 @@ JNIEXPORT void JNICALL Java_org_citra_emu_NativeLibrary_Run(JNIEnv* env, jclass 
     Settings::values.use_virtual_sd = Config::Get(Config::USE_VIRTUAL_SD);
     Settings::values.region_value = Config::Get(Config::SYSTEM_REGION);
     // renderer
+    Settings::values.use_direct_display = true;
     Settings::values.use_gles = Config::Get(Config::USE_GLES);
     Settings::values.show_fps = Config::Get(Config::SHOW_FPS);
     Settings::values.use_hw_renderer = Config::Get(Config::USE_HW_RENDERER);
@@ -496,7 +497,7 @@ JNIEXPORT void JNICALL Java_org_citra_emu_NativeLibrary_Run(JNIEnv* env, jclass 
     Settings::values.y2r_event_delay = false;
     Settings::values.use_linear_filter = false;
     Settings::values.stream_buffer_hack = !Settings::values.use_present_thread;
-    Settings::Apply();
+    Settings::values.use_fence_sync = Config::Get(Config::USE_FENCE_SYNC);
 
     // profile
     InputManager::GetInstance().Init();

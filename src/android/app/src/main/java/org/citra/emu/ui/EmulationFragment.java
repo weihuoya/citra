@@ -256,6 +256,7 @@ public final class EmulationFragment extends Fragment implements SurfaceHolder.C
                     addNetPlayMessage(name + ": " + msg);
                     NetPlayManager.NetPlaySendMessage(msg);
                     view.setText("");
+                    toggleInput();
                 }
                 return true;
             }

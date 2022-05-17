@@ -207,6 +207,8 @@ struct Values {
     bool y2r_event_delay;
     bool use_linear_filter;
     bool use_present_thread;
+    bool use_direct_display;
+    bool use_fence_sync;
     AccurateMul shaders_accurate_mul;
     std::string remote_shader_host;
 

@@ -180,6 +180,8 @@
     <string name="frame_limit_enable_description">启用时速度将被限制为正常速度的指定百分比。</string>
     <string name="frame_limit_slider">限制百分比</string>
     <string name="frame_limit_slider_description">默认情况下 100% 将限制为正常运行速度，较高或较低的值将增加或降低运行速度。</string>
+    <string name="setting_use_fence_sync">开启内存复用</string>
+    <string name="setting_use_fence_sync_description">开启可以提升性能，但部分游戏会出现显示问题或者闪退。</string>
     <string name="setting_custom_textures">使用自定义纹理</string>
     <string name="setting_preload_textures">预加载自定义纹理</string>
     <string name="setting_preload_textures_description">启用后游戏的启动时间会变长，占用更多内存空间。</string>

@@ -180,6 +180,8 @@
     <string name="frame_limit_enable_description">Cuando está habilitado, la velocidad de emulación se limitará a un porcentaje específico de la velocidad normal.</string>
     <string name="frame_limit_slider">Porcentaje de límite de velocidad</string>
     <string name="frame_limit_slider_description">Con el valor predeterminado del 100%, la emulación se limitará a la velocidad normal. Los valores más altos o más bajos aumentarán o disminuirán el límite de velocidad.</string>
+    <string name="setting_use_fence_sync">Habilitar la reutilización de memoria</string>
+    <string name="setting_use_fence_sync_description">Actívelo para mejorar el rendimiento, pero algunos juegos pueden tener problemas de visualización o bloquearse en el juego.</string>
     <string name="setting_custom_textures">Cargar texturas personalizadas</string>
     <string name="setting_preload_textures">Precargar texturas personalizadas</string>
     <string name="setting_preload_textures_description">Precargue texturas personalizadas en la RAM, disminuye un poco el rendimiento.</string>
