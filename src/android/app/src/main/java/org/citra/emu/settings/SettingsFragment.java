@@ -129,6 +129,7 @@ public final class SettingsFragment extends Fragment {
         Setting resolution = rendererSection.getSetting(SettingsFile.KEY_RESOLUTION_FACTOR);
         Setting hwShader = rendererSection.getSetting(SettingsFile.KEY_USE_HW_SHADER);
         Setting accurateMul = rendererSection.getSetting(SettingsFile.KEY_SHADERS_ACCURATE_MUL);
+        Setting useFenceSync = rendererSection.getSetting(SettingsFile.KEY_USE_FENCE_SYNC);
         Setting shader = rendererSection.getSetting(SettingsFile.KEY_POST_PROCESSING_SHADER);
         Setting frameLimit = rendererSection.getSetting(SettingsFile.KEY_FRAME_LIMIT);
         Setting customTex = rendererSection.getSetting(SettingsFile.KEY_CUSTOM_TEXTURES);
@@ -176,6 +177,8 @@ public final class SettingsFragment extends Fragment {
                                    R.string.setting_preload_textures, R.string.setting_preload_textures_description, false, preloadTex));
         sl.add(new CheckBoxSetting(SettingsFile.KEY_CPU_USAGE_LIMIT, Settings.SECTION_INI_DEBUG,
                 R.string.cpu_usage_limit, R.string.cpu_usage_limit_description, false, cpuLimit));
+        sl.add(new CheckBoxSetting(SettingsFile.KEY_USE_FENCE_SYNC, Settings.SECTION_INI_RENDERER,
+                R.string.setting_use_fence_sync, R.string.setting_use_fence_sync_description, false, useFenceSync));
         sl.add(new SliderSetting(SettingsFile.KEY_FRAME_LIMIT, Settings.SECTION_INI_RENDERER,
                 R.string.frame_limit_slider, R.string.frame_limit_slider_description, 200, "",
                 100, frameLimit));
