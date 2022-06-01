@@ -1,12 +1,12 @@
 package org.citra.emu.utils;
 
 import android.app.Activity;
-import android.content.Context;
+import android.app.ActivityOptions;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Build;
+import android.os.Bundle;
 import android.os.Environment;
-import android.os.storage.StorageManager;
 
 import androidx.annotation.Nullable;
 
@@ -83,20 +83,14 @@ public final class FileBrowserHelper {
     }
 
     public static void openDocumentTree(Activity activity, int requestCode) {
-        Intent intent;
-        if (Build.VERSION.SDK_INT > Build.VERSION_CODES.Q) {
-            StorageManager storageMgr = (StorageManager)activity.getSystemService(Context.STORAGE_SERVICE);
-            intent = storageMgr.getPrimaryStorageVolume().createOpenDocumentTreeIntent();
-        } else {
-            intent = new Intent(Intent.ACTION_OPEN_DOCUMENT_TREE);
-        }
+        Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT_TREE);
         intent.addCategory(Intent.CATEGORY_DEFAULT);
         intent.putExtra(Intent.EXTRA_LOCAL_ONLY, true);
         intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
         intent.addFlags(Intent.FLAG_GRANT_PERSISTABLE_URI_PERMISSION);
-
         intent = Intent.createChooser(intent, activity.getString(R.string.main_choose_directory));
-        activity.startActivityForResult(intent, requestCode);
+        Bundle bundle = ActivityOptions.makeSceneTransitionAnimation(activity).toBundle();
+        activity.startActivityForResult(intent, requestCode, bundle);
     }
 
     public static void openDocument(Activity activity, int requestCode) {
@@ -107,6 +101,8 @@ public final class FileBrowserHelper {
         intent.putExtra(Intent.EXTRA_LOCAL_ONLY, true);
         intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
         intent = Intent.createChooser(intent, activity.getString(R.string.grid_menu_install_cia));
-        activity.startActivityForResult(intent, requestCode);
+        Bundle bundle = ActivityOptions.makeSceneTransitionAnimation(activity).toBundle();
+        activity.startActivityForResult(intent, requestCode, bundle);
+
     }
 }

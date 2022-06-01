@@ -9,10 +9,11 @@
 
     <string name="error">Error</string>
     <string name="about">Acerca de</string>
-    <string name="version_info">Build no oficial</string>
     <string name="citra_official_website">Web oficial de citra</string>
     <string name="open_weibo">Weibo: EMU-MMJ</string>
     <string name="latest_version">Última versión</string>
+    <string name="connection_error">Connection Error</string>
+    <string name="rate_limit_exceeded">Server Busy</string>
     <string name="shortcut">Atajo</string>
     <string name="create_shortcut">Crear acceso directo en la pantalla de inicio</string>
     <string name="create">Crear</string>

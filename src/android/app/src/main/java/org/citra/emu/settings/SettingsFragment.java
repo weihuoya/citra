@@ -382,8 +382,8 @@ public final class SettingsFragment extends Fragment {
         File file = new File(path);
         File[] files = file.listFiles();
         if (files != null) {
-            for (int i = 0; i < files.length; ++i) {
-                String name = files[i].getName();
+            for (File f : files) {
+                String name = f.getName();
                 int extensionIndex = name.indexOf(ext);
                 if (extensionIndex > 0) {
                     values.add(name.substring(0, extensionIndex));

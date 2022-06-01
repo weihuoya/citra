@@ -29,6 +29,7 @@
         android:hardwareAccelerated="true"
         android:icon="@mipmap/ic_citra"
         android:appCategory="game"
+        android:hasFragileUserData="true"
         android:isGame="true"
         android:label="Citra">
         <meta-data
@@ -113,6 +114,16 @@
             <meta-data
                 android:name="android.support.FILE_PROVIDER_PATHS"
                 android:resource="@xml/nnf_provider_paths" />
+        </provider>
+        <provider
+            android:name="org.citra.emu.UserPathProvider"
+            android:authorities="${applicationId}.userpathprovider"
+            android:exported="true"
+            android:grantUriPermissions="true"
+            android:permission="android.permission.MANAGE_DOCUMENTS">
+            <intent-filter>
+                <action android:name="android.content.action.DOCUMENTS_PROVIDER" />
+            </intent-filter>
         </provider>
     </application>
 
