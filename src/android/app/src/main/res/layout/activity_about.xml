@@ -25,20 +25,21 @@
 
     <TextView
         android:id="@+id/version"
-        android:text="@string/version_info"
+        android:text="2022/02/02T02:02:02"
         android:layout_centerHorizontal="true"
         android:layout_below="@id/banner"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"/>
 
     <androidx.appcompat.widget.LinearLayoutCompat
-        android:layout_marginTop="50dp"
+        android:id="@+id/layout_group"
+        android:layout_marginTop="35dp"
         android:layout_marginStart="16dp"
         android:layout_marginEnd="16dp"
         android:background="@android:color/white"
         android:elevation="2dp"
         android:orientation="vertical"
-        android:layout_below="@id/banner"
+        android:layout_below="@id/version"
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
 
@@ -118,5 +119,24 @@
         </RelativeLayout>
 
     </androidx.appcompat.widget.LinearLayoutCompat>
+
+    <TextView
+        android:id="@+id/device_info"
+        android:textAlignment="center"
+        android:gravity="center"
+        android:layout_margin="20dp"
+        android:textSize="12sp"
+        android:layout_centerHorizontal="true"
+        android:layout_alignParentBottom="true"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"/>
+
+    <SurfaceView
+        android:id="@+id/surface_about"
+        android:layout_height="1dp"
+        android:layout_width="match_parent"
+        android:layout_alignParentBottom="true"
+        android:focusable="false"
+        android:focusableInTouchMode="false"/>
 
 </RelativeLayout>

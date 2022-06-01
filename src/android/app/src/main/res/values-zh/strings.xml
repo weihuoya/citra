@@ -9,10 +9,11 @@
 
     <string name="error">错误</string>
     <string name="about">关于</string>
-    <string name="version_info">非官方版本</string>
     <string name="citra_official_website">Citra 官方网站</string>
     <string name="open_weibo">微博：EMU-MMJ</string>
     <string name="latest_version">最新版本</string>
+    <string name="connection_error">无法访问</string>
+    <string name="rate_limit_exceeded">服务器繁忙</string>
     <string name="shortcut">快捷方式</string>
     <string name="create_shortcut">创建桌面快捷方式</string>
     <string name="create">创建</string>

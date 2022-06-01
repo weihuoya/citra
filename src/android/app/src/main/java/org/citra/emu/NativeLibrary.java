@@ -333,6 +333,8 @@ public final class NativeLibrary {
     public static native int GetAppRegion(String path);
     public static native boolean IsAppExecutable(String path);
     public static native boolean IsAppVisible(String path);
+    public static native String GetBuildDate();
+    public static native String GetDeviceIinfo(Surface surface);
 
     /**
      * emulation
@@ -360,7 +362,7 @@ public final class NativeLibrary {
      * emulation
      */
     public static native boolean IsRunning();
-    public static native void SurfaceChanged(Surface surf);
+    public static native void SurfaceChanged(Surface surface);
     public static native void SurfaceDestroyed();
     public static native void WindowChanged();
     public static native void DoFrame();
