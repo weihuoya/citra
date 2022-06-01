@@ -288,4 +288,7 @@
     <string name="nnf_new_folder_ok">@android:string/ok</string>
     <string name="nnf_new_folder_cancel">@android:string/cancel</string>
 
+    <!-- Game details manager -->
+    <string name="launch_game">Launch Game</string>
+
 </resources>

@@ -10,6 +10,7 @@ import android.os.Bundle;
 
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentActivity;
 import androidx.recyclerview.widget.DiffUtil;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -237,8 +238,10 @@ public class MainPageFragment extends Fragment {
 
         @Override
         public boolean onLongClick(View view) {
-            GameViewHolder holder = (GameViewHolder)view.getTag();
-            EditorActivity.launch(view.getContext(), holder.getModel());
+            GameViewHolder holder = (GameViewHolder) view.getTag();
+            FragmentActivity activity = (FragmentActivity) view.getContext();
+            GameDetailsDialog.newInstance(holder.getModel().getPath()).show(
+                    activity.getSupportFragmentManager(), "GameDetailsDialog");
             return true;
         }
 
