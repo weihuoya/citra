@@ -72,8 +72,6 @@ public class MainPageFragment extends Fragment {
         mRecyclerView.setAdapter(mAdapter);
         Context context = requireContext();
         int columns = context.getResources().getInteger(R.integer.game_grid_columns);
-        Drawable lineDivider = context.getDrawable(R.drawable.line_divider);
-        mRecyclerView.addItemDecoration(new DividerItemDecoration(lineDivider));
         RecyclerView.LayoutManager layoutManager = new GridLayoutManager(context, columns);
         mRecyclerView.setLayoutManager(layoutManager);
 
@@ -127,13 +125,15 @@ public class MainPageFragment extends Fragment {
         }
 
         public void bind(GameFile model) {
+            int color;
             mModel = model;
-            mTextTitle.setText(model.getName());
             if ("0004000000000000".equals(model.getId())) {
-                mTextTitle.setTextColor(Color.RED);
+                color = mTextTitle.getResources().getColor(R.color.citra_accent_red, null);
             } else {
-                mTextTitle.setTextColor(Color.BLACK);
+                color = mTextTitle.getResources().getColor(R.color.foreground_color, null);
             }
+            mTextTitle.setText(model.getName());
+            mTextTitle.setTextColor(color);
             mTextCompany.setText(model.getInfo());
             mTextRegion.setText(getAppDesc(model));
             mImageIcon.setImageBitmap(model.getIcon());

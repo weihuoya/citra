@@ -8,7 +8,7 @@
         android:id="@+id/text_title"
         android:textAlignment="center"
         android:gravity="center"
-        android:textColor="@android:color/white"
+        android:textColor="@color/citra_accent_white"
         android:background="@color/citra_orange"
         android:layout_width="match_parent"
         android:layout_height="wrap_content" />
@@ -19,7 +19,6 @@
 
         <TextView
             android:layout_marginStart="6dp"
-            android:textColor="@android:color/black"
             android:text="@string/multiplayer_ip_address"
             android:layout_width="80dp"
             android:layout_height="wrap_content"/>
@@ -38,7 +37,6 @@
 
         <TextView
             android:layout_marginStart="6dp"
-            android:textColor="@android:color/black"
             android:text="@string/multiplayer_ip_port"
             android:layout_width="80dp"
             android:layout_height="wrap_content"/>
@@ -60,7 +58,6 @@
 
         <TextView
             android:layout_marginStart="6dp"
-            android:textColor="@android:color/black"
             android:text="@string/multiplayer_username"
             android:layout_width="80dp"
             android:layout_height="wrap_content"/>
@@ -75,7 +72,7 @@
     <Button
         android:id="@+id/btn_confirm"
         android:text="@android:string/ok"
-        style="@style/Widget.AppCompat.Button.Colored"
+        style="@style/CitraTheme.Button"
         android:stateListAnimator="@null"
         android:layout_gravity="center"
         android:layout_width="wrap_content"

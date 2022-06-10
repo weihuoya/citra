@@ -13,7 +13,7 @@
         android:textAllCaps="false"
         android:padding="18dp"
         android:layout_centerInParent="true"
-        style="@style/Widget.AppCompat.Button.Colored"
+        style="@style/CitraTheme.Button"
         android:stateListAnimator="@null"
         android:layout_width="240dp"
         android:layout_height="wrap_content"/>

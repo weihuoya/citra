@@ -28,6 +28,7 @@
         android:id="@android:id/list"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:background="@color/background_color"
         android:layout_above="@+id/nnf_buttons_container"
         android:layout_below="@+id/nnf_picker_toolbar"
         android:descendantFocusability="afterDescendants"
@@ -48,7 +49,7 @@
 
             <Button
                 android:id="@+id/nnf_button_cancel"
-                style="?attr/borderlessButtonStyle"
+                style="@style/CitraTheme.Button"
                 android:layout_width="0dp"
                 android:layout_height="48dp"
                 android:layout_weight="1"
@@ -56,7 +57,7 @@
 
             <Button
                 android:id="@+id/nnf_button_ok"
-                style="?attr/borderlessButtonStyle"
+                style="@style/CitraTheme.Button"
                 android:layout_width="0dp"
                 android:layout_height="48dp"
                 android:layout_weight="1"
@@ -87,7 +88,7 @@
                 android:layout_height="48dp"
                 android:hint="@string/nnf_list_ok"
                 app:srcCompat="@drawable/nnf_ic_save_black_24dp"
-                android:tint="?attr/nnf_save_icon_color"/>
+                app:tint="?attr/nnf_save_icon_color"/>
 
         </LinearLayout>
     </FrameLayout>

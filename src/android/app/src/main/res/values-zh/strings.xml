@@ -184,8 +184,7 @@
     <string name="setting_use_fence_sync">开启内存复用</string>
     <string name="setting_use_fence_sync_description">开启可以提升性能，但部分游戏会出现显示问题或者闪退。</string>
     <string name="setting_custom_textures">使用自定义纹理</string>
-    <string name="setting_preload_textures">预加载自定义纹理</string>
-    <string name="setting_preload_textures_description">启用后游戏的启动时间会变长，占用更多内存空间。</string>
+    <string name="setting_custom_textures_description">纹理目录：citra-emu/load/textures/\"游戏ID\"/。</string>
     <string name="setting_shader_type">着色器类型</string>
     <string name="setting_factor_3d">Factor 3D (3D Depth Slider)</string>
     <string name="setting_camera_type">摄像头类型</string>

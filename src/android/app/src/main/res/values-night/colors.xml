@@ -1,24 +1,24 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-    <color name="citra_orange">#FEC303</color>
+    <color name="citra_orange">#313335</color>
     <color name="citra_orange_dark">#FE8A03</color>
     <color name="citra_accent">#008577</color>
     <color name="citra_accent_red">#F05053</color>
-    <color name="citra_accent_white">#FFFFFF</color>
+    <color name="citra_accent_white">#F8F9FA</color>
 
-    <color name="foreground_color">#000000</color>
-    <color name="background_color">#FFFFFF</color>
+    <color name="foreground_color">#F8F9FA</color>
+    <color name="background_color">#383A3C</color>
 
     <color name="ic_launcher_background">#FEC303</color>
 
     <color name="circle_grey">#BDBDBD</color>
-    <color name="light_grey">#E6E6E6</color>
+    <color name="light_grey">#505050</color>
 
     <!-- 12% black in LIGHT THEME -->
     <color name="nnf_light_separator_color">#1E000000</color>
     <!-- 12% white in BLACK THEME -->
     <color name="nnf_dark_separator_color">#1EFFFFFF</color>
-    <color name="nnf_icon_tint_color">#f8be00</color>
+    <color name="nnf_icon_tint_color">#7e7667</color>
 
 </resources>

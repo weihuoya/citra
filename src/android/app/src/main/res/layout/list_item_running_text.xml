@@ -9,7 +9,6 @@
     <TextView
         android:text="Setting"
         android:id="@+id/text_setting_name"
-        android:textColor="@android:color/black"
         android:layout_alignParentStart="true"
         android:layout_centerVertical="true"
         android:layout_width="wrap_content"

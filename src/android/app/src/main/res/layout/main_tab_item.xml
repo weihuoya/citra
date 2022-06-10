@@ -8,7 +8,7 @@
 
     <ImageView
         android:id="@+id/tab_icon"
-        app:tint="@android:color/white"
+        app:tint="@color/citra_accent_white"
         android:layout_width="28dp"
         android:layout_height="28dp" />
 

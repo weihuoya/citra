@@ -80,7 +80,6 @@ dependencies {
     implementation 'androidx.appcompat:appcompat:1.4.0'
     implementation 'androidx.swiperefreshlayout:swiperefreshlayout:1.1.+'
     implementation 'androidx.recyclerview:recyclerview:1.2.1'
-    implementation "androidx.cardview:cardview:1.0.+"
     implementation "androidx.preference:preference:1.1.+"
     implementation "androidx.core:core-google-shortcuts:1.0.+"
     implementation 'androidx.viewpager2:viewpager2:1.0.0'

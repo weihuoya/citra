@@ -7,7 +7,7 @@
         android:id="@+id/btn_download"
         android:text="Download"
         android:textAllCaps="false"
-        style="@style/Widget.AppCompat.Button.Colored"
+        style="@style/CitraTheme.Button"
         android:stateListAnimator="@null"
         android:layout_alignParentEnd="true"
         android:layout_centerVertical="true"
@@ -24,6 +24,6 @@
         android:layout_toStartOf="@id/btn_download"
         android:textSize="14sp"
         android:fontFamily="monospace"
-        android:textColor="@android:color/black" />
+         />
 
 </RelativeLayout>

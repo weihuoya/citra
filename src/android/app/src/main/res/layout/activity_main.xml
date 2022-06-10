@@ -10,10 +10,10 @@
 
         <com.google.android.material.appbar.MaterialToolbar
             android:id="@+id/top_appbar"
+            android:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar"
+            app:popupTheme="@style/ThemeOverlay.AppCompat.DayNight"
             android:layout_width="match_parent"
             android:layout_height="?attr/actionBarSize"
-            android:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar"
-            app:popupTheme="@style/ThemeOverlay.AppCompat.Light"
             app:layout_scrollFlags="scroll|enterAlways"
             app:title="@string/app_name"
             app:menu="@menu/menu_main" />
@@ -55,7 +55,7 @@
         android:focusable="true"
         android:gravity="center"
         android:visibility="invisible"
-        android:shadowColor="@android:color/black"
+        android:shadowColor="@color/foreground_color"
         android:shadowDx="1.3"
         android:shadowDy="1.3"
         android:shadowRadius="1.3"

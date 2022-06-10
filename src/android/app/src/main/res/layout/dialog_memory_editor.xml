@@ -8,7 +8,7 @@
         android:text="@string/emulation_memory_viewer"
         android:textAlignment="center"
         android:gravity="center"
-        android:textColor="@android:color/white"
+        android:textColor="@color/citra_accent_white"
         android:background="@color/citra_orange"
         android:layout_width="match_parent"
         android:layout_height="wrap_content" />
@@ -23,7 +23,6 @@
             android:layout_alignParentStart="true"
             android:layout_centerVertical="true"
             android:text="@string/memory_value_type"
-            android:textColor="@android:color/black"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"/>
 
@@ -69,7 +68,6 @@
             android:layout_centerVertical="true"
             android:id="@+id/mem_region_text"
             android:text="@string/memory_region_text"
-            android:textColor="@android:color/black"
             android:layout_width="80dp"
             android:layout_height="wrap_content"/>
 
@@ -79,6 +77,7 @@
             android:text="+"
             android:minWidth="50dp"
             android:minHeight="0dp"
+            style="@style/CitraTheme.Button"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"/>
 
@@ -87,6 +86,7 @@
             android:text="-"
             android:minWidth="50dp"
             android:minHeight="0dp"
+            style="@style/CitraTheme.Button"
             android:layout_toStartOf="@id/mem_region_next"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"/>
@@ -110,7 +110,6 @@
         <TextView
             android:id="@+id/hex_value_text"
             android:text="@string/memory_hex_value"
-            android:textColor="@android:color/black"
             android:layout_centerVertical="true"
             android:layout_alignParentStart="true"
             android:layout_width="80dp"
@@ -134,7 +133,6 @@
         <TextView
             android:id="@+id/integer_value_text"
             android:text="@string/memory_int_value"
-            android:textColor="@android:color/black"
             android:layout_centerVertical="true"
             android:layout_alignParentStart="true"
             android:layout_width="80dp"
@@ -158,7 +156,6 @@
         <TextView
             android:id="@+id/float_value_text"
             android:text="@string/memory_float_value"
-            android:textColor="@android:color/black"
             android:layout_centerVertical="true"
             android:layout_alignParentStart="true"
             android:layout_width="80dp"
@@ -183,6 +180,7 @@
             android:layout_weight="1"
             android:minWidth="0dp"
             android:minHeight="0dp"
+            style="@style/CitraTheme.Button"
             android:layout_width="match_parent"
             android:layout_height="match_parent"/>
 
@@ -192,6 +190,7 @@
             android:layout_weight="1"
             android:minWidth="0dp"
             android:minHeight="0dp"
+            style="@style/CitraTheme.Button"
             android:layout_width="match_parent"
             android:layout_height="match_parent"/>
 

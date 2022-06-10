@@ -7,7 +7,7 @@
     <androidx.appcompat.widget.Toolbar
         android:id="@+id/toolbar"
         android:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar"
-        app:popupTheme="@style/ThemeOverlay.AppCompat.Light"
+        app:popupTheme="@style/ThemeOverlay.AppCompat.DayNight"
         android:background="?attr/colorPrimary"
         android:layout_width="match_parent"
         android:layout_height="?attr/actionBarSize"
@@ -28,7 +28,7 @@
     <Button
         android:text="@string/shortcut"
         android:id="@+id/button_shortcut"
-        style="@style/Widget.AppCompat.Button.Colored"
+        style="@style/CitraTheme.Button"
         android:textAllCaps="false"
         android:minWidth="80dp"
         android:minHeight="0dp"
@@ -73,7 +73,7 @@
     <Button
         android:text="@android:string/cancel"
         android:id="@+id/button_cancel"
-        style="@style/Widget.AppCompat.Button.Colored"
+        style="@style/CitraTheme.Button"
         android:textAllCaps="false"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -84,7 +84,7 @@
     <Button
         android:text="@string/cheat_list"
         android:id="@+id/button_confirm"
-        style="@style/Widget.AppCompat.Button.Colored"
+        style="@style/CitraTheme.Button"
         android:textAllCaps="false"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"

@@ -4,7 +4,6 @@
 
     <TextView
         android:id="@+id/error_info"
-        android:textColor="@android:color/black"
         android:textSize="16sp"
         android:layout_alignParentStart="true"
         android:layout_alignParentTop="true"

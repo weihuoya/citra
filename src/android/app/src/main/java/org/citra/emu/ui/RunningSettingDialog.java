@@ -484,9 +484,26 @@ public class RunningSettingDialog extends DialogFragment {
         private TextView mTextSettingName;
         private TextView mTextSettingValue;
         private SeekBar mSeekBar;
+        private final SeekBar.OnSeekBarChangeListener mOnSeekBarChangeListener;
 
         public SeekBarSettingViewHolder(View itemView) {
             super(itemView);
+            mOnSeekBarChangeListener = new SeekBar.OnSeekBarChangeListener() {
+                @Override
+                public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+                    refreshProgress(progress);
+                }
+
+                @Override
+                public void onStartTrackingTouch(SeekBar seekBar) {
+
+                }
+
+                @Override
+                public void onStopTrackingTouch(SeekBar seekBar) {
+
+                }
+            };
         }
 
         @Override
@@ -494,33 +511,30 @@ public class RunningSettingDialog extends DialogFragment {
             mTextSettingName = root.findViewById(R.id.text_setting_name);
             mTextSettingValue = root.findViewById(R.id.text_setting_value);
             mSeekBar = root.findViewById(R.id.seekbar);
-            mSeekBar.setProgress(99);
         }
 
         @Override
         public void bind(SettingsItem item) {
             mItem = item;
             mTextSettingName.setText(item.getName());
-            mSeekBar.setMax(100);
-            mSeekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
-                @Override
-                public void onProgressChanged(SeekBar seekBar, int progress, boolean b) {
-                    if (seekBar.getMax() > 99) {
-                        progress = (progress / 5) * 5;
-                        mTextSettingValue.setText(progress + "%");
-                    } else {
-                        mTextSettingValue.setText(String.valueOf(progress));
-                    }
-                    mItem.setValue(progress);
-                }
-
-                @Override
-                public void onStartTrackingTouch(SeekBar seekBar) {}
-
-                @Override
-                public void onStopTrackingTouch(SeekBar seekBar) {}
-            });
+            mSeekBar.setOnSeekBarChangeListener(null);
+            if (mItem.getSetting() == SettingsItem.SETTING_FRAME_LIMIT) {
+                mSeekBar.setMax(200);
+            } else {
+                mSeekBar.setMax(100);
+            }
             mSeekBar.setProgress(item.getValue());
+            mSeekBar.setOnSeekBarChangeListener(mOnSeekBarChangeListener);
+            refreshProgress(item.getValue());
+        }
+
+        private void refreshProgress(int progress) {
+            if (mSeekBar.getMax() > 99) {
+                mTextSettingValue.setText(progress + "%");
+            } else {
+                mTextSettingValue.setText(String.valueOf(progress));
+            }
+            mItem.setValue(progress);
         }
 
         @Override

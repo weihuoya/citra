@@ -133,7 +133,6 @@ public final class SettingsFragment extends Fragment {
         Setting shader = rendererSection.getSetting(SettingsFile.KEY_POST_PROCESSING_SHADER);
         Setting frameLimit = rendererSection.getSetting(SettingsFile.KEY_FRAME_LIMIT);
         Setting customTex = rendererSection.getSetting(SettingsFile.KEY_CUSTOM_TEXTURES);
-        Setting preloadTex = rendererSection.getSetting(SettingsFile.KEY_PRELOAD_TEXTURES);
         Setting factor3d = rendererSection.getSetting(SettingsFile.KEY_FACTOR_3D);
 
         SettingSection debugSection = mSettings.getSection(Settings.SECTION_INI_DEBUG);
@@ -172,9 +171,7 @@ public final class SettingsFragment extends Fragment {
 
         // custom textures
         sl.add(new CheckBoxSetting(SettingsFile.KEY_CUSTOM_TEXTURES, Settings.SECTION_INI_RENDERER,
-                                   R.string.setting_custom_textures, 0, false, customTex));
-        sl.add(new CheckBoxSetting(SettingsFile.KEY_PRELOAD_TEXTURES, Settings.SECTION_INI_RENDERER,
-                                   R.string.setting_preload_textures, R.string.setting_preload_textures_description, false, preloadTex));
+                                   R.string.setting_custom_textures, R.string.setting_custom_textures_description, false, customTex));
         sl.add(new CheckBoxSetting(SettingsFile.KEY_CPU_USAGE_LIMIT, Settings.SECTION_INI_DEBUG,
                 R.string.cpu_usage_limit, R.string.cpu_usage_limit_description, false, cpuLimit));
         sl.add(new CheckBoxSetting(SettingsFile.KEY_USE_FENCE_SYNC, Settings.SECTION_INI_RENDERER,

@@ -184,8 +184,7 @@
     <string name="setting_use_fence_sync">Habilitar la reutilización de memoria</string>
     <string name="setting_use_fence_sync_description">Actívelo para mejorar el rendimiento, pero algunos juegos pueden tener problemas de visualización o bloquearse en el juego.</string>
     <string name="setting_custom_textures">Cargar texturas personalizadas</string>
-    <string name="setting_preload_textures">Precargar texturas personalizadas</string>
-    <string name="setting_preload_textures_description">Precargue texturas personalizadas en la RAM, disminuye un poco el rendimiento.</string>
+    <string name="setting_custom_textures_description">Textures directory: citra-emu/load/textures/\"Game ID\"/.</string>
     <string name="setting_shader_type">Tipo de sombreador</string>
     <string name="setting_factor_3d">Factor 3D (control deslizante de profundidad 3D)</string>
     <string name="setting_camera_type">Tipo de cámara</string>

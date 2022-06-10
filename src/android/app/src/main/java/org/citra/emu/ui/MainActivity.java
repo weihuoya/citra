@@ -562,6 +562,9 @@ public final class MainActivity extends AppCompatActivity {
                 showGameList();
             } else {
                 Toast.makeText(this, R.string.write_permission_needed, Toast.LENGTH_SHORT).show();
+                refreshExternalGames();
+                refreshInstalledGames();
+                refreshInstalledContents();
             }
             break;
         default:
@@ -580,7 +583,6 @@ public final class MainActivity extends AppCompatActivity {
     public void showGameList() {
         if (!CitraDirectory.isInitialized()) {
             // wait for initialized
-
         } else if (!mIsLoadGameList) {
             mIsLoadGameList = true;
             new LoadGameListTask().execute();
