@@ -31,6 +31,8 @@
         android:layout_marginEnd="@dimen/spacing_large"
         android:layout_marginBottom="@dimen/spacing_large"
         android:layout_marginTop="@dimen/spacing_small"
+        style="@style/CitraTheme.Caption"
+        android:textSize="14sp"
         android:id="@+id/text_setting_description"
         android:layout_below="@+id/text_setting_name"
         android:layout_alignStart="@+id/text_setting_name"/>

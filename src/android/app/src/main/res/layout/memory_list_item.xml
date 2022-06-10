@@ -9,6 +9,6 @@
         android:layout_height="wrap_content"
         android:textSize="14sp"
         android:fontFamily="monospace"
-        android:textColor="@android:color/black" />
+         />
 
 </RelativeLayout>

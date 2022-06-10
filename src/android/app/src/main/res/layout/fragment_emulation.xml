@@ -56,13 +56,13 @@
         android:linksClickable="false"
         android:longClickable="false"
         android:shadowColor="@android:color/black"
-        android:textColor="@android:color/white"
+        android:textColor="@color/citra_accent_white"
         android:textSize="12sp" />
 
     <TextView
         android:id="@+id/translate_text"
         android:gravity="center_horizontal"
-        android:textColor="@android:color/white"
+        android:textColor="@color/citra_accent_white"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content" />
 
@@ -80,7 +80,7 @@
         android:layout_gravity="center"
         android:padding="4dp"
         android:background="@color/citra_accent"
-        android:textColor="@android:color/white"
+        android:textColor="@color/citra_accent_white"
         android:text="@string/emulation_done"
         android:visibility="invisible"/>
 
@@ -131,7 +131,7 @@
             android:layout_marginBottom="2dp"
             android:layout_marginTop="0dp"
             android:tint="@color/citra_orange"
-            style="@style/Widget.AppCompat.Button.Colored"
+            style="@style/CitraTheme.Button"
             android:stateListAnimator="@null"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"

@@ -8,7 +8,7 @@
         android:text="@string/preferences_settings"
         android:textAlignment="center"
         android:gravity="center"
-        android:textColor="@android:color/white"
+        android:textColor="@color/citra_accent_white"
         android:background="@color/citra_orange"
         android:layout_alignParentTop="true"
         android:layout_width="match_parent"
@@ -23,7 +23,6 @@
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/list_settings"
-        android:background="@android:color/white"
         android:layout_below="@id/text_title"
         android:layout_above="@id/button_cancel"
         android:layout_width="match_parent"

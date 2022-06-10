@@ -32,6 +32,10 @@ public final class FileBrowserHelper {
             }
         }
 
+        if (!PermissionsHandler.checkWritePermission(activity)) {
+            return;
+        }
+
         Intent i = new Intent(activity, GameFilePickerActivity.class);
         i.putExtra(FilePickerActivity.EXTRA_ALLOW_MULTIPLE, false);
         i.putExtra(FilePickerActivity.EXTRA_MODE, FilePickerActivity.MODE_DIR);
@@ -46,6 +50,10 @@ public final class FileBrowserHelper {
                 openDocument(activity, REQUEST_OPEN_DOCUMENT);
                 return;
             }
+        }
+
+        if (!PermissionsHandler.checkWritePermission(activity)) {
+            return;
         }
 
         Intent i = new Intent(activity, GameFilePickerActivity.class);

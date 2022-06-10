@@ -19,7 +19,7 @@
         android:adjustViewBounds="true"
         android:scaleType="center"
         app:srcCompat="@drawable/nnf_ic_folder_black_48dp"
-        android:tint="?attr/nnf_dir_icon_color"
+        app:tint="?attr/nnf_dir_icon_color"
         tools:ignore="ContentDescription" />
 
     <TextView

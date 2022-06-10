@@ -184,8 +184,7 @@
     <string name="setting_use_fence_sync">Enable Memory Reuse</string>
     <string name="setting_use_fence_sync_description">Turn it on to improve performance, but some games may have display issues or crash in game.</string>
     <string name="setting_custom_textures">Use Custom Textures</string>
-    <string name="setting_preload_textures">Preload Custom Textures</string>
-    <string name="setting_preload_textures_description">The start up time is getting longer if enabled.</string>
+    <string name="setting_custom_textures_description">Textures directory: citra-emu/load/textures/\"Game ID\"/.</string>
     <string name="setting_shader_type">Shader Type</string>
     <string name="setting_factor_3d">Factor 3D (3D Depth Slider)</string>
     <string name="setting_camera_type">Camera Type</string>

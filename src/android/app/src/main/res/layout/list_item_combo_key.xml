@@ -26,6 +26,7 @@
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/list_keys"
+        android:background="@color/background_color"
         android:layout_below="@id/line"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"/>
