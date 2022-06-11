@@ -560,7 +560,7 @@ JNIEXPORT jintArray JNICALL Java_org_citra_emu_NativeLibrary_getRunningSettings(
     settings[i++] = static_cast<int>(Settings::values.layout_option);
     settings[i++] = static_cast<int>(Settings::values.shaders_accurate_mul);
     settings[i++] = Settings::values.custom_layout;
-    settings[i++] = Settings::values.frame_limit / 2;
+    settings[i++] = Settings::values.frame_limit;
 
     jintArray array = env->NewIntArray(i);
     env->SetIntArrayRegion(array, 0, i, settings);
@@ -604,7 +604,7 @@ JNIEXPORT void JNICALL Java_org_citra_emu_NativeLibrary_setRunningSettings(JNIEn
     Config::Set(Config::USE_CUSTOM_LAYOUT, Settings::values.custom_layout);
 
     // Frame Limit
-    Settings::values.frame_limit = settings[i++] * 2;
+    Settings::values.frame_limit = settings[i++];
 
     VideoCore::SettingUpdate();
 

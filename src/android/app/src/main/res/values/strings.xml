@@ -274,6 +274,7 @@
     <string name="button_start">START</string>
     <string name="button_select">SELECT</string>
     <string name="button_home">SWAP SCREEN</string>
+    <string name="button_debug">SETTING DIALOG</string>
 
     <string name="nnf_new_folder">New folder</string>
     <string name="nnf_create_folder_error">Failed to create folder</string>

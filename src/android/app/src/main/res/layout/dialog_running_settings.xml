@@ -11,6 +11,7 @@
         android:textColor="@color/citra_accent_white"
         android:background="@color/citra_orange"
         android:layout_alignParentTop="true"
+        android:layout_alignBottom="@id/text_info"
         android:layout_width="match_parent"
         android:layout_height="wrap_content" />
 

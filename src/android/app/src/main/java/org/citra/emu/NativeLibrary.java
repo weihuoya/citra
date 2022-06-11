@@ -324,6 +324,13 @@ public final class NativeLibrary {
         NetPlayManager.AddNetPlayMessage(type, message);
     }
 
+    public static void showRunningSetting() {
+        EmulationActivity activity = EmulationActivity.get();
+        if (activity != null) {
+            activity.showRunningSetting();
+        }
+    }
+
     /**
      * meta info
      */
