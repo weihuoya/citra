@@ -279,6 +279,7 @@ public final class SettingsFragment extends Fragment {
         Setting buttonStart = bindingsSection.getSetting(SettingsFile.KEY_BUTTON_START);
         Setting buttonSelect = bindingsSection.getSetting(SettingsFile.KEY_BUTTON_SELECT);
         Setting buttonHome = bindingsSection.getSetting(SettingsFile.KEY_BUTTON_HOME);
+        Setting debugHome = bindingsSection.getSetting(SettingsFile.KEY_BUTTON_DEBUG);
 
         sl.add(new HeaderSetting(null, null, R.string.generic_buttons, 0));
         sl.add(new InputBindingSetting(SettingsFile.KEY_BUTTON_A, Settings.SECTION_INI_CONTROLS,
@@ -306,6 +307,9 @@ public final class SettingsFragment extends Fragment {
         sl.add(new InputBindingSetting(SettingsFile.KEY_BUTTON_HOME,
                                        Settings.SECTION_INI_CONTROLS, R.string.button_home,
                                        buttonHome));
+        sl.add(new InputBindingSetting(SettingsFile.KEY_BUTTON_DEBUG,
+                                       Settings.SECTION_INI_CONTROLS, R.string.button_debug,
+                                       debugHome));
 
         sl.add(new HeaderSetting(null, null, R.string.controller_dpad, 0));
         sl.add(new InputBindingSetting(SettingsFile.KEY_BUTTON_UP, Settings.SECTION_INI_CONTROLS,

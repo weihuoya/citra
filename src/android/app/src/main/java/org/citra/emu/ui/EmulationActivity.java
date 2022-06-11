@@ -145,15 +145,19 @@ public final class EmulationActivity extends AppCompatActivity {
             sInstance = new WeakReference<>(null);
         } else {
             mMenuVisible = true;
-            mEmulationFragment.stopConfiguringLayout();
-            mEmulationFragment.stopConfiguringControls();
-            RunningSettingDialog dialog = RunningSettingDialog.newInstance();
-            dialog.show(getSupportFragmentManager(), "RunningSettingDialog");
-            dialog.setOnDismissListener(v -> {
-                mMenuVisible = false;
-                hideSystemUI();
-            });
+            showRunningSetting();
         }
+    }
+
+    public void showRunningSetting() {
+        mEmulationFragment.stopConfiguringLayout();
+        mEmulationFragment.stopConfiguringControls();
+        RunningSettingDialog dialog = RunningSettingDialog.newInstance();
+        dialog.show(getSupportFragmentManager(), "RunningSettingDialog");
+        dialog.setOnDismissListener(v -> {
+            mMenuVisible = false;
+            hideSystemUI();
+        });
     }
 
     @Override

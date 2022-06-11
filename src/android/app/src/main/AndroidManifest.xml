@@ -39,7 +39,7 @@
             android:name=".ui.MainActivity"
             android:configChanges="orientation|screenSize"
             android:launchMode="singleTop"
-            android:theme="@style/CitraBase"
+            android:theme="@style/CitraTheme"
             android:exported="true">
 
             <!-- This intentfilter marks this Activity as the one that gets launched from Home screen. -->

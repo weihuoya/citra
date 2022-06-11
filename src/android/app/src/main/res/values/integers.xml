@@ -22,6 +22,8 @@
     <integer name="BUTTON_START_Y">96</integer>
     <integer name="BUTTON_SELECT_X">-15</integer>
     <integer name="BUTTON_SELECT_Y">96</integer>
+    <integer name="BUTTON_HOME_X">0</integer>
+    <integer name="BUTTON_HOME_Y">104</integer>
     <integer name="PAD_MAIN_X">-55</integer>
     <integer name="PAD_MAIN_Y">80</integer>
     <integer name="STICK_MAIN_X">-20</integer>

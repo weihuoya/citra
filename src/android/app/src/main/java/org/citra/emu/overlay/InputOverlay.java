@@ -58,6 +58,7 @@ public final class InputOverlay extends View {
             {ButtonType.N3DS_BUTTON_ZR, R.integer.TRIGGER_ZR_X, R.integer.TRIGGER_ZR_Y, R.drawable.zr, R.drawable.zr_pressed},
             {ButtonType.N3DS_BUTTON_L, R.integer.TRIGGER_L_X, R.integer.TRIGGER_L_Y, R.drawable.l, R.drawable.l_pressed},
             {ButtonType.N3DS_BUTTON_R, R.integer.TRIGGER_R_X, R.integer.TRIGGER_R_Y, R.drawable.r, R.drawable.r_pressed},
+            {ButtonType.N3DS_BUTTON_DEBUG, R.integer.BUTTON_HOME_X, R.integer.BUTTON_HOME_Y, R.drawable.home, R.drawable.home_pressed},
             // dpad
             {ButtonType.N3DS_DPAD_UP, R.integer.PAD_MAIN_X, R.integer.PAD_MAIN_Y, 0, 0},
             // stick
@@ -343,7 +344,7 @@ public final class InputOverlay extends View {
         }
 
         // normal button begin
-        for (int i = 0; i < 10; ++i) {
+        for (int i = 0; i < 11; ++i) {
             int id = mInputConfigs[i][0];
             if (mInEditMode || mInputVisibles.get(id)) {
                 int normal = mInputConfigs[i][3];
@@ -410,6 +411,10 @@ public final class InputOverlay extends View {
         case ButtonType.N3DS_BUTTON_START:
         case ButtonType.N3DS_BUTTON_SELECT:
             scale *= 0.8f;
+            break;
+
+        case ButtonType.N3DS_BUTTON_DEBUG:
+            scale *= 0.7f;
             break;
 
         case ButtonType.EMU_COMBO_KEY_1:
@@ -560,7 +565,8 @@ public final class InputOverlay extends View {
             R.drawable.dpad, R.drawable.dpad_pressed_one, R.drawable.dpad_pressed_two,
             R.drawable.joystick, R.drawable.joystick_pressed, R.drawable.joystick_range,
             R.drawable.c_stick, R.drawable.c_stick_pressed, R.drawable.c_stick_range,
-            R.drawable.bg_landscape, R.drawable.bg_portrait
+            R.drawable.bg_landscape, R.drawable.bg_portrait,
+            R.drawable.home, R.drawable.home_pressed
     };
     public static final String[] ResNames = {
             "a.png", "a_pressed.png",
@@ -579,6 +585,7 @@ public final class InputOverlay extends View {
             "dpad.png", "dpad_pressed_one.png", "dpad_pressed_two.png",
             "joystick.png", "joystick_pressed.png", "joystick_range.png",
             "c_stick.png", "c_stick_pressed.png", "c_stick_range.png",
-            "bg_landscape.jpg", "bg_portrait.jpg"
+            "bg_landscape.jpg", "bg_portrait.jpg",
+            "home.png", "home_pressed.png"
     };
 }
