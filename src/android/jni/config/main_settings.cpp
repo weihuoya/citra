@@ -26,7 +26,6 @@ const ConfigInfo<u16> FRAME_LIMIT{{"Renderer", "frame_limit"}, 100};
 const ConfigInfo<u8> FACTOR_3D{{"Renderer", "factor_3d"}, 0};
 const ConfigInfo<bool> USE_FENCE_SYNC{{"Renderer", "use_fence_sync"}, false};
 const ConfigInfo<bool> CUSTOM_TEXTURES{{"Renderer", "custom_textures"}, false};
-const ConfigInfo<bool> PRELOAD_TEXTURES{{"Renderer", "preload_textures"}, false};
 const ConfigInfo<Settings::LayoutOption> LAYOUT_OPTION{{"Renderer", "layout_option"},
                                                        Settings::LayoutOption::Default};
 const ConfigInfo<std::string> POST_PROCESSING_SHADER{{"Renderer", "pp_shader_name"}, ""};
@@ -75,7 +74,7 @@ const ConfigInfo<std::string> BUTTON_DEBUG{{"Controls", "button_debug"}, "code:1
 const ConfigInfo<std::string> BUTTON_GPIO14{{"Controls", "button_gpio14"}, "code:112"};
 const ConfigInfo<std::string> BUTTON_ZL{{"Controls", "button_zl"}, "code:104"};
 const ConfigInfo<std::string> BUTTON_ZR{{"Controls", "button_zr"}, "code:105"};
-const ConfigInfo<std::string> BUTTON_HOME{{"Controls", "button_home"}, "code:106"};
+const ConfigInfo<std::string> BUTTON_HOME{{"Controls", "button_home"}, "code:113"};
 const ConfigInfo<std::string> CIRCLE_PAD_X{{"Controls", "circle_pad_x"}, "code:0"};
 const ConfigInfo<std::string> CIRCLE_PAD_Y{{"Controls", "circle_pad_y"}, "code:1"};
 const ConfigInfo<std::string> C_STICK_X{{"Controls", "c_stick_x"}, "code:11"};

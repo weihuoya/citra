@@ -450,7 +450,6 @@ JNIEXPORT void JNICALL Java_org_citra_emu_NativeLibrary_Run(JNIEnv* env, jclass 
     Settings::values.resolution_factor = Config::Get(Config::RESOLUTION_FACTOR);
     Settings::values.factor_3d = Config::Get(Config::FACTOR_3D);
     Settings::values.custom_textures = Config::Get(Config::CUSTOM_TEXTURES);
-    Settings::values.preload_textures = Config::Get(Config::PRELOAD_TEXTURES);
     Settings::values.layout_option = Config::Get(Config::LAYOUT_OPTION);
     Settings::values.pp_shader_name = Config::Get(Config::POST_PROCESSING_SHADER);
     Settings::values.remote_shader_host = Config::Get(Config::REMOTE_SHADER_HOST);
@@ -814,7 +813,7 @@ JNIEXPORT jstring JNICALL Java_org_citra_emu_NativeLibrary_GetAppTitle(JNIEnv* e
 }
 
 JNIEXPORT jbyteArray JNICALL Java_org_citra_emu_NativeLibrary_GetAppIcon(JNIEnv* env, jclass obj,
-                                                                        jstring jPath) {
+                                                                         jstring jPath) {
     auto& icon = GetGameInfo(JniHelper::Unwrap(jPath)).icon;
     return JniHelper::Wrap(reinterpret_cast<const u8*>(icon.data()), icon.size() * 2);
 }
@@ -831,7 +830,7 @@ JNIEXPORT jboolean JNICALL Java_org_citra_emu_NativeLibrary_IsAppExecutable(JNIE
 }
 
 JNIEXPORT jboolean JNICALL Java_org_citra_emu_NativeLibrary_IsAppVisible(JNIEnv* env, jclass obj,
-                                                                            jstring jPath) {
+                                                                         jstring jPath) {
     return GetGameInfo(JniHelper::Unwrap(jPath)).icon.size() > 0;
 }
 
@@ -917,8 +916,8 @@ Java_org_citra_emu_utils_NetPlayManager_NetPlayRoomInfo(JNIEnv* env, jclass claz
     return JniHelper::Wrap(NetPlayRoomInfo());
 }
 
-JNIEXPORT jboolean JNICALL
-Java_org_citra_emu_utils_NetPlayManager_NetPlayIsJoined(JNIEnv* env, jclass clazz) {
+JNIEXPORT jboolean JNICALL Java_org_citra_emu_utils_NetPlayManager_NetPlayIsJoined(JNIEnv* env,
+                                                                                   jclass clazz) {
     return NetPlayIsJoined();
 }
 
