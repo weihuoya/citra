@@ -39,6 +39,15 @@ enum class AccurateMul {
     SLOW = 3,
 };
 
+enum class SharedFontType {
+    Auto = -1,
+    Legacy = 0,
+    JPN = 1,
+    CHN = 2,
+    KOR = 3,
+    TWN = 4,
+};
+
 namespace NativeButton {
 enum Values {
     A,
@@ -209,6 +218,7 @@ struct Values {
     bool use_present_thread;
     bool use_direct_display;
     bool use_fence_sync;
+    SharedFontType shared_font_type;
     AccurateMul shaders_accurate_mul;
     std::string remote_shader_host;
 

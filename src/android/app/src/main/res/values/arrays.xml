@@ -53,6 +53,23 @@
         <item>6</item>
     </integer-array>
 
+    <string-array name="sharedFontEntries" translatable="false">
+        <item>@string/auto</item>
+        <item>shared_font.bin</item>
+        <item>@string/system_font_jpn</item>
+        <item>@string/system_font_chn</item>
+        <item>@string/system_font_kor</item>
+        <item>@string/system_font_twn</item>
+    </string-array>
+    <integer-array name="sharedFontValues" translatable="false">
+        <item>-1</item>
+        <item>0</item>
+        <item>1</item>
+        <item>2</item>
+        <item>3</item>
+        <item>4</item>
+    </integer-array>
+
     <string-array name="languageNames">
         <item>日本語</item>
         <item>English</item>

@@ -11,6 +11,8 @@ const ConfigInfo<bool> USE_VIRTUAL_SD{{"Core", "use_virtual_sd"}, true};
 const ConfigInfo<int> SYSTEM_REGION{{"Core", "region_value"}, Settings::REGION_VALUE_AUTO_SELECT};
 const ConfigInfo<Service::CFG::SystemLanguage> SYSTEM_LANGUAGE{
     {"Core", "language"}, Service::CFG::SystemLanguage::LANGUAGE_EN};
+const ConfigInfo<Settings::SharedFontType> SHARED_FONT_TYPE{
+    {"Core", "shared_font_type"}, Settings::SharedFontType::Auto};
 
 // renderer
 const ConfigInfo<bool> USE_GLES{{"Renderer", "use_gles"}, true};
@@ -29,8 +31,9 @@ const ConfigInfo<bool> CUSTOM_TEXTURES{{"Renderer", "custom_textures"}, false};
 const ConfigInfo<Settings::LayoutOption> LAYOUT_OPTION{{"Renderer", "layout_option"},
                                                        Settings::LayoutOption::Default};
 const ConfigInfo<std::string> POST_PROCESSING_SHADER{{"Renderer", "pp_shader_name"}, ""};
-const ConfigInfo<std::string> REMOTE_SHADER_HOST{{"Renderer", "remote_shader_host"},
-                                                 "https://raw.githubusercontent.com/weihuoya/citra/master/cache/"};
+const ConfigInfo<std::string> REMOTE_SHADER_HOST{
+    {"Renderer", "remote_shader_host"},
+    "https://raw.githubusercontent.com/weihuoya/citra/master/cache/"};
 
 // audio
 const ConfigInfo<bool> ENABLE_DSP_LLE{{"Audio", "enable_dsp_lle"}, false};

@@ -9,6 +9,7 @@ namespace Settings {
 enum class LayoutOption;
 enum class MicInputType;
 enum class AccurateMul;
+enum class SharedFontType;
 } // namespace Settings
 
 namespace Config {
@@ -19,6 +20,7 @@ extern const ConfigInfo<bool> IS_NEW_3DS;
 extern const ConfigInfo<bool> USE_VIRTUAL_SD;
 extern const ConfigInfo<int> SYSTEM_REGION;
 extern const ConfigInfo<Service::CFG::SystemLanguage> SYSTEM_LANGUAGE;
+extern const ConfigInfo<Settings::SharedFontType> SHARED_FONT_TYPE;
 
 // renderer
 extern const ConfigInfo<bool> USE_GLES;

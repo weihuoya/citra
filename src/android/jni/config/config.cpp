@@ -24,6 +24,7 @@ void SaveDefault() {
     s_layer.Set(USE_VIRTUAL_SD, USE_VIRTUAL_SD.default_value);
     s_layer.Set(SYSTEM_REGION, SYSTEM_REGION.default_value);
     s_layer.Set(SYSTEM_LANGUAGE, SYSTEM_LANGUAGE.default_value);
+    s_layer.Set(SHARED_FONT_TYPE, SHARED_FONT_TYPE.default_value);
 
     // renderer
     s_layer.Set(USE_GLES, USE_GLES.default_value);

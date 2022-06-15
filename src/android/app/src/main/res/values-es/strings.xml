@@ -163,6 +163,7 @@
     <string name="setting_enable_cpu_jit">Activar CPU JIT</string>
     <string name="setting_region_value">Región de emulación</string>
     <string name="setting_system_language">Lenguaje del sistema</string>
+    <string name="setting_shared_font">Fuente del sistema</string>
     <string name="setting_theme_package">Skin de controles</string>
 
     <string name="show_fps">Mostrar FPS</string>
@@ -237,6 +238,11 @@
     <string name="region_china">中國</string>
     <string name="region_korea">Korea</string>
     <string name="region_taiwan">Taiwan</string>
+
+    <string name="system_font_jpn">Japanese</string>
+    <string name="system_font_chn">Simplified Chinese</string>
+    <string name="system_font_kor">Korean</string>
+    <string name="system_font_twn">Traditional Chinese</string>
 
     <string name="game_emulation_info">Formatos soportados: .CCI, .CXI, .3DS, .3DSX</string>
     <string name="application_emulation_info">La aplicación se instalará en "citra-emu/sdmc"</string>
