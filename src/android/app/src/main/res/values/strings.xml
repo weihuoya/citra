@@ -163,6 +163,7 @@
     <string name="setting_enable_cpu_jit">Enable CPU JIT</string>
     <string name="setting_region_value">Emulation Region</string>
     <string name="setting_system_language">System Language</string>
+    <string name="setting_shared_font">System Font</string>
     <string name="setting_theme_package">Theme</string>
 
     <string name="show_fps">Show FPS</string>
@@ -237,6 +238,11 @@
     <string name="region_china">China</string>
     <string name="region_korea">Korea</string>
     <string name="region_taiwan">Taiwan</string>
+
+    <string name="system_font_jpn">Japanese</string>
+    <string name="system_font_chn">Simplified Chinese</string>
+    <string name="system_font_kor">Korean</string>
+    <string name="system_font_twn">Traditional Chinese</string>
 
     <string name="game_emulation_info">Pull to refresh\nLong press game to edit cheat\nFile Support: .CCI, .CXI, .3DS, .3DSX</string>
     <string name="application_emulation_info">Pull to refresh\nLong press game to edit cheat\nApp will be installed in \"citra-emu/sdmc\"</string>

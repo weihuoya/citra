@@ -24,9 +24,9 @@ public final class SettingsFile {
     // Core
     public static final String KEY_USE_CPU_JIT = "use_cpu_jit";
     public static final String KEY_IS_NEW_3DS = "is_new_3ds";
-    public static final String KEY_USE_VIRTUAL_SD = "use_virtual_sd";
     public static final String KEY_SYSTEM_REGION = "region_value";
     public static final String KEY_SYSTEM_LANGUAGE = "language";
+    public static final String KEY_SHARED_FONT_TYPE = "shared_font_type";
     public static final String KEY_USE_PRESENT_THREAD = "use_present_thread";
     public static final String KEY_CPU_USAGE_LIMIT = "cpu_usage_limit";
     // Renderer

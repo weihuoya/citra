@@ -163,6 +163,7 @@
     <string name="setting_enable_cpu_jit">开启 CPU JIT</string>
     <string name="setting_region_value">模拟地区</string>
     <string name="setting_system_language">系统语言</string>
+    <string name="setting_shared_font">系统字体</string>
     <string name="setting_theme_package">主题</string>
 
     <string name="show_fps">显示帧率</string>
@@ -237,6 +238,11 @@
     <string name="region_china">中国</string>
     <string name="region_korea">韩国</string>
     <string name="region_taiwan">台湾</string>
+
+    <string name="system_font_jpn">日语</string>
+    <string name="system_font_chn">简体中文</string>
+    <string name="system_font_kor">韩语</string>
+    <string name="system_font_twn">繁体中文</string>
 
     <string name="game_emulation_info">下拉刷新\n长按游戏编辑金手指\n文件支持：.CCI，.CXI，.3DS，.3DSX</string>
     <string name="application_emulation_info">下拉刷新\n长按游戏编辑金手指\n应用将被安装到“citra-emu/sdmc”目录</string>

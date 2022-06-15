@@ -190,6 +190,8 @@ public final class SettingsFragment extends Fragment {
         Setting systemRegion = coreSection.getSetting(SettingsFile.KEY_SYSTEM_REGION);
         Setting cpuJIT = coreSection.getSetting(SettingsFile.KEY_USE_CPU_JIT);
         Setting language = coreSection.getSetting(SettingsFile.KEY_SYSTEM_LANGUAGE);
+        Setting font = coreSection.getSetting(SettingsFile.KEY_SHARED_FONT_TYPE);
+
         Setting theme = coreSection.getSetting(SettingsFile.KEY_THEME_PACKAGE);
 
         sl.add(new CheckBoxSetting(SettingsFile.KEY_IS_NEW_3DS, Settings.SECTION_INI_CORE,
@@ -204,6 +206,10 @@ public final class SettingsFragment extends Fragment {
                 R.string.setting_system_language, 0,
                 R.array.languageNames, R.array.languageValues, 1,
                 language));
+        sl.add(new SingleChoiceSetting(SettingsFile.KEY_SHARED_FONT_TYPE, Settings.SECTION_INI_CORE,
+                R.string.setting_shared_font, 0,
+                R.array.sharedFontEntries, R.array.sharedFontValues, -1,
+                font));
 
         // theme
         stringValues = getThemeValues();
