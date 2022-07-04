@@ -92,4 +92,15 @@
         android:layout_toEndOf="@id/dummy_view"
         android:stateListAnimator="@null"/>
 
+    <Button
+        android:text="@android:string/ok"
+        android:id="@+id/button_done"
+        style="@style/CitraTheme.Button"
+        android:visibility="invisible"
+        android:textAllCaps="false"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:stateListAnimator="@null"/>
+
 </RelativeLayout>

@@ -4,15 +4,18 @@
 
 package org.citra.emu.ui;
 
+import android.annotation.SuppressLint;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.graphics.drawable.Drawable;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.text.Editable;
+import android.text.Spanned;
 import android.text.TextUtils;
 import android.text.TextWatcher;
+import android.text.style.ForegroundColorSpan;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -23,6 +26,7 @@ import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.EditText;
+import android.widget.ImageButton;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -32,8 +36,6 @@ import androidx.core.content.pm.ShortcutManagerCompat;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.appcompat.widget.Toolbar;
-
-import com.nononsenseapps.filepicker.DividerItemDecoration;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -85,12 +87,17 @@ public final class EditorActivity extends AppCompatActivity {
         private TextView mTextName;
         private TextView mTextDescription;
         private CheckBox mCheckbox;
+        private ImageButton mBtnDelete;
 
         public CheatEntryViewHolder(View itemView) {
             super(itemView);
             mTextName = itemView.findViewById(R.id.text_setting_name);
             mTextDescription = itemView.findViewById(R.id.text_setting_description);
             mCheckbox = itemView.findViewById(R.id.checkbox);
+            mBtnDelete = itemView.findViewById(R.id.btn_delete);
+            mBtnDelete.setOnClickListener(view -> {
+                deleteCheatAt(getBindingAdapterPosition());
+            });
             itemView.setOnClickListener(this);
         }
 
@@ -98,8 +105,16 @@ public final class EditorActivity extends AppCompatActivity {
             mModel = entry;
             mTextName.setText(entry.getName());
             mTextDescription.setText(entry.getInfo());
-            mCheckbox.setChecked(entry.enabled);
-            mCheckbox.setVisibility(entry.codes.size() > 0 ? View.VISIBLE : View.INVISIBLE);
+            if (mIsManageCheats) {
+                itemView.setClickable(false);
+                mBtnDelete.setVisibility(View.VISIBLE);
+                mCheckbox.setVisibility(View.INVISIBLE);
+            } else {
+                itemView.setClickable(true);
+                mBtnDelete.setVisibility(View.INVISIBLE);
+                mCheckbox.setChecked(entry.enabled);
+                mCheckbox.setVisibility(entry.codes.size() > 0 ? View.VISIBLE : View.INVISIBLE);
+            }
         }
 
         @Override
@@ -120,7 +135,7 @@ public final class EditorActivity extends AppCompatActivity {
         @Override
         public CheatEntryViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
             LayoutInflater inflater = LayoutInflater.from(parent.getContext());
-            View itemView = inflater.inflate(R.layout.list_item_setting_checkbox, parent, false);
+            View itemView = inflater.inflate(R.layout.list_item_editor_checkbox, parent, false);
             return new CheatEntryViewHolder(itemView);
         }
 
@@ -147,9 +162,11 @@ public final class EditorActivity extends AppCompatActivity {
     private boolean mCancelSave;
     private EditText mEditor;
     private Button mBtnConfirm;
+    private Button mBtnDone;
     private RecyclerView mListView;
     private CheatEntryAdapter mAdapter;
     private List<CheatEntry> mCheats;
+    private boolean mIsManageCheats;
 
     public static void launch(Context context, GameFile game) {
         Intent settings = new Intent(context, EditorActivity.class);
@@ -159,6 +176,7 @@ public final class EditorActivity extends AppCompatActivity {
         context.startActivity(settings);
     }
 
+    @SuppressLint("ClickableViewAccessibility")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -179,6 +197,7 @@ public final class EditorActivity extends AppCompatActivity {
         setSupportActionBar(toolbar);
         setTitle(mGameName);
 
+        mIsManageCheats = false;
         mCheats = new ArrayList<>();
 
         TextView gameInfo = findViewById(R.id.game_info);
@@ -201,14 +220,46 @@ public final class EditorActivity extends AppCompatActivity {
 
             @Override
             public void afterTextChanged(Editable s) {
-
+                int length = s.length();
+                int line_begin = -1;
+                int line_status = 0;
+                StringBuilder sb = new StringBuilder();
+                for (int i = 0; i < length; ++i) {
+                    char c = s.charAt(i);
+                    if (line_begin == -1) {
+                        if (c == '*') {
+                            line_status = 1;
+                        } else if (c == '[') {
+                            line_status = 2;
+                        } else if (c == '/') {
+                            line_status = 3;
+                        }
+                        line_begin = i;
+                    }
+                    if (c == '\n' || c == '\r') {
+                        if (line_status == 1) {
+                            int color = Color.GRAY;
+                            if (sb.length() == CHEAT_ENABLED_TEXT.length() && sb.toString().equals(CHEAT_ENABLED_TEXT)) {
+                                color = Color.MAGENTA;
+                            }
+                            s.setSpan(new ForegroundColorSpan(color), line_begin, i, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+                        } else if (line_status == 2) {
+                            s.setSpan(new ForegroundColorSpan(Color.BLUE), line_begin, i, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+                        } else if (line_status == 3) {
+                            s.setSpan(new ForegroundColorSpan(Color.GRAY), line_begin, i, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+                        }
+                        line_status = 0;
+                        line_begin = -1;
+                        sb.setLength(0);
+                    } else {
+                        sb.append(c);
+                    }
+                }
             }
         });
 
-        Drawable lineDivider = getDrawable(R.drawable.line_divider);
         mAdapter = new CheatEntryAdapter();
         mListView.setAdapter(mAdapter);
-        mListView.addItemDecoration(new DividerItemDecoration(lineDivider));
         mListView.setLayoutManager(new LinearLayoutManager(this));
 
         Button buttonShortcut = findViewById(R.id.button_shortcut);
@@ -232,6 +283,9 @@ public final class EditorActivity extends AppCompatActivity {
         mBtnConfirm.setOnClickListener(view -> {
             toggleListView(mEditor.getVisibility() == View.VISIBLE);
         });
+
+        mBtnDone = findViewById(R.id.button_done);
+        mBtnDone.setOnClickListener(view -> toggleManageCheats());
 
         loadCheatFile(mGameId);
         toggleListView(mCheats.size() > 0);
@@ -269,6 +323,10 @@ public final class EditorActivity extends AppCompatActivity {
                 jumpToExplore();
                 return true;
 
+            case R.id.menu_manage_cheats:
+                toggleManageCheats();
+                return true;
+
             case R.id.menu_delete_sdmc:
                 deleteAppSdmc();
                 return true;
@@ -277,7 +335,6 @@ public final class EditorActivity extends AppCompatActivity {
                 deleteShaderCache();
                 return true;
         }
-
         return false;
     }
 
@@ -301,6 +358,29 @@ public final class EditorActivity extends AppCompatActivity {
             // reload
             mEditor.setText(loadCheatText());
             mBtnConfirm.setText(R.string.cheat_list);
+        }
+    }
+
+    private void toggleManageCheats() {
+        if (mIsManageCheats) {
+            mIsManageCheats = false;
+            mAdapter.loadCheats(mCheats);
+            mBtnDone.setVisibility(View.INVISIBLE);
+        } else {
+            mIsManageCheats = true;
+            if (mEditor.getVisibility() == View.VISIBLE) {
+                toggleListView(true);
+            } else {
+                mAdapter.loadCheats(mCheats);
+            }
+            mBtnDone.setVisibility(View.VISIBLE);
+        }
+    }
+
+    private void deleteCheatAt(int position) {
+        if (position >= 0 && position < mCheats.size()) {
+            mCheats.remove(position);
+            mAdapter.notifyItemRemoved(position);
         }
     }
 
