@@ -64,7 +64,7 @@ public final class SettingsAdapter extends RecyclerView.Adapter<SettingViewHolde
 
         switch (viewType) {
         case SettingsItem.TYPE_HEADER:
-            view = inflater.inflate(R.layout.list_item_settings_header, parent, false);
+            view = inflater.inflate(R.layout.list_item_setting_header, parent, false);
             return new HeaderViewHolder(view, this);
 
         case SettingsItem.TYPE_CHECKBOX:

@@ -253,6 +253,7 @@
     <string name="playtime_desc">游戏时长：%1$s</string>
     <string name="playtime_minutes">%1$s 分钟</string>
     <string name="playtime_hours">%1$s 小时</string>
+    <string name="menu_manage_cheats">管理金手指</string>
     <string name="open_app_archive">打开存档目录</string>
     <string name="current_directory">当前目录</string>
     <string name="delete_app_sdmc">删除安装目录</string>
