@@ -463,10 +463,10 @@ private:
     void BeaconBroadcastCallback(u64 userdata, s64 cycles_late);
 
     /**
-     * Returns a list of received 802.11 beacon frames from the specified sender and with the
-     * specified wlan_comm_id since the last call.
+     * Returns a list of received 802.11 beacon frames from the specified sender since the last
+     * call.
      */
-    std::list<Network::WifiPacket> GetReceivedBeacons(const MacAddress& sender, u32 wlan_comm_id);
+    std::list<Network::WifiPacket> GetReceivedBeacons(const MacAddress& sender);
 
     /*
      * Returns an available index in the nodes array for the
