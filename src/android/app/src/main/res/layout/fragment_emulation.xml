@@ -57,7 +57,7 @@
         android:longClickable="false"
         android:shadowColor="@android:color/black"
         android:textColor="@color/citra_accent_white"
-        android:textSize="12sp" />
+        android:textSize="14sp" />
 
     <TextView
         android:id="@+id/translate_text"

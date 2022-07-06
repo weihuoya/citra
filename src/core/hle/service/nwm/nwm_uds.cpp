@@ -40,41 +40,22 @@ constexpr u16 BroadcastNetworkNodeId = 0xFFFF;
 // The Host has always dest_node_id 1
 constexpr u16 HostDestNodeId = 1;
 
-std::list<Network::WifiPacket> NWM_UDS::GetReceivedBeacons(const MacAddress& sender,
-                                                           u32 wlan_comm_id) {
+std::list<Network::WifiPacket> NWM_UDS::GetReceivedBeacons(const MacAddress& sender) {
     std::lock_guard lock(beacon_mutex);
-    std::list<Network::WifiPacket> filtered_list;
-    const auto beacon = std::find_if(
-        received_beacons.begin(), received_beacons.end(), [&](const Network::WifiPacket& packet) {
-            if (packet.data.size() < sizeof(DecryptedBeacon)) {
-                return false;
-            }
-
-            DecryptedBeacon decrypted_beacon;
-            std::memcpy(&decrypted_beacon, packet.data.data(), sizeof(decrypted_beacon));
-
-            NetworkInfo beacon_network_info{};
-            // NetworkInfoTag.network_info starts at oui_value
-            std::memcpy(&beacon_network_info.oui_value,
-                        decrypted_beacon.network_info.network_info.data(),
-                        decrypted_beacon.network_info.network_info.size());
-
-            if (static_cast<u32>(beacon_network_info.wlan_comm_id) != wlan_comm_id) {
-                return false;
-            }
-
-            if (sender == Network::BroadcastMac) {
-                return true;
-            }
-
-            return packet.transmitter_address == sender;
-        });
-    if (beacon != received_beacons.end()) {
-        filtered_list.push_back(*beacon);
-        // TODO(B3N30): Check if the complete deque is cleared or just the fetched entries
-        received_beacons.erase(beacon);
+    if (sender != Network::BroadcastMac) {
+        std::list<Network::WifiPacket> filtered_list;
+        const auto beacon = std::find_if(received_beacons.begin(), received_beacons.end(),
+                                         [&sender](const Network::WifiPacket& packet) {
+                                             return packet.transmitter_address == sender;
+                                         });
+        if (beacon != received_beacons.end()) {
+            filtered_list.push_back(*beacon);
+            // TODO(B3N30): Check if the complete deque is cleared or just the fetched entries
+            received_beacons.erase(beacon);
+        }
+        return filtered_list;
     }
-    return filtered_list;
+    return std::move(received_beacons);
 }
 
 /// Sends a WifiPacket to the room we're currently connected to.
@@ -230,7 +211,9 @@ void NWM_UDS::HandleEAPoLPacket(const Network::WifiPacket& packet) {
         connection_status.nodes[node_id - 1] = node.network_node_id;
         connection_status.total_nodes++;
 
-        node_info[node_id - 1] = node;
+        u8 current_nodes = network_info.total_nodes;
+        node_info[current_nodes] = node;
+
         network_info.total_nodes++;
 
         node_map[packet.transmitter_address].node_id = node.network_node_id;
@@ -270,18 +253,13 @@ void NWM_UDS::HandleEAPoLPacket(const Network::WifiPacket& packet) {
         connection_status.max_nodes = logoff.max_nodes;
 
         node_info.clear();
-        node_info.resize(network_info.max_nodes);
-        for (const auto& node : logoff.nodes) {
-            const u16 index = node.network_node_id;
-            if (!index) {
-                continue;
-            }
+        node_info.reserve(network_info.max_nodes);
+        for (std::size_t index = 0; index < logoff.connected_nodes; ++index) {
+            connection_status.node_bitmask |= 1 << index;
+            connection_status.changed_nodes |= 1 << index;
+            connection_status.nodes[index] = logoff.nodes[index].network_node_id;
 
-            connection_status.node_bitmask |= 1 << (index - 1);
-            connection_status.changed_nodes |= 1 << (index - 1);
-            connection_status.nodes[index - 1] = index;
-
-            node_info[index - 1] = DeserializeNodeInfo(node);
+            node_info.emplace_back(DeserializeNodeInfo(logoff.nodes[index]));
         }
 
         // We're now connected, signal the application
@@ -301,26 +279,17 @@ void NWM_UDS::HandleEAPoLPacket(const Network::WifiPacket& packet) {
 
         network_info.total_nodes = logoff.connected_nodes;
         connection_status.total_nodes = logoff.connected_nodes;
-        std::memset(connection_status.nodes, 0, sizeof(connection_status.nodes));
-
-        const auto old_bitmask = connection_status.node_bitmask;
-        connection_status.node_bitmask = 0;
 
         node_info.clear();
-        node_info.resize(network_info.max_nodes);
-        for (const auto& node : logoff.nodes) {
-            const u16 index = node.network_node_id;
-            if (!index) {
-                continue;
+        node_info.reserve(network_info.max_nodes);
+        for (std::size_t index = 0; index < logoff.connected_nodes; ++index) {
+            if ((connection_status.node_bitmask & (1 << index)) == 0) {
+                connection_status.changed_nodes |= 1 << index;
             }
-
-            connection_status.node_bitmask |= 1 << (index - 1);
-            connection_status.nodes[index - 1] = index;
-
-            node_info[index - 1] = DeserializeNodeInfo(node);
+            connection_status.nodes[index] = logoff.nodes[index].network_node_id;
+            connection_status.node_bitmask |= 1 << index;
+            node_info.emplace_back(DeserializeNodeInfo(logoff.nodes[index]));
         }
-        connection_status.changed_nodes = old_bitmask ^ connection_status.node_bitmask;
-
         connection_status_event->Signal();
     }
 }
@@ -611,9 +580,8 @@ void NWM_UDS::RecvBeaconBroadcastData(Kernel::HLERequestContext& ctx) {
 
     std::size_t cur_buffer_size = sizeof(BeaconDataReplyHeader);
 
-    // Retrieve all beacon frames that were received from the desired mac address and with the
-    // desired wlan_comm_id.
-    auto beacons = GetReceivedBeacons(mac_address, wlan_comm_id);
+    // Retrieve all beacon frames that were received from the desired mac address.
+    auto beacons = GetReceivedBeacons(mac_address);
 
     BeaconDataReplyHeader data_reply_header{};
     data_reply_header.total_entries = static_cast<u32>(beacons.size());
@@ -911,7 +879,7 @@ ResultCode NWM_UDS::BeginHostingNetwork(const u8* network_info_buffer,
 
     // Start broadcasting the network, send a beacon frame every 102.4ms.
     system.CoreTiming().ScheduleEvent(msToCycles(DefaultBeaconInterval * MillisecondsPerTU),
-                                      beacon_broadcast_event, 0);
+                                      beacon_broadcast_event);
 
     return RESULT_SUCCESS;
 }
@@ -1014,8 +982,10 @@ void NWM_UDS::UpdateNetworkAttribute(Kernel::HLERequestContext& ctx) {
         network_info.attributes |= mask;
     }
 
-    LOG_WARNING(Service_NWM, "(stubbed) NWM_UDS::UpdateNetworkAttribute called, attributes: {:X}, mask: {:X}, flag: {}",
-                static_cast<u16>(network_info.attributes), mask, flag);
+    LOG_WARNING(
+        Service_NWM,
+        "(stubbed) NWM_UDS::UpdateNetworkAttribute called, attributes: {:X}, mask: {:X}, flag: {}",
+        static_cast<u16>(network_info.attributes), mask, flag);
     IPC::RequestBuilder rb = rp.MakeBuilder(1, 0);
     rb.Push(RESULT_SUCCESS);
 }
