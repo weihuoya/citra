@@ -1,4 +1,4 @@
-// shader: 8B31, FC0655AC919626DA
+// shader: 8B31, F143EAD1C2940119
 
 struct pica_uniforms {
     bool b[16];
@@ -17,20 +17,18 @@ layout(location = 0) in vec4 vs_in_reg0;
 layout(location = 2) in vec4 vs_in_reg2;
 layout(location = 4) in vec4 vs_in_reg4;
 
- out vec4 vs_out_attr0;
- out vec4 vs_out_attr1;
- out vec4 vs_out_attr2;
- out vec4 vs_out_attr3;
+out vec4 vs_out_attr0;
+out vec4 vs_out_attr1;
+out vec4 vs_out_attr2;
+out vec4 vs_out_attr3;
 
 void main() {
     vs_out_attr0 = vec4(0.0, 0.0, 0.0, 1.0);
     vs_out_attr1 = vec4(0.0, 0.0, 0.0, 1.0);
     vs_out_attr2 = vec4(0.0, 0.0, 0.0, 1.0);
     vs_out_attr3 = vec4(0.0, 0.0, 0.0, 1.0);
-
     exec_shader();
 }
-
 
 #define mul_s(x, y) (x * y)
 #define fma_s(x, y, z) fma(x, y, z)
@@ -68,47 +66,33 @@ bool exec_shader() {
 }
 
 bool sub_0_4096() {
-    // 0: mov
     reg_tmp10.xyz = (vs_in_reg0.xyzz).xyz;
-    // 1: mov
     reg_tmp10.w = (uniforms.f[92].yyyy).w;
-    // 2: cmp
     conditional_code = equal(uniforms.f[4].xx, reg_tmp10.ww);
-    // 3: ifc
     if (!conditional_code.x) {
         sub_4_5();
     } else {
         sub_5_6();
     }
-    // 6: dp4
     vs_out_attr0.x = dot_s(uniforms.f[0], reg_tmp10);
-    // 7: dp4
     vs_out_attr0.y = dot_s(uniforms.f[1], reg_tmp10);
-    // 8: dp4
     vs_out_attr0.z = dot_s(uniforms.f[2], reg_tmp10);
-    // 9: dp4
     vs_out_attr0.w = dot_s(uniforms.f[3], reg_tmp10);
-    // 10: mov
     vs_out_attr1 = vs_in_reg2;
-    // 11: mov
     vs_out_attr3 = -reg_tmp10;
-    // 12: mov
     vs_out_attr2 = uniforms.f[92].xxxx;
-    // 13: end
     return true;
 }
 bool sub_4_5() {
-    // 4: add
     reg_tmp10.x = (reg_tmp10.xxxx + vs_in_reg4.xxxx).x;
     return false;
 }
 bool sub_5_6() {
-    // 5: add
     reg_tmp10.x = (reg_tmp10.xxxx + -vs_in_reg4.xxxx).x;
     return false;
 }
-// reference: A9A962FEC583E607, FC0655AC919626DA
-// shader: 8DD9, 5E1311A6BF3914D8
+// reference: A9A962FE46768075, F143EAD1C2940119
+// shader: 8DD9, 4908B2784B1E4CE5
 
 layout(triangles) in;
 layout(triangle_strip, max_vertices = 3) out;
@@ -176,11 +160,10 @@ layout (std140) uniform shader_light_data {
     int shadow_texture_bias;
 };
 
- in vec4 vs_out_attr0[];
- in vec4 vs_out_attr1[];
- in vec4 vs_out_attr2[];
- in vec4 vs_out_attr3[];
-
+in vec4 vs_out_attr0[];
+in vec4 vs_out_attr1[];
+in vec4 vs_out_attr2[];
+in vec4 vs_out_attr3[];
 struct Vertex {
     vec4 attributes[4];
 };
@@ -208,7 +191,6 @@ void EmitVtx(Vertex vtx, bool quats_opposite) {
 
     texcoord0_w = 0.0;
     view = vec3(vtx.attributes[3].x, vtx.attributes[3].y, vtx.attributes[3].z);
-
     texcoord2 = vec2(0.0, 0.0);
 
     EmitVertex();
@@ -232,8 +214,8 @@ void main() {
     prim_buffer[2].attributes = vec4[4](vs_out_attr0[2], vs_out_attr1[2], vs_out_attr2[2], vs_out_attr3[2]);
     EmitPrim(prim_buffer[0], prim_buffer[1], prim_buffer[2]);
 }
-// reference: E57938FA9E46D0AE, 5E1311A6BF3914D8
-// shader: 8B30, 3F3EC97B868B23C2
+// reference: E57938FA9E46D0AE, 4908B2784B1E4CE5
+// shader: 8B30, 5E80B8A7B82C0EE4
 
 precision highp int;
 precision highp float;
@@ -382,9 +364,10 @@ float depth = z_over_w * depth_scale + depth_offset;
 vec4 combiner_buffer = vec4(0.0);
 vec4 next_combiner_buffer = tev_combiner_buffer_color;
 vec4 last_tex_env_out = vec4(0.0);
-vec3 color_output_0 = byteround(clamp((rounded_primary_color.rgb), vec3(0.0), vec3(1.0)));
-float alpha_output_0 = byteround(clamp((rounded_primary_color.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_0, alpha_output_0), vec4(0.0), vec4(1.0));
+vec3 color_output_0 = (rounded_primary_color.rgb);
+float alpha_output_0 = (rounded_primary_color.a);
+last_tex_env_out = vec4(color_output_0, alpha_output_0);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 
 combiner_buffer = next_combiner_buffer;
@@ -401,9 +384,9 @@ if (int(last_tex_env_out.a * 255.0) <= alphatest_ref) discard;
 gl_FragDepth = depth;
 color = byteround(last_tex_env_out);
 }
-// reference: D4F4BEF9A6F39DCE, 3F3EC97B868B23C2
-// program: FC0655AC919626DA, 5E1311A6BF3914D8, 3F3EC97B868B23C2
-// shader: 8B31, 04CEF74382930CF9
+// reference: D4F4BEF9A6F39DCE, 5E80B8A7B82C0EE4
+// program: F143EAD1C2940119, 4908B2784B1E4CE5, 5E80B8A7B82C0EE4
+// shader: 8B31, 71E691D3E34A8575
 
 struct pica_uniforms {
     bool b[16];
@@ -424,12 +407,12 @@ layout(location = 2) in vec4 vs_in_reg2;
 layout(location = 3) in vec4 vs_in_reg3;
 layout(location = 4) in vec4 vs_in_reg4;
 
- out vec4 vs_out_attr0;
- out vec4 vs_out_attr1;
- out vec4 vs_out_attr2;
- out vec4 vs_out_attr3;
- out vec4 vs_out_attr4;
- out vec4 vs_out_attr5;
+out vec4 vs_out_attr0;
+out vec4 vs_out_attr1;
+out vec4 vs_out_attr2;
+out vec4 vs_out_attr3;
+out vec4 vs_out_attr4;
+out vec4 vs_out_attr5;
 
 void main() {
     vs_out_attr0 = vec4(0.0, 0.0, 0.0, 1.0);
@@ -438,10 +421,8 @@ void main() {
     vs_out_attr3 = vec4(0.0, 0.0, 0.0, 1.0);
     vs_out_attr4 = vec4(0.0, 0.0, 0.0, 1.0);
     vs_out_attr5 = vec4(0.0, 0.0, 0.0, 1.0);
-
     exec_shader();
 }
-
 
 #define mul_s(x, y) (x * y)
 #define fma_s(x, y, z) fma(x, y, z)
@@ -479,51 +460,35 @@ bool exec_shader() {
 }
 
 bool sub_0_4096() {
-    // 0: mov
     reg_tmp10.xyz = (vs_in_reg0.xyzz).xyz;
-    // 1: mov
     reg_tmp10.w = (uniforms.f[92].yyyy).w;
-    // 2: cmp
     conditional_code = equal(uniforms.f[4].xx, reg_tmp10.ww);
-    // 3: ifc
     if (!conditional_code.x) {
         sub_4_5();
     } else {
         sub_5_6();
     }
-    // 6: dp4
     vs_out_attr0.x = dot_s(uniforms.f[0], reg_tmp10);
-    // 7: dp4
     vs_out_attr0.y = dot_s(uniforms.f[1], reg_tmp10);
-    // 8: dp4
     vs_out_attr0.z = dot_s(uniforms.f[2], reg_tmp10);
-    // 9: dp4
     vs_out_attr0.w = dot_s(uniforms.f[3], reg_tmp10);
-    // 10: mov
     vs_out_attr1 = vs_in_reg3;
-    // 11: mov
     vs_out_attr2 = vs_in_reg1.xyyy;
-    // 12: mov
     vs_out_attr5 = vs_in_reg2.xyyy;
-    // 13: mov
     vs_out_attr4 = -reg_tmp10;
-    // 14: mov
     vs_out_attr3 = uniforms.f[92].xxxx;
-    // 15: end
     return true;
 }
 bool sub_4_5() {
-    // 4: add
     reg_tmp10.x = (reg_tmp10.xxxx + vs_in_reg4.xxxx).x;
     return false;
 }
 bool sub_5_6() {
-    // 5: add
     reg_tmp10.x = (reg_tmp10.xxxx + -vs_in_reg4.xxxx).x;
     return false;
 }
-// reference: C1BF8E7840A25A6D, 04CEF74382930CF9
-// shader: 8DD9, A3D38C9E2DBEFAA7
+// reference: 5C68B6C140A25A6D, 71E691D3E34A8575
+// shader: 8DD9, 6A83C96D57F9EA6D
 
 layout(triangles) in;
 layout(triangle_strip, max_vertices = 3) out;
@@ -591,13 +556,12 @@ layout (std140) uniform shader_light_data {
     int shadow_texture_bias;
 };
 
- in vec4 vs_out_attr0[];
- in vec4 vs_out_attr1[];
- in vec4 vs_out_attr2[];
- in vec4 vs_out_attr3[];
- in vec4 vs_out_attr4[];
- in vec4 vs_out_attr5[];
-
+in vec4 vs_out_attr0[];
+in vec4 vs_out_attr1[];
+in vec4 vs_out_attr2[];
+in vec4 vs_out_attr3[];
+in vec4 vs_out_attr4[];
+in vec4 vs_out_attr5[];
 struct Vertex {
     vec4 attributes[6];
 };
@@ -625,7 +589,6 @@ void EmitVtx(Vertex vtx, bool quats_opposite) {
 
     texcoord0_w = 0.0;
     view = vec3(vtx.attributes[4].x, vtx.attributes[4].y, vtx.attributes[4].z);
-
     texcoord2 = vec2(0.0, 0.0);
 
     EmitVertex();
@@ -649,8 +612,8 @@ void main() {
     prim_buffer[2].attributes = vec4[6](vs_out_attr0[2], vs_out_attr1[2], vs_out_attr2[2], vs_out_attr3[2], vs_out_attr4[2], vs_out_attr5[2]);
     EmitPrim(prim_buffer[0], prim_buffer[1], prim_buffer[2]);
 }
-// reference: 0609F6E5CDD506D3, A3D38C9E2DBEFAA7
-// shader: 8B30, 5A79CCC62CB4988A
+// reference: 0609F6E5CDD506D3, 6A83C96D57F9EA6D
+// shader: 8B30, CA6C61E8102D5415
 
 precision highp int;
 precision highp float;
@@ -832,44 +795,50 @@ vec4 next_combiner_buffer = tev_combiner_buffer_color;
 vec4 last_tex_env_out = vec4(0.0);
 vec3 color_output_0 = byteround(clamp((rounded_primary_color.rgb) * (texcolor0.rgb), vec3(0.0), vec3(1.0)));
 float alpha_output_0 = byteround(clamp((rounded_primary_color.a) * (texcolor0.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_0, alpha_output_0), vec4(0.0), vec4(1.0));
+last_tex_env_out = vec4(color_output_0, alpha_output_0);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 next_combiner_buffer.rgb = last_tex_env_out.rgb;
 
 vec3 color_output_1 = byteround(clamp((texcolor0.rgb) * (const_color[1].aaa) + (const_color[1].rgb) * (vec3(1.0) - (const_color[1].aaa)), vec3(0.0), vec3(1.0)));
-float alpha_output_1 = byteround(clamp((last_tex_env_out.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_1, alpha_output_1), vec4(0.0), vec4(1.0));
+float alpha_output_1 = (last_tex_env_out.a);
+last_tex_env_out = vec4(color_output_1, alpha_output_1);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 
 vec3 color_output_2 = byteround(clamp(vec3(dot((texcolor0.rgb) - vec3(0.5), (const_color[2].rgb) - vec3(0.5)) * 4.0), vec3(0.0), vec3(1.0)));
-float alpha_output_2 = byteround(clamp((last_tex_env_out.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_2, alpha_output_2), vec4(0.0), vec4(1.0));
+float alpha_output_2 = (last_tex_env_out.a);
+last_tex_env_out = vec4(color_output_2, alpha_output_2);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 
 vec3 color_output_3 = byteround(clamp((last_tex_env_out.rgb) * (rounded_primary_color.rgb), vec3(0.0), vec3(1.0)));
-float alpha_output_3 = byteround(clamp((last_tex_env_out.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_3, alpha_output_3), vec4(0.0), vec4(1.0));
+float alpha_output_3 = (last_tex_env_out.a);
+last_tex_env_out = vec4(color_output_3, alpha_output_3);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 
 vec3 color_output_4 = byteround(clamp((last_tex_env_out.rgb) * (ProcTex().aaa) + (combiner_buffer.rgb) * (vec3(1.0) - (ProcTex().aaa)), vec3(0.0), vec3(1.0)));
-float alpha_output_4 = byteround(clamp((last_tex_env_out.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_4, alpha_output_4), vec4(0.0), vec4(1.0));
+float alpha_output_4 = (last_tex_env_out.a);
+last_tex_env_out = vec4(color_output_4, alpha_output_4);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 
 vec3 color_output_5 = byteround(clamp((ProcTex().rgb) * (last_tex_env_out.aaa) + (last_tex_env_out.rgb), vec3(0.0), vec3(1.0)));
-float alpha_output_5 = byteround(clamp((last_tex_env_out.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_5, alpha_output_5), vec4(0.0), vec4(1.0));
+float alpha_output_5 = (last_tex_env_out.a);
+last_tex_env_out = vec4(color_output_5, alpha_output_5);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 
 if (int(last_tex_env_out.a * 255.0) <= alphatest_ref) discard;
 gl_FragDepth = depth;
 color = byteround(last_tex_env_out);
 }
-// reference: D79CB68E5FFB6238, 5A79CCC62CB4988A
-// program: 04CEF74382930CF9, A3D38C9E2DBEFAA7, 5A79CCC62CB4988A
-// reference: 0A6A6FCFD1336743, FC0655AC919626DA
-// reference: D9E9A836D1336743, FC0655AC919626DA
-// shader: 8B31, AC88535A9B8EFFD5
+// reference: D79CB68E5FFB6238, CA6C61E8102D5415
+// program: 71E691D3E34A8575, 6A83C96D57F9EA6D, CA6C61E8102D5415
+// reference: 0A6A6FCF52C60131, F143EAD1C2940119
+// reference: 443E908FD1336743, F143EAD1C2940119
+// shader: 8B31, C0C4A4AB08EB4B75
 
 struct pica_uniforms {
     bool b[16];
@@ -889,11 +858,11 @@ layout(location = 1) in vec4 vs_in_reg1;
 layout(location = 2) in vec4 vs_in_reg2;
 layout(location = 4) in vec4 vs_in_reg4;
 
- out vec4 vs_out_attr0;
- out vec4 vs_out_attr1;
- out vec4 vs_out_attr2;
- out vec4 vs_out_attr3;
- out vec4 vs_out_attr4;
+out vec4 vs_out_attr0;
+out vec4 vs_out_attr1;
+out vec4 vs_out_attr2;
+out vec4 vs_out_attr3;
+out vec4 vs_out_attr4;
 
 void main() {
     vs_out_attr0 = vec4(0.0, 0.0, 0.0, 1.0);
@@ -901,10 +870,8 @@ void main() {
     vs_out_attr2 = vec4(0.0, 0.0, 0.0, 1.0);
     vs_out_attr3 = vec4(0.0, 0.0, 0.0, 1.0);
     vs_out_attr4 = vec4(0.0, 0.0, 0.0, 1.0);
-
     exec_shader();
 }
-
 
 #define mul_s(x, y) (x * y)
 #define fma_s(x, y, z) fma(x, y, z)
@@ -942,49 +909,34 @@ bool exec_shader() {
 }
 
 bool sub_0_4096() {
-    // 0: mov
     reg_tmp10.xyz = (vs_in_reg0.xyzz).xyz;
-    // 1: mov
     reg_tmp10.w = (uniforms.f[92].yyyy).w;
-    // 2: cmp
     conditional_code = equal(uniforms.f[4].xx, reg_tmp10.ww);
-    // 3: ifc
     if (!conditional_code.x) {
         sub_4_5();
     } else {
         sub_5_6();
     }
-    // 6: dp4
     vs_out_attr0.x = dot_s(uniforms.f[0], reg_tmp10);
-    // 7: dp4
     vs_out_attr0.y = dot_s(uniforms.f[1], reg_tmp10);
-    // 8: dp4
     vs_out_attr0.z = dot_s(uniforms.f[2], reg_tmp10);
-    // 9: dp4
     vs_out_attr0.w = dot_s(uniforms.f[3], reg_tmp10);
-    // 10: mov
     vs_out_attr1 = vs_in_reg2;
-    // 11: mov
     vs_out_attr2 = vs_in_reg1.xyyy;
-    // 12: mov
     vs_out_attr4 = -reg_tmp10;
-    // 13: mov
     vs_out_attr3 = uniforms.f[92].xxxx;
-    // 14: end
     return true;
 }
 bool sub_4_5() {
-    // 4: add
     reg_tmp10.x = (reg_tmp10.xxxx + vs_in_reg4.xxxx).x;
     return false;
 }
 bool sub_5_6() {
-    // 5: add
     reg_tmp10.x = (reg_tmp10.xxxx + -vs_in_reg4.xxxx).x;
     return false;
 }
-// reference: EB033EF0E8BFB2C7, AC88535A9B8EFFD5
-// shader: 8DD9, 5508714B05507EE9
+// reference: 76D40649E8BFB2C7, C0C4A4AB08EB4B75
+// shader: 8DD9, 01926B3CAE979003
 
 layout(triangles) in;
 layout(triangle_strip, max_vertices = 3) out;
@@ -1052,12 +1004,11 @@ layout (std140) uniform shader_light_data {
     int shadow_texture_bias;
 };
 
- in vec4 vs_out_attr0[];
- in vec4 vs_out_attr1[];
- in vec4 vs_out_attr2[];
- in vec4 vs_out_attr3[];
- in vec4 vs_out_attr4[];
-
+in vec4 vs_out_attr0[];
+in vec4 vs_out_attr1[];
+in vec4 vs_out_attr2[];
+in vec4 vs_out_attr3[];
+in vec4 vs_out_attr4[];
 struct Vertex {
     vec4 attributes[5];
 };
@@ -1085,7 +1036,6 @@ void EmitVtx(Vertex vtx, bool quats_opposite) {
 
     texcoord0_w = 0.0;
     view = vec3(vtx.attributes[4].x, vtx.attributes[4].y, vtx.attributes[4].z);
-
     texcoord2 = vec2(0.0, 0.0);
 
     EmitVertex();
@@ -1109,8 +1059,8 @@ void main() {
     prim_buffer[2].attributes = vec4[5](vs_out_attr0[2], vs_out_attr1[2], vs_out_attr2[2], vs_out_attr3[2], vs_out_attr4[2]);
     EmitPrim(prim_buffer[0], prim_buffer[1], prim_buffer[2]);
 }
-// reference: 8D2B248358E40AB0, 5508714B05507EE9
-// shader: 8B30, 2C50C50E156E44E0
+// reference: 8D2B248358E40AB0, 01926B3CAE979003
+// shader: 8B30, BC632B389D86C7E4
 
 precision highp int;
 precision highp float;
@@ -1262,7 +1212,8 @@ vec4 next_combiner_buffer = tev_combiner_buffer_color;
 vec4 last_tex_env_out = vec4(0.0);
 vec3 color_output_0 = byteround(clamp((rounded_primary_color.rgb) * (texcolor0.rgb), vec3(0.0), vec3(1.0)));
 float alpha_output_0 = byteround(clamp((rounded_primary_color.a) * (texcolor0.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_0, alpha_output_0), vec4(0.0), vec4(1.0));
+last_tex_env_out = vec4(color_output_0, alpha_output_0);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 
 combiner_buffer = next_combiner_buffer;
@@ -1279,9 +1230,18 @@ if (int(last_tex_env_out.a * 255.0) <= alphatest_ref) discard;
 gl_FragDepth = depth;
 color = byteround(last_tex_env_out);
 }
-// reference: CE312E683AC5214B, 2C50C50E156E44E0
-// program: AC88535A9B8EFFD5, 5508714B05507EE9, 2C50C50E156E44E0
-// reference: 0A6A6FCFC583E607, FC0655AC919626DA
-// reference: 3880F909E8BFB2C7, AC88535A9B8EFFD5
-// reference: 123C498140A25A6D, 04CEF74382930CF9
-// reference: D9E9A836C583E607, FC0655AC919626DA
+// reference: CE312E683AC5214B, BC632B389D86C7E4
+// program: C0C4A4AB08EB4B75, 01926B3CAE979003, BC632B389D86C7E4
+// reference: 0A6A6FCF46768075, F143EAD1C2940119
+// reference: 3880F9096B4AD4B5, C0C4A4AB08EB4B75
+// reference: 123C4981C3573C1F, 71E691D3E34A8575
+// reference: 443E908FC583E607, F143EAD1C2940119
+// program: 0000000000000000, 0000000000000000, 5E80B8A7B82C0EE4
+// program: 0000000000000000, 0000000000000000, CA6C61E8102D5415
+// program: 0000000000000000, 0000000000000000, BC632B389D86C7E4
+// reference: E7FD9DBEC583E607, F143EAD1C2940119
+// reference: 4EDD192F40A25A6D, 71E691D3E34A8575
+// reference: 568B3F61D1336743, F143EAD1C2940119
+// reference: 6461A9A7E8BFB2C7, C0C4A4AB08EB4B75
+// reference: 568B3F61C583E607, F143EAD1C2940119
+// reference: F5483250C583E607, F143EAD1C2940119
