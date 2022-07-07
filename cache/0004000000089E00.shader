@@ -1,4 +1,4 @@
-// shader: 8B31, A990721D25F019E4
+// shader: 8B31, A0C32A2C2484E2AE
 
 struct pica_uniforms {
     bool b[16];
@@ -15,11 +15,11 @@ layout (std140) uniform vs_config {
 
 layout(location = 0) in vec4 vs_in_reg0;
 
- out vec4 vs_out_attr0;
- out vec4 vs_out_attr1;
- out vec4 vs_out_attr2;
- out vec4 vs_out_attr3;
- out vec4 vs_out_attr4;
+out vec4 vs_out_attr0;
+out vec4 vs_out_attr1;
+out vec4 vs_out_attr2;
+out vec4 vs_out_attr3;
+out vec4 vs_out_attr4;
 
 void main() {
     vs_out_attr0 = vec4(0.0, 0.0, 0.0, 1.0);
@@ -27,10 +27,8 @@ void main() {
     vs_out_attr2 = vec4(0.0, 0.0, 0.0, 1.0);
     vs_out_attr3 = vec4(0.0, 0.0, 0.0, 1.0);
     vs_out_attr4 = vec4(0.0, 0.0, 0.0, 1.0);
-
     exec_shader();
 }
-
 
 #define mul_s(x, y) mix(x * y, vec4(0.0), isnan(x * y))
 #define fma_s(x, y, z) (mix(x * y, vec4(0.0), isnan(x * y)) + z)
@@ -92,313 +90,210 @@ bool exec_shader() {
 }
 
 bool sub_0_4096() {
-    // 0: mova
     address_registers.x = (ivec2(vs_in_reg0.xy)).x;
-    // 1: mov
     reg_tmp0 = uniforms.f[6 + address_registers.x].wzyx;
-    // 2: mov
     reg_tmp1.xy = (vs_in_reg0.zwzw).xy;
-    // 3: mov
     reg_tmp1.zw = (uniforms.f[5].xyxy).zw;
-    // 4: mova
     address_registers.xy = ivec2(reg_tmp0.xy);
-    // 5: mov
     reg_tmp2.xw = (uniforms.f[64 + address_registers.y].wwyy).xw;
-    // 6: mov
     reg_tmp2.yz = (uniforms.f[5].xxxx).yz;
-    // 7: dp4
     reg_tmp4.x = dot_s(reg_tmp1, reg_tmp2);
-    // 8: mov
     reg_tmp2.yw = (uniforms.f[64 + address_registers.y].zzxx).yw;
-    // 9: mov
     reg_tmp2.xz = (uniforms.f[5].xxxx).xz;
-    // 10: dp4
     reg_tmp4.y = dot_s(reg_tmp1, reg_tmp2);
-    // 11: mov
     reg_tmp4.zw = (reg_tmp1.zwzw).zw;
-    // 12: dp4
     reg_tmp3.x = dot_s(uniforms.f[32 + address_registers.x].wzyx, reg_tmp4);
-    // 13: dp4
     reg_tmp3.y = dot_s(uniforms.f[33 + address_registers.x].wzyx, reg_tmp4);
-    // 14: dp4
     reg_tmp3.z = dot_s(uniforms.f[34 + address_registers.x].wzyx, reg_tmp4);
-    // 15: mov
     reg_tmp3.w = (reg_tmp1.wwww).w;
-    // 16: mov
     reg_tmp4.z = (uniforms.f[34 + address_registers.x].xxxx).z;
-    // 17: max
     reg_tmp4.z = (abs(reg_tmp4.zzzz)).z;
-    // 18: add
     reg_tmp4.z = (uniforms.f[4].yyyy + reg_tmp4.zzzz).z;
-    // 19: mov
     reg_tmp4.x = (uniforms.f[4].wwww).x;
-    // 20: cmp
     conditional_code = notEqual(uniforms.f[5].xx, reg_tmp4.xz);
-    // 21: ifc
     if (all(conditional_code)) {
         sub_22_27();
     }
-    // 27: dp4
     vs_out_attr0.x = dot_s(uniforms.f[0].wzyx, reg_tmp3);
-    // 28: dp4
     vs_out_attr0.y = dot_s(uniforms.f[1].wzyx, reg_tmp3);
-    // 29: dp4
     vs_out_attr0.z = dot_s(uniforms.f[2].wzyx, reg_tmp3);
-    // 30: dp4
     vs_out_attr0.w = dot_s(uniforms.f[3].wzyx, reg_tmp3);
-    // 31: cmp
     conditional_code = greaterThanEqual(uniforms.f[5].yy, reg_tmp0.ww);
-    // 32: ifc
     if (all(conditional_code)) {
         sub_33_35();
     } else {
         sub_35_46();
     }
-    // 46: cmp
     conditional_code = notEqual(uniforms.f[5].xx, reg_tmp1.xy);
-    // 47: ifc
     if (all(not(conditional_code))) {
         sub_48_51();
     }
-    // 51: ifc
     if (all(bvec2(conditional_code.x, !conditional_code.y))) {
         sub_52_55();
     }
-    // 55: ifc
     if (all(bvec2(!conditional_code.x, conditional_code.y))) {
         sub_56_59();
     }
-    // 59: ifc
     if (all(conditional_code)) {
         sub_60_63();
     }
-    // 63: mov
     reg_tmp8 = uniforms.f[5].xxxx;
-    // 64: loop
     address_registers.z = int(uniforms.i[0].y);
     for (uint loop64 = 0u; loop64 <= uniforms.i[0].x; address_registers.z += int(uniforms.i[0].z), ++loop64) {
         sub_65_99();
     }
-    // 99: mov
     vs_out_attr2 = reg_tmp5;
-    // 100: mov
     vs_out_attr3 = reg_tmp6;
-    // 101: mov
     vs_out_attr4 = reg_tmp7;
-    // 102: end
     return true;
 }
 bool sub_22_27() {
-    // 22: mov
     reg_tmp4.x = (uniforms.f[4].wwww).x;
-    // 23: add
     reg_tmp4.y = (-uniforms.f[4].zzzz + reg_tmp4.zzzz).y;
-    // 24: rcp
     reg_tmp4.z = rcp_s(reg_tmp4.z);
-    // 25: mul
     reg_tmp4.z = (mul_s(reg_tmp4.yyyy, reg_tmp4.zzzz)).z;
-    // 26: mad
     reg_tmp3.x = (fma_s(reg_tmp4.xxxx, reg_tmp4.zzzz, reg_tmp3.xxxx)).x;
     return false;
 }
 bool sub_33_35() {
-    // 33: mov
     vs_out_attr1.xyz = (uniforms.f[5].yyyy).xyz;
-    // 34: mov
     vs_out_attr1.w = (reg_tmp0.wwww).w;
     return false;
 }
 bool sub_35_46() {
-    // 35: mova
     address_registers.y = (ivec2(reg_tmp0.ww)).y;
-    // 36: cmp
     conditional_code = notEqual(uniforms.f[5].xx, reg_tmp1.xy);
-    // 37: ifc
     if (all(not(conditional_code))) {
         sub_38_39();
     }
-    // 39: ifc
     if (all(bvec2(conditional_code.x, !conditional_code.y))) {
         sub_40_41();
     }
-    // 41: ifc
     if (all(bvec2(!conditional_code.x, conditional_code.y))) {
         sub_42_43();
     }
-    // 43: ifc
     if (all(conditional_code)) {
         sub_44_45();
     }
-    // 45: nop
     return false;
 }
 bool sub_38_39() {
-    // 38: mov
     vs_out_attr1 = uniforms.f[32 + address_registers.y].wzyx;
     return false;
 }
 bool sub_40_41() {
-    // 40: mov
     vs_out_attr1 = uniforms.f[33 + address_registers.y].wzyx;
     return false;
 }
 bool sub_42_43() {
-    // 42: mov
     vs_out_attr1 = uniforms.f[34 + address_registers.y].wzyx;
     return false;
 }
 bool sub_44_45() {
-    // 44: mov
     vs_out_attr1 = uniforms.f[35 + address_registers.y].wzyx;
     return false;
 }
 bool sub_48_51() {
-    // 48: mov
     reg_tmp5 = uniforms.f[5].xyyy;
-    // 49: mov
     reg_tmp6 = uniforms.f[5].xyyy;
-    // 50: mov
     reg_tmp7 = uniforms.f[5].xyyy;
     return false;
 }
 bool sub_52_55() {
-    // 52: mov
     reg_tmp5 = uniforms.f[5].yyyy;
-    // 53: mov
     reg_tmp6 = uniforms.f[5].yyyy;
-    // 54: mov
     reg_tmp7 = uniforms.f[5].yyyy;
     return false;
 }
 bool sub_56_59() {
-    // 56: mov
     reg_tmp5 = uniforms.f[5].xxyy;
-    // 57: mov
     reg_tmp6 = uniforms.f[5].xxyy;
-    // 58: mov
     reg_tmp7 = uniforms.f[5].xxyy;
     return false;
 }
 bool sub_60_63() {
-    // 60: mov
     reg_tmp5 = uniforms.f[5].yxyy;
-    // 61: mov
     reg_tmp6 = uniforms.f[5].yxyy;
-    // 62: mov
     reg_tmp7 = uniforms.f[5].yxyy;
     return false;
 }
 bool sub_65_99() {
-    // 65: cmp
     conditional_code = equal(uniforms.f[5].yy, reg_tmp8.xy);
-    // 66: ifc
     if (all(conditional_code)) {
         sub_67_86();
     }
-    // 86: cmp
     conditional_code = lessThan(uniforms.f[5].ww, reg_tmp8.xy);
-    // 87: ifc
     if (all(conditional_code)) {
         sub_88_98();
     }
-    // 98: add
     reg_tmp8 = uniforms.f[5].yyyy + reg_tmp8;
     return false;
 }
 bool sub_67_86() {
-    // 67: mova
     address_registers.y = (ivec2(reg_tmp0.zz)).y;
-    // 68: cmp
     conditional_code = notEqual(uniforms.f[5].xx, reg_tmp1.xy);
-    // 69: ifc
     if (all(not(conditional_code))) {
         sub_70_73();
     }
-    // 73: ifc
     if (all(bvec2(conditional_code.x, !conditional_code.y))) {
         sub_74_77();
     }
-    // 77: ifc
     if (all(bvec2(!conditional_code.x, conditional_code.y))) {
         sub_78_81();
     }
-    // 81: ifc
     if (all(conditional_code)) {
         sub_82_85();
     }
-    // 85: nop
     return false;
 }
 bool sub_70_73() {
-    // 70: mov
     reg_tmp5.xy = (uniforms.f[64 + address_registers.y].wzzz).xy;
-    // 71: mov
     reg_tmp6.xy = (uniforms.f[65 + address_registers.y].wzzz).xy;
-    // 72: mov
     reg_tmp7.xy = (uniforms.f[66 + address_registers.y].wzzz).xy;
     return false;
 }
 bool sub_74_77() {
-    // 74: mov
     reg_tmp5.xy = (uniforms.f[64 + address_registers.y].yzzz).xy;
-    // 75: mov
     reg_tmp6.xy = (uniforms.f[65 + address_registers.y].yzzz).xy;
-    // 76: mov
     reg_tmp7.xy = (uniforms.f[66 + address_registers.y].yzzz).xy;
     return false;
 }
 bool sub_78_81() {
-    // 78: mov
     reg_tmp5.xy = (uniforms.f[64 + address_registers.y].wxxx).xy;
-    // 79: mov
     reg_tmp6.xy = (uniforms.f[65 + address_registers.y].wxxx).xy;
-    // 80: mov
     reg_tmp7.xy = (uniforms.f[66 + address_registers.y].wxxx).xy;
     return false;
 }
 bool sub_82_85() {
-    // 82: mov
     reg_tmp5.xy = (uniforms.f[64 + address_registers.y].yxxx).xy;
-    // 83: mov
     reg_tmp6.xy = (uniforms.f[65 + address_registers.y].yxxx).xy;
-    // 84: mov
     reg_tmp7.xy = (uniforms.f[66 + address_registers.y].yxxx).xy;
     return false;
 }
 bool sub_88_98() {
-    // 88: cmp
     conditional_code = notEqual(uniforms.f[5].xx, reg_tmp1.xy);
-    // 89: ifc
     if (all(bvec2(conditional_code.x, !conditional_code.y))) {
         sub_90_93();
     }
-    // 93: ifc
     if (all(bvec2(!conditional_code.x, conditional_code.y))) {
         sub_94_97();
     }
-    // 97: nop
     return false;
 }
 bool sub_90_93() {
-    // 90: mov
     reg_tmp5.xy = (uniforms.f[67 + address_registers.y].yxxx).xy;
-    // 91: mov
     reg_tmp6.xy = (uniforms.f[68 + address_registers.y].yxxx).xy;
-    // 92: mov
     reg_tmp7.xy = (uniforms.f[69 + address_registers.y].yxxx).xy;
     return false;
 }
 bool sub_94_97() {
-    // 94: mov
     reg_tmp5.xy = (uniforms.f[67 + address_registers.y].wzzz).xy;
-    // 95: mov
     reg_tmp6.xy = (uniforms.f[68 + address_registers.y].wzzz).xy;
-    // 96: mov
     reg_tmp7.xy = (uniforms.f[69 + address_registers.y].wzzz).xy;
     return false;
 }
-// reference: BAAB43FFDF404588, A990721D25F019E4
-// shader: 8DD9, 5D764F9A6220D694
+// reference: BAAB43FF5CB523FA, A0C32A2C2484E2AE
+// shader: 8DD9, 42937135801BAA7E
 
 layout(triangles) in;
 layout(triangle_strip, max_vertices = 3) out;
@@ -466,12 +361,11 @@ layout (std140) uniform shader_light_data {
     int shadow_texture_bias;
 };
 
- in vec4 vs_out_attr0[];
- in vec4 vs_out_attr1[];
- in vec4 vs_out_attr2[];
- in vec4 vs_out_attr3[];
- in vec4 vs_out_attr4[];
-
+in vec4 vs_out_attr0[];
+in vec4 vs_out_attr1[];
+in vec4 vs_out_attr2[];
+in vec4 vs_out_attr3[];
+in vec4 vs_out_attr4[];
 struct Vertex {
     vec4 attributes[5];
 };
@@ -499,7 +393,6 @@ void EmitVtx(Vertex vtx, bool quats_opposite) {
 
     texcoord0_w = 0.0;
     view = vec3(0.0, 0.0, 0.0);
-
     texcoord2 = vec2(vtx.attributes[4].x, vtx.attributes[4].y);
 
     EmitVertex();
@@ -523,8 +416,8 @@ void main() {
     prim_buffer[2].attributes = vec4[5](vs_out_attr0[2], vs_out_attr1[2], vs_out_attr2[2], vs_out_attr3[2], vs_out_attr4[2]);
     EmitPrim(prim_buffer[0], prim_buffer[1], prim_buffer[2]);
 }
-// reference: 5DAD5699F59B3586, 5D764F9A6220D694
-// shader: 8B30, DA94C2241A84D5D4
+// reference: 5DAD5699F59B3586, 42937135801BAA7E
+// shader: 8B30, ACB1618A70805A67
 
 precision highp int;
 precision highp float;
@@ -674,9 +567,10 @@ vec4 texcolor0 = textureLod(tex0, texcoord0, getLod(texcoord0 * vec2(textureSize
 vec4 combiner_buffer = vec4(0.0);
 vec4 next_combiner_buffer = tev_combiner_buffer_color;
 vec4 last_tex_env_out = vec4(0.0);
-vec3 color_output_0 = byteround(clamp((const_color[0].rgb), vec3(0.0), vec3(1.0)));
-float alpha_output_0 = byteround(clamp((const_color[0].a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_0, alpha_output_0), vec4(0.0), vec4(1.0));
+vec3 color_output_0 = (const_color[0].rgb);
+float alpha_output_0 = (const_color[0].a);
+last_tex_env_out = vec4(color_output_0, alpha_output_0);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 
 combiner_buffer = next_combiner_buffer;
@@ -685,26 +579,29 @@ combiner_buffer = next_combiner_buffer;
 
 vec3 color_output_3 = byteround(clamp((const_color[3].rgb) * (vec3(1.0) - texcolor0.rgb), vec3(0.0), vec3(1.0)));
 float alpha_output_3 = byteround(clamp((const_color[3].a) * (1.0 - texcolor0.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_3, alpha_output_3), vec4(0.0), vec4(1.0));
+last_tex_env_out = vec4(color_output_3, alpha_output_3);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 
 vec3 color_output_4 = byteround(clamp((const_color[4].rgb) * (texcolor0.rgb) + (last_tex_env_out.rgb), vec3(0.0), vec3(1.0)));
 float alpha_output_4 = byteround(clamp((const_color[4].a) * (texcolor0.a) + (last_tex_env_out.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_4, alpha_output_4), vec4(0.0), vec4(1.0));
+last_tex_env_out = vec4(color_output_4, alpha_output_4);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 
 vec3 color_output_5 = byteround(clamp((rounded_primary_color.rgb) * (last_tex_env_out.rgb), vec3(0.0), vec3(1.0)));
 float alpha_output_5 = byteround(clamp((rounded_primary_color.a) * (last_tex_env_out.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_5, alpha_output_5), vec4(0.0), vec4(1.0));
+last_tex_env_out = vec4(color_output_5, alpha_output_5);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 
 gl_FragDepth = depth;
 color = byteround(last_tex_env_out);
 }
-// reference: C5139A04BBA2AA7E, DA94C2241A84D5D4
-// program: A990721D25F019E4, 5D764F9A6220D694, DA94C2241A84D5D4
-// reference: 69288406DF404588, A990721D25F019E4
-// shader: 8B30, 20C5D4C516DB3EFB
+// reference: C5139A04BBA2AA7E, ACB1618A70805A67
+// program: A0C32A2C2484E2AE, 42937135801BAA7E, ACB1618A70805A67
+// reference: F4FFBCBFDF404588, A0C32A2C2484E2AE
+// shader: 8B30, 35A342DDC77D55BE
 
 precision highp int;
 precision highp float;
@@ -854,9 +751,10 @@ vec4 texcolor0 = textureLod(tex0, texcoord0, getLod(texcoord0 * vec2(textureSize
 vec4 combiner_buffer = vec4(0.0);
 vec4 next_combiner_buffer = tev_combiner_buffer_color;
 vec4 last_tex_env_out = vec4(0.0);
-vec3 color_output_0 = byteround(clamp((const_color[0].rgb), vec3(0.0), vec3(1.0)));
-float alpha_output_0 = byteround(clamp((const_color[0].a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_0, alpha_output_0), vec4(0.0), vec4(1.0));
+vec3 color_output_0 = (const_color[0].rgb);
+float alpha_output_0 = (const_color[0].a);
+last_tex_env_out = vec4(color_output_0, alpha_output_0);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 
 combiner_buffer = next_combiner_buffer;
@@ -865,25 +763,28 @@ combiner_buffer = next_combiner_buffer;
 
 vec3 color_output_3 = byteround(clamp((vec3(1.0) - texcolor0.rgb) * (const_color[3].rgb), vec3(0.0), vec3(1.0)));
 float alpha_output_3 = byteround(clamp((texcolor0.a) * (const_color[3].a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_3, alpha_output_3), vec4(0.0), vec4(1.0));
+last_tex_env_out = vec4(color_output_3, alpha_output_3);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 
 vec3 color_output_4 = byteround(clamp((texcolor0.rgb) * (const_color[4].rgb) + (last_tex_env_out.rgb), vec3(0.0), vec3(1.0)));
 float alpha_output_4 = byteround(clamp((1.0 - texcolor0.a) * (const_color[4].a) + (last_tex_env_out.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_4, alpha_output_4), vec4(0.0), vec4(1.0));
+last_tex_env_out = vec4(color_output_4, alpha_output_4);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 
 vec3 color_output_5 = byteround(clamp((rounded_primary_color.rgb) * (last_tex_env_out.rgb), vec3(0.0), vec3(1.0)));
 float alpha_output_5 = byteround(clamp((rounded_primary_color.a) * (last_tex_env_out.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_5, alpha_output_5), vec4(0.0), vec4(1.0));
+last_tex_env_out = vec4(color_output_5, alpha_output_5);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 
 gl_FragDepth = depth;
 color = byteround(last_tex_env_out);
 }
-// reference: 0A8B7EFB3A5DBCC4, 20C5D4C516DB3EFB
-// program: A990721D25F019E4, 5D764F9A6220D694, 20C5D4C516DB3EFB
-// shader: 8B30, 144BA93DBF0A4B43
+// reference: 0A8B7EFB3A5DBCC4, 35A342DDC77D55BE
+// program: A0C32A2C2484E2AE, 42937135801BAA7E, 35A342DDC77D55BE
+// shader: 8B30, A9F5636C58DF62DB
 
 precision highp int;
 precision highp float;
@@ -1033,9 +934,10 @@ vec4 texcolor0 = textureLod(tex0, texcoord0, getLod(texcoord0 * vec2(textureSize
 vec4 combiner_buffer = vec4(0.0);
 vec4 next_combiner_buffer = tev_combiner_buffer_color;
 vec4 last_tex_env_out = vec4(0.0);
-vec3 color_output_0 = byteround(clamp((const_color[0].rgb), vec3(0.0), vec3(1.0)));
-float alpha_output_0 = byteround(clamp((const_color[0].a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_0, alpha_output_0), vec4(0.0), vec4(1.0));
+vec3 color_output_0 = (const_color[0].rgb);
+float alpha_output_0 = (const_color[0].a);
+last_tex_env_out = vec4(color_output_0, alpha_output_0);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 
 combiner_buffer = next_combiner_buffer;
@@ -1044,25 +946,28 @@ combiner_buffer = next_combiner_buffer;
 
 vec3 color_output_3 = byteround(clamp((texcolor0.rgb) * (const_color[3].rgb), vec3(0.0), vec3(1.0)));
 float alpha_output_3 = byteround(clamp((texcolor0.a) * (const_color[3].a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_3, alpha_output_3), vec4(0.0), vec4(1.0));
+last_tex_env_out = vec4(color_output_3, alpha_output_3);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 
 vec3 color_output_4 = byteround(clamp((vec3(1.0) - texcolor0.rgb) * (const_color[4].rgb) + (last_tex_env_out.rgb), vec3(0.0), vec3(1.0)));
 float alpha_output_4 = byteround(clamp((1.0 - texcolor0.a) * (const_color[4].a) + (last_tex_env_out.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_4, alpha_output_4), vec4(0.0), vec4(1.0));
+last_tex_env_out = vec4(color_output_4, alpha_output_4);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 
 vec3 color_output_5 = byteround(clamp((rounded_primary_color.rgb) * (last_tex_env_out.rgb), vec3(0.0), vec3(1.0)));
 float alpha_output_5 = byteround(clamp((rounded_primary_color.a) * (last_tex_env_out.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_5, alpha_output_5), vec4(0.0), vec4(1.0));
+last_tex_env_out = vec4(color_output_5, alpha_output_5);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 
 gl_FragDepth = depth;
 color = byteround(last_tex_env_out);
 }
-// reference: 79F990AA3A5DBCC4, 144BA93DBF0A4B43
-// program: A990721D25F019E4, 5D764F9A6220D694, 144BA93DBF0A4B43
-// shader: 8B31, F3D442C0013F9392
+// reference: 79F990AA3A5DBCC4, A9F5636C58DF62DB
+// program: A0C32A2C2484E2AE, 42937135801BAA7E, A9F5636C58DF62DB
+// shader: 8B31, 22C3C36B08CEECE7
 
 struct pica_uniforms {
     bool b[16];
@@ -1087,11 +992,11 @@ layout(location = 6) in vec4 vs_in_reg6;
 layout(location = 7) in vec4 vs_in_reg7;
 layout(location = 8) in vec4 vs_in_reg8;
 
- out vec4 vs_out_attr0;
- out vec4 vs_out_attr1;
- out vec4 vs_out_attr2;
- out vec4 vs_out_attr3;
- out vec4 vs_out_attr4;
+out vec4 vs_out_attr0;
+out vec4 vs_out_attr1;
+out vec4 vs_out_attr2;
+out vec4 vs_out_attr3;
+out vec4 vs_out_attr4;
 
 void main() {
     vs_out_attr0 = vec4(0.0, 0.0, 0.0, 1.0);
@@ -1099,10 +1004,8 @@ void main() {
     vs_out_attr2 = vec4(0.0, 0.0, 0.0, 1.0);
     vs_out_attr3 = vec4(0.0, 0.0, 0.0, 1.0);
     vs_out_attr4 = vec4(0.0, 0.0, 0.0, 1.0);
-
     exec_shader();
 }
-
 
 #define mul_s(x, y) mix(x * y, vec4(0.0), isnan(x * y))
 #define fma_s(x, y, z) (mix(x * y, vec4(0.0), isnan(x * y)) + z)
@@ -1189,501 +1092,306 @@ bool exec_shader() {
 }
 
 bool sub_15_20() {
-    // 15: mova
     address_registers.x = (ivec2(reg_tmp1.xx)).x;
-    // 16: dp4
     reg_tmp3.x = dot_s(uniforms.f[25 + address_registers.x], reg_tmp15);
-    // 17: dp4
     reg_tmp3.y = dot_s(uniforms.f[26 + address_registers.x], reg_tmp15);
-    // 18: dp4
     reg_tmp3.z = dot_s(uniforms.f[27 + address_registers.x], reg_tmp15);
-    // 19: mad
     reg_tmp7 = fma_s(reg_tmp1.wwww, reg_tmp3, reg_tmp7);
     return false;
 }
 bool sub_20_29() {
-    // 20: mova
     address_registers.x = (ivec2(reg_tmp1.xx)).x;
-    // 21: dp4
     reg_tmp3.x = dot_s(uniforms.f[25 + address_registers.x], reg_tmp15);
-    // 22: dp4
     reg_tmp3.y = dot_s(uniforms.f[26 + address_registers.x], reg_tmp15);
-    // 23: dp4
     reg_tmp3.z = dot_s(uniforms.f[27 + address_registers.x], reg_tmp15);
-    // 24: dp3
     reg_tmp4.x = dot_3(uniforms.f[25 + address_registers.x].xyz, reg_tmp14.xyz);
-    // 25: dp3
     reg_tmp4.y = dot_3(uniforms.f[26 + address_registers.x].xyz, reg_tmp14.xyz);
-    // 26: dp3
     reg_tmp4.z = dot_3(uniforms.f[27 + address_registers.x].xyz, reg_tmp14.xyz);
-    // 27: mad
     reg_tmp7 = fma_s(reg_tmp1.wwww, reg_tmp3, reg_tmp7);
-    // 28: mad
     reg_tmp12 = fma_s(reg_tmp1.wwww, reg_tmp4, reg_tmp12);
     return false;
 }
 bool sub_29_42() {
-    // 29: mova
     address_registers.x = (ivec2(reg_tmp1.xx)).x;
-    // 30: dp4
     reg_tmp3.x = dot_s(uniforms.f[25 + address_registers.x], reg_tmp15);
-    // 31: dp4
     reg_tmp3.y = dot_s(uniforms.f[26 + address_registers.x], reg_tmp15);
-    // 32: dp4
     reg_tmp3.z = dot_s(uniforms.f[27 + address_registers.x], reg_tmp15);
-    // 33: dp3
     reg_tmp4.x = dot_3(uniforms.f[25 + address_registers.x].xyz, reg_tmp14.xyz);
-    // 34: dp3
     reg_tmp4.y = dot_3(uniforms.f[26 + address_registers.x].xyz, reg_tmp14.xyz);
-    // 35: dp3
     reg_tmp4.z = dot_3(uniforms.f[27 + address_registers.x].xyz, reg_tmp14.xyz);
-    // 36: dp3
     reg_tmp5.x = dot_3(uniforms.f[25 + address_registers.x].xyz, reg_tmp13.xyz);
-    // 37: dp3
     reg_tmp5.y = dot_3(uniforms.f[26 + address_registers.x].xyz, reg_tmp13.xyz);
-    // 38: dp3
     reg_tmp5.z = dot_3(uniforms.f[27 + address_registers.x].xyz, reg_tmp13.xyz);
-    // 39: mad
     reg_tmp7 = fma_s(reg_tmp1.wwww, reg_tmp3, reg_tmp7);
-    // 40: mad
     reg_tmp12 = fma_s(reg_tmp1.wwww, reg_tmp4, reg_tmp12);
-    // 41: mad
     reg_tmp11 = fma_s(reg_tmp1.wwww, reg_tmp5, reg_tmp11);
     return false;
 }
 bool sub_42_210() {
-    // 42: mul
     reg_tmp15.xyz = (mul_s(uniforms.f[7].xxxx, vs_in_reg0)).xyz;
-    // 43: mul
     reg_tmp14.xyz = (mul_s(uniforms.f[7].yyyy, vs_in_reg1)).xyz;
-    // 44: mul
     reg_tmp13.xyz = (mul_s(uniforms.f[7].zzzz, vs_in_reg2)).xyz;
-    // 45: add
     reg_tmp15.xyz = (uniforms.f[6] + reg_tmp15).xyz;
-    // 46: mov
     reg_tmp15.w = (uniforms.f[93].yyyy).w;
-    // 47: ifu
     if (uniforms.b[1]) {
         sub_48_148();
     } else {
         sub_148_209();
     }
-    // 209: nop
     return false;
 }
 bool sub_48_148() {
-    // 48: mov
     reg_tmp0 = uniforms.f[7];
-    // 49: cmp
     conditional_code = notEqual(uniforms.f[93].xx, reg_tmp0.yz);
-    // 50: mov
     reg_tmp7 = uniforms.f[93].xxxx;
-    // 51: mov
     reg_tmp12 = uniforms.f[93].xxxx;
-    // 52: mov
     reg_tmp11 = uniforms.f[93].xxxx;
-    // 53: mul
     reg_tmp2 = mul_s(uniforms.f[93].wwww, vs_in_reg7);
-    // 54: ifc
     if (all(bvec2(conditional_code.x, !conditional_code.y))) {
         sub_55_84();
     } else {
         sub_84_143();
     }
-    // 143: mov
     vs_out_attr2 = -reg_tmp15;
-    // 144: dp4
     vs_out_attr0.x = dot_s(uniforms.f[86], reg_tmp15);
-    // 145: dp4
     vs_out_attr0.y = dot_s(uniforms.f[87], reg_tmp15);
-    // 146: dp4
     vs_out_attr0.z = dot_s(uniforms.f[88], reg_tmp15);
-    // 147: dp4
     vs_out_attr0.w = dot_s(uniforms.f[89], reg_tmp15);
     return false;
 }
 bool sub_55_84() {
-    // 55: cmp
     conditional_code = notEqual(uniforms.f[93].xx, vs_in_reg8.zw);
-    // 56: mov
     reg_tmp1.xy = (reg_tmp2.xxxx).xy;
-    // 57: mul
     reg_tmp1.w = (mul_s(uniforms.f[8].wwww, vs_in_reg8.xxxx)).w;
-    // 58: call
     {
         sub_20_29();
     }
-    // 59: mov
     reg_tmp1.xy = (reg_tmp2.yyyy).xy;
-    // 60: mul
     reg_tmp1.w = (mul_s(uniforms.f[8].wwww, vs_in_reg8.yyyy)).w;
-    // 61: call
     {
         sub_20_29();
     }
-    // 62: mov
     reg_tmp1.xy = (reg_tmp2.zzzz).xy;
-    // 63: mul
     reg_tmp1.w = (mul_s(uniforms.f[8].wwww, vs_in_reg8.zzzz)).w;
-    // 64: callc
     if (conditional_code.x) {
         sub_20_29();
     }
-    // 65: ifu
     if (uniforms.b[8]) {
         sub_66_70();
     }
-    // 70: mov
     reg_tmp7.w = (uniforms.f[93].yyyy).w;
-    // 71: dp4
     reg_tmp10.x = dot_s(uniforms.f[0], reg_tmp7);
-    // 72: dp4
     reg_tmp10.y = dot_s(uniforms.f[1], reg_tmp7);
-    // 73: dp4
     reg_tmp10.z = dot_s(uniforms.f[2], reg_tmp7);
-    // 74: mov
     reg_tmp10.w = (uniforms.f[93].yyyy).w;
-    // 75: dp4
     reg_tmp15.x = dot_s(uniforms.f[90], reg_tmp10);
-    // 76: dp4
     reg_tmp15.y = dot_s(uniforms.f[91], reg_tmp10);
-    // 77: dp4
     reg_tmp15.z = dot_s(uniforms.f[92], reg_tmp10);
-    // 78: mov
     reg_tmp15.w = (uniforms.f[93].yyyy).w;
-    // 79: dp3
     reg_tmp14.x = dot_3(uniforms.f[3].xyz, reg_tmp12.xyz);
-    // 80: dp3
     reg_tmp14.y = dot_3(uniforms.f[4].xyz, reg_tmp12.xyz);
-    // 81: dp3
     reg_tmp14.z = dot_3(uniforms.f[5].xyz, reg_tmp12.xyz);
-    // 82: call
     {
         sub_210_227();
     }
-    // 83: nop
     return false;
 }
 bool sub_66_70() {
-    // 66: mov
     reg_tmp1.xy = (reg_tmp2.wwww).xy;
-    // 67: mul
     reg_tmp1.w = (mul_s(uniforms.f[8].wwww, vs_in_reg8.wwww)).w;
-    // 68: callc
     if (conditional_code.y) {
         sub_20_29();
     }
-    // 69: nop
     return false;
 }
 bool sub_84_143() {
-    // 84: ifc
     if (all(conditional_code)) {
         sub_85_117();
     } else {
         sub_117_142();
     }
-    // 142: nop
     return false;
 }
 bool sub_85_117() {
-    // 85: cmp
     conditional_code = notEqual(uniforms.f[93].xx, vs_in_reg8.zw);
-    // 86: mov
     reg_tmp1.xy = (reg_tmp2.xxxx).xy;
-    // 87: mul
     reg_tmp1.w = (mul_s(uniforms.f[8].wwww, vs_in_reg8.xxxx)).w;
-    // 88: call
     {
         sub_29_42();
     }
-    // 89: mov
     reg_tmp1.xy = (reg_tmp2.yyyy).xy;
-    // 90: mul
     reg_tmp1.w = (mul_s(uniforms.f[8].wwww, vs_in_reg8.yyyy)).w;
-    // 91: call
     {
         sub_29_42();
     }
-    // 92: mov
     reg_tmp1.xy = (reg_tmp2.zzzz).xy;
-    // 93: mul
     reg_tmp1.w = (mul_s(uniforms.f[8].wwww, vs_in_reg8.zzzz)).w;
-    // 94: callc
     if (conditional_code.x) {
         sub_29_42();
     }
-    // 95: ifu
     if (uniforms.b[8]) {
         sub_96_100();
     }
-    // 100: mov
     reg_tmp7.w = (uniforms.f[93].yyyy).w;
-    // 101: dp4
     reg_tmp10.x = dot_s(uniforms.f[0], reg_tmp7);
-    // 102: dp4
     reg_tmp10.y = dot_s(uniforms.f[1], reg_tmp7);
-    // 103: dp4
     reg_tmp10.z = dot_s(uniforms.f[2], reg_tmp7);
-    // 104: mov
     reg_tmp10.w = (uniforms.f[93].yyyy).w;
-    // 105: dp3
     reg_tmp13.x = dot_3(uniforms.f[3].xyz, reg_tmp11.xyz);
-    // 106: dp3
     reg_tmp13.y = dot_3(uniforms.f[4].xyz, reg_tmp11.xyz);
-    // 107: dp3
     reg_tmp13.z = dot_3(uniforms.f[5].xyz, reg_tmp11.xyz);
-    // 108: dp3
     reg_tmp14.x = dot_3(uniforms.f[3].xyz, reg_tmp12.xyz);
-    // 109: dp3
     reg_tmp14.y = dot_3(uniforms.f[4].xyz, reg_tmp12.xyz);
-    // 110: dp3
     reg_tmp14.z = dot_3(uniforms.f[5].xyz, reg_tmp12.xyz);
-    // 111: dp4
     reg_tmp15.x = dot_s(uniforms.f[90], reg_tmp10);
-    // 112: dp4
     reg_tmp15.y = dot_s(uniforms.f[91], reg_tmp10);
-    // 113: dp4
     reg_tmp15.z = dot_s(uniforms.f[92], reg_tmp10);
-    // 114: mov
     reg_tmp15.w = (uniforms.f[93].yyyy).w;
-    // 115: call
     {
         sub_227_303();
     }
-    // 116: nop
     return false;
 }
 bool sub_96_100() {
-    // 96: mov
     reg_tmp1.xy = (reg_tmp2.wwww).xy;
-    // 97: mul
     reg_tmp1.w = (mul_s(uniforms.f[8].wwww, vs_in_reg8.wwww)).w;
-    // 98: callc
     if (conditional_code.y) {
         sub_29_42();
     }
-    // 99: nop
     return false;
 }
 bool sub_117_142() {
-    // 117: cmp
     conditional_code = notEqual(uniforms.f[93].xx, vs_in_reg8.zw);
-    // 118: mov
     reg_tmp1.xy = (reg_tmp2.xxxx).xy;
-    // 119: mul
     reg_tmp1.w = (mul_s(uniforms.f[8].wwww, vs_in_reg8.xxxx)).w;
-    // 120: call
     {
         sub_15_20();
     }
-    // 121: mov
     reg_tmp1.xy = (reg_tmp2.yyyy).xy;
-    // 122: mul
     reg_tmp1.w = (mul_s(uniforms.f[8].wwww, vs_in_reg8.yyyy)).w;
-    // 123: call
     {
         sub_15_20();
     }
-    // 124: mov
     reg_tmp1.xy = (reg_tmp2.zzzz).xy;
-    // 125: mul
     reg_tmp1.w = (mul_s(uniforms.f[8].wwww, vs_in_reg8.zzzz)).w;
-    // 126: callc
     if (conditional_code.x) {
         sub_15_20();
     }
-    // 127: ifu
     if (uniforms.b[8]) {
         sub_128_132();
     }
-    // 132: mov
     reg_tmp7.w = (uniforms.f[93].yyyy).w;
-    // 133: dp4
     reg_tmp10.x = dot_s(uniforms.f[0], reg_tmp7);
-    // 134: dp4
     reg_tmp10.y = dot_s(uniforms.f[1], reg_tmp7);
-    // 135: dp4
     reg_tmp10.z = dot_s(uniforms.f[2], reg_tmp7);
-    // 136: mov
     reg_tmp10.w = (uniforms.f[93].yyyy).w;
-    // 137: dp4
     reg_tmp15.x = dot_s(uniforms.f[90], reg_tmp10);
-    // 138: dp4
     reg_tmp15.y = dot_s(uniforms.f[91], reg_tmp10);
-    // 139: dp4
     reg_tmp15.z = dot_s(uniforms.f[92], reg_tmp10);
-    // 140: mov
     reg_tmp15.w = (uniforms.f[93].yyyy).w;
-    // 141: mov
     vs_out_attr1 = uniforms.f[93].xxxx;
     return false;
 }
 bool sub_128_132() {
-    // 128: mov
     reg_tmp1.xy = (reg_tmp2.wwww).xy;
-    // 129: mul
     reg_tmp1.w = (mul_s(uniforms.f[8].wwww, vs_in_reg8.wwww)).w;
-    // 130: callc
     if (conditional_code.y) {
         sub_15_20();
     }
-    // 131: nop
     return false;
 }
 bool sub_148_209() {
-    // 148: mov
     reg_tmp0 = uniforms.f[7];
-    // 149: cmp
     conditional_code = notEqual(uniforms.f[93].xx, reg_tmp0.yz);
-    // 150: ifu
     if (uniforms.b[2]) {
         sub_151_161();
     } else {
         sub_161_166();
     }
-    // 166: ifc
     if (all(bvec2(conditional_code.x, !conditional_code.y))) {
         sub_167_179();
     } else {
         sub_179_204();
     }
-    // 204: mov
     vs_out_attr2 = -reg_tmp15;
-    // 205: dp4
     vs_out_attr0.x = dot_s(uniforms.f[86], reg_tmp15);
-    // 206: dp4
     vs_out_attr0.y = dot_s(uniforms.f[87], reg_tmp15);
-    // 207: dp4
     vs_out_attr0.z = dot_s(uniforms.f[88], reg_tmp15);
-    // 208: dp4
     vs_out_attr0.w = dot_s(uniforms.f[89], reg_tmp15);
     return false;
 }
 bool sub_151_161() {
-    // 151: mul
     reg_tmp1.x = (mul_s(uniforms.f[93].wwww, vs_in_reg7.xxxx)).x;
-    // 152: mova
     address_registers.x = (ivec2(reg_tmp1.xx)).x;
-    // 153: dp4
     reg_tmp7.x = dot_s(uniforms.f[25 + address_registers.x], reg_tmp15);
-    // 154: dp4
     reg_tmp7.y = dot_s(uniforms.f[26 + address_registers.x], reg_tmp15);
-    // 155: dp4
     reg_tmp7.z = dot_s(uniforms.f[27 + address_registers.x], reg_tmp15);
-    // 156: mov
     reg_tmp7.w = (uniforms.f[93].yyyy).w;
-    // 157: dp4
     reg_tmp10.x = dot_s(uniforms.f[0], reg_tmp7);
-    // 158: dp4
     reg_tmp10.y = dot_s(uniforms.f[1], reg_tmp7);
-    // 159: dp4
     reg_tmp10.z = dot_s(uniforms.f[2], reg_tmp7);
-    // 160: mov
     reg_tmp10.w = (uniforms.f[93].yyyy).w;
     return false;
 }
 bool sub_161_166() {
-    // 161: mova
     address_registers.x = (ivec2(uniforms.f[93].xx)).x;
-    // 162: dp4
     reg_tmp10.x = dot_s(uniforms.f[25], reg_tmp15);
-    // 163: dp4
     reg_tmp10.y = dot_s(uniforms.f[26], reg_tmp15);
-    // 164: dp4
     reg_tmp10.z = dot_s(uniforms.f[27], reg_tmp15);
-    // 165: mov
     reg_tmp10.w = (uniforms.f[93].yyyy).w;
     return false;
 }
 bool sub_167_179() {
-    // 167: dp3
     reg_tmp12.x = dot_3(uniforms.f[25 + address_registers.x].xyz, reg_tmp14.xyz);
-    // 168: dp3
     reg_tmp12.y = dot_3(uniforms.f[26 + address_registers.x].xyz, reg_tmp14.xyz);
-    // 169: dp3
     reg_tmp12.z = dot_3(uniforms.f[27 + address_registers.x].xyz, reg_tmp14.xyz);
-    // 170: dp4
     reg_tmp15.x = dot_s(uniforms.f[90], reg_tmp10);
-    // 171: dp4
     reg_tmp15.y = dot_s(uniforms.f[91], reg_tmp10);
-    // 172: dp4
     reg_tmp15.z = dot_s(uniforms.f[92], reg_tmp10);
-    // 173: mov
     reg_tmp15.w = (uniforms.f[93].yyyy).w;
-    // 174: dp3
     reg_tmp14.x = dot_3(uniforms.f[3].xyz, reg_tmp12.xyz);
-    // 175: dp3
     reg_tmp14.y = dot_3(uniforms.f[4].xyz, reg_tmp12.xyz);
-    // 176: dp3
     reg_tmp14.z = dot_3(uniforms.f[5].xyz, reg_tmp12.xyz);
-    // 177: call
     {
         sub_210_227();
     }
-    // 178: nop
     return false;
 }
 bool sub_179_204() {
-    // 179: ifc
     if (all(conditional_code)) {
         sub_180_198();
     } else {
         sub_198_203();
     }
-    // 203: nop
     return false;
 }
 bool sub_180_198() {
-    // 180: dp3
     reg_tmp12.x = dot_3(uniforms.f[25 + address_registers.x].xyz, reg_tmp14.xyz);
-    // 181: dp3
     reg_tmp12.y = dot_3(uniforms.f[26 + address_registers.x].xyz, reg_tmp14.xyz);
-    // 182: dp3
     reg_tmp12.z = dot_3(uniforms.f[27 + address_registers.x].xyz, reg_tmp14.xyz);
-    // 183: dp3
     reg_tmp11.x = dot_3(uniforms.f[25 + address_registers.x].xyz, reg_tmp13.xyz);
-    // 184: dp3
     reg_tmp11.y = dot_3(uniforms.f[26 + address_registers.x].xyz, reg_tmp13.xyz);
-    // 185: dp3
     reg_tmp11.z = dot_3(uniforms.f[27 + address_registers.x].xyz, reg_tmp13.xyz);
-    // 186: dp4
     reg_tmp15.x = dot_s(uniforms.f[90], reg_tmp10);
-    // 187: dp4
     reg_tmp15.y = dot_s(uniforms.f[91], reg_tmp10);
-    // 188: dp4
     reg_tmp15.z = dot_s(uniforms.f[92], reg_tmp10);
-    // 189: mov
     reg_tmp15.w = (uniforms.f[93].yyyy).w;
-    // 190: dp3
     reg_tmp14.x = dot_3(uniforms.f[3].xyz, reg_tmp12.xyz);
-    // 191: dp3
     reg_tmp14.y = dot_3(uniforms.f[4].xyz, reg_tmp12.xyz);
-    // 192: dp3
     reg_tmp14.z = dot_3(uniforms.f[5].xyz, reg_tmp12.xyz);
-    // 193: dp3
     reg_tmp13.x = dot_3(uniforms.f[3].xyz, reg_tmp11.xyz);
-    // 194: dp3
     reg_tmp13.y = dot_3(uniforms.f[4].xyz, reg_tmp11.xyz);
-    // 195: dp3
     reg_tmp13.z = dot_3(uniforms.f[5].xyz, reg_tmp11.xyz);
-    // 196: call
     {
         sub_227_303();
     }
-    // 197: nop
     return false;
 }
 bool sub_198_203() {
-    // 198: dp4
     reg_tmp15.x = dot_s(uniforms.f[90], reg_tmp10);
-    // 199: dp4
     reg_tmp15.y = dot_s(uniforms.f[91], reg_tmp10);
-    // 200: dp4
     reg_tmp15.z = dot_s(uniforms.f[92], reg_tmp10);
-    // 201: mov
     reg_tmp15.w = (uniforms.f[93].yyyy).w;
-    // 202: mov
     vs_out_attr1 = uniforms.f[93].xxxx;
     return false;
 }
@@ -1692,45 +1400,28 @@ bool sub_210_227() {
     while (true) {
         switch (jmp_to) {
         case 210u: {
-            // 210: dp3
             reg_tmp6.x = dot_3(reg_tmp14.xyz, reg_tmp14.xyz);
-            // 211: dp3
             reg_tmp7.x = dot_3(reg_tmp12.xyz, reg_tmp12.xyz);
-            // 212: rsq
             reg_tmp6.x = rsq_s(reg_tmp6.x);
-            // 213: rsq
             reg_tmp7.x = rsq_s(reg_tmp7.x);
-            // 214: mul
             reg_tmp14.xyz = (mul_s(reg_tmp14.xyzz, reg_tmp6.xxxx)).xyz;
-            // 215: mul
             reg_tmp12.xyz = (mul_s(reg_tmp12.xyzz, reg_tmp7.xxxx)).xyz;
-            // 216: mov
             reg_tmp0 = uniforms.f[93].yxxx;
-            // 217: jmpu
             if (!uniforms.b[15]) {
                 { jmp_to = 226u; break; }
             }
-            // 218: add
             reg_tmp4 = uniforms.f[93].yyyy + reg_tmp14.zzzz;
-            // 219: mul
             reg_tmp4 = mul_s(uniforms.f[94].zzzz, reg_tmp4);
-            // 220: cmp
             conditional_code = greaterThanEqual(uniforms.f[93].xx, reg_tmp4.xx);
-            // 221: rsq
             reg_tmp4 = vec4(rsq_s(reg_tmp4.x));
-            // 222: mul
             reg_tmp5 = mul_s(uniforms.f[94].zzzz, reg_tmp14);
-            // 223: jmpc
             if (conditional_code.x) {
                 { jmp_to = 226u; break; }
             }
-            // 224: rcp
             reg_tmp0.z = rcp_s(reg_tmp4.x);
-            // 225: mul
             reg_tmp0.xy = (mul_s(reg_tmp5, reg_tmp4)).xy;
         }
         case 226u: {
-            // 226: mov
             vs_out_attr1 = reg_tmp0;
         }
         default: return false;
@@ -1743,105 +1434,62 @@ bool sub_227_303() {
     while (true) {
         switch (jmp_to) {
         case 227u: {
-            // 227: dp3
             reg_tmp6.x = dot_3(reg_tmp14.xyz, reg_tmp14.xyz);
-            // 228: dp3
             reg_tmp7.x = dot_3(reg_tmp12.xyz, reg_tmp12.xyz);
-            // 229: rsq
             reg_tmp6.x = rsq_s(reg_tmp6.x);
-            // 230: rsq
             reg_tmp7.x = rsq_s(reg_tmp7.x);
-            // 231: mul
             reg_tmp14.xyz = (mul_s(reg_tmp14.xyzz, reg_tmp6.xxxx)).xyz;
-            // 232: mul
             reg_tmp12.xyz = (mul_s(reg_tmp12.xyzz, reg_tmp7.xxxx)).xyz;
-            // 233: mul
             reg_tmp13.xyz = (mul_s(reg_tmp13.xyzz, reg_tmp6.xxxx)).xyz;
-            // 234: mul
             reg_tmp11.xyz = (mul_s(reg_tmp11.xyzz, reg_tmp7.xxxx)).xyz;
-            // 235: mov
             reg_tmp0 = uniforms.f[93].yxxx;
-            // 236: jmpu
             if (!uniforms.b[15]) {
                 { jmp_to = 302u; break; }
             }
-            // 237: mul
             reg_tmp13.xyz = (mul_s(reg_tmp13.xyzz, reg_tmp6.xxxx)).xyz;
-            // 238: mul
             reg_tmp11.xyz = (mul_s(reg_tmp11.xyzz, reg_tmp7.xxxx)).xyz;
-            // 239: mul
             reg_tmp5 = mul_s(reg_tmp14.yzxx, reg_tmp13.zxyy);
-            // 240: mad
             reg_tmp5 = fma_s(-reg_tmp13.yzxx, reg_tmp14.zxyy, reg_tmp5);
-            // 241: dp3
             reg_tmp5.w = dot_3(reg_tmp5.xyz, reg_tmp5.xyz);
-            // 242: rsq
             reg_tmp5.w = rsq_s(reg_tmp5.w);
-            // 243: mul
             reg_tmp5 = mul_s(reg_tmp5, reg_tmp5.wwww);
-            // 244: add
             reg_tmp6.w = (reg_tmp14.zzzz + reg_tmp5.yyyy).w;
-            // 245: mul
             reg_tmp13 = mul_s(reg_tmp5.yzxx, reg_tmp14.zxyy);
-            // 246: mad
             reg_tmp13 = fma_s(-reg_tmp14.yzxx, reg_tmp5.zxyy, reg_tmp13);
-            // 247: add
             reg_tmp6.w = (reg_tmp13.xxxx + reg_tmp6).w;
-            // 248: mov
             reg_tmp13.w = (reg_tmp5.zzzz).w;
-            // 249: mov
             reg_tmp5.z = (reg_tmp13.xxxx).z;
-            // 250: add
             reg_tmp6.w = (uniforms.f[93].yyyy + reg_tmp6).w;
-            // 251: mov
             reg_tmp14.w = (reg_tmp5.xxxx).w;
-            // 252: mov
             reg_tmp5.x = (reg_tmp14.zzzz).x;
-            // 253: cmp
             conditional_code = lessThan(uniforms.f[94].yy, reg_tmp6.ww);
-            // 254: mov
             reg_tmp6.x = (uniforms.f[93].yyyy).x;
-            // 255: mov
             reg_tmp6.y = (-uniforms.f[93].yyyy).y;
-            // 256: jmpc
             if (!conditional_code.x) {
                 { jmp_to = 264u; break; }
             }
-            // 257: add
             reg_tmp7.xz = (reg_tmp13.wwyy + -reg_tmp14.yyww).xz;
-            // 258: add
             reg_tmp7.y = (reg_tmp14.xxxx + -reg_tmp13.zzzz).y;
-            // 259: mov
             reg_tmp7.w = (reg_tmp6).w;
-            // 260: dp4
             reg_tmp6 = vec4(dot_s(reg_tmp7, reg_tmp7));
-            // 261: rsq
             reg_tmp6 = vec4(rsq_s(reg_tmp6.x));
-            // 262: mul
             reg_tmp0 = mul_s(reg_tmp7, reg_tmp6);
-            // 263: jmpu
             if (uniforms.b[0]) {
                 { jmp_to = 302u; break; }
             }
         }
         case 264u: {
-            // 264: cmp
             conditional_code = greaterThan(reg_tmp5.zy, reg_tmp5.yx);
-            // 265: ifc
             if (conditional_code.x) {
                 sub_266_286();
             } else {
                 sub_286_299();
             }
-            // 299: dp4
             reg_tmp6 = vec4(dot_s(reg_tmp8, reg_tmp8));
-            // 300: rsq
             reg_tmp6 = vec4(rsq_s(reg_tmp6.x));
-            // 301: mul
             reg_tmp0 = mul_s(reg_tmp8, reg_tmp6);
         }
         case 302u: {
-            // 302: mov
             vs_out_attr1 = reg_tmp0;
         }
         default: return false;
@@ -1850,304 +1498,213 @@ bool sub_227_303() {
     return false;
 }
 bool sub_266_286() {
-    // 266: ifc
     if (conditional_code.y) {
         sub_267_272();
     } else {
         sub_272_285();
     }
-    // 285: mov
     reg_tmp8.w = (-reg_tmp8).w;
     return false;
 }
 bool sub_267_272() {
-    // 267: mul
     reg_tmp8 = mul_s(reg_tmp13.yyzw, reg_tmp6.xxxy);
-    // 268: add
     reg_tmp8.x = (uniforms.f[93].yyyy + -reg_tmp5.yyyy).x;
-    // 269: add
     reg_tmp9 = reg_tmp5.zzzz + -reg_tmp5.xxxx;
-    // 270: add
     reg_tmp8.yzw = (reg_tmp8 + reg_tmp14.wwxy).yzw;
-    // 271: add
     reg_tmp8.x = (reg_tmp9 + reg_tmp8).x;
     return false;
 }
 bool sub_272_285() {
-    // 272: cmp
     conditional_code = greaterThan(reg_tmp5.zz, reg_tmp5.xx);
-    // 273: mul
     reg_tmp8 = mul_s(reg_tmp13.yyzw, reg_tmp6.xxxy);
-    // 274: add
     reg_tmp8.x = (uniforms.f[93].yyyy + -reg_tmp5.yyyy).x;
-    // 275: ifc
     if (conditional_code.x) {
         sub_276_279();
     } else {
         sub_279_284();
     }
-    // 284: nop
     return false;
 }
 bool sub_276_279() {
-    // 276: add
     reg_tmp9 = reg_tmp5.zzzz + -reg_tmp5.xxxx;
-    // 277: add
     reg_tmp8.yzw = (reg_tmp8 + reg_tmp14.wwxy).yzw;
-    // 278: add
     reg_tmp8.x = (reg_tmp9 + reg_tmp8).x;
     return false;
 }
 bool sub_279_284() {
-    // 279: mul
     reg_tmp8 = mul_s(reg_tmp13.zwwy, reg_tmp6.xxxy);
-    // 280: add
     reg_tmp8.z = (uniforms.f[93].yyyy + -reg_tmp5.zzzz).z;
-    // 281: add
     reg_tmp9 = reg_tmp5.xxxx + -reg_tmp5.yyyy;
-    // 282: add
     reg_tmp8.xyw = (reg_tmp8 + reg_tmp14.xyyw).xyw;
-    // 283: add
     reg_tmp8.z = (reg_tmp9 + reg_tmp8).z;
     return false;
 }
 bool sub_286_299() {
-    // 286: ifc
     if (conditional_code.y) {
         sub_287_292();
     } else {
         sub_292_298();
     }
-    // 298: nop
     return false;
 }
 bool sub_287_292() {
-    // 287: mul
     reg_tmp8 = mul_s(reg_tmp13.yywz, reg_tmp6.xxxy);
-    // 288: add
     reg_tmp8.y = (uniforms.f[93].yyyy + -reg_tmp5.zzzz).y;
-    // 289: add
     reg_tmp9 = reg_tmp5.yyyy + -reg_tmp5.xxxx;
-    // 290: add
     reg_tmp8.xzw = (reg_tmp8 + reg_tmp14.wwyx).xzw;
-    // 291: add
     reg_tmp8.y = (reg_tmp9 + reg_tmp8).y;
     return false;
 }
 bool sub_292_298() {
-    // 292: mul
     reg_tmp8 = mul_s(reg_tmp13.zwwy, reg_tmp6.xxxy);
-    // 293: add
     reg_tmp8.z = (uniforms.f[93].yyyy + -reg_tmp5.zzzz).z;
-    // 294: add
     reg_tmp9 = reg_tmp5.xxxx + -reg_tmp5.yyyy;
-    // 295: add
     reg_tmp8.xyw = (reg_tmp8 + reg_tmp14.xyyw).xyw;
-    // 296: add
     reg_tmp8.z = (reg_tmp9 + reg_tmp8).z;
-    // 297: mov
     reg_tmp8.w = (-reg_tmp8).w;
     return false;
 }
 bool sub_303_330() {
-    // 303: mov
     reg_tmp0.xy = (uniforms.f[10].xxxx).xy;
-    // 304: ifu
     if (uniforms.b[9]) {
         sub_305_310();
     } else {
         sub_310_329();
     }
-    // 329: nop
     return false;
 }
 bool sub_305_310() {
-    // 305: call
     {
         sub_330_338();
     }
-    // 306: dp4
     reg_tmp3.x = dot_s(uniforms.f[11].xywz, reg_tmp6);
-    // 307: dp4
     reg_tmp3.y = dot_s(uniforms.f[12].xywz, reg_tmp6);
-    // 308: mov
     reg_tmp3.zw = (uniforms.f[93].xxxx).zw;
-    // 309: mov
     vs_out_attr4 = reg_tmp3;
     return false;
 }
 bool sub_310_329() {
-    // 310: cmp
     conditional_code = equal(uniforms.f[95].xy, reg_tmp0.xy);
-    // 311: mov
     reg_tmp6.zw = (uniforms.f[93].xxyy).zw;
-    // 312: ifc
     if (all(not(conditional_code))) {
         sub_313_319();
     } else {
         sub_319_328();
     }
-    // 328: mov
     vs_out_attr4 = reg_tmp3;
     return false;
 }
 bool sub_313_319() {
-    // 313: mov
     reg_tmp6 = reg_tmp10;
-    // 314: dp4
     reg_tmp3.x = dot_s(uniforms.f[11], reg_tmp6);
-    // 315: dp4
     reg_tmp3.y = dot_s(uniforms.f[12], reg_tmp6);
-    // 316: dp4
     reg_tmp3.z = dot_s(uniforms.f[13], reg_tmp6);
-    // 317: mul
     reg_tmp0.xy = (mul_s(uniforms.f[19].xyyy, reg_tmp3.zzzz)).xy;
-    // 318: add
     reg_tmp3.xy = (reg_tmp3.xyyy + reg_tmp0.xyyy).xy;
     return false;
 }
 bool sub_319_328() {
-    // 319: ifc
     if (all(bvec2(conditional_code.x, !conditional_code.y))) {
         sub_320_324();
     } else {
         sub_324_327();
     }
-    // 327: nop
     return false;
 }
 bool sub_320_324() {
-    // 320: call
     {
         sub_338_345();
     }
-    // 321: dp3
     reg_tmp3.x = dot_3(uniforms.f[11].xyz, reg_tmp6.xyz);
-    // 322: dp3
     reg_tmp3.y = dot_3(uniforms.f[12].xyz, reg_tmp6.xyz);
-    // 323: dp3
     reg_tmp3.z = dot_3(uniforms.f[13].xyz, reg_tmp6.xyz);
     return false;
 }
 bool sub_324_327() {
-    // 324: call
     {
         sub_345_349();
     }
-    // 325: dp4
     reg_tmp3.x = dot_s(uniforms.f[11], reg_tmp6);
-    // 326: dp4
     reg_tmp3.y = dot_s(uniforms.f[12], reg_tmp6);
     return false;
 }
 bool sub_330_338() {
-    // 330: cmp
     conditional_code = equal(uniforms.f[93].yz, reg_tmp0.xy);
-    // 331: ifc
     if (all(not(conditional_code))) {
         sub_332_333();
     } else {
         sub_333_337();
     }
-    // 337: mov
     reg_tmp6.zw = (uniforms.f[93].xxyy).zw;
     return false;
 }
 bool sub_332_333() {
-    // 332: mul
     reg_tmp6.xy = (mul_s(uniforms.f[8].xxxx, vs_in_reg4.xyyy)).xy;
     return false;
 }
 bool sub_333_337() {
-    // 333: ifc
     if (all(bvec2(conditional_code.x, !conditional_code.y))) {
         sub_334_335();
     } else {
         sub_335_336();
     }
-    // 336: nop
     return false;
 }
 bool sub_334_335() {
-    // 334: mul
     reg_tmp6.xy = (mul_s(uniforms.f[8].yyyy, vs_in_reg5.xyyy)).xy;
     return false;
 }
 bool sub_335_336() {
-    // 335: mul
     reg_tmp6.xy = (mul_s(uniforms.f[8].zzzz, vs_in_reg6.xyyy)).xy;
     return false;
 }
 bool sub_338_345() {
-    // 338: mov
     reg_tmp2 = -reg_tmp15;
-    // 339: dp3
     reg_tmp2.w = dot_3(reg_tmp2.xyz, reg_tmp2.xyz);
-    // 340: rsq
     reg_tmp2.w = rsq_s(reg_tmp2.w);
-    // 341: mul
     reg_tmp2 = mul_s(reg_tmp2, reg_tmp2.wwww);
-    // 342: dp3
     reg_tmp1 = vec4(dot_3(reg_tmp2.xyz, reg_tmp14.xyz));
-    // 343: add
     reg_tmp1 = reg_tmp1 + reg_tmp1;
-    // 344: mad
     reg_tmp6 = fma_s(reg_tmp1, reg_tmp14, -reg_tmp2);
     return false;
 }
 bool sub_345_349() {
-    // 345: mov
     reg_tmp1.xy = (uniforms.f[94].zzzz).xy;
-    // 346: mov
     reg_tmp1.zw = (uniforms.f[93].xxxx).zw;
-    // 347: mad
     reg_tmp6 = fma_s(reg_tmp14, reg_tmp1, reg_tmp1);
-    // 348: mov
     reg_tmp6.zw = (uniforms.f[93].xxyy).zw;
     return false;
 }
 bool sub_403_4096() {
-    // 403: call
     {
         sub_42_210();
     }
-    // 404: mov
     reg_tmp0.y = (uniforms.f[7].wwww).y;
-    // 405: cmp
     conditional_code = notEqual(uniforms.f[93].xx, reg_tmp0.xy);
-    // 406: mov
     reg_tmp9 = uniforms.f[21];
-    // 407: ifc
     if (conditional_code.y) {
         sub_408_412();
     }
-    // 412: max
     vs_out_attr3 = max(uniforms.f[93].xxxx, reg_tmp9);
-    // 413: call
     {
         sub_303_330();
     }
-    // 414: end
     return true;
 }
 bool sub_408_412() {
-    // 408: mul
     reg_tmp0 = mul_s(uniforms.f[7].wwww, vs_in_reg3);
-    // 409: ifu
     if (uniforms.b[7]) {
         sub_410_411();
     }
-    // 411: mov
     reg_tmp9.xyz = (reg_tmp0.xyzz).xyz;
     return false;
 }
 bool sub_410_411() {
-    // 410: mul
     reg_tmp9.w = (mul_s(reg_tmp9.wwww, reg_tmp0.wwww)).w;
     return false;
 }
-// reference: A326752B7A3B97AB, F3D442C0013F9392
-// shader: 8DD9, 6CF3F3B70E23AA85
+// reference: A326752BF9CEF1D9, 22C3C36B08CEECE7
+// shader: 8DD9, 7A40B90B17532EA8
 
 layout(triangles) in;
 layout(triangle_strip, max_vertices = 3) out;
@@ -2215,12 +1772,11 @@ layout (std140) uniform shader_light_data {
     int shadow_texture_bias;
 };
 
- in vec4 vs_out_attr0[];
- in vec4 vs_out_attr1[];
- in vec4 vs_out_attr2[];
- in vec4 vs_out_attr3[];
- in vec4 vs_out_attr4[];
-
+in vec4 vs_out_attr0[];
+in vec4 vs_out_attr1[];
+in vec4 vs_out_attr2[];
+in vec4 vs_out_attr3[];
+in vec4 vs_out_attr4[];
 struct Vertex {
     vec4 attributes[5];
 };
@@ -2248,7 +1804,6 @@ void EmitVtx(Vertex vtx, bool quats_opposite) {
 
     texcoord0_w = vtx.attributes[4].z;
     view = vec3(vtx.attributes[2].x, vtx.attributes[2].y, vtx.attributes[2].z);
-
     texcoord2 = vec2(0.0, 0.0);
 
     EmitVertex();
@@ -2272,8 +1827,8 @@ void main() {
     prim_buffer[2].attributes = vec4[5](vs_out_attr0[2], vs_out_attr1[2], vs_out_attr2[2], vs_out_attr3[2], vs_out_attr4[2]);
     EmitPrim(prim_buffer[0], prim_buffer[1], prim_buffer[2]);
 }
-// reference: CD8210802464D9AE, 6CF3F3B70E23AA85
-// shader: 8B30, E8F4EBF1269C4990
+// reference: CD8210802464D9AE, 7A40B90B17532EA8
+// shader: 8B30, D513C6EA0EDF16F1
 
 precision highp int;
 precision highp float;
@@ -2423,19 +1978,22 @@ vec4 texcolor0 = textureLod(tex0, texcoord0, getLod(texcoord0 * vec2(textureSize
 vec4 combiner_buffer = vec4(0.0);
 vec4 next_combiner_buffer = tev_combiner_buffer_color;
 vec4 last_tex_env_out = vec4(0.0);
-vec3 color_output_0 = byteround(clamp((last_tex_env_out.rgb), vec3(0.0), vec3(1.0)));
+vec3 color_output_0 = (last_tex_env_out.rgb);
 float alpha_output_0 = byteround(clamp((rounded_primary_color.a) * (texcolor0.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_0, alpha_output_0), vec4(0.0), vec4(1.0));
+last_tex_env_out = vec4(color_output_0, alpha_output_0);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 
 vec3 color_output_1 = byteround(clamp((combiner_buffer.rgb) * (texcolor0.rgb) + (const_color[1].rgb) * (vec3(1.0) - (texcolor0.rgb)), vec3(0.0), vec3(1.0)));
-float alpha_output_1 = byteround(clamp((last_tex_env_out.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_1, alpha_output_1), vec4(0.0), vec4(1.0));
+float alpha_output_1 = (last_tex_env_out.a);
+last_tex_env_out = vec4(color_output_1, alpha_output_1);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 
 vec3 color_output_2 = byteround(clamp((const_color[2].rgb) * (rounded_primary_color.rgb) + (last_tex_env_out.rgb) * (vec3(1.0) - (rounded_primary_color.rgb)), vec3(0.0), vec3(1.0)));
-float alpha_output_2 = byteround(clamp((last_tex_env_out.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_2, alpha_output_2), vec4(0.0), vec4(1.0));
+float alpha_output_2 = (last_tex_env_out.a);
+last_tex_env_out = vec4(color_output_2, alpha_output_2);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 
 combiner_buffer = next_combiner_buffer;
@@ -2447,9 +2005,9 @@ combiner_buffer = next_combiner_buffer;
 gl_FragDepth = depth;
 color = byteround(last_tex_env_out);
 }
-// reference: 025EA929E3A36805, E8F4EBF1269C4990
-// program: F3D442C0013F9392, 6CF3F3B70E23AA85, E8F4EBF1269C4990
-// shader: 8B31, 9A0887C21E007189
+// reference: 025EA929E3A36805, D513C6EA0EDF16F1
+// program: 22C3C36B08CEECE7, 7A40B90B17532EA8, D513C6EA0EDF16F1
+// shader: 8B31, C2A49A7A2A81571D
 
 struct pica_uniforms {
     bool b[16];
@@ -2474,12 +2032,12 @@ layout(location = 6) in vec4 vs_in_reg6;
 layout(location = 7) in vec4 vs_in_reg7;
 layout(location = 8) in vec4 vs_in_reg8;
 
- out vec4 vs_out_attr0;
- out vec4 vs_out_attr1;
- out vec4 vs_out_attr2;
- out vec4 vs_out_attr3;
- out vec4 vs_out_attr4;
- out vec4 vs_out_attr5;
+out vec4 vs_out_attr0;
+out vec4 vs_out_attr1;
+out vec4 vs_out_attr2;
+out vec4 vs_out_attr3;
+out vec4 vs_out_attr4;
+out vec4 vs_out_attr5;
 
 void main() {
     vs_out_attr0 = vec4(0.0, 0.0, 0.0, 1.0);
@@ -2488,10 +2046,8 @@ void main() {
     vs_out_attr3 = vec4(0.0, 0.0, 0.0, 1.0);
     vs_out_attr4 = vec4(0.0, 0.0, 0.0, 1.0);
     vs_out_attr5 = vec4(0.0, 0.0, 0.0, 1.0);
-
     exec_shader();
 }
-
 
 #define mul_s(x, y) mix(x * y, vec4(0.0), isnan(x * y))
 #define fma_s(x, y, z) (mix(x * y, vec4(0.0), isnan(x * y)) + z)
@@ -2585,501 +2141,306 @@ bool exec_shader() {
 }
 
 bool sub_15_20() {
-    // 15: mova
     address_registers.x = (ivec2(reg_tmp1.xx)).x;
-    // 16: dp4
     reg_tmp3.x = dot_s(uniforms.f[25 + address_registers.x], reg_tmp15);
-    // 17: dp4
     reg_tmp3.y = dot_s(uniforms.f[26 + address_registers.x], reg_tmp15);
-    // 18: dp4
     reg_tmp3.z = dot_s(uniforms.f[27 + address_registers.x], reg_tmp15);
-    // 19: mad
     reg_tmp7 = fma_s(reg_tmp1.wwww, reg_tmp3, reg_tmp7);
     return false;
 }
 bool sub_20_29() {
-    // 20: mova
     address_registers.x = (ivec2(reg_tmp1.xx)).x;
-    // 21: dp4
     reg_tmp3.x = dot_s(uniforms.f[25 + address_registers.x], reg_tmp15);
-    // 22: dp4
     reg_tmp3.y = dot_s(uniforms.f[26 + address_registers.x], reg_tmp15);
-    // 23: dp4
     reg_tmp3.z = dot_s(uniforms.f[27 + address_registers.x], reg_tmp15);
-    // 24: dp3
     reg_tmp4.x = dot_3(uniforms.f[25 + address_registers.x].xyz, reg_tmp14.xyz);
-    // 25: dp3
     reg_tmp4.y = dot_3(uniforms.f[26 + address_registers.x].xyz, reg_tmp14.xyz);
-    // 26: dp3
     reg_tmp4.z = dot_3(uniforms.f[27 + address_registers.x].xyz, reg_tmp14.xyz);
-    // 27: mad
     reg_tmp7 = fma_s(reg_tmp1.wwww, reg_tmp3, reg_tmp7);
-    // 28: mad
     reg_tmp12 = fma_s(reg_tmp1.wwww, reg_tmp4, reg_tmp12);
     return false;
 }
 bool sub_29_42() {
-    // 29: mova
     address_registers.x = (ivec2(reg_tmp1.xx)).x;
-    // 30: dp4
     reg_tmp3.x = dot_s(uniforms.f[25 + address_registers.x], reg_tmp15);
-    // 31: dp4
     reg_tmp3.y = dot_s(uniforms.f[26 + address_registers.x], reg_tmp15);
-    // 32: dp4
     reg_tmp3.z = dot_s(uniforms.f[27 + address_registers.x], reg_tmp15);
-    // 33: dp3
     reg_tmp4.x = dot_3(uniforms.f[25 + address_registers.x].xyz, reg_tmp14.xyz);
-    // 34: dp3
     reg_tmp4.y = dot_3(uniforms.f[26 + address_registers.x].xyz, reg_tmp14.xyz);
-    // 35: dp3
     reg_tmp4.z = dot_3(uniforms.f[27 + address_registers.x].xyz, reg_tmp14.xyz);
-    // 36: dp3
     reg_tmp5.x = dot_3(uniforms.f[25 + address_registers.x].xyz, reg_tmp13.xyz);
-    // 37: dp3
     reg_tmp5.y = dot_3(uniforms.f[26 + address_registers.x].xyz, reg_tmp13.xyz);
-    // 38: dp3
     reg_tmp5.z = dot_3(uniforms.f[27 + address_registers.x].xyz, reg_tmp13.xyz);
-    // 39: mad
     reg_tmp7 = fma_s(reg_tmp1.wwww, reg_tmp3, reg_tmp7);
-    // 40: mad
     reg_tmp12 = fma_s(reg_tmp1.wwww, reg_tmp4, reg_tmp12);
-    // 41: mad
     reg_tmp11 = fma_s(reg_tmp1.wwww, reg_tmp5, reg_tmp11);
     return false;
 }
 bool sub_42_210() {
-    // 42: mul
     reg_tmp15.xyz = (mul_s(uniforms.f[7].xxxx, vs_in_reg0)).xyz;
-    // 43: mul
     reg_tmp14.xyz = (mul_s(uniforms.f[7].yyyy, vs_in_reg1)).xyz;
-    // 44: mul
     reg_tmp13.xyz = (mul_s(uniforms.f[7].zzzz, vs_in_reg2)).xyz;
-    // 45: add
     reg_tmp15.xyz = (uniforms.f[6] + reg_tmp15).xyz;
-    // 46: mov
     reg_tmp15.w = (uniforms.f[93].yyyy).w;
-    // 47: ifu
     if (uniforms.b[1]) {
         sub_48_148();
     } else {
         sub_148_209();
     }
-    // 209: nop
     return false;
 }
 bool sub_48_148() {
-    // 48: mov
     reg_tmp0 = uniforms.f[7];
-    // 49: cmp
     conditional_code = notEqual(uniforms.f[93].xx, reg_tmp0.yz);
-    // 50: mov
     reg_tmp7 = uniforms.f[93].xxxx;
-    // 51: mov
     reg_tmp12 = uniforms.f[93].xxxx;
-    // 52: mov
     reg_tmp11 = uniforms.f[93].xxxx;
-    // 53: mul
     reg_tmp2 = mul_s(uniforms.f[93].wwww, vs_in_reg7);
-    // 54: ifc
     if (all(bvec2(conditional_code.x, !conditional_code.y))) {
         sub_55_84();
     } else {
         sub_84_143();
     }
-    // 143: mov
     vs_out_attr2 = -reg_tmp15;
-    // 144: dp4
     vs_out_attr0.x = dot_s(uniforms.f[86], reg_tmp15);
-    // 145: dp4
     vs_out_attr0.y = dot_s(uniforms.f[87], reg_tmp15);
-    // 146: dp4
     vs_out_attr0.z = dot_s(uniforms.f[88], reg_tmp15);
-    // 147: dp4
     vs_out_attr0.w = dot_s(uniforms.f[89], reg_tmp15);
     return false;
 }
 bool sub_55_84() {
-    // 55: cmp
     conditional_code = notEqual(uniforms.f[93].xx, vs_in_reg8.zw);
-    // 56: mov
     reg_tmp1.xy = (reg_tmp2.xxxx).xy;
-    // 57: mul
     reg_tmp1.w = (mul_s(uniforms.f[8].wwww, vs_in_reg8.xxxx)).w;
-    // 58: call
     {
         sub_20_29();
     }
-    // 59: mov
     reg_tmp1.xy = (reg_tmp2.yyyy).xy;
-    // 60: mul
     reg_tmp1.w = (mul_s(uniforms.f[8].wwww, vs_in_reg8.yyyy)).w;
-    // 61: call
     {
         sub_20_29();
     }
-    // 62: mov
     reg_tmp1.xy = (reg_tmp2.zzzz).xy;
-    // 63: mul
     reg_tmp1.w = (mul_s(uniforms.f[8].wwww, vs_in_reg8.zzzz)).w;
-    // 64: callc
     if (conditional_code.x) {
         sub_20_29();
     }
-    // 65: ifu
     if (uniforms.b[8]) {
         sub_66_70();
     }
-    // 70: mov
     reg_tmp7.w = (uniforms.f[93].yyyy).w;
-    // 71: dp4
     reg_tmp10.x = dot_s(uniforms.f[0], reg_tmp7);
-    // 72: dp4
     reg_tmp10.y = dot_s(uniforms.f[1], reg_tmp7);
-    // 73: dp4
     reg_tmp10.z = dot_s(uniforms.f[2], reg_tmp7);
-    // 74: mov
     reg_tmp10.w = (uniforms.f[93].yyyy).w;
-    // 75: dp4
     reg_tmp15.x = dot_s(uniforms.f[90], reg_tmp10);
-    // 76: dp4
     reg_tmp15.y = dot_s(uniforms.f[91], reg_tmp10);
-    // 77: dp4
     reg_tmp15.z = dot_s(uniforms.f[92], reg_tmp10);
-    // 78: mov
     reg_tmp15.w = (uniforms.f[93].yyyy).w;
-    // 79: dp3
     reg_tmp14.x = dot_3(uniforms.f[3].xyz, reg_tmp12.xyz);
-    // 80: dp3
     reg_tmp14.y = dot_3(uniforms.f[4].xyz, reg_tmp12.xyz);
-    // 81: dp3
     reg_tmp14.z = dot_3(uniforms.f[5].xyz, reg_tmp12.xyz);
-    // 82: call
     {
         sub_210_227();
     }
-    // 83: nop
     return false;
 }
 bool sub_66_70() {
-    // 66: mov
     reg_tmp1.xy = (reg_tmp2.wwww).xy;
-    // 67: mul
     reg_tmp1.w = (mul_s(uniforms.f[8].wwww, vs_in_reg8.wwww)).w;
-    // 68: callc
     if (conditional_code.y) {
         sub_20_29();
     }
-    // 69: nop
     return false;
 }
 bool sub_84_143() {
-    // 84: ifc
     if (all(conditional_code)) {
         sub_85_117();
     } else {
         sub_117_142();
     }
-    // 142: nop
     return false;
 }
 bool sub_85_117() {
-    // 85: cmp
     conditional_code = notEqual(uniforms.f[93].xx, vs_in_reg8.zw);
-    // 86: mov
     reg_tmp1.xy = (reg_tmp2.xxxx).xy;
-    // 87: mul
     reg_tmp1.w = (mul_s(uniforms.f[8].wwww, vs_in_reg8.xxxx)).w;
-    // 88: call
     {
         sub_29_42();
     }
-    // 89: mov
     reg_tmp1.xy = (reg_tmp2.yyyy).xy;
-    // 90: mul
     reg_tmp1.w = (mul_s(uniforms.f[8].wwww, vs_in_reg8.yyyy)).w;
-    // 91: call
     {
         sub_29_42();
     }
-    // 92: mov
     reg_tmp1.xy = (reg_tmp2.zzzz).xy;
-    // 93: mul
     reg_tmp1.w = (mul_s(uniforms.f[8].wwww, vs_in_reg8.zzzz)).w;
-    // 94: callc
     if (conditional_code.x) {
         sub_29_42();
     }
-    // 95: ifu
     if (uniforms.b[8]) {
         sub_96_100();
     }
-    // 100: mov
     reg_tmp7.w = (uniforms.f[93].yyyy).w;
-    // 101: dp4
     reg_tmp10.x = dot_s(uniforms.f[0], reg_tmp7);
-    // 102: dp4
     reg_tmp10.y = dot_s(uniforms.f[1], reg_tmp7);
-    // 103: dp4
     reg_tmp10.z = dot_s(uniforms.f[2], reg_tmp7);
-    // 104: mov
     reg_tmp10.w = (uniforms.f[93].yyyy).w;
-    // 105: dp3
     reg_tmp13.x = dot_3(uniforms.f[3].xyz, reg_tmp11.xyz);
-    // 106: dp3
     reg_tmp13.y = dot_3(uniforms.f[4].xyz, reg_tmp11.xyz);
-    // 107: dp3
     reg_tmp13.z = dot_3(uniforms.f[5].xyz, reg_tmp11.xyz);
-    // 108: dp3
     reg_tmp14.x = dot_3(uniforms.f[3].xyz, reg_tmp12.xyz);
-    // 109: dp3
     reg_tmp14.y = dot_3(uniforms.f[4].xyz, reg_tmp12.xyz);
-    // 110: dp3
     reg_tmp14.z = dot_3(uniforms.f[5].xyz, reg_tmp12.xyz);
-    // 111: dp4
     reg_tmp15.x = dot_s(uniforms.f[90], reg_tmp10);
-    // 112: dp4
     reg_tmp15.y = dot_s(uniforms.f[91], reg_tmp10);
-    // 113: dp4
     reg_tmp15.z = dot_s(uniforms.f[92], reg_tmp10);
-    // 114: mov
     reg_tmp15.w = (uniforms.f[93].yyyy).w;
-    // 115: call
     {
         sub_227_303();
     }
-    // 116: nop
     return false;
 }
 bool sub_96_100() {
-    // 96: mov
     reg_tmp1.xy = (reg_tmp2.wwww).xy;
-    // 97: mul
     reg_tmp1.w = (mul_s(uniforms.f[8].wwww, vs_in_reg8.wwww)).w;
-    // 98: callc
     if (conditional_code.y) {
         sub_29_42();
     }
-    // 99: nop
     return false;
 }
 bool sub_117_142() {
-    // 117: cmp
     conditional_code = notEqual(uniforms.f[93].xx, vs_in_reg8.zw);
-    // 118: mov
     reg_tmp1.xy = (reg_tmp2.xxxx).xy;
-    // 119: mul
     reg_tmp1.w = (mul_s(uniforms.f[8].wwww, vs_in_reg8.xxxx)).w;
-    // 120: call
     {
         sub_15_20();
     }
-    // 121: mov
     reg_tmp1.xy = (reg_tmp2.yyyy).xy;
-    // 122: mul
     reg_tmp1.w = (mul_s(uniforms.f[8].wwww, vs_in_reg8.yyyy)).w;
-    // 123: call
     {
         sub_15_20();
     }
-    // 124: mov
     reg_tmp1.xy = (reg_tmp2.zzzz).xy;
-    // 125: mul
     reg_tmp1.w = (mul_s(uniforms.f[8].wwww, vs_in_reg8.zzzz)).w;
-    // 126: callc
     if (conditional_code.x) {
         sub_15_20();
     }
-    // 127: ifu
     if (uniforms.b[8]) {
         sub_128_132();
     }
-    // 132: mov
     reg_tmp7.w = (uniforms.f[93].yyyy).w;
-    // 133: dp4
     reg_tmp10.x = dot_s(uniforms.f[0], reg_tmp7);
-    // 134: dp4
     reg_tmp10.y = dot_s(uniforms.f[1], reg_tmp7);
-    // 135: dp4
     reg_tmp10.z = dot_s(uniforms.f[2], reg_tmp7);
-    // 136: mov
     reg_tmp10.w = (uniforms.f[93].yyyy).w;
-    // 137: dp4
     reg_tmp15.x = dot_s(uniforms.f[90], reg_tmp10);
-    // 138: dp4
     reg_tmp15.y = dot_s(uniforms.f[91], reg_tmp10);
-    // 139: dp4
     reg_tmp15.z = dot_s(uniforms.f[92], reg_tmp10);
-    // 140: mov
     reg_tmp15.w = (uniforms.f[93].yyyy).w;
-    // 141: mov
     vs_out_attr1 = uniforms.f[93].xxxx;
     return false;
 }
 bool sub_128_132() {
-    // 128: mov
     reg_tmp1.xy = (reg_tmp2.wwww).xy;
-    // 129: mul
     reg_tmp1.w = (mul_s(uniforms.f[8].wwww, vs_in_reg8.wwww)).w;
-    // 130: callc
     if (conditional_code.y) {
         sub_15_20();
     }
-    // 131: nop
     return false;
 }
 bool sub_148_209() {
-    // 148: mov
     reg_tmp0 = uniforms.f[7];
-    // 149: cmp
     conditional_code = notEqual(uniforms.f[93].xx, reg_tmp0.yz);
-    // 150: ifu
     if (uniforms.b[2]) {
         sub_151_161();
     } else {
         sub_161_166();
     }
-    // 166: ifc
     if (all(bvec2(conditional_code.x, !conditional_code.y))) {
         sub_167_179();
     } else {
         sub_179_204();
     }
-    // 204: mov
     vs_out_attr2 = -reg_tmp15;
-    // 205: dp4
     vs_out_attr0.x = dot_s(uniforms.f[86], reg_tmp15);
-    // 206: dp4
     vs_out_attr0.y = dot_s(uniforms.f[87], reg_tmp15);
-    // 207: dp4
     vs_out_attr0.z = dot_s(uniforms.f[88], reg_tmp15);
-    // 208: dp4
     vs_out_attr0.w = dot_s(uniforms.f[89], reg_tmp15);
     return false;
 }
 bool sub_151_161() {
-    // 151: mul
     reg_tmp1.x = (mul_s(uniforms.f[93].wwww, vs_in_reg7.xxxx)).x;
-    // 152: mova
     address_registers.x = (ivec2(reg_tmp1.xx)).x;
-    // 153: dp4
     reg_tmp7.x = dot_s(uniforms.f[25 + address_registers.x], reg_tmp15);
-    // 154: dp4
     reg_tmp7.y = dot_s(uniforms.f[26 + address_registers.x], reg_tmp15);
-    // 155: dp4
     reg_tmp7.z = dot_s(uniforms.f[27 + address_registers.x], reg_tmp15);
-    // 156: mov
     reg_tmp7.w = (uniforms.f[93].yyyy).w;
-    // 157: dp4
     reg_tmp10.x = dot_s(uniforms.f[0], reg_tmp7);
-    // 158: dp4
     reg_tmp10.y = dot_s(uniforms.f[1], reg_tmp7);
-    // 159: dp4
     reg_tmp10.z = dot_s(uniforms.f[2], reg_tmp7);
-    // 160: mov
     reg_tmp10.w = (uniforms.f[93].yyyy).w;
     return false;
 }
 bool sub_161_166() {
-    // 161: mova
     address_registers.x = (ivec2(uniforms.f[93].xx)).x;
-    // 162: dp4
     reg_tmp10.x = dot_s(uniforms.f[25], reg_tmp15);
-    // 163: dp4
     reg_tmp10.y = dot_s(uniforms.f[26], reg_tmp15);
-    // 164: dp4
     reg_tmp10.z = dot_s(uniforms.f[27], reg_tmp15);
-    // 165: mov
     reg_tmp10.w = (uniforms.f[93].yyyy).w;
     return false;
 }
 bool sub_167_179() {
-    // 167: dp3
     reg_tmp12.x = dot_3(uniforms.f[25 + address_registers.x].xyz, reg_tmp14.xyz);
-    // 168: dp3
     reg_tmp12.y = dot_3(uniforms.f[26 + address_registers.x].xyz, reg_tmp14.xyz);
-    // 169: dp3
     reg_tmp12.z = dot_3(uniforms.f[27 + address_registers.x].xyz, reg_tmp14.xyz);
-    // 170: dp4
     reg_tmp15.x = dot_s(uniforms.f[90], reg_tmp10);
-    // 171: dp4
     reg_tmp15.y = dot_s(uniforms.f[91], reg_tmp10);
-    // 172: dp4
     reg_tmp15.z = dot_s(uniforms.f[92], reg_tmp10);
-    // 173: mov
     reg_tmp15.w = (uniforms.f[93].yyyy).w;
-    // 174: dp3
     reg_tmp14.x = dot_3(uniforms.f[3].xyz, reg_tmp12.xyz);
-    // 175: dp3
     reg_tmp14.y = dot_3(uniforms.f[4].xyz, reg_tmp12.xyz);
-    // 176: dp3
     reg_tmp14.z = dot_3(uniforms.f[5].xyz, reg_tmp12.xyz);
-    // 177: call
     {
         sub_210_227();
     }
-    // 178: nop
     return false;
 }
 bool sub_179_204() {
-    // 179: ifc
     if (all(conditional_code)) {
         sub_180_198();
     } else {
         sub_198_203();
     }
-    // 203: nop
     return false;
 }
 bool sub_180_198() {
-    // 180: dp3
     reg_tmp12.x = dot_3(uniforms.f[25 + address_registers.x].xyz, reg_tmp14.xyz);
-    // 181: dp3
     reg_tmp12.y = dot_3(uniforms.f[26 + address_registers.x].xyz, reg_tmp14.xyz);
-    // 182: dp3
     reg_tmp12.z = dot_3(uniforms.f[27 + address_registers.x].xyz, reg_tmp14.xyz);
-    // 183: dp3
     reg_tmp11.x = dot_3(uniforms.f[25 + address_registers.x].xyz, reg_tmp13.xyz);
-    // 184: dp3
     reg_tmp11.y = dot_3(uniforms.f[26 + address_registers.x].xyz, reg_tmp13.xyz);
-    // 185: dp3
     reg_tmp11.z = dot_3(uniforms.f[27 + address_registers.x].xyz, reg_tmp13.xyz);
-    // 186: dp4
     reg_tmp15.x = dot_s(uniforms.f[90], reg_tmp10);
-    // 187: dp4
     reg_tmp15.y = dot_s(uniforms.f[91], reg_tmp10);
-    // 188: dp4
     reg_tmp15.z = dot_s(uniforms.f[92], reg_tmp10);
-    // 189: mov
     reg_tmp15.w = (uniforms.f[93].yyyy).w;
-    // 190: dp3
     reg_tmp14.x = dot_3(uniforms.f[3].xyz, reg_tmp12.xyz);
-    // 191: dp3
     reg_tmp14.y = dot_3(uniforms.f[4].xyz, reg_tmp12.xyz);
-    // 192: dp3
     reg_tmp14.z = dot_3(uniforms.f[5].xyz, reg_tmp12.xyz);
-    // 193: dp3
     reg_tmp13.x = dot_3(uniforms.f[3].xyz, reg_tmp11.xyz);
-    // 194: dp3
     reg_tmp13.y = dot_3(uniforms.f[4].xyz, reg_tmp11.xyz);
-    // 195: dp3
     reg_tmp13.z = dot_3(uniforms.f[5].xyz, reg_tmp11.xyz);
-    // 196: call
     {
         sub_227_303();
     }
-    // 197: nop
     return false;
 }
 bool sub_198_203() {
-    // 198: dp4
     reg_tmp15.x = dot_s(uniforms.f[90], reg_tmp10);
-    // 199: dp4
     reg_tmp15.y = dot_s(uniforms.f[91], reg_tmp10);
-    // 200: dp4
     reg_tmp15.z = dot_s(uniforms.f[92], reg_tmp10);
-    // 201: mov
     reg_tmp15.w = (uniforms.f[93].yyyy).w;
-    // 202: mov
     vs_out_attr1 = uniforms.f[93].xxxx;
     return false;
 }
@@ -3088,45 +2449,28 @@ bool sub_210_227() {
     while (true) {
         switch (jmp_to) {
         case 210u: {
-            // 210: dp3
             reg_tmp6.x = dot_3(reg_tmp14.xyz, reg_tmp14.xyz);
-            // 211: dp3
             reg_tmp7.x = dot_3(reg_tmp12.xyz, reg_tmp12.xyz);
-            // 212: rsq
             reg_tmp6.x = rsq_s(reg_tmp6.x);
-            // 213: rsq
             reg_tmp7.x = rsq_s(reg_tmp7.x);
-            // 214: mul
             reg_tmp14.xyz = (mul_s(reg_tmp14.xyzz, reg_tmp6.xxxx)).xyz;
-            // 215: mul
             reg_tmp12.xyz = (mul_s(reg_tmp12.xyzz, reg_tmp7.xxxx)).xyz;
-            // 216: mov
             reg_tmp0 = uniforms.f[93].yxxx;
-            // 217: jmpu
             if (!uniforms.b[15]) {
                 { jmp_to = 226u; break; }
             }
-            // 218: add
             reg_tmp4 = uniforms.f[93].yyyy + reg_tmp14.zzzz;
-            // 219: mul
             reg_tmp4 = mul_s(uniforms.f[94].zzzz, reg_tmp4);
-            // 220: cmp
             conditional_code = greaterThanEqual(uniforms.f[93].xx, reg_tmp4.xx);
-            // 221: rsq
             reg_tmp4 = vec4(rsq_s(reg_tmp4.x));
-            // 222: mul
             reg_tmp5 = mul_s(uniforms.f[94].zzzz, reg_tmp14);
-            // 223: jmpc
             if (conditional_code.x) {
                 { jmp_to = 226u; break; }
             }
-            // 224: rcp
             reg_tmp0.z = rcp_s(reg_tmp4.x);
-            // 225: mul
             reg_tmp0.xy = (mul_s(reg_tmp5, reg_tmp4)).xy;
         }
         case 226u: {
-            // 226: mov
             vs_out_attr1 = reg_tmp0;
         }
         default: return false;
@@ -3139,105 +2483,62 @@ bool sub_227_303() {
     while (true) {
         switch (jmp_to) {
         case 227u: {
-            // 227: dp3
             reg_tmp6.x = dot_3(reg_tmp14.xyz, reg_tmp14.xyz);
-            // 228: dp3
             reg_tmp7.x = dot_3(reg_tmp12.xyz, reg_tmp12.xyz);
-            // 229: rsq
             reg_tmp6.x = rsq_s(reg_tmp6.x);
-            // 230: rsq
             reg_tmp7.x = rsq_s(reg_tmp7.x);
-            // 231: mul
             reg_tmp14.xyz = (mul_s(reg_tmp14.xyzz, reg_tmp6.xxxx)).xyz;
-            // 232: mul
             reg_tmp12.xyz = (mul_s(reg_tmp12.xyzz, reg_tmp7.xxxx)).xyz;
-            // 233: mul
             reg_tmp13.xyz = (mul_s(reg_tmp13.xyzz, reg_tmp6.xxxx)).xyz;
-            // 234: mul
             reg_tmp11.xyz = (mul_s(reg_tmp11.xyzz, reg_tmp7.xxxx)).xyz;
-            // 235: mov
             reg_tmp0 = uniforms.f[93].yxxx;
-            // 236: jmpu
             if (!uniforms.b[15]) {
                 { jmp_to = 302u; break; }
             }
-            // 237: mul
             reg_tmp13.xyz = (mul_s(reg_tmp13.xyzz, reg_tmp6.xxxx)).xyz;
-            // 238: mul
             reg_tmp11.xyz = (mul_s(reg_tmp11.xyzz, reg_tmp7.xxxx)).xyz;
-            // 239: mul
             reg_tmp5 = mul_s(reg_tmp14.yzxx, reg_tmp13.zxyy);
-            // 240: mad
             reg_tmp5 = fma_s(-reg_tmp13.yzxx, reg_tmp14.zxyy, reg_tmp5);
-            // 241: dp3
             reg_tmp5.w = dot_3(reg_tmp5.xyz, reg_tmp5.xyz);
-            // 242: rsq
             reg_tmp5.w = rsq_s(reg_tmp5.w);
-            // 243: mul
             reg_tmp5 = mul_s(reg_tmp5, reg_tmp5.wwww);
-            // 244: add
             reg_tmp6.w = (reg_tmp14.zzzz + reg_tmp5.yyyy).w;
-            // 245: mul
             reg_tmp13 = mul_s(reg_tmp5.yzxx, reg_tmp14.zxyy);
-            // 246: mad
             reg_tmp13 = fma_s(-reg_tmp14.yzxx, reg_tmp5.zxyy, reg_tmp13);
-            // 247: add
             reg_tmp6.w = (reg_tmp13.xxxx + reg_tmp6).w;
-            // 248: mov
             reg_tmp13.w = (reg_tmp5.zzzz).w;
-            // 249: mov
             reg_tmp5.z = (reg_tmp13.xxxx).z;
-            // 250: add
             reg_tmp6.w = (uniforms.f[93].yyyy + reg_tmp6).w;
-            // 251: mov
             reg_tmp14.w = (reg_tmp5.xxxx).w;
-            // 252: mov
             reg_tmp5.x = (reg_tmp14.zzzz).x;
-            // 253: cmp
             conditional_code = lessThan(uniforms.f[94].yy, reg_tmp6.ww);
-            // 254: mov
             reg_tmp6.x = (uniforms.f[93].yyyy).x;
-            // 255: mov
             reg_tmp6.y = (-uniforms.f[93].yyyy).y;
-            // 256: jmpc
             if (!conditional_code.x) {
                 { jmp_to = 264u; break; }
             }
-            // 257: add
             reg_tmp7.xz = (reg_tmp13.wwyy + -reg_tmp14.yyww).xz;
-            // 258: add
             reg_tmp7.y = (reg_tmp14.xxxx + -reg_tmp13.zzzz).y;
-            // 259: mov
             reg_tmp7.w = (reg_tmp6).w;
-            // 260: dp4
             reg_tmp6 = vec4(dot_s(reg_tmp7, reg_tmp7));
-            // 261: rsq
             reg_tmp6 = vec4(rsq_s(reg_tmp6.x));
-            // 262: mul
             reg_tmp0 = mul_s(reg_tmp7, reg_tmp6);
-            // 263: jmpu
             if (uniforms.b[0]) {
                 { jmp_to = 302u; break; }
             }
         }
         case 264u: {
-            // 264: cmp
             conditional_code = greaterThan(reg_tmp5.zy, reg_tmp5.yx);
-            // 265: ifc
             if (conditional_code.x) {
                 sub_266_286();
             } else {
                 sub_286_299();
             }
-            // 299: dp4
             reg_tmp6 = vec4(dot_s(reg_tmp8, reg_tmp8));
-            // 300: rsq
             reg_tmp6 = vec4(rsq_s(reg_tmp6.x));
-            // 301: mul
             reg_tmp0 = mul_s(reg_tmp8, reg_tmp6);
         }
         case 302u: {
-            // 302: mov
             vs_out_attr1 = reg_tmp0;
         }
         default: return false;
@@ -3246,391 +2547,275 @@ bool sub_227_303() {
     return false;
 }
 bool sub_266_286() {
-    // 266: ifc
     if (conditional_code.y) {
         sub_267_272();
     } else {
         sub_272_285();
     }
-    // 285: mov
     reg_tmp8.w = (-reg_tmp8).w;
     return false;
 }
 bool sub_267_272() {
-    // 267: mul
     reg_tmp8 = mul_s(reg_tmp13.yyzw, reg_tmp6.xxxy);
-    // 268: add
     reg_tmp8.x = (uniforms.f[93].yyyy + -reg_tmp5.yyyy).x;
-    // 269: add
     reg_tmp9 = reg_tmp5.zzzz + -reg_tmp5.xxxx;
-    // 270: add
     reg_tmp8.yzw = (reg_tmp8 + reg_tmp14.wwxy).yzw;
-    // 271: add
     reg_tmp8.x = (reg_tmp9 + reg_tmp8).x;
     return false;
 }
 bool sub_272_285() {
-    // 272: cmp
     conditional_code = greaterThan(reg_tmp5.zz, reg_tmp5.xx);
-    // 273: mul
     reg_tmp8 = mul_s(reg_tmp13.yyzw, reg_tmp6.xxxy);
-    // 274: add
     reg_tmp8.x = (uniforms.f[93].yyyy + -reg_tmp5.yyyy).x;
-    // 275: ifc
     if (conditional_code.x) {
         sub_276_279();
     } else {
         sub_279_284();
     }
-    // 284: nop
     return false;
 }
 bool sub_276_279() {
-    // 276: add
     reg_tmp9 = reg_tmp5.zzzz + -reg_tmp5.xxxx;
-    // 277: add
     reg_tmp8.yzw = (reg_tmp8 + reg_tmp14.wwxy).yzw;
-    // 278: add
     reg_tmp8.x = (reg_tmp9 + reg_tmp8).x;
     return false;
 }
 bool sub_279_284() {
-    // 279: mul
     reg_tmp8 = mul_s(reg_tmp13.zwwy, reg_tmp6.xxxy);
-    // 280: add
     reg_tmp8.z = (uniforms.f[93].yyyy + -reg_tmp5.zzzz).z;
-    // 281: add
     reg_tmp9 = reg_tmp5.xxxx + -reg_tmp5.yyyy;
-    // 282: add
     reg_tmp8.xyw = (reg_tmp8 + reg_tmp14.xyyw).xyw;
-    // 283: add
     reg_tmp8.z = (reg_tmp9 + reg_tmp8).z;
     return false;
 }
 bool sub_286_299() {
-    // 286: ifc
     if (conditional_code.y) {
         sub_287_292();
     } else {
         sub_292_298();
     }
-    // 298: nop
     return false;
 }
 bool sub_287_292() {
-    // 287: mul
     reg_tmp8 = mul_s(reg_tmp13.yywz, reg_tmp6.xxxy);
-    // 288: add
     reg_tmp8.y = (uniforms.f[93].yyyy + -reg_tmp5.zzzz).y;
-    // 289: add
     reg_tmp9 = reg_tmp5.yyyy + -reg_tmp5.xxxx;
-    // 290: add
     reg_tmp8.xzw = (reg_tmp8 + reg_tmp14.wwyx).xzw;
-    // 291: add
     reg_tmp8.y = (reg_tmp9 + reg_tmp8).y;
     return false;
 }
 bool sub_292_298() {
-    // 292: mul
     reg_tmp8 = mul_s(reg_tmp13.zwwy, reg_tmp6.xxxy);
-    // 293: add
     reg_tmp8.z = (uniforms.f[93].yyyy + -reg_tmp5.zzzz).z;
-    // 294: add
     reg_tmp9 = reg_tmp5.xxxx + -reg_tmp5.yyyy;
-    // 295: add
     reg_tmp8.xyw = (reg_tmp8 + reg_tmp14.xyyw).xyw;
-    // 296: add
     reg_tmp8.z = (reg_tmp9 + reg_tmp8).z;
-    // 297: mov
     reg_tmp8.w = (-reg_tmp8).w;
     return false;
 }
 bool sub_303_330() {
-    // 303: mov
     reg_tmp0.xy = (uniforms.f[10].xxxx).xy;
-    // 304: ifu
     if (uniforms.b[9]) {
         sub_305_310();
     } else {
         sub_310_329();
     }
-    // 329: nop
     return false;
 }
 bool sub_305_310() {
-    // 305: call
     {
         sub_330_338();
     }
-    // 306: dp4
     reg_tmp3.x = dot_s(uniforms.f[11].xywz, reg_tmp6);
-    // 307: dp4
     reg_tmp3.y = dot_s(uniforms.f[12].xywz, reg_tmp6);
-    // 308: mov
     reg_tmp3.zw = (uniforms.f[93].xxxx).zw;
-    // 309: mov
     vs_out_attr4 = reg_tmp3;
     return false;
 }
 bool sub_310_329() {
-    // 310: cmp
     conditional_code = equal(uniforms.f[95].xy, reg_tmp0.xy);
-    // 311: mov
     reg_tmp6.zw = (uniforms.f[93].xxyy).zw;
-    // 312: ifc
     if (all(not(conditional_code))) {
         sub_313_319();
     } else {
         sub_319_328();
     }
-    // 328: mov
     vs_out_attr4 = reg_tmp3;
     return false;
 }
 bool sub_313_319() {
-    // 313: mov
     reg_tmp6 = reg_tmp10;
-    // 314: dp4
     reg_tmp3.x = dot_s(uniforms.f[11], reg_tmp6);
-    // 315: dp4
     reg_tmp3.y = dot_s(uniforms.f[12], reg_tmp6);
-    // 316: dp4
     reg_tmp3.z = dot_s(uniforms.f[13], reg_tmp6);
-    // 317: mul
     reg_tmp0.xy = (mul_s(uniforms.f[19].xyyy, reg_tmp3.zzzz)).xy;
-    // 318: add
     reg_tmp3.xy = (reg_tmp3.xyyy + reg_tmp0.xyyy).xy;
     return false;
 }
 bool sub_319_328() {
-    // 319: ifc
     if (all(bvec2(conditional_code.x, !conditional_code.y))) {
         sub_320_324();
     } else {
         sub_324_327();
     }
-    // 327: nop
     return false;
 }
 bool sub_320_324() {
-    // 320: call
     {
         sub_338_345();
     }
-    // 321: dp3
     reg_tmp3.x = dot_3(uniforms.f[11].xyz, reg_tmp6.xyz);
-    // 322: dp3
     reg_tmp3.y = dot_3(uniforms.f[12].xyz, reg_tmp6.xyz);
-    // 323: dp3
     reg_tmp3.z = dot_3(uniforms.f[13].xyz, reg_tmp6.xyz);
     return false;
 }
 bool sub_324_327() {
-    // 324: call
     {
         sub_345_349();
     }
-    // 325: dp4
     reg_tmp3.x = dot_s(uniforms.f[11], reg_tmp6);
-    // 326: dp4
     reg_tmp3.y = dot_s(uniforms.f[12], reg_tmp6);
     return false;
 }
 bool sub_330_338() {
-    // 330: cmp
     conditional_code = equal(uniforms.f[93].yz, reg_tmp0.xy);
-    // 331: ifc
     if (all(not(conditional_code))) {
         sub_332_333();
     } else {
         sub_333_337();
     }
-    // 337: mov
     reg_tmp6.zw = (uniforms.f[93].xxyy).zw;
     return false;
 }
 bool sub_332_333() {
-    // 332: mul
     reg_tmp6.xy = (mul_s(uniforms.f[8].xxxx, vs_in_reg4.xyyy)).xy;
     return false;
 }
 bool sub_333_337() {
-    // 333: ifc
     if (all(bvec2(conditional_code.x, !conditional_code.y))) {
         sub_334_335();
     } else {
         sub_335_336();
     }
-    // 336: nop
     return false;
 }
 bool sub_334_335() {
-    // 334: mul
     reg_tmp6.xy = (mul_s(uniforms.f[8].yyyy, vs_in_reg5.xyyy)).xy;
     return false;
 }
 bool sub_335_336() {
-    // 335: mul
     reg_tmp6.xy = (mul_s(uniforms.f[8].zzzz, vs_in_reg6.xyyy)).xy;
     return false;
 }
 bool sub_338_345() {
-    // 338: mov
     reg_tmp2 = -reg_tmp15;
-    // 339: dp3
     reg_tmp2.w = dot_3(reg_tmp2.xyz, reg_tmp2.xyz);
-    // 340: rsq
     reg_tmp2.w = rsq_s(reg_tmp2.w);
-    // 341: mul
     reg_tmp2 = mul_s(reg_tmp2, reg_tmp2.wwww);
-    // 342: dp3
     reg_tmp1 = vec4(dot_3(reg_tmp2.xyz, reg_tmp14.xyz));
-    // 343: add
     reg_tmp1 = reg_tmp1 + reg_tmp1;
-    // 344: mad
     reg_tmp6 = fma_s(reg_tmp1, reg_tmp14, -reg_tmp2);
     return false;
 }
 bool sub_345_349() {
-    // 345: mov
     reg_tmp1.xy = (uniforms.f[94].zzzz).xy;
-    // 346: mov
     reg_tmp1.zw = (uniforms.f[93].xxxx).zw;
-    // 347: mad
     reg_tmp6 = fma_s(reg_tmp14, reg_tmp1, reg_tmp1);
-    // 348: mov
     reg_tmp6.zw = (uniforms.f[93].xxyy).zw;
     return false;
 }
 bool sub_349_373() {
-    // 349: mov
     reg_tmp0.xy = (uniforms.f[10].yyyy).xy;
-    // 350: ifu
     if (uniforms.b[10]) {
         sub_351_355();
     } else {
         sub_355_372();
     }
-    // 372: nop
     return false;
 }
 bool sub_351_355() {
-    // 351: call
     {
         sub_330_338();
     }
-    // 352: dp4
     reg_tmp4.x = dot_s(uniforms.f[14].xywz, reg_tmp6);
-    // 353: dp4
     reg_tmp4.y = dot_s(uniforms.f[15].xywz, reg_tmp6);
-    // 354: mov
     vs_out_attr5 = reg_tmp4;
     return false;
 }
 bool sub_355_372() {
-    // 355: ifu
     if (uniforms.b[13]) {
         sub_356_370();
     } else {
         sub_370_371();
     }
-    // 371: nop
     return false;
 }
 bool sub_356_370() {
-    // 356: cmp
     conditional_code = equal(uniforms.f[95].xy, reg_tmp0.xy);
-    // 357: mov
     reg_tmp6.zw = (uniforms.f[93].xxyy).zw;
-    // 358: ifc
     if (all(not(conditional_code))) {
         sub_359_366();
     } else {
         sub_366_369();
     }
-    // 369: mov
     vs_out_attr5 = reg_tmp4;
     return false;
 }
 bool sub_359_366() {
-    // 359: mov
     reg_tmp6 = reg_tmp10;
-    // 360: dp4
     reg_tmp4.x = dot_s(uniforms.f[14], reg_tmp6);
-    // 361: dp4
     reg_tmp4.y = dot_s(uniforms.f[15], reg_tmp6);
-    // 362: dp4
     reg_tmp4.z = dot_s(uniforms.f[16], reg_tmp6);
-    // 363: rcp
     reg_tmp6.w = rcp_s(reg_tmp4.z);
-    // 364: mul
     reg_tmp4.xy = (mul_s(reg_tmp4.xyyy, reg_tmp6.wwww)).xy;
-    // 365: add
     reg_tmp4.xy = (uniforms.f[19].zwww + reg_tmp4.xyyy).xy;
     return false;
 }
 bool sub_366_369() {
-    // 366: call
     {
         sub_345_349();
     }
-    // 367: dp4
     reg_tmp4.x = dot_s(uniforms.f[14], reg_tmp6);
-    // 368: dp4
     reg_tmp4.y = dot_s(uniforms.f[15], reg_tmp6);
     return false;
 }
 bool sub_370_371() {
-    // 370: mov
     vs_out_attr5 = uniforms.f[93].xxxx;
     return false;
 }
 bool sub_389_4096() {
-    // 389: call
     {
         sub_42_210();
     }
-    // 390: mov
     reg_tmp0.y = (uniforms.f[7].wwww).y;
-    // 391: cmp
     conditional_code = notEqual(uniforms.f[93].xx, reg_tmp0.xy);
-    // 392: mov
     reg_tmp9 = uniforms.f[21];
-    // 393: ifc
     if (conditional_code.y) {
         sub_394_398();
     }
-    // 398: max
     vs_out_attr3 = max(uniforms.f[93].xxxx, reg_tmp9);
-    // 399: call
     {
         sub_303_330();
     }
-    // 400: call
     {
         sub_349_373();
     }
-    // 401: end
     return true;
 }
 bool sub_394_398() {
-    // 394: mul
     reg_tmp0 = mul_s(uniforms.f[7].wwww, vs_in_reg3);
-    // 395: ifu
     if (uniforms.b[7]) {
         sub_396_397();
     }
-    // 397: mov
     reg_tmp9.xyz = (reg_tmp0.xyzz).xyz;
     return false;
 }
 bool sub_396_397() {
-    // 396: mul
     reg_tmp9.w = (mul_s(reg_tmp9.wwww, reg_tmp0.wwww)).w;
     return false;
 }
-// reference: 5A19025A4CED7100, 9A0887C21E007189
-// shader: 8DD9, 3B3AE026C742C7D5
+// reference: C7CE3AE34CED7100, C2A49A7A2A81571D
+// shader: 8DD9, D0BDF6740B5CE976
 
 layout(triangles) in;
 layout(triangle_strip, max_vertices = 3) out;
@@ -3698,13 +2883,12 @@ layout (std140) uniform shader_light_data {
     int shadow_texture_bias;
 };
 
- in vec4 vs_out_attr0[];
- in vec4 vs_out_attr1[];
- in vec4 vs_out_attr2[];
- in vec4 vs_out_attr3[];
- in vec4 vs_out_attr4[];
- in vec4 vs_out_attr5[];
-
+in vec4 vs_out_attr0[];
+in vec4 vs_out_attr1[];
+in vec4 vs_out_attr2[];
+in vec4 vs_out_attr3[];
+in vec4 vs_out_attr4[];
+in vec4 vs_out_attr5[];
 struct Vertex {
     vec4 attributes[6];
 };
@@ -3732,7 +2916,6 @@ void EmitVtx(Vertex vtx, bool quats_opposite) {
 
     texcoord0_w = vtx.attributes[4].z;
     view = vec3(vtx.attributes[2].x, vtx.attributes[2].y, vtx.attributes[2].z);
-
     texcoord2 = vec2(0.0, 0.0);
 
     EmitVertex();
@@ -3756,8 +2939,8 @@ void main() {
     prim_buffer[2].attributes = vec4[6](vs_out_attr0[2], vs_out_attr1[2], vs_out_attr2[2], vs_out_attr3[2], vs_out_attr4[2], vs_out_attr5[2]);
     EmitPrim(prim_buffer[0], prim_buffer[1], prim_buffer[2]);
 }
-// reference: 46A0C2E6B155D5CD, 3B3AE026C742C7D5
-// shader: 8B30, 55065E7DE42331E1
+// reference: 46A0C2E6B155D5CD, D0BDF6740B5CE976
+// shader: 8B30, 2D428F9DA2B5DAB2
 
 precision highp int;
 precision highp float;
@@ -3908,24 +3091,28 @@ vec4 texcolor1 = textureLod(tex1, texcoord1, getLod(texcoord1 * vec2(textureSize
 vec4 combiner_buffer = vec4(0.0);
 vec4 next_combiner_buffer = tev_combiner_buffer_color;
 vec4 last_tex_env_out = vec4(0.0);
-vec3 color_output_0 = byteround(clamp((combiner_buffer.rgb), vec3(0.0), vec3(1.0)));
-float alpha_output_0 = byteround(clamp((texcolor0.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_0, alpha_output_0), vec4(0.0), vec4(1.0));
+vec3 color_output_0 = (combiner_buffer.rgb);
+float alpha_output_0 = (texcolor0.a);
+last_tex_env_out = vec4(color_output_0, alpha_output_0);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 
 vec3 color_output_1 = byteround(clamp((combiner_buffer.rgb) * (texcolor0.rgb) + (const_color[1].rgb) * (vec3(1.0) - (texcolor0.rgb)), vec3(0.0), vec3(1.0)));
-float alpha_output_1 = byteround(clamp((last_tex_env_out.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_1, alpha_output_1), vec4(0.0), vec4(1.0));
+float alpha_output_1 = (last_tex_env_out.a);
+last_tex_env_out = vec4(color_output_1, alpha_output_1);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 
 vec3 color_output_2 = byteround(clamp((const_color[2].rgb) * (texcolor1.rgb) + (last_tex_env_out.rgb) * (vec3(1.0) - (texcolor1.rgb)), vec3(0.0), vec3(1.0)));
 float alpha_output_2 = byteround(clamp((last_tex_env_out.a) + (texcolor1.r), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_2, alpha_output_2), vec4(0.0), vec4(1.0));
+last_tex_env_out = vec4(color_output_2, alpha_output_2);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 
 vec3 color_output_3 = byteround(clamp((const_color[3].rgb) * (rounded_primary_color.rgb) + (last_tex_env_out.rgb), vec3(0.0), vec3(1.0)));
-float alpha_output_3 = byteround(clamp((last_tex_env_out.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_3, alpha_output_3), vec4(0.0), vec4(1.0));
+float alpha_output_3 = (last_tex_env_out.a);
+last_tex_env_out = vec4(color_output_3, alpha_output_3);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 
 combiner_buffer = next_combiner_buffer;
@@ -3935,9 +3122,9 @@ combiner_buffer = next_combiner_buffer;
 gl_FragDepth = depth;
 color = byteround(last_tex_env_out);
 }
-// reference: 77A22CCCDC5FC2A9, 55065E7DE42331E1
-// program: 9A0887C21E007189, 3B3AE026C742C7D5, 55065E7DE42331E1
-// shader: 8B31, D00DCCA29A979BE7
+// reference: 77A22CCCDC5FC2A9, 2D428F9DA2B5DAB2
+// program: C2A49A7A2A81571D, D0BDF6740B5CE976, 2D428F9DA2B5DAB2
+// shader: 8B31, B3C9C1F640F27576
 
 struct pica_uniforms {
     bool b[16];
@@ -3962,13 +3149,13 @@ layout(location = 6) in vec4 vs_in_reg6;
 layout(location = 7) in vec4 vs_in_reg7;
 layout(location = 8) in vec4 vs_in_reg8;
 
- out vec4 vs_out_attr0;
- out vec4 vs_out_attr1;
- out vec4 vs_out_attr2;
- out vec4 vs_out_attr3;
- out vec4 vs_out_attr4;
- out vec4 vs_out_attr5;
- out vec4 vs_out_attr6;
+out vec4 vs_out_attr0;
+out vec4 vs_out_attr1;
+out vec4 vs_out_attr2;
+out vec4 vs_out_attr3;
+out vec4 vs_out_attr4;
+out vec4 vs_out_attr5;
+out vec4 vs_out_attr6;
 
 void main() {
     vs_out_attr0 = vec4(0.0, 0.0, 0.0, 1.0);
@@ -3978,10 +3165,8 @@ void main() {
     vs_out_attr4 = vec4(0.0, 0.0, 0.0, 1.0);
     vs_out_attr5 = vec4(0.0, 0.0, 0.0, 1.0);
     vs_out_attr6 = vec4(0.0, 0.0, 0.0, 1.0);
-
     exec_shader();
 }
-
 
 #define mul_s(x, y) mix(x * y, vec4(0.0), isnan(x * y))
 #define fma_s(x, y, z) (mix(x * y, vec4(0.0), isnan(x * y)) + z)
@@ -4080,549 +3265,340 @@ bool exec_shader() {
 }
 
 bool sub_0_4096() {
-    // 0: call
     {
         sub_42_210();
     }
-    // 1: mov
     reg_tmp0.y = (uniforms.f[7].wwww).y;
-    // 2: cmp
     conditional_code = notEqual(uniforms.f[93].xx, reg_tmp0.xy);
-    // 3: mov
     reg_tmp9 = uniforms.f[21];
-    // 4: ifc
     if (conditional_code.y) {
         sub_5_9();
     }
-    // 9: max
     vs_out_attr3 = max(uniforms.f[93].xxxx, reg_tmp9);
-    // 10: call
     {
         sub_303_330();
     }
-    // 11: call
     {
         sub_349_373();
     }
-    // 12: call
     {
         sub_373_389();
     }
-    // 13: end
     return true;
 }
 bool sub_5_9() {
-    // 5: mul
     reg_tmp0 = mul_s(uniforms.f[7].wwww, vs_in_reg3);
-    // 6: ifu
     if (uniforms.b[7]) {
         sub_7_8();
     }
-    // 8: mov
     reg_tmp9.xyz = (reg_tmp0.xyzz).xyz;
     return false;
 }
 bool sub_7_8() {
-    // 7: mul
     reg_tmp9.w = (mul_s(reg_tmp9.wwww, reg_tmp0.wwww)).w;
     return false;
 }
 bool sub_15_20() {
-    // 15: mova
     address_registers.x = (ivec2(reg_tmp1.xx)).x;
-    // 16: dp4
     reg_tmp3.x = dot_s(uniforms.f[25 + address_registers.x], reg_tmp15);
-    // 17: dp4
     reg_tmp3.y = dot_s(uniforms.f[26 + address_registers.x], reg_tmp15);
-    // 18: dp4
     reg_tmp3.z = dot_s(uniforms.f[27 + address_registers.x], reg_tmp15);
-    // 19: mad
     reg_tmp7 = fma_s(reg_tmp1.wwww, reg_tmp3, reg_tmp7);
     return false;
 }
 bool sub_20_29() {
-    // 20: mova
     address_registers.x = (ivec2(reg_tmp1.xx)).x;
-    // 21: dp4
     reg_tmp3.x = dot_s(uniforms.f[25 + address_registers.x], reg_tmp15);
-    // 22: dp4
     reg_tmp3.y = dot_s(uniforms.f[26 + address_registers.x], reg_tmp15);
-    // 23: dp4
     reg_tmp3.z = dot_s(uniforms.f[27 + address_registers.x], reg_tmp15);
-    // 24: dp3
     reg_tmp4.x = dot_3(uniforms.f[25 + address_registers.x].xyz, reg_tmp14.xyz);
-    // 25: dp3
     reg_tmp4.y = dot_3(uniforms.f[26 + address_registers.x].xyz, reg_tmp14.xyz);
-    // 26: dp3
     reg_tmp4.z = dot_3(uniforms.f[27 + address_registers.x].xyz, reg_tmp14.xyz);
-    // 27: mad
     reg_tmp7 = fma_s(reg_tmp1.wwww, reg_tmp3, reg_tmp7);
-    // 28: mad
     reg_tmp12 = fma_s(reg_tmp1.wwww, reg_tmp4, reg_tmp12);
     return false;
 }
 bool sub_29_42() {
-    // 29: mova
     address_registers.x = (ivec2(reg_tmp1.xx)).x;
-    // 30: dp4
     reg_tmp3.x = dot_s(uniforms.f[25 + address_registers.x], reg_tmp15);
-    // 31: dp4
     reg_tmp3.y = dot_s(uniforms.f[26 + address_registers.x], reg_tmp15);
-    // 32: dp4
     reg_tmp3.z = dot_s(uniforms.f[27 + address_registers.x], reg_tmp15);
-    // 33: dp3
     reg_tmp4.x = dot_3(uniforms.f[25 + address_registers.x].xyz, reg_tmp14.xyz);
-    // 34: dp3
     reg_tmp4.y = dot_3(uniforms.f[26 + address_registers.x].xyz, reg_tmp14.xyz);
-    // 35: dp3
     reg_tmp4.z = dot_3(uniforms.f[27 + address_registers.x].xyz, reg_tmp14.xyz);
-    // 36: dp3
     reg_tmp5.x = dot_3(uniforms.f[25 + address_registers.x].xyz, reg_tmp13.xyz);
-    // 37: dp3
     reg_tmp5.y = dot_3(uniforms.f[26 + address_registers.x].xyz, reg_tmp13.xyz);
-    // 38: dp3
     reg_tmp5.z = dot_3(uniforms.f[27 + address_registers.x].xyz, reg_tmp13.xyz);
-    // 39: mad
     reg_tmp7 = fma_s(reg_tmp1.wwww, reg_tmp3, reg_tmp7);
-    // 40: mad
     reg_tmp12 = fma_s(reg_tmp1.wwww, reg_tmp4, reg_tmp12);
-    // 41: mad
     reg_tmp11 = fma_s(reg_tmp1.wwww, reg_tmp5, reg_tmp11);
     return false;
 }
 bool sub_42_210() {
-    // 42: mul
     reg_tmp15.xyz = (mul_s(uniforms.f[7].xxxx, vs_in_reg0)).xyz;
-    // 43: mul
     reg_tmp14.xyz = (mul_s(uniforms.f[7].yyyy, vs_in_reg1)).xyz;
-    // 44: mul
     reg_tmp13.xyz = (mul_s(uniforms.f[7].zzzz, vs_in_reg2)).xyz;
-    // 45: add
     reg_tmp15.xyz = (uniforms.f[6] + reg_tmp15).xyz;
-    // 46: mov
     reg_tmp15.w = (uniforms.f[93].yyyy).w;
-    // 47: ifu
     if (uniforms.b[1]) {
         sub_48_148();
     } else {
         sub_148_209();
     }
-    // 209: nop
     return false;
 }
 bool sub_48_148() {
-    // 48: mov
     reg_tmp0 = uniforms.f[7];
-    // 49: cmp
     conditional_code = notEqual(uniforms.f[93].xx, reg_tmp0.yz);
-    // 50: mov
     reg_tmp7 = uniforms.f[93].xxxx;
-    // 51: mov
     reg_tmp12 = uniforms.f[93].xxxx;
-    // 52: mov
     reg_tmp11 = uniforms.f[93].xxxx;
-    // 53: mul
     reg_tmp2 = mul_s(uniforms.f[93].wwww, vs_in_reg7);
-    // 54: ifc
     if (all(bvec2(conditional_code.x, !conditional_code.y))) {
         sub_55_84();
     } else {
         sub_84_143();
     }
-    // 143: mov
     vs_out_attr2 = -reg_tmp15;
-    // 144: dp4
     vs_out_attr0.x = dot_s(uniforms.f[86], reg_tmp15);
-    // 145: dp4
     vs_out_attr0.y = dot_s(uniforms.f[87], reg_tmp15);
-    // 146: dp4
     vs_out_attr0.z = dot_s(uniforms.f[88], reg_tmp15);
-    // 147: dp4
     vs_out_attr0.w = dot_s(uniforms.f[89], reg_tmp15);
     return false;
 }
 bool sub_55_84() {
-    // 55: cmp
     conditional_code = notEqual(uniforms.f[93].xx, vs_in_reg8.zw);
-    // 56: mov
     reg_tmp1.xy = (reg_tmp2.xxxx).xy;
-    // 57: mul
     reg_tmp1.w = (mul_s(uniforms.f[8].wwww, vs_in_reg8.xxxx)).w;
-    // 58: call
     {
         sub_20_29();
     }
-    // 59: mov
     reg_tmp1.xy = (reg_tmp2.yyyy).xy;
-    // 60: mul
     reg_tmp1.w = (mul_s(uniforms.f[8].wwww, vs_in_reg8.yyyy)).w;
-    // 61: call
     {
         sub_20_29();
     }
-    // 62: mov
     reg_tmp1.xy = (reg_tmp2.zzzz).xy;
-    // 63: mul
     reg_tmp1.w = (mul_s(uniforms.f[8].wwww, vs_in_reg8.zzzz)).w;
-    // 64: callc
     if (conditional_code.x) {
         sub_20_29();
     }
-    // 65: ifu
     if (uniforms.b[8]) {
         sub_66_70();
     }
-    // 70: mov
     reg_tmp7.w = (uniforms.f[93].yyyy).w;
-    // 71: dp4
     reg_tmp10.x = dot_s(uniforms.f[0], reg_tmp7);
-    // 72: dp4
     reg_tmp10.y = dot_s(uniforms.f[1], reg_tmp7);
-    // 73: dp4
     reg_tmp10.z = dot_s(uniforms.f[2], reg_tmp7);
-    // 74: mov
     reg_tmp10.w = (uniforms.f[93].yyyy).w;
-    // 75: dp4
     reg_tmp15.x = dot_s(uniforms.f[90], reg_tmp10);
-    // 76: dp4
     reg_tmp15.y = dot_s(uniforms.f[91], reg_tmp10);
-    // 77: dp4
     reg_tmp15.z = dot_s(uniforms.f[92], reg_tmp10);
-    // 78: mov
     reg_tmp15.w = (uniforms.f[93].yyyy).w;
-    // 79: dp3
     reg_tmp14.x = dot_3(uniforms.f[3].xyz, reg_tmp12.xyz);
-    // 80: dp3
     reg_tmp14.y = dot_3(uniforms.f[4].xyz, reg_tmp12.xyz);
-    // 81: dp3
     reg_tmp14.z = dot_3(uniforms.f[5].xyz, reg_tmp12.xyz);
-    // 82: call
     {
         sub_210_227();
     }
-    // 83: nop
     return false;
 }
 bool sub_66_70() {
-    // 66: mov
     reg_tmp1.xy = (reg_tmp2.wwww).xy;
-    // 67: mul
     reg_tmp1.w = (mul_s(uniforms.f[8].wwww, vs_in_reg8.wwww)).w;
-    // 68: callc
     if (conditional_code.y) {
         sub_20_29();
     }
-    // 69: nop
     return false;
 }
 bool sub_84_143() {
-    // 84: ifc
     if (all(conditional_code)) {
         sub_85_117();
     } else {
         sub_117_142();
     }
-    // 142: nop
     return false;
 }
 bool sub_85_117() {
-    // 85: cmp
     conditional_code = notEqual(uniforms.f[93].xx, vs_in_reg8.zw);
-    // 86: mov
     reg_tmp1.xy = (reg_tmp2.xxxx).xy;
-    // 87: mul
     reg_tmp1.w = (mul_s(uniforms.f[8].wwww, vs_in_reg8.xxxx)).w;
-    // 88: call
     {
         sub_29_42();
     }
-    // 89: mov
     reg_tmp1.xy = (reg_tmp2.yyyy).xy;
-    // 90: mul
     reg_tmp1.w = (mul_s(uniforms.f[8].wwww, vs_in_reg8.yyyy)).w;
-    // 91: call
     {
         sub_29_42();
     }
-    // 92: mov
     reg_tmp1.xy = (reg_tmp2.zzzz).xy;
-    // 93: mul
     reg_tmp1.w = (mul_s(uniforms.f[8].wwww, vs_in_reg8.zzzz)).w;
-    // 94: callc
     if (conditional_code.x) {
         sub_29_42();
     }
-    // 95: ifu
     if (uniforms.b[8]) {
         sub_96_100();
     }
-    // 100: mov
     reg_tmp7.w = (uniforms.f[93].yyyy).w;
-    // 101: dp4
     reg_tmp10.x = dot_s(uniforms.f[0], reg_tmp7);
-    // 102: dp4
     reg_tmp10.y = dot_s(uniforms.f[1], reg_tmp7);
-    // 103: dp4
     reg_tmp10.z = dot_s(uniforms.f[2], reg_tmp7);
-    // 104: mov
     reg_tmp10.w = (uniforms.f[93].yyyy).w;
-    // 105: dp3
     reg_tmp13.x = dot_3(uniforms.f[3].xyz, reg_tmp11.xyz);
-    // 106: dp3
     reg_tmp13.y = dot_3(uniforms.f[4].xyz, reg_tmp11.xyz);
-    // 107: dp3
     reg_tmp13.z = dot_3(uniforms.f[5].xyz, reg_tmp11.xyz);
-    // 108: dp3
     reg_tmp14.x = dot_3(uniforms.f[3].xyz, reg_tmp12.xyz);
-    // 109: dp3
     reg_tmp14.y = dot_3(uniforms.f[4].xyz, reg_tmp12.xyz);
-    // 110: dp3
     reg_tmp14.z = dot_3(uniforms.f[5].xyz, reg_tmp12.xyz);
-    // 111: dp4
     reg_tmp15.x = dot_s(uniforms.f[90], reg_tmp10);
-    // 112: dp4
     reg_tmp15.y = dot_s(uniforms.f[91], reg_tmp10);
-    // 113: dp4
     reg_tmp15.z = dot_s(uniforms.f[92], reg_tmp10);
-    // 114: mov
     reg_tmp15.w = (uniforms.f[93].yyyy).w;
-    // 115: call
     {
         sub_227_303();
     }
-    // 116: nop
     return false;
 }
 bool sub_96_100() {
-    // 96: mov
     reg_tmp1.xy = (reg_tmp2.wwww).xy;
-    // 97: mul
     reg_tmp1.w = (mul_s(uniforms.f[8].wwww, vs_in_reg8.wwww)).w;
-    // 98: callc
     if (conditional_code.y) {
         sub_29_42();
     }
-    // 99: nop
     return false;
 }
 bool sub_117_142() {
-    // 117: cmp
     conditional_code = notEqual(uniforms.f[93].xx, vs_in_reg8.zw);
-    // 118: mov
     reg_tmp1.xy = (reg_tmp2.xxxx).xy;
-    // 119: mul
     reg_tmp1.w = (mul_s(uniforms.f[8].wwww, vs_in_reg8.xxxx)).w;
-    // 120: call
     {
         sub_15_20();
     }
-    // 121: mov
     reg_tmp1.xy = (reg_tmp2.yyyy).xy;
-    // 122: mul
     reg_tmp1.w = (mul_s(uniforms.f[8].wwww, vs_in_reg8.yyyy)).w;
-    // 123: call
     {
         sub_15_20();
     }
-    // 124: mov
     reg_tmp1.xy = (reg_tmp2.zzzz).xy;
-    // 125: mul
     reg_tmp1.w = (mul_s(uniforms.f[8].wwww, vs_in_reg8.zzzz)).w;
-    // 126: callc
     if (conditional_code.x) {
         sub_15_20();
     }
-    // 127: ifu
     if (uniforms.b[8]) {
         sub_128_132();
     }
-    // 132: mov
     reg_tmp7.w = (uniforms.f[93].yyyy).w;
-    // 133: dp4
     reg_tmp10.x = dot_s(uniforms.f[0], reg_tmp7);
-    // 134: dp4
     reg_tmp10.y = dot_s(uniforms.f[1], reg_tmp7);
-    // 135: dp4
     reg_tmp10.z = dot_s(uniforms.f[2], reg_tmp7);
-    // 136: mov
     reg_tmp10.w = (uniforms.f[93].yyyy).w;
-    // 137: dp4
     reg_tmp15.x = dot_s(uniforms.f[90], reg_tmp10);
-    // 138: dp4
     reg_tmp15.y = dot_s(uniforms.f[91], reg_tmp10);
-    // 139: dp4
     reg_tmp15.z = dot_s(uniforms.f[92], reg_tmp10);
-    // 140: mov
     reg_tmp15.w = (uniforms.f[93].yyyy).w;
-    // 141: mov
     vs_out_attr1 = uniforms.f[93].xxxx;
     return false;
 }
 bool sub_128_132() {
-    // 128: mov
     reg_tmp1.xy = (reg_tmp2.wwww).xy;
-    // 129: mul
     reg_tmp1.w = (mul_s(uniforms.f[8].wwww, vs_in_reg8.wwww)).w;
-    // 130: callc
     if (conditional_code.y) {
         sub_15_20();
     }
-    // 131: nop
     return false;
 }
 bool sub_148_209() {
-    // 148: mov
     reg_tmp0 = uniforms.f[7];
-    // 149: cmp
     conditional_code = notEqual(uniforms.f[93].xx, reg_tmp0.yz);
-    // 150: ifu
     if (uniforms.b[2]) {
         sub_151_161();
     } else {
         sub_161_166();
     }
-    // 166: ifc
     if (all(bvec2(conditional_code.x, !conditional_code.y))) {
         sub_167_179();
     } else {
         sub_179_204();
     }
-    // 204: mov
     vs_out_attr2 = -reg_tmp15;
-    // 205: dp4
     vs_out_attr0.x = dot_s(uniforms.f[86], reg_tmp15);
-    // 206: dp4
     vs_out_attr0.y = dot_s(uniforms.f[87], reg_tmp15);
-    // 207: dp4
     vs_out_attr0.z = dot_s(uniforms.f[88], reg_tmp15);
-    // 208: dp4
     vs_out_attr0.w = dot_s(uniforms.f[89], reg_tmp15);
     return false;
 }
 bool sub_151_161() {
-    // 151: mul
     reg_tmp1.x = (mul_s(uniforms.f[93].wwww, vs_in_reg7.xxxx)).x;
-    // 152: mova
     address_registers.x = (ivec2(reg_tmp1.xx)).x;
-    // 153: dp4
     reg_tmp7.x = dot_s(uniforms.f[25 + address_registers.x], reg_tmp15);
-    // 154: dp4
     reg_tmp7.y = dot_s(uniforms.f[26 + address_registers.x], reg_tmp15);
-    // 155: dp4
     reg_tmp7.z = dot_s(uniforms.f[27 + address_registers.x], reg_tmp15);
-    // 156: mov
     reg_tmp7.w = (uniforms.f[93].yyyy).w;
-    // 157: dp4
     reg_tmp10.x = dot_s(uniforms.f[0], reg_tmp7);
-    // 158: dp4
     reg_tmp10.y = dot_s(uniforms.f[1], reg_tmp7);
-    // 159: dp4
     reg_tmp10.z = dot_s(uniforms.f[2], reg_tmp7);
-    // 160: mov
     reg_tmp10.w = (uniforms.f[93].yyyy).w;
     return false;
 }
 bool sub_161_166() {
-    // 161: mova
     address_registers.x = (ivec2(uniforms.f[93].xx)).x;
-    // 162: dp4
     reg_tmp10.x = dot_s(uniforms.f[25], reg_tmp15);
-    // 163: dp4
     reg_tmp10.y = dot_s(uniforms.f[26], reg_tmp15);
-    // 164: dp4
     reg_tmp10.z = dot_s(uniforms.f[27], reg_tmp15);
-    // 165: mov
     reg_tmp10.w = (uniforms.f[93].yyyy).w;
     return false;
 }
 bool sub_167_179() {
-    // 167: dp3
     reg_tmp12.x = dot_3(uniforms.f[25 + address_registers.x].xyz, reg_tmp14.xyz);
-    // 168: dp3
     reg_tmp12.y = dot_3(uniforms.f[26 + address_registers.x].xyz, reg_tmp14.xyz);
-    // 169: dp3
     reg_tmp12.z = dot_3(uniforms.f[27 + address_registers.x].xyz, reg_tmp14.xyz);
-    // 170: dp4
     reg_tmp15.x = dot_s(uniforms.f[90], reg_tmp10);
-    // 171: dp4
     reg_tmp15.y = dot_s(uniforms.f[91], reg_tmp10);
-    // 172: dp4
     reg_tmp15.z = dot_s(uniforms.f[92], reg_tmp10);
-    // 173: mov
     reg_tmp15.w = (uniforms.f[93].yyyy).w;
-    // 174: dp3
     reg_tmp14.x = dot_3(uniforms.f[3].xyz, reg_tmp12.xyz);
-    // 175: dp3
     reg_tmp14.y = dot_3(uniforms.f[4].xyz, reg_tmp12.xyz);
-    // 176: dp3
     reg_tmp14.z = dot_3(uniforms.f[5].xyz, reg_tmp12.xyz);
-    // 177: call
     {
         sub_210_227();
     }
-    // 178: nop
     return false;
 }
 bool sub_179_204() {
-    // 179: ifc
     if (all(conditional_code)) {
         sub_180_198();
     } else {
         sub_198_203();
     }
-    // 203: nop
     return false;
 }
 bool sub_180_198() {
-    // 180: dp3
     reg_tmp12.x = dot_3(uniforms.f[25 + address_registers.x].xyz, reg_tmp14.xyz);
-    // 181: dp3
     reg_tmp12.y = dot_3(uniforms.f[26 + address_registers.x].xyz, reg_tmp14.xyz);
-    // 182: dp3
     reg_tmp12.z = dot_3(uniforms.f[27 + address_registers.x].xyz, reg_tmp14.xyz);
-    // 183: dp3
     reg_tmp11.x = dot_3(uniforms.f[25 + address_registers.x].xyz, reg_tmp13.xyz);
-    // 184: dp3
     reg_tmp11.y = dot_3(uniforms.f[26 + address_registers.x].xyz, reg_tmp13.xyz);
-    // 185: dp3
     reg_tmp11.z = dot_3(uniforms.f[27 + address_registers.x].xyz, reg_tmp13.xyz);
-    // 186: dp4
     reg_tmp15.x = dot_s(uniforms.f[90], reg_tmp10);
-    // 187: dp4
     reg_tmp15.y = dot_s(uniforms.f[91], reg_tmp10);
-    // 188: dp4
     reg_tmp15.z = dot_s(uniforms.f[92], reg_tmp10);
-    // 189: mov
     reg_tmp15.w = (uniforms.f[93].yyyy).w;
-    // 190: dp3
     reg_tmp14.x = dot_3(uniforms.f[3].xyz, reg_tmp12.xyz);
-    // 191: dp3
     reg_tmp14.y = dot_3(uniforms.f[4].xyz, reg_tmp12.xyz);
-    // 192: dp3
     reg_tmp14.z = dot_3(uniforms.f[5].xyz, reg_tmp12.xyz);
-    // 193: dp3
     reg_tmp13.x = dot_3(uniforms.f[3].xyz, reg_tmp11.xyz);
-    // 194: dp3
     reg_tmp13.y = dot_3(uniforms.f[4].xyz, reg_tmp11.xyz);
-    // 195: dp3
     reg_tmp13.z = dot_3(uniforms.f[5].xyz, reg_tmp11.xyz);
-    // 196: call
     {
         sub_227_303();
     }
-    // 197: nop
     return false;
 }
 bool sub_198_203() {
-    // 198: dp4
     reg_tmp15.x = dot_s(uniforms.f[90], reg_tmp10);
-    // 199: dp4
     reg_tmp15.y = dot_s(uniforms.f[91], reg_tmp10);
-    // 200: dp4
     reg_tmp15.z = dot_s(uniforms.f[92], reg_tmp10);
-    // 201: mov
     reg_tmp15.w = (uniforms.f[93].yyyy).w;
-    // 202: mov
     vs_out_attr1 = uniforms.f[93].xxxx;
     return false;
 }
@@ -4631,45 +3607,28 @@ bool sub_210_227() {
     while (true) {
         switch (jmp_to) {
         case 210u: {
-            // 210: dp3
             reg_tmp6.x = dot_3(reg_tmp14.xyz, reg_tmp14.xyz);
-            // 211: dp3
             reg_tmp7.x = dot_3(reg_tmp12.xyz, reg_tmp12.xyz);
-            // 212: rsq
             reg_tmp6.x = rsq_s(reg_tmp6.x);
-            // 213: rsq
             reg_tmp7.x = rsq_s(reg_tmp7.x);
-            // 214: mul
             reg_tmp14.xyz = (mul_s(reg_tmp14.xyzz, reg_tmp6.xxxx)).xyz;
-            // 215: mul
             reg_tmp12.xyz = (mul_s(reg_tmp12.xyzz, reg_tmp7.xxxx)).xyz;
-            // 216: mov
             reg_tmp0 = uniforms.f[93].yxxx;
-            // 217: jmpu
             if (!uniforms.b[15]) {
                 { jmp_to = 226u; break; }
             }
-            // 218: add
             reg_tmp4 = uniforms.f[93].yyyy + reg_tmp14.zzzz;
-            // 219: mul
             reg_tmp4 = mul_s(uniforms.f[94].zzzz, reg_tmp4);
-            // 220: cmp
             conditional_code = greaterThanEqual(uniforms.f[93].xx, reg_tmp4.xx);
-            // 221: rsq
             reg_tmp4 = vec4(rsq_s(reg_tmp4.x));
-            // 222: mul
             reg_tmp5 = mul_s(uniforms.f[94].zzzz, reg_tmp14);
-            // 223: jmpc
             if (conditional_code.x) {
                 { jmp_to = 226u; break; }
             }
-            // 224: rcp
             reg_tmp0.z = rcp_s(reg_tmp4.x);
-            // 225: mul
             reg_tmp0.xy = (mul_s(reg_tmp5, reg_tmp4)).xy;
         }
         case 226u: {
-            // 226: mov
             vs_out_attr1 = reg_tmp0;
         }
         default: return false;
@@ -4682,105 +3641,62 @@ bool sub_227_303() {
     while (true) {
         switch (jmp_to) {
         case 227u: {
-            // 227: dp3
             reg_tmp6.x = dot_3(reg_tmp14.xyz, reg_tmp14.xyz);
-            // 228: dp3
             reg_tmp7.x = dot_3(reg_tmp12.xyz, reg_tmp12.xyz);
-            // 229: rsq
             reg_tmp6.x = rsq_s(reg_tmp6.x);
-            // 230: rsq
             reg_tmp7.x = rsq_s(reg_tmp7.x);
-            // 231: mul
             reg_tmp14.xyz = (mul_s(reg_tmp14.xyzz, reg_tmp6.xxxx)).xyz;
-            // 232: mul
             reg_tmp12.xyz = (mul_s(reg_tmp12.xyzz, reg_tmp7.xxxx)).xyz;
-            // 233: mul
             reg_tmp13.xyz = (mul_s(reg_tmp13.xyzz, reg_tmp6.xxxx)).xyz;
-            // 234: mul
             reg_tmp11.xyz = (mul_s(reg_tmp11.xyzz, reg_tmp7.xxxx)).xyz;
-            // 235: mov
             reg_tmp0 = uniforms.f[93].yxxx;
-            // 236: jmpu
             if (!uniforms.b[15]) {
                 { jmp_to = 302u; break; }
             }
-            // 237: mul
             reg_tmp13.xyz = (mul_s(reg_tmp13.xyzz, reg_tmp6.xxxx)).xyz;
-            // 238: mul
             reg_tmp11.xyz = (mul_s(reg_tmp11.xyzz, reg_tmp7.xxxx)).xyz;
-            // 239: mul
             reg_tmp5 = mul_s(reg_tmp14.yzxx, reg_tmp13.zxyy);
-            // 240: mad
             reg_tmp5 = fma_s(-reg_tmp13.yzxx, reg_tmp14.zxyy, reg_tmp5);
-            // 241: dp3
             reg_tmp5.w = dot_3(reg_tmp5.xyz, reg_tmp5.xyz);
-            // 242: rsq
             reg_tmp5.w = rsq_s(reg_tmp5.w);
-            // 243: mul
             reg_tmp5 = mul_s(reg_tmp5, reg_tmp5.wwww);
-            // 244: add
             reg_tmp6.w = (reg_tmp14.zzzz + reg_tmp5.yyyy).w;
-            // 245: mul
             reg_tmp13 = mul_s(reg_tmp5.yzxx, reg_tmp14.zxyy);
-            // 246: mad
             reg_tmp13 = fma_s(-reg_tmp14.yzxx, reg_tmp5.zxyy, reg_tmp13);
-            // 247: add
             reg_tmp6.w = (reg_tmp13.xxxx + reg_tmp6).w;
-            // 248: mov
             reg_tmp13.w = (reg_tmp5.zzzz).w;
-            // 249: mov
             reg_tmp5.z = (reg_tmp13.xxxx).z;
-            // 250: add
             reg_tmp6.w = (uniforms.f[93].yyyy + reg_tmp6).w;
-            // 251: mov
             reg_tmp14.w = (reg_tmp5.xxxx).w;
-            // 252: mov
             reg_tmp5.x = (reg_tmp14.zzzz).x;
-            // 253: cmp
             conditional_code = lessThan(uniforms.f[94].yy, reg_tmp6.ww);
-            // 254: mov
             reg_tmp6.x = (uniforms.f[93].yyyy).x;
-            // 255: mov
             reg_tmp6.y = (-uniforms.f[93].yyyy).y;
-            // 256: jmpc
             if (!conditional_code.x) {
                 { jmp_to = 264u; break; }
             }
-            // 257: add
             reg_tmp7.xz = (reg_tmp13.wwyy + -reg_tmp14.yyww).xz;
-            // 258: add
             reg_tmp7.y = (reg_tmp14.xxxx + -reg_tmp13.zzzz).y;
-            // 259: mov
             reg_tmp7.w = (reg_tmp6).w;
-            // 260: dp4
             reg_tmp6 = vec4(dot_s(reg_tmp7, reg_tmp7));
-            // 261: rsq
             reg_tmp6 = vec4(rsq_s(reg_tmp6.x));
-            // 262: mul
             reg_tmp0 = mul_s(reg_tmp7, reg_tmp6);
-            // 263: jmpu
             if (uniforms.b[0]) {
                 { jmp_to = 302u; break; }
             }
         }
         case 264u: {
-            // 264: cmp
             conditional_code = greaterThan(reg_tmp5.zy, reg_tmp5.yx);
-            // 265: ifc
             if (conditional_code.x) {
                 sub_266_286();
             } else {
                 sub_286_299();
             }
-            // 299: dp4
             reg_tmp6 = vec4(dot_s(reg_tmp8, reg_tmp8));
-            // 300: rsq
             reg_tmp6 = vec4(rsq_s(reg_tmp6.x));
-            // 301: mul
             reg_tmp0 = mul_s(reg_tmp8, reg_tmp6);
         }
         case 302u: {
-            // 302: mov
             vs_out_attr1 = reg_tmp0;
         }
         default: return false;
@@ -4789,404 +3705,285 @@ bool sub_227_303() {
     return false;
 }
 bool sub_266_286() {
-    // 266: ifc
     if (conditional_code.y) {
         sub_267_272();
     } else {
         sub_272_285();
     }
-    // 285: mov
     reg_tmp8.w = (-reg_tmp8).w;
     return false;
 }
 bool sub_267_272() {
-    // 267: mul
     reg_tmp8 = mul_s(reg_tmp13.yyzw, reg_tmp6.xxxy);
-    // 268: add
     reg_tmp8.x = (uniforms.f[93].yyyy + -reg_tmp5.yyyy).x;
-    // 269: add
     reg_tmp9 = reg_tmp5.zzzz + -reg_tmp5.xxxx;
-    // 270: add
     reg_tmp8.yzw = (reg_tmp8 + reg_tmp14.wwxy).yzw;
-    // 271: add
     reg_tmp8.x = (reg_tmp9 + reg_tmp8).x;
     return false;
 }
 bool sub_272_285() {
-    // 272: cmp
     conditional_code = greaterThan(reg_tmp5.zz, reg_tmp5.xx);
-    // 273: mul
     reg_tmp8 = mul_s(reg_tmp13.yyzw, reg_tmp6.xxxy);
-    // 274: add
     reg_tmp8.x = (uniforms.f[93].yyyy + -reg_tmp5.yyyy).x;
-    // 275: ifc
     if (conditional_code.x) {
         sub_276_279();
     } else {
         sub_279_284();
     }
-    // 284: nop
     return false;
 }
 bool sub_276_279() {
-    // 276: add
     reg_tmp9 = reg_tmp5.zzzz + -reg_tmp5.xxxx;
-    // 277: add
     reg_tmp8.yzw = (reg_tmp8 + reg_tmp14.wwxy).yzw;
-    // 278: add
     reg_tmp8.x = (reg_tmp9 + reg_tmp8).x;
     return false;
 }
 bool sub_279_284() {
-    // 279: mul
     reg_tmp8 = mul_s(reg_tmp13.zwwy, reg_tmp6.xxxy);
-    // 280: add
     reg_tmp8.z = (uniforms.f[93].yyyy + -reg_tmp5.zzzz).z;
-    // 281: add
     reg_tmp9 = reg_tmp5.xxxx + -reg_tmp5.yyyy;
-    // 282: add
     reg_tmp8.xyw = (reg_tmp8 + reg_tmp14.xyyw).xyw;
-    // 283: add
     reg_tmp8.z = (reg_tmp9 + reg_tmp8).z;
     return false;
 }
 bool sub_286_299() {
-    // 286: ifc
     if (conditional_code.y) {
         sub_287_292();
     } else {
         sub_292_298();
     }
-    // 298: nop
     return false;
 }
 bool sub_287_292() {
-    // 287: mul
     reg_tmp8 = mul_s(reg_tmp13.yywz, reg_tmp6.xxxy);
-    // 288: add
     reg_tmp8.y = (uniforms.f[93].yyyy + -reg_tmp5.zzzz).y;
-    // 289: add
     reg_tmp9 = reg_tmp5.yyyy + -reg_tmp5.xxxx;
-    // 290: add
     reg_tmp8.xzw = (reg_tmp8 + reg_tmp14.wwyx).xzw;
-    // 291: add
     reg_tmp8.y = (reg_tmp9 + reg_tmp8).y;
     return false;
 }
 bool sub_292_298() {
-    // 292: mul
     reg_tmp8 = mul_s(reg_tmp13.zwwy, reg_tmp6.xxxy);
-    // 293: add
     reg_tmp8.z = (uniforms.f[93].yyyy + -reg_tmp5.zzzz).z;
-    // 294: add
     reg_tmp9 = reg_tmp5.xxxx + -reg_tmp5.yyyy;
-    // 295: add
     reg_tmp8.xyw = (reg_tmp8 + reg_tmp14.xyyw).xyw;
-    // 296: add
     reg_tmp8.z = (reg_tmp9 + reg_tmp8).z;
-    // 297: mov
     reg_tmp8.w = (-reg_tmp8).w;
     return false;
 }
 bool sub_303_330() {
-    // 303: mov
     reg_tmp0.xy = (uniforms.f[10].xxxx).xy;
-    // 304: ifu
     if (uniforms.b[9]) {
         sub_305_310();
     } else {
         sub_310_329();
     }
-    // 329: nop
     return false;
 }
 bool sub_305_310() {
-    // 305: call
     {
         sub_330_338();
     }
-    // 306: dp4
     reg_tmp3.x = dot_s(uniforms.f[11].xywz, reg_tmp6);
-    // 307: dp4
     reg_tmp3.y = dot_s(uniforms.f[12].xywz, reg_tmp6);
-    // 308: mov
     reg_tmp3.zw = (uniforms.f[93].xxxx).zw;
-    // 309: mov
     vs_out_attr4 = reg_tmp3;
     return false;
 }
 bool sub_310_329() {
-    // 310: cmp
     conditional_code = equal(uniforms.f[95].xy, reg_tmp0.xy);
-    // 311: mov
     reg_tmp6.zw = (uniforms.f[93].xxyy).zw;
-    // 312: ifc
     if (all(not(conditional_code))) {
         sub_313_319();
     } else {
         sub_319_328();
     }
-    // 328: mov
     vs_out_attr4 = reg_tmp3;
     return false;
 }
 bool sub_313_319() {
-    // 313: mov
     reg_tmp6 = reg_tmp10;
-    // 314: dp4
     reg_tmp3.x = dot_s(uniforms.f[11], reg_tmp6);
-    // 315: dp4
     reg_tmp3.y = dot_s(uniforms.f[12], reg_tmp6);
-    // 316: dp4
     reg_tmp3.z = dot_s(uniforms.f[13], reg_tmp6);
-    // 317: mul
     reg_tmp0.xy = (mul_s(uniforms.f[19].xyyy, reg_tmp3.zzzz)).xy;
-    // 318: add
     reg_tmp3.xy = (reg_tmp3.xyyy + reg_tmp0.xyyy).xy;
     return false;
 }
 bool sub_319_328() {
-    // 319: ifc
     if (all(bvec2(conditional_code.x, !conditional_code.y))) {
         sub_320_324();
     } else {
         sub_324_327();
     }
-    // 327: nop
     return false;
 }
 bool sub_320_324() {
-    // 320: call
     {
         sub_338_345();
     }
-    // 321: dp3
     reg_tmp3.x = dot_3(uniforms.f[11].xyz, reg_tmp6.xyz);
-    // 322: dp3
     reg_tmp3.y = dot_3(uniforms.f[12].xyz, reg_tmp6.xyz);
-    // 323: dp3
     reg_tmp3.z = dot_3(uniforms.f[13].xyz, reg_tmp6.xyz);
     return false;
 }
 bool sub_324_327() {
-    // 324: call
     {
         sub_345_349();
     }
-    // 325: dp4
     reg_tmp3.x = dot_s(uniforms.f[11], reg_tmp6);
-    // 326: dp4
     reg_tmp3.y = dot_s(uniforms.f[12], reg_tmp6);
     return false;
 }
 bool sub_330_338() {
-    // 330: cmp
     conditional_code = equal(uniforms.f[93].yz, reg_tmp0.xy);
-    // 331: ifc
     if (all(not(conditional_code))) {
         sub_332_333();
     } else {
         sub_333_337();
     }
-    // 337: mov
     reg_tmp6.zw = (uniforms.f[93].xxyy).zw;
     return false;
 }
 bool sub_332_333() {
-    // 332: mul
     reg_tmp6.xy = (mul_s(uniforms.f[8].xxxx, vs_in_reg4.xyyy)).xy;
     return false;
 }
 bool sub_333_337() {
-    // 333: ifc
     if (all(bvec2(conditional_code.x, !conditional_code.y))) {
         sub_334_335();
     } else {
         sub_335_336();
     }
-    // 336: nop
     return false;
 }
 bool sub_334_335() {
-    // 334: mul
     reg_tmp6.xy = (mul_s(uniforms.f[8].yyyy, vs_in_reg5.xyyy)).xy;
     return false;
 }
 bool sub_335_336() {
-    // 335: mul
     reg_tmp6.xy = (mul_s(uniforms.f[8].zzzz, vs_in_reg6.xyyy)).xy;
     return false;
 }
 bool sub_338_345() {
-    // 338: mov
     reg_tmp2 = -reg_tmp15;
-    // 339: dp3
     reg_tmp2.w = dot_3(reg_tmp2.xyz, reg_tmp2.xyz);
-    // 340: rsq
     reg_tmp2.w = rsq_s(reg_tmp2.w);
-    // 341: mul
     reg_tmp2 = mul_s(reg_tmp2, reg_tmp2.wwww);
-    // 342: dp3
     reg_tmp1 = vec4(dot_3(reg_tmp2.xyz, reg_tmp14.xyz));
-    // 343: add
     reg_tmp1 = reg_tmp1 + reg_tmp1;
-    // 344: mad
     reg_tmp6 = fma_s(reg_tmp1, reg_tmp14, -reg_tmp2);
     return false;
 }
 bool sub_345_349() {
-    // 345: mov
     reg_tmp1.xy = (uniforms.f[94].zzzz).xy;
-    // 346: mov
     reg_tmp1.zw = (uniforms.f[93].xxxx).zw;
-    // 347: mad
     reg_tmp6 = fma_s(reg_tmp14, reg_tmp1, reg_tmp1);
-    // 348: mov
     reg_tmp6.zw = (uniforms.f[93].xxyy).zw;
     return false;
 }
 bool sub_349_373() {
-    // 349: mov
     reg_tmp0.xy = (uniforms.f[10].yyyy).xy;
-    // 350: ifu
     if (uniforms.b[10]) {
         sub_351_355();
     } else {
         sub_355_372();
     }
-    // 372: nop
     return false;
 }
 bool sub_351_355() {
-    // 351: call
     {
         sub_330_338();
     }
-    // 352: dp4
     reg_tmp4.x = dot_s(uniforms.f[14].xywz, reg_tmp6);
-    // 353: dp4
     reg_tmp4.y = dot_s(uniforms.f[15].xywz, reg_tmp6);
-    // 354: mov
     vs_out_attr5 = reg_tmp4;
     return false;
 }
 bool sub_355_372() {
-    // 355: ifu
     if (uniforms.b[13]) {
         sub_356_370();
     } else {
         sub_370_371();
     }
-    // 371: nop
     return false;
 }
 bool sub_356_370() {
-    // 356: cmp
     conditional_code = equal(uniforms.f[95].xy, reg_tmp0.xy);
-    // 357: mov
     reg_tmp6.zw = (uniforms.f[93].xxyy).zw;
-    // 358: ifc
     if (all(not(conditional_code))) {
         sub_359_366();
     } else {
         sub_366_369();
     }
-    // 369: mov
     vs_out_attr5 = reg_tmp4;
     return false;
 }
 bool sub_359_366() {
-    // 359: mov
     reg_tmp6 = reg_tmp10;
-    // 360: dp4
     reg_tmp4.x = dot_s(uniforms.f[14], reg_tmp6);
-    // 361: dp4
     reg_tmp4.y = dot_s(uniforms.f[15], reg_tmp6);
-    // 362: dp4
     reg_tmp4.z = dot_s(uniforms.f[16], reg_tmp6);
-    // 363: rcp
     reg_tmp6.w = rcp_s(reg_tmp4.z);
-    // 364: mul
     reg_tmp4.xy = (mul_s(reg_tmp4.xyyy, reg_tmp6.wwww)).xy;
-    // 365: add
     reg_tmp4.xy = (uniforms.f[19].zwww + reg_tmp4.xyyy).xy;
     return false;
 }
 bool sub_366_369() {
-    // 366: call
     {
         sub_345_349();
     }
-    // 367: dp4
     reg_tmp4.x = dot_s(uniforms.f[14], reg_tmp6);
-    // 368: dp4
     reg_tmp4.y = dot_s(uniforms.f[15], reg_tmp6);
     return false;
 }
 bool sub_370_371() {
-    // 370: mov
     vs_out_attr5 = uniforms.f[93].xxxx;
     return false;
 }
 bool sub_373_389() {
-    // 373: mov
     reg_tmp0.xy = (uniforms.f[10].zzzz).xy;
-    // 374: ifu
     if (uniforms.b[11]) {
         sub_375_379();
     } else {
         sub_379_388();
     }
-    // 388: nop
     return false;
 }
 bool sub_375_379() {
-    // 375: call
     {
         sub_330_338();
     }
-    // 376: dp4
     reg_tmp5.x = dot_s(uniforms.f[17].xywz, reg_tmp6);
-    // 377: dp4
     reg_tmp5.y = dot_s(uniforms.f[18].xywz, reg_tmp6);
-    // 378: mov
     vs_out_attr6 = reg_tmp5;
     return false;
 }
 bool sub_379_388() {
-    // 379: ifu
     if (uniforms.b[14]) {
         sub_380_386();
     } else {
         sub_386_387();
     }
-    // 387: nop
     return false;
 }
 bool sub_380_386() {
-    // 380: mov
     reg_tmp6.zw = (uniforms.f[93].xxyy).zw;
-    // 381: mov
     reg_tmp5.zw = (reg_tmp6.zwww).zw;
-    // 382: call
     {
         sub_345_349();
     }
-    // 383: dp4
     reg_tmp5.x = dot_s(uniforms.f[17], reg_tmp6);
-    // 384: dp4
     reg_tmp5.y = dot_s(uniforms.f[18], reg_tmp6);
-    // 385: mov
     vs_out_attr6 = reg_tmp5;
     return false;
 }
 bool sub_386_387() {
-    // 386: mov
     vs_out_attr6 = uniforms.f[93].xxxx;
     return false;
 }
-// reference: F55D901DD3B89B35, D00DCCA29A979BE7
-// shader: 8DD9, AD7922A63ED54CA7
+// reference: 688AA8A4D3B89B35, B3C9C1F640F27576
+// shader: 8DD9, B80FA1B7F97410CD
 
 layout(triangles) in;
 layout(triangle_strip, max_vertices = 3) out;
@@ -5254,14 +4051,13 @@ layout (std140) uniform shader_light_data {
     int shadow_texture_bias;
 };
 
- in vec4 vs_out_attr0[];
- in vec4 vs_out_attr1[];
- in vec4 vs_out_attr2[];
- in vec4 vs_out_attr3[];
- in vec4 vs_out_attr4[];
- in vec4 vs_out_attr5[];
- in vec4 vs_out_attr6[];
-
+in vec4 vs_out_attr0[];
+in vec4 vs_out_attr1[];
+in vec4 vs_out_attr2[];
+in vec4 vs_out_attr3[];
+in vec4 vs_out_attr4[];
+in vec4 vs_out_attr5[];
+in vec4 vs_out_attr6[];
 struct Vertex {
     vec4 attributes[7];
 };
@@ -5289,7 +4085,6 @@ void EmitVtx(Vertex vtx, bool quats_opposite) {
 
     texcoord0_w = vtx.attributes[4].z;
     view = vec3(vtx.attributes[2].x, vtx.attributes[2].y, vtx.attributes[2].z);
-
     texcoord2 = vec2(vtx.attributes[6].x, vtx.attributes[6].y);
 
     EmitVertex();
@@ -5313,8 +4108,8 @@ void main() {
     prim_buffer[2].attributes = vec4[7](vs_out_attr0[2], vs_out_attr1[2], vs_out_attr2[2], vs_out_attr3[2], vs_out_attr4[2], vs_out_attr5[2], vs_out_attr6[2]);
     EmitPrim(prim_buffer[0], prim_buffer[1], prim_buffer[2]);
 }
-// reference: FC74FA4ACA1C8C74, AD7922A63ED54CA7
-// shader: 8B30, 3A0A417CD7E78225
+// reference: FC74FA4ACA1C8C74, B80FA1B7F97410CD
+// shader: 8B30, 277283106A98D00A
 
 precision highp int;
 precision highp float;
@@ -5493,52 +4288,56 @@ specular_sum.rgb += (((lut_scale_d0 * LookupLightingLUTSigned(0, dot(normal, nor
 diffuse_sum.rgb += lighting_global_ambient;
 primary_fragment_color = clamp(diffuse_sum, vec4(0.0), vec4(1.0));
 secondary_fragment_color = clamp(specular_sum, vec4(0.0), vec4(1.0));
-
 vec4 combiner_buffer = vec4(0.0);
 vec4 next_combiner_buffer = tev_combiner_buffer_color;
 vec4 last_tex_env_out = vec4(0.0);
 vec3 color_output_0 = byteround(clamp((vec3(1.0) - secondary_fragment_color.aaa) * (const_color[0].rgb) + (primary_fragment_color.rgb), vec3(0.0), vec3(1.0)));
 float alpha_output_0 = byteround(clamp((rounded_primary_color.a) * (texcolor0.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_0, alpha_output_0), vec4(0.0), vec4(1.0));
+last_tex_env_out = vec4(color_output_0, alpha_output_0);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 next_combiner_buffer.rgb = last_tex_env_out.rgb;
 
 vec3 color_output_1 = byteround(clamp((texcolor0.rgb) * (const_color[1].rgb), vec3(0.0), vec3(1.0)));
-float alpha_output_1 = byteround(clamp((last_tex_env_out.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_1, alpha_output_1), vec4(0.0), vec4(1.0));
+float alpha_output_1 = (last_tex_env_out.a);
+last_tex_env_out = vec4(color_output_1, alpha_output_1);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 
 vec3 color_output_2 = byteround(clamp((last_tex_env_out.rgb) * (combiner_buffer.rgb), vec3(0.0), vec3(1.0)));
-float alpha_output_2 = byteround(clamp((last_tex_env_out.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_2, alpha_output_2), vec4(0.0), vec4(1.0));
+float alpha_output_2 = (last_tex_env_out.a);
+last_tex_env_out = vec4(color_output_2, alpha_output_2);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 
 vec3 color_output_3 = byteround(clamp((secondary_fragment_color.rgb) * (texcolor1.rgb) + (last_tex_env_out.rgb), vec3(0.0), vec3(1.0)));
-float alpha_output_3 = byteround(clamp((last_tex_env_out.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_3, alpha_output_3), vec4(0.0), vec4(1.0));
+float alpha_output_3 = (last_tex_env_out.a);
+last_tex_env_out = vec4(color_output_3, alpha_output_3);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 
 vec3 color_output_4 = byteround(clamp(min((rounded_primary_color.rgb) + (const_color[4].rgb), vec3(1.0)) * (last_tex_env_out.rgb), vec3(0.0), vec3(1.0)));
-float alpha_output_4 = byteround(clamp((last_tex_env_out.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_4 * 2.0, alpha_output_4 * 1.0), vec4(0.0), vec4(1.0));
+float alpha_output_4 = (last_tex_env_out.a);
+last_tex_env_out = vec4(color_output_4 * 2.0, alpha_output_4 * 1.0);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 
 combiner_buffer = next_combiner_buffer;
 
 float fog_index = depth * 128.0;
-float fog_i = clamp(floor(fog_index), 0.0, 127.0);
-float fog_f = fog_index - fog_i;
-vec2 fog_lut_entry = texelFetch(texture_buffer_lut_lf, int(fog_i) + fog_lut_offset).rg;
+int fog_i = int(fog_index);
+float fog_f = fract(fog_index);
+vec2 fog_lut_entry = texelFetch(texture_buffer_lut_lf, fog_i + fog_lut_offset).rg;
 float fog_factor = fog_lut_entry.r + fog_lut_entry.g * fog_f;
 fog_factor = clamp(fog_factor, 0.0, 1.0);
 last_tex_env_out.rgb = mix(fog_color.rgb, last_tex_env_out.rgb, fog_factor);
 gl_FragDepth = depth;
 color = byteround(last_tex_env_out);
 }
-// reference: 06C4F1A920B65095, 3A0A417CD7E78225
-// program: D00DCCA29A979BE7, AD7922A63ED54CA7, 3A0A417CD7E78225
-// reference: 70A5B2D2A18236EC, F3D442C0013F9392
-// shader: 8B30, FB64BBECC940CACA
+// reference: 06C4F1A920B65095, 277283106A98D00A
+// program: B3C9C1F640F27576, B80FA1B7F97410CD, 277283106A98D00A
+// reference: ED728A6BA18236EC, 22C3C36B08CEECE7
+// shader: 8B30, DE4A5D6FED8C23ED
 
 precision highp int;
 precision highp float;
@@ -5714,52 +4513,56 @@ specular_sum.rgb += (((lut_scale_d0 * LookupLightingLUTSigned(0, dot(normal, nor
 diffuse_sum.rgb += lighting_global_ambient;
 primary_fragment_color = clamp(diffuse_sum, vec4(0.0), vec4(1.0));
 secondary_fragment_color = clamp(specular_sum, vec4(0.0), vec4(1.0));
-
 vec4 combiner_buffer = vec4(0.0);
 vec4 next_combiner_buffer = tev_combiner_buffer_color;
 vec4 last_tex_env_out = vec4(0.0);
 vec3 color_output_0 = byteround(clamp((vec3(1.0) - secondary_fragment_color.aaa) * (const_color[0].rgb) + (primary_fragment_color.rgb), vec3(0.0), vec3(1.0)));
 float alpha_output_0 = byteround(clamp((rounded_primary_color.a) * (texcolor0.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_0, alpha_output_0), vec4(0.0), vec4(1.0));
+last_tex_env_out = vec4(color_output_0, alpha_output_0);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 next_combiner_buffer.rgb = last_tex_env_out.rgb;
 
 vec3 color_output_1 = byteround(clamp((texcolor0.rgb) * (const_color[1].rgb), vec3(0.0), vec3(1.0)));
-float alpha_output_1 = byteround(clamp((last_tex_env_out.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_1, alpha_output_1), vec4(0.0), vec4(1.0));
+float alpha_output_1 = (last_tex_env_out.a);
+last_tex_env_out = vec4(color_output_1, alpha_output_1);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 
 vec3 color_output_2 = byteround(clamp((last_tex_env_out.rgb) * (combiner_buffer.rgb), vec3(0.0), vec3(1.0)));
-float alpha_output_2 = byteround(clamp((last_tex_env_out.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_2, alpha_output_2), vec4(0.0), vec4(1.0));
+float alpha_output_2 = (last_tex_env_out.a);
+last_tex_env_out = vec4(color_output_2, alpha_output_2);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 
 vec3 color_output_3 = byteround(clamp((secondary_fragment_color.rgb) + (last_tex_env_out.rgb), vec3(0.0), vec3(1.0)));
-float alpha_output_3 = byteround(clamp((last_tex_env_out.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_3, alpha_output_3), vec4(0.0), vec4(1.0));
+float alpha_output_3 = (last_tex_env_out.a);
+last_tex_env_out = vec4(color_output_3, alpha_output_3);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 
 vec3 color_output_4 = byteround(clamp(min((rounded_primary_color.rgb) + (const_color[4].rgb), vec3(1.0)) * (last_tex_env_out.rgb), vec3(0.0), vec3(1.0)));
-float alpha_output_4 = byteround(clamp((last_tex_env_out.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_4 * 2.0, alpha_output_4 * 1.0), vec4(0.0), vec4(1.0));
+float alpha_output_4 = (last_tex_env_out.a);
+last_tex_env_out = vec4(color_output_4 * 2.0, alpha_output_4 * 1.0);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 
 combiner_buffer = next_combiner_buffer;
 
 float fog_index = depth * 128.0;
-float fog_i = clamp(floor(fog_index), 0.0, 127.0);
-float fog_f = fog_index - fog_i;
-vec2 fog_lut_entry = texelFetch(texture_buffer_lut_lf, int(fog_i) + fog_lut_offset).rg;
+int fog_i = int(fog_index);
+float fog_f = fract(fog_index);
+vec2 fog_lut_entry = texelFetch(texture_buffer_lut_lf, fog_i + fog_lut_offset).rg;
 float fog_factor = fog_lut_entry.r + fog_lut_entry.g * fog_f;
 fog_factor = clamp(fog_factor, 0.0, 1.0);
 last_tex_env_out.rgb = mix(fog_color.rgb, last_tex_env_out.rgb, fog_factor);
 gl_FragDepth = depth;
 color = byteround(last_tex_env_out);
 }
-// reference: 58D3AE3FA23B29E7, FB64BBECC940CACA
-// program: F3D442C0013F9392, 6CF3F3B70E23AA85, FB64BBECC940CACA
-// reference: 5A19025A9754D047, 9A0887C21E007189
-// shader: 8B30, 003F4B95D9484025
+// reference: 58D3AE3FA23B29E7, DE4A5D6FED8C23ED
+// program: 22C3C36B08CEECE7, 7A40B90B17532EA8, DE4A5D6FED8C23ED
+// reference: C7CE3AE39754D047, C2A49A7A2A81571D
+// shader: 8B30, 1EBC361951C4E151
 
 precision highp int;
 precision highp float;
@@ -5936,55 +4739,60 @@ specular_sum.rgb += (((lut_scale_d0 * LookupLightingLUTSigned(0, dot(normal, nor
 diffuse_sum.rgb += lighting_global_ambient;
 primary_fragment_color = clamp(diffuse_sum, vec4(0.0), vec4(1.0));
 secondary_fragment_color = clamp(specular_sum, vec4(0.0), vec4(1.0));
-
 vec4 combiner_buffer = vec4(0.0);
 vec4 next_combiner_buffer = tev_combiner_buffer_color;
 vec4 last_tex_env_out = vec4(0.0);
 vec3 color_output_0 = byteround(clamp((vec3(1.0) - secondary_fragment_color.aaa) * (const_color[0].rgb) + (primary_fragment_color.rgb), vec3(0.0), vec3(1.0)));
 float alpha_output_0 = byteround(clamp((rounded_primary_color.a) * (texcolor0.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_0, alpha_output_0), vec4(0.0), vec4(1.0));
+last_tex_env_out = vec4(color_output_0, alpha_output_0);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 next_combiner_buffer.rgb = last_tex_env_out.rgb;
 
 vec3 color_output_1 = byteround(clamp((texcolor0.rgb) * (const_color[1].rgb), vec3(0.0), vec3(1.0)));
-float alpha_output_1 = byteround(clamp((last_tex_env_out.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_1, alpha_output_1), vec4(0.0), vec4(1.0));
+float alpha_output_1 = (last_tex_env_out.a);
+last_tex_env_out = vec4(color_output_1, alpha_output_1);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 
 vec3 color_output_2 = byteround(clamp((last_tex_env_out.rgb) * (combiner_buffer.rgb), vec3(0.0), vec3(1.0)));
-float alpha_output_2 = byteround(clamp((last_tex_env_out.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_2, alpha_output_2), vec4(0.0), vec4(1.0));
+float alpha_output_2 = (last_tex_env_out.a);
+last_tex_env_out = vec4(color_output_2, alpha_output_2);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 
 vec3 color_output_3 = byteround(clamp((secondary_fragment_color.rgb) * (texcolor1.rgb) + (last_tex_env_out.rgb), vec3(0.0), vec3(1.0)));
-float alpha_output_3 = byteround(clamp((last_tex_env_out.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_3, alpha_output_3), vec4(0.0), vec4(1.0));
+float alpha_output_3 = (last_tex_env_out.a);
+last_tex_env_out = vec4(color_output_3, alpha_output_3);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 
 vec3 color_output_4 = byteround(clamp(min((rounded_primary_color.rgb) + (const_color[4].rgb), vec3(1.0)) * (last_tex_env_out.rgb), vec3(0.0), vec3(1.0)));
-float alpha_output_4 = byteround(clamp((last_tex_env_out.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_4, alpha_output_4), vec4(0.0), vec4(1.0));
+float alpha_output_4 = (last_tex_env_out.a);
+last_tex_env_out = vec4(color_output_4, alpha_output_4);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 
 vec3 color_output_5 = byteround(clamp((last_tex_env_out.rgb) * (last_tex_env_out.rgb) + (last_tex_env_out.rgb), vec3(0.0), vec3(1.0)));
-float alpha_output_5 = byteround(clamp((last_tex_env_out.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_5 * 2.0, alpha_output_5 * 1.0), vec4(0.0), vec4(1.0));
+float alpha_output_5 = (last_tex_env_out.a);
+last_tex_env_out = vec4(color_output_5 * 2.0, alpha_output_5 * 1.0);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 
 float fog_index = depth * 128.0;
-float fog_i = clamp(floor(fog_index), 0.0, 127.0);
-float fog_f = fog_index - fog_i;
-vec2 fog_lut_entry = texelFetch(texture_buffer_lut_lf, int(fog_i) + fog_lut_offset).rg;
+int fog_i = int(fog_index);
+float fog_f = fract(fog_index);
+vec2 fog_lut_entry = texelFetch(texture_buffer_lut_lf, fog_i + fog_lut_offset).rg;
 float fog_factor = fog_lut_entry.r + fog_lut_entry.g * fog_f;
 fog_factor = clamp(fog_factor, 0.0, 1.0);
 last_tex_env_out.rgb = mix(fog_color.rgb, last_tex_env_out.rgb, fog_factor);
 gl_FragDepth = depth;
 color = byteround(last_tex_env_out);
 }
-// reference: 50A46ADD48D6CC8F, 003F4B95D9484025
-// program: 9A0887C21E007189, 3B3AE026C742C7D5, 003F4B95D9484025
-// reference: F55D901D08013A72, D00DCCA29A979BE7
-// shader: 8B30, 9CAC861B6D140393
+// reference: 50A46ADD48D6CC8F, 1EBC361951C4E151
+// program: C2A49A7A2A81571D, D0BDF6740B5CE976, 1EBC361951C4E151
+// reference: 688AA8A408013A72, B3C9C1F640F27576
+// shader: 8B30, D1B09781655C6684
 
 precision highp int;
 precision highp float;
@@ -6162,52 +4970,56 @@ specular_sum.rgb += ((((lut_scale_d0 * LookupLightingLUTSigned(0, dot(normal, no
 diffuse_sum.rgb += lighting_global_ambient;
 primary_fragment_color = clamp(diffuse_sum, vec4(0.0), vec4(1.0));
 secondary_fragment_color = clamp(specular_sum, vec4(0.0), vec4(1.0));
-
 vec4 combiner_buffer = vec4(0.0);
 vec4 next_combiner_buffer = tev_combiner_buffer_color;
 vec4 last_tex_env_out = vec4(0.0);
 vec3 color_output_0 = byteround(clamp((vec3(1.0) - secondary_fragment_color.aaa) * (const_color[0].rgb) + (primary_fragment_color.rgb), vec3(0.0), vec3(1.0)));
 float alpha_output_0 = byteround(clamp((rounded_primary_color.a) * (texcolor0.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_0, alpha_output_0), vec4(0.0), vec4(1.0));
+last_tex_env_out = vec4(color_output_0, alpha_output_0);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 next_combiner_buffer.rgb = last_tex_env_out.rgb;
 
 vec3 color_output_1 = byteround(clamp((texcolor0.rgb) * (const_color[1].rgb), vec3(0.0), vec3(1.0)));
-float alpha_output_1 = byteround(clamp((last_tex_env_out.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_1, alpha_output_1), vec4(0.0), vec4(1.0));
+float alpha_output_1 = (last_tex_env_out.a);
+last_tex_env_out = vec4(color_output_1, alpha_output_1);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 
 vec3 color_output_2 = byteround(clamp((last_tex_env_out.rgb) * (combiner_buffer.rgb), vec3(0.0), vec3(1.0)));
-float alpha_output_2 = byteround(clamp((last_tex_env_out.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_2, alpha_output_2), vec4(0.0), vec4(1.0));
+float alpha_output_2 = (last_tex_env_out.a);
+last_tex_env_out = vec4(color_output_2, alpha_output_2);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 
 vec3 color_output_3 = byteround(clamp((secondary_fragment_color.rgb) + (last_tex_env_out.rgb), vec3(0.0), vec3(1.0)));
-float alpha_output_3 = byteround(clamp((last_tex_env_out.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_3, alpha_output_3), vec4(0.0), vec4(1.0));
+float alpha_output_3 = (last_tex_env_out.a);
+last_tex_env_out = vec4(color_output_3, alpha_output_3);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 
 vec3 color_output_4 = byteround(clamp(min((rounded_primary_color.rgb) + (const_color[4].rgb), vec3(1.0)) * (last_tex_env_out.rgb), vec3(0.0), vec3(1.0)));
-float alpha_output_4 = byteround(clamp((last_tex_env_out.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_4 * 2.0, alpha_output_4 * 1.0), vec4(0.0), vec4(1.0));
+float alpha_output_4 = (last_tex_env_out.a);
+last_tex_env_out = vec4(color_output_4 * 2.0, alpha_output_4 * 1.0);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 
 combiner_buffer = next_combiner_buffer;
 
 if (int(last_tex_env_out.a * 255.0) <= alphatest_ref) discard;
 float fog_index = depth * 128.0;
-float fog_i = clamp(floor(fog_index), 0.0, 127.0);
-float fog_f = fog_index - fog_i;
-vec2 fog_lut_entry = texelFetch(texture_buffer_lut_lf, int(fog_i) + fog_lut_offset).rg;
+int fog_i = int(fog_index);
+float fog_f = fract(fog_index);
+vec2 fog_lut_entry = texelFetch(texture_buffer_lut_lf, fog_i + fog_lut_offset).rg;
 float fog_factor = fog_lut_entry.r + fog_lut_entry.g * fog_f;
 fog_factor = clamp(fog_factor, 0.0, 1.0);
 last_tex_env_out.rgb = mix(fog_color.rgb, last_tex_env_out.rgb, fog_factor);
 gl_FragDepth = depth;
 color = byteround(last_tex_env_out);
 }
-// reference: 2CD554AA4E8CC2E4, 9CAC861B6D140393
-// program: F3D442C0013F9392, 6CF3F3B70E23AA85, 9CAC861B6D140393
-// shader: 8B30, ECAB3E0ECD10C310
+// reference: 2CD554AA4E8CC2E4, D1B09781655C6684
+// program: 22C3C36B08CEECE7, 7A40B90B17532EA8, D1B09781655C6684
+// shader: 8B30, FC5E5B0078316FEA
 
 precision highp int;
 precision highp float;
@@ -6384,54 +5196,59 @@ specular_sum.rgb += (((lut_scale_d0 * LookupLightingLUTSigned(0, dot(normal, nor
 diffuse_sum.rgb += lighting_global_ambient;
 primary_fragment_color = clamp(diffuse_sum, vec4(0.0), vec4(1.0));
 secondary_fragment_color = clamp(specular_sum, vec4(0.0), vec4(1.0));
-
 vec4 combiner_buffer = vec4(0.0);
 vec4 next_combiner_buffer = tev_combiner_buffer_color;
 vec4 last_tex_env_out = vec4(0.0);
 vec3 color_output_0 = byteround(clamp((vec3(1.0) - secondary_fragment_color.aaa) * (const_color[0].rgb) + (primary_fragment_color.rgb), vec3(0.0), vec3(1.0)));
 float alpha_output_0 = byteround(clamp((rounded_primary_color.a) * (texcolor0.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_0, alpha_output_0), vec4(0.0), vec4(1.0));
+last_tex_env_out = vec4(color_output_0, alpha_output_0);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 next_combiner_buffer.rgb = last_tex_env_out.rgb;
 
 vec3 color_output_1 = byteround(clamp((texcolor0.rgb) * (const_color[1].rgb), vec3(0.0), vec3(1.0)));
-float alpha_output_1 = byteround(clamp((last_tex_env_out.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_1, alpha_output_1), vec4(0.0), vec4(1.0));
+float alpha_output_1 = (last_tex_env_out.a);
+last_tex_env_out = vec4(color_output_1, alpha_output_1);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 
 vec3 color_output_2 = byteround(clamp((last_tex_env_out.rgb) * (combiner_buffer.rgb) + (const_color[2].rgb), vec3(0.0), vec3(1.0)));
-float alpha_output_2 = byteround(clamp((last_tex_env_out.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_2, alpha_output_2), vec4(0.0), vec4(1.0));
+float alpha_output_2 = (last_tex_env_out.a);
+last_tex_env_out = vec4(color_output_2, alpha_output_2);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 
 vec3 color_output_3 = byteround(clamp((secondary_fragment_color.rgb) * (texcolor1.rgb) + (last_tex_env_out.rgb), vec3(0.0), vec3(1.0)));
-float alpha_output_3 = byteround(clamp((last_tex_env_out.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_3, alpha_output_3), vec4(0.0), vec4(1.0));
+float alpha_output_3 = (last_tex_env_out.a);
+last_tex_env_out = vec4(color_output_3, alpha_output_3);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 
 vec3 color_output_4 = byteround(clamp(min((rounded_primary_color.rgb) + (const_color[4].rgb), vec3(1.0)) * (last_tex_env_out.rgb), vec3(0.0), vec3(1.0)));
-float alpha_output_4 = byteround(clamp((last_tex_env_out.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_4, alpha_output_4), vec4(0.0), vec4(1.0));
+float alpha_output_4 = (last_tex_env_out.a);
+last_tex_env_out = vec4(color_output_4, alpha_output_4);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 
 vec3 color_output_5 = byteround(clamp((last_tex_env_out.rgb) * (last_tex_env_out.rgb) + (last_tex_env_out.rgb), vec3(0.0), vec3(1.0)));
-float alpha_output_5 = byteround(clamp((last_tex_env_out.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_5, alpha_output_5), vec4(0.0), vec4(1.0));
+float alpha_output_5 = (last_tex_env_out.a);
+last_tex_env_out = vec4(color_output_5, alpha_output_5);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 
 float fog_index = depth * 128.0;
-float fog_i = clamp(floor(fog_index), 0.0, 127.0);
-float fog_f = fog_index - fog_i;
-vec2 fog_lut_entry = texelFetch(texture_buffer_lut_lf, int(fog_i) + fog_lut_offset).rg;
+int fog_i = int(fog_index);
+float fog_f = fract(fog_index);
+vec2 fog_lut_entry = texelFetch(texture_buffer_lut_lf, fog_i + fog_lut_offset).rg;
 float fog_factor = fog_lut_entry.r + fog_lut_entry.g * fog_f;
 fog_factor = clamp(fog_factor, 0.0, 1.0);
 last_tex_env_out.rgb = mix(fog_color.rgb, last_tex_env_out.rgb, fog_factor);
 gl_FragDepth = depth;
 color = byteround(last_tex_env_out);
 }
-// reference: 859A0CDE6E61C0B2, ECAB3E0ECD10C310
-// program: 9A0887C21E007189, 3B3AE026C742C7D5, ECAB3E0ECD10C310
-// shader: 8B30, D542C00D338528CC
+// reference: 859A0CDE6E61C0B2, FC5E5B0078316FEA
+// program: C2A49A7A2A81571D, D0BDF6740B5CE976, FC5E5B0078316FEA
+// shader: 8B30, 137D06DB95CBA851
 
 precision highp int;
 precision highp float;
@@ -6607,52 +5424,56 @@ specular_sum.rgb += (((lut_scale_d0 * LookupLightingLUTSigned(0, dot(normal, nor
 diffuse_sum.rgb += lighting_global_ambient;
 primary_fragment_color = clamp(diffuse_sum, vec4(0.0), vec4(1.0));
 secondary_fragment_color = clamp(specular_sum, vec4(0.0), vec4(1.0));
-
 vec4 combiner_buffer = vec4(0.0);
 vec4 next_combiner_buffer = tev_combiner_buffer_color;
 vec4 last_tex_env_out = vec4(0.0);
 vec3 color_output_0 = byteround(clamp((vec3(1.0) - secondary_fragment_color.aaa) * (const_color[0].rgb) + (primary_fragment_color.rgb), vec3(0.0), vec3(1.0)));
 float alpha_output_0 = byteround(clamp((rounded_primary_color.a) * (texcolor0.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_0, alpha_output_0), vec4(0.0), vec4(1.0));
+last_tex_env_out = vec4(color_output_0, alpha_output_0);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 next_combiner_buffer.rgb = last_tex_env_out.rgb;
 
 vec3 color_output_1 = byteround(clamp((texcolor0.rgb) * (const_color[1].rgb), vec3(0.0), vec3(1.0)));
-float alpha_output_1 = byteround(clamp((last_tex_env_out.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_1, alpha_output_1), vec4(0.0), vec4(1.0));
+float alpha_output_1 = (last_tex_env_out.a);
+last_tex_env_out = vec4(color_output_1, alpha_output_1);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 
 vec3 color_output_2 = byteround(clamp((last_tex_env_out.rgb) * (combiner_buffer.rgb), vec3(0.0), vec3(1.0)));
-float alpha_output_2 = byteround(clamp((last_tex_env_out.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_2, alpha_output_2), vec4(0.0), vec4(1.0));
+float alpha_output_2 = (last_tex_env_out.a);
+last_tex_env_out = vec4(color_output_2, alpha_output_2);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 
 vec3 color_output_3 = byteround(clamp((secondary_fragment_color.rgb) * (last_tex_env_out.rgb) + (last_tex_env_out.rgb), vec3(0.0), vec3(1.0)));
-float alpha_output_3 = byteround(clamp((last_tex_env_out.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_3, alpha_output_3), vec4(0.0), vec4(1.0));
+float alpha_output_3 = (last_tex_env_out.a);
+last_tex_env_out = vec4(color_output_3, alpha_output_3);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 
 vec3 color_output_4 = byteround(clamp(min((rounded_primary_color.rgb) + (const_color[4].rgb), vec3(1.0)) * (last_tex_env_out.rgb), vec3(0.0), vec3(1.0)));
-float alpha_output_4 = byteround(clamp((last_tex_env_out.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_4 * 2.0, alpha_output_4 * 1.0), vec4(0.0), vec4(1.0));
+float alpha_output_4 = (last_tex_env_out.a);
+last_tex_env_out = vec4(color_output_4 * 2.0, alpha_output_4 * 1.0);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 
 combiner_buffer = next_combiner_buffer;
 
 if (int(last_tex_env_out.a * 255.0) <= alphatest_ref) discard;
 float fog_index = depth * 128.0;
-float fog_i = clamp(floor(fog_index), 0.0, 127.0);
-float fog_f = fog_index - fog_i;
-vec2 fog_lut_entry = texelFetch(texture_buffer_lut_lf, int(fog_i) + fog_lut_offset).rg;
+int fog_i = int(fog_index);
+float fog_f = fract(fog_index);
+vec2 fog_lut_entry = texelFetch(texture_buffer_lut_lf, fog_i + fog_lut_offset).rg;
 float fog_factor = fog_lut_entry.r + fog_lut_entry.g * fog_f;
 fog_factor = clamp(fog_factor, 0.0, 1.0);
 last_tex_env_out.rgb = mix(fog_color.rgb, last_tex_env_out.rgb, fog_factor);
 gl_FragDepth = depth;
 color = byteround(last_tex_env_out);
 }
-// reference: 888640974E8CC2E4, D542C00D338528CC
-// program: F3D442C0013F9392, 6CF3F3B70E23AA85, D542C00D338528CC
-// shader: 8B30, 0A82093815CD1584
+// reference: 888640974E8CC2E4, 137D06DB95CBA851
+// program: 22C3C36B08CEECE7, 7A40B90B17532EA8, 137D06DB95CBA851
+// shader: 8B30, FE10DBB3D4E168AE
 
 precision highp int;
 precision highp float;
@@ -6832,51 +5653,55 @@ specular_sum.rgb += ((((lut_scale_d0 * LookupLightingLUTSigned(0, dot(normal, no
 diffuse_sum.rgb += lighting_global_ambient;
 primary_fragment_color = clamp(diffuse_sum, vec4(0.0), vec4(1.0));
 secondary_fragment_color = clamp(specular_sum, vec4(0.0), vec4(1.0));
-
 vec4 combiner_buffer = vec4(0.0);
 vec4 next_combiner_buffer = tev_combiner_buffer_color;
 vec4 last_tex_env_out = vec4(0.0);
 vec3 color_output_0 = byteround(clamp((vec3(1.0) - secondary_fragment_color.aaa) * (const_color[0].rgb) + (primary_fragment_color.rgb), vec3(0.0), vec3(1.0)));
 float alpha_output_0 = byteround(clamp((rounded_primary_color.a) * (texcolor0.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_0, alpha_output_0), vec4(0.0), vec4(1.0));
+last_tex_env_out = vec4(color_output_0, alpha_output_0);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 next_combiner_buffer.rgb = last_tex_env_out.rgb;
 
 vec3 color_output_1 = byteround(clamp((texcolor0.rgb) * (const_color[1].rgb), vec3(0.0), vec3(1.0)));
-float alpha_output_1 = byteround(clamp((last_tex_env_out.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_1, alpha_output_1), vec4(0.0), vec4(1.0));
+float alpha_output_1 = (last_tex_env_out.a);
+last_tex_env_out = vec4(color_output_1, alpha_output_1);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 
 vec3 color_output_2 = byteround(clamp((last_tex_env_out.rgb) * (combiner_buffer.rgb), vec3(0.0), vec3(1.0)));
-float alpha_output_2 = byteround(clamp((last_tex_env_out.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_2, alpha_output_2), vec4(0.0), vec4(1.0));
+float alpha_output_2 = (last_tex_env_out.a);
+last_tex_env_out = vec4(color_output_2, alpha_output_2);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 
 vec3 color_output_3 = byteround(clamp((secondary_fragment_color.rgb) + (last_tex_env_out.rgb), vec3(0.0), vec3(1.0)));
-float alpha_output_3 = byteround(clamp((last_tex_env_out.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_3, alpha_output_3), vec4(0.0), vec4(1.0));
+float alpha_output_3 = (last_tex_env_out.a);
+last_tex_env_out = vec4(color_output_3, alpha_output_3);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 
 vec3 color_output_4 = byteround(clamp(min((rounded_primary_color.rgb) + (const_color[4].rgb), vec3(1.0)) * (last_tex_env_out.rgb), vec3(0.0), vec3(1.0)));
-float alpha_output_4 = byteround(clamp((last_tex_env_out.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_4 * 2.0, alpha_output_4 * 1.0), vec4(0.0), vec4(1.0));
+float alpha_output_4 = (last_tex_env_out.a);
+last_tex_env_out = vec4(color_output_4 * 2.0, alpha_output_4 * 1.0);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 
 combiner_buffer = next_combiner_buffer;
 
 float fog_index = depth * 128.0;
-float fog_i = clamp(floor(fog_index), 0.0, 127.0);
-float fog_f = fog_index - fog_i;
-vec2 fog_lut_entry = texelFetch(texture_buffer_lut_lf, int(fog_i) + fog_lut_offset).rg;
+int fog_i = int(fog_index);
+float fog_f = fract(fog_index);
+vec2 fog_lut_entry = texelFetch(texture_buffer_lut_lf, fog_i + fog_lut_offset).rg;
 float fog_factor = fog_lut_entry.r + fog_lut_entry.g * fog_f;
 fog_factor = clamp(fog_factor, 0.0, 1.0);
 last_tex_env_out.rgb = mix(fog_color.rgb, last_tex_env_out.rgb, fog_factor);
 gl_FragDepth = depth;
 color = byteround(last_tex_env_out);
 }
-// reference: A297E594BE1CB1F2, 0A82093815CD1584
-// program: 9A0887C21E007189, 3B3AE026C742C7D5, 0A82093815CD1584
-// shader: 8B31, FBC6AFA380C91748
+// reference: A297E594BE1CB1F2, FE10DBB3D4E168AE
+// program: C2A49A7A2A81571D, D0BDF6740B5CE976, FE10DBB3D4E168AE
+// shader: 8B31, 668DC2CC893B1519
 
 struct pica_uniforms {
     bool b[16];
@@ -6898,20 +5723,18 @@ layout(location = 3) in vec4 vs_in_reg3;
 layout(location = 7) in vec4 vs_in_reg7;
 layout(location = 8) in vec4 vs_in_reg8;
 
- out vec4 vs_out_attr0;
- out vec4 vs_out_attr1;
- out vec4 vs_out_attr2;
- out vec4 vs_out_attr3;
+out vec4 vs_out_attr0;
+out vec4 vs_out_attr1;
+out vec4 vs_out_attr2;
+out vec4 vs_out_attr3;
 
 void main() {
     vs_out_attr0 = vec4(0.0, 0.0, 0.0, 1.0);
     vs_out_attr1 = vec4(0.0, 0.0, 0.0, 1.0);
     vs_out_attr2 = vec4(0.0, 0.0, 0.0, 1.0);
     vs_out_attr3 = vec4(0.0, 0.0, 0.0, 1.0);
-
     exec_shader();
 }
-
 
 #define mul_s(x, y) mix(x * y, vec4(0.0), isnan(x * y))
 #define fma_s(x, y, z) (mix(x * y, vec4(0.0), isnan(x * y)) + z)
@@ -6984,501 +5807,306 @@ bool exec_shader() {
 }
 
 bool sub_15_20() {
-    // 15: mova
     address_registers.x = (ivec2(reg_tmp1.xx)).x;
-    // 16: dp4
     reg_tmp3.x = dot_s(uniforms.f[25 + address_registers.x], reg_tmp15);
-    // 17: dp4
     reg_tmp3.y = dot_s(uniforms.f[26 + address_registers.x], reg_tmp15);
-    // 18: dp4
     reg_tmp3.z = dot_s(uniforms.f[27 + address_registers.x], reg_tmp15);
-    // 19: mad
     reg_tmp7 = fma_s(reg_tmp1.wwww, reg_tmp3, reg_tmp7);
     return false;
 }
 bool sub_20_29() {
-    // 20: mova
     address_registers.x = (ivec2(reg_tmp1.xx)).x;
-    // 21: dp4
     reg_tmp3.x = dot_s(uniforms.f[25 + address_registers.x], reg_tmp15);
-    // 22: dp4
     reg_tmp3.y = dot_s(uniforms.f[26 + address_registers.x], reg_tmp15);
-    // 23: dp4
     reg_tmp3.z = dot_s(uniforms.f[27 + address_registers.x], reg_tmp15);
-    // 24: dp3
     reg_tmp4.x = dot_3(uniforms.f[25 + address_registers.x].xyz, reg_tmp14.xyz);
-    // 25: dp3
     reg_tmp4.y = dot_3(uniforms.f[26 + address_registers.x].xyz, reg_tmp14.xyz);
-    // 26: dp3
     reg_tmp4.z = dot_3(uniforms.f[27 + address_registers.x].xyz, reg_tmp14.xyz);
-    // 27: mad
     reg_tmp7 = fma_s(reg_tmp1.wwww, reg_tmp3, reg_tmp7);
-    // 28: mad
     reg_tmp12 = fma_s(reg_tmp1.wwww, reg_tmp4, reg_tmp12);
     return false;
 }
 bool sub_29_42() {
-    // 29: mova
     address_registers.x = (ivec2(reg_tmp1.xx)).x;
-    // 30: dp4
     reg_tmp3.x = dot_s(uniforms.f[25 + address_registers.x], reg_tmp15);
-    // 31: dp4
     reg_tmp3.y = dot_s(uniforms.f[26 + address_registers.x], reg_tmp15);
-    // 32: dp4
     reg_tmp3.z = dot_s(uniforms.f[27 + address_registers.x], reg_tmp15);
-    // 33: dp3
     reg_tmp4.x = dot_3(uniforms.f[25 + address_registers.x].xyz, reg_tmp14.xyz);
-    // 34: dp3
     reg_tmp4.y = dot_3(uniforms.f[26 + address_registers.x].xyz, reg_tmp14.xyz);
-    // 35: dp3
     reg_tmp4.z = dot_3(uniforms.f[27 + address_registers.x].xyz, reg_tmp14.xyz);
-    // 36: dp3
     reg_tmp5.x = dot_3(uniforms.f[25 + address_registers.x].xyz, reg_tmp13.xyz);
-    // 37: dp3
     reg_tmp5.y = dot_3(uniforms.f[26 + address_registers.x].xyz, reg_tmp13.xyz);
-    // 38: dp3
     reg_tmp5.z = dot_3(uniforms.f[27 + address_registers.x].xyz, reg_tmp13.xyz);
-    // 39: mad
     reg_tmp7 = fma_s(reg_tmp1.wwww, reg_tmp3, reg_tmp7);
-    // 40: mad
     reg_tmp12 = fma_s(reg_tmp1.wwww, reg_tmp4, reg_tmp12);
-    // 41: mad
     reg_tmp11 = fma_s(reg_tmp1.wwww, reg_tmp5, reg_tmp11);
     return false;
 }
 bool sub_42_210() {
-    // 42: mul
     reg_tmp15.xyz = (mul_s(uniforms.f[7].xxxx, vs_in_reg0)).xyz;
-    // 43: mul
     reg_tmp14.xyz = (mul_s(uniforms.f[7].yyyy, vs_in_reg1)).xyz;
-    // 44: mul
     reg_tmp13.xyz = (mul_s(uniforms.f[7].zzzz, vs_in_reg2)).xyz;
-    // 45: add
     reg_tmp15.xyz = (uniforms.f[6] + reg_tmp15).xyz;
-    // 46: mov
     reg_tmp15.w = (uniforms.f[93].yyyy).w;
-    // 47: ifu
     if (uniforms.b[1]) {
         sub_48_148();
     } else {
         sub_148_209();
     }
-    // 209: nop
     return false;
 }
 bool sub_48_148() {
-    // 48: mov
     reg_tmp0 = uniforms.f[7];
-    // 49: cmp
     conditional_code = notEqual(uniforms.f[93].xx, reg_tmp0.yz);
-    // 50: mov
     reg_tmp7 = uniforms.f[93].xxxx;
-    // 51: mov
     reg_tmp12 = uniforms.f[93].xxxx;
-    // 52: mov
     reg_tmp11 = uniforms.f[93].xxxx;
-    // 53: mul
     reg_tmp2 = mul_s(uniforms.f[93].wwww, vs_in_reg7);
-    // 54: ifc
     if (all(bvec2(conditional_code.x, !conditional_code.y))) {
         sub_55_84();
     } else {
         sub_84_143();
     }
-    // 143: mov
     vs_out_attr2 = -reg_tmp15;
-    // 144: dp4
     vs_out_attr0.x = dot_s(uniforms.f[86], reg_tmp15);
-    // 145: dp4
     vs_out_attr0.y = dot_s(uniforms.f[87], reg_tmp15);
-    // 146: dp4
     vs_out_attr0.z = dot_s(uniforms.f[88], reg_tmp15);
-    // 147: dp4
     vs_out_attr0.w = dot_s(uniforms.f[89], reg_tmp15);
     return false;
 }
 bool sub_55_84() {
-    // 55: cmp
     conditional_code = notEqual(uniforms.f[93].xx, vs_in_reg8.zw);
-    // 56: mov
     reg_tmp1.xy = (reg_tmp2.xxxx).xy;
-    // 57: mul
     reg_tmp1.w = (mul_s(uniforms.f[8].wwww, vs_in_reg8.xxxx)).w;
-    // 58: call
     {
         sub_20_29();
     }
-    // 59: mov
     reg_tmp1.xy = (reg_tmp2.yyyy).xy;
-    // 60: mul
     reg_tmp1.w = (mul_s(uniforms.f[8].wwww, vs_in_reg8.yyyy)).w;
-    // 61: call
     {
         sub_20_29();
     }
-    // 62: mov
     reg_tmp1.xy = (reg_tmp2.zzzz).xy;
-    // 63: mul
     reg_tmp1.w = (mul_s(uniforms.f[8].wwww, vs_in_reg8.zzzz)).w;
-    // 64: callc
     if (conditional_code.x) {
         sub_20_29();
     }
-    // 65: ifu
     if (uniforms.b[8]) {
         sub_66_70();
     }
-    // 70: mov
     reg_tmp7.w = (uniforms.f[93].yyyy).w;
-    // 71: dp4
     reg_tmp10.x = dot_s(uniforms.f[0], reg_tmp7);
-    // 72: dp4
     reg_tmp10.y = dot_s(uniforms.f[1], reg_tmp7);
-    // 73: dp4
     reg_tmp10.z = dot_s(uniforms.f[2], reg_tmp7);
-    // 74: mov
     reg_tmp10.w = (uniforms.f[93].yyyy).w;
-    // 75: dp4
     reg_tmp15.x = dot_s(uniforms.f[90], reg_tmp10);
-    // 76: dp4
     reg_tmp15.y = dot_s(uniforms.f[91], reg_tmp10);
-    // 77: dp4
     reg_tmp15.z = dot_s(uniforms.f[92], reg_tmp10);
-    // 78: mov
     reg_tmp15.w = (uniforms.f[93].yyyy).w;
-    // 79: dp3
     reg_tmp14.x = dot_3(uniforms.f[3].xyz, reg_tmp12.xyz);
-    // 80: dp3
     reg_tmp14.y = dot_3(uniforms.f[4].xyz, reg_tmp12.xyz);
-    // 81: dp3
     reg_tmp14.z = dot_3(uniforms.f[5].xyz, reg_tmp12.xyz);
-    // 82: call
     {
         sub_210_227();
     }
-    // 83: nop
     return false;
 }
 bool sub_66_70() {
-    // 66: mov
     reg_tmp1.xy = (reg_tmp2.wwww).xy;
-    // 67: mul
     reg_tmp1.w = (mul_s(uniforms.f[8].wwww, vs_in_reg8.wwww)).w;
-    // 68: callc
     if (conditional_code.y) {
         sub_20_29();
     }
-    // 69: nop
     return false;
 }
 bool sub_84_143() {
-    // 84: ifc
     if (all(conditional_code)) {
         sub_85_117();
     } else {
         sub_117_142();
     }
-    // 142: nop
     return false;
 }
 bool sub_85_117() {
-    // 85: cmp
     conditional_code = notEqual(uniforms.f[93].xx, vs_in_reg8.zw);
-    // 86: mov
     reg_tmp1.xy = (reg_tmp2.xxxx).xy;
-    // 87: mul
     reg_tmp1.w = (mul_s(uniforms.f[8].wwww, vs_in_reg8.xxxx)).w;
-    // 88: call
     {
         sub_29_42();
     }
-    // 89: mov
     reg_tmp1.xy = (reg_tmp2.yyyy).xy;
-    // 90: mul
     reg_tmp1.w = (mul_s(uniforms.f[8].wwww, vs_in_reg8.yyyy)).w;
-    // 91: call
     {
         sub_29_42();
     }
-    // 92: mov
     reg_tmp1.xy = (reg_tmp2.zzzz).xy;
-    // 93: mul
     reg_tmp1.w = (mul_s(uniforms.f[8].wwww, vs_in_reg8.zzzz)).w;
-    // 94: callc
     if (conditional_code.x) {
         sub_29_42();
     }
-    // 95: ifu
     if (uniforms.b[8]) {
         sub_96_100();
     }
-    // 100: mov
     reg_tmp7.w = (uniforms.f[93].yyyy).w;
-    // 101: dp4
     reg_tmp10.x = dot_s(uniforms.f[0], reg_tmp7);
-    // 102: dp4
     reg_tmp10.y = dot_s(uniforms.f[1], reg_tmp7);
-    // 103: dp4
     reg_tmp10.z = dot_s(uniforms.f[2], reg_tmp7);
-    // 104: mov
     reg_tmp10.w = (uniforms.f[93].yyyy).w;
-    // 105: dp3
     reg_tmp13.x = dot_3(uniforms.f[3].xyz, reg_tmp11.xyz);
-    // 106: dp3
     reg_tmp13.y = dot_3(uniforms.f[4].xyz, reg_tmp11.xyz);
-    // 107: dp3
     reg_tmp13.z = dot_3(uniforms.f[5].xyz, reg_tmp11.xyz);
-    // 108: dp3
     reg_tmp14.x = dot_3(uniforms.f[3].xyz, reg_tmp12.xyz);
-    // 109: dp3
     reg_tmp14.y = dot_3(uniforms.f[4].xyz, reg_tmp12.xyz);
-    // 110: dp3
     reg_tmp14.z = dot_3(uniforms.f[5].xyz, reg_tmp12.xyz);
-    // 111: dp4
     reg_tmp15.x = dot_s(uniforms.f[90], reg_tmp10);
-    // 112: dp4
     reg_tmp15.y = dot_s(uniforms.f[91], reg_tmp10);
-    // 113: dp4
     reg_tmp15.z = dot_s(uniforms.f[92], reg_tmp10);
-    // 114: mov
     reg_tmp15.w = (uniforms.f[93].yyyy).w;
-    // 115: call
     {
         sub_227_303();
     }
-    // 116: nop
     return false;
 }
 bool sub_96_100() {
-    // 96: mov
     reg_tmp1.xy = (reg_tmp2.wwww).xy;
-    // 97: mul
     reg_tmp1.w = (mul_s(uniforms.f[8].wwww, vs_in_reg8.wwww)).w;
-    // 98: callc
     if (conditional_code.y) {
         sub_29_42();
     }
-    // 99: nop
     return false;
 }
 bool sub_117_142() {
-    // 117: cmp
     conditional_code = notEqual(uniforms.f[93].xx, vs_in_reg8.zw);
-    // 118: mov
     reg_tmp1.xy = (reg_tmp2.xxxx).xy;
-    // 119: mul
     reg_tmp1.w = (mul_s(uniforms.f[8].wwww, vs_in_reg8.xxxx)).w;
-    // 120: call
     {
         sub_15_20();
     }
-    // 121: mov
     reg_tmp1.xy = (reg_tmp2.yyyy).xy;
-    // 122: mul
     reg_tmp1.w = (mul_s(uniforms.f[8].wwww, vs_in_reg8.yyyy)).w;
-    // 123: call
     {
         sub_15_20();
     }
-    // 124: mov
     reg_tmp1.xy = (reg_tmp2.zzzz).xy;
-    // 125: mul
     reg_tmp1.w = (mul_s(uniforms.f[8].wwww, vs_in_reg8.zzzz)).w;
-    // 126: callc
     if (conditional_code.x) {
         sub_15_20();
     }
-    // 127: ifu
     if (uniforms.b[8]) {
         sub_128_132();
     }
-    // 132: mov
     reg_tmp7.w = (uniforms.f[93].yyyy).w;
-    // 133: dp4
     reg_tmp10.x = dot_s(uniforms.f[0], reg_tmp7);
-    // 134: dp4
     reg_tmp10.y = dot_s(uniforms.f[1], reg_tmp7);
-    // 135: dp4
     reg_tmp10.z = dot_s(uniforms.f[2], reg_tmp7);
-    // 136: mov
     reg_tmp10.w = (uniforms.f[93].yyyy).w;
-    // 137: dp4
     reg_tmp15.x = dot_s(uniforms.f[90], reg_tmp10);
-    // 138: dp4
     reg_tmp15.y = dot_s(uniforms.f[91], reg_tmp10);
-    // 139: dp4
     reg_tmp15.z = dot_s(uniforms.f[92], reg_tmp10);
-    // 140: mov
     reg_tmp15.w = (uniforms.f[93].yyyy).w;
-    // 141: mov
     vs_out_attr1 = uniforms.f[93].xxxx;
     return false;
 }
 bool sub_128_132() {
-    // 128: mov
     reg_tmp1.xy = (reg_tmp2.wwww).xy;
-    // 129: mul
     reg_tmp1.w = (mul_s(uniforms.f[8].wwww, vs_in_reg8.wwww)).w;
-    // 130: callc
     if (conditional_code.y) {
         sub_15_20();
     }
-    // 131: nop
     return false;
 }
 bool sub_148_209() {
-    // 148: mov
     reg_tmp0 = uniforms.f[7];
-    // 149: cmp
     conditional_code = notEqual(uniforms.f[93].xx, reg_tmp0.yz);
-    // 150: ifu
     if (uniforms.b[2]) {
         sub_151_161();
     } else {
         sub_161_166();
     }
-    // 166: ifc
     if (all(bvec2(conditional_code.x, !conditional_code.y))) {
         sub_167_179();
     } else {
         sub_179_204();
     }
-    // 204: mov
     vs_out_attr2 = -reg_tmp15;
-    // 205: dp4
     vs_out_attr0.x = dot_s(uniforms.f[86], reg_tmp15);
-    // 206: dp4
     vs_out_attr0.y = dot_s(uniforms.f[87], reg_tmp15);
-    // 207: dp4
     vs_out_attr0.z = dot_s(uniforms.f[88], reg_tmp15);
-    // 208: dp4
     vs_out_attr0.w = dot_s(uniforms.f[89], reg_tmp15);
     return false;
 }
 bool sub_151_161() {
-    // 151: mul
     reg_tmp1.x = (mul_s(uniforms.f[93].wwww, vs_in_reg7.xxxx)).x;
-    // 152: mova
     address_registers.x = (ivec2(reg_tmp1.xx)).x;
-    // 153: dp4
     reg_tmp7.x = dot_s(uniforms.f[25 + address_registers.x], reg_tmp15);
-    // 154: dp4
     reg_tmp7.y = dot_s(uniforms.f[26 + address_registers.x], reg_tmp15);
-    // 155: dp4
     reg_tmp7.z = dot_s(uniforms.f[27 + address_registers.x], reg_tmp15);
-    // 156: mov
     reg_tmp7.w = (uniforms.f[93].yyyy).w;
-    // 157: dp4
     reg_tmp10.x = dot_s(uniforms.f[0], reg_tmp7);
-    // 158: dp4
     reg_tmp10.y = dot_s(uniforms.f[1], reg_tmp7);
-    // 159: dp4
     reg_tmp10.z = dot_s(uniforms.f[2], reg_tmp7);
-    // 160: mov
     reg_tmp10.w = (uniforms.f[93].yyyy).w;
     return false;
 }
 bool sub_161_166() {
-    // 161: mova
     address_registers.x = (ivec2(uniforms.f[93].xx)).x;
-    // 162: dp4
     reg_tmp10.x = dot_s(uniforms.f[25], reg_tmp15);
-    // 163: dp4
     reg_tmp10.y = dot_s(uniforms.f[26], reg_tmp15);
-    // 164: dp4
     reg_tmp10.z = dot_s(uniforms.f[27], reg_tmp15);
-    // 165: mov
     reg_tmp10.w = (uniforms.f[93].yyyy).w;
     return false;
 }
 bool sub_167_179() {
-    // 167: dp3
     reg_tmp12.x = dot_3(uniforms.f[25 + address_registers.x].xyz, reg_tmp14.xyz);
-    // 168: dp3
     reg_tmp12.y = dot_3(uniforms.f[26 + address_registers.x].xyz, reg_tmp14.xyz);
-    // 169: dp3
     reg_tmp12.z = dot_3(uniforms.f[27 + address_registers.x].xyz, reg_tmp14.xyz);
-    // 170: dp4
     reg_tmp15.x = dot_s(uniforms.f[90], reg_tmp10);
-    // 171: dp4
     reg_tmp15.y = dot_s(uniforms.f[91], reg_tmp10);
-    // 172: dp4
     reg_tmp15.z = dot_s(uniforms.f[92], reg_tmp10);
-    // 173: mov
     reg_tmp15.w = (uniforms.f[93].yyyy).w;
-    // 174: dp3
     reg_tmp14.x = dot_3(uniforms.f[3].xyz, reg_tmp12.xyz);
-    // 175: dp3
     reg_tmp14.y = dot_3(uniforms.f[4].xyz, reg_tmp12.xyz);
-    // 176: dp3
     reg_tmp14.z = dot_3(uniforms.f[5].xyz, reg_tmp12.xyz);
-    // 177: call
     {
         sub_210_227();
     }
-    // 178: nop
     return false;
 }
 bool sub_179_204() {
-    // 179: ifc
     if (all(conditional_code)) {
         sub_180_198();
     } else {
         sub_198_203();
     }
-    // 203: nop
     return false;
 }
 bool sub_180_198() {
-    // 180: dp3
     reg_tmp12.x = dot_3(uniforms.f[25 + address_registers.x].xyz, reg_tmp14.xyz);
-    // 181: dp3
     reg_tmp12.y = dot_3(uniforms.f[26 + address_registers.x].xyz, reg_tmp14.xyz);
-    // 182: dp3
     reg_tmp12.z = dot_3(uniforms.f[27 + address_registers.x].xyz, reg_tmp14.xyz);
-    // 183: dp3
     reg_tmp11.x = dot_3(uniforms.f[25 + address_registers.x].xyz, reg_tmp13.xyz);
-    // 184: dp3
     reg_tmp11.y = dot_3(uniforms.f[26 + address_registers.x].xyz, reg_tmp13.xyz);
-    // 185: dp3
     reg_tmp11.z = dot_3(uniforms.f[27 + address_registers.x].xyz, reg_tmp13.xyz);
-    // 186: dp4
     reg_tmp15.x = dot_s(uniforms.f[90], reg_tmp10);
-    // 187: dp4
     reg_tmp15.y = dot_s(uniforms.f[91], reg_tmp10);
-    // 188: dp4
     reg_tmp15.z = dot_s(uniforms.f[92], reg_tmp10);
-    // 189: mov
     reg_tmp15.w = (uniforms.f[93].yyyy).w;
-    // 190: dp3
     reg_tmp14.x = dot_3(uniforms.f[3].xyz, reg_tmp12.xyz);
-    // 191: dp3
     reg_tmp14.y = dot_3(uniforms.f[4].xyz, reg_tmp12.xyz);
-    // 192: dp3
     reg_tmp14.z = dot_3(uniforms.f[5].xyz, reg_tmp12.xyz);
-    // 193: dp3
     reg_tmp13.x = dot_3(uniforms.f[3].xyz, reg_tmp11.xyz);
-    // 194: dp3
     reg_tmp13.y = dot_3(uniforms.f[4].xyz, reg_tmp11.xyz);
-    // 195: dp3
     reg_tmp13.z = dot_3(uniforms.f[5].xyz, reg_tmp11.xyz);
-    // 196: call
     {
         sub_227_303();
     }
-    // 197: nop
     return false;
 }
 bool sub_198_203() {
-    // 198: dp4
     reg_tmp15.x = dot_s(uniforms.f[90], reg_tmp10);
-    // 199: dp4
     reg_tmp15.y = dot_s(uniforms.f[91], reg_tmp10);
-    // 200: dp4
     reg_tmp15.z = dot_s(uniforms.f[92], reg_tmp10);
-    // 201: mov
     reg_tmp15.w = (uniforms.f[93].yyyy).w;
-    // 202: mov
     vs_out_attr1 = uniforms.f[93].xxxx;
     return false;
 }
@@ -7487,45 +6115,28 @@ bool sub_210_227() {
     while (true) {
         switch (jmp_to) {
         case 210u: {
-            // 210: dp3
             reg_tmp6.x = dot_3(reg_tmp14.xyz, reg_tmp14.xyz);
-            // 211: dp3
             reg_tmp7.x = dot_3(reg_tmp12.xyz, reg_tmp12.xyz);
-            // 212: rsq
             reg_tmp6.x = rsq_s(reg_tmp6.x);
-            // 213: rsq
             reg_tmp7.x = rsq_s(reg_tmp7.x);
-            // 214: mul
             reg_tmp14.xyz = (mul_s(reg_tmp14.xyzz, reg_tmp6.xxxx)).xyz;
-            // 215: mul
             reg_tmp12.xyz = (mul_s(reg_tmp12.xyzz, reg_tmp7.xxxx)).xyz;
-            // 216: mov
             reg_tmp0 = uniforms.f[93].yxxx;
-            // 217: jmpu
             if (!uniforms.b[15]) {
                 { jmp_to = 226u; break; }
             }
-            // 218: add
             reg_tmp4 = uniforms.f[93].yyyy + reg_tmp14.zzzz;
-            // 219: mul
             reg_tmp4 = mul_s(uniforms.f[94].zzzz, reg_tmp4);
-            // 220: cmp
             conditional_code = greaterThanEqual(uniforms.f[93].xx, reg_tmp4.xx);
-            // 221: rsq
             reg_tmp4 = vec4(rsq_s(reg_tmp4.x));
-            // 222: mul
             reg_tmp5 = mul_s(uniforms.f[94].zzzz, reg_tmp14);
-            // 223: jmpc
             if (conditional_code.x) {
                 { jmp_to = 226u; break; }
             }
-            // 224: rcp
             reg_tmp0.z = rcp_s(reg_tmp4.x);
-            // 225: mul
             reg_tmp0.xy = (mul_s(reg_tmp5, reg_tmp4)).xy;
         }
         case 226u: {
-            // 226: mov
             vs_out_attr1 = reg_tmp0;
         }
         default: return false;
@@ -7538,105 +6149,62 @@ bool sub_227_303() {
     while (true) {
         switch (jmp_to) {
         case 227u: {
-            // 227: dp3
             reg_tmp6.x = dot_3(reg_tmp14.xyz, reg_tmp14.xyz);
-            // 228: dp3
             reg_tmp7.x = dot_3(reg_tmp12.xyz, reg_tmp12.xyz);
-            // 229: rsq
             reg_tmp6.x = rsq_s(reg_tmp6.x);
-            // 230: rsq
             reg_tmp7.x = rsq_s(reg_tmp7.x);
-            // 231: mul
             reg_tmp14.xyz = (mul_s(reg_tmp14.xyzz, reg_tmp6.xxxx)).xyz;
-            // 232: mul
             reg_tmp12.xyz = (mul_s(reg_tmp12.xyzz, reg_tmp7.xxxx)).xyz;
-            // 233: mul
             reg_tmp13.xyz = (mul_s(reg_tmp13.xyzz, reg_tmp6.xxxx)).xyz;
-            // 234: mul
             reg_tmp11.xyz = (mul_s(reg_tmp11.xyzz, reg_tmp7.xxxx)).xyz;
-            // 235: mov
             reg_tmp0 = uniforms.f[93].yxxx;
-            // 236: jmpu
             if (!uniforms.b[15]) {
                 { jmp_to = 302u; break; }
             }
-            // 237: mul
             reg_tmp13.xyz = (mul_s(reg_tmp13.xyzz, reg_tmp6.xxxx)).xyz;
-            // 238: mul
             reg_tmp11.xyz = (mul_s(reg_tmp11.xyzz, reg_tmp7.xxxx)).xyz;
-            // 239: mul
             reg_tmp5 = mul_s(reg_tmp14.yzxx, reg_tmp13.zxyy);
-            // 240: mad
             reg_tmp5 = fma_s(-reg_tmp13.yzxx, reg_tmp14.zxyy, reg_tmp5);
-            // 241: dp3
             reg_tmp5.w = dot_3(reg_tmp5.xyz, reg_tmp5.xyz);
-            // 242: rsq
             reg_tmp5.w = rsq_s(reg_tmp5.w);
-            // 243: mul
             reg_tmp5 = mul_s(reg_tmp5, reg_tmp5.wwww);
-            // 244: add
             reg_tmp6.w = (reg_tmp14.zzzz + reg_tmp5.yyyy).w;
-            // 245: mul
             reg_tmp13 = mul_s(reg_tmp5.yzxx, reg_tmp14.zxyy);
-            // 246: mad
             reg_tmp13 = fma_s(-reg_tmp14.yzxx, reg_tmp5.zxyy, reg_tmp13);
-            // 247: add
             reg_tmp6.w = (reg_tmp13.xxxx + reg_tmp6).w;
-            // 248: mov
             reg_tmp13.w = (reg_tmp5.zzzz).w;
-            // 249: mov
             reg_tmp5.z = (reg_tmp13.xxxx).z;
-            // 250: add
             reg_tmp6.w = (uniforms.f[93].yyyy + reg_tmp6).w;
-            // 251: mov
             reg_tmp14.w = (reg_tmp5.xxxx).w;
-            // 252: mov
             reg_tmp5.x = (reg_tmp14.zzzz).x;
-            // 253: cmp
             conditional_code = lessThan(uniforms.f[94].yy, reg_tmp6.ww);
-            // 254: mov
             reg_tmp6.x = (uniforms.f[93].yyyy).x;
-            // 255: mov
             reg_tmp6.y = (-uniforms.f[93].yyyy).y;
-            // 256: jmpc
             if (!conditional_code.x) {
                 { jmp_to = 264u; break; }
             }
-            // 257: add
             reg_tmp7.xz = (reg_tmp13.wwyy + -reg_tmp14.yyww).xz;
-            // 258: add
             reg_tmp7.y = (reg_tmp14.xxxx + -reg_tmp13.zzzz).y;
-            // 259: mov
             reg_tmp7.w = (reg_tmp6).w;
-            // 260: dp4
             reg_tmp6 = vec4(dot_s(reg_tmp7, reg_tmp7));
-            // 261: rsq
             reg_tmp6 = vec4(rsq_s(reg_tmp6.x));
-            // 262: mul
             reg_tmp0 = mul_s(reg_tmp7, reg_tmp6);
-            // 263: jmpu
             if (uniforms.b[0]) {
                 { jmp_to = 302u; break; }
             }
         }
         case 264u: {
-            // 264: cmp
             conditional_code = greaterThan(reg_tmp5.zy, reg_tmp5.yx);
-            // 265: ifc
             if (conditional_code.x) {
                 sub_266_286();
             } else {
                 sub_286_299();
             }
-            // 299: dp4
             reg_tmp6 = vec4(dot_s(reg_tmp8, reg_tmp8));
-            // 300: rsq
             reg_tmp6 = vec4(rsq_s(reg_tmp6.x));
-            // 301: mul
             reg_tmp0 = mul_s(reg_tmp8, reg_tmp6);
         }
         case 302u: {
-            // 302: mov
             vs_out_attr1 = reg_tmp0;
         }
         default: return false;
@@ -7645,143 +6213,99 @@ bool sub_227_303() {
     return false;
 }
 bool sub_266_286() {
-    // 266: ifc
     if (conditional_code.y) {
         sub_267_272();
     } else {
         sub_272_285();
     }
-    // 285: mov
     reg_tmp8.w = (-reg_tmp8).w;
     return false;
 }
 bool sub_267_272() {
-    // 267: mul
     reg_tmp8 = mul_s(reg_tmp13.yyzw, reg_tmp6.xxxy);
-    // 268: add
     reg_tmp8.x = (uniforms.f[93].yyyy + -reg_tmp5.yyyy).x;
-    // 269: add
     reg_tmp9 = reg_tmp5.zzzz + -reg_tmp5.xxxx;
-    // 270: add
     reg_tmp8.yzw = (reg_tmp8 + reg_tmp14.wwxy).yzw;
-    // 271: add
     reg_tmp8.x = (reg_tmp9 + reg_tmp8).x;
     return false;
 }
 bool sub_272_285() {
-    // 272: cmp
     conditional_code = greaterThan(reg_tmp5.zz, reg_tmp5.xx);
-    // 273: mul
     reg_tmp8 = mul_s(reg_tmp13.yyzw, reg_tmp6.xxxy);
-    // 274: add
     reg_tmp8.x = (uniforms.f[93].yyyy + -reg_tmp5.yyyy).x;
-    // 275: ifc
     if (conditional_code.x) {
         sub_276_279();
     } else {
         sub_279_284();
     }
-    // 284: nop
     return false;
 }
 bool sub_276_279() {
-    // 276: add
     reg_tmp9 = reg_tmp5.zzzz + -reg_tmp5.xxxx;
-    // 277: add
     reg_tmp8.yzw = (reg_tmp8 + reg_tmp14.wwxy).yzw;
-    // 278: add
     reg_tmp8.x = (reg_tmp9 + reg_tmp8).x;
     return false;
 }
 bool sub_279_284() {
-    // 279: mul
     reg_tmp8 = mul_s(reg_tmp13.zwwy, reg_tmp6.xxxy);
-    // 280: add
     reg_tmp8.z = (uniforms.f[93].yyyy + -reg_tmp5.zzzz).z;
-    // 281: add
     reg_tmp9 = reg_tmp5.xxxx + -reg_tmp5.yyyy;
-    // 282: add
     reg_tmp8.xyw = (reg_tmp8 + reg_tmp14.xyyw).xyw;
-    // 283: add
     reg_tmp8.z = (reg_tmp9 + reg_tmp8).z;
     return false;
 }
 bool sub_286_299() {
-    // 286: ifc
     if (conditional_code.y) {
         sub_287_292();
     } else {
         sub_292_298();
     }
-    // 298: nop
     return false;
 }
 bool sub_287_292() {
-    // 287: mul
     reg_tmp8 = mul_s(reg_tmp13.yywz, reg_tmp6.xxxy);
-    // 288: add
     reg_tmp8.y = (uniforms.f[93].yyyy + -reg_tmp5.zzzz).y;
-    // 289: add
     reg_tmp9 = reg_tmp5.yyyy + -reg_tmp5.xxxx;
-    // 290: add
     reg_tmp8.xzw = (reg_tmp8 + reg_tmp14.wwyx).xzw;
-    // 291: add
     reg_tmp8.y = (reg_tmp9 + reg_tmp8).y;
     return false;
 }
 bool sub_292_298() {
-    // 292: mul
     reg_tmp8 = mul_s(reg_tmp13.zwwy, reg_tmp6.xxxy);
-    // 293: add
     reg_tmp8.z = (uniforms.f[93].yyyy + -reg_tmp5.zzzz).z;
-    // 294: add
     reg_tmp9 = reg_tmp5.xxxx + -reg_tmp5.yyyy;
-    // 295: add
     reg_tmp8.xyw = (reg_tmp8 + reg_tmp14.xyyw).xyw;
-    // 296: add
     reg_tmp8.z = (reg_tmp9 + reg_tmp8).z;
-    // 297: mov
     reg_tmp8.w = (-reg_tmp8).w;
     return false;
 }
 bool sub_416_4096() {
-    // 416: call
     {
         sub_42_210();
     }
-    // 417: mov
     reg_tmp0.y = (uniforms.f[7].wwww).y;
-    // 418: cmp
     conditional_code = notEqual(uniforms.f[93].xx, reg_tmp0.xy);
-    // 419: mov
     reg_tmp9 = uniforms.f[21];
-    // 420: ifc
     if (conditional_code.y) {
         sub_421_425();
     }
-    // 425: max
     vs_out_attr3 = max(uniforms.f[93].xxxx, reg_tmp9);
-    // 426: end
     return true;
 }
 bool sub_421_425() {
-    // 421: mul
     reg_tmp0 = mul_s(uniforms.f[7].wwww, vs_in_reg3);
-    // 422: ifu
     if (uniforms.b[7]) {
         sub_423_424();
     }
-    // 424: mov
     reg_tmp9.xyz = (reg_tmp0.xyzz).xyz;
     return false;
 }
 bool sub_423_424() {
-    // 423: mul
     reg_tmp9.w = (mul_s(reg_tmp9.wwww, reg_tmp0.wwww)).w;
     return false;
 }
-// reference: C26905314D668427, FBC6AFA380C91748
-// shader: 8DD9, 4BD70AD09292A3DA
+// reference: 5FBE3D884D668427, 668DC2CC893B1519
+// shader: 8DD9, 80B52B8FBE5FE773
 
 layout(triangles) in;
 layout(triangle_strip, max_vertices = 3) out;
@@ -7849,11 +6373,10 @@ layout (std140) uniform shader_light_data {
     int shadow_texture_bias;
 };
 
- in vec4 vs_out_attr0[];
- in vec4 vs_out_attr1[];
- in vec4 vs_out_attr2[];
- in vec4 vs_out_attr3[];
-
+in vec4 vs_out_attr0[];
+in vec4 vs_out_attr1[];
+in vec4 vs_out_attr2[];
+in vec4 vs_out_attr3[];
 struct Vertex {
     vec4 attributes[4];
 };
@@ -7881,7 +6404,6 @@ void EmitVtx(Vertex vtx, bool quats_opposite) {
 
     texcoord0_w = 0.0;
     view = vec3(vtx.attributes[2].x, vtx.attributes[2].y, vtx.attributes[2].z);
-
     texcoord2 = vec2(0.0, 0.0);
 
     EmitVertex();
@@ -7905,8 +6427,8 @@ void main() {
     prim_buffer[2].attributes = vec4[4](vs_out_attr0[2], vs_out_attr1[2], vs_out_attr2[2], vs_out_attr3[2]);
     EmitPrim(prim_buffer[0], prim_buffer[1], prim_buffer[2]);
 }
-// reference: 3901EC4BEC56958E, 4BD70AD09292A3DA
-// shader: 8B30, 34C36CE57EB1B184
+// reference: 3901EC4BEC56958E, 80B52B8FBE5FE773
+// shader: 8B30, A58EED9EADA72FE4
 
 precision highp int;
 precision highp float;
@@ -8056,8 +6578,9 @@ vec4 combiner_buffer = vec4(0.0);
 vec4 next_combiner_buffer = tev_combiner_buffer_color;
 vec4 last_tex_env_out = vec4(0.0);
 vec3 color_output_0 = byteround(clamp((const_color[0].rgb) + (rounded_primary_color.rgb), vec3(0.0), vec3(1.0)));
-float alpha_output_0 = byteround(clamp((rounded_primary_color.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_0, alpha_output_0), vec4(0.0), vec4(1.0));
+float alpha_output_0 = (rounded_primary_color.a);
+last_tex_env_out = vec4(color_output_0, alpha_output_0);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 
 combiner_buffer = next_combiner_buffer;
@@ -8071,18 +6594,18 @@ combiner_buffer = next_combiner_buffer;
 combiner_buffer = next_combiner_buffer;
 
 float fog_index = depth * 128.0;
-float fog_i = clamp(floor(fog_index), 0.0, 127.0);
-float fog_f = fog_index - fog_i;
-vec2 fog_lut_entry = texelFetch(texture_buffer_lut_lf, int(fog_i) + fog_lut_offset).rg;
+int fog_i = int(fog_index);
+float fog_f = fract(fog_index);
+vec2 fog_lut_entry = texelFetch(texture_buffer_lut_lf, fog_i + fog_lut_offset).rg;
 float fog_factor = fog_lut_entry.r + fog_lut_entry.g * fog_f;
 fog_factor = clamp(fog_factor, 0.0, 1.0);
 last_tex_env_out.rgb = mix(fog_color.rgb, last_tex_env_out.rgb, fog_factor);
 gl_FragDepth = depth;
 color = byteround(last_tex_env_out);
 }
-// reference: D6D855BAF87DB2C9, 34C36CE57EB1B184
-// program: FBC6AFA380C91748, 4BD70AD09292A3DA, 34C36CE57EB1B184
-// shader: 8B30, FDBB141810546438
+// reference: D6D855BAF87DB2C9, A58EED9EADA72FE4
+// program: 668DC2CC893B1519, 80B52B8FBE5FE773, A58EED9EADA72FE4
+// shader: 8B30, 959C6212D1A4DD67
 
 precision highp int;
 precision highp float;
@@ -8261,51 +6784,55 @@ specular_sum.rgb += (((lut_scale_d0 * LookupLightingLUTSigned(0, dot(normal, nor
 diffuse_sum.rgb += lighting_global_ambient;
 primary_fragment_color = clamp(diffuse_sum, vec4(0.0), vec4(1.0));
 secondary_fragment_color = clamp(specular_sum, vec4(0.0), vec4(1.0));
-
 vec4 combiner_buffer = vec4(0.0);
 vec4 next_combiner_buffer = tev_combiner_buffer_color;
 vec4 last_tex_env_out = vec4(0.0);
 vec3 color_output_0 = byteround(clamp((vec3(1.0) - secondary_fragment_color.aaa) * (const_color[0].rgb) + (primary_fragment_color.rgb), vec3(0.0), vec3(1.0)));
 float alpha_output_0 = byteround(clamp((rounded_primary_color.a) + (texcolor1.r), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_0, alpha_output_0), vec4(0.0), vec4(1.0));
+last_tex_env_out = vec4(color_output_0, alpha_output_0);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 next_combiner_buffer.rgb = last_tex_env_out.rgb;
 
 vec3 color_output_1 = byteround(clamp((texcolor0.rgb) * (const_color[1].rgb), vec3(0.0), vec3(1.0)));
 float alpha_output_1 = byteround(clamp((last_tex_env_out.a) * (rounded_primary_color.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_1 * 1.0, alpha_output_1 * 4.0), vec4(0.0), vec4(1.0));
+last_tex_env_out = vec4(color_output_1 * 1.0, alpha_output_1 * 4.0);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 
 vec3 color_output_2 = byteround(clamp((last_tex_env_out.rgb) * (combiner_buffer.rgb), vec3(0.0), vec3(1.0)));
 float alpha_output_2 = byteround(clamp((last_tex_env_out.a) + (const_color[2].a) - 0.5, 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_2 * 1.0, alpha_output_2 * 2.0), vec4(0.0), vec4(1.0));
+last_tex_env_out = vec4(color_output_2 * 1.0, alpha_output_2 * 2.0);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 
 vec3 color_output_3 = byteround(clamp((secondary_fragment_color.rgb) * (texcolor1.rgb) + (last_tex_env_out.rgb), vec3(0.0), vec3(1.0)));
-float alpha_output_3 = byteround(clamp((last_tex_env_out.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_3, alpha_output_3), vec4(0.0), vec4(1.0));
+float alpha_output_3 = (last_tex_env_out.a);
+last_tex_env_out = vec4(color_output_3, alpha_output_3);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 
 vec3 color_output_4 = byteround(clamp(min((rounded_primary_color.rgb) + (const_color[4].rgb), vec3(1.0)) * (last_tex_env_out.rgb), vec3(0.0), vec3(1.0)));
-float alpha_output_4 = byteround(clamp((last_tex_env_out.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_4 * 2.0, alpha_output_4 * 1.0), vec4(0.0), vec4(1.0));
+float alpha_output_4 = (last_tex_env_out.a);
+last_tex_env_out = vec4(color_output_4 * 2.0, alpha_output_4 * 1.0);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 
 combiner_buffer = next_combiner_buffer;
 
 float fog_index = depth * 128.0;
-float fog_i = clamp(floor(fog_index), 0.0, 127.0);
-float fog_f = fog_index - fog_i;
-vec2 fog_lut_entry = texelFetch(texture_buffer_lut_lf, int(fog_i) + fog_lut_offset).rg;
+int fog_i = int(fog_index);
+float fog_f = fract(fog_index);
+vec2 fog_lut_entry = texelFetch(texture_buffer_lut_lf, fog_i + fog_lut_offset).rg;
 float fog_factor = fog_lut_entry.r + fog_lut_entry.g * fog_f;
 fog_factor = clamp(fog_factor, 0.0, 1.0);
 last_tex_env_out.rgb = mix(fog_color.rgb, last_tex_env_out.rgb, fog_factor);
 gl_FragDepth = depth;
 color = byteround(last_tex_env_out);
 }
-// reference: C07B7C8266034222, FDBB141810546438
-// program: D00DCCA29A979BE7, AD7922A63ED54CA7, FDBB141810546438
-// shader: 8B30, D71BCE6E80620BBB
+// reference: C07B7C8266034222, 959C6212D1A4DD67
+// program: B3C9C1F640F27576, B80FA1B7F97410CD, 959C6212D1A4DD67
+// shader: 8B30, FE3B1BE86E798FD2
 
 precision highp int;
 precision highp float;
@@ -8484,51 +7011,55 @@ specular_sum.rgb += (((lut_scale_d0 * LookupLightingLUTSigned(0, dot(normal, nor
 diffuse_sum.rgb += lighting_global_ambient;
 primary_fragment_color = clamp(diffuse_sum, vec4(0.0), vec4(1.0));
 secondary_fragment_color = clamp(specular_sum, vec4(0.0), vec4(1.0));
-
 vec4 combiner_buffer = vec4(0.0);
 vec4 next_combiner_buffer = tev_combiner_buffer_color;
 vec4 last_tex_env_out = vec4(0.0);
 vec3 color_output_0 = byteround(clamp((vec3(1.0) - secondary_fragment_color.aaa) * (const_color[0].rgb) + (primary_fragment_color.rgb), vec3(0.0), vec3(1.0)));
 float alpha_output_0 = byteround(clamp((rounded_primary_color.a) + (texcolor1.r), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_0, alpha_output_0), vec4(0.0), vec4(1.0));
+last_tex_env_out = vec4(color_output_0, alpha_output_0);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 next_combiner_buffer.rgb = last_tex_env_out.rgb;
 
 vec3 color_output_1 = byteround(clamp((texcolor0.rgb) * (const_color[1].rgb), vec3(0.0), vec3(1.0)));
 float alpha_output_1 = byteround(clamp((last_tex_env_out.a) * (rounded_primary_color.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_1 * 1.0, alpha_output_1 * 4.0), vec4(0.0), vec4(1.0));
+last_tex_env_out = vec4(color_output_1 * 1.0, alpha_output_1 * 4.0);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 
 vec3 color_output_2 = byteround(clamp((last_tex_env_out.rgb) * (combiner_buffer.rgb), vec3(0.0), vec3(1.0)));
 float alpha_output_2 = byteround(clamp((last_tex_env_out.a) + (const_color[2].a) - 0.5, 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_2 * 1.0, alpha_output_2 * 2.0), vec4(0.0), vec4(1.0));
+last_tex_env_out = vec4(color_output_2 * 1.0, alpha_output_2 * 2.0);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 
 vec3 color_output_3 = byteround(clamp((secondary_fragment_color.rgb) * (texcolor1.rgb) + (last_tex_env_out.rgb), vec3(0.0), vec3(1.0)));
-float alpha_output_3 = byteround(clamp((last_tex_env_out.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_3, alpha_output_3), vec4(0.0), vec4(1.0));
+float alpha_output_3 = (last_tex_env_out.a);
+last_tex_env_out = vec4(color_output_3, alpha_output_3);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 
 vec3 color_output_4 = byteround(clamp(min((rounded_primary_color.rgb) + (const_color[4].rgb), vec3(1.0)) * (last_tex_env_out.rgb), vec3(0.0), vec3(1.0)));
-float alpha_output_4 = byteround(clamp((last_tex_env_out.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_4 * 2.0, alpha_output_4 * 1.0), vec4(0.0), vec4(1.0));
+float alpha_output_4 = (last_tex_env_out.a);
+last_tex_env_out = vec4(color_output_4 * 2.0, alpha_output_4 * 1.0);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 
 combiner_buffer = next_combiner_buffer;
 
 float fog_index = depth * 128.0;
-float fog_i = clamp(floor(fog_index), 0.0, 127.0);
-float fog_f = fog_index - fog_i;
-vec2 fog_lut_entry = texelFetch(texture_buffer_lut_lf, int(fog_i) + fog_lut_offset).rg;
+int fog_i = int(fog_index);
+float fog_f = fract(fog_index);
+vec2 fog_lut_entry = texelFetch(texture_buffer_lut_lf, fog_i + fog_lut_offset).rg;
 float fog_factor = fog_lut_entry.r + fog_lut_entry.g * fog_f;
 fog_factor = clamp(fog_factor, 0.0, 1.0);
 last_tex_env_out.rgb = mix(fog_color.rgb, last_tex_env_out.rgb, fog_factor);
 gl_FragDepth = depth;
 color = byteround(last_tex_env_out);
 }
-// reference: C07B7C8228D5597D, D71BCE6E80620BBB
-// program: D00DCCA29A979BE7, AD7922A63ED54CA7, D71BCE6E80620BBB
-// shader: 8B30, 3772C78BFDB5659B
+// reference: C07B7C8228D5597D, FE3B1BE86E798FD2
+// program: B3C9C1F640F27576, B80FA1B7F97410CD, FE3B1BE86E798FD2
+// shader: 8B30, 1CAA91E080D307A0
 
 precision highp int;
 precision highp float;
@@ -8705,34 +7236,38 @@ specular_sum.rgb += (((lut_scale_d0 * LookupLightingLUTSigned(0, dot(normal, nor
 diffuse_sum.rgb += lighting_global_ambient;
 primary_fragment_color = clamp(diffuse_sum, vec4(0.0), vec4(1.0));
 secondary_fragment_color = clamp(specular_sum, vec4(0.0), vec4(1.0));
-
 vec4 combiner_buffer = vec4(0.0);
 vec4 next_combiner_buffer = tev_combiner_buffer_color;
 vec4 last_tex_env_out = vec4(0.0);
 vec3 color_output_0 = byteround(clamp((texcolor0.rgb) * (const_color[0].aaa), vec3(0.0), vec3(1.0)));
 float alpha_output_0 = byteround(clamp((rounded_primary_color.a) * (texcolor0.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_0, alpha_output_0), vec4(0.0), vec4(1.0));
+last_tex_env_out = vec4(color_output_0, alpha_output_0);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 
 vec3 color_output_1 = byteround(clamp((last_tex_env_out.rgb) + (const_color[1].rgb) - vec3(0.5), vec3(0.0), vec3(1.0)));
-float alpha_output_1 = byteround(clamp((last_tex_env_out.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_1, alpha_output_1), vec4(0.0), vec4(1.0));
+float alpha_output_1 = (last_tex_env_out.a);
+last_tex_env_out = vec4(color_output_1, alpha_output_1);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 next_combiner_buffer.rgb = last_tex_env_out.rgb;
 
 vec3 color_output_2 = byteround(clamp((texcolor1.rgb) * (secondary_fragment_color.rgb) + (last_tex_env_out.rgb), vec3(0.0), vec3(1.0)));
-float alpha_output_2 = byteround(clamp((last_tex_env_out.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_2, alpha_output_2), vec4(0.0), vec4(1.0));
+float alpha_output_2 = (last_tex_env_out.a);
+last_tex_env_out = vec4(color_output_2, alpha_output_2);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 
 vec3 color_output_3 = byteround(clamp(min((rounded_primary_color.rgb) + (const_color[3].rgb), vec3(1.0)) * (last_tex_env_out.rgb), vec3(0.0), vec3(1.0)));
-float alpha_output_3 = byteround(clamp((last_tex_env_out.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_3, alpha_output_3), vec4(0.0), vec4(1.0));
+float alpha_output_3 = (last_tex_env_out.a);
+last_tex_env_out = vec4(color_output_3, alpha_output_3);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 
 vec3 color_output_4 = byteround(clamp((last_tex_env_out.rgb) * (combiner_buffer.rgb) + (last_tex_env_out.rgb), vec3(0.0), vec3(1.0)));
-float alpha_output_4 = byteround(clamp((last_tex_env_out.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_4 * 2.0, alpha_output_4 * 1.0), vec4(0.0), vec4(1.0));
+float alpha_output_4 = (last_tex_env_out.a);
+last_tex_env_out = vec4(color_output_4 * 2.0, alpha_output_4 * 1.0);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 
 combiner_buffer = next_combiner_buffer;
@@ -8740,9 +7275,9 @@ combiner_buffer = next_combiner_buffer;
 gl_FragDepth = depth;
 color = byteround(last_tex_env_out);
 }
-// reference: F09452433BEF708B, 3772C78BFDB5659B
-// program: 9A0887C21E007189, 3B3AE026C742C7D5, 3772C78BFDB5659B
-// shader: 8B30, 26F8B430E5F98650
+// reference: F09452433BEF708B, 1CAA91E080D307A0
+// program: C2A49A7A2A81571D, D0BDF6740B5CE976, 1CAA91E080D307A0
+// shader: 8B30, 1833A5314E8C889C
 
 precision highp int;
 precision highp float;
@@ -8919,54 +7454,59 @@ specular_sum.rgb += (((lut_scale_d0 * LookupLightingLUTSigned(0, dot(normal, nor
 diffuse_sum.rgb += lighting_global_ambient;
 primary_fragment_color = clamp(diffuse_sum, vec4(0.0), vec4(1.0));
 secondary_fragment_color = clamp(specular_sum, vec4(0.0), vec4(1.0));
-
 vec4 combiner_buffer = vec4(0.0);
 vec4 next_combiner_buffer = tev_combiner_buffer_color;
 vec4 last_tex_env_out = vec4(0.0);
 vec3 color_output_0 = byteround(clamp((vec3(1.0) - secondary_fragment_color.aaa) * (const_color[0].rgb) + (primary_fragment_color.rgb), vec3(0.0), vec3(1.0)));
 float alpha_output_0 = byteround(clamp((rounded_primary_color.a) * (texcolor0.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_0, alpha_output_0), vec4(0.0), vec4(1.0));
+last_tex_env_out = vec4(color_output_0, alpha_output_0);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 next_combiner_buffer.rgb = last_tex_env_out.rgb;
 
 vec3 color_output_1 = byteround(clamp((texcolor0.rgb) * (const_color[1].rgb), vec3(0.0), vec3(1.0)));
-float alpha_output_1 = byteround(clamp((last_tex_env_out.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_1, alpha_output_1), vec4(0.0), vec4(1.0));
+float alpha_output_1 = (last_tex_env_out.a);
+last_tex_env_out = vec4(color_output_1, alpha_output_1);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 
 vec3 color_output_2 = byteround(clamp((last_tex_env_out.rgb) * (combiner_buffer.rgb) + (const_color[2].rgb), vec3(0.0), vec3(1.0)));
-float alpha_output_2 = byteround(clamp((last_tex_env_out.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_2, alpha_output_2), vec4(0.0), vec4(1.0));
+float alpha_output_2 = (last_tex_env_out.a);
+last_tex_env_out = vec4(color_output_2, alpha_output_2);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 
 vec3 color_output_3 = byteround(clamp((secondary_fragment_color.rgb) * (texcolor1.rgb) + (last_tex_env_out.rgb), vec3(0.0), vec3(1.0)));
-float alpha_output_3 = byteround(clamp((last_tex_env_out.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_3, alpha_output_3), vec4(0.0), vec4(1.0));
+float alpha_output_3 = (last_tex_env_out.a);
+last_tex_env_out = vec4(color_output_3, alpha_output_3);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 
 vec3 color_output_4 = byteround(clamp(min((rounded_primary_color.rgb) + (const_color[4].rgb), vec3(1.0)) * (last_tex_env_out.rgb), vec3(0.0), vec3(1.0)));
-float alpha_output_4 = byteround(clamp((last_tex_env_out.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_4, alpha_output_4), vec4(0.0), vec4(1.0));
+float alpha_output_4 = (last_tex_env_out.a);
+last_tex_env_out = vec4(color_output_4, alpha_output_4);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 
 vec3 color_output_5 = byteround(clamp((last_tex_env_out.rgb) * (last_tex_env_out.rgb) + (last_tex_env_out.rgb), vec3(0.0), vec3(1.0)));
-float alpha_output_5 = byteround(clamp((last_tex_env_out.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_5 * 2.0, alpha_output_5 * 1.0), vec4(0.0), vec4(1.0));
+float alpha_output_5 = (last_tex_env_out.a);
+last_tex_env_out = vec4(color_output_5 * 2.0, alpha_output_5 * 1.0);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 
 float fog_index = depth * 128.0;
-float fog_i = clamp(floor(fog_index), 0.0, 127.0);
-float fog_f = fog_index - fog_i;
-vec2 fog_lut_entry = texelFetch(texture_buffer_lut_lf, int(fog_i) + fog_lut_offset).rg;
+int fog_i = int(fog_index);
+float fog_f = fract(fog_index);
+vec2 fog_lut_entry = texelFetch(texture_buffer_lut_lf, fog_i + fog_lut_offset).rg;
 float fog_factor = fog_lut_entry.r + fog_lut_entry.g * fog_f;
 fog_factor = clamp(fog_factor, 0.0, 1.0);
 last_tex_env_out.rgb = mix(fog_color.rgb, last_tex_env_out.rgb, fog_factor);
 gl_FragDepth = depth;
 color = byteround(last_tex_env_out);
 }
-// reference: 859A0CDE48D6CC8F, 26F8B430E5F98650
-// program: 9A0887C21E007189, 3B3AE026C742C7D5, 26F8B430E5F98650
-// shader: 8B30, C0F53D64C90EDD0A
+// reference: 859A0CDE48D6CC8F, 1833A5314E8C889C
+// program: C2A49A7A2A81571D, D0BDF6740B5CE976, 1833A5314E8C889C
+// shader: 8B30, FF7A888172E54B94
 
 precision highp int;
 precision highp float;
@@ -9144,55 +7684,60 @@ specular_sum.rgb += (((lut_scale_d0 * LookupLightingLUTSigned(0, dot(normal, nor
 diffuse_sum.rgb += lighting_global_ambient;
 primary_fragment_color = clamp(diffuse_sum, vec4(0.0), vec4(1.0));
 secondary_fragment_color = clamp(specular_sum, vec4(0.0), vec4(1.0));
-
 vec4 combiner_buffer = vec4(0.0);
 vec4 next_combiner_buffer = tev_combiner_buffer_color;
 vec4 last_tex_env_out = vec4(0.0);
 vec3 color_output_0 = byteround(clamp((vec3(1.0) - secondary_fragment_color.aaa) * (const_color[0].rgb) + (primary_fragment_color.rgb), vec3(0.0), vec3(1.0)));
 float alpha_output_0 = byteround(clamp((rounded_primary_color.a) * (texcolor0.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_0, alpha_output_0), vec4(0.0), vec4(1.0));
+last_tex_env_out = vec4(color_output_0, alpha_output_0);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 next_combiner_buffer.rgb = last_tex_env_out.rgb;
 
 vec3 color_output_1 = byteround(clamp((texcolor0.rgb) * (const_color[1].rgb), vec3(0.0), vec3(1.0)));
-float alpha_output_1 = byteround(clamp((last_tex_env_out.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_1, alpha_output_1), vec4(0.0), vec4(1.0));
+float alpha_output_1 = (last_tex_env_out.a);
+last_tex_env_out = vec4(color_output_1, alpha_output_1);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 
 vec3 color_output_2 = byteround(clamp((last_tex_env_out.rgb) * (combiner_buffer.rgb), vec3(0.0), vec3(1.0)));
-float alpha_output_2 = byteround(clamp((last_tex_env_out.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_2, alpha_output_2), vec4(0.0), vec4(1.0));
+float alpha_output_2 = (last_tex_env_out.a);
+last_tex_env_out = vec4(color_output_2, alpha_output_2);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 
 vec3 color_output_3 = byteround(clamp((secondary_fragment_color.rgb) * (texcolor0.rgb) + (last_tex_env_out.rgb), vec3(0.0), vec3(1.0)));
-float alpha_output_3 = byteround(clamp((last_tex_env_out.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_3, alpha_output_3), vec4(0.0), vec4(1.0));
+float alpha_output_3 = (last_tex_env_out.a);
+last_tex_env_out = vec4(color_output_3, alpha_output_3);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 next_combiner_buffer.rgb = last_tex_env_out.rgb;
 
 vec3 color_output_4 = byteround(clamp(min((rounded_primary_color.rgb) + (const_color[4].rgb), vec3(1.0)) * (rounded_primary_color.rgb), vec3(0.0), vec3(1.0)));
-float alpha_output_4 = byteround(clamp((last_tex_env_out.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_4, alpha_output_4), vec4(0.0), vec4(1.0));
+float alpha_output_4 = (last_tex_env_out.a);
+last_tex_env_out = vec4(color_output_4, alpha_output_4);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 
 vec3 color_output_5 = byteround(clamp((last_tex_env_out.rgb) * (combiner_buffer.rgb) + (const_color[5].rgb), vec3(0.0), vec3(1.0)));
-float alpha_output_5 = byteround(clamp((last_tex_env_out.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_5 * 2.0, alpha_output_5 * 1.0), vec4(0.0), vec4(1.0));
+float alpha_output_5 = (last_tex_env_out.a);
+last_tex_env_out = vec4(color_output_5 * 2.0, alpha_output_5 * 1.0);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 
 float fog_index = depth * 128.0;
-float fog_i = clamp(floor(fog_index), 0.0, 127.0);
-float fog_f = fog_index - fog_i;
-vec2 fog_lut_entry = texelFetch(texture_buffer_lut_lf, int(fog_i) + fog_lut_offset).rg;
+int fog_i = int(fog_index);
+float fog_f = fract(fog_index);
+vec2 fog_lut_entry = texelFetch(texture_buffer_lut_lf, fog_i + fog_lut_offset).rg;
 float fog_factor = fog_lut_entry.r + fog_lut_entry.g * fog_f;
 fog_factor = clamp(fog_factor, 0.0, 1.0);
 last_tex_env_out.rgb = mix(fog_color.rgb, last_tex_env_out.rgb, fog_factor);
 gl_FragDepth = depth;
 color = byteround(last_tex_env_out);
 }
-// reference: DEE6DBE39F13B977, C0F53D64C90EDD0A
-// program: 9A0887C21E007189, 3B3AE026C742C7D5, C0F53D64C90EDD0A
-// shader: 8B30, 19362CFAC7904499
+// reference: DEE6DBE39F13B977, FF7A888172E54B94
+// program: C2A49A7A2A81571D, D0BDF6740B5CE976, FF7A888172E54B94
+// shader: 8B30, 171A9044E42730E0
 
 precision highp int;
 precision highp float;
@@ -9370,52 +7915,56 @@ specular_sum.rgb += ((((lut_scale_d0 * LookupLightingLUTSigned(0, dot(normal, no
 diffuse_sum.rgb += lighting_global_ambient;
 primary_fragment_color = clamp(diffuse_sum, vec4(0.0), vec4(1.0));
 secondary_fragment_color = clamp(specular_sum, vec4(0.0), vec4(1.0));
-
 vec4 combiner_buffer = vec4(0.0);
 vec4 next_combiner_buffer = tev_combiner_buffer_color;
 vec4 last_tex_env_out = vec4(0.0);
 vec3 color_output_0 = byteround(clamp((vec3(1.0) - secondary_fragment_color.aaa) * (const_color[0].rgb) + (primary_fragment_color.rgb), vec3(0.0), vec3(1.0)));
 float alpha_output_0 = byteround(clamp((rounded_primary_color.a) * (texcolor0.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_0, alpha_output_0), vec4(0.0), vec4(1.0));
+last_tex_env_out = vec4(color_output_0, alpha_output_0);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 next_combiner_buffer.rgb = last_tex_env_out.rgb;
 
 vec3 color_output_1 = byteround(clamp((texcolor0.rgb) * (const_color[1].rgb), vec3(0.0), vec3(1.0)));
-float alpha_output_1 = byteround(clamp((last_tex_env_out.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_1, alpha_output_1), vec4(0.0), vec4(1.0));
+float alpha_output_1 = (last_tex_env_out.a);
+last_tex_env_out = vec4(color_output_1, alpha_output_1);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 
 vec3 color_output_2 = byteround(clamp((last_tex_env_out.rgb) * (combiner_buffer.rgb), vec3(0.0), vec3(1.0)));
-float alpha_output_2 = byteround(clamp((last_tex_env_out.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_2, alpha_output_2), vec4(0.0), vec4(1.0));
+float alpha_output_2 = (last_tex_env_out.a);
+last_tex_env_out = vec4(color_output_2, alpha_output_2);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 
 vec3 color_output_3 = byteround(clamp((secondary_fragment_color.rgb) + (last_tex_env_out.rgb), vec3(0.0), vec3(1.0)));
-float alpha_output_3 = byteround(clamp((last_tex_env_out.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_3, alpha_output_3), vec4(0.0), vec4(1.0));
+float alpha_output_3 = (last_tex_env_out.a);
+last_tex_env_out = vec4(color_output_3, alpha_output_3);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 
 vec3 color_output_4 = byteround(clamp(min((rounded_primary_color.rgb) + (const_color[4].rgb), vec3(1.0)) * (last_tex_env_out.rgb), vec3(0.0), vec3(1.0)));
-float alpha_output_4 = byteround(clamp((last_tex_env_out.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_4 * 2.0, alpha_output_4 * 1.0), vec4(0.0), vec4(1.0));
+float alpha_output_4 = (last_tex_env_out.a);
+last_tex_env_out = vec4(color_output_4 * 2.0, alpha_output_4 * 1.0);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 
 combiner_buffer = next_combiner_buffer;
 
 float fog_index = depth * 128.0;
-float fog_i = clamp(floor(fog_index), 0.0, 127.0);
-float fog_f = fog_index - fog_i;
-vec2 fog_lut_entry = texelFetch(texture_buffer_lut_lf, int(fog_i) + fog_lut_offset).rg;
+int fog_i = int(fog_index);
+float fog_f = fract(fog_index);
+vec2 fog_lut_entry = texelFetch(texture_buffer_lut_lf, fog_i + fog_lut_offset).rg;
 float fog_factor = fog_lut_entry.r + fog_lut_entry.g * fog_f;
 fog_factor = clamp(fog_factor, 0.0, 1.0);
 last_tex_env_out.rgb = mix(fog_color.rgb, last_tex_env_out.rgb, fog_factor);
 gl_FragDepth = depth;
 color = byteround(last_tex_env_out);
 }
-// reference: 2CD554AAA23B29E7, 19362CFAC7904499
-// program: F3D442C0013F9392, 6CF3F3B70E23AA85, 19362CFAC7904499
-// program: 9A0887C21E007189, 3B3AE026C742C7D5, FB64BBECC940CACA
-// shader: 8B30, 7784B02D97425A6A
+// reference: 2CD554AAA23B29E7, 171A9044E42730E0
+// program: 22C3C36B08CEECE7, 7A40B90B17532EA8, 171A9044E42730E0
+// program: C2A49A7A2A81571D, D0BDF6740B5CE976, DE4A5D6FED8C23ED
+// shader: 8B30, 53055A6C1B865BE8
 
 precision highp int;
 precision highp float;
@@ -9592,51 +8141,55 @@ specular_sum.rgb += (((lut_scale_d0 * LookupLightingLUTSigned(0, dot(normal, nor
 diffuse_sum.rgb += lighting_global_ambient;
 primary_fragment_color = clamp(diffuse_sum, vec4(0.0), vec4(1.0));
 secondary_fragment_color = clamp(specular_sum, vec4(0.0), vec4(1.0));
-
 vec4 combiner_buffer = vec4(0.0);
 vec4 next_combiner_buffer = tev_combiner_buffer_color;
 vec4 last_tex_env_out = vec4(0.0);
 vec3 color_output_0 = byteround(clamp((vec3(1.0) - secondary_fragment_color.aaa) * (const_color[0].rgb) + (primary_fragment_color.rgb), vec3(0.0), vec3(1.0)));
 float alpha_output_0 = byteround(clamp((rounded_primary_color.a) * (texcolor0.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_0, alpha_output_0), vec4(0.0), vec4(1.0));
+last_tex_env_out = vec4(color_output_0, alpha_output_0);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 next_combiner_buffer.rgb = last_tex_env_out.rgb;
 
 vec3 color_output_1 = byteround(clamp((texcolor0.rgb) * (const_color[1].rgb), vec3(0.0), vec3(1.0)));
-float alpha_output_1 = byteround(clamp((last_tex_env_out.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_1, alpha_output_1), vec4(0.0), vec4(1.0));
+float alpha_output_1 = (last_tex_env_out.a);
+last_tex_env_out = vec4(color_output_1, alpha_output_1);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 
 vec3 color_output_2 = byteround(clamp((last_tex_env_out.rgb) * (combiner_buffer.rgb), vec3(0.0), vec3(1.0)));
-float alpha_output_2 = byteround(clamp((last_tex_env_out.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_2, alpha_output_2), vec4(0.0), vec4(1.0));
+float alpha_output_2 = (last_tex_env_out.a);
+last_tex_env_out = vec4(color_output_2, alpha_output_2);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 
 vec3 color_output_3 = byteround(clamp((secondary_fragment_color.rgb) * (texcolor1.rgb) + (last_tex_env_out.rgb), vec3(0.0), vec3(1.0)));
-float alpha_output_3 = byteround(clamp((last_tex_env_out.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_3, alpha_output_3), vec4(0.0), vec4(1.0));
+float alpha_output_3 = (last_tex_env_out.a);
+last_tex_env_out = vec4(color_output_3, alpha_output_3);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 
 vec3 color_output_4 = byteround(clamp(min((rounded_primary_color.rgb) + (const_color[4].rgb), vec3(1.0)) * (last_tex_env_out.rgb), vec3(0.0), vec3(1.0)));
-float alpha_output_4 = byteround(clamp((last_tex_env_out.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_4 * 2.0, alpha_output_4 * 1.0), vec4(0.0), vec4(1.0));
+float alpha_output_4 = (last_tex_env_out.a);
+last_tex_env_out = vec4(color_output_4 * 2.0, alpha_output_4 * 1.0);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 
 combiner_buffer = next_combiner_buffer;
 
 float fog_index = depth * 128.0;
-float fog_i = clamp(floor(fog_index), 0.0, 127.0);
-float fog_f = fog_index - fog_i;
-vec2 fog_lut_entry = texelFetch(texture_buffer_lut_lf, int(fog_i) + fog_lut_offset).rg;
+int fog_i = int(fog_index);
+float fog_f = fract(fog_index);
+vec2 fog_lut_entry = texelFetch(texture_buffer_lut_lf, fog_i + fog_lut_offset).rg;
 float fog_factor = fog_lut_entry.r + fog_lut_entry.g * fog_f;
 fog_factor = clamp(fog_factor, 0.0, 1.0);
 last_tex_env_out.rgb = mix(fog_color.rgb, last_tex_env_out.rgb, fog_factor);
 gl_FragDepth = depth;
 color = byteround(last_tex_env_out);
 }
-// reference: 8886409718F960BF, 7784B02D97425A6A
-// program: 9A0887C21E007189, 3B3AE026C742C7D5, 7784B02D97425A6A
-// shader: 8B30, 4982B44D494E20C9
+// reference: 8886409718F960BF, 53055A6C1B865BE8
+// program: C2A49A7A2A81571D, D0BDF6740B5CE976, 53055A6C1B865BE8
+// shader: 8B30, A93D6C96B092C947
 
 precision highp int;
 precision highp float;
@@ -9785,9 +8338,10 @@ float depth = z_over_w * depth_scale + depth_offset;
 vec4 combiner_buffer = vec4(0.0);
 vec4 next_combiner_buffer = tev_combiner_buffer_color;
 vec4 last_tex_env_out = vec4(0.0);
-vec3 color_output_0 = byteround(clamp((rounded_primary_color.rgb), vec3(0.0), vec3(1.0)));
-float alpha_output_0 = byteround(clamp((rounded_primary_color.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_0, alpha_output_0), vec4(0.0), vec4(1.0));
+vec3 color_output_0 = (rounded_primary_color.rgb);
+float alpha_output_0 = (rounded_primary_color.a);
+last_tex_env_out = vec4(color_output_0, alpha_output_0);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 
 combiner_buffer = next_combiner_buffer;
@@ -9803,10 +8357,10 @@ combiner_buffer = next_combiner_buffer;
 gl_FragDepth = depth;
 color = byteround(last_tex_env_out);
 }
-// reference: E34A73D48DAF9D9C, 4982B44D494E20C9
-// program: FBC6AFA380C91748, 4BD70AD09292A3DA, 4982B44D494E20C9
-// reference: 980E4EE5F87DB2C9, 34C36CE57EB1B184
-// shader: 8B30, BD45B6FE81E2970E
+// reference: E34A73D48DAF9D9C, A93D6C96B092C947
+// program: 668DC2CC893B1519, 80B52B8FBE5FE773, A93D6C96B092C947
+// reference: 980E4EE5F87DB2C9, A58EED9EADA72FE4
+// shader: 8B30, 271660AA94E607D3
 
 precision highp int;
 precision highp float;
@@ -9987,51 +8541,55 @@ specular_sum.rgb += ((((lut_scale_d0 * LookupLightingLUTSigned(0, dot(normal, no
 diffuse_sum.rgb += lighting_global_ambient;
 primary_fragment_color = clamp(diffuse_sum, vec4(0.0), vec4(1.0));
 secondary_fragment_color = clamp(specular_sum, vec4(0.0), vec4(1.0));
-
 vec4 combiner_buffer = vec4(0.0);
 vec4 next_combiner_buffer = tev_combiner_buffer_color;
 vec4 last_tex_env_out = vec4(0.0);
 vec3 color_output_0 = byteround(clamp((vec3(1.0) - secondary_fragment_color.aaa) * (const_color[0].rgb) + (primary_fragment_color.rgb), vec3(0.0), vec3(1.0)));
 float alpha_output_0 = byteround(clamp((rounded_primary_color.a) * (texcolor0.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_0, alpha_output_0), vec4(0.0), vec4(1.0));
+last_tex_env_out = vec4(color_output_0, alpha_output_0);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 next_combiner_buffer.rgb = last_tex_env_out.rgb;
 
 vec3 color_output_1 = byteround(clamp((texcolor0.rgb) * (const_color[1].rgb), vec3(0.0), vec3(1.0)));
-float alpha_output_1 = byteround(clamp((last_tex_env_out.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_1, alpha_output_1), vec4(0.0), vec4(1.0));
+float alpha_output_1 = (last_tex_env_out.a);
+last_tex_env_out = vec4(color_output_1, alpha_output_1);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 
 vec3 color_output_2 = byteround(clamp((last_tex_env_out.rgb) * (combiner_buffer.rgb), vec3(0.0), vec3(1.0)));
-float alpha_output_2 = byteround(clamp((last_tex_env_out.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_2, alpha_output_2), vec4(0.0), vec4(1.0));
+float alpha_output_2 = (last_tex_env_out.a);
+last_tex_env_out = vec4(color_output_2, alpha_output_2);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 
 vec3 color_output_3 = byteround(clamp((secondary_fragment_color.rgb) * (texcolor1.rgb) + (last_tex_env_out.rgb), vec3(0.0), vec3(1.0)));
-float alpha_output_3 = byteround(clamp((last_tex_env_out.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_3, alpha_output_3), vec4(0.0), vec4(1.0));
+float alpha_output_3 = (last_tex_env_out.a);
+last_tex_env_out = vec4(color_output_3, alpha_output_3);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 
 vec3 color_output_4 = byteround(clamp(min((rounded_primary_color.rgb) + (const_color[4].rgb), vec3(1.0)) * (last_tex_env_out.rgb), vec3(0.0), vec3(1.0)));
-float alpha_output_4 = byteround(clamp((last_tex_env_out.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_4 * 2.0, alpha_output_4 * 1.0), vec4(0.0), vec4(1.0));
+float alpha_output_4 = (last_tex_env_out.a);
+last_tex_env_out = vec4(color_output_4 * 2.0, alpha_output_4 * 1.0);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 
 combiner_buffer = next_combiner_buffer;
 
 float fog_index = depth * 128.0;
-float fog_i = clamp(floor(fog_index), 0.0, 127.0);
-float fog_f = fog_index - fog_i;
-vec2 fog_lut_entry = texelFetch(texture_buffer_lut_lf, int(fog_i) + fog_lut_offset).rg;
+int fog_i = int(fog_index);
+float fog_f = fract(fog_index);
+vec2 fog_lut_entry = texelFetch(texture_buffer_lut_lf, fog_i + fog_lut_offset).rg;
 float fog_factor = fog_lut_entry.r + fog_lut_entry.g * fog_f;
 fog_factor = clamp(fog_factor, 0.0, 1.0);
 last_tex_env_out.rgb = mix(fog_color.rgb, last_tex_env_out.rgb, fog_factor);
 gl_FragDepth = depth;
 color = byteround(last_tex_env_out);
 }
-// reference: 72C20B3C20B65095, BD45B6FE81E2970E
-// program: D00DCCA29A979BE7, AD7922A63ED54CA7, BD45B6FE81E2970E
-// shader: 8B30, A0B5806583366FF4
+// reference: 72C20B3C20B65095, 271660AA94E607D3
+// program: B3C9C1F640F27576, B80FA1B7F97410CD, 271660AA94E607D3
+// shader: 8B30, 98DB042B260A7702
 
 precision highp int;
 precision highp float;
@@ -10210,55 +8768,60 @@ specular_sum.rgb += ((((lut_scale_d0 * LookupLightingLUTSigned(0, dot(normal, no
 diffuse_sum.rgb += lighting_global_ambient;
 primary_fragment_color = clamp(diffuse_sum, vec4(0.0), vec4(1.0));
 secondary_fragment_color = clamp(specular_sum, vec4(0.0), vec4(1.0));
-
 vec4 combiner_buffer = vec4(0.0);
 vec4 next_combiner_buffer = tev_combiner_buffer_color;
 vec4 last_tex_env_out = vec4(0.0);
 vec3 color_output_0 = byteround(clamp((vec3(1.0) - secondary_fragment_color.aaa) * (const_color[0].rgb) + (primary_fragment_color.rgb), vec3(0.0), vec3(1.0)));
 float alpha_output_0 = byteround(clamp((rounded_primary_color.a) * (texcolor0.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_0, alpha_output_0), vec4(0.0), vec4(1.0));
+last_tex_env_out = vec4(color_output_0, alpha_output_0);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 next_combiner_buffer.rgb = last_tex_env_out.rgb;
 
 vec3 color_output_1 = byteround(clamp((texcolor0.rgb) * (const_color[1].rgb), vec3(0.0), vec3(1.0)));
-float alpha_output_1 = byteround(clamp((last_tex_env_out.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_1, alpha_output_1), vec4(0.0), vec4(1.0));
+float alpha_output_1 = (last_tex_env_out.a);
+last_tex_env_out = vec4(color_output_1, alpha_output_1);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 
 vec3 color_output_2 = byteround(clamp((last_tex_env_out.rgb) * (combiner_buffer.rgb) + (secondary_fragment_color.rgb), vec3(0.0), vec3(1.0)));
-float alpha_output_2 = byteround(clamp((last_tex_env_out.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_2, alpha_output_2), vec4(0.0), vec4(1.0));
+float alpha_output_2 = (last_tex_env_out.a);
+last_tex_env_out = vec4(color_output_2, alpha_output_2);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 
 vec3 color_output_3 = byteround(clamp((texcolor1.rgb) * (const_color[3].rgb) + (last_tex_env_out.rgb), vec3(0.0), vec3(1.0)));
-float alpha_output_3 = byteround(clamp((last_tex_env_out.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_3, alpha_output_3), vec4(0.0), vec4(1.0));
+float alpha_output_3 = (last_tex_env_out.a);
+last_tex_env_out = vec4(color_output_3, alpha_output_3);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 next_combiner_buffer.rgb = last_tex_env_out.rgb;
 
 vec3 color_output_4 = byteround(clamp((rounded_primary_color.rgb) * (const_color[4].rgb) + (rounded_primary_color.rgb), vec3(0.0), vec3(1.0)));
-float alpha_output_4 = byteround(clamp((last_tex_env_out.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_4, alpha_output_4), vec4(0.0), vec4(1.0));
+float alpha_output_4 = (last_tex_env_out.a);
+last_tex_env_out = vec4(color_output_4, alpha_output_4);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 
 vec3 color_output_5 = byteround(clamp((last_tex_env_out.rgb) * (combiner_buffer.rgb) + (const_color[5].rgb), vec3(0.0), vec3(1.0)));
-float alpha_output_5 = byteround(clamp((last_tex_env_out.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_5 * 2.0, alpha_output_5 * 1.0), vec4(0.0), vec4(1.0));
+float alpha_output_5 = (last_tex_env_out.a);
+last_tex_env_out = vec4(color_output_5 * 2.0, alpha_output_5 * 1.0);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 
 float fog_index = depth * 128.0;
-float fog_i = clamp(floor(fog_index), 0.0, 127.0);
-float fog_f = fog_index - fog_i;
-vec2 fog_lut_entry = texelFetch(texture_buffer_lut_lf, int(fog_i) + fog_lut_offset).rg;
+int fog_i = int(fog_index);
+float fog_f = fract(fog_index);
+vec2 fog_lut_entry = texelFetch(texture_buffer_lut_lf, fog_i + fog_lut_offset).rg;
 float fog_factor = fog_lut_entry.r + fog_lut_entry.g * fog_f;
 fog_factor = clamp(fog_factor, 0.0, 1.0);
 last_tex_env_out.rgb = mix(fog_color.rgb, last_tex_env_out.rgb, fog_factor);
 gl_FragDepth = depth;
 color = byteround(last_tex_env_out);
 }
-// reference: 834E92D1098A51DE, A0B5806583366FF4
-// program: 9A0887C21E007189, 3B3AE026C742C7D5, A0B5806583366FF4
-// shader: 8B30, 577D774A22847149
+// reference: 834E92D1098A51DE, 98DB042B260A7702
+// program: C2A49A7A2A81571D, D0BDF6740B5CE976, 98DB042B260A7702
+// shader: 8B30, D6157EEFC8224269
 
 precision highp int;
 precision highp float;
@@ -10436,55 +8999,60 @@ specular_sum.rgb += (((lut_scale_d0 * LookupLightingLUTSigned(0, dot(normal, nor
 diffuse_sum.rgb += lighting_global_ambient;
 primary_fragment_color = clamp(diffuse_sum, vec4(0.0), vec4(1.0));
 secondary_fragment_color = clamp(specular_sum, vec4(0.0), vec4(1.0));
-
 vec4 combiner_buffer = vec4(0.0);
 vec4 next_combiner_buffer = tev_combiner_buffer_color;
 vec4 last_tex_env_out = vec4(0.0);
 vec3 color_output_0 = byteround(clamp((vec3(1.0) - secondary_fragment_color.aaa) * (const_color[0].rgb) + (primary_fragment_color.rgb), vec3(0.0), vec3(1.0)));
 float alpha_output_0 = byteround(clamp((rounded_primary_color.a) * (texcolor0.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_0, alpha_output_0), vec4(0.0), vec4(1.0));
+last_tex_env_out = vec4(color_output_0, alpha_output_0);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 next_combiner_buffer.rgb = last_tex_env_out.rgb;
 
 vec3 color_output_1 = byteround(clamp((texcolor0.rgb) * (const_color[1].rgb), vec3(0.0), vec3(1.0)));
-float alpha_output_1 = byteround(clamp((last_tex_env_out.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_1, alpha_output_1), vec4(0.0), vec4(1.0));
+float alpha_output_1 = (last_tex_env_out.a);
+last_tex_env_out = vec4(color_output_1, alpha_output_1);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 
 vec3 color_output_2 = byteround(clamp((last_tex_env_out.rgb) * (combiner_buffer.rgb), vec3(0.0), vec3(1.0)));
-float alpha_output_2 = byteround(clamp((last_tex_env_out.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_2, alpha_output_2), vec4(0.0), vec4(1.0));
+float alpha_output_2 = (last_tex_env_out.a);
+last_tex_env_out = vec4(color_output_2, alpha_output_2);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 
 vec3 color_output_3 = byteround(clamp((secondary_fragment_color.rgb) * (texcolor0.rgb) + (last_tex_env_out.rgb), vec3(0.0), vec3(1.0)));
-float alpha_output_3 = byteround(clamp((last_tex_env_out.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_3, alpha_output_3), vec4(0.0), vec4(1.0));
+float alpha_output_3 = (last_tex_env_out.a);
+last_tex_env_out = vec4(color_output_3, alpha_output_3);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 next_combiner_buffer.rgb = last_tex_env_out.rgb;
 
 vec3 color_output_4 = byteround(clamp(min((rounded_primary_color.rgb) + (const_color[4].rgb), vec3(1.0)) * (rounded_primary_color.rgb), vec3(0.0), vec3(1.0)));
-float alpha_output_4 = byteround(clamp((last_tex_env_out.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_4, alpha_output_4), vec4(0.0), vec4(1.0));
+float alpha_output_4 = (last_tex_env_out.a);
+last_tex_env_out = vec4(color_output_4, alpha_output_4);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 
 vec3 color_output_5 = byteround(clamp((last_tex_env_out.rgb) * (combiner_buffer.rgb) + (const_color[5].rgb), vec3(0.0), vec3(1.0)));
-float alpha_output_5 = byteround(clamp((last_tex_env_out.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_5 * 2.0, alpha_output_5 * 1.0), vec4(0.0), vec4(1.0));
+float alpha_output_5 = (last_tex_env_out.a);
+last_tex_env_out = vec4(color_output_5 * 2.0, alpha_output_5 * 1.0);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 
 float fog_index = depth * 128.0;
-float fog_i = clamp(floor(fog_index), 0.0, 127.0);
-float fog_f = fog_index - fog_i;
-vec2 fog_lut_entry = texelFetch(texture_buffer_lut_lf, int(fog_i) + fog_lut_offset).rg;
+int fog_i = int(fog_index);
+float fog_f = fract(fog_index);
+vec2 fog_lut_entry = texelFetch(texture_buffer_lut_lf, fog_i + fog_lut_offset).rg;
 float fog_factor = fog_lut_entry.r + fog_lut_entry.g * fog_f;
 fog_factor = clamp(fog_factor, 0.0, 1.0);
 last_tex_env_out.rgb = mix(fog_color.rgb, last_tex_env_out.rgb, fog_factor);
 gl_FragDepth = depth;
 color = byteround(last_tex_env_out);
 }
-// reference: 9030C0BC9F13B977, 577D774A22847149
-// program: 9A0887C21E007189, 3B3AE026C742C7D5, 577D774A22847149
-// shader: 8B30, FD5243D1FEFD5E87
+// reference: 9030C0BC9F13B977, D6157EEFC8224269
+// program: C2A49A7A2A81571D, D0BDF6740B5CE976, D6157EEFC8224269
+// shader: 8B30, 95D1E35212DC8864
 
 precision highp int;
 precision highp float;
@@ -10658,14 +9226,13 @@ diffuse_sum.rgb += ((light_src[0].diffuse * dot_product) + light_src[0].ambient)
 specular_sum.rgb += ((light_src[0].specular_0) + (light_src[0].specular_1)) * clamp_highlights * 1.0;
 diffuse_sum.rgb += lighting_global_ambient;
 primary_fragment_color = clamp(diffuse_sum, vec4(0.0), vec4(1.0));
-secondary_fragment_color = clamp(specular_sum, vec4(0.0), vec4(1.0));
-
 vec4 combiner_buffer = vec4(0.0);
 vec4 next_combiner_buffer = tev_combiner_buffer_color;
 vec4 last_tex_env_out = vec4(0.0);
 vec3 color_output_0 = byteround(clamp((primary_fragment_color.rgb) * (texcolor0.rgb), vec3(0.0), vec3(1.0)));
 float alpha_output_0 = byteround(clamp((rounded_primary_color.a) * (texcolor0.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_0, alpha_output_0), vec4(0.0), vec4(1.0));
+last_tex_env_out = vec4(color_output_0, alpha_output_0);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 
 combiner_buffer = next_combiner_buffer;
@@ -10679,18 +9246,18 @@ combiner_buffer = next_combiner_buffer;
 combiner_buffer = next_combiner_buffer;
 
 float fog_index = depth * 128.0;
-float fog_i = clamp(floor(fog_index), 0.0, 127.0);
-float fog_f = fog_index - fog_i;
-vec2 fog_lut_entry = texelFetch(texture_buffer_lut_lf, int(fog_i) + fog_lut_offset).rg;
+int fog_i = int(fog_index);
+float fog_f = fract(fog_index);
+vec2 fog_lut_entry = texelFetch(texture_buffer_lut_lf, fog_i + fog_lut_offset).rg;
 float fog_factor = fog_lut_entry.r + fog_lut_entry.g * fog_f;
 fog_factor = clamp(fog_factor, 0.0, 1.0);
 last_tex_env_out.rgb = mix(fog_color.rgb, last_tex_env_out.rgb, fog_factor);
 gl_FragDepth = depth;
 color = byteround(last_tex_env_out);
 }
-// reference: E4D86C0B980D5DF6, FD5243D1FEFD5E87
-// program: F3D442C0013F9392, 6CF3F3B70E23AA85, FD5243D1FEFD5E87
-// shader: 8B30, 104C2869DCD4C684
+// reference: E4D86C0B980D5DF6, 95D1E35212DC8864
+// program: 22C3C36B08CEECE7, 7A40B90B17532EA8, 95D1E35212DC8864
+// shader: 8B30, 96E822CD50C46F37
 
 precision highp int;
 precision highp float;
@@ -10869,54 +9436,59 @@ specular_sum.rgb += (((lut_scale_d0 * LookupLightingLUTSigned(0, dot(normal, nor
 diffuse_sum.rgb += lighting_global_ambient;
 primary_fragment_color = clamp(diffuse_sum, vec4(0.0), vec4(1.0));
 secondary_fragment_color = clamp(specular_sum, vec4(0.0), vec4(1.0));
-
 vec4 combiner_buffer = vec4(0.0);
 vec4 next_combiner_buffer = tev_combiner_buffer_color;
 vec4 last_tex_env_out = vec4(0.0);
 vec3 color_output_0 = byteround(clamp((vec3(1.0) - secondary_fragment_color.aaa) * (const_color[0].rgb) + (primary_fragment_color.rgb), vec3(0.0), vec3(1.0)));
 float alpha_output_0 = byteround(clamp((rounded_primary_color.a) * (texcolor0.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_0, alpha_output_0), vec4(0.0), vec4(1.0));
+last_tex_env_out = vec4(color_output_0, alpha_output_0);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 next_combiner_buffer.rgb = last_tex_env_out.rgb;
 
 vec3 color_output_1 = byteround(clamp((texcolor0.rgb) * (const_color[1].rgb), vec3(0.0), vec3(1.0)));
-float alpha_output_1 = byteround(clamp((last_tex_env_out.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_1, alpha_output_1), vec4(0.0), vec4(1.0));
+float alpha_output_1 = (last_tex_env_out.a);
+last_tex_env_out = vec4(color_output_1, alpha_output_1);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 
 vec3 color_output_2 = byteround(clamp((last_tex_env_out.rgb) * (combiner_buffer.rgb), vec3(0.0), vec3(1.0)));
-float alpha_output_2 = byteround(clamp((last_tex_env_out.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_2, alpha_output_2), vec4(0.0), vec4(1.0));
+float alpha_output_2 = (last_tex_env_out.a);
+last_tex_env_out = vec4(color_output_2, alpha_output_2);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 
 vec3 color_output_3 = byteround(clamp((secondary_fragment_color.rgb) * (texcolor1.rgb) + (last_tex_env_out.rgb), vec3(0.0), vec3(1.0)));
-float alpha_output_3 = byteround(clamp((last_tex_env_out.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_3, alpha_output_3), vec4(0.0), vec4(1.0));
+float alpha_output_3 = (last_tex_env_out.a);
+last_tex_env_out = vec4(color_output_3, alpha_output_3);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 
 vec3 color_output_4 = byteround(clamp(min((rounded_primary_color.rgb) + (const_color[4].rgb), vec3(1.0)) * (last_tex_env_out.rgb), vec3(0.0), vec3(1.0)));
-float alpha_output_4 = byteround(clamp((last_tex_env_out.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_4, alpha_output_4), vec4(0.0), vec4(1.0));
+float alpha_output_4 = (last_tex_env_out.a);
+last_tex_env_out = vec4(color_output_4, alpha_output_4);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 
 vec3 color_output_5 = byteround(clamp((last_tex_env_out.rgb) * (last_tex_env_out.rgb) + (last_tex_env_out.rgb), vec3(0.0), vec3(1.0)));
-float alpha_output_5 = byteround(clamp((last_tex_env_out.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_5 * 2.0, alpha_output_5 * 1.0), vec4(0.0), vec4(1.0));
+float alpha_output_5 = (last_tex_env_out.a);
+last_tex_env_out = vec4(color_output_5 * 2.0, alpha_output_5 * 1.0);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 
 float fog_index = depth * 128.0;
-float fog_i = clamp(floor(fog_index), 0.0, 127.0);
-float fog_f = fog_index - fog_i;
-vec2 fog_lut_entry = texelFetch(texture_buffer_lut_lf, int(fog_i) + fog_lut_offset).rg;
+int fog_i = int(fog_index);
+float fog_f = fract(fog_index);
+vec2 fog_lut_entry = texelFetch(texture_buffer_lut_lf, fog_i + fog_lut_offset).rg;
 float fog_factor = fog_lut_entry.r + fog_lut_entry.g * fog_f;
 fog_factor = clamp(fog_factor, 0.0, 1.0);
 last_tex_env_out.rgb = mix(fog_color.rgb, last_tex_env_out.rgb, fog_factor);
 gl_FragDepth = depth;
 color = byteround(last_tex_env_out);
 }
-// reference: DEE6DBE37099FCA5, 104C2869DCD4C684
-// program: D00DCCA29A979BE7, AD7922A63ED54CA7, 104C2869DCD4C684
-// shader: 8B30, B41ECC8CBA4B46F7
+// reference: DEE6DBE37099FCA5, 96E822CD50C46F37
+// program: B3C9C1F640F27576, B80FA1B7F97410CD, 96E822CD50C46F37
+// shader: 8B30, E4D8B7E5C17C15BB
 
 precision highp int;
 precision highp float;
@@ -11092,51 +9664,55 @@ specular_sum.rgb += (((lut_scale_d0 * LookupLightingLUTSigned(0, dot(normal, nor
 diffuse_sum.rgb += lighting_global_ambient;
 primary_fragment_color = clamp(diffuse_sum, vec4(0.0), vec4(1.0));
 secondary_fragment_color = clamp(specular_sum, vec4(0.0), vec4(1.0));
-
 vec4 combiner_buffer = vec4(0.0);
 vec4 next_combiner_buffer = tev_combiner_buffer_color;
 vec4 last_tex_env_out = vec4(0.0);
 vec3 color_output_0 = byteround(clamp((texcolor0.rgb) * (const_color[0].aaa), vec3(0.0), vec3(1.0)));
 float alpha_output_0 = byteround(clamp((rounded_primary_color.a) * (texcolor0.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_0, alpha_output_0), vec4(0.0), vec4(1.0));
+last_tex_env_out = vec4(color_output_0, alpha_output_0);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 
 vec3 color_output_1 = byteround(clamp((last_tex_env_out.rgb) + (const_color[1].rgb) - vec3(0.5), vec3(0.0), vec3(1.0)));
-float alpha_output_1 = byteround(clamp((last_tex_env_out.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_1, alpha_output_1), vec4(0.0), vec4(1.0));
+float alpha_output_1 = (last_tex_env_out.a);
+last_tex_env_out = vec4(color_output_1, alpha_output_1);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 next_combiner_buffer.rgb = last_tex_env_out.rgb;
 
 vec3 color_output_2 = byteround(clamp((vec3(1.0) - secondary_fragment_color.rgb) * (last_tex_env_out.rgb) + (secondary_fragment_color.rgb), vec3(0.0), vec3(1.0)));
-float alpha_output_2 = byteround(clamp((last_tex_env_out.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_2, alpha_output_2), vec4(0.0), vec4(1.0));
+float alpha_output_2 = (last_tex_env_out.a);
+last_tex_env_out = vec4(color_output_2, alpha_output_2);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 
 vec3 color_output_3 = byteround(clamp(min((rounded_primary_color.rgb) + (const_color[3].rgb), vec3(1.0)) * (last_tex_env_out.rgb), vec3(0.0), vec3(1.0)));
-float alpha_output_3 = byteround(clamp((last_tex_env_out.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_3, alpha_output_3), vec4(0.0), vec4(1.0));
+float alpha_output_3 = (last_tex_env_out.a);
+last_tex_env_out = vec4(color_output_3, alpha_output_3);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 
 vec3 color_output_4 = byteround(clamp((last_tex_env_out.rgb) * (combiner_buffer.rgb) + (last_tex_env_out.rgb), vec3(0.0), vec3(1.0)));
-float alpha_output_4 = byteround(clamp((last_tex_env_out.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_4 * 2.0, alpha_output_4 * 1.0), vec4(0.0), vec4(1.0));
+float alpha_output_4 = (last_tex_env_out.a);
+last_tex_env_out = vec4(color_output_4 * 2.0, alpha_output_4 * 1.0);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 
 combiner_buffer = next_combiner_buffer;
 
 float fog_index = depth * 128.0;
-float fog_i = clamp(floor(fog_index), 0.0, 127.0);
-float fog_f = fog_index - fog_i;
-vec2 fog_lut_entry = texelFetch(texture_buffer_lut_lf, int(fog_i) + fog_lut_offset).rg;
+int fog_i = int(fog_index);
+float fog_f = fract(fog_index);
+vec2 fog_lut_entry = texelFetch(texture_buffer_lut_lf, fog_i + fog_lut_offset).rg;
 float fog_factor = fog_lut_entry.r + fog_lut_entry.g * fog_f;
 fog_factor = clamp(fog_factor, 0.0, 1.0);
 last_tex_env_out.rgb = mix(fog_color.rgb, last_tex_env_out.rgb, fog_factor);
 gl_FragDepth = depth;
 color = byteround(last_tex_env_out);
 }
-// reference: 3C1CFE2AC9BDE050, B41ECC8CBA4B46F7
-// program: F3D442C0013F9392, 6CF3F3B70E23AA85, B41ECC8CBA4B46F7
-// shader: 8B30, 7B78373191589A56
+// reference: 3C1CFE2AC9BDE050, E4D8B7E5C17C15BB
+// program: 22C3C36B08CEECE7, 7A40B90B17532EA8, E4D8B7E5C17C15BB
+// shader: 8B30, EB6B37F09EF5044A
 
 precision highp int;
 precision highp float;
@@ -11312,54 +9888,59 @@ specular_sum.rgb += (((lut_scale_d0 * LookupLightingLUTSigned(0, dot(normal, nor
 diffuse_sum.rgb += lighting_global_ambient;
 primary_fragment_color = clamp(diffuse_sum, vec4(0.0), vec4(1.0));
 secondary_fragment_color = clamp(specular_sum, vec4(0.0), vec4(1.0));
-
 vec4 combiner_buffer = vec4(0.0);
 vec4 next_combiner_buffer = tev_combiner_buffer_color;
 vec4 last_tex_env_out = vec4(0.0);
 vec3 color_output_0 = byteround(clamp((texcolor0.rgb) * (const_color[0].aaa), vec3(0.0), vec3(1.0)));
 float alpha_output_0 = byteround(clamp((rounded_primary_color.a) * (texcolor0.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_0, alpha_output_0), vec4(0.0), vec4(1.0));
+last_tex_env_out = vec4(color_output_0, alpha_output_0);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 
 vec3 color_output_1 = byteround(clamp((last_tex_env_out.rgb) + (const_color[1].rgb) - vec3(0.5), vec3(0.0), vec3(1.0)));
-float alpha_output_1 = byteround(clamp((last_tex_env_out.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_1, alpha_output_1), vec4(0.0), vec4(1.0));
+float alpha_output_1 = (last_tex_env_out.a);
+last_tex_env_out = vec4(color_output_1, alpha_output_1);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 next_combiner_buffer.rgb = last_tex_env_out.rgb;
 
 vec3 color_output_2 = byteround(clamp((rounded_primary_color.rgb) * (secondary_fragment_color.rgb) + (last_tex_env_out.rgb), vec3(0.0), vec3(1.0)));
-float alpha_output_2 = byteround(clamp((last_tex_env_out.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_2, alpha_output_2), vec4(0.0), vec4(1.0));
+float alpha_output_2 = (last_tex_env_out.a);
+last_tex_env_out = vec4(color_output_2, alpha_output_2);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 
 vec3 color_output_3 = byteround(clamp(min((rounded_primary_color.rgb) + (const_color[3].rgb), vec3(1.0)) * (last_tex_env_out.rgb), vec3(0.0), vec3(1.0)));
-float alpha_output_3 = byteround(clamp((last_tex_env_out.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_3, alpha_output_3), vec4(0.0), vec4(1.0));
+float alpha_output_3 = (last_tex_env_out.a);
+last_tex_env_out = vec4(color_output_3, alpha_output_3);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 
 vec3 color_output_4 = byteround(clamp((last_tex_env_out.rgb) * (combiner_buffer.rgb) + (last_tex_env_out.rgb), vec3(0.0), vec3(1.0)));
-float alpha_output_4 = byteround(clamp((last_tex_env_out.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_4 * 2.0, alpha_output_4 * 1.0), vec4(0.0), vec4(1.0));
+float alpha_output_4 = (last_tex_env_out.a);
+last_tex_env_out = vec4(color_output_4 * 2.0, alpha_output_4 * 1.0);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 
 vec3 color_output_5 = byteround(clamp((last_tex_env_out.rgb) + (const_color[5].rgb), vec3(0.0), vec3(1.0)));
-float alpha_output_5 = byteround(clamp((last_tex_env_out.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_5, alpha_output_5), vec4(0.0), vec4(1.0));
+float alpha_output_5 = (last_tex_env_out.a);
+last_tex_env_out = vec4(color_output_5, alpha_output_5);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 
 float fog_index = depth * 128.0;
-float fog_i = clamp(floor(fog_index), 0.0, 127.0);
-float fog_f = fog_index - fog_i;
-vec2 fog_lut_entry = texelFetch(texture_buffer_lut_lf, int(fog_i) + fog_lut_offset).rg;
+int fog_i = int(fog_index);
+float fog_f = fract(fog_index);
+vec2 fog_lut_entry = texelFetch(texture_buffer_lut_lf, fog_i + fog_lut_offset).rg;
 float fog_factor = fog_lut_entry.r + fog_lut_entry.g * fog_f;
 fog_factor = clamp(fog_factor, 0.0, 1.0);
 last_tex_env_out.rgb = mix(fog_color.rgb, last_tex_env_out.rgb, fog_factor);
 gl_FragDepth = depth;
 color = byteround(last_tex_env_out);
 }
-// reference: 3673D4BF854426C6, 7B78373191589A56
-// program: F3D442C0013F9392, 6CF3F3B70E23AA85, 7B78373191589A56
-// shader: 8B30, 514A2A37054776D8
+// reference: 3673D4BF854426C6, EB6B37F09EF5044A
+// program: 22C3C36B08CEECE7, 7A40B90B17532EA8, EB6B37F09EF5044A
+// shader: 8B30, 9713476D2358942E
 
 precision highp int;
 precision highp float;
@@ -11535,52 +10116,56 @@ specular_sum.rgb += (((lut_scale_d0 * LookupLightingLUTSigned(0, dot(normal, nor
 diffuse_sum.rgb += lighting_global_ambient;
 primary_fragment_color = clamp(diffuse_sum, vec4(0.0), vec4(1.0));
 secondary_fragment_color = clamp(specular_sum, vec4(0.0), vec4(1.0));
-
 vec4 combiner_buffer = vec4(0.0);
 vec4 next_combiner_buffer = tev_combiner_buffer_color;
 vec4 last_tex_env_out = vec4(0.0);
 vec3 color_output_0 = byteround(clamp((texcolor0.rgb) * (const_color[0].aaa), vec3(0.0), vec3(1.0)));
 float alpha_output_0 = byteround(clamp((rounded_primary_color.a) * (texcolor0.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_0, alpha_output_0), vec4(0.0), vec4(1.0));
+last_tex_env_out = vec4(color_output_0, alpha_output_0);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 
 vec3 color_output_1 = byteround(clamp((last_tex_env_out.rgb) + (const_color[1].rgb) - vec3(0.5), vec3(0.0), vec3(1.0)));
-float alpha_output_1 = byteround(clamp((last_tex_env_out.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_1, alpha_output_1), vec4(0.0), vec4(1.0));
+float alpha_output_1 = (last_tex_env_out.a);
+last_tex_env_out = vec4(color_output_1, alpha_output_1);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 next_combiner_buffer.rgb = last_tex_env_out.rgb;
 
 vec3 color_output_2 = byteround(clamp((vec3(1.0) - secondary_fragment_color.rgb) * (last_tex_env_out.rgb) + (secondary_fragment_color.rgb), vec3(0.0), vec3(1.0)));
-float alpha_output_2 = byteround(clamp((last_tex_env_out.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_2, alpha_output_2), vec4(0.0), vec4(1.0));
+float alpha_output_2 = (last_tex_env_out.a);
+last_tex_env_out = vec4(color_output_2, alpha_output_2);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 
 vec3 color_output_3 = byteround(clamp(min((rounded_primary_color.rgb) + (const_color[3].rgb), vec3(1.0)) * (last_tex_env_out.rgb), vec3(0.0), vec3(1.0)));
-float alpha_output_3 = byteround(clamp((last_tex_env_out.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_3, alpha_output_3), vec4(0.0), vec4(1.0));
+float alpha_output_3 = (last_tex_env_out.a);
+last_tex_env_out = vec4(color_output_3, alpha_output_3);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 
 vec3 color_output_4 = byteround(clamp((last_tex_env_out.rgb) * (combiner_buffer.rgb) + (last_tex_env_out.rgb), vec3(0.0), vec3(1.0)));
-float alpha_output_4 = byteround(clamp((last_tex_env_out.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_4 * 2.0, alpha_output_4 * 1.0), vec4(0.0), vec4(1.0));
+float alpha_output_4 = (last_tex_env_out.a);
+last_tex_env_out = vec4(color_output_4 * 2.0, alpha_output_4 * 1.0);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 
 combiner_buffer = next_combiner_buffer;
 
 if (int(last_tex_env_out.a * 255.0) <= alphatest_ref) discard;
 float fog_index = depth * 128.0;
-float fog_i = clamp(floor(fog_index), 0.0, 127.0);
-float fog_f = fog_index - fog_i;
-vec2 fog_lut_entry = texelFetch(texture_buffer_lut_lf, int(fog_i) + fog_lut_offset).rg;
+int fog_i = int(fog_index);
+float fog_f = fract(fog_index);
+vec2 fog_lut_entry = texelFetch(texture_buffer_lut_lf, fog_i + fog_lut_offset).rg;
 float fog_factor = fog_lut_entry.r + fog_lut_entry.g * fog_f;
 fog_factor = clamp(fog_factor, 0.0, 1.0);
 last_tex_env_out.rgb = mix(fog_color.rgb, last_tex_env_out.rgb, fog_factor);
 gl_FragDepth = depth;
 color = byteround(last_tex_env_out);
 }
-// reference: 3C1CFE2A250A0B53, 514A2A37054776D8
-// program: F3D442C0013F9392, 6CF3F3B70E23AA85, 514A2A37054776D8
-// shader: 8B30, 6605E8B83752E860
+// reference: 3C1CFE2A250A0B53, 9713476D2358942E
+// program: 22C3C36B08CEECE7, 7A40B90B17532EA8, 9713476D2358942E
+// shader: 8B30, C1D510C79CC05B1F
 
 precision highp int;
 precision highp float;
@@ -11756,54 +10341,59 @@ specular_sum.rgb += (((lut_scale_d0 * LookupLightingLUTSigned(0, dot(normal, nor
 diffuse_sum.rgb += lighting_global_ambient;
 primary_fragment_color = clamp(diffuse_sum, vec4(0.0), vec4(1.0));
 secondary_fragment_color = clamp(specular_sum, vec4(0.0), vec4(1.0));
-
 vec4 combiner_buffer = vec4(0.0);
 vec4 next_combiner_buffer = tev_combiner_buffer_color;
 vec4 last_tex_env_out = vec4(0.0);
 vec3 color_output_0 = byteround(clamp((vec3(1.0) - secondary_fragment_color.aaa) * (const_color[0].rgb) + (primary_fragment_color.rgb), vec3(0.0), vec3(1.0)));
 float alpha_output_0 = byteround(clamp((rounded_primary_color.a) * (texcolor0.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_0, alpha_output_0), vec4(0.0), vec4(1.0));
+last_tex_env_out = vec4(color_output_0, alpha_output_0);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 
 vec3 color_output_1 = byteround(clamp((texcolor0.rgb) * (last_tex_env_out.rgb), vec3(0.0), vec3(1.0)));
-float alpha_output_1 = byteround(clamp((last_tex_env_out.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_1, alpha_output_1), vec4(0.0), vec4(1.0));
+float alpha_output_1 = (last_tex_env_out.a);
+last_tex_env_out = vec4(color_output_1, alpha_output_1);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 
 vec3 color_output_2 = byteround(clamp((last_tex_env_out.rgb) + (const_color[2].rgb) - vec3(0.5), vec3(0.0), vec3(1.0)));
-float alpha_output_2 = byteround(clamp((last_tex_env_out.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_2, alpha_output_2), vec4(0.0), vec4(1.0));
+float alpha_output_2 = (last_tex_env_out.a);
+last_tex_env_out = vec4(color_output_2, alpha_output_2);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 next_combiner_buffer.rgb = last_tex_env_out.rgb;
 
 vec3 color_output_3 = byteround(clamp((last_tex_env_out.rgb) * (secondary_fragment_color.rgb) + (last_tex_env_out.rgb), vec3(0.0), vec3(1.0)));
-float alpha_output_3 = byteround(clamp((last_tex_env_out.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_3, alpha_output_3), vec4(0.0), vec4(1.0));
+float alpha_output_3 = (last_tex_env_out.a);
+last_tex_env_out = vec4(color_output_3, alpha_output_3);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 
 vec3 color_output_4 = byteround(clamp(min((rounded_primary_color.rgb) + (const_color[4].rgb), vec3(1.0)) * (last_tex_env_out.rgb), vec3(0.0), vec3(1.0)));
-float alpha_output_4 = byteround(clamp((last_tex_env_out.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_4, alpha_output_4), vec4(0.0), vec4(1.0));
+float alpha_output_4 = (last_tex_env_out.a);
+last_tex_env_out = vec4(color_output_4, alpha_output_4);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 
 vec3 color_output_5 = byteround(clamp((last_tex_env_out.rgb) * (combiner_buffer.rgb) + (last_tex_env_out.rgb), vec3(0.0), vec3(1.0)));
-float alpha_output_5 = byteround(clamp((last_tex_env_out.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_5 * 2.0, alpha_output_5 * 1.0), vec4(0.0), vec4(1.0));
+float alpha_output_5 = (last_tex_env_out.a);
+last_tex_env_out = vec4(color_output_5 * 2.0, alpha_output_5 * 1.0);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 
 float fog_index = depth * 128.0;
-float fog_i = clamp(floor(fog_index), 0.0, 127.0);
-float fog_f = fog_index - fog_i;
-vec2 fog_lut_entry = texelFetch(texture_buffer_lut_lf, int(fog_i) + fog_lut_offset).rg;
+int fog_i = int(fog_index);
+float fog_f = fract(fog_index);
+vec2 fog_lut_entry = texelFetch(texture_buffer_lut_lf, fog_i + fog_lut_offset).rg;
 float fog_factor = fog_lut_entry.r + fog_lut_entry.g * fog_f;
 fog_factor = clamp(fog_factor, 0.0, 1.0);
 last_tex_env_out.rgb = mix(fog_color.rgb, last_tex_env_out.rgb, fog_factor);
 gl_FragDepth = depth;
 color = byteround(last_tex_env_out);
 }
-// reference: 2D58B034C679DDE3, 6605E8B83752E860
-// program: F3D442C0013F9392, 6CF3F3B70E23AA85, 6605E8B83752E860
-// shader: 8B30, B1EF7D1DED12BFE6
+// reference: 2D58B034C679DDE3, C1D510C79CC05B1F
+// program: 22C3C36B08CEECE7, 7A40B90B17532EA8, C1D510C79CC05B1F
+// shader: 8B30, 4D2AACC0676E75D5
 
 precision highp int;
 precision highp float;
@@ -11979,51 +10569,55 @@ specular_sum.rgb += (((lut_scale_d0 * LookupLightingLUTSigned(0, dot(normal, nor
 diffuse_sum.rgb += lighting_global_ambient;
 primary_fragment_color = clamp(diffuse_sum, vec4(0.0), vec4(1.0));
 secondary_fragment_color = clamp(specular_sum, vec4(0.0), vec4(1.0));
-
 vec4 combiner_buffer = vec4(0.0);
 vec4 next_combiner_buffer = tev_combiner_buffer_color;
 vec4 last_tex_env_out = vec4(0.0);
 vec3 color_output_0 = byteround(clamp((texcolor0.rgb) * (const_color[0].aaa), vec3(0.0), vec3(1.0)));
 float alpha_output_0 = byteround(clamp((rounded_primary_color.a) * (texcolor0.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_0, alpha_output_0), vec4(0.0), vec4(1.0));
+last_tex_env_out = vec4(color_output_0, alpha_output_0);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 
 vec3 color_output_1 = byteround(clamp((last_tex_env_out.rgb) + (const_color[1].rgb) - vec3(0.5), vec3(0.0), vec3(1.0)));
-float alpha_output_1 = byteround(clamp((last_tex_env_out.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_1, alpha_output_1), vec4(0.0), vec4(1.0));
+float alpha_output_1 = (last_tex_env_out.a);
+last_tex_env_out = vec4(color_output_1, alpha_output_1);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 next_combiner_buffer.rgb = last_tex_env_out.rgb;
 
 vec3 color_output_2 = byteround(clamp((vec3(1.0) - secondary_fragment_color.rgb) * (last_tex_env_out.rgb) + (secondary_fragment_color.rgb), vec3(0.0), vec3(1.0)));
-float alpha_output_2 = byteround(clamp((last_tex_env_out.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_2, alpha_output_2), vec4(0.0), vec4(1.0));
+float alpha_output_2 = (last_tex_env_out.a);
+last_tex_env_out = vec4(color_output_2, alpha_output_2);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 
 vec3 color_output_3 = byteround(clamp(min((rounded_primary_color.rgb) + (const_color[3].rgb), vec3(1.0)) * (last_tex_env_out.rgb), vec3(0.0), vec3(1.0)));
-float alpha_output_3 = byteround(clamp((last_tex_env_out.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_3, alpha_output_3), vec4(0.0), vec4(1.0));
+float alpha_output_3 = (last_tex_env_out.a);
+last_tex_env_out = vec4(color_output_3, alpha_output_3);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 
 vec3 color_output_4 = byteround(clamp((last_tex_env_out.rgb) * (combiner_buffer.rgb) + (last_tex_env_out.rgb), vec3(0.0), vec3(1.0)));
-float alpha_output_4 = byteround(clamp((last_tex_env_out.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_4 * 2.0, alpha_output_4 * 1.0), vec4(0.0), vec4(1.0));
+float alpha_output_4 = (last_tex_env_out.a);
+last_tex_env_out = vec4(color_output_4 * 2.0, alpha_output_4 * 1.0);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 
 combiner_buffer = next_combiner_buffer;
 
 float fog_index = depth * 128.0;
-float fog_i = clamp(floor(fog_index), 0.0, 127.0);
-float fog_f = fog_index - fog_i;
-vec2 fog_lut_entry = texelFetch(texture_buffer_lut_lf, int(fog_i) + fog_lut_offset).rg;
+int fog_i = int(fog_index);
+float fog_f = fract(fog_index);
+vec2 fog_lut_entry = texelFetch(texture_buffer_lut_lf, fog_i + fog_lut_offset).rg;
 float fog_factor = fog_lut_entry.r + fog_lut_entry.g * fog_f;
 fog_factor = clamp(fog_factor, 0.0, 1.0);
 last_tex_env_out.rgb = mix(fog_color.rgb, last_tex_env_out.rgb, fog_factor);
 gl_FragDepth = depth;
 color = byteround(last_tex_env_out);
 }
-// reference: 72CAE575C9BDE050, B1EF7D1DED12BFE6
-// program: F3D442C0013F9392, 6CF3F3B70E23AA85, B1EF7D1DED12BFE6
-// shader: 8B30, DBE9D6E0F57295C3
+// reference: 72CAE575C9BDE050, 4D2AACC0676E75D5
+// program: 22C3C36B08CEECE7, 7A40B90B17532EA8, 4D2AACC0676E75D5
+// shader: 8B30, C3177F2CC9951C95
 
 precision highp int;
 precision highp float;
@@ -12200,51 +10794,55 @@ specular_sum.rgb += (((lut_scale_d0 * LookupLightingLUTSigned(0, dot(normal, nor
 diffuse_sum.rgb += lighting_global_ambient;
 primary_fragment_color = clamp(diffuse_sum, vec4(0.0), vec4(1.0));
 secondary_fragment_color = clamp(specular_sum, vec4(0.0), vec4(1.0));
-
 vec4 combiner_buffer = vec4(0.0);
 vec4 next_combiner_buffer = tev_combiner_buffer_color;
 vec4 last_tex_env_out = vec4(0.0);
 vec3 color_output_0 = byteround(clamp((texcolor0.rgb) * (const_color[0].aaa), vec3(0.0), vec3(1.0)));
 float alpha_output_0 = byteround(clamp((rounded_primary_color.a) * (texcolor0.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_0, alpha_output_0), vec4(0.0), vec4(1.0));
+last_tex_env_out = vec4(color_output_0, alpha_output_0);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 
 vec3 color_output_1 = byteround(clamp((last_tex_env_out.rgb) + (const_color[1].rgb) - vec3(0.5), vec3(0.0), vec3(1.0)));
-float alpha_output_1 = byteround(clamp((last_tex_env_out.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_1, alpha_output_1), vec4(0.0), vec4(1.0));
+float alpha_output_1 = (last_tex_env_out.a);
+last_tex_env_out = vec4(color_output_1, alpha_output_1);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 next_combiner_buffer.rgb = last_tex_env_out.rgb;
 
 vec3 color_output_2 = byteround(clamp((texcolor1.rgb) * (secondary_fragment_color.rgb) + (last_tex_env_out.rgb), vec3(0.0), vec3(1.0)));
-float alpha_output_2 = byteround(clamp((last_tex_env_out.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_2, alpha_output_2), vec4(0.0), vec4(1.0));
+float alpha_output_2 = (last_tex_env_out.a);
+last_tex_env_out = vec4(color_output_2, alpha_output_2);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 
 vec3 color_output_3 = byteround(clamp(min((rounded_primary_color.rgb) + (const_color[3].rgb), vec3(1.0)) * (last_tex_env_out.rgb), vec3(0.0), vec3(1.0)));
-float alpha_output_3 = byteround(clamp((last_tex_env_out.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_3, alpha_output_3), vec4(0.0), vec4(1.0));
+float alpha_output_3 = (last_tex_env_out.a);
+last_tex_env_out = vec4(color_output_3, alpha_output_3);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 
 vec3 color_output_4 = byteround(clamp((last_tex_env_out.rgb) * (combiner_buffer.rgb) + (last_tex_env_out.rgb), vec3(0.0), vec3(1.0)));
-float alpha_output_4 = byteround(clamp((last_tex_env_out.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_4 * 2.0, alpha_output_4 * 1.0), vec4(0.0), vec4(1.0));
+float alpha_output_4 = (last_tex_env_out.a);
+last_tex_env_out = vec4(color_output_4 * 2.0, alpha_output_4 * 1.0);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 
 combiner_buffer = next_combiner_buffer;
 
 float fog_index = depth * 128.0;
-float fog_i = clamp(floor(fog_index), 0.0, 127.0);
-float fog_f = fog_index - fog_i;
-vec2 fog_lut_entry = texelFetch(texture_buffer_lut_lf, int(fog_i) + fog_lut_offset).rg;
+int fog_i = int(fog_index);
+float fog_f = fract(fog_index);
+vec2 fog_lut_entry = texelFetch(texture_buffer_lut_lf, fog_i + fog_lut_offset).rg;
 float fog_factor = fog_lut_entry.r + fog_lut_entry.g * fog_f;
 fog_factor = clamp(fog_factor, 0.0, 1.0);
 last_tex_env_out.rgb = mix(fog_color.rgb, last_tex_env_out.rgb, fog_factor);
 gl_FragDepth = depth;
 color = byteround(last_tex_env_out);
 }
-// reference: A315C6523BEF708B, DBE9D6E0F57295C3
-// program: 9A0887C21E007189, 3B3AE026C742C7D5, DBE9D6E0F57295C3
-// shader: 8B30, 5D699D0831CAD4C2
+// reference: A315C6523BEF708B, C3177F2CC9951C95
+// program: C2A49A7A2A81571D, D0BDF6740B5CE976, C3177F2CC9951C95
+// shader: 8B30, 38EFD53C4AD16C22
 
 precision highp int;
 precision highp float;
@@ -12420,54 +11018,59 @@ specular_sum.rgb += (((lut_scale_d0 * LookupLightingLUTSigned(0, dot(normal, nor
 diffuse_sum.rgb += lighting_global_ambient;
 primary_fragment_color = clamp(diffuse_sum, vec4(0.0), vec4(1.0));
 secondary_fragment_color = clamp(specular_sum, vec4(0.0), vec4(1.0));
-
 vec4 combiner_buffer = vec4(0.0);
 vec4 next_combiner_buffer = tev_combiner_buffer_color;
 vec4 last_tex_env_out = vec4(0.0);
 vec3 color_output_0 = byteround(clamp((vec3(1.0) - secondary_fragment_color.aaa) * (const_color[0].rgb) + (primary_fragment_color.rgb), vec3(0.0), vec3(1.0)));
 float alpha_output_0 = byteround(clamp((rounded_primary_color.a) * (texcolor0.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_0, alpha_output_0), vec4(0.0), vec4(1.0));
+last_tex_env_out = vec4(color_output_0, alpha_output_0);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 
 vec3 color_output_1 = byteround(clamp((texcolor0.rgb) * (last_tex_env_out.rgb), vec3(0.0), vec3(1.0)));
-float alpha_output_1 = byteround(clamp((last_tex_env_out.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_1, alpha_output_1), vec4(0.0), vec4(1.0));
+float alpha_output_1 = (last_tex_env_out.a);
+last_tex_env_out = vec4(color_output_1, alpha_output_1);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 
 vec3 color_output_2 = byteround(clamp((last_tex_env_out.rgb) + (const_color[2].rgb) - vec3(0.5), vec3(0.0), vec3(1.0)));
-float alpha_output_2 = byteround(clamp((last_tex_env_out.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_2, alpha_output_2), vec4(0.0), vec4(1.0));
+float alpha_output_2 = (last_tex_env_out.a);
+last_tex_env_out = vec4(color_output_2, alpha_output_2);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 next_combiner_buffer.rgb = last_tex_env_out.rgb;
 
 vec3 color_output_3 = byteround(clamp((vec3(1.0) - last_tex_env_out.rgb) * (secondary_fragment_color.rgb) + (last_tex_env_out.rgb) * (vec3(1.0) - (secondary_fragment_color.rgb)), vec3(0.0), vec3(1.0)));
-float alpha_output_3 = byteround(clamp((last_tex_env_out.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_3, alpha_output_3), vec4(0.0), vec4(1.0));
+float alpha_output_3 = (last_tex_env_out.a);
+last_tex_env_out = vec4(color_output_3, alpha_output_3);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 
 vec3 color_output_4 = byteround(clamp(min((rounded_primary_color.rgb) + (const_color[4].rgb), vec3(1.0)) * (last_tex_env_out.rgb), vec3(0.0), vec3(1.0)));
-float alpha_output_4 = byteround(clamp((last_tex_env_out.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_4, alpha_output_4), vec4(0.0), vec4(1.0));
+float alpha_output_4 = (last_tex_env_out.a);
+last_tex_env_out = vec4(color_output_4, alpha_output_4);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 
 vec3 color_output_5 = byteround(clamp((last_tex_env_out.rgb) * (combiner_buffer.rgb) + (last_tex_env_out.rgb), vec3(0.0), vec3(1.0)));
-float alpha_output_5 = byteround(clamp((last_tex_env_out.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_5 * 2.0, alpha_output_5 * 1.0), vec4(0.0), vec4(1.0));
+float alpha_output_5 = (last_tex_env_out.a);
+last_tex_env_out = vec4(color_output_5 * 2.0, alpha_output_5 * 1.0);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 
 float fog_index = depth * 128.0;
-float fog_i = clamp(floor(fog_index), 0.0, 127.0);
-float fog_f = fog_index - fog_i;
-vec2 fog_lut_entry = texelFetch(texture_buffer_lut_lf, int(fog_i) + fog_lut_offset).rg;
+int fog_i = int(fog_index);
+float fog_f = fract(fog_index);
+vec2 fog_lut_entry = texelFetch(texture_buffer_lut_lf, fog_i + fog_lut_offset).rg;
 float fog_factor = fog_lut_entry.r + fog_lut_entry.g * fog_f;
 fog_factor = clamp(fog_factor, 0.0, 1.0);
 last_tex_env_out.rgb = mix(fog_color.rgb, last_tex_env_out.rgb, fog_factor);
 gl_FragDepth = depth;
 color = byteround(last_tex_env_out);
 }
-// reference: 1F43DBBB2687EB24, 5D699D0831CAD4C2
-// program: F3D442C0013F9392, 6CF3F3B70E23AA85, 5D699D0831CAD4C2
-// shader: 8B30, 00453003CD98929A
+// reference: 1F43DBBB2687EB24, 38EFD53C4AD16C22
+// program: 22C3C36B08CEECE7, 7A40B90B17532EA8, 38EFD53C4AD16C22
+// shader: 8B30, 500C2959BBC04EFC
 
 precision highp int;
 precision highp float;
@@ -12644,34 +11247,38 @@ specular_sum.rgb += ((((lut_scale_d0 * LookupLightingLUTSigned(0, dot(normal, no
 diffuse_sum.rgb += lighting_global_ambient;
 primary_fragment_color = clamp(diffuse_sum, vec4(0.0), vec4(1.0));
 secondary_fragment_color = clamp(specular_sum, vec4(0.0), vec4(1.0));
-
 vec4 combiner_buffer = vec4(0.0);
 vec4 next_combiner_buffer = tev_combiner_buffer_color;
 vec4 last_tex_env_out = vec4(0.0);
 vec3 color_output_0 = byteround(clamp((vec3(1.0) - secondary_fragment_color.aaa) * (const_color[0].rgb) + (primary_fragment_color.rgb), vec3(0.0), vec3(1.0)));
 float alpha_output_0 = byteround(clamp((rounded_primary_color.a) * (texcolor0.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_0, alpha_output_0), vec4(0.0), vec4(1.0));
+last_tex_env_out = vec4(color_output_0, alpha_output_0);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 next_combiner_buffer.rgb = last_tex_env_out.rgb;
 
 vec3 color_output_1 = byteround(clamp((texcolor0.rgb) * (const_color[1].rgb), vec3(0.0), vec3(1.0)));
-float alpha_output_1 = byteround(clamp((last_tex_env_out.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_1, alpha_output_1), vec4(0.0), vec4(1.0));
+float alpha_output_1 = (last_tex_env_out.a);
+last_tex_env_out = vec4(color_output_1, alpha_output_1);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 
 vec3 color_output_2 = byteround(clamp((last_tex_env_out.rgb) * (combiner_buffer.rgb), vec3(0.0), vec3(1.0)));
-float alpha_output_2 = byteround(clamp((last_tex_env_out.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_2, alpha_output_2), vec4(0.0), vec4(1.0));
+float alpha_output_2 = (last_tex_env_out.a);
+last_tex_env_out = vec4(color_output_2, alpha_output_2);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 
 vec3 color_output_3 = byteround(clamp((secondary_fragment_color.rgb) + (last_tex_env_out.rgb), vec3(0.0), vec3(1.0)));
-float alpha_output_3 = byteround(clamp((last_tex_env_out.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_3, alpha_output_3), vec4(0.0), vec4(1.0));
+float alpha_output_3 = (last_tex_env_out.a);
+last_tex_env_out = vec4(color_output_3, alpha_output_3);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 
 vec3 color_output_4 = byteround(clamp(min((rounded_primary_color.rgb) + (const_color[4].rgb), vec3(1.0)) * (last_tex_env_out.rgb), vec3(0.0), vec3(1.0)));
-float alpha_output_4 = byteround(clamp((last_tex_env_out.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_4 * 2.0, alpha_output_4 * 1.0), vec4(0.0), vec4(1.0));
+float alpha_output_4 = (last_tex_env_out.a);
+last_tex_env_out = vec4(color_output_4 * 2.0, alpha_output_4 * 1.0);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 
 combiner_buffer = next_combiner_buffer;
@@ -12679,9 +11286,9 @@ combiner_buffer = next_combiner_buffer;
 gl_FragDepth = depth;
 color = byteround(last_tex_env_out);
 }
-// reference: 453D2B6027F88D37, 00453003CD98929A
-// program: F3D442C0013F9392, 6CF3F3B70E23AA85, 00453003CD98929A
-// shader: 8B30, 91E4F1A040F57466
+// reference: 453D2B6027F88D37, 500C2959BBC04EFC
+// program: 22C3C36B08CEECE7, 7A40B90B17532EA8, 500C2959BBC04EFC
+// shader: 8B30, 5A534780EDE891A0
 
 precision highp int;
 precision highp float;
@@ -12859,34 +11466,38 @@ specular_sum.rgb += ((((lut_scale_d0 * LookupLightingLUTSigned(0, dot(normal, no
 diffuse_sum.rgb += lighting_global_ambient;
 primary_fragment_color = clamp(diffuse_sum, vec4(0.0), vec4(1.0));
 secondary_fragment_color = clamp(specular_sum, vec4(0.0), vec4(1.0));
-
 vec4 combiner_buffer = vec4(0.0);
 vec4 next_combiner_buffer = tev_combiner_buffer_color;
 vec4 last_tex_env_out = vec4(0.0);
 vec3 color_output_0 = byteround(clamp((vec3(1.0) - secondary_fragment_color.aaa) * (const_color[0].rgb) + (primary_fragment_color.rgb), vec3(0.0), vec3(1.0)));
 float alpha_output_0 = byteround(clamp((rounded_primary_color.a) * (texcolor0.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_0, alpha_output_0), vec4(0.0), vec4(1.0));
+last_tex_env_out = vec4(color_output_0, alpha_output_0);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 next_combiner_buffer.rgb = last_tex_env_out.rgb;
 
 vec3 color_output_1 = byteround(clamp((texcolor0.rgb) * (const_color[1].rgb), vec3(0.0), vec3(1.0)));
-float alpha_output_1 = byteround(clamp((last_tex_env_out.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_1, alpha_output_1), vec4(0.0), vec4(1.0));
+float alpha_output_1 = (last_tex_env_out.a);
+last_tex_env_out = vec4(color_output_1, alpha_output_1);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 
 vec3 color_output_2 = byteround(clamp((last_tex_env_out.rgb) * (combiner_buffer.rgb), vec3(0.0), vec3(1.0)));
-float alpha_output_2 = byteround(clamp((last_tex_env_out.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_2, alpha_output_2), vec4(0.0), vec4(1.0));
+float alpha_output_2 = (last_tex_env_out.a);
+last_tex_env_out = vec4(color_output_2, alpha_output_2);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 
 vec3 color_output_3 = byteround(clamp((secondary_fragment_color.rgb) + (last_tex_env_out.rgb), vec3(0.0), vec3(1.0)));
-float alpha_output_3 = byteround(clamp((last_tex_env_out.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_3, alpha_output_3), vec4(0.0), vec4(1.0));
+float alpha_output_3 = (last_tex_env_out.a);
+last_tex_env_out = vec4(color_output_3, alpha_output_3);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 
 vec3 color_output_4 = byteround(clamp(min((rounded_primary_color.rgb) + (const_color[4].rgb), vec3(1.0)) * (last_tex_env_out.rgb), vec3(0.0), vec3(1.0)));
-float alpha_output_4 = byteround(clamp((last_tex_env_out.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_4 * 2.0, alpha_output_4 * 1.0), vec4(0.0), vec4(1.0));
+float alpha_output_4 = (last_tex_env_out.a);
+last_tex_env_out = vec4(color_output_4 * 2.0, alpha_output_4 * 1.0);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 
 combiner_buffer = next_combiner_buffer;
@@ -12894,10 +11505,10 @@ combiner_buffer = next_combiner_buffer;
 gl_FragDepth = depth;
 color = byteround(last_tex_env_out);
 }
-// reference: 7F54C0BBA23B29E7, 91E4F1A040F57466
-// program: F3D442C0013F9392, 6CF3F3B70E23AA85, 91E4F1A040F57466
-// reference: 72CAE575D59A7845, B1EF7D1DED12BFE6
-// shader: 8B30, 9253D4865FCAA703
+// reference: 7F54C0BBA23B29E7, 5A534780EDE891A0
+// program: 22C3C36B08CEECE7, 7A40B90B17532EA8, 5A534780EDE891A0
+// reference: 72CAE575D59A7845, 4D2AACC0676E75D5
+// shader: 8B30, 2026B06840BC8938
 
 precision highp int;
 precision highp float;
@@ -13076,51 +11687,55 @@ specular_sum.rgb += (((light_src[0].specular_0) * geo_factor) + (light_src[0].sp
 diffuse_sum.rgb += lighting_global_ambient;
 primary_fragment_color = clamp(diffuse_sum, vec4(0.0), vec4(1.0));
 secondary_fragment_color = clamp(specular_sum, vec4(0.0), vec4(1.0));
-
 vec4 combiner_buffer = vec4(0.0);
 vec4 next_combiner_buffer = tev_combiner_buffer_color;
 vec4 last_tex_env_out = vec4(0.0);
 vec3 color_output_0 = byteround(clamp((vec3(1.0) - secondary_fragment_color.aaa) * (const_color[0].rgb) + (primary_fragment_color.rgb), vec3(0.0), vec3(1.0)));
 float alpha_output_0 = byteround(clamp((rounded_primary_color.a) * (texcolor0.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_0, alpha_output_0), vec4(0.0), vec4(1.0));
+last_tex_env_out = vec4(color_output_0, alpha_output_0);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 next_combiner_buffer.rgb = last_tex_env_out.rgb;
 
 vec3 color_output_1 = byteround(clamp((texcolor0.rgb) * (const_color[1].rgb), vec3(0.0), vec3(1.0)));
-float alpha_output_1 = byteround(clamp((last_tex_env_out.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_1, alpha_output_1), vec4(0.0), vec4(1.0));
+float alpha_output_1 = (last_tex_env_out.a);
+last_tex_env_out = vec4(color_output_1, alpha_output_1);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 
 vec3 color_output_2 = byteround(clamp((last_tex_env_out.rgb) * (combiner_buffer.rgb), vec3(0.0), vec3(1.0)));
-float alpha_output_2 = byteround(clamp((last_tex_env_out.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_2, alpha_output_2), vec4(0.0), vec4(1.0));
+float alpha_output_2 = (last_tex_env_out.a);
+last_tex_env_out = vec4(color_output_2, alpha_output_2);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 
 vec3 color_output_3 = byteround(clamp((secondary_fragment_color.rgb) * (last_tex_env_out.rgb) + (last_tex_env_out.rgb), vec3(0.0), vec3(1.0)));
-float alpha_output_3 = byteround(clamp((last_tex_env_out.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_3, alpha_output_3), vec4(0.0), vec4(1.0));
+float alpha_output_3 = (last_tex_env_out.a);
+last_tex_env_out = vec4(color_output_3, alpha_output_3);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 
 vec3 color_output_4 = byteround(clamp(min((rounded_primary_color.rgb) + (const_color[4].rgb), vec3(1.0)) * (last_tex_env_out.rgb), vec3(0.0), vec3(1.0)));
-float alpha_output_4 = byteround(clamp((last_tex_env_out.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_4 * 2.0, alpha_output_4 * 1.0), vec4(0.0), vec4(1.0));
+float alpha_output_4 = (last_tex_env_out.a);
+last_tex_env_out = vec4(color_output_4 * 2.0, alpha_output_4 * 1.0);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 
 combiner_buffer = next_combiner_buffer;
 
 float fog_index = depth * 128.0;
-float fog_i = clamp(floor(fog_index), 0.0, 127.0);
-float fog_f = fog_index - fog_i;
-vec2 fog_lut_entry = texelFetch(texture_buffer_lut_lf, int(fog_i) + fog_lut_offset).rg;
+int fog_i = int(fog_index);
+float fog_f = fract(fog_index);
+vec2 fog_lut_entry = texelFetch(texture_buffer_lut_lf, fog_i + fog_lut_offset).rg;
 float fog_factor = fog_lut_entry.r + fog_lut_entry.g * fog_f;
 fog_factor = clamp(fog_factor, 0.0, 1.0);
 last_tex_env_out.rgb = mix(fog_color.rgb, last_tex_env_out.rgb, fog_factor);
 gl_FragDepth = depth;
 color = byteround(last_tex_env_out);
 }
-// reference: 463B6569336B75F1, 9253D4865FCAA703
-// program: F3D442C0013F9392, 6CF3F3B70E23AA85, 9253D4865FCAA703
-// shader: 8B30, CC93A1CC8078601F
+// reference: 463B6569336B75F1, 2026B06840BC8938
+// program: 22C3C36B08CEECE7, 7A40B90B17532EA8, 2026B06840BC8938
+// shader: 8B30, 5B1608C9608495E8
 
 precision highp int;
 precision highp float;
@@ -13293,14 +11908,13 @@ diffuse_sum.rgb += ((light_src[0].diffuse * dot_product) + light_src[0].ambient)
 specular_sum.rgb += ((light_src[0].specular_0) + (light_src[0].specular_1)) * clamp_highlights * 1.0;
 diffuse_sum.rgb += lighting_global_ambient;
 primary_fragment_color = clamp(diffuse_sum, vec4(0.0), vec4(1.0));
-secondary_fragment_color = clamp(specular_sum, vec4(0.0), vec4(1.0));
-
 vec4 combiner_buffer = vec4(0.0);
 vec4 next_combiner_buffer = tev_combiner_buffer_color;
 vec4 last_tex_env_out = vec4(0.0);
-vec3 color_output_0 = byteround(clamp((primary_fragment_color.rgb), vec3(0.0), vec3(1.0)));
-float alpha_output_0 = byteround(clamp((rounded_primary_color.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_0, alpha_output_0), vec4(0.0), vec4(1.0));
+vec3 color_output_0 = (primary_fragment_color.rgb);
+float alpha_output_0 = (rounded_primary_color.a);
+last_tex_env_out = vec4(color_output_0, alpha_output_0);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 
 combiner_buffer = next_combiner_buffer;
@@ -13314,18 +11928,18 @@ combiner_buffer = next_combiner_buffer;
 combiner_buffer = next_combiner_buffer;
 
 float fog_index = depth * 128.0;
-float fog_i = clamp(floor(fog_index), 0.0, 127.0);
-float fog_f = fog_index - fog_i;
-vec2 fog_lut_entry = texelFetch(texture_buffer_lut_lf, int(fog_i) + fog_lut_offset).rg;
+int fog_i = int(fog_index);
+float fog_f = fract(fog_index);
+vec2 fog_lut_entry = texelFetch(texture_buffer_lut_lf, fog_i + fog_lut_offset).rg;
 float fog_factor = fog_lut_entry.r + fog_lut_entry.g * fog_f;
 fog_factor = clamp(fog_factor, 0.0, 1.0);
 last_tex_env_out.rgb = mix(fog_color.rgb, last_tex_env_out.rgb, fog_factor);
 gl_FragDepth = depth;
 color = byteround(last_tex_env_out);
 }
-// reference: E0788D195D3D4EA5, CC93A1CC8078601F
-// program: FBC6AFA380C91748, 4BD70AD09292A3DA, CC93A1CC8078601F
-// shader: 8B30, 2965292A1E47C36E
+// reference: E0788D195D3D4EA5, 5B1608C9608495E8
+// program: 668DC2CC893B1519, 80B52B8FBE5FE773, 5B1608C9608495E8
+// shader: 8B30, 2DC56B2EFFAD5159
 
 precision highp int;
 precision highp float;
@@ -13487,18 +12101,18 @@ combiner_buffer = next_combiner_buffer;
 combiner_buffer = next_combiner_buffer;
 
 float fog_index = depth * 128.0;
-float fog_i = clamp(floor(fog_index), 0.0, 127.0);
-float fog_f = fog_index - fog_i;
-vec2 fog_lut_entry = texelFetch(texture_buffer_lut_lf, int(fog_i) + fog_lut_offset).rg;
+int fog_i = int(fog_index);
+float fog_f = fract(fog_index);
+vec2 fog_lut_entry = texelFetch(texture_buffer_lut_lf, fog_i + fog_lut_offset).rg;
 float fog_factor = fog_lut_entry.r + fog_lut_entry.g * fog_f;
 fog_factor = clamp(fog_factor, 0.0, 1.0);
 last_tex_env_out.rgb = mix(fog_color.rgb, last_tex_env_out.rgb, fog_factor);
 gl_FragDepth = depth;
 color = byteround(last_tex_env_out);
 }
-// reference: E0788D19FF9A8C0D, 2965292A1E47C36E
-// program: FBC6AFA380C91748, 4BD70AD09292A3DA, 2965292A1E47C36E
-// shader: 8B30, CB226653B4D14361
+// reference: E0788D19FF9A8C0D, 2DC56B2EFFAD5159
+// program: 668DC2CC893B1519, 80B52B8FBE5FE773, 2DC56B2EFFAD5159
+// shader: 8B30, A70EC7B16678488E
 
 precision highp int;
 precision highp float;
@@ -13647,9 +12261,10 @@ float depth = z_over_w * depth_scale + depth_offset;
 vec4 combiner_buffer = vec4(0.0);
 vec4 next_combiner_buffer = tev_combiner_buffer_color;
 vec4 last_tex_env_out = vec4(0.0);
-vec3 color_output_0 = byteround(clamp((const_color[0].rgb), vec3(0.0), vec3(1.0)));
-float alpha_output_0 = byteround(clamp((last_tex_env_out.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_0, alpha_output_0), vec4(0.0), vec4(1.0));
+vec3 color_output_0 = (const_color[0].rgb);
+float alpha_output_0 = (last_tex_env_out.a);
+last_tex_env_out = vec4(color_output_0, alpha_output_0);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 
 combiner_buffer = next_combiner_buffer;
@@ -13663,18 +12278,18 @@ combiner_buffer = next_combiner_buffer;
 combiner_buffer = next_combiner_buffer;
 
 float fog_index = depth * 128.0;
-float fog_i = clamp(floor(fog_index), 0.0, 127.0);
-float fog_f = fog_index - fog_i;
-vec2 fog_lut_entry = texelFetch(texture_buffer_lut_lf, int(fog_i) + fog_lut_offset).rg;
+int fog_i = int(fog_index);
+float fog_f = fract(fog_index);
+vec2 fog_lut_entry = texelFetch(texture_buffer_lut_lf, fog_i + fog_lut_offset).rg;
 float fog_factor = fog_lut_entry.r + fog_lut_entry.g * fog_f;
 fog_factor = clamp(fog_factor, 0.0, 1.0);
 last_tex_env_out.rgb = mix(fog_color.rgb, last_tex_env_out.rgb, fog_factor);
 gl_FragDepth = depth;
 color = byteround(last_tex_env_out);
 }
-// reference: 87752AE8B1B660A6, CB226653B4D14361
-// program: FBC6AFA380C91748, 4BD70AD09292A3DA, CB226653B4D14361
-// shader: 8B31, 1F369F37D1E9EDE2
+// reference: 87752AE8B1B660A6, A70EC7B16678488E
+// program: 668DC2CC893B1519, 80B52B8FBE5FE773, A70EC7B16678488E
+// shader: 8B31, 5B88C0147985B75E
 
 struct pica_uniforms {
     bool b[16];
@@ -13693,18 +12308,16 @@ layout(location = 0) in vec4 vs_in_reg0;
 layout(location = 1) in vec4 vs_in_reg1;
 layout(location = 2) in vec4 vs_in_reg2;
 
- out vec4 vs_out_attr0;
- out vec4 vs_out_attr1;
- out vec4 vs_out_attr2;
+out vec4 vs_out_attr0;
+out vec4 vs_out_attr1;
+out vec4 vs_out_attr2;
 
 void main() {
     vs_out_attr0 = vec4(0.0, 0.0, 0.0, 1.0);
     vs_out_attr1 = vec4(0.0, 0.0, 0.0, 1.0);
     vs_out_attr2 = vec4(0.0, 0.0, 0.0, 1.0);
-
     exec_shader();
 }
-
 
 #define mul_s(x, y) mix(x * y, vec4(0.0), isnan(x * y))
 #define fma_s(x, y, z) (mix(x * y, vec4(0.0), isnan(x * y)) + z)
@@ -13746,47 +12359,28 @@ bool exec_shader() {
 }
 
 bool sub_0_4096() {
-    // 0: mov
     reg_tmp14 = uniforms.f[83].xxxz;
-    // 1: mov
     reg_tmp14.xyz = (vs_in_reg0.xyzz).xyz;
-    // 2: dp4
     reg_tmp15.x = dot_s(uniforms.f[0], reg_tmp14);
-    // 3: dp4
     reg_tmp15.y = dot_s(uniforms.f[1], reg_tmp14);
-    // 4: dp4
     reg_tmp15.z = dot_s(uniforms.f[2], reg_tmp14);
-    // 5: dp4
     reg_tmp15.w = dot_s(uniforms.f[3], reg_tmp14);
-    // 6: dp4
     reg_tmp14.x = dot_s(uniforms.f[4], reg_tmp15);
-    // 7: dp4
     reg_tmp14.y = dot_s(uniforms.f[5], reg_tmp15);
-    // 8: dp4
     reg_tmp14.z = dot_s(uniforms.f[6], reg_tmp15);
-    // 9: dp4
     reg_tmp14.w = dot_s(uniforms.f[7], reg_tmp15);
-    // 10: mov
     vs_out_attr0 = reg_tmp14;
-    // 11: mul
     reg_tmp13 = mul_s(uniforms.f[9], vs_in_reg2.xxxx);
-    // 12: add
     reg_tmp12 = uniforms.f[83].zzzz + -vs_in_reg2.xxxx;
-    // 13: mad
     vs_out_attr1 = fma_s(reg_tmp12.xxxx, uniforms.f[8], reg_tmp13);
-    // 14: mul
     reg_tmp11.xy = (mul_s(uniforms.f[11].xyyy, vs_in_reg1.xyyy)).xy;
-    // 15: add
     reg_tmp11.xy = (uniforms.f[10].xyyy + reg_tmp11.xyyy).xy;
-    // 16: mov
     vs_out_attr2.w = (uniforms.f[83].zzzz).w;
-    // 17: mov
     vs_out_attr2 = reg_tmp11.xyyy;
-    // 18: end
     return true;
 }
-// reference: DDF96078EC86F3F1, 1F369F37D1E9EDE2
-// shader: 8DD9, A180773D4B4115BE
+// reference: 402E58C1EC86F3F1, 5B88C0147985B75E
+// shader: 8DD9, 60215D2B1286D4FE
 
 layout(triangles) in;
 layout(triangle_strip, max_vertices = 3) out;
@@ -13854,10 +12448,9 @@ layout (std140) uniform shader_light_data {
     int shadow_texture_bias;
 };
 
- in vec4 vs_out_attr0[];
- in vec4 vs_out_attr1[];
- in vec4 vs_out_attr2[];
-
+in vec4 vs_out_attr0[];
+in vec4 vs_out_attr1[];
+in vec4 vs_out_attr2[];
 struct Vertex {
     vec4 attributes[3];
 };
@@ -13885,7 +12478,6 @@ void EmitVtx(Vertex vtx, bool quats_opposite) {
 
     texcoord0_w = vtx.attributes[2].w;
     view = vec3(0.0, 0.0, 0.0);
-
     texcoord2 = vec2(0.0, 0.0);
 
     EmitVertex();
@@ -13909,8 +12501,8 @@ void main() {
     prim_buffer[2].attributes = vec4[3](vs_out_attr0[2], vs_out_attr1[2], vs_out_attr2[2]);
     EmitPrim(prim_buffer[0], prim_buffer[1], prim_buffer[2]);
 }
-// reference: 5C45BEE5334A19B0, A180773D4B4115BE
-// shader: 8B30, BA694A024E4D4254
+// reference: 5C45BEE5334A19B0, 60215D2B1286D4FE
+// shader: 8B30, 980B8F6476575B7A
 
 precision highp int;
 precision highp float;
@@ -14059,9 +12651,10 @@ float depth = z_over_w * depth_scale + depth_offset;
 vec4 combiner_buffer = vec4(0.0);
 vec4 next_combiner_buffer = tev_combiner_buffer_color;
 vec4 last_tex_env_out = vec4(0.0);
-vec3 color_output_0 = byteround(clamp((rounded_primary_color.rgb), vec3(0.0), vec3(1.0)));
-float alpha_output_0 = byteround(clamp((rounded_primary_color.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_0, alpha_output_0), vec4(0.0), vec4(1.0));
+vec3 color_output_0 = (rounded_primary_color.rgb);
+float alpha_output_0 = (rounded_primary_color.a);
+last_tex_env_out = vec4(color_output_0, alpha_output_0);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 
 combiner_buffer = next_combiner_buffer;
@@ -14075,18 +12668,18 @@ combiner_buffer = next_combiner_buffer;
 combiner_buffer = next_combiner_buffer;
 
 float fog_index = depth * 128.0;
-float fog_i = clamp(floor(fog_index), 0.0, 127.0);
-float fog_f = fog_index - fog_i;
-vec2 fog_lut_entry = texelFetch(texture_buffer_lut_lf, int(fog_i) + fog_lut_offset).rg;
+int fog_i = int(fog_index);
+float fog_f = fract(fog_index);
+vec2 fog_lut_entry = texelFetch(texture_buffer_lut_lf, fog_i + fog_lut_offset).rg;
 float fog_factor = fog_lut_entry.r + fog_lut_entry.g * fog_f;
 fog_factor = clamp(fog_factor, 0.0, 1.0);
 last_tex_env_out.rgb = mix(fog_color.rgb, last_tex_env_out.rgb, fog_factor);
 gl_FragDepth = depth;
 color = byteround(last_tex_env_out);
 }
-// reference: E14CE0A44A4476CD, BA694A024E4D4254
-// program: 1F369F37D1E9EDE2, A180773D4B4115BE, BA694A024E4D4254
-// shader: 8B30, 4D031CF2E189B04E
+// reference: E14CE0A44A4476CD, 980B8F6476575B7A
+// program: 5B88C0147985B75E, 60215D2B1286D4FE, 980B8F6476575B7A
+// shader: 8B30, CB443B6ED89C93F6
 
 precision highp int;
 precision highp float;
@@ -14262,54 +12855,59 @@ specular_sum.rgb += (((lut_scale_d0 * LookupLightingLUTSigned(0, dot(normal, nor
 diffuse_sum.rgb += lighting_global_ambient;
 primary_fragment_color = clamp(diffuse_sum, vec4(0.0), vec4(1.0));
 secondary_fragment_color = clamp(specular_sum, vec4(0.0), vec4(1.0));
-
 vec4 combiner_buffer = vec4(0.0);
 vec4 next_combiner_buffer = tev_combiner_buffer_color;
 vec4 last_tex_env_out = vec4(0.0);
 vec3 color_output_0 = byteround(clamp((vec3(1.0) - secondary_fragment_color.aaa) * (const_color[0].rgb) + (primary_fragment_color.rgb), vec3(0.0), vec3(1.0)));
 float alpha_output_0 = byteround(clamp((rounded_primary_color.a) * (texcolor0.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_0, alpha_output_0), vec4(0.0), vec4(1.0));
+last_tex_env_out = vec4(color_output_0, alpha_output_0);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 
 vec3 color_output_1 = byteround(clamp((texcolor0.rgb) * (last_tex_env_out.rgb), vec3(0.0), vec3(1.0)));
-float alpha_output_1 = byteround(clamp((last_tex_env_out.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_1, alpha_output_1), vec4(0.0), vec4(1.0));
+float alpha_output_1 = (last_tex_env_out.a);
+last_tex_env_out = vec4(color_output_1, alpha_output_1);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 
 vec3 color_output_2 = byteround(clamp((last_tex_env_out.rgb) + (const_color[2].rgb) - vec3(0.5), vec3(0.0), vec3(1.0)));
-float alpha_output_2 = byteround(clamp((last_tex_env_out.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_2, alpha_output_2), vec4(0.0), vec4(1.0));
+float alpha_output_2 = (last_tex_env_out.a);
+last_tex_env_out = vec4(color_output_2, alpha_output_2);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 next_combiner_buffer.rgb = last_tex_env_out.rgb;
 
 vec3 color_output_3 = byteround(clamp((vec3(1.0) - last_tex_env_out.rgb) * (secondary_fragment_color.rgb) + (last_tex_env_out.rgb) * (vec3(1.0) - (secondary_fragment_color.rgb)), vec3(0.0), vec3(1.0)));
-float alpha_output_3 = byteround(clamp((last_tex_env_out.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_3, alpha_output_3), vec4(0.0), vec4(1.0));
+float alpha_output_3 = (last_tex_env_out.a);
+last_tex_env_out = vec4(color_output_3, alpha_output_3);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 
 vec3 color_output_4 = byteround(clamp(min((rounded_primary_color.rgb) + (const_color[4].rgb), vec3(1.0)) * (last_tex_env_out.rgb), vec3(0.0), vec3(1.0)));
-float alpha_output_4 = byteround(clamp((last_tex_env_out.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_4, alpha_output_4), vec4(0.0), vec4(1.0));
+float alpha_output_4 = (last_tex_env_out.a);
+last_tex_env_out = vec4(color_output_4, alpha_output_4);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 
 vec3 color_output_5 = byteround(clamp((last_tex_env_out.rgb) * (combiner_buffer.rgb) + (last_tex_env_out.rgb), vec3(0.0), vec3(1.0)));
-float alpha_output_5 = byteround(clamp((last_tex_env_out.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_5 * 2.0, alpha_output_5 * 1.0), vec4(0.0), vec4(1.0));
+float alpha_output_5 = (last_tex_env_out.a);
+last_tex_env_out = vec4(color_output_5 * 2.0, alpha_output_5 * 1.0);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 
 float fog_index = depth * 128.0;
-float fog_i = clamp(floor(fog_index), 0.0, 127.0);
-float fog_f = fog_index - fog_i;
-vec2 fog_lut_entry = texelFetch(texture_buffer_lut_lf, int(fog_i) + fog_lut_offset).rg;
+int fog_i = int(fog_index);
+float fog_f = fract(fog_index);
+vec2 fog_lut_entry = texelFetch(texture_buffer_lut_lf, fog_i + fog_lut_offset).rg;
 float fog_factor = fog_lut_entry.r + fog_lut_entry.g * fog_f;
 fog_factor = clamp(fog_factor, 0.0, 1.0);
 last_tex_env_out.rgb = mix(fog_color.rgb, last_tex_env_out.rgb, fog_factor);
 gl_FragDepth = depth;
 color = byteround(last_tex_env_out);
 }
-// reference: 5195C0E42687EB24, 4D031CF2E189B04E
-// program: F3D442C0013F9392, 6CF3F3B70E23AA85, 4D031CF2E189B04E
-// shader: 8B30, 1DE00E4ED7585F96
+// reference: 5195C0E42687EB24, CB443B6ED89C93F6
+// program: 22C3C36B08CEECE7, 7A40B90B17532EA8, CB443B6ED89C93F6
+// shader: 8B30, F5AB6D9698E27532
 
 precision highp int;
 precision highp float;
@@ -14485,54 +13083,59 @@ specular_sum.rgb += (((lut_scale_d0 * LookupLightingLUTSigned(0, dot(normal, nor
 diffuse_sum.rgb += lighting_global_ambient;
 primary_fragment_color = clamp(diffuse_sum, vec4(0.0), vec4(1.0));
 secondary_fragment_color = clamp(specular_sum, vec4(0.0), vec4(1.0));
-
 vec4 combiner_buffer = vec4(0.0);
 vec4 next_combiner_buffer = tev_combiner_buffer_color;
 vec4 last_tex_env_out = vec4(0.0);
 vec3 color_output_0 = byteround(clamp((vec3(1.0) - secondary_fragment_color.aaa) * (const_color[0].rgb) + (primary_fragment_color.rgb), vec3(0.0), vec3(1.0)));
 float alpha_output_0 = byteround(clamp((rounded_primary_color.a) * (texcolor0.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_0, alpha_output_0), vec4(0.0), vec4(1.0));
+last_tex_env_out = vec4(color_output_0, alpha_output_0);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 
 vec3 color_output_1 = byteround(clamp(min((texcolor0.rgb) + (const_color[1].rgb), vec3(1.0)) * (last_tex_env_out.rgb), vec3(0.0), vec3(1.0)));
-float alpha_output_1 = byteround(clamp((last_tex_env_out.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_1, alpha_output_1), vec4(0.0), vec4(1.0));
+float alpha_output_1 = (last_tex_env_out.a);
+last_tex_env_out = vec4(color_output_1, alpha_output_1);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 
 vec3 color_output_2 = byteround(clamp((last_tex_env_out.rgb) + (const_color[2].rgb) - vec3(0.5), vec3(0.0), vec3(1.0)));
-float alpha_output_2 = byteround(clamp((last_tex_env_out.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_2, alpha_output_2), vec4(0.0), vec4(1.0));
+float alpha_output_2 = (last_tex_env_out.a);
+last_tex_env_out = vec4(color_output_2, alpha_output_2);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 next_combiner_buffer.rgb = last_tex_env_out.rgb;
 
 vec3 color_output_3 = byteround(clamp((vec3(1.0) - last_tex_env_out.rgb) * (secondary_fragment_color.rgb) + (last_tex_env_out.rgb) * (vec3(1.0) - (secondary_fragment_color.rgb)), vec3(0.0), vec3(1.0)));
-float alpha_output_3 = byteround(clamp((last_tex_env_out.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_3, alpha_output_3), vec4(0.0), vec4(1.0));
+float alpha_output_3 = (last_tex_env_out.a);
+last_tex_env_out = vec4(color_output_3, alpha_output_3);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 
 vec3 color_output_4 = byteround(clamp(min((rounded_primary_color.rgb) + (const_color[4].rgb), vec3(1.0)) * (last_tex_env_out.rgb), vec3(0.0), vec3(1.0)));
-float alpha_output_4 = byteround(clamp((last_tex_env_out.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_4, alpha_output_4), vec4(0.0), vec4(1.0));
+float alpha_output_4 = (last_tex_env_out.a);
+last_tex_env_out = vec4(color_output_4, alpha_output_4);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 
 vec3 color_output_5 = byteround(clamp((last_tex_env_out.rgb) * (combiner_buffer.rgb) + (last_tex_env_out.rgb), vec3(0.0), vec3(1.0)));
-float alpha_output_5 = byteround(clamp((last_tex_env_out.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_5 * 2.0, alpha_output_5 * 1.0), vec4(0.0), vec4(1.0));
+float alpha_output_5 = (last_tex_env_out.a);
+last_tex_env_out = vec4(color_output_5 * 2.0, alpha_output_5 * 1.0);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 
 float fog_index = depth * 128.0;
-float fog_i = clamp(floor(fog_index), 0.0, 127.0);
-float fog_f = fog_index - fog_i;
-vec2 fog_lut_entry = texelFetch(texture_buffer_lut_lf, int(fog_i) + fog_lut_offset).rg;
+int fog_i = int(fog_index);
+float fog_f = fract(fog_index);
+vec2 fog_lut_entry = texelFetch(texture_buffer_lut_lf, fog_i + fog_lut_offset).rg;
 float fog_factor = fog_lut_entry.r + fog_lut_entry.g * fog_f;
 fog_factor = clamp(fog_factor, 0.0, 1.0);
 last_tex_env_out.rgb = mix(fog_color.rgb, last_tex_env_out.rgb, fog_factor);
 gl_FragDepth = depth;
 color = byteround(last_tex_env_out);
 }
-// reference: B8837C80A0F8745E, 1DE00E4ED7585F96
-// program: F3D442C0013F9392, 6CF3F3B70E23AA85, 1DE00E4ED7585F96
-// shader: 8B30, C72056292C3923B4
+// reference: B8837C80A0F8745E, F5AB6D9698E27532
+// program: 22C3C36B08CEECE7, 7A40B90B17532EA8, F5AB6D9698E27532
+// shader: 8B30, 335C233AED14B641
 
 precision highp int;
 precision highp float;
@@ -14709,55 +13312,60 @@ specular_sum.rgb += (((lut_scale_d0 * LookupLightingLUTSigned(0, dot(normal, nor
 diffuse_sum.rgb += lighting_global_ambient;
 primary_fragment_color = clamp(diffuse_sum, vec4(0.0), vec4(1.0));
 secondary_fragment_color = clamp(specular_sum, vec4(0.0), vec4(1.0));
-
 vec4 combiner_buffer = vec4(0.0);
 vec4 next_combiner_buffer = tev_combiner_buffer_color;
 vec4 last_tex_env_out = vec4(0.0);
 vec3 color_output_0 = byteround(clamp((vec3(1.0) - secondary_fragment_color.aaa) * (const_color[0].rgb) + (primary_fragment_color.rgb), vec3(0.0), vec3(1.0)));
 float alpha_output_0 = byteround(clamp((rounded_primary_color.a) * (texcolor0.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_0, alpha_output_0), vec4(0.0), vec4(1.0));
+last_tex_env_out = vec4(color_output_0, alpha_output_0);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 
 vec3 color_output_1 = byteround(clamp((texcolor0.rgb) * (last_tex_env_out.rgb), vec3(0.0), vec3(1.0)));
-float alpha_output_1 = byteround(clamp((last_tex_env_out.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_1, alpha_output_1), vec4(0.0), vec4(1.0));
+float alpha_output_1 = (last_tex_env_out.a);
+last_tex_env_out = vec4(color_output_1, alpha_output_1);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 
 vec3 color_output_2 = byteround(clamp((last_tex_env_out.rgb) + (const_color[2].rgb) - vec3(0.5), vec3(0.0), vec3(1.0)));
-float alpha_output_2 = byteround(clamp((last_tex_env_out.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_2, alpha_output_2), vec4(0.0), vec4(1.0));
+float alpha_output_2 = (last_tex_env_out.a);
+last_tex_env_out = vec4(color_output_2, alpha_output_2);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 next_combiner_buffer.rgb = last_tex_env_out.rgb;
 
 vec3 color_output_3 = byteround(clamp((texcolor1.rgb) * (secondary_fragment_color.rgb) + (last_tex_env_out.rgb), vec3(0.0), vec3(1.0)));
-float alpha_output_3 = byteround(clamp((last_tex_env_out.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_3, alpha_output_3), vec4(0.0), vec4(1.0));
+float alpha_output_3 = (last_tex_env_out.a);
+last_tex_env_out = vec4(color_output_3, alpha_output_3);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 
 vec3 color_output_4 = byteround(clamp(min((rounded_primary_color.rgb) + (const_color[4].rgb), vec3(1.0)) * (last_tex_env_out.rgb), vec3(0.0), vec3(1.0)));
-float alpha_output_4 = byteround(clamp((last_tex_env_out.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_4, alpha_output_4), vec4(0.0), vec4(1.0));
+float alpha_output_4 = (last_tex_env_out.a);
+last_tex_env_out = vec4(color_output_4, alpha_output_4);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 
 vec3 color_output_5 = byteround(clamp((last_tex_env_out.rgb) * (combiner_buffer.rgb) + (last_tex_env_out.rgb), vec3(0.0), vec3(1.0)));
-float alpha_output_5 = byteround(clamp((last_tex_env_out.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_5 * 2.0, alpha_output_5 * 1.0), vec4(0.0), vec4(1.0));
+float alpha_output_5 = (last_tex_env_out.a);
+last_tex_env_out = vec4(color_output_5 * 2.0, alpha_output_5 * 1.0);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 
 float fog_index = depth * 128.0;
-float fog_i = clamp(floor(fog_index), 0.0, 127.0);
-float fog_f = fog_index - fog_i;
-vec2 fog_lut_entry = texelFetch(texture_buffer_lut_lf, int(fog_i) + fog_lut_offset).rg;
+int fog_i = int(fog_index);
+float fog_f = fract(fog_index);
+vec2 fog_lut_entry = texelFetch(texture_buffer_lut_lf, fog_i + fog_lut_offset).rg;
 float fog_factor = fog_lut_entry.r + fog_lut_entry.g * fog_f;
 fog_factor = clamp(fog_factor, 0.0, 1.0);
 last_tex_env_out.rgb = mix(fog_color.rgb, last_tex_env_out.rgb, fog_factor);
 gl_FragDepth = depth;
 color = byteround(last_tex_env_out);
 }
-// reference: 2D58B034206D7A56, C72056292C3923B4
-// program: 9A0887C21E007189, 3B3AE026C742C7D5, C72056292C3923B4
-// reference: 8641475585CCB595, BA694A024E4D4254
-// shader: 8B30, C7F48C9AFDD833D8
+// reference: 2D58B034206D7A56, 335C233AED14B641
+// program: C2A49A7A2A81571D, D0BDF6740B5CE976, 335C233AED14B641
+// reference: 8641475585CCB595, 980B8F6476575B7A
+// shader: 8B30, E2D2CDFA54E0506D
 
 precision highp int;
 precision highp float;
@@ -14933,47 +13541,52 @@ specular_sum.rgb += (((lut_scale_d0 * LookupLightingLUTSigned(0, dot(normal, nor
 diffuse_sum.rgb += lighting_global_ambient;
 primary_fragment_color = clamp(diffuse_sum, vec4(0.0), vec4(1.0));
 secondary_fragment_color = clamp(specular_sum, vec4(0.0), vec4(1.0));
-
 vec4 combiner_buffer = vec4(0.0);
 vec4 next_combiner_buffer = tev_combiner_buffer_color;
 vec4 last_tex_env_out = vec4(0.0);
 vec3 color_output_0 = byteround(clamp((vec3(1.0) - secondary_fragment_color.aaa) * (const_color[0].rgb) + (primary_fragment_color.rgb), vec3(0.0), vec3(1.0)));
 float alpha_output_0 = byteround(clamp((rounded_primary_color.a) * (texcolor0.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_0, alpha_output_0), vec4(0.0), vec4(1.0));
+last_tex_env_out = vec4(color_output_0, alpha_output_0);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 next_combiner_buffer.rgb = last_tex_env_out.rgb;
 
 vec3 color_output_1 = byteround(clamp((texcolor0.rgb) * (last_tex_env_out.rgb), vec3(0.0), vec3(1.0)));
-float alpha_output_1 = byteround(clamp((last_tex_env_out.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_1, alpha_output_1), vec4(0.0), vec4(1.0));
+float alpha_output_1 = (last_tex_env_out.a);
+last_tex_env_out = vec4(color_output_1, alpha_output_1);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 
 vec3 color_output_2 = byteround(clamp((last_tex_env_out.rgb) + (const_color[2].rgb) - vec3(0.5), vec3(0.0), vec3(1.0)));
-float alpha_output_2 = byteround(clamp((last_tex_env_out.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_2, alpha_output_2), vec4(0.0), vec4(1.0));
+float alpha_output_2 = (last_tex_env_out.a);
+last_tex_env_out = vec4(color_output_2, alpha_output_2);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 
 vec3 color_output_3 = byteround(clamp((vec3(1.0) - combiner_buffer.rgb) * (secondary_fragment_color.rgb) + (last_tex_env_out.rgb), vec3(0.0), vec3(1.0)));
-float alpha_output_3 = byteround(clamp((last_tex_env_out.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_3, alpha_output_3), vec4(0.0), vec4(1.0));
+float alpha_output_3 = (last_tex_env_out.a);
+last_tex_env_out = vec4(color_output_3, alpha_output_3);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 
 vec3 color_output_4 = byteround(clamp(min((rounded_primary_color.rgb) + (const_color[4].rgb), vec3(1.0)) * (last_tex_env_out.rgb), vec3(0.0), vec3(1.0)));
-float alpha_output_4 = byteround(clamp((last_tex_env_out.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_4, alpha_output_4), vec4(0.0), vec4(1.0));
+float alpha_output_4 = (last_tex_env_out.a);
+last_tex_env_out = vec4(color_output_4, alpha_output_4);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 
 vec3 color_output_5 = byteround(clamp((last_tex_env_out.rgb) * (last_tex_env_out.rgb) + (last_tex_env_out.rgb), vec3(0.0), vec3(1.0)));
-float alpha_output_5 = byteround(clamp((last_tex_env_out.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_5 * 2.0, alpha_output_5 * 1.0), vec4(0.0), vec4(1.0));
+float alpha_output_5 = (last_tex_env_out.a);
+last_tex_env_out = vec4(color_output_5 * 2.0, alpha_output_5 * 1.0);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 
 gl_FragDepth = depth;
 color = byteround(last_tex_env_out);
 }
-// reference: 9D8D1FC5755EACE1, C7F48C9AFDD833D8
-// program: F3D442C0013F9392, 6CF3F3B70E23AA85, C7F48C9AFDD833D8
-// shader: 8B30, 8BC984050273C843
+// reference: 9D8D1FC5755EACE1, E2D2CDFA54E0506D
+// program: 22C3C36B08CEECE7, 7A40B90B17532EA8, E2D2CDFA54E0506D
+// shader: 8B30, F8E807FC74653A66
 
 precision highp int;
 precision highp float;
@@ -15149,48 +13762,53 @@ specular_sum.rgb += (((lut_scale_d0 * LookupLightingLUTSigned(0, dot(normal, nor
 diffuse_sum.rgb += lighting_global_ambient;
 primary_fragment_color = clamp(diffuse_sum, vec4(0.0), vec4(1.0));
 secondary_fragment_color = clamp(specular_sum, vec4(0.0), vec4(1.0));
-
 vec4 combiner_buffer = vec4(0.0);
 vec4 next_combiner_buffer = tev_combiner_buffer_color;
 vec4 last_tex_env_out = vec4(0.0);
 vec3 color_output_0 = byteround(clamp((vec3(1.0) - secondary_fragment_color.aaa) * (const_color[0].rgb) + (primary_fragment_color.rgb), vec3(0.0), vec3(1.0)));
 float alpha_output_0 = byteround(clamp((rounded_primary_color.a) * (texcolor0.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_0, alpha_output_0), vec4(0.0), vec4(1.0));
+last_tex_env_out = vec4(color_output_0, alpha_output_0);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 next_combiner_buffer.rgb = last_tex_env_out.rgb;
 
 vec3 color_output_1 = byteround(clamp((texcolor0.rgb) * (last_tex_env_out.rgb), vec3(0.0), vec3(1.0)));
-float alpha_output_1 = byteround(clamp((last_tex_env_out.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_1, alpha_output_1), vec4(0.0), vec4(1.0));
+float alpha_output_1 = (last_tex_env_out.a);
+last_tex_env_out = vec4(color_output_1, alpha_output_1);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 
 vec3 color_output_2 = byteround(clamp((last_tex_env_out.rgb) + (const_color[2].rgb) - vec3(0.5), vec3(0.0), vec3(1.0)));
-float alpha_output_2 = byteround(clamp((last_tex_env_out.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_2, alpha_output_2), vec4(0.0), vec4(1.0));
+float alpha_output_2 = (last_tex_env_out.a);
+last_tex_env_out = vec4(color_output_2, alpha_output_2);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 next_combiner_buffer.rgb = last_tex_env_out.rgb;
 
 vec3 color_output_3 = byteround(clamp((vec3(1.0) - combiner_buffer.rgb) * (secondary_fragment_color.rgb) + (last_tex_env_out.rgb), vec3(0.0), vec3(1.0)));
-float alpha_output_3 = byteround(clamp((last_tex_env_out.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_3, alpha_output_3), vec4(0.0), vec4(1.0));
+float alpha_output_3 = (last_tex_env_out.a);
+last_tex_env_out = vec4(color_output_3, alpha_output_3);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 
 vec3 color_output_4 = byteround(clamp(min((rounded_primary_color.rgb) + (const_color[4].rgb), vec3(1.0)) * (last_tex_env_out.rgb), vec3(0.0), vec3(1.0)));
-float alpha_output_4 = byteround(clamp((last_tex_env_out.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_4, alpha_output_4), vec4(0.0), vec4(1.0));
+float alpha_output_4 = (last_tex_env_out.a);
+last_tex_env_out = vec4(color_output_4, alpha_output_4);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 
 vec3 color_output_5 = byteround(clamp((last_tex_env_out.rgb) * (combiner_buffer.rgb) + (last_tex_env_out.rgb), vec3(0.0), vec3(1.0)));
-float alpha_output_5 = byteround(clamp((last_tex_env_out.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_5 * 2.0, alpha_output_5 * 1.0), vec4(0.0), vec4(1.0));
+float alpha_output_5 = (last_tex_env_out.a);
+last_tex_env_out = vec4(color_output_5 * 2.0, alpha_output_5 * 1.0);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 
 gl_FragDepth = depth;
 color = byteround(last_tex_env_out);
 }
-// reference: 9D8D1FC5988B188C, 8BC984050273C843
-// program: F3D442C0013F9392, 6CF3F3B70E23AA85, 8BC984050273C843
-// shader: 8B30, 5BF84DB991D199CD
+// reference: 9D8D1FC5988B188C, F8E807FC74653A66
+// program: 22C3C36B08CEECE7, 7A40B90B17532EA8, F8E807FC74653A66
+// shader: 8B30, F694AFB860CDB7B2
 
 precision highp int;
 precision highp float;
@@ -15342,42 +13960,48 @@ vec4 next_combiner_buffer = tev_combiner_buffer_color;
 vec4 last_tex_env_out = vec4(0.0);
 vec3 color_output_0 = byteround(clamp((vec3(1.0) - secondary_fragment_color.aaa) * (const_color[0].rgb) + (primary_fragment_color.rgb), vec3(0.0), vec3(1.0)));
 float alpha_output_0 = byteround(clamp((rounded_primary_color.a) * (texcolor0.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_0, alpha_output_0), vec4(0.0), vec4(1.0));
+last_tex_env_out = vec4(color_output_0, alpha_output_0);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 
 vec3 color_output_1 = byteround(clamp((texcolor0.rgb) * (last_tex_env_out.rgb), vec3(0.0), vec3(1.0)));
-float alpha_output_1 = byteround(clamp((last_tex_env_out.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_1, alpha_output_1), vec4(0.0), vec4(1.0));
+float alpha_output_1 = (last_tex_env_out.a);
+last_tex_env_out = vec4(color_output_1, alpha_output_1);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 
 vec3 color_output_2 = byteround(clamp((last_tex_env_out.rgb) + (const_color[2].rgb) - vec3(0.5), vec3(0.0), vec3(1.0)));
-float alpha_output_2 = byteround(clamp((last_tex_env_out.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_2, alpha_output_2), vec4(0.0), vec4(1.0));
+float alpha_output_2 = (last_tex_env_out.a);
+last_tex_env_out = vec4(color_output_2, alpha_output_2);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 next_combiner_buffer.rgb = last_tex_env_out.rgb;
 
 vec3 color_output_3 = byteround(clamp((vec3(1.0) - texcolor0.rgb) * (const_color[3].rgb), vec3(0.0), vec3(1.0)));
 float alpha_output_3 = byteround(clamp((texcolor0.a) * (const_color[3].a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_3, alpha_output_3), vec4(0.0), vec4(1.0));
+last_tex_env_out = vec4(color_output_3, alpha_output_3);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 
 vec3 color_output_4 = byteround(clamp((texcolor0.rgb) * (const_color[4].rgb) + (last_tex_env_out.rgb), vec3(0.0), vec3(1.0)));
 float alpha_output_4 = byteround(clamp((1.0 - texcolor0.a) * (const_color[4].a) + (last_tex_env_out.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_4, alpha_output_4), vec4(0.0), vec4(1.0));
+last_tex_env_out = vec4(color_output_4, alpha_output_4);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 
 vec3 color_output_5 = byteround(clamp((rounded_primary_color.rgb) * (last_tex_env_out.rgb), vec3(0.0), vec3(1.0)));
 float alpha_output_5 = byteround(clamp((rounded_primary_color.a) * (last_tex_env_out.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_5, alpha_output_5), vec4(0.0), vec4(1.0));
+last_tex_env_out = vec4(color_output_5, alpha_output_5);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 
 gl_FragDepth = depth;
 color = byteround(last_tex_env_out);
 }
-// reference: 92B91DC716462D8D, 5BF84DB991D199CD
-// program: A990721D25F019E4, 5D764F9A6220D694, 5BF84DB991D199CD
-// reference: 6928840604F9E4CF, A990721D25F019E4
-// shader: 8B30, 93FFED23B9E309DE
+// reference: 92B91DC716462D8D, F694AFB860CDB7B2
+// program: A0C32A2C2484E2AE, 42937135801BAA7E, F694AFB860CDB7B2
+// reference: F4FFBCBF04F9E4CF, A0C32A2C2484E2AE
+// shader: 8B30, 8F2D203504A5B4F0
 
 precision highp int;
 precision highp float;
@@ -15529,86 +14153,92 @@ vec4 next_combiner_buffer = tev_combiner_buffer_color;
 vec4 last_tex_env_out = vec4(0.0);
 vec3 color_output_0 = byteround(clamp((vec3(1.0) - secondary_fragment_color.aaa) * (const_color[0].rgb) + (primary_fragment_color.rgb), vec3(0.0), vec3(1.0)));
 float alpha_output_0 = byteround(clamp((rounded_primary_color.a) * (texcolor0.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_0, alpha_output_0), vec4(0.0), vec4(1.0));
+last_tex_env_out = vec4(color_output_0, alpha_output_0);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 
 vec3 color_output_1 = byteround(clamp((texcolor0.rgb) * (last_tex_env_out.rgb), vec3(0.0), vec3(1.0)));
-float alpha_output_1 = byteround(clamp((last_tex_env_out.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_1, alpha_output_1), vec4(0.0), vec4(1.0));
+float alpha_output_1 = (last_tex_env_out.a);
+last_tex_env_out = vec4(color_output_1, alpha_output_1);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 
 vec3 color_output_2 = byteround(clamp((last_tex_env_out.rgb) + (const_color[2].rgb) - vec3(0.5), vec3(0.0), vec3(1.0)));
-float alpha_output_2 = byteround(clamp((last_tex_env_out.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_2, alpha_output_2), vec4(0.0), vec4(1.0));
+float alpha_output_2 = (last_tex_env_out.a);
+last_tex_env_out = vec4(color_output_2, alpha_output_2);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 next_combiner_buffer.rgb = last_tex_env_out.rgb;
 
 vec3 color_output_3 = byteround(clamp((const_color[3].rgb) * (vec3(1.0) - texcolor0.rgb), vec3(0.0), vec3(1.0)));
 float alpha_output_3 = byteround(clamp((const_color[3].a) * (1.0 - texcolor0.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_3, alpha_output_3), vec4(0.0), vec4(1.0));
+last_tex_env_out = vec4(color_output_3, alpha_output_3);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 
 vec3 color_output_4 = byteround(clamp((const_color[4].rgb) * (texcolor0.rgb) + (last_tex_env_out.rgb), vec3(0.0), vec3(1.0)));
 float alpha_output_4 = byteround(clamp((const_color[4].a) * (texcolor0.a) + (last_tex_env_out.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_4, alpha_output_4), vec4(0.0), vec4(1.0));
+last_tex_env_out = vec4(color_output_4, alpha_output_4);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 
 vec3 color_output_5 = byteround(clamp((rounded_primary_color.rgb) * (last_tex_env_out.rgb), vec3(0.0), vec3(1.0)));
 float alpha_output_5 = byteround(clamp((rounded_primary_color.a) * (last_tex_env_out.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_5, alpha_output_5), vec4(0.0), vec4(1.0));
+last_tex_env_out = vec4(color_output_5, alpha_output_5);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 
 gl_FragDepth = depth;
 color = byteround(last_tex_env_out);
 }
-// reference: 5D21F93897B93B37, 93FFED23B9E309DE
-// program: A990721D25F019E4, 5D764F9A6220D694, 93FFED23B9E309DE
-// reference: 025EA929E2610232, E8F4EBF1269C4990
-// reference: 77A22CCCDD9DA89E, 55065E7DE42331E1
-// reference: 06C4F1A921743AA2, 3A0A417CD7E78225
-// reference: 58D3AE3FA3F943D0, FB64BBECC940CACA
-// reference: 50A46ADD4914A6B8, 003F4B95D9484025
-// reference: 2CD554AA4F4EA8D3, 9CAC861B6D140393
-// reference: 859A0CDE6FA3AA85, ECAB3E0ECD10C310
-// reference: 888640974F4EA8D3, D542C00D338528CC
-// reference: A297E594BFDEDBC5, 0A82093815CD1584
-// reference: D6D855BAF9BFD8FE, 34C36CE57EB1B184
-// reference: C07B7C8267C12815, FDBB141810546438
-// reference: C07B7C822917334A, D71BCE6E80620BBB
-// reference: F09452433A2D1ABC, 3772C78BFDB5659B
-// reference: 859A0CDE4914A6B8, 26F8B430E5F98650
-// reference: DEE6DBE39ED1D340, C0F53D64C90EDD0A
-// reference: 2CD554AAA3F943D0, 19362CFAC7904499
-// reference: 88864097193B0A88, 7784B02D97425A6A
-// reference: E34A73D48C6DF7AB, 4982B44D494E20C9
-// reference: 980E4EE5F9BFD8FE, 34C36CE57EB1B184
-// reference: 72C20B3C21743AA2, BD45B6FE81E2970E
-// reference: 834E92D108483BE9, A0B5806583366FF4
-// reference: 9030C0BC9ED1D340, 577D774A22847149
-// reference: E4D86C0B99CF37C1, FD5243D1FEFD5E87
-// reference: DEE6DBE3715B9692, 104C2869DCD4C684
-// reference: 3C1CFE2AC87F8A67, B41ECC8CBA4B46F7
-// reference: 3673D4BF84864CF1, 7B78373191589A56
-// reference: 3C1CFE2A24C86164, 514A2A37054776D8
-// reference: 2D58B034C7BBB7D4, 6605E8B83752E860
-// reference: 72CAE575C87F8A67, B1EF7D1DED12BFE6
-// reference: A315C6523A2D1ABC, DBE9D6E0F57295C3
-// reference: 1F43DBBB27458113, 5D699D0831CAD4C2
-// reference: 453D2B60263AE700, 00453003CD98929A
-// reference: 7F54C0BBA3F943D0, 91E4F1A040F57466
-// reference: 72CAE575D4581272, B1EF7D1DED12BFE6
-// reference: 463B656932A91FC6, 9253D4865FCAA703
-// reference: E0788D195CFF2492, CC93A1CC8078601F
-// reference: E0788D19FE58E63A, 2965292A1E47C36E
-// reference: 87752AE8B0740A91, CB226653B4D14361
-// reference: E14CE0A44B861CFA, BA694A024E4D4254
-// reference: 5195C0E427458113, 4D031CF2E189B04E
-// reference: B8837C80A13A1E69, 1DE00E4ED7585F96
-// reference: 2D58B03421AF1061, C72056292C3923B4
-// reference: 86414755840EDFA2, BA694A024E4D4254
-// reference: 9D8D1FC5749CC6D6, C7F48C9AFDD833D8
-// reference: 9D8D1FC5994972BB, 8BC984050273C843
-// shader: 8B30, 281C3DC2AEEA7282
+// reference: 5D21F93897B93B37, 8F2D203504A5B4F0
+// program: A0C32A2C2484E2AE, 42937135801BAA7E, 8F2D203504A5B4F0
+// reference: 025EA929E2610232, D513C6EA0EDF16F1
+// reference: 77A22CCCDD9DA89E, 2D428F9DA2B5DAB2
+// reference: 06C4F1A921743AA2, 277283106A98D00A
+// reference: 58D3AE3FA3F943D0, DE4A5D6FED8C23ED
+// reference: 50A46ADD4914A6B8, 1EBC361951C4E151
+// reference: 2CD554AA4F4EA8D3, D1B09781655C6684
+// reference: 859A0CDE6FA3AA85, FC5E5B0078316FEA
+// reference: 888640974F4EA8D3, 137D06DB95CBA851
+// reference: A297E594BFDEDBC5, FE10DBB3D4E168AE
+// reference: D6D855BAF9BFD8FE, A58EED9EADA72FE4
+// reference: C07B7C8267C12815, 959C6212D1A4DD67
+// reference: C07B7C822917334A, FE3B1BE86E798FD2
+// reference: F09452433A2D1ABC, 1CAA91E080D307A0
+// reference: 859A0CDE4914A6B8, 1833A5314E8C889C
+// reference: DEE6DBE39ED1D340, FF7A888172E54B94
+// reference: 2CD554AAA3F943D0, 171A9044E42730E0
+// reference: 88864097193B0A88, 53055A6C1B865BE8
+// reference: E34A73D48C6DF7AB, A93D6C96B092C947
+// reference: 980E4EE5F9BFD8FE, A58EED9EADA72FE4
+// reference: 72C20B3C21743AA2, 271660AA94E607D3
+// reference: 834E92D108483BE9, 98DB042B260A7702
+// reference: 9030C0BC9ED1D340, D6157EEFC8224269
+// reference: E4D86C0B99CF37C1, 95D1E35212DC8864
+// reference: DEE6DBE3715B9692, 96E822CD50C46F37
+// reference: 3C1CFE2AC87F8A67, E4D8B7E5C17C15BB
+// reference: 3673D4BF84864CF1, EB6B37F09EF5044A
+// reference: 3C1CFE2A24C86164, 9713476D2358942E
+// reference: 2D58B034C7BBB7D4, C1D510C79CC05B1F
+// reference: 72CAE575C87F8A67, 4D2AACC0676E75D5
+// reference: A315C6523A2D1ABC, C3177F2CC9951C95
+// reference: 1F43DBBB27458113, 38EFD53C4AD16C22
+// reference: 453D2B60263AE700, 500C2959BBC04EFC
+// reference: 7F54C0BBA3F943D0, 5A534780EDE891A0
+// reference: 72CAE575D4581272, 4D2AACC0676E75D5
+// reference: 463B656932A91FC6, 2026B06840BC8938
+// reference: E0788D195CFF2492, 5B1608C9608495E8
+// reference: E0788D19FE58E63A, 2DC56B2EFFAD5159
+// reference: 87752AE8B0740A91, A70EC7B16678488E
+// reference: E14CE0A44B861CFA, 980B8F6476575B7A
+// reference: 5195C0E427458113, CB443B6ED89C93F6
+// reference: B8837C80A13A1E69, F5AB6D9698E27532
+// reference: 2D58B03421AF1061, 335C233AED14B641
+// reference: 86414755840EDFA2, 980B8F6476575B7A
+// reference: 9D8D1FC5749CC6D6, E2D2CDFA54E0506D
+// reference: 9D8D1FC5994972BB, F8E807FC74653A66
+// shader: 8B30, EE8843B92C5B1912
 
 precision highp int;
 precision highp float;
@@ -15760,41 +14390,47 @@ vec4 next_combiner_buffer = tev_combiner_buffer_color;
 vec4 last_tex_env_out = vec4(0.0);
 vec3 color_output_0 = byteround(clamp((vec3(1.0) - secondary_fragment_color.aaa) * (const_color[0].rgb) + (primary_fragment_color.rgb), vec3(0.0), vec3(1.0)));
 float alpha_output_0 = byteround(clamp((rounded_primary_color.a) * (texcolor0.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_0, alpha_output_0), vec4(0.0), vec4(1.0));
+last_tex_env_out = vec4(color_output_0, alpha_output_0);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 
 vec3 color_output_1 = byteround(clamp((texcolor0.rgb) * (last_tex_env_out.rgb), vec3(0.0), vec3(1.0)));
-float alpha_output_1 = byteround(clamp((last_tex_env_out.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_1, alpha_output_1), vec4(0.0), vec4(1.0));
+float alpha_output_1 = (last_tex_env_out.a);
+last_tex_env_out = vec4(color_output_1, alpha_output_1);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 
 vec3 color_output_2 = byteround(clamp((last_tex_env_out.rgb) + (const_color[2].rgb) - vec3(0.5), vec3(0.0), vec3(1.0)));
-float alpha_output_2 = byteround(clamp((last_tex_env_out.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_2, alpha_output_2), vec4(0.0), vec4(1.0));
+float alpha_output_2 = (last_tex_env_out.a);
+last_tex_env_out = vec4(color_output_2, alpha_output_2);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 next_combiner_buffer.rgb = last_tex_env_out.rgb;
 
 vec3 color_output_3 = byteround(clamp((texcolor0.rgb) * (const_color[3].rgb), vec3(0.0), vec3(1.0)));
 float alpha_output_3 = byteround(clamp((texcolor0.a) * (const_color[3].a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_3, alpha_output_3), vec4(0.0), vec4(1.0));
+last_tex_env_out = vec4(color_output_3, alpha_output_3);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 
 vec3 color_output_4 = byteround(clamp((vec3(1.0) - texcolor0.rgb) * (const_color[4].rgb) + (last_tex_env_out.rgb), vec3(0.0), vec3(1.0)));
 float alpha_output_4 = byteround(clamp((1.0 - texcolor0.a) * (const_color[4].a) + (last_tex_env_out.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_4, alpha_output_4), vec4(0.0), vec4(1.0));
+last_tex_env_out = vec4(color_output_4, alpha_output_4);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 
 vec3 color_output_5 = byteround(clamp((rounded_primary_color.rgb) * (last_tex_env_out.rgb), vec3(0.0), vec3(1.0)));
 float alpha_output_5 = byteround(clamp((rounded_primary_color.a) * (last_tex_env_out.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_5, alpha_output_5), vec4(0.0), vec4(1.0));
+last_tex_env_out = vec4(color_output_5, alpha_output_5);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 
 gl_FragDepth = depth;
 color = byteround(last_tex_env_out);
 }
-// reference: E1CBF39616462D8D, 281C3DC2AEEA7282
-// program: A990721D25F019E4, 5D764F9A6220D694, 281C3DC2AEEA7282
-// shader: 8B31, 9C5D7AEF8C3E67F2
+// reference: E1CBF39616462D8D, EE8843B92C5B1912
+// program: A0C32A2C2484E2AE, 42937135801BAA7E, EE8843B92C5B1912
+// shader: 8B31, 4056A7BD49897EA4
 
 struct pica_uniforms {
     bool b[16];
@@ -15812,11 +14448,11 @@ layout (std140) uniform vs_config {
 layout(location = 0) in vec4 vs_in_reg0;
 layout(location = 1) in vec4 vs_in_reg1;
 
- out vec4 vs_out_attr0;
- out vec4 vs_out_attr1;
- out vec4 vs_out_attr2;
- out vec4 vs_out_attr3;
- out vec4 vs_out_attr4;
+out vec4 vs_out_attr0;
+out vec4 vs_out_attr1;
+out vec4 vs_out_attr2;
+out vec4 vs_out_attr3;
+out vec4 vs_out_attr4;
 
 void main() {
     vs_out_attr0 = vec4(0.0, 0.0, 0.0, 1.0);
@@ -15824,10 +14460,8 @@ void main() {
     vs_out_attr2 = vec4(0.0, 0.0, 0.0, 1.0);
     vs_out_attr3 = vec4(0.0, 0.0, 0.0, 1.0);
     vs_out_attr4 = vec4(0.0, 0.0, 0.0, 1.0);
-
     exec_shader();
 }
-
 
 #define mul_s(x, y) mix(x * y, vec4(0.0), isnan(x * y))
 #define fma_s(x, y, z) (mix(x * y, vec4(0.0), isnan(x * y)) + z)
@@ -15879,211 +14513,135 @@ bool exec_shader() {
 }
 
 bool sub_0_4096() {
-    // 0: mova
     address_registers.y = (ivec2(uniforms.f[5].ww)).y;
-    // 1: mov
     reg_tmp6 = uniforms.f[0 + address_registers.y];
-    // 2: mova
     address_registers.x = (ivec2(vs_in_reg1.zz)).x;
-    // 3: mov
     reg_tmp14 = uniforms.f[84].xxxz;
-    // 4: mov
     reg_tmp15 = uniforms.f[84].xxxz;
-    // 5: mov
     reg_tmp10 = uniforms.f[84].xxxz;
-    // 6: mov
     reg_tmp11 = uniforms.f[84].xxxz;
-    // 7: mova
     address_registers.y = (ivec2(uniforms.f[8 + address_registers.x].ww)).y;
-    // 8: add
     reg_tmp12.xy = (uniforms.f[4].xyyy + vs_in_reg0.xyyy).xy;
-    // 9: mov
     reg_tmp12.z = (uniforms.f[84].xxxx).z;
-    // 10: mul
     reg_tmp13.xyz = (mul_s(uniforms.f[9 + address_registers.x].zwww, reg_tmp12.xyzz)).xyz;
-    // 11: mov
     reg_tmp10.x = (reg_tmp13.xxxx).x;
-    // 12: mov
     reg_tmp12 = uniforms.f[85].xxxx;
-    // 13: cmp
     conditional_code = equal(uniforms.f[4].zz, reg_tmp12.xy);
-    // 14: ifc
     if (any(conditional_code)) {
         sub_15_17();
     } else {
         sub_17_19();
     }
-    // 19: dp3
     reg_tmp11.x = dot_3(uniforms.f[11 + address_registers.x].xyz, reg_tmp10.xyz);
-    // 20: dp3
     reg_tmp11.y = dot_3(uniforms.f[12 + address_registers.x].xyz, reg_tmp10.xyz);
-    // 21: dp3
     reg_tmp11.z = dot_3(uniforms.f[13 + address_registers.x].xyz, reg_tmp10.xyz);
-    // 22: mov
     reg_tmp12 = uniforms.f[84].wwww;
-    // 23: cmp
     conditional_code = greaterThanEqual(uniforms.f[4].zz, reg_tmp12.xy);
-    // 24: ifc
     if (any(conditional_code)) {
         sub_25_52();
     } else {
         sub_52_55();
     }
-    // 55: add
     reg_tmp15.xyz = (uniforms.f[8 + address_registers.x].xyzz + reg_tmp10.xyzz).xyz;
-    // 56: dp4
     reg_tmp14.x = dot_s(uniforms.f[90], reg_tmp15);
-    // 57: dp4
     reg_tmp14.y = dot_s(uniforms.f[91], reg_tmp15);
-    // 58: dp4
     reg_tmp14.z = dot_s(uniforms.f[92], reg_tmp15);
-    // 59: mov
     reg_tmp14.w = (uniforms.f[84].zzzz).w;
-    // 60: dp4
     vs_out_attr0.x = dot_s(uniforms.f[86], reg_tmp14);
-    // 61: dp4
     vs_out_attr0.y = dot_s(uniforms.f[87], reg_tmp14);
-    // 62: dp4
     vs_out_attr0.z = dot_s(uniforms.f[88], reg_tmp14);
-    // 63: dp4
     vs_out_attr0.w = dot_s(uniforms.f[89], reg_tmp14);
-    // 64: mov
     vs_out_attr4 = -reg_tmp14;
-    // 65: mov
     vs_out_attr1.x = (uniforms.f[11 + address_registers.x].wwww).x;
-    // 66: mov
     vs_out_attr1.y = (uniforms.f[12 + address_registers.x].wwww).y;
-    // 67: mov
     vs_out_attr1.z = (uniforms.f[13 + address_registers.x].wwww).z;
-    // 68: mov
     vs_out_attr1.w = (uniforms.f[9 + address_registers.x].yyyy).w;
-    // 69: mul
     reg_tmp10.xy = (mul_s(uniforms.f[10 + address_registers.x].zwww, vs_in_reg1.xyyy)).xy;
-    // 70: add
     reg_tmp11.xy = (uniforms.f[10 + address_registers.x].xyyy + reg_tmp10.xyyy).xy;
-    // 71: mov
     vs_out_attr2.x = (reg_tmp11.xxxx).x;
-    // 72: add
     vs_out_attr2.y = (uniforms.f[84].zzzz + -reg_tmp11.yyyy).y;
-    // 73: mov
     vs_out_attr2.zw = (uniforms.f[84].zzzz).zw;
-    // 74: mov
     vs_out_attr3 = uniforms.f[84].xxxz;
-    // 75: end
     return true;
 }
 bool sub_15_17() {
-    // 15: mov
     reg_tmp10.y = (uniforms.f[84].xxxx).y;
-    // 16: mul
     reg_tmp10.z = (mul_s(uniforms.f[85].zzzz, reg_tmp13.yyyy)).z;
     return false;
 }
 bool sub_17_19() {
-    // 17: mov
     reg_tmp10.y = (reg_tmp13.yyyy).y;
-    // 18: mov
     reg_tmp10.z = (uniforms.f[84].xxxx).z;
     return false;
 }
 bool sub_25_52() {
-    // 25: mov
     reg_tmp13 = uniforms.f[0 + address_registers.y];
-    // 26: dp3
     reg_tmp10.x = dot_3(reg_tmp13.xyz, reg_tmp13.xyz);
-    // 27: cmp
     conditional_code = greaterThanEqual(uniforms.f[85].yy, reg_tmp10.xx);
-    // 28: ifc
     if (conditional_code.x) {
         sub_29_30();
     } else {
         sub_30_32();
     }
-    // 32: mov
     reg_tmp12.xyz = (reg_tmp6).xyz;
-    // 33: mul
     reg_tmp13.xyz = (mul_s(reg_tmp12.yzxx, reg_tmp8.zxyy)).xyz;
-    // 34: mad
     reg_tmp13.xyz = (fma_s(-reg_tmp8.yzxx, reg_tmp12.zxyy, reg_tmp13)).xyz;
-    // 35: dp3
     reg_tmp10.x = dot_3(reg_tmp13.xyz, reg_tmp13.xyz);
-    // 36: cmp
     conditional_code = greaterThanEqual(uniforms.f[85].yy, reg_tmp10.xx);
-    // 37: ifc
     if (conditional_code.x) {
         sub_38_39();
     } else {
         sub_39_41();
     }
-    // 41: mul
     reg_tmp12.xyz = (mul_s(reg_tmp7.yzxx, reg_tmp8.zxyy)).xyz;
-    // 42: mad
     reg_tmp12.xyz = (fma_s(-reg_tmp8.yzxx, reg_tmp7.zxyy, reg_tmp12)).xyz;
-    // 43: dp3
     reg_tmp10.x = dot_3(reg_tmp12.xyz, reg_tmp12.xyz);
-    // 44: cmp
     conditional_code = greaterThanEqual(uniforms.f[85].yy, reg_tmp10.xx);
-    // 45: ifc
     if (conditional_code.x) {
         sub_46_47();
     } else {
         sub_47_49();
     }
-    // 49: mul
     reg_tmp10.xyz = (mul_s(reg_tmp11.xxxx, reg_tmp7.xyzz)).xyz;
-    // 50: mad
     reg_tmp10.xyz = (fma_s(reg_tmp11.yyyy, reg_tmp8.xyzz, reg_tmp10.xyzz)).xyz;
-    // 51: mad
     reg_tmp10.xyz = (fma_s(reg_tmp11.zzzz, reg_tmp9.xyzz, reg_tmp10.xyzz)).xyz;
     return false;
 }
 bool sub_29_30() {
-    // 29: mov
     reg_tmp8.xyz = (uniforms.f[84].xxxx).xyz;
     return false;
 }
 bool sub_30_32() {
-    // 30: rsq
     reg_tmp10.x = rsq_s(reg_tmp10.x);
-    // 31: mul
     reg_tmp8.xyz = (mul_s(uniforms.f[0 + address_registers.y].xyzz, reg_tmp10.xxxx)).xyz;
     return false;
 }
 bool sub_38_39() {
-    // 38: mov
     reg_tmp7.xyz = (uniforms.f[84].xxxx).xyz;
     return false;
 }
 bool sub_39_41() {
-    // 39: rsq
     reg_tmp10.x = rsq_s(reg_tmp10.x);
-    // 40: mul
     reg_tmp7.xyz = (mul_s(reg_tmp13.xyzz, reg_tmp10.xxxx)).xyz;
     return false;
 }
 bool sub_46_47() {
-    // 46: mov
     reg_tmp9.xyz = (uniforms.f[84].xxxx).xyz;
     return false;
 }
 bool sub_47_49() {
-    // 47: rsq
     reg_tmp10.x = rsq_s(reg_tmp10.x);
-    // 48: mul
     reg_tmp9.xyz = (mul_s(reg_tmp12.xyzz, reg_tmp10.xxxx)).xyz;
     return false;
 }
 bool sub_52_55() {
-    // 52: dp3
     reg_tmp10.x = dot_3(uniforms.f[0 + address_registers.y].xyz, reg_tmp11.xyz);
-    // 53: dp3
     reg_tmp10.y = dot_3(uniforms.f[1 + address_registers.y].xyz, reg_tmp11.xyz);
-    // 54: dp3
     reg_tmp10.z = dot_3(uniforms.f[2 + address_registers.y].xyz, reg_tmp11.xyz);
     return false;
 }
-// reference: 69932202D6081625, 9C5D7AEF8C3E67F2
-// shader: 8DD9, 5508714B05507EE9
+// reference: 6993220255FD7057, 4056A7BD49897EA4
+// shader: 8DD9, 01926B3CAE979003
 
 layout(triangles) in;
 layout(triangle_strip, max_vertices = 3) out;
@@ -16151,12 +14709,11 @@ layout (std140) uniform shader_light_data {
     int shadow_texture_bias;
 };
 
- in vec4 vs_out_attr0[];
- in vec4 vs_out_attr1[];
- in vec4 vs_out_attr2[];
- in vec4 vs_out_attr3[];
- in vec4 vs_out_attr4[];
-
+in vec4 vs_out_attr0[];
+in vec4 vs_out_attr1[];
+in vec4 vs_out_attr2[];
+in vec4 vs_out_attr3[];
+in vec4 vs_out_attr4[];
 struct Vertex {
     vec4 attributes[5];
 };
@@ -16184,7 +14741,6 @@ void EmitVtx(Vertex vtx, bool quats_opposite) {
 
     texcoord0_w = 0.0;
     view = vec3(vtx.attributes[4].x, vtx.attributes[4].y, vtx.attributes[4].z);
-
     texcoord2 = vec2(0.0, 0.0);
 
     EmitVertex();
@@ -16208,8 +14764,8 @@ void main() {
     prim_buffer[2].attributes = vec4[5](vs_out_attr0[2], vs_out_attr1[2], vs_out_attr2[2], vs_out_attr3[2], vs_out_attr4[2]);
     EmitPrim(prim_buffer[0], prim_buffer[1], prim_buffer[2]);
 }
-// reference: 8D2B248358E40AB0, 5508714B05507EE9
-// shader: 8B30, 17A40FE33A376D1D
+// reference: 8D2B248358E40AB0, 01926B3CAE979003
+// shader: 8B30, E67CDBF78EB525CD
 
 precision highp int;
 precision highp float;
@@ -16361,7 +14917,8 @@ vec4 next_combiner_buffer = tev_combiner_buffer_color;
 vec4 last_tex_env_out = vec4(0.0);
 vec3 color_output_0 = byteround(clamp((const_color[0].rgb) * (texcolor0.rgb), vec3(0.0), vec3(1.0)));
 float alpha_output_0 = byteround(clamp((rounded_primary_color.a) * (texcolor0.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_0, alpha_output_0), vec4(0.0), vec4(1.0));
+last_tex_env_out = vec4(color_output_0, alpha_output_0);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 
 combiner_buffer = next_combiner_buffer;
@@ -16378,9 +14935,9 @@ if (int(last_tex_env_out.a * 255.0) <= alphatest_ref) discard;
 gl_FragDepth = depth;
 color = byteround(last_tex_env_out);
 }
-// reference: CE312E6855E2EB09, 17A40FE33A376D1D
-// program: 9C5D7AEF8C3E67F2, 5508714B05507EE9, 17A40FE33A376D1D
-// shader: 8B30, D53D4AA2AC368F1E
+// reference: CE312E6855E2EB09, E67CDBF78EB525CD
+// program: 4056A7BD49897EA4, 01926B3CAE979003, E67CDBF78EB525CD
+// shader: 8B30, 5FC69154679F5E31
 
 precision highp int;
 precision highp float;
@@ -16532,7 +15089,8 @@ vec4 next_combiner_buffer = tev_combiner_buffer_color;
 vec4 last_tex_env_out = vec4(0.0);
 vec3 color_output_0 = byteround(clamp((const_color[0].rgb) * (texcolor0.rgb), vec3(0.0), vec3(1.0)));
 float alpha_output_0 = byteround(clamp((rounded_primary_color.a) * (texcolor0.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_0, alpha_output_0), vec4(0.0), vec4(1.0));
+last_tex_env_out = vec4(color_output_0, alpha_output_0);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 
 combiner_buffer = next_combiner_buffer;
@@ -16541,25 +15099,28 @@ combiner_buffer = next_combiner_buffer;
 
 vec3 color_output_3 = byteround(clamp((vec3(1.0) - texcolor0.rgb) * (const_color[3].rgb), vec3(0.0), vec3(1.0)));
 float alpha_output_3 = byteround(clamp((texcolor0.a) * (const_color[3].a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_3, alpha_output_3), vec4(0.0), vec4(1.0));
+last_tex_env_out = vec4(color_output_3, alpha_output_3);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 
 vec3 color_output_4 = byteround(clamp((texcolor0.rgb) * (const_color[4].rgb) + (last_tex_env_out.rgb), vec3(0.0), vec3(1.0)));
 float alpha_output_4 = byteround(clamp((1.0 - texcolor0.a) * (const_color[4].a) + (last_tex_env_out.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_4, alpha_output_4), vec4(0.0), vec4(1.0));
+last_tex_env_out = vec4(color_output_4, alpha_output_4);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 
 vec3 color_output_5 = byteround(clamp((rounded_primary_color.rgb) * (last_tex_env_out.rgb), vec3(0.0), vec3(1.0)));
 float alpha_output_5 = byteround(clamp((rounded_primary_color.a) * (last_tex_env_out.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_5, alpha_output_5), vec4(0.0), vec4(1.0));
+last_tex_env_out = vec4(color_output_5, alpha_output_5);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 
 gl_FragDepth = depth;
 color = byteround(last_tex_env_out);
 }
-// reference: 104EEE6A915C53DA, D53D4AA2AC368F1E
-// program: A990721D25F019E4, 5D764F9A6220D694, D53D4AA2AC368F1E
-// shader: 8B30, 7EBE84DAEA11B61F
+// reference: 104EEE6A915C53DA, 5FC69154679F5E31
+// program: A0C32A2C2484E2AE, 42937135801BAA7E, 5FC69154679F5E31
+// shader: 8B30, EB2BA8ABD12E230A
 
 precision highp int;
 precision highp float;
@@ -16711,7 +15272,8 @@ vec4 next_combiner_buffer = tev_combiner_buffer_color;
 vec4 last_tex_env_out = vec4(0.0);
 vec3 color_output_0 = byteround(clamp((const_color[0].rgb) * (texcolor0.rgb), vec3(0.0), vec3(1.0)));
 float alpha_output_0 = byteround(clamp((rounded_primary_color.a) * (texcolor0.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_0, alpha_output_0), vec4(0.0), vec4(1.0));
+last_tex_env_out = vec4(color_output_0, alpha_output_0);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 
 combiner_buffer = next_combiner_buffer;
@@ -16720,26 +15282,29 @@ combiner_buffer = next_combiner_buffer;
 
 vec3 color_output_3 = byteround(clamp((const_color[3].rgb) * (vec3(1.0) - texcolor0.rgb), vec3(0.0), vec3(1.0)));
 float alpha_output_3 = byteround(clamp((const_color[3].a) * (1.0 - texcolor0.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_3, alpha_output_3), vec4(0.0), vec4(1.0));
+last_tex_env_out = vec4(color_output_3, alpha_output_3);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 
 vec3 color_output_4 = byteround(clamp((const_color[4].rgb) * (texcolor0.rgb) + (last_tex_env_out.rgb), vec3(0.0), vec3(1.0)));
 float alpha_output_4 = byteround(clamp((const_color[4].a) * (texcolor0.a) + (last_tex_env_out.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_4, alpha_output_4), vec4(0.0), vec4(1.0));
+last_tex_env_out = vec4(color_output_4, alpha_output_4);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 
 vec3 color_output_5 = byteround(clamp((rounded_primary_color.rgb) * (last_tex_env_out.rgb), vec3(0.0), vec3(1.0)));
 float alpha_output_5 = byteround(clamp((rounded_primary_color.a) * (last_tex_env_out.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_5, alpha_output_5), vec4(0.0), vec4(1.0));
+last_tex_env_out = vec4(color_output_5, alpha_output_5);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 
 gl_FragDepth = depth;
 color = byteround(last_tex_env_out);
 }
-// reference: DFD60A9510A34560, 7EBE84DAEA11B61F
-// program: A990721D25F019E4, 5D764F9A6220D694, 7EBE84DAEA11B61F
-// reference: CE312E685420813E, 17A40FE33A376D1D
-// shader: 8B30, FA436334D8C1E28E
+// reference: DFD60A9510A34560, EB2BA8ABD12E230A
+// program: A0C32A2C2484E2AE, 42937135801BAA7E, EB2BA8ABD12E230A
+// reference: CE312E685420813E, E67CDBF78EB525CD
+// shader: 8B30, EA68C4A03D5D7747
 
 precision highp int;
 precision highp float;
@@ -16891,7 +15456,8 @@ vec4 next_combiner_buffer = tev_combiner_buffer_color;
 vec4 last_tex_env_out = vec4(0.0);
 vec3 color_output_0 = byteround(clamp((const_color[0].rgb) * (texcolor0.rgb), vec3(0.0), vec3(1.0)));
 float alpha_output_0 = byteround(clamp((rounded_primary_color.a) * (texcolor0.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_0, alpha_output_0), vec4(0.0), vec4(1.0));
+last_tex_env_out = vec4(color_output_0, alpha_output_0);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 
 combiner_buffer = next_combiner_buffer;
@@ -16900,26 +15466,29 @@ combiner_buffer = next_combiner_buffer;
 
 vec3 color_output_3 = byteround(clamp((texcolor0.rgb) * (const_color[3].rgb), vec3(0.0), vec3(1.0)));
 float alpha_output_3 = byteround(clamp((texcolor0.a) * (const_color[3].a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_3, alpha_output_3), vec4(0.0), vec4(1.0));
+last_tex_env_out = vec4(color_output_3, alpha_output_3);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 
 vec3 color_output_4 = byteround(clamp((vec3(1.0) - texcolor0.rgb) * (const_color[4].rgb) + (last_tex_env_out.rgb), vec3(0.0), vec3(1.0)));
 float alpha_output_4 = byteround(clamp((1.0 - texcolor0.a) * (const_color[4].a) + (last_tex_env_out.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_4, alpha_output_4), vec4(0.0), vec4(1.0));
+last_tex_env_out = vec4(color_output_4, alpha_output_4);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 
 vec3 color_output_5 = byteround(clamp((rounded_primary_color.rgb) * (last_tex_env_out.rgb), vec3(0.0), vec3(1.0)));
 float alpha_output_5 = byteround(clamp((rounded_primary_color.a) * (last_tex_env_out.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_5, alpha_output_5), vec4(0.0), vec4(1.0));
+last_tex_env_out = vec4(color_output_5, alpha_output_5);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 
 gl_FragDepth = depth;
 color = byteround(last_tex_env_out);
 }
-// reference: 633C003B915C53DA, FA436334D8C1E28E
-// program: A990721D25F019E4, 5D764F9A6220D694, FA436334D8C1E28E
-// reference: BA10E5FB0DB1B762, 9C5D7AEF8C3E67F2
-// shader: 8B30, 6C522CC4ECE93FB9
+// reference: 633C003B915C53DA, EA68C4A03D5D7747
+// program: A0C32A2C2484E2AE, 42937135801BAA7E, EA68C4A03D5D7747
+// reference: 27C7DD420DB1B762, 4056A7BD49897EA4
+// shader: 8B30, 468C62C3C3282DFC
 
 precision highp int;
 precision highp float;
@@ -17071,7 +15640,8 @@ vec4 next_combiner_buffer = tev_combiner_buffer_color;
 vec4 last_tex_env_out = vec4(0.0);
 vec3 color_output_0 = byteround(clamp((const_color[0].rgb) * (texcolor0.rgb), vec3(0.0), vec3(1.0)));
 float alpha_output_0 = byteround(clamp((rounded_primary_color.a) * (texcolor0.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_0, alpha_output_0), vec4(0.0), vec4(1.0));
+last_tex_env_out = vec4(color_output_0, alpha_output_0);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 
 combiner_buffer = next_combiner_buffer;
@@ -17086,19 +15656,19 @@ combiner_buffer = next_combiner_buffer;
 
 if (int(last_tex_env_out.a * 255.0) <= alphatest_ref) discard;
 float fog_index = depth * 128.0;
-float fog_i = clamp(floor(fog_index), 0.0, 127.0);
-float fog_f = fog_index - fog_i;
-vec2 fog_lut_entry = texelFetch(texture_buffer_lut_lf, int(fog_i) + fog_lut_offset).rg;
+int fog_i = int(fog_index);
+float fog_f = fract(fog_index);
+vec2 fog_lut_entry = texelFetch(texture_buffer_lut_lf, fog_i + fog_lut_offset).rg;
 float fog_factor = fog_lut_entry.r + fog_lut_entry.g * fog_f;
 fog_factor = clamp(fog_factor, 0.0, 1.0);
 last_tex_env_out.rgb = mix(fog_color.rgb, last_tex_env_out.rgb, fog_factor);
 gl_FragDepth = depth;
 color = byteround(last_tex_env_out);
 }
-// reference: 9DB0BA7955E2EB09, 6C522CC4ECE93FB9
-// program: 9C5D7AEF8C3E67F2, 5508714B05507EE9, 6C522CC4ECE93FB9
-// reference: 9DB0BA795420813E, 6C522CC4ECE93FB9
-// shader: 8B30, 46A4935CE322A9C7
+// reference: 9DB0BA7955E2EB09, 468C62C3C3282DFC
+// program: 4056A7BD49897EA4, 01926B3CAE979003, 468C62C3C3282DFC
+// reference: 9DB0BA795420813E, 468C62C3C3282DFC
+// shader: 8B30, 960A7CC4DC12C096
 
 precision highp int;
 precision highp float;
@@ -17250,12 +15820,14 @@ vec4 next_combiner_buffer = tev_combiner_buffer_color;
 vec4 last_tex_env_out = vec4(0.0);
 vec3 color_output_0 = byteround(clamp((const_color[0].rgb) * (texcolor0.rgb), vec3(0.0), vec3(1.0)));
 float alpha_output_0 = byteround(clamp((rounded_primary_color.a) * (texcolor0.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_0, alpha_output_0), vec4(0.0), vec4(1.0));
+last_tex_env_out = vec4(color_output_0, alpha_output_0);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 
 vec3 color_output_1 = byteround(clamp((rounded_primary_color.rgb) * (vec3(1.0) - texcolor0.rgb) + (last_tex_env_out.rgb), vec3(0.0), vec3(1.0)));
-float alpha_output_1 = byteround(clamp((last_tex_env_out.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_1, alpha_output_1), vec4(0.0), vec4(1.0));
+float alpha_output_1 = (last_tex_env_out.a);
+last_tex_env_out = vec4(color_output_1, alpha_output_1);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 
 combiner_buffer = next_combiner_buffer;
@@ -17270,10 +15842,10 @@ if (int(last_tex_env_out.a * 255.0) <= alphatest_ref) discard;
 gl_FragDepth = depth;
 color = byteround(last_tex_env_out);
 }
-// reference: 86CB841BFEEF3157, 46A4935CE322A9C7
-// program: 9C5D7AEF8C3E67F2, 5508714B05507EE9, 46A4935CE322A9C7
-// reference: 86CB841BFF2D5B60, 46A4935CE322A9C7
-// shader: 8B30, D6852E16D15C26B8
+// reference: 86CB841BFEEF3157, 960A7CC4DC12C096
+// program: 4056A7BD49897EA4, 01926B3CAE979003, 960A7CC4DC12C096
+// reference: 86CB841BFF2D5B60, 960A7CC4DC12C096
+// shader: 8B30, 71ED32D576345D1A
 
 precision highp int;
 precision highp float;
@@ -17423,9 +15995,10 @@ vec4 texcolor0 = textureLod(tex0, texcoord0, getLod(texcoord0 * vec2(textureSize
 vec4 combiner_buffer = vec4(0.0);
 vec4 next_combiner_buffer = tev_combiner_buffer_color;
 vec4 last_tex_env_out = vec4(0.0);
-vec3 color_output_0 = byteround(clamp((const_color[0].rgb), vec3(0.0), vec3(1.0)));
+vec3 color_output_0 = (const_color[0].rgb);
 float alpha_output_0 = byteround(clamp((rounded_primary_color.a) * (texcolor0.g), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_0, alpha_output_0), vec4(0.0), vec4(1.0));
+last_tex_env_out = vec4(color_output_0, alpha_output_0);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 
 combiner_buffer = next_combiner_buffer;
@@ -17440,19 +16013,19 @@ combiner_buffer = next_combiner_buffer;
 
 if (int(last_tex_env_out.a * 255.0) <= alphatest_ref) discard;
 float fog_index = depth * 128.0;
-float fog_i = clamp(floor(fog_index), 0.0, 127.0);
-float fog_f = fog_index - fog_i;
-vec2 fog_lut_entry = texelFetch(texture_buffer_lut_lf, int(fog_i) + fog_lut_offset).rg;
+int fog_i = int(fog_index);
+float fog_f = fract(fog_index);
+vec2 fog_lut_entry = texelFetch(texture_buffer_lut_lf, fog_i + fog_lut_offset).rg;
 float fog_factor = fog_lut_entry.r + fog_lut_entry.g * fog_f;
 fog_factor = clamp(fog_factor, 0.0, 1.0);
 last_tex_env_out.rgb = mix(fog_color.rgb, last_tex_env_out.rgb, fog_factor);
 gl_FragDepth = depth;
 color = byteround(last_tex_env_out);
 }
-// reference: 83E145330BDEB57B, D6852E16D15C26B8
-// program: 9C5D7AEF8C3E67F2, 5508714B05507EE9, D6852E16D15C26B8
-// reference: 83E145330A1CDF4C, D6852E16D15C26B8
-// shader: 8B31, B0F8C6C7E7AE2D9A
+// reference: 83E145330BDEB57B, 71ED32D576345D1A
+// program: 4056A7BD49897EA4, 01926B3CAE979003, 71ED32D576345D1A
+// reference: 83E145330A1CDF4C, 71ED32D576345D1A
+// shader: 8B31, A89AA8D22DE7350F
 
 struct pica_uniforms {
     bool b[16];
@@ -17471,18 +16044,16 @@ layout(location = 0) in vec4 vs_in_reg0;
 layout(location = 1) in vec4 vs_in_reg1;
 layout(location = 2) in vec4 vs_in_reg2;
 
- out vec4 vs_out_attr0;
- out vec4 vs_out_attr1;
- out vec4 vs_out_attr2;
+out vec4 vs_out_attr0;
+out vec4 vs_out_attr1;
+out vec4 vs_out_attr2;
 
 void main() {
     vs_out_attr0 = vec4(0.0, 0.0, 0.0, 1.0);
     vs_out_attr1 = vec4(0.0, 0.0, 0.0, 1.0);
     vs_out_attr2 = vec4(0.0, 0.0, 0.0, 1.0);
-
     exec_shader();
 }
-
 
 #define mul_s(x, y) mix(x * y, vec4(0.0), isnan(x * y))
 #define fma_s(x, y, z) (mix(x * y, vec4(0.0), isnan(x * y)) + z)
@@ -17528,91 +16099,60 @@ bool exec_shader() {
 }
 
 bool sub_0_4096() {
-    // 0: mov
     reg_tmp0.w = (uniforms.f[85].zzzz).w;
-    // 1: mov
     reg_tmp1.w = (uniforms.f[85].zzzz).w;
-    // 2: mov
     reg_tmp10 = uniforms.f[85].xxxx;
-    // 3: cmp
     conditional_code = equal(uniforms.f[13].ww, reg_tmp10.xy);
-    // 4: ifc
     if (conditional_code.x) {
         sub_5_15();
     } else {
         sub_15_16();
     }
-    // 16: dp4
     reg_tmp1.x = dot_s(uniforms.f[90], reg_tmp0);
-    // 17: dp4
     reg_tmp1.y = dot_s(uniforms.f[91], reg_tmp0);
-    // 18: dp4
     reg_tmp1.z = dot_s(uniforms.f[92], reg_tmp0);
-    // 19: dp4
     vs_out_attr0.x = dot_s(uniforms.f[86], reg_tmp1);
-    // 20: dp4
     vs_out_attr0.y = dot_s(uniforms.f[87], reg_tmp1);
-    // 21: dp4
     vs_out_attr0.z = dot_s(uniforms.f[88], reg_tmp1);
-    // 22: dp4
     vs_out_attr0.w = dot_s(uniforms.f[89], reg_tmp1);
-    // 23: mul
     reg_tmp10.xy = (mul_s(uniforms.f[12].xyyy, vs_in_reg1.xyyy)).xy;
-    // 24: add
     reg_tmp11.xy = (uniforms.f[12].zwww + reg_tmp10.xyyy).xy;
-    // 25: mov
     vs_out_attr1.x = (reg_tmp11.xxxx).x;
-    // 26: add
     vs_out_attr1.y = (uniforms.f[85].zzzz + -reg_tmp11.yyyy).y;
-    // 27: mov
     vs_out_attr1.zw = (uniforms.f[85].zzzz).zw;
-    // 28: mov
     vs_out_attr2.xyz = (uniforms.f[13].xyzz).xyz;
-    // 29: mov
     vs_out_attr2.w = (vs_in_reg1.zzzz).w;
-    // 30: end
     return true;
 }
 bool sub_5_15() {
-    // 5: mul
     reg_tmp13.xyz = (mul_s(-uniforms.f[3].yzxx, vs_in_reg2.zxyy)).xyz;
-    // 6: mad
     reg_tmp13.xyz = (fma_s(vs_in_reg2.yzxx, uniforms.f[3].zxyy, reg_tmp13)).xyz;
-    // 7: dp3
     reg_tmp11.x = dot_3(reg_tmp13.xyz, reg_tmp13.xyz);
-    // 8: cmp
     conditional_code = greaterThanEqual(uniforms.f[84].yy, reg_tmp11.xx);
-    // 9: ifc
     if (conditional_code.x) {
         sub_10_11();
     } else {
         sub_11_12();
     }
-    // 12: mul
     reg_tmp14.xyz = (mul_s(reg_tmp13.xyzz, reg_tmp11.xxxx)).xyz;
-    // 13: mov
     reg_tmp10 = vs_in_reg2.wwww;
-    // 14: mad
     reg_tmp0.xyz = (fma_s(reg_tmp14.xyzz, reg_tmp10.xyzz, vs_in_reg0.xyzz)).xyz;
     return false;
 }
 bool sub_10_11() {
-    // 10: mov
     reg_tmp11.x = (uniforms.f[85].xxxx).x;
     return false;
 }
 bool sub_11_12() {
-    // 11: rsq
     reg_tmp11.x = rsq_s(reg_tmp11.x);
     return false;
 }
 bool sub_15_16() {
-    // 15: mov
     reg_tmp0.xyz = (vs_in_reg0).xyz;
     return false;
 }
-// reference: B392239BEFD0FAE0, B0F8C6C7E7AE2D9A
-// shader: 8DD9, 6073F2A2E32CD1D3
+// reference: 2E451B22EFD0FAE0, A89AA8D22DE7350F
+// shader: 8DD9, E9AB8C38CA194A54
 
 layout(triangles) in;
 layout(triangle_strip, max_vertices = 3) out;
@@ -17680,10 +16220,9 @@ layout (std140) uniform shader_light_data {
     int shadow_texture_bias;
 };
 
- in vec4 vs_out_attr0[];
- in vec4 vs_out_attr1[];
- in vec4 vs_out_attr2[];
-
+in vec4 vs_out_attr0[];
+in vec4 vs_out_attr1[];
+in vec4 vs_out_attr2[];
 struct Vertex {
     vec4 attributes[3];
 };
@@ -17711,7 +16250,6 @@ void EmitVtx(Vertex vtx, bool quats_opposite) {
 
     texcoord0_w = 0.0;
     view = vec3(0.0, 0.0, 0.0);
-
     texcoord2 = vec2(0.0, 0.0);
 
     EmitVertex();
@@ -17735,8 +16273,8 @@ void main() {
     prim_buffer[2].attributes = vec4[3](vs_out_attr0[2], vs_out_attr1[2], vs_out_attr2[2]);
     EmitPrim(prim_buffer[0], prim_buffer[1], prim_buffer[2]);
 }
-// reference: 5144ABDD19096853, 6073F2A2E32CD1D3
-// shader: 8B30, 32FB8BA38EC76E4F
+// reference: 5144ABDD19096853, E9AB8C38CA194A54
+// shader: 8B30, 2BCCDF1EC382CBB8
 
 precision highp int;
 precision highp float;
@@ -17888,12 +16426,14 @@ vec4 next_combiner_buffer = tev_combiner_buffer_color;
 vec4 last_tex_env_out = vec4(0.0);
 vec3 color_output_0 = byteround(clamp((const_color[0].rgb) * (texcolor0.rgb), vec3(0.0), vec3(1.0)));
 float alpha_output_0 = byteround(clamp((rounded_primary_color.a) * (texcolor0.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_0, alpha_output_0), vec4(0.0), vec4(1.0));
+last_tex_env_out = vec4(color_output_0, alpha_output_0);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 
 vec3 color_output_1 = byteround(clamp((rounded_primary_color.rgb) * (vec3(1.0) - texcolor0.rgb) + (last_tex_env_out.rgb), vec3(0.0), vec3(1.0)));
-float alpha_output_1 = byteround(clamp((last_tex_env_out.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_1, alpha_output_1), vec4(0.0), vec4(1.0));
+float alpha_output_1 = (last_tex_env_out.a);
+last_tex_env_out = vec4(color_output_1, alpha_output_1);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 
 combiner_buffer = next_combiner_buffer;
@@ -17906,18 +16446,18 @@ combiner_buffer = next_combiner_buffer;
 
 if (int(last_tex_env_out.a * 255.0) <= alphatest_ref) discard;
 float fog_index = depth * 128.0;
-float fog_i = clamp(floor(fog_index), 0.0, 127.0);
-float fog_f = fog_index - fog_i;
-vec2 fog_lut_entry = texelFetch(texture_buffer_lut_lf, int(fog_i) + fog_lut_offset).rg;
+int fog_i = int(fog_index);
+float fog_f = fract(fog_index);
+vec2 fog_lut_entry = texelFetch(texture_buffer_lut_lf, fog_i + fog_lut_offset).rg;
 float fog_factor = fog_lut_entry.r + fog_lut_entry.g * fog_f;
 fog_factor = clamp(fog_factor, 0.0, 1.0);
 last_tex_env_out.rgb = mix(fog_color.rgb, last_tex_env_out.rgb, fog_factor);
 gl_FragDepth = depth;
 color = byteround(last_tex_env_out);
 }
-// reference: D54A100AFEEF3157, 32FB8BA38EC76E4F
-// program: B0F8C6C7E7AE2D9A, 6073F2A2E32CD1D3, 32FB8BA38EC76E4F
-// shader: 8B30, C79408A8846F8AB7
+// reference: D54A100AFEEF3157, 2BCCDF1EC382CBB8
+// program: A89AA8D22DE7350F, E9AB8C38CA194A54, 2BCCDF1EC382CBB8
+// shader: 8B30, AEF1F51AFAE3A67B
 
 precision highp int;
 precision highp float;
@@ -18069,37 +16609,42 @@ vec4 next_combiner_buffer = tev_combiner_buffer_color;
 vec4 last_tex_env_out = vec4(0.0);
 vec3 color_output_0 = byteround(clamp((const_color[0].rgb) * (texcolor0.rgb), vec3(0.0), vec3(1.0)));
 float alpha_output_0 = byteround(clamp((rounded_primary_color.a) * (texcolor0.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_0, alpha_output_0), vec4(0.0), vec4(1.0));
+last_tex_env_out = vec4(color_output_0, alpha_output_0);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 
 vec3 color_output_1 = byteround(clamp((rounded_primary_color.rgb) * (vec3(1.0) - texcolor0.rgb) + (last_tex_env_out.rgb), vec3(0.0), vec3(1.0)));
-float alpha_output_1 = byteround(clamp((last_tex_env_out.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_1, alpha_output_1), vec4(0.0), vec4(1.0));
+float alpha_output_1 = (last_tex_env_out.a);
+last_tex_env_out = vec4(color_output_1, alpha_output_1);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 
 combiner_buffer = next_combiner_buffer;
 
 vec3 color_output_3 = byteround(clamp((vec3(1.0) - texcolor0.rgb) * (const_color[3].rgb), vec3(0.0), vec3(1.0)));
 float alpha_output_3 = byteround(clamp((texcolor0.a) * (const_color[3].a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_3, alpha_output_3), vec4(0.0), vec4(1.0));
+last_tex_env_out = vec4(color_output_3, alpha_output_3);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 
 vec3 color_output_4 = byteround(clamp((texcolor0.rgb) * (const_color[4].rgb) + (last_tex_env_out.rgb), vec3(0.0), vec3(1.0)));
 float alpha_output_4 = byteround(clamp((1.0 - texcolor0.a) * (const_color[4].a) + (last_tex_env_out.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_4, alpha_output_4), vec4(0.0), vec4(1.0));
+last_tex_env_out = vec4(color_output_4, alpha_output_4);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 
 vec3 color_output_5 = byteround(clamp((rounded_primary_color.rgb) * (last_tex_env_out.rgb), vec3(0.0), vec3(1.0)));
 float alpha_output_5 = byteround(clamp((rounded_primary_color.a) * (last_tex_env_out.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_5, alpha_output_5), vec4(0.0), vec4(1.0));
+last_tex_env_out = vec4(color_output_5, alpha_output_5);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 
 gl_FragDepth = depth;
 color = byteround(last_tex_env_out);
 }
-// reference: 58B444193A518984, C79408A8846F8AB7
-// program: A990721D25F019E4, 5D764F9A6220D694, C79408A8846F8AB7
-// shader: 8B30, 22599795714A05B4
+// reference: 58B444193A518984, AEF1F51AFAE3A67B
+// program: A0C32A2C2484E2AE, 42937135801BAA7E, AEF1F51AFAE3A67B
+// shader: 8B30, 1097825723BBF1FE
 
 precision highp int;
 precision highp float;
@@ -18251,38 +16796,43 @@ vec4 next_combiner_buffer = tev_combiner_buffer_color;
 vec4 last_tex_env_out = vec4(0.0);
 vec3 color_output_0 = byteround(clamp((const_color[0].rgb) * (texcolor0.rgb), vec3(0.0), vec3(1.0)));
 float alpha_output_0 = byteround(clamp((rounded_primary_color.a) * (texcolor0.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_0, alpha_output_0), vec4(0.0), vec4(1.0));
+last_tex_env_out = vec4(color_output_0, alpha_output_0);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 
 vec3 color_output_1 = byteround(clamp((rounded_primary_color.rgb) * (vec3(1.0) - texcolor0.rgb) + (last_tex_env_out.rgb), vec3(0.0), vec3(1.0)));
-float alpha_output_1 = byteround(clamp((last_tex_env_out.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_1, alpha_output_1), vec4(0.0), vec4(1.0));
+float alpha_output_1 = (last_tex_env_out.a);
+last_tex_env_out = vec4(color_output_1, alpha_output_1);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 
 combiner_buffer = next_combiner_buffer;
 
 vec3 color_output_3 = byteround(clamp((const_color[3].rgb) * (vec3(1.0) - texcolor0.rgb), vec3(0.0), vec3(1.0)));
 float alpha_output_3 = byteround(clamp((const_color[3].a) * (1.0 - texcolor0.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_3, alpha_output_3), vec4(0.0), vec4(1.0));
+last_tex_env_out = vec4(color_output_3, alpha_output_3);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 
 vec3 color_output_4 = byteround(clamp((const_color[4].rgb) * (texcolor0.rgb) + (last_tex_env_out.rgb), vec3(0.0), vec3(1.0)));
 float alpha_output_4 = byteround(clamp((const_color[4].a) * (texcolor0.a) + (last_tex_env_out.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_4, alpha_output_4), vec4(0.0), vec4(1.0));
+last_tex_env_out = vec4(color_output_4, alpha_output_4);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 
 vec3 color_output_5 = byteround(clamp((rounded_primary_color.rgb) * (last_tex_env_out.rgb), vec3(0.0), vec3(1.0)));
 float alpha_output_5 = byteround(clamp((rounded_primary_color.a) * (last_tex_env_out.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_5, alpha_output_5), vec4(0.0), vec4(1.0));
+last_tex_env_out = vec4(color_output_5, alpha_output_5);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 
 gl_FragDepth = depth;
 color = byteround(last_tex_env_out);
 }
-// reference: 972CA0E6BBAE9F3E, 22599795714A05B4
-// program: A990721D25F019E4, 5D764F9A6220D694, 22599795714A05B4
-// reference: D54A100AFF2D5B60, 32FB8BA38EC76E4F
-// shader: 8B30, 83B7B0966277E856
+// reference: 972CA0E6BBAE9F3E, 1097825723BBF1FE
+// program: A0C32A2C2484E2AE, 42937135801BAA7E, 1097825723BBF1FE
+// reference: D54A100AFF2D5B60, 2BCCDF1EC382CBB8
+// shader: 8B30, 844DA0B19B643679
 
 precision highp int;
 precision highp float;
@@ -18434,37 +16984,42 @@ vec4 next_combiner_buffer = tev_combiner_buffer_color;
 vec4 last_tex_env_out = vec4(0.0);
 vec3 color_output_0 = byteround(clamp((const_color[0].rgb) * (texcolor0.rgb), vec3(0.0), vec3(1.0)));
 float alpha_output_0 = byteround(clamp((rounded_primary_color.a) * (texcolor0.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_0, alpha_output_0), vec4(0.0), vec4(1.0));
+last_tex_env_out = vec4(color_output_0, alpha_output_0);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 
 vec3 color_output_1 = byteround(clamp((rounded_primary_color.rgb) * (vec3(1.0) - texcolor0.rgb) + (last_tex_env_out.rgb), vec3(0.0), vec3(1.0)));
-float alpha_output_1 = byteround(clamp((last_tex_env_out.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_1, alpha_output_1), vec4(0.0), vec4(1.0));
+float alpha_output_1 = (last_tex_env_out.a);
+last_tex_env_out = vec4(color_output_1, alpha_output_1);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 
 combiner_buffer = next_combiner_buffer;
 
 vec3 color_output_3 = byteround(clamp((texcolor0.rgb) * (const_color[3].rgb), vec3(0.0), vec3(1.0)));
 float alpha_output_3 = byteround(clamp((texcolor0.a) * (const_color[3].a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_3, alpha_output_3), vec4(0.0), vec4(1.0));
+last_tex_env_out = vec4(color_output_3, alpha_output_3);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 
 vec3 color_output_4 = byteround(clamp((vec3(1.0) - texcolor0.rgb) * (const_color[4].rgb) + (last_tex_env_out.rgb), vec3(0.0), vec3(1.0)));
 float alpha_output_4 = byteround(clamp((1.0 - texcolor0.a) * (const_color[4].a) + (last_tex_env_out.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_4, alpha_output_4), vec4(0.0), vec4(1.0));
+last_tex_env_out = vec4(color_output_4, alpha_output_4);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 
 vec3 color_output_5 = byteround(clamp((rounded_primary_color.rgb) * (last_tex_env_out.rgb), vec3(0.0), vec3(1.0)));
 float alpha_output_5 = byteround(clamp((rounded_primary_color.a) * (last_tex_env_out.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_5, alpha_output_5), vec4(0.0), vec4(1.0));
+last_tex_env_out = vec4(color_output_5, alpha_output_5);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 
 gl_FragDepth = depth;
 color = byteround(last_tex_env_out);
 }
-// reference: 2BC6AA483A518984, 83B7B0966277E856
-// program: A990721D25F019E4, 5D764F9A6220D694, 83B7B0966277E856
-// shader: 8B30, DD7AEAF80600C11E
+// reference: 2BC6AA483A518984, 844DA0B19B643679
+// program: A0C32A2C2484E2AE, 42937135801BAA7E, 844DA0B19B643679
+// shader: 8B30, 68639DD044A559D3
 
 precision highp int;
 precision highp float;
@@ -18616,7 +17171,8 @@ vec4 next_combiner_buffer = tev_combiner_buffer_color;
 vec4 last_tex_env_out = vec4(0.0);
 vec3 color_output_0 = byteround(clamp((const_color[0].rgb) * (texcolor0.rgb) + (rounded_primary_color.rgb), vec3(0.0), vec3(1.0)));
 float alpha_output_0 = byteround(clamp((rounded_primary_color.a) * (texcolor0.g), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_0, alpha_output_0), vec4(0.0), vec4(1.0));
+last_tex_env_out = vec4(color_output_0, alpha_output_0);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 
 combiner_buffer = next_combiner_buffer;
@@ -18633,9 +17189,9 @@ if (int(last_tex_env_out.a * 255.0) <= alphatest_ref) discard;
 gl_FragDepth = depth;
 color = byteround(last_tex_env_out);
 }
-// reference: 935F1E9F15F06067, DD7AEAF80600C11E
-// program: 9C5D7AEF8C3E67F2, 5508714B05507EE9, DD7AEAF80600C11E
-// shader: 8B30, 8C8E507DA1B6BE4D
+// reference: 935F1E9F15F06067, 68639DD044A559D3
+// program: 4056A7BD49897EA4, 01926B3CAE979003, 68639DD044A559D3
+// shader: 8B30, 93A23ABD57574B70
 
 precision highp int;
 precision highp float;
@@ -18785,9 +17341,10 @@ vec4 texcolor0 = textureLod(tex0, texcoord0, getLod(texcoord0 * vec2(textureSize
 vec4 combiner_buffer = vec4(0.0);
 vec4 next_combiner_buffer = tev_combiner_buffer_color;
 vec4 last_tex_env_out = vec4(0.0);
-vec3 color_output_0 = byteround(clamp((const_color[0].rgb), vec3(0.0), vec3(1.0)));
+vec3 color_output_0 = (const_color[0].rgb);
 float alpha_output_0 = byteround(clamp((rounded_primary_color.a) * (texcolor0.g), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_0, alpha_output_0), vec4(0.0), vec4(1.0));
+last_tex_env_out = vec4(color_output_0, alpha_output_0);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 
 combiner_buffer = next_combiner_buffer;
@@ -18804,13 +17361,13 @@ if (int(last_tex_env_out.a * 255.0) <= alphatest_ref) discard;
 gl_FragDepth = depth;
 color = byteround(last_tex_env_out);
 }
-// reference: D060D1220BDEB57B, 8C8E507DA1B6BE4D
-// program: 9C5D7AEF8C3E67F2, 5508714B05507EE9, 8C8E507DA1B6BE4D
-// reference: 935F1E9F14320A50, DD7AEAF80600C11E
-// reference: D060D1220A1CDF4C, 8C8E507DA1B6BE4D
-// reference: 864147555D3D4EA5, CC93A1CC8078601F
-// reference: 864147555CFF2492, CC93A1CC8078601F
-// shader: 8B30, 884C505BC36B45D8
+// reference: D060D1220BDEB57B, 93A23ABD57574B70
+// program: 4056A7BD49897EA4, 01926B3CAE979003, 93A23ABD57574B70
+// reference: 935F1E9F14320A50, 68639DD044A559D3
+// reference: D060D1220A1CDF4C, 93A23ABD57574B70
+// reference: 864147555D3D4EA5, 5B1608C9608495E8
+// reference: 864147555CFF2492, 5B1608C9608495E8
+// shader: 8B30, EF95165B0C0939BD
 
 precision highp int;
 precision highp float;
@@ -18986,31 +17543,33 @@ specular_sum.a = (lut_scale_fr * LookupLightingLUTSigned(3, dot(normal, normaliz
 diffuse_sum.rgb += ((light_src[0].diffuse * dot_product) + light_src[0].ambient) * 1.0;
 specular_sum.rgb += ((light_src[0].specular_0) + (light_src[0].specular_1)) * clamp_highlights * 1.0;
 diffuse_sum.rgb += lighting_global_ambient;
-primary_fragment_color = clamp(diffuse_sum, vec4(0.0), vec4(1.0));
 secondary_fragment_color = clamp(specular_sum, vec4(0.0), vec4(1.0));
-
 vec4 combiner_buffer = vec4(0.0);
 vec4 next_combiner_buffer = tev_combiner_buffer_color;
 vec4 last_tex_env_out = vec4(0.0);
 vec3 color_output_0 = byteround(clamp((secondary_fragment_color.aaa) * (const_color[0].rgb), vec3(0.0), vec3(1.0)));
 float alpha_output_0 = byteround(clamp((rounded_primary_color.a) * (texcolor0.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_0, alpha_output_0), vec4(0.0), vec4(1.0));
+last_tex_env_out = vec4(color_output_0, alpha_output_0);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 next_combiner_buffer.rgb = last_tex_env_out.rgb;
 
 vec3 color_output_1 = byteround(clamp((texcolor0.rgb) * (const_color[1].rgb) + (last_tex_env_out.rgb), vec3(0.0), vec3(1.0)));
-float alpha_output_1 = byteround(clamp((last_tex_env_out.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_1, alpha_output_1), vec4(0.0), vec4(1.0));
+float alpha_output_1 = (last_tex_env_out.a);
+last_tex_env_out = vec4(color_output_1, alpha_output_1);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 
 vec3 color_output_2 = byteround(clamp(min((rounded_primary_color.rgb) + (const_color[2].rgb), vec3(1.0)) * (last_tex_env_out.rgb), vec3(0.0), vec3(1.0)));
-float alpha_output_2 = byteround(clamp((last_tex_env_out.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_2, alpha_output_2), vec4(0.0), vec4(1.0));
+float alpha_output_2 = (last_tex_env_out.a);
+last_tex_env_out = vec4(color_output_2, alpha_output_2);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 
 vec3 color_output_3 = byteround(clamp((last_tex_env_out.rgb) * (texcolor1.rgb) + (const_color[3].rgb), vec3(0.0), vec3(1.0)));
-float alpha_output_3 = byteround(clamp((last_tex_env_out.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_3 * 2.0, alpha_output_3 * 1.0), vec4(0.0), vec4(1.0));
+float alpha_output_3 = (last_tex_env_out.a);
+last_tex_env_out = vec4(color_output_3 * 2.0, alpha_output_3 * 1.0);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 
 combiner_buffer = next_combiner_buffer;
@@ -19018,19 +17577,19 @@ combiner_buffer = next_combiner_buffer;
 combiner_buffer = next_combiner_buffer;
 
 float fog_index = depth * 128.0;
-float fog_i = clamp(floor(fog_index), 0.0, 127.0);
-float fog_f = fog_index - fog_i;
-vec2 fog_lut_entry = texelFetch(texture_buffer_lut_lf, int(fog_i) + fog_lut_offset).rg;
+int fog_i = int(fog_index);
+float fog_f = fract(fog_index);
+vec2 fog_lut_entry = texelFetch(texture_buffer_lut_lf, fog_i + fog_lut_offset).rg;
 float fog_factor = fog_lut_entry.r + fog_lut_entry.g * fog_f;
 fog_factor = clamp(fog_factor, 0.0, 1.0);
 last_tex_env_out.rgb = mix(fog_color.rgb, last_tex_env_out.rgb, fog_factor);
 gl_FragDepth = depth;
 color = byteround(last_tex_env_out);
 }
-// reference: DDD32403DAB58DBF, 884C505BC36B45D8
-// program: 9A0887C21E007189, 3B3AE026C742C7D5, 884C505BC36B45D8
-// reference: DDD32403DB77E788, 884C505BC36B45D8
-// shader: 8B30, 16942FCD3A376D1D
+// reference: DDD32403DAB58DBF, EF95165B0C0939BD
+// program: C2A49A7A2A81571D, D0BDF6740B5CE976, EF95165B0C0939BD
+// reference: DDD32403DB77E788, EF95165B0C0939BD
+// shader: 8B30, CF6C2A418EB525CD
 
 precision highp int;
 precision highp float;
@@ -19182,7 +17741,8 @@ vec4 next_combiner_buffer = tev_combiner_buffer_color;
 vec4 last_tex_env_out = vec4(0.0);
 vec3 color_output_0 = byteround(clamp((const_color[0].rgb) * (texcolor0.rgb), vec3(0.0), vec3(1.0)));
 float alpha_output_0 = byteround(clamp((rounded_primary_color.a) * (texcolor0.g), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_0, alpha_output_0), vec4(0.0), vec4(1.0));
+last_tex_env_out = vec4(color_output_0, alpha_output_0);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 
 combiner_buffer = next_combiner_buffer;
@@ -19199,10 +17759,10 @@ if (int(last_tex_env_out.a * 255.0) <= alphatest_ref) discard;
 gl_FragDepth = depth;
 color = byteround(last_tex_env_out);
 }
-// reference: 0ED18B3D55E2EB09, 16942FCD3A376D1D
-// program: 9C5D7AEF8C3E67F2, 5508714B05507EE9, 16942FCD3A376D1D
-// reference: 0ED18B3D5420813E, 16942FCD3A376D1D
-// shader: 8B30, C3BE63C92B988F6F
+// reference: 0ED18B3D55E2EB09, CF6C2A418EB525CD
+// program: 4056A7BD49897EA4, 01926B3CAE979003, CF6C2A418EB525CD
+// reference: 0ED18B3D5420813E, CF6C2A418EB525CD
+// shader: 8B30, 663F9054B7535FB0
 
 precision highp int;
 precision highp float;
@@ -19352,9 +17912,10 @@ vec4 texcolor0 = textureLod(tex0, texcoord0, getLod(texcoord0 * vec2(textureSize
 vec4 combiner_buffer = vec4(0.0);
 vec4 next_combiner_buffer = tev_combiner_buffer_color;
 vec4 last_tex_env_out = vec4(0.0);
-vec3 color_output_0 = byteround(clamp((rounded_primary_color.rgb), vec3(0.0), vec3(1.0)));
+vec3 color_output_0 = (rounded_primary_color.rgb);
 float alpha_output_0 = byteround(clamp((rounded_primary_color.a) * (texcolor0.g), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_0, alpha_output_0), vec4(0.0), vec4(1.0));
+last_tex_env_out = vec4(color_output_0, alpha_output_0);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 
 combiner_buffer = next_combiner_buffer;
@@ -19371,10 +17932,10 @@ if (int(last_tex_env_out.a * 255.0) <= alphatest_ref) discard;
 gl_FragDepth = depth;
 color = byteround(last_tex_env_out);
 }
-// reference: D060D12264F97F39, C3BE63C92B988F6F
-// program: 9C5D7AEF8C3E67F2, 5508714B05507EE9, C3BE63C92B988F6F
-// reference: D060D122653B150E, C3BE63C92B988F6F
-// shader: 8B30, 9E19495769FEF708
+// reference: D060D12264F97F39, 663F9054B7535FB0
+// program: 4056A7BD49897EA4, 01926B3CAE979003, 663F9054B7535FB0
+// reference: D060D122653B150E, 663F9054B7535FB0
+// shader: 8B30, 16A6AA99E35210DB
 
 precision highp int;
 precision highp float;
@@ -19524,9 +18085,10 @@ vec4 texcolor0 = textureLod(tex0, texcoord0, getLod(texcoord0 * vec2(textureSize
 vec4 combiner_buffer = vec4(0.0);
 vec4 next_combiner_buffer = tev_combiner_buffer_color;
 vec4 last_tex_env_out = vec4(0.0);
-vec3 color_output_0 = byteround(clamp((rounded_primary_color.rgb), vec3(0.0), vec3(1.0)));
+vec3 color_output_0 = (rounded_primary_color.rgb);
 float alpha_output_0 = byteround(clamp((rounded_primary_color.a) * (texcolor0.g), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_0, alpha_output_0), vec4(0.0), vec4(1.0));
+last_tex_env_out = vec4(color_output_0, alpha_output_0);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 
 combiner_buffer = next_combiner_buffer;
@@ -19535,25 +18097,28 @@ combiner_buffer = next_combiner_buffer;
 
 vec3 color_output_3 = byteround(clamp((vec3(1.0) - texcolor0.rgb) * (const_color[3].rgb), vec3(0.0), vec3(1.0)));
 float alpha_output_3 = byteround(clamp((texcolor0.a) * (const_color[3].a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_3, alpha_output_3), vec4(0.0), vec4(1.0));
+last_tex_env_out = vec4(color_output_3, alpha_output_3);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 
 vec3 color_output_4 = byteround(clamp((texcolor0.rgb) * (const_color[4].rgb) + (last_tex_env_out.rgb), vec3(0.0), vec3(1.0)));
 float alpha_output_4 = byteround(clamp((1.0 - texcolor0.a) * (const_color[4].a) + (last_tex_env_out.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_4, alpha_output_4), vec4(0.0), vec4(1.0));
+last_tex_env_out = vec4(color_output_4, alpha_output_4);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 
 vec3 color_output_5 = byteround(clamp((rounded_primary_color.rgb) * (last_tex_env_out.rgb), vec3(0.0), vec3(1.0)));
 float alpha_output_5 = byteround(clamp((rounded_primary_color.a) * (last_tex_env_out.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_5, alpha_output_5), vec4(0.0), vec4(1.0));
+last_tex_env_out = vec4(color_output_5, alpha_output_5);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 
 gl_FragDepth = depth;
 color = byteround(last_tex_env_out);
 }
-// reference: 0E1F1120A047C7EA, 9E19495769FEF708
-// program: A990721D25F019E4, 5D764F9A6220D694, 9E19495769FEF708
-// shader: 8B30, 600EA81931FE1450
+// reference: 0E1F1120A047C7EA, 16A6AA99E35210DB
+// program: A0C32A2C2484E2AE, 42937135801BAA7E, 16A6AA99E35210DB
+// shader: 8B30, 5E746DFE8E844A05
 
 precision highp int;
 precision highp float;
@@ -19703,9 +18268,10 @@ vec4 texcolor0 = textureLod(tex0, texcoord0, getLod(texcoord0 * vec2(textureSize
 vec4 combiner_buffer = vec4(0.0);
 vec4 next_combiner_buffer = tev_combiner_buffer_color;
 vec4 last_tex_env_out = vec4(0.0);
-vec3 color_output_0 = byteround(clamp((rounded_primary_color.rgb), vec3(0.0), vec3(1.0)));
+vec3 color_output_0 = (rounded_primary_color.rgb);
 float alpha_output_0 = byteround(clamp((rounded_primary_color.a) * (texcolor0.g), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_0, alpha_output_0), vec4(0.0), vec4(1.0));
+last_tex_env_out = vec4(color_output_0, alpha_output_0);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 
 combiner_buffer = next_combiner_buffer;
@@ -19714,25 +18280,28 @@ combiner_buffer = next_combiner_buffer;
 
 vec3 color_output_3 = byteround(clamp((const_color[3].rgb) * (vec3(1.0) - texcolor0.rgb), vec3(0.0), vec3(1.0)));
 float alpha_output_3 = byteround(clamp((const_color[3].a) * (1.0 - texcolor0.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_3, alpha_output_3), vec4(0.0), vec4(1.0));
+last_tex_env_out = vec4(color_output_3, alpha_output_3);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 
 vec3 color_output_4 = byteround(clamp((const_color[4].rgb) * (texcolor0.rgb) + (last_tex_env_out.rgb), vec3(0.0), vec3(1.0)));
 float alpha_output_4 = byteround(clamp((const_color[4].a) * (texcolor0.a) + (last_tex_env_out.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_4, alpha_output_4), vec4(0.0), vec4(1.0));
+last_tex_env_out = vec4(color_output_4, alpha_output_4);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 
 vec3 color_output_5 = byteround(clamp((rounded_primary_color.rgb) * (last_tex_env_out.rgb), vec3(0.0), vec3(1.0)));
 float alpha_output_5 = byteround(clamp((rounded_primary_color.a) * (last_tex_env_out.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_5, alpha_output_5), vec4(0.0), vec4(1.0));
+last_tex_env_out = vec4(color_output_5, alpha_output_5);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 
 gl_FragDepth = depth;
 color = byteround(last_tex_env_out);
 }
-// reference: C187F5DF21B8D150, 600EA81931FE1450
-// program: A990721D25F019E4, 5D764F9A6220D694, 600EA81931FE1450
-// shader: 8B30, E2E810BE70D3396A
+// reference: C187F5DF21B8D150, 5E746DFE8E844A05
+// program: A0C32A2C2484E2AE, 42937135801BAA7E, 5E746DFE8E844A05
+// shader: 8B30, 428BBCCA73C46F43
 
 precision highp int;
 precision highp float;
@@ -19882,9 +18451,10 @@ vec4 texcolor0 = textureLod(tex0, texcoord0, getLod(texcoord0 * vec2(textureSize
 vec4 combiner_buffer = vec4(0.0);
 vec4 next_combiner_buffer = tev_combiner_buffer_color;
 vec4 last_tex_env_out = vec4(0.0);
-vec3 color_output_0 = byteround(clamp((rounded_primary_color.rgb), vec3(0.0), vec3(1.0)));
+vec3 color_output_0 = (rounded_primary_color.rgb);
 float alpha_output_0 = byteround(clamp((rounded_primary_color.a) * (texcolor0.g), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_0, alpha_output_0), vec4(0.0), vec4(1.0));
+last_tex_env_out = vec4(color_output_0, alpha_output_0);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 
 combiner_buffer = next_combiner_buffer;
@@ -19893,26 +18463,29 @@ combiner_buffer = next_combiner_buffer;
 
 vec3 color_output_3 = byteround(clamp((texcolor0.rgb) * (const_color[3].rgb), vec3(0.0), vec3(1.0)));
 float alpha_output_3 = byteround(clamp((texcolor0.a) * (const_color[3].a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_3, alpha_output_3), vec4(0.0), vec4(1.0));
+last_tex_env_out = vec4(color_output_3, alpha_output_3);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 
 vec3 color_output_4 = byteround(clamp((vec3(1.0) - texcolor0.rgb) * (const_color[4].rgb) + (last_tex_env_out.rgb), vec3(0.0), vec3(1.0)));
 float alpha_output_4 = byteround(clamp((1.0 - texcolor0.a) * (const_color[4].a) + (last_tex_env_out.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_4, alpha_output_4), vec4(0.0), vec4(1.0));
+last_tex_env_out = vec4(color_output_4, alpha_output_4);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 
 vec3 color_output_5 = byteround(clamp((rounded_primary_color.rgb) * (last_tex_env_out.rgb), vec3(0.0), vec3(1.0)));
 float alpha_output_5 = byteround(clamp((rounded_primary_color.a) * (last_tex_env_out.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_5, alpha_output_5), vec4(0.0), vec4(1.0));
+last_tex_env_out = vec4(color_output_5, alpha_output_5);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 
 gl_FragDepth = depth;
 color = byteround(last_tex_env_out);
 }
-// reference: 7D6DFF71A047C7EA, E2E810BE70D3396A
-// program: A990721D25F019E4, 5D764F9A6220D694, E2E810BE70D3396A
-// reference: 6011E46234695BA7, B0F8C6C7E7AE2D9A
-// shader: 8B30, 96F8F8D094DDBEB0
+// reference: 7D6DFF71A047C7EA, 428BBCCA73C46F43
+// program: A0C32A2C2484E2AE, 42937135801BAA7E, 428BBCCA73C46F43
+// reference: 6011E462B79C3DD5, A89AA8D22DE7350F
+// shader: 8B30, F5810573750E9AA7
 
 precision highp int;
 precision highp float;
@@ -20062,9 +18635,10 @@ vec4 texcolor0 = textureLod(tex0, texcoord0, getLod(texcoord0 * vec2(textureSize
 vec4 combiner_buffer = vec4(0.0);
 vec4 next_combiner_buffer = tev_combiner_buffer_color;
 vec4 last_tex_env_out = vec4(0.0);
-vec3 color_output_0 = byteround(clamp((rounded_primary_color.rgb), vec3(0.0), vec3(1.0)));
+vec3 color_output_0 = (rounded_primary_color.rgb);
 float alpha_output_0 = byteround(clamp((rounded_primary_color.a) * (texcolor0.g), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_0, alpha_output_0), vec4(0.0), vec4(1.0));
+last_tex_env_out = vec4(color_output_0, alpha_output_0);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 
 combiner_buffer = next_combiner_buffer;
@@ -20079,19 +18653,19 @@ combiner_buffer = next_combiner_buffer;
 
 if (int(last_tex_env_out.a * 255.0) <= alphatest_ref) discard;
 float fog_index = depth * 128.0;
-float fog_i = clamp(floor(fog_index), 0.0, 127.0);
-float fog_f = fog_index - fog_i;
-vec2 fog_lut_entry = texelFetch(texture_buffer_lut_lf, int(fog_i) + fog_lut_offset).rg;
+int fog_i = int(fog_index);
+float fog_f = fract(fog_index);
+vec2 fog_lut_entry = texelFetch(texture_buffer_lut_lf, fog_i + fog_lut_offset).rg;
 float fog_factor = fog_lut_entry.r + fog_lut_entry.g * fog_f;
 fog_factor = clamp(fog_factor, 0.0, 1.0);
 last_tex_env_out.rgb = mix(fog_color.rgb, last_tex_env_out.rgb, fog_factor);
 gl_FragDepth = depth;
 color = byteround(last_tex_env_out);
 }
-// reference: 83E1453364F97F39, 96F8F8D094DDBEB0
-// program: 9C5D7AEF8C3E67F2, 5508714B05507EE9, 96F8F8D094DDBEB0
-// reference: 83E14533653B150E, 96F8F8D094DDBEB0
-// shader: 8B30, 04F67C85E322A9C7
+// reference: 83E1453364F97F39, F5810573750E9AA7
+// program: 4056A7BD49897EA4, 01926B3CAE979003, F5810573750E9AA7
+// reference: 83E14533653B150E, F5810573750E9AA7
+// shader: 8B30, 0C593EB2DC12C096
 
 precision highp int;
 precision highp float;
@@ -20243,12 +18817,14 @@ vec4 next_combiner_buffer = tev_combiner_buffer_color;
 vec4 last_tex_env_out = vec4(0.0);
 vec3 color_output_0 = byteround(clamp((const_color[0].rgb) * (texcolor0.rgb), vec3(0.0), vec3(1.0)));
 float alpha_output_0 = byteround(clamp((rounded_primary_color.a) * (texcolor0.g), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_0, alpha_output_0), vec4(0.0), vec4(1.0));
+last_tex_env_out = vec4(color_output_0, alpha_output_0);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 
 vec3 color_output_1 = byteround(clamp((rounded_primary_color.rgb) * (vec3(1.0) - texcolor0.rgb) + (last_tex_env_out.rgb), vec3(0.0), vec3(1.0)));
-float alpha_output_1 = byteround(clamp((last_tex_env_out.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_1, alpha_output_1), vec4(0.0), vec4(1.0));
+float alpha_output_1 = (last_tex_env_out.a);
+last_tex_env_out = vec4(color_output_1, alpha_output_1);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 
 combiner_buffer = next_combiner_buffer;
@@ -20263,9 +18839,9 @@ if (int(last_tex_env_out.a * 255.0) <= alphatest_ref) discard;
 gl_FragDepth = depth;
 color = byteround(last_tex_env_out);
 }
-// reference: 462B214EFEEF3157, 04F67C85E322A9C7
-// program: 9C5D7AEF8C3E67F2, 5508714B05507EE9, 04F67C85E322A9C7
-// shader: 8B30, 8D078A418EC76E4F
+// reference: 462B214EFEEF3157, 0C593EB2DC12C096
+// program: 4056A7BD49897EA4, 01926B3CAE979003, 0C593EB2DC12C096
+// shader: 8B30, BC7A5815C382CBB8
 
 precision highp int;
 precision highp float;
@@ -20417,12 +18993,14 @@ vec4 next_combiner_buffer = tev_combiner_buffer_color;
 vec4 last_tex_env_out = vec4(0.0);
 vec3 color_output_0 = byteround(clamp((const_color[0].rgb) * (texcolor0.rgb), vec3(0.0), vec3(1.0)));
 float alpha_output_0 = byteround(clamp((rounded_primary_color.a) * (texcolor0.g), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_0, alpha_output_0), vec4(0.0), vec4(1.0));
+last_tex_env_out = vec4(color_output_0, alpha_output_0);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 
 vec3 color_output_1 = byteround(clamp((rounded_primary_color.rgb) * (vec3(1.0) - texcolor0.rgb) + (last_tex_env_out.rgb), vec3(0.0), vec3(1.0)));
-float alpha_output_1 = byteround(clamp((last_tex_env_out.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_1, alpha_output_1), vec4(0.0), vec4(1.0));
+float alpha_output_1 = (last_tex_env_out.a);
+last_tex_env_out = vec4(color_output_1, alpha_output_1);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 
 combiner_buffer = next_combiner_buffer;
@@ -20435,20 +19013,20 @@ combiner_buffer = next_combiner_buffer;
 
 if (int(last_tex_env_out.a * 255.0) <= alphatest_ref) discard;
 float fog_index = depth * 128.0;
-float fog_i = clamp(floor(fog_index), 0.0, 127.0);
-float fog_f = fog_index - fog_i;
-vec2 fog_lut_entry = texelFetch(texture_buffer_lut_lf, int(fog_i) + fog_lut_offset).rg;
+int fog_i = int(fog_index);
+float fog_f = fract(fog_index);
+vec2 fog_lut_entry = texelFetch(texture_buffer_lut_lf, fog_i + fog_lut_offset).rg;
 float fog_factor = fog_lut_entry.r + fog_lut_entry.g * fog_f;
 fog_factor = clamp(fog_factor, 0.0, 1.0);
 last_tex_env_out.rgb = mix(fog_color.rgb, last_tex_env_out.rgb, fog_factor);
 gl_FragDepth = depth;
 color = byteround(last_tex_env_out);
 }
-// reference: 15AAB55FFEEF3157, 8D078A418EC76E4F
-// program: B0F8C6C7E7AE2D9A, 6073F2A2E32CD1D3, 8D078A418EC76E4F
-// reference: 462B214EFF2D5B60, 04F67C85E322A9C7
-// reference: 15AAB55FFF2D5B60, 8D078A418EC76E4F
-// shader: 8B30, 898A5AE13B8B6A44
+// reference: 15AAB55FFEEF3157, BC7A5815C382CBB8
+// program: A89AA8D22DE7350F, E9AB8C38CA194A54, BC7A5815C382CBB8
+// reference: 462B214EFF2D5B60, 0C593EB2DC12C096
+// reference: 15AAB55FFF2D5B60, BC7A5815C382CBB8
+// shader: 8B30, 4084ED5B62AECBAE
 
 precision highp int;
 precision highp float;
@@ -20624,55 +19202,60 @@ specular_sum.rgb += (((lut_scale_d0 * LookupLightingLUTSigned(0, dot(normal, nor
 diffuse_sum.rgb += lighting_global_ambient;
 primary_fragment_color = clamp(diffuse_sum, vec4(0.0), vec4(1.0));
 secondary_fragment_color = clamp(specular_sum, vec4(0.0), vec4(1.0));
-
 vec4 combiner_buffer = vec4(0.0);
 vec4 next_combiner_buffer = tev_combiner_buffer_color;
 vec4 last_tex_env_out = vec4(0.0);
 vec3 color_output_0 = byteround(clamp((vec3(1.0) - secondary_fragment_color.aaa) * (const_color[0].rgb) + (primary_fragment_color.rgb), vec3(0.0), vec3(1.0)));
 float alpha_output_0 = byteround(clamp((rounded_primary_color.a) * (texcolor0.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_0, alpha_output_0), vec4(0.0), vec4(1.0));
+last_tex_env_out = vec4(color_output_0, alpha_output_0);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 next_combiner_buffer.rgb = last_tex_env_out.rgb;
 
 vec3 color_output_1 = byteround(clamp((texcolor0.rgb) * (const_color[1].rgb), vec3(0.0), vec3(1.0)));
-float alpha_output_1 = byteround(clamp((last_tex_env_out.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_1, alpha_output_1), vec4(0.0), vec4(1.0));
+float alpha_output_1 = (last_tex_env_out.a);
+last_tex_env_out = vec4(color_output_1, alpha_output_1);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 
 vec3 color_output_2 = byteround(clamp((last_tex_env_out.rgb) * (combiner_buffer.rgb) + (const_color[2].rgb), vec3(0.0), vec3(1.0)));
-float alpha_output_2 = byteround(clamp((last_tex_env_out.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_2, alpha_output_2), vec4(0.0), vec4(1.0));
+float alpha_output_2 = (last_tex_env_out.a);
+last_tex_env_out = vec4(color_output_2, alpha_output_2);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 
 vec3 color_output_3 = byteround(clamp((secondary_fragment_color.rgb) * (vec3(1.0) - combiner_buffer.rgb) + (last_tex_env_out.rgb), vec3(0.0), vec3(1.0)));
-float alpha_output_3 = byteround(clamp((last_tex_env_out.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_3, alpha_output_3), vec4(0.0), vec4(1.0));
+float alpha_output_3 = (last_tex_env_out.a);
+last_tex_env_out = vec4(color_output_3, alpha_output_3);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 
 vec3 color_output_4 = byteround(clamp(min((rounded_primary_color.rgb) + (const_color[4].rgb), vec3(1.0)) * (last_tex_env_out.rgb), vec3(0.0), vec3(1.0)));
-float alpha_output_4 = byteround(clamp((last_tex_env_out.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_4, alpha_output_4), vec4(0.0), vec4(1.0));
+float alpha_output_4 = (last_tex_env_out.a);
+last_tex_env_out = vec4(color_output_4, alpha_output_4);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 
 vec3 color_output_5 = byteround(clamp((last_tex_env_out.rgb) * (last_tex_env_out.rgb) + (last_tex_env_out.rgb), vec3(0.0), vec3(1.0)));
-float alpha_output_5 = byteround(clamp((last_tex_env_out.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_5 * 2.0, alpha_output_5 * 1.0), vec4(0.0), vec4(1.0));
+float alpha_output_5 = (last_tex_env_out.a);
+last_tex_env_out = vec4(color_output_5 * 2.0, alpha_output_5 * 1.0);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 
 float fog_index = depth * 128.0;
-float fog_i = clamp(floor(fog_index), 0.0, 127.0);
-float fog_f = fog_index - fog_i;
-vec2 fog_lut_entry = texelFetch(texture_buffer_lut_lf, int(fog_i) + fog_lut_offset).rg;
+int fog_i = int(fog_index);
+float fog_f = fract(fog_index);
+vec2 fog_lut_entry = texelFetch(texture_buffer_lut_lf, fog_i + fog_lut_offset).rg;
 float fog_factor = fog_lut_entry.r + fog_lut_entry.g * fog_f;
 fog_factor = clamp(fog_factor, 0.0, 1.0);
 last_tex_env_out.rgb = mix(fog_color.rgb, last_tex_env_out.rgb, fog_factor);
 gl_FragDepth = depth;
 color = byteround(last_tex_env_out);
 }
-// reference: 6B5180D6765A9235, 898A5AE13B8B6A44
-// program: F3D442C0013F9392, 6CF3F3B70E23AA85, 898A5AE13B8B6A44
-// reference: 6B5180D67798F802, 898A5AE13B8B6A44
-// shader: 8B30, 8C8E507D56DEFC18
+// reference: 6B5180D6765A9235, 4084ED5B62AECBAE
+// program: 22C3C36B08CEECE7, 7A40B90B17532EA8, 4084ED5B62AECBAE
+// reference: 6B5180D67798F802, 4084ED5B62AECBAE
+// shader: 8B30, 9BB62BF757574B70
 
 precision highp int;
 precision highp float;
@@ -20822,9 +19405,10 @@ vec4 texcolor0 = textureLod(tex0, texcoord0, getLod(texcoord0 * vec2(textureSize
 vec4 combiner_buffer = vec4(0.0);
 vec4 next_combiner_buffer = tev_combiner_buffer_color;
 vec4 last_tex_env_out = vec4(0.0);
-vec3 color_output_0 = byteround(clamp((const_color[0].rgb), vec3(0.0), vec3(1.0)));
+vec3 color_output_0 = (const_color[0].rgb);
 float alpha_output_0 = byteround(clamp((rounded_primary_color.a) * (texcolor0.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_0, alpha_output_0), vec4(0.0), vec4(1.0));
+last_tex_env_out = vec4(color_output_0, alpha_output_0);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 
 combiner_buffer = next_combiner_buffer;
@@ -20841,10 +19425,10 @@ if (int(last_tex_env_out.a * 255.0) <= alphatest_ref) discard;
 gl_FragDepth = depth;
 color = byteround(last_tex_env_out);
 }
-// reference: 108074770BDEB57B, 8C8E507D56DEFC18
-// program: 9C5D7AEF8C3E67F2, 5508714B05507EE9, 8C8E507D56DEFC18
-// reference: 108074770A1CDF4C, 8C8E507D56DEFC18
-// shader: 8B30, 1C793590846F8AB7
+// reference: 108074770BDEB57B, 9BB62BF757574B70
+// program: 4056A7BD49897EA4, 01926B3CAE979003, 9BB62BF757574B70
+// reference: 108074770A1CDF4C, 9BB62BF757574B70
+// shader: 8B30, CB44432DFAE3A67B
 
 precision highp int;
 precision highp float;
@@ -20996,37 +19580,42 @@ vec4 next_combiner_buffer = tev_combiner_buffer_color;
 vec4 last_tex_env_out = vec4(0.0);
 vec3 color_output_0 = byteround(clamp((const_color[0].rgb) * (texcolor0.rgb), vec3(0.0), vec3(1.0)));
 float alpha_output_0 = byteround(clamp((rounded_primary_color.a) * (texcolor0.g), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_0, alpha_output_0), vec4(0.0), vec4(1.0));
+last_tex_env_out = vec4(color_output_0, alpha_output_0);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 
 vec3 color_output_1 = byteround(clamp((rounded_primary_color.rgb) * (vec3(1.0) - texcolor0.rgb) + (last_tex_env_out.rgb), vec3(0.0), vec3(1.0)));
-float alpha_output_1 = byteround(clamp((last_tex_env_out.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_1, alpha_output_1), vec4(0.0), vec4(1.0));
+float alpha_output_1 = (last_tex_env_out.a);
+last_tex_env_out = vec4(color_output_1, alpha_output_1);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 
 combiner_buffer = next_combiner_buffer;
 
 vec3 color_output_3 = byteround(clamp((vec3(1.0) - texcolor0.rgb) * (const_color[3].rgb), vec3(0.0), vec3(1.0)));
 float alpha_output_3 = byteround(clamp((texcolor0.a) * (const_color[3].a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_3, alpha_output_3), vec4(0.0), vec4(1.0));
+last_tex_env_out = vec4(color_output_3, alpha_output_3);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 
 vec3 color_output_4 = byteround(clamp((texcolor0.rgb) * (const_color[4].rgb) + (last_tex_env_out.rgb), vec3(0.0), vec3(1.0)));
 float alpha_output_4 = byteround(clamp((1.0 - texcolor0.a) * (const_color[4].a) + (last_tex_env_out.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_4, alpha_output_4), vec4(0.0), vec4(1.0));
+last_tex_env_out = vec4(color_output_4, alpha_output_4);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 
 vec3 color_output_5 = byteround(clamp((rounded_primary_color.rgb) * (last_tex_env_out.rgb), vec3(0.0), vec3(1.0)));
 float alpha_output_5 = byteround(clamp((rounded_primary_color.a) * (last_tex_env_out.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_5, alpha_output_5), vec4(0.0), vec4(1.0));
+last_tex_env_out = vec4(color_output_5, alpha_output_5);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 
 gl_FragDepth = depth;
 color = byteround(last_tex_env_out);
 }
-// reference: 9854E14C3A518984, 1C793590846F8AB7
-// program: A990721D25F019E4, 5D764F9A6220D694, 1C793590846F8AB7
-// shader: 8B30, F9B4AAAD714A05B4
+// reference: 9854E14C3A518984, CB44432DFAE3A67B
+// program: A0C32A2C2484E2AE, 42937135801BAA7E, CB44432DFAE3A67B
+// shader: 8B30, 7522346023BBF1FE
 
 precision highp int;
 precision highp float;
@@ -21178,37 +19767,42 @@ vec4 next_combiner_buffer = tev_combiner_buffer_color;
 vec4 last_tex_env_out = vec4(0.0);
 vec3 color_output_0 = byteround(clamp((const_color[0].rgb) * (texcolor0.rgb), vec3(0.0), vec3(1.0)));
 float alpha_output_0 = byteround(clamp((rounded_primary_color.a) * (texcolor0.g), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_0, alpha_output_0), vec4(0.0), vec4(1.0));
+last_tex_env_out = vec4(color_output_0, alpha_output_0);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 
 vec3 color_output_1 = byteround(clamp((rounded_primary_color.rgb) * (vec3(1.0) - texcolor0.rgb) + (last_tex_env_out.rgb), vec3(0.0), vec3(1.0)));
-float alpha_output_1 = byteround(clamp((last_tex_env_out.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_1, alpha_output_1), vec4(0.0), vec4(1.0));
+float alpha_output_1 = (last_tex_env_out.a);
+last_tex_env_out = vec4(color_output_1, alpha_output_1);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 
 combiner_buffer = next_combiner_buffer;
 
 vec3 color_output_3 = byteround(clamp((const_color[3].rgb) * (vec3(1.0) - texcolor0.rgb), vec3(0.0), vec3(1.0)));
 float alpha_output_3 = byteround(clamp((const_color[3].a) * (1.0 - texcolor0.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_3, alpha_output_3), vec4(0.0), vec4(1.0));
+last_tex_env_out = vec4(color_output_3, alpha_output_3);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 
 vec3 color_output_4 = byteround(clamp((const_color[4].rgb) * (texcolor0.rgb) + (last_tex_env_out.rgb), vec3(0.0), vec3(1.0)));
 float alpha_output_4 = byteround(clamp((const_color[4].a) * (texcolor0.a) + (last_tex_env_out.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_4, alpha_output_4), vec4(0.0), vec4(1.0));
+last_tex_env_out = vec4(color_output_4, alpha_output_4);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 
 vec3 color_output_5 = byteround(clamp((rounded_primary_color.rgb) * (last_tex_env_out.rgb), vec3(0.0), vec3(1.0)));
 float alpha_output_5 = byteround(clamp((rounded_primary_color.a) * (last_tex_env_out.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_5, alpha_output_5), vec4(0.0), vec4(1.0));
+last_tex_env_out = vec4(color_output_5, alpha_output_5);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 
 gl_FragDepth = depth;
 color = byteround(last_tex_env_out);
 }
-// reference: 57CC05B3BBAE9F3E, F9B4AAAD714A05B4
-// program: A990721D25F019E4, 5D764F9A6220D694, F9B4AAAD714A05B4
-// shader: 8B30, 585A8DAE6277E856
+// reference: 57CC05B3BBAE9F3E, 7522346023BBF1FE
+// program: A0C32A2C2484E2AE, 42937135801BAA7E, 7522346023BBF1FE
+// shader: 8B30, E1F816869B643679
 
 precision highp int;
 precision highp float;
@@ -21360,38 +19954,43 @@ vec4 next_combiner_buffer = tev_combiner_buffer_color;
 vec4 last_tex_env_out = vec4(0.0);
 vec3 color_output_0 = byteround(clamp((const_color[0].rgb) * (texcolor0.rgb), vec3(0.0), vec3(1.0)));
 float alpha_output_0 = byteround(clamp((rounded_primary_color.a) * (texcolor0.g), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_0, alpha_output_0), vec4(0.0), vec4(1.0));
+last_tex_env_out = vec4(color_output_0, alpha_output_0);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 
 vec3 color_output_1 = byteround(clamp((rounded_primary_color.rgb) * (vec3(1.0) - texcolor0.rgb) + (last_tex_env_out.rgb), vec3(0.0), vec3(1.0)));
-float alpha_output_1 = byteround(clamp((last_tex_env_out.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_1, alpha_output_1), vec4(0.0), vec4(1.0));
+float alpha_output_1 = (last_tex_env_out.a);
+last_tex_env_out = vec4(color_output_1, alpha_output_1);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 
 combiner_buffer = next_combiner_buffer;
 
 vec3 color_output_3 = byteround(clamp((texcolor0.rgb) * (const_color[3].rgb), vec3(0.0), vec3(1.0)));
 float alpha_output_3 = byteround(clamp((texcolor0.a) * (const_color[3].a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_3, alpha_output_3), vec4(0.0), vec4(1.0));
+last_tex_env_out = vec4(color_output_3, alpha_output_3);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 
 vec3 color_output_4 = byteround(clamp((vec3(1.0) - texcolor0.rgb) * (const_color[4].rgb) + (last_tex_env_out.rgb), vec3(0.0), vec3(1.0)));
 float alpha_output_4 = byteround(clamp((1.0 - texcolor0.a) * (const_color[4].a) + (last_tex_env_out.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_4, alpha_output_4), vec4(0.0), vec4(1.0));
+last_tex_env_out = vec4(color_output_4, alpha_output_4);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 
 vec3 color_output_5 = byteround(clamp((rounded_primary_color.rgb) * (last_tex_env_out.rgb), vec3(0.0), vec3(1.0)));
 float alpha_output_5 = byteround(clamp((rounded_primary_color.a) * (last_tex_env_out.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_5, alpha_output_5), vec4(0.0), vec4(1.0));
+last_tex_env_out = vec4(color_output_5, alpha_output_5);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 
 gl_FragDepth = depth;
 color = byteround(last_tex_env_out);
 }
-// reference: EB260F1D3A518984, 585A8DAE6277E856
-// program: A990721D25F019E4, 5D764F9A6220D694, 585A8DAE6277E856
-// reference: B33C0DE6915F4D53, BA694A024E4D4254
-// shader: 8B30, 5FB901BE2C05D7A1
+// reference: EB260F1D3A518984, E1F816869B643679
+// program: A0C32A2C2484E2AE, 42937135801BAA7E, E1F816869B643679
+// reference: B33C0DE6915F4D53, 980B8F6476575B7A
+// shader: 8B30, 804E5739D2F764E6
 
 precision highp int;
 precision highp float;
@@ -21543,12 +20142,14 @@ vec4 next_combiner_buffer = tev_combiner_buffer_color;
 vec4 last_tex_env_out = vec4(0.0);
 vec3 color_output_0 = byteround(clamp((const_color[0].rgb) * (vec3(1.0) - texcolor0.rgb), vec3(0.0), vec3(1.0)));
 float alpha_output_0 = byteround(clamp((rounded_primary_color.a) * (texcolor0.g), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_0, alpha_output_0), vec4(0.0), vec4(1.0));
+last_tex_env_out = vec4(color_output_0, alpha_output_0);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 
 vec3 color_output_1 = byteround(clamp((rounded_primary_color.rgb) * (texcolor0.rgb) + (last_tex_env_out.rgb), vec3(0.0), vec3(1.0)));
-float alpha_output_1 = byteround(clamp((last_tex_env_out.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_1, alpha_output_1), vec4(0.0), vec4(1.0));
+float alpha_output_1 = (last_tex_env_out.a);
+last_tex_env_out = vec4(color_output_1, alpha_output_1);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 
 combiner_buffer = next_combiner_buffer;
@@ -21563,9 +20164,9 @@ if (int(last_tex_env_out.a * 255.0) <= alphatest_ref) discard;
 gl_FragDepth = depth;
 color = byteround(last_tex_env_out);
 }
-// reference: B976CB40FEEF3157, 5FB901BE2C05D7A1
-// program: 9C5D7AEF8C3E67F2, 5508714B05507EE9, 5FB901BE2C05D7A1
-// shader: 8B30, 788014785B2CACE8
+// reference: B976CB40FEEF3157, 804E5739D2F764E6
+// program: 4056A7BD49897EA4, 01926B3CAE979003, 804E5739D2F764E6
+// shader: 8B30, 2CBF3D923FA3D789
 
 precision highp int;
 precision highp float;
@@ -21715,9 +20316,10 @@ vec4 texcolor0 = textureLod(tex0, texcoord0, getLod(texcoord0 * vec2(textureSize
 vec4 combiner_buffer = vec4(0.0);
 vec4 next_combiner_buffer = tev_combiner_buffer_color;
 vec4 last_tex_env_out = vec4(0.0);
-vec3 color_output_0 = byteround(clamp((const_color[0].rgb), vec3(0.0), vec3(1.0)));
+vec3 color_output_0 = (const_color[0].rgb);
 float alpha_output_0 = byteround(clamp((rounded_primary_color.a) * (texcolor0.g), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_0, alpha_output_0), vec4(0.0), vec4(1.0));
+last_tex_env_out = vec4(color_output_0, alpha_output_0);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 
 combiner_buffer = next_combiner_buffer;
@@ -21726,25 +20328,28 @@ combiner_buffer = next_combiner_buffer;
 
 vec3 color_output_3 = byteround(clamp((vec3(1.0) - texcolor0.rgb) * (const_color[3].rgb), vec3(0.0), vec3(1.0)));
 float alpha_output_3 = byteround(clamp((texcolor0.a) * (const_color[3].a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_3, alpha_output_3), vec4(0.0), vec4(1.0));
+last_tex_env_out = vec4(color_output_3, alpha_output_3);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 
 vec3 color_output_4 = byteround(clamp((texcolor0.rgb) * (const_color[4].rgb) + (last_tex_env_out.rgb), vec3(0.0), vec3(1.0)));
 float alpha_output_4 = byteround(clamp((1.0 - texcolor0.a) * (const_color[4].a) + (last_tex_env_out.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_4, alpha_output_4), vec4(0.0), vec4(1.0));
+last_tex_env_out = vec4(color_output_4, alpha_output_4);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 
 vec3 color_output_5 = byteround(clamp((rounded_primary_color.rgb) * (last_tex_env_out.rgb), vec3(0.0), vec3(1.0)));
 float alpha_output_5 = byteround(clamp((rounded_primary_color.a) * (last_tex_env_out.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_5, alpha_output_5), vec4(0.0), vec4(1.0));
+last_tex_env_out = vec4(color_output_5, alpha_output_5);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 
 gl_FragDepth = depth;
 color = byteround(last_tex_env_out);
 }
-// reference: 0E1F1120CF600DA8, 788014785B2CACE8
-// program: A990721D25F019E4, 5D764F9A6220D694, 788014785B2CACE8
-// shader: 8B30, 8BDF34D1ECB1E01B
+// reference: 0E1F1120CF600DA8, 2CBF3D923FA3D789
+// program: A0C32A2C2484E2AE, 42937135801BAA7E, 2CBF3D923FA3D789
+// shader: 8B30, 2006ED3575A51C29
 
 precision highp int;
 precision highp float;
@@ -21894,9 +20499,10 @@ vec4 texcolor0 = textureLod(tex0, texcoord0, getLod(texcoord0 * vec2(textureSize
 vec4 combiner_buffer = vec4(0.0);
 vec4 next_combiner_buffer = tev_combiner_buffer_color;
 vec4 last_tex_env_out = vec4(0.0);
-vec3 color_output_0 = byteround(clamp((const_color[0].rgb), vec3(0.0), vec3(1.0)));
+vec3 color_output_0 = (const_color[0].rgb);
 float alpha_output_0 = byteround(clamp((rounded_primary_color.a) * (texcolor0.g), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_0, alpha_output_0), vec4(0.0), vec4(1.0));
+last_tex_env_out = vec4(color_output_0, alpha_output_0);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 
 combiner_buffer = next_combiner_buffer;
@@ -21905,27 +20511,30 @@ combiner_buffer = next_combiner_buffer;
 
 vec3 color_output_3 = byteround(clamp((const_color[3].rgb) * (vec3(1.0) - texcolor0.rgb), vec3(0.0), vec3(1.0)));
 float alpha_output_3 = byteround(clamp((const_color[3].a) * (1.0 - texcolor0.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_3, alpha_output_3), vec4(0.0), vec4(1.0));
+last_tex_env_out = vec4(color_output_3, alpha_output_3);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 
 vec3 color_output_4 = byteround(clamp((const_color[4].rgb) * (texcolor0.rgb) + (last_tex_env_out.rgb), vec3(0.0), vec3(1.0)));
 float alpha_output_4 = byteround(clamp((const_color[4].a) * (texcolor0.a) + (last_tex_env_out.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_4, alpha_output_4), vec4(0.0), vec4(1.0));
+last_tex_env_out = vec4(color_output_4, alpha_output_4);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 
 vec3 color_output_5 = byteround(clamp((rounded_primary_color.rgb) * (last_tex_env_out.rgb), vec3(0.0), vec3(1.0)));
 float alpha_output_5 = byteround(clamp((rounded_primary_color.a) * (last_tex_env_out.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_5, alpha_output_5), vec4(0.0), vec4(1.0));
+last_tex_env_out = vec4(color_output_5, alpha_output_5);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 
 gl_FragDepth = depth;
 color = byteround(last_tex_env_out);
 }
-// reference: C187F5DF4E9F1B12, 8BDF34D1ECB1E01B
-// program: A990721D25F019E4, 5D764F9A6220D694, 8BDF34D1ECB1E01B
-// reference: B33C0DE6909D2764, BA694A024E4D4254
-// reference: B976CB40FF2D5B60, 5FB901BE2C05D7A1
-// shader: 8B30, 5E062A2694D95D7F
+// reference: C187F5DF4E9F1B12, 2006ED3575A51C29
+// program: A0C32A2C2484E2AE, 42937135801BAA7E, 2006ED3575A51C29
+// reference: B33C0DE6909D2764, 980B8F6476575B7A
+// reference: B976CB40FF2D5B60, 804E5739D2F764E6
+// shader: 8B30, 7AD2E6A1DE449B98
 
 precision highp int;
 precision highp float;
@@ -22075,9 +20684,10 @@ vec4 texcolor0 = textureLod(tex0, texcoord0, getLod(texcoord0 * vec2(textureSize
 vec4 combiner_buffer = vec4(0.0);
 vec4 next_combiner_buffer = tev_combiner_buffer_color;
 vec4 last_tex_env_out = vec4(0.0);
-vec3 color_output_0 = byteround(clamp((const_color[0].rgb), vec3(0.0), vec3(1.0)));
+vec3 color_output_0 = (const_color[0].rgb);
 float alpha_output_0 = byteround(clamp((rounded_primary_color.a) * (texcolor0.g), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_0, alpha_output_0), vec4(0.0), vec4(1.0));
+last_tex_env_out = vec4(color_output_0, alpha_output_0);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 
 combiner_buffer = next_combiner_buffer;
@@ -22086,25 +20696,28 @@ combiner_buffer = next_combiner_buffer;
 
 vec3 color_output_3 = byteround(clamp((texcolor0.rgb) * (const_color[3].rgb), vec3(0.0), vec3(1.0)));
 float alpha_output_3 = byteround(clamp((texcolor0.a) * (const_color[3].a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_3, alpha_output_3), vec4(0.0), vec4(1.0));
+last_tex_env_out = vec4(color_output_3, alpha_output_3);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 
 vec3 color_output_4 = byteround(clamp((vec3(1.0) - texcolor0.rgb) * (const_color[4].rgb) + (last_tex_env_out.rgb), vec3(0.0), vec3(1.0)));
 float alpha_output_4 = byteround(clamp((1.0 - texcolor0.a) * (const_color[4].a) + (last_tex_env_out.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_4, alpha_output_4), vec4(0.0), vec4(1.0));
+last_tex_env_out = vec4(color_output_4, alpha_output_4);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 
 vec3 color_output_5 = byteround(clamp((rounded_primary_color.rgb) * (last_tex_env_out.rgb), vec3(0.0), vec3(1.0)));
 float alpha_output_5 = byteround(clamp((rounded_primary_color.a) * (last_tex_env_out.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_5, alpha_output_5), vec4(0.0), vec4(1.0));
+last_tex_env_out = vec4(color_output_5, alpha_output_5);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 
 gl_FragDepth = depth;
 color = byteround(last_tex_env_out);
 }
-// reference: 7D6DFF71CF600DA8, 5E062A2694D95D7F
-// program: A990721D25F019E4, 5D764F9A6220D694, 5E062A2694D95D7F
-// shader: 8B30, D6852E1620C00F8B
+// reference: 7D6DFF71CF600DA8, 7AD2E6A1DE449B98
+// program: A0C32A2C2484E2AE, 42937135801BAA7E, 7AD2E6A1DE449B98
+// shader: 8B30, 3F7AB5D176345D1A
 
 precision highp int;
 precision highp float;
@@ -22254,9 +20867,10 @@ vec4 texcolor0 = textureLod(tex0, texcoord0, getLod(texcoord0 * vec2(textureSize
 vec4 combiner_buffer = vec4(0.0);
 vec4 next_combiner_buffer = tev_combiner_buffer_color;
 vec4 last_tex_env_out = vec4(0.0);
-vec3 color_output_0 = byteround(clamp((const_color[0].rgb), vec3(0.0), vec3(1.0)));
+vec3 color_output_0 = (const_color[0].rgb);
 float alpha_output_0 = byteround(clamp((rounded_primary_color.a) * (texcolor0.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_0, alpha_output_0), vec4(0.0), vec4(1.0));
+last_tex_env_out = vec4(color_output_0, alpha_output_0);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 
 combiner_buffer = next_combiner_buffer;
@@ -22271,19 +20885,19 @@ combiner_buffer = next_combiner_buffer;
 
 if (int(last_tex_env_out.a * 255.0) <= alphatest_ref) discard;
 float fog_index = depth * 128.0;
-float fog_i = clamp(floor(fog_index), 0.0, 127.0);
-float fog_f = fog_index - fog_i;
-vec2 fog_lut_entry = texelFetch(texture_buffer_lut_lf, int(fog_i) + fog_lut_offset).rg;
+int fog_i = int(fog_index);
+float fog_f = fract(fog_index);
+vec2 fog_lut_entry = texelFetch(texture_buffer_lut_lf, fog_i + fog_lut_offset).rg;
 float fog_factor = fog_lut_entry.r + fog_lut_entry.g * fog_f;
 fog_factor = clamp(fog_factor, 0.0, 1.0);
 last_tex_env_out.rgb = mix(fog_color.rgb, last_tex_env_out.rgb, fog_factor);
 gl_FragDepth = depth;
 color = byteround(last_tex_env_out);
 }
-// reference: 4301E0660BDEB57B, D6852E1620C00F8B
-// program: 9C5D7AEF8C3E67F2, 5508714B05507EE9, D6852E1620C00F8B
-// reference: 4301E0660A1CDF4C, D6852E1620C00F8B
-// shader: 8B30, C9DC9547E66B0D76
+// reference: 4301E0660BDEB57B, 3F7AB5D176345D1A
+// program: 4056A7BD49897EA4, 01926B3CAE979003, 3F7AB5D176345D1A
+// reference: 4301E0660A1CDF4C, 3F7AB5D176345D1A
+// shader: 8B30, 757E7EED25287788
 
 precision highp int;
 precision highp float;
@@ -22456,14 +21070,13 @@ diffuse_sum.rgb += ((light_src[0].diffuse * dot_product) + light_src[0].ambient)
 specular_sum.rgb += ((light_src[0].specular_0) + (light_src[0].specular_1)) * clamp_highlights * 1.0;
 diffuse_sum.rgb += lighting_global_ambient;
 primary_fragment_color = clamp(diffuse_sum, vec4(0.0), vec4(1.0));
-secondary_fragment_color = clamp(specular_sum, vec4(0.0), vec4(1.0));
-
 vec4 combiner_buffer = vec4(0.0);
 vec4 next_combiner_buffer = tev_combiner_buffer_color;
 vec4 last_tex_env_out = vec4(0.0);
 vec3 color_output_0 = byteround(clamp((primary_fragment_color.rgb) * (rounded_primary_color.rgb), vec3(0.0), vec3(1.0)));
-float alpha_output_0 = byteround(clamp((rounded_primary_color.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_0, alpha_output_0), vec4(0.0), vec4(1.0));
+float alpha_output_0 = (rounded_primary_color.a);
+last_tex_env_out = vec4(color_output_0, alpha_output_0);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 
 combiner_buffer = next_combiner_buffer;
@@ -22479,11 +21092,11 @@ combiner_buffer = next_combiner_buffer;
 gl_FragDepth = depth;
 color = byteround(last_tex_env_out);
 }
-// reference: 6D48431719F4F5C0, C9DC9547E66B0D76
-// program: FBC6AFA380C91748, 4BD70AD09292A3DA, C9DC9547E66B0D76
-// reference: D5C0D34485CCB595, 4982B44D494E20C9
-// program: 1F369F37D1E9EDE2, A180773D4B4115BE, 4982B44D494E20C9
-// shader: 8B30, 22B5CF8220AE1A41
+// reference: 6D48431719F4F5C0, 757E7EED25287788
+// program: 668DC2CC893B1519, 80B52B8FBE5FE773, 757E7EED25287788
+// reference: D5C0D34485CCB595, A93D6C96B092C947
+// program: 5B88C0147985B75E, 60215D2B1286D4FE, A93D6C96B092C947
+// shader: 8B30, 4CD3E63F7AC0D434
 
 precision highp int;
 precision highp float;
@@ -22659,58 +21272,63 @@ specular_sum.rgb += (((lut_scale_d0 * LookupLightingLUTSigned(0, dot(normal, nor
 diffuse_sum.rgb += lighting_global_ambient;
 primary_fragment_color = clamp(diffuse_sum, vec4(0.0), vec4(1.0));
 secondary_fragment_color = clamp(specular_sum, vec4(0.0), vec4(1.0));
-
 vec4 combiner_buffer = vec4(0.0);
 vec4 next_combiner_buffer = tev_combiner_buffer_color;
 vec4 last_tex_env_out = vec4(0.0);
 vec3 color_output_0 = byteround(clamp((vec3(1.0) - secondary_fragment_color.aaa) * (const_color[0].rgb) + (primary_fragment_color.rgb), vec3(0.0), vec3(1.0)));
 float alpha_output_0 = byteround(clamp((rounded_primary_color.a) * (texcolor0.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_0, alpha_output_0), vec4(0.0), vec4(1.0));
+last_tex_env_out = vec4(color_output_0, alpha_output_0);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 next_combiner_buffer.rgb = last_tex_env_out.rgb;
 
 vec3 color_output_1 = byteround(clamp((texcolor0.rgb) * (last_tex_env_out.rgb), vec3(0.0), vec3(1.0)));
-float alpha_output_1 = byteround(clamp((last_tex_env_out.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_1, alpha_output_1), vec4(0.0), vec4(1.0));
+float alpha_output_1 = (last_tex_env_out.a);
+last_tex_env_out = vec4(color_output_1, alpha_output_1);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 
 vec3 color_output_2 = byteround(clamp((last_tex_env_out.rgb) + (const_color[2].rgb) - vec3(0.5), vec3(0.0), vec3(1.0)));
-float alpha_output_2 = byteround(clamp((last_tex_env_out.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_2, alpha_output_2), vec4(0.0), vec4(1.0));
+float alpha_output_2 = (last_tex_env_out.a);
+last_tex_env_out = vec4(color_output_2, alpha_output_2);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 next_combiner_buffer.rgb = last_tex_env_out.rgb;
 
 vec3 color_output_3 = byteround(clamp((vec3(1.0) - combiner_buffer.rgb) * (secondary_fragment_color.rgb) + (last_tex_env_out.rgb), vec3(0.0), vec3(1.0)));
-float alpha_output_3 = byteround(clamp((last_tex_env_out.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_3, alpha_output_3), vec4(0.0), vec4(1.0));
+float alpha_output_3 = (last_tex_env_out.a);
+last_tex_env_out = vec4(color_output_3, alpha_output_3);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 
 vec3 color_output_4 = byteround(clamp(min((rounded_primary_color.rgb) + (const_color[4].rgb), vec3(1.0)) * (last_tex_env_out.rgb), vec3(0.0), vec3(1.0)));
-float alpha_output_4 = byteround(clamp((last_tex_env_out.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_4, alpha_output_4), vec4(0.0), vec4(1.0));
+float alpha_output_4 = (last_tex_env_out.a);
+last_tex_env_out = vec4(color_output_4, alpha_output_4);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 
 vec3 color_output_5 = byteround(clamp((last_tex_env_out.rgb) * (combiner_buffer.rgb) + (last_tex_env_out.rgb), vec3(0.0), vec3(1.0)));
-float alpha_output_5 = byteround(clamp((last_tex_env_out.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_5 * 2.0, alpha_output_5 * 1.0), vec4(0.0), vec4(1.0));
+float alpha_output_5 = (last_tex_env_out.a);
+last_tex_env_out = vec4(color_output_5 * 2.0, alpha_output_5 * 1.0);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 
 float fog_index = depth * 128.0;
-float fog_i = clamp(floor(fog_index), 0.0, 127.0);
-float fog_f = fog_index - fog_i;
-vec2 fog_lut_entry = texelFetch(texture_buffer_lut_lf, int(fog_i) + fog_lut_offset).rg;
+int fog_i = int(fog_index);
+float fog_f = fract(fog_index);
+vec2 fog_lut_entry = texelFetch(texture_buffer_lut_lf, fog_i + fog_lut_offset).rg;
 float fog_factor = fog_lut_entry.r + fog_lut_entry.g * fog_f;
 fog_factor = clamp(fog_factor, 0.0, 1.0);
 last_tex_env_out.rgb = mix(fog_color.rgb, last_tex_env_out.rgb, fog_factor);
 gl_FragDepth = depth;
 color = byteround(last_tex_env_out);
 }
-// reference: CE0C8BD4988B188C, 22B5CF8220AE1A41
-// program: F3D442C0013F9392, 6CF3F3B70E23AA85, 22B5CF8220AE1A41
-// reference: 6D48431718369FF7, C9DC9547E66B0D76
-// reference: D5C0D344840EDFA2, 4982B44D494E20C9
-// reference: CE0C8BD4994972BB, 22B5CF8220AE1A41
-// shader: 8B30, 4A2D82F815EBDEE3
+// reference: CE0C8BD4988B188C, 4CD3E63F7AC0D434
+// program: 22C3C36B08CEECE7, 7A40B90B17532EA8, 4CD3E63F7AC0D434
+// reference: 6D48431718369FF7, 757E7EED25287788
+// reference: D5C0D344840EDFA2, A93D6C96B092C947
+// reference: CE0C8BD4994972BB, 4CD3E63F7AC0D434
+// shader: 8B30, 8E1FE9BB50706221
 
 precision highp int;
 precision highp float;
@@ -22862,42 +21480,48 @@ vec4 next_combiner_buffer = tev_combiner_buffer_color;
 vec4 last_tex_env_out = vec4(0.0);
 vec3 color_output_0 = byteround(clamp((vec3(1.0) - secondary_fragment_color.aaa) * (const_color[0].rgb) + (primary_fragment_color.rgb), vec3(0.0), vec3(1.0)));
 float alpha_output_0 = byteround(clamp((rounded_primary_color.a) * (texcolor0.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_0, alpha_output_0), vec4(0.0), vec4(1.0));
+last_tex_env_out = vec4(color_output_0, alpha_output_0);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 next_combiner_buffer.rgb = last_tex_env_out.rgb;
 
 vec3 color_output_1 = byteround(clamp((texcolor0.rgb) * (last_tex_env_out.rgb), vec3(0.0), vec3(1.0)));
-float alpha_output_1 = byteround(clamp((last_tex_env_out.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_1, alpha_output_1), vec4(0.0), vec4(1.0));
+float alpha_output_1 = (last_tex_env_out.a);
+last_tex_env_out = vec4(color_output_1, alpha_output_1);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 
 vec3 color_output_2 = byteround(clamp((last_tex_env_out.rgb) + (const_color[2].rgb) - vec3(0.5), vec3(0.0), vec3(1.0)));
-float alpha_output_2 = byteround(clamp((last_tex_env_out.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_2, alpha_output_2), vec4(0.0), vec4(1.0));
+float alpha_output_2 = (last_tex_env_out.a);
+last_tex_env_out = vec4(color_output_2, alpha_output_2);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 next_combiner_buffer.rgb = last_tex_env_out.rgb;
 
 vec3 color_output_3 = byteround(clamp((vec3(1.0) - texcolor0.rgb) * (const_color[3].rgb), vec3(0.0), vec3(1.0)));
 float alpha_output_3 = byteround(clamp((texcolor0.a) * (const_color[3].a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_3, alpha_output_3), vec4(0.0), vec4(1.0));
+last_tex_env_out = vec4(color_output_3, alpha_output_3);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 
 vec3 color_output_4 = byteround(clamp((texcolor0.rgb) * (const_color[4].rgb) + (last_tex_env_out.rgb), vec3(0.0), vec3(1.0)));
 float alpha_output_4 = byteround(clamp((1.0 - texcolor0.a) * (const_color[4].a) + (last_tex_env_out.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_4, alpha_output_4), vec4(0.0), vec4(1.0));
+last_tex_env_out = vec4(color_output_4, alpha_output_4);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 
 vec3 color_output_5 = byteround(clamp((rounded_primary_color.rgb) * (last_tex_env_out.rgb), vec3(0.0), vec3(1.0)));
 float alpha_output_5 = byteround(clamp((rounded_primary_color.a) * (last_tex_env_out.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_5, alpha_output_5), vec4(0.0), vec4(1.0));
+last_tex_env_out = vec4(color_output_5, alpha_output_5);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 
 gl_FragDepth = depth;
 color = byteround(last_tex_env_out);
 }
-// reference: 92B91DC77B9E2954, 4A2D82F815EBDEE3
-// program: A990721D25F019E4, 5D764F9A6220D694, 4A2D82F815EBDEE3
-// shader: 8B30, 54B18F943691D987
+// reference: 92B91DC77B9E2954, 8E1FE9BB50706221
+// program: A0C32A2C2484E2AE, 42937135801BAA7E, 8E1FE9BB50706221
+// shader: 8B30, C6CD2EDC3DA638FF
 
 precision highp int;
 precision highp float;
@@ -23049,42 +21673,48 @@ vec4 next_combiner_buffer = tev_combiner_buffer_color;
 vec4 last_tex_env_out = vec4(0.0);
 vec3 color_output_0 = byteround(clamp((vec3(1.0) - secondary_fragment_color.aaa) * (const_color[0].rgb) + (primary_fragment_color.rgb), vec3(0.0), vec3(1.0)));
 float alpha_output_0 = byteround(clamp((rounded_primary_color.a) * (texcolor0.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_0, alpha_output_0), vec4(0.0), vec4(1.0));
+last_tex_env_out = vec4(color_output_0, alpha_output_0);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 next_combiner_buffer.rgb = last_tex_env_out.rgb;
 
 vec3 color_output_1 = byteround(clamp((texcolor0.rgb) * (last_tex_env_out.rgb), vec3(0.0), vec3(1.0)));
-float alpha_output_1 = byteround(clamp((last_tex_env_out.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_1, alpha_output_1), vec4(0.0), vec4(1.0));
+float alpha_output_1 = (last_tex_env_out.a);
+last_tex_env_out = vec4(color_output_1, alpha_output_1);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 
 vec3 color_output_2 = byteround(clamp((last_tex_env_out.rgb) + (const_color[2].rgb) - vec3(0.5), vec3(0.0), vec3(1.0)));
-float alpha_output_2 = byteround(clamp((last_tex_env_out.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_2, alpha_output_2), vec4(0.0), vec4(1.0));
+float alpha_output_2 = (last_tex_env_out.a);
+last_tex_env_out = vec4(color_output_2, alpha_output_2);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 next_combiner_buffer.rgb = last_tex_env_out.rgb;
 
 vec3 color_output_3 = byteround(clamp((const_color[3].rgb) * (vec3(1.0) - texcolor0.rgb), vec3(0.0), vec3(1.0)));
 float alpha_output_3 = byteround(clamp((const_color[3].a) * (1.0 - texcolor0.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_3, alpha_output_3), vec4(0.0), vec4(1.0));
+last_tex_env_out = vec4(color_output_3, alpha_output_3);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 
 vec3 color_output_4 = byteround(clamp((const_color[4].rgb) * (texcolor0.rgb) + (last_tex_env_out.rgb), vec3(0.0), vec3(1.0)));
 float alpha_output_4 = byteround(clamp((const_color[4].a) * (texcolor0.a) + (last_tex_env_out.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_4, alpha_output_4), vec4(0.0), vec4(1.0));
+last_tex_env_out = vec4(color_output_4, alpha_output_4);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 
 vec3 color_output_5 = byteround(clamp((rounded_primary_color.rgb) * (last_tex_env_out.rgb), vec3(0.0), vec3(1.0)));
 float alpha_output_5 = byteround(clamp((rounded_primary_color.a) * (last_tex_env_out.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_5, alpha_output_5), vec4(0.0), vec4(1.0));
+last_tex_env_out = vec4(color_output_5, alpha_output_5);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 
 gl_FragDepth = depth;
 color = byteround(last_tex_env_out);
 }
-// reference: 5D21F938FA613FEE, 54B18F943691D987
-// program: A990721D25F019E4, 5D764F9A6220D694, 54B18F943691D987
-// shader: 8B30, B3402BF0E809331F
+// reference: 5D21F938FA613FEE, C6CD2EDC3DA638FF
+// program: A0C32A2C2484E2AE, 42937135801BAA7E, C6CD2EDC3DA638FF
+// shader: 8B30, DA32FFE8C0E61DB9
 
 precision highp int;
 precision highp float;
@@ -23236,42 +21866,48 @@ vec4 next_combiner_buffer = tev_combiner_buffer_color;
 vec4 last_tex_env_out = vec4(0.0);
 vec3 color_output_0 = byteround(clamp((vec3(1.0) - secondary_fragment_color.aaa) * (const_color[0].rgb) + (primary_fragment_color.rgb), vec3(0.0), vec3(1.0)));
 float alpha_output_0 = byteround(clamp((rounded_primary_color.a) * (texcolor0.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_0, alpha_output_0), vec4(0.0), vec4(1.0));
+last_tex_env_out = vec4(color_output_0, alpha_output_0);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 next_combiner_buffer.rgb = last_tex_env_out.rgb;
 
 vec3 color_output_1 = byteround(clamp((texcolor0.rgb) * (last_tex_env_out.rgb), vec3(0.0), vec3(1.0)));
-float alpha_output_1 = byteround(clamp((last_tex_env_out.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_1, alpha_output_1), vec4(0.0), vec4(1.0));
+float alpha_output_1 = (last_tex_env_out.a);
+last_tex_env_out = vec4(color_output_1, alpha_output_1);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 
 vec3 color_output_2 = byteround(clamp((last_tex_env_out.rgb) + (const_color[2].rgb) - vec3(0.5), vec3(0.0), vec3(1.0)));
-float alpha_output_2 = byteround(clamp((last_tex_env_out.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_2, alpha_output_2), vec4(0.0), vec4(1.0));
+float alpha_output_2 = (last_tex_env_out.a);
+last_tex_env_out = vec4(color_output_2, alpha_output_2);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 next_combiner_buffer.rgb = last_tex_env_out.rgb;
 
 vec3 color_output_3 = byteround(clamp((texcolor0.rgb) * (const_color[3].rgb), vec3(0.0), vec3(1.0)));
 float alpha_output_3 = byteround(clamp((texcolor0.a) * (const_color[3].a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_3, alpha_output_3), vec4(0.0), vec4(1.0));
+last_tex_env_out = vec4(color_output_3, alpha_output_3);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 
 vec3 color_output_4 = byteround(clamp((vec3(1.0) - texcolor0.rgb) * (const_color[4].rgb) + (last_tex_env_out.rgb), vec3(0.0), vec3(1.0)));
 float alpha_output_4 = byteround(clamp((1.0 - texcolor0.a) * (const_color[4].a) + (last_tex_env_out.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_4, alpha_output_4), vec4(0.0), vec4(1.0));
+last_tex_env_out = vec4(color_output_4, alpha_output_4);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 
 vec3 color_output_5 = byteround(clamp((rounded_primary_color.rgb) * (last_tex_env_out.rgb), vec3(0.0), vec3(1.0)));
 float alpha_output_5 = byteround(clamp((rounded_primary_color.a) * (last_tex_env_out.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_5, alpha_output_5), vec4(0.0), vec4(1.0));
+last_tex_env_out = vec4(color_output_5, alpha_output_5);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 
 gl_FragDepth = depth;
 color = byteround(last_tex_env_out);
 }
-// reference: E1CBF3967B9E2954, B3402BF0E809331F
-// program: A990721D25F019E4, 5D764F9A6220D694, B3402BF0E809331F
-// shader: 8B30, 8165BC7A3C36D57B
+// reference: E1CBF3967B9E2954, DA32FFE8C0E61DB9
+// program: A0C32A2C2484E2AE, 42937135801BAA7E, DA32FFE8C0E61DB9
+// shader: 8B30, 5B3B241A37DE99FE
 
 precision highp int;
 precision highp float;
@@ -23421,9 +22057,10 @@ vec4 texcolor0 = textureLod(tex0, texcoord0, getLod(texcoord0 * vec2(textureSize
 vec4 combiner_buffer = vec4(0.0);
 vec4 next_combiner_buffer = tev_combiner_buffer_color;
 vec4 last_tex_env_out = vec4(0.0);
-vec3 color_output_0 = byteround(clamp((rounded_primary_color.rgb), vec3(0.0), vec3(1.0)));
-float alpha_output_0 = byteround(clamp((rounded_primary_color.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_0, alpha_output_0), vec4(0.0), vec4(1.0));
+vec3 color_output_0 = (rounded_primary_color.rgb);
+float alpha_output_0 = (rounded_primary_color.a);
+last_tex_env_out = vec4(color_output_0, alpha_output_0);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 
 combiner_buffer = next_combiner_buffer;
@@ -23432,25 +22069,28 @@ combiner_buffer = next_combiner_buffer;
 
 vec3 color_output_3 = byteround(clamp((const_color[3].rgb) * (vec3(1.0) - texcolor0.rgb), vec3(0.0), vec3(1.0)));
 float alpha_output_3 = byteround(clamp((const_color[3].a) * (1.0 - texcolor0.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_3, alpha_output_3), vec4(0.0), vec4(1.0));
+last_tex_env_out = vec4(color_output_3, alpha_output_3);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 
 vec3 color_output_4 = byteround(clamp((const_color[4].rgb) * (texcolor0.rgb) + (last_tex_env_out.rgb), vec3(0.0), vec3(1.0)));
 float alpha_output_4 = byteround(clamp((const_color[4].a) * (texcolor0.a) + (last_tex_env_out.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_4, alpha_output_4), vec4(0.0), vec4(1.0));
+last_tex_env_out = vec4(color_output_4, alpha_output_4);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 
 vec3 color_output_5 = byteround(clamp((rounded_primary_color.rgb) * (last_tex_env_out.rgb), vec3(0.0), vec3(1.0)));
 float alpha_output_5 = byteround(clamp((rounded_primary_color.a) * (last_tex_env_out.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_5, alpha_output_5), vec4(0.0), vec4(1.0));
+last_tex_env_out = vec4(color_output_5, alpha_output_5);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 
 gl_FragDepth = depth;
 color = byteround(last_tex_env_out);
 }
-// reference: C5139A04E3B233A7, 8165BC7A3C36D57B
-// program: A990721D25F019E4, 5D764F9A6220D694, 8165BC7A3C36D57B
-// shader: 8B30, 7F725D3464363623
+// reference: C5139A04E3B233A7, 5B3B241A37DE99FE
+// program: A0C32A2C2484E2AE, 42937135801BAA7E, 5B3B241A37DE99FE
+// shader: 8B30, AE29A6E926A7BBCC
 
 precision highp int;
 precision highp float;
@@ -23600,9 +22240,10 @@ vec4 texcolor0 = textureLod(tex0, texcoord0, getLod(texcoord0 * vec2(textureSize
 vec4 combiner_buffer = vec4(0.0);
 vec4 next_combiner_buffer = tev_combiner_buffer_color;
 vec4 last_tex_env_out = vec4(0.0);
-vec3 color_output_0 = byteround(clamp((rounded_primary_color.rgb), vec3(0.0), vec3(1.0)));
-float alpha_output_0 = byteround(clamp((rounded_primary_color.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_0, alpha_output_0), vec4(0.0), vec4(1.0));
+vec3 color_output_0 = (rounded_primary_color.rgb);
+float alpha_output_0 = (rounded_primary_color.a);
+last_tex_env_out = vec4(color_output_0, alpha_output_0);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 
 combiner_buffer = next_combiner_buffer;
@@ -23611,25 +22252,28 @@ combiner_buffer = next_combiner_buffer;
 
 vec3 color_output_3 = byteround(clamp((vec3(1.0) - texcolor0.rgb) * (const_color[3].rgb), vec3(0.0), vec3(1.0)));
 float alpha_output_3 = byteround(clamp((texcolor0.a) * (const_color[3].a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_3, alpha_output_3), vec4(0.0), vec4(1.0));
+last_tex_env_out = vec4(color_output_3, alpha_output_3);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 
 vec3 color_output_4 = byteround(clamp((texcolor0.rgb) * (const_color[4].rgb) + (last_tex_env_out.rgb), vec3(0.0), vec3(1.0)));
 float alpha_output_4 = byteround(clamp((1.0 - texcolor0.a) * (const_color[4].a) + (last_tex_env_out.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_4, alpha_output_4), vec4(0.0), vec4(1.0));
+last_tex_env_out = vec4(color_output_4, alpha_output_4);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 
 vec3 color_output_5 = byteround(clamp((rounded_primary_color.rgb) * (last_tex_env_out.rgb), vec3(0.0), vec3(1.0)));
 float alpha_output_5 = byteround(clamp((rounded_primary_color.a) * (last_tex_env_out.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_5, alpha_output_5), vec4(0.0), vec4(1.0));
+last_tex_env_out = vec4(color_output_5, alpha_output_5);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 
 gl_FragDepth = depth;
 color = byteround(last_tex_env_out);
 }
-// reference: 0A8B7EFB624D251D, 7F725D3464363623
-// program: A990721D25F019E4, 5D764F9A6220D694, 7F725D3464363623
-// shader: 8B30, 038304DD7D1BF841
+// reference: 0A8B7EFB624D251D, AE29A6E926A7BBCC
+// program: A0C32A2C2484E2AE, 42937135801BAA7E, AE29A6E926A7BBCC
+// shader: 8B30, BADAE1B17CA464D3
 
 precision highp int;
 precision highp float;
@@ -23779,9 +22423,10 @@ vec4 texcolor0 = textureLod(tex0, texcoord0, getLod(texcoord0 * vec2(textureSize
 vec4 combiner_buffer = vec4(0.0);
 vec4 next_combiner_buffer = tev_combiner_buffer_color;
 vec4 last_tex_env_out = vec4(0.0);
-vec3 color_output_0 = byteround(clamp((rounded_primary_color.rgb), vec3(0.0), vec3(1.0)));
-float alpha_output_0 = byteround(clamp((rounded_primary_color.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_0, alpha_output_0), vec4(0.0), vec4(1.0));
+vec3 color_output_0 = (rounded_primary_color.rgb);
+float alpha_output_0 = (rounded_primary_color.a);
+last_tex_env_out = vec4(color_output_0, alpha_output_0);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 
 combiner_buffer = next_combiner_buffer;
@@ -23790,25 +22435,28 @@ combiner_buffer = next_combiner_buffer;
 
 vec3 color_output_3 = byteround(clamp((texcolor0.rgb) * (const_color[3].rgb), vec3(0.0), vec3(1.0)));
 float alpha_output_3 = byteround(clamp((texcolor0.a) * (const_color[3].a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_3, alpha_output_3), vec4(0.0), vec4(1.0));
+last_tex_env_out = vec4(color_output_3, alpha_output_3);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 
 vec3 color_output_4 = byteround(clamp((vec3(1.0) - texcolor0.rgb) * (const_color[4].rgb) + (last_tex_env_out.rgb), vec3(0.0), vec3(1.0)));
 float alpha_output_4 = byteround(clamp((1.0 - texcolor0.a) * (const_color[4].a) + (last_tex_env_out.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_4, alpha_output_4), vec4(0.0), vec4(1.0));
+last_tex_env_out = vec4(color_output_4, alpha_output_4);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 
 vec3 color_output_5 = byteround(clamp((rounded_primary_color.rgb) * (last_tex_env_out.rgb), vec3(0.0), vec3(1.0)));
 float alpha_output_5 = byteround(clamp((rounded_primary_color.a) * (last_tex_env_out.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_5, alpha_output_5), vec4(0.0), vec4(1.0));
+last_tex_env_out = vec4(color_output_5, alpha_output_5);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 
 gl_FragDepth = depth;
 color = byteround(last_tex_env_out);
 }
-// reference: 79F990AA624D251D, 038304DD7D1BF841
-// program: A990721D25F019E4, 5D764F9A6220D694, 038304DD7D1BF841
-// shader: 8B30, 32C1D520BD833D5A
+// reference: 79F990AA624D251D, BADAE1B17CA464D3
+// program: A0C32A2C2484E2AE, 42937135801BAA7E, BADAE1B17CA464D3
+// shader: 8B30, 23C43B8BD1D8B80F
 
 precision highp int;
 precision highp float;
@@ -23957,9 +22605,10 @@ float depth = z_over_w * depth_scale + depth_offset;
 vec4 combiner_buffer = vec4(0.0);
 vec4 next_combiner_buffer = tev_combiner_buffer_color;
 vec4 last_tex_env_out = vec4(0.0);
-vec3 color_output_0 = byteround(clamp((const_color[0].rgb), vec3(0.0), vec3(1.0)));
-float alpha_output_0 = byteround(clamp((const_color[0].a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_0, alpha_output_0), vec4(0.0), vec4(1.0));
+vec3 color_output_0 = (const_color[0].rgb);
+float alpha_output_0 = (const_color[0].a);
+last_tex_env_out = vec4(color_output_0, alpha_output_0);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 
 combiner_buffer = next_combiner_buffer;
@@ -23970,17 +22619,18 @@ combiner_buffer = next_combiner_buffer;
 
 combiner_buffer = next_combiner_buffer;
 
-vec3 color_output_5 = byteround(clamp((const_color[5].rgb), vec3(0.0), vec3(1.0)));
-float alpha_output_5 = byteround(clamp((const_color[5].a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_5, alpha_output_5), vec4(0.0), vec4(1.0));
+vec3 color_output_5 = (const_color[5].rgb);
+float alpha_output_5 = (const_color[5].a);
+last_tex_env_out = vec4(color_output_5, alpha_output_5);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 
 gl_FragDepth = depth;
 color = byteround(last_tex_env_out);
 }
-// reference: 393F874199613147, 32C1D520BD833D5A
-// program: 0000000000000000, 0000000000000000, 32C1D520BD833D5A
-// shader: 8B30, 42C06BDE37F868CC
+// reference: 393F874199613147, 23C43B8BD1D8B80F
+// program: 0000000000000000, 0000000000000000, 23C43B8BD1D8B80F
+// shader: 8B30, C5D71193B7E7279B
 
 precision highp int;
 precision highp float;
@@ -24130,9 +22780,10 @@ vec4 texcolor0 = textureLod(tex0, texcoord0, getLod(texcoord0 * vec2(textureSize
 vec4 combiner_buffer = vec4(0.0);
 vec4 next_combiner_buffer = tev_combiner_buffer_color;
 vec4 last_tex_env_out = vec4(0.0);
-vec3 color_output_0 = byteround(clamp((const_color[0].rgb), vec3(0.0), vec3(1.0)));
-float alpha_output_0 = byteround(clamp((texcolor0.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_0, alpha_output_0), vec4(0.0), vec4(1.0));
+vec3 color_output_0 = (const_color[0].rgb);
+float alpha_output_0 = (texcolor0.a);
+last_tex_env_out = vec4(color_output_0, alpha_output_0);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 
 combiner_buffer = next_combiner_buffer;
@@ -24149,9 +22800,9 @@ if (int(last_tex_env_out.a * 255.0) <= alphatest_ref) discard;
 gl_FragDepth = depth;
 color = byteround(last_tex_env_out);
 }
-// reference: 393F874179A7B68F, 42C06BDE37F868CC
-// program: 0000000000000000, 0000000000000000, 42C06BDE37F868CC
-// shader: 8B30, A6CF906801B4C84C
+// reference: 393F874179A7B68F, C5D71193B7E7279B
+// program: 0000000000000000, 0000000000000000, C5D71193B7E7279B
+// shader: 8B30, 2215CDB736A5BF29
 
 precision highp int;
 precision highp float;
@@ -24302,18 +22953,21 @@ vec4 combiner_buffer = vec4(0.0);
 vec4 next_combiner_buffer = tev_combiner_buffer_color;
 vec4 last_tex_env_out = vec4(0.0);
 vec3 color_output_0 = byteround(clamp((texcolor0.rrr) * (const_color[0].rgb), vec3(0.0), vec3(1.0)));
-float alpha_output_0 = byteround(clamp((texcolor0.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_0, alpha_output_0), vec4(0.0), vec4(1.0));
+float alpha_output_0 = (texcolor0.a);
+last_tex_env_out = vec4(color_output_0, alpha_output_0);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 
 vec3 color_output_1 = byteround(clamp((texcolor0.ggg) * (const_color[1].rgb) + (last_tex_env_out.rgb), vec3(0.0), vec3(1.0)));
-float alpha_output_1 = byteround(clamp((last_tex_env_out.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_1, alpha_output_1), vec4(0.0), vec4(1.0));
+float alpha_output_1 = (last_tex_env_out.a);
+last_tex_env_out = vec4(color_output_1, alpha_output_1);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 
 vec3 color_output_2 = byteround(clamp((texcolor0.bbb) * (const_color[2].rgb) + (last_tex_env_out.rgb), vec3(0.0), vec3(1.0)));
-float alpha_output_2 = byteround(clamp((last_tex_env_out.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_2, alpha_output_2), vec4(0.0), vec4(1.0));
+float alpha_output_2 = (last_tex_env_out.a);
+last_tex_env_out = vec4(color_output_2, alpha_output_2);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 
 combiner_buffer = next_combiner_buffer;
@@ -24326,9 +22980,9 @@ if (int(last_tex_env_out.a * 255.0) <= alphatest_ref) discard;
 gl_FragDepth = depth;
 color = byteround(last_tex_env_out);
 }
-// reference: D7DF573C1FE16FD0, A6CF906801B4C84C
-// program: 0000000000000000, 0000000000000000, A6CF906801B4C84C
-// shader: 8B30, 47C12CB4EFB88BF9
+// reference: D7DF573C1FE16FD0, 2215CDB736A5BF29
+// program: 0000000000000000, 0000000000000000, 2215CDB736A5BF29
+// shader: 8B30, FC9E10BE42F07103
 
 precision highp int;
 precision highp float;
@@ -24477,9 +23131,10 @@ float depth = z_over_w * depth_scale + depth_offset;
 vec4 combiner_buffer = vec4(0.0);
 vec4 next_combiner_buffer = tev_combiner_buffer_color;
 vec4 last_tex_env_out = vec4(0.0);
-vec3 color_output_0 = byteround(clamp((const_color[0].rgb), vec3(0.0), vec3(1.0)));
-float alpha_output_0 = byteround(clamp((const_color[0].a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_0, alpha_output_0), vec4(0.0), vec4(1.0));
+vec3 color_output_0 = (const_color[0].rgb);
+float alpha_output_0 = (const_color[0].a);
+last_tex_env_out = vec4(color_output_0, alpha_output_0);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 
 combiner_buffer = next_combiner_buffer;
@@ -24495,9 +23150,9 @@ combiner_buffer = next_combiner_buffer;
 gl_FragDepth = depth;
 color = byteround(last_tex_env_out);
 }
-// reference: 393F8741C615FEE5, 47C12CB4EFB88BF9
-// program: 0000000000000000, 0000000000000000, 47C12CB4EFB88BF9
-// shader: 8B30, BE595F2A0F068639
+// reference: 393F8741C615FEE5, FC9E10BE42F07103
+// program: 0000000000000000, 0000000000000000, FC9E10BE42F07103
+// shader: 8B30, 6A08A79BE3FAC39D
 
 precision highp int;
 precision highp float;
@@ -24647,9 +23302,10 @@ vec4 texcolor0 = textureLod(tex0, texcoord0, getLod(texcoord0 * vec2(textureSize
 vec4 combiner_buffer = vec4(0.0);
 vec4 next_combiner_buffer = tev_combiner_buffer_color;
 vec4 last_tex_env_out = vec4(0.0);
-vec3 color_output_0 = byteround(clamp((texcolor0.rgb), vec3(0.0), vec3(1.0)));
-float alpha_output_0 = byteround(clamp((texcolor0.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_0, alpha_output_0), vec4(0.0), vec4(1.0));
+vec3 color_output_0 = (texcolor0.rgb);
+float alpha_output_0 = (texcolor0.a);
+last_tex_env_out = vec4(color_output_0, alpha_output_0);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 
 combiner_buffer = next_combiner_buffer;
@@ -24666,9 +23322,9 @@ if (int(last_tex_env_out.a * 255.0) <= alphatest_ref) discard;
 gl_FragDepth = depth;
 color = byteround(last_tex_env_out);
 }
-// reference: 393F87418247C736, BE595F2A0F068639
-// program: 0000000000000000, 0000000000000000, BE595F2A0F068639
-// shader: 8B31, D7D6444831BA9D6A
+// reference: 393F87418247C736, 6A08A79BE3FAC39D
+// program: 0000000000000000, 0000000000000000, 6A08A79BE3FAC39D
+// shader: 8B31, E5C31C006FEA5279
 
 struct pica_uniforms {
     bool b[16];
@@ -24687,20 +23343,18 @@ layout(location = 0) in vec4 vs_in_reg0;
 layout(location = 1) in vec4 vs_in_reg1;
 layout(location = 2) in vec4 vs_in_reg2;
 
- out vec4 vs_out_attr0;
- out vec4 vs_out_attr1;
- out vec4 vs_out_attr2;
- out vec4 vs_out_attr3;
+out vec4 vs_out_attr0;
+out vec4 vs_out_attr1;
+out vec4 vs_out_attr2;
+out vec4 vs_out_attr3;
 
 void main() {
     vs_out_attr0 = vec4(0.0, 0.0, 0.0, 1.0);
     vs_out_attr1 = vec4(0.0, 0.0, 0.0, 1.0);
     vs_out_attr2 = vec4(0.0, 0.0, 0.0, 1.0);
     vs_out_attr3 = vec4(0.0, 0.0, 0.0, 1.0);
-
     exec_shader();
 }
-
 
 #define mul_s(x, y) mix(x * y, vec4(0.0), isnan(x * y))
 #define fma_s(x, y, z) (mix(x * y, vec4(0.0), isnan(x * y)) + z)
@@ -24745,85 +23399,54 @@ bool exec_shader() {
 }
 
 bool sub_0_26() {
-    // 0: dp4
     reg_tmp13.x = dot_s(uniforms.f[4], vs_in_reg0);
-    // 1: dp4
     reg_tmp13.y = dot_s(uniforms.f[5], vs_in_reg0);
-    // 2: dp4
     reg_tmp13.z = dot_s(uniforms.f[6], vs_in_reg0);
-    // 3: mov
     reg_tmp13.w = (uniforms.f[93].yyyy).w;
-    // 4: mov
     vs_out_attr2 = -reg_tmp13;
-    // 5: dp3
     reg_tmp14.x = dot_3(uniforms.f[7].xyz, vs_in_reg1.xyz);
-    // 6: dp3
     reg_tmp14.y = dot_3(uniforms.f[8].xyz, vs_in_reg1.xyz);
-    // 7: dp3
     reg_tmp14.z = dot_3(uniforms.f[9].xyz, vs_in_reg1.xyz);
-    // 8: dp4
     vs_out_attr0.x = dot_s(uniforms.f[0], reg_tmp13);
-    // 9: dp4
     vs_out_attr0.y = dot_s(uniforms.f[1], reg_tmp13);
-    // 10: dp4
     vs_out_attr0.z = dot_s(uniforms.f[2], reg_tmp13);
-    // 11: dp4
     vs_out_attr0.w = dot_s(uniforms.f[3], reg_tmp13);
-    // 12: dp3
     reg_tmp3.x = dot_3(reg_tmp14.xyz, reg_tmp14.xyz);
-    // 13: rsq
     reg_tmp3.x = rsq_s(reg_tmp3.x);
-    // 14: mul
     reg_tmp14 = mul_s(reg_tmp14, reg_tmp3.xxxx);
-    // 15: add
     reg_tmp4 = uniforms.f[93].yyyy + reg_tmp14.zzzz;
-    // 16: mul
     reg_tmp4 = mul_s(uniforms.f[94].zzzz, reg_tmp4);
-    // 17: cmp
     conditional_code = greaterThanEqual(uniforms.f[93].xx, reg_tmp4.xx);
-    // 18: mov
     vs_out_attr1.w = (uniforms.f[93].xxxx).w;
-    // 19: rsq
     reg_tmp4 = vec4(rsq_s(reg_tmp4.x));
-    // 20: mul
     reg_tmp5 = mul_s(uniforms.f[94].zzzz, reg_tmp14);
-    // 21: ifc
     if (!conditional_code.x) {
         sub_22_24();
     } else {
         sub_24_25();
     }
-    // 25: nop
     return false;
 }
 bool sub_22_24() {
-    // 22: rcp
     vs_out_attr1.z = rcp_s(reg_tmp4.x);
-    // 23: mul
     vs_out_attr1.xy = (mul_s(reg_tmp5, reg_tmp4)).xy;
     return false;
 }
 bool sub_24_25() {
-    // 24: mov
     vs_out_attr1.xyz = (uniforms.f[93].yxxx).xyz;
     return false;
 }
 bool sub_27_4096() {
-    // 27: call
     {
         sub_0_26();
     }
-    // 28: dp4
     reg_tmp15.x = dot_s(uniforms.f[10], vs_in_reg2);
-    // 29: dp4
     reg_tmp15.y = dot_s(uniforms.f[11], vs_in_reg2);
-    // 30: mov
     vs_out_attr3 = reg_tmp15.xyxy;
-    // 31: end
     return true;
 }
-// reference: 877E4366358FD7AD, D7D6444831BA9D6A
-// shader: 8DD9, 69305F94E50C1834
+// reference: 1AA97BDF358FD7AD, E5C31C006FEA5279
+// shader: 8DD9, 38A19AC92BC54335
 
 layout(triangles) in;
 layout(triangle_strip, max_vertices = 3) out;
@@ -24891,11 +23514,10 @@ layout (std140) uniform shader_light_data {
     int shadow_texture_bias;
 };
 
- in vec4 vs_out_attr0[];
- in vec4 vs_out_attr1[];
- in vec4 vs_out_attr2[];
- in vec4 vs_out_attr3[];
-
+in vec4 vs_out_attr0[];
+in vec4 vs_out_attr1[];
+in vec4 vs_out_attr2[];
+in vec4 vs_out_attr3[];
 struct Vertex {
     vec4 attributes[4];
 };
@@ -24923,7 +23545,6 @@ void EmitVtx(Vertex vtx, bool quats_opposite) {
 
     texcoord0_w = 0.0;
     view = vec3(vtx.attributes[2].x, vtx.attributes[2].y, vtx.attributes[2].z);
-
     texcoord2 = vec2(0.0, 0.0);
 
     EmitVertex();
@@ -24947,8 +23568,8 @@ void main() {
     prim_buffer[2].attributes = vec4[4](vs_out_attr0[2], vs_out_attr1[2], vs_out_attr2[2], vs_out_attr3[2]);
     EmitPrim(prim_buffer[0], prim_buffer[1], prim_buffer[2]);
 }
-// reference: 1EA377C1D7B39071, 69305F94E50C1834
-// shader: 8B30, 8F89F5F76E711A4D
+// reference: 1EA377C1D7B39071, 38A19AC92BC54335
+// shader: 8B30, 01C5BA55DA06529D
 
 precision highp int;
 precision highp float;
@@ -25123,24 +23744,26 @@ specular_sum.rgb += (((lut_scale_d0 * LookupLightingLUTUnsigned(0, max(dot(norma
 diffuse_sum.rgb += lighting_global_ambient;
 primary_fragment_color = clamp(diffuse_sum, vec4(0.0), vec4(1.0));
 secondary_fragment_color = clamp(specular_sum, vec4(0.0), vec4(1.0));
-
 vec4 combiner_buffer = vec4(0.0);
 vec4 next_combiner_buffer = tev_combiner_buffer_color;
 vec4 last_tex_env_out = vec4(0.0);
-vec3 color_output_0 = byteround(clamp((texcolor0.rgb), vec3(0.0), vec3(1.0)));
-float alpha_output_0 = byteround(clamp((texcolor0.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_0, alpha_output_0), vec4(0.0), vec4(1.0));
+vec3 color_output_0 = (texcolor0.rgb);
+float alpha_output_0 = (texcolor0.a);
+last_tex_env_out = vec4(color_output_0, alpha_output_0);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 next_combiner_buffer.rgb = last_tex_env_out.rgb;
 
 vec3 color_output_1 = byteround(clamp((vec3(1.0) - primary_fragment_color.rgb) * (const_color[1].rgb), vec3(0.0), vec3(1.0)));
-float alpha_output_1 = byteround(clamp((last_tex_env_out.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_1, alpha_output_1), vec4(0.0), vec4(1.0));
+float alpha_output_1 = (last_tex_env_out.a);
+last_tex_env_out = vec4(color_output_1, alpha_output_1);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 
 vec3 color_output_2 = byteround(clamp((vec3(1.0) - last_tex_env_out.rgb) * (combiner_buffer.rgb) + (secondary_fragment_color.rgb), vec3(0.0), vec3(1.0)));
-float alpha_output_2 = byteround(clamp((last_tex_env_out.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_2, alpha_output_2), vec4(0.0), vec4(1.0));
+float alpha_output_2 = (last_tex_env_out.a);
+last_tex_env_out = vec4(color_output_2, alpha_output_2);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 
 combiner_buffer = next_combiner_buffer;
@@ -25153,9 +23776,9 @@ if (int(last_tex_env_out.a * 255.0) <= alphatest_ref) discard;
 gl_FragDepth = depth;
 color = byteround(last_tex_env_out);
 }
-// reference: 8ECA464F4801A9AE, 8F89F5F76E711A4D
-// program: D7D6444831BA9D6A, 69305F94E50C1834, 8F89F5F76E711A4D
-// shader: 8B30, 7C039C74D4840267
+// reference: 8ECA464F4801A9AE, 01C5BA55DA06529D
+// program: E5C31C006FEA5279, 38A19AC92BC54335, 01C5BA55DA06529D
+// shader: 8B30, 6C8E0184BF6E9480
 
 precision highp int;
 precision highp float;
@@ -25329,24 +23952,26 @@ specular_sum.rgb += (((lut_scale_d0 * LookupLightingLUTUnsigned(0, max(dot(norma
 diffuse_sum.rgb += lighting_global_ambient;
 primary_fragment_color = clamp(diffuse_sum, vec4(0.0), vec4(1.0));
 secondary_fragment_color = clamp(specular_sum, vec4(0.0), vec4(1.0));
-
 vec4 combiner_buffer = vec4(0.0);
 vec4 next_combiner_buffer = tev_combiner_buffer_color;
 vec4 last_tex_env_out = vec4(0.0);
-vec3 color_output_0 = byteround(clamp((const_color[0].rgb), vec3(0.0), vec3(1.0)));
-float alpha_output_0 = byteround(clamp((const_color[0].a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_0, alpha_output_0), vec4(0.0), vec4(1.0));
+vec3 color_output_0 = (const_color[0].rgb);
+float alpha_output_0 = (const_color[0].a);
+last_tex_env_out = vec4(color_output_0, alpha_output_0);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 next_combiner_buffer.rgb = last_tex_env_out.rgb;
 
 vec3 color_output_1 = byteround(clamp((vec3(1.0) - primary_fragment_color.rgb) * (const_color[1].rgb), vec3(0.0), vec3(1.0)));
-float alpha_output_1 = byteround(clamp((last_tex_env_out.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_1, alpha_output_1), vec4(0.0), vec4(1.0));
+float alpha_output_1 = (last_tex_env_out.a);
+last_tex_env_out = vec4(color_output_1, alpha_output_1);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 
 vec3 color_output_2 = byteround(clamp((vec3(1.0) - last_tex_env_out.rgb) * (combiner_buffer.rgb) + (secondary_fragment_color.rgb), vec3(0.0), vec3(1.0)));
-float alpha_output_2 = byteround(clamp((last_tex_env_out.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_2, alpha_output_2), vec4(0.0), vec4(1.0));
+float alpha_output_2 = (last_tex_env_out.a);
+last_tex_env_out = vec4(color_output_2, alpha_output_2);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 
 combiner_buffer = next_combiner_buffer;
@@ -25359,9 +23984,9 @@ if (int(last_tex_env_out.a * 255.0) <= alphatest_ref) discard;
 gl_FragDepth = depth;
 color = byteround(last_tex_env_out);
 }
-// reference: 8ECA464FE0E47B7E, 7C039C74D4840267
-// program: D7D6444831BA9D6A, 69305F94E50C1834, 7C039C74D4840267
-// shader: 8B30, D0F985825F3FB1F7
+// reference: 8ECA464FE0E47B7E, 6C8E0184BF6E9480
+// program: E5C31C006FEA5279, 38A19AC92BC54335, 6C8E0184BF6E9480
+// shader: 8B30, 8F86F3491ED7565F
 
 precision highp int;
 precision highp float;
@@ -25510,37 +24135,41 @@ float depth = z_over_w * depth_scale + depth_offset;
 vec4 combiner_buffer = vec4(0.0);
 vec4 next_combiner_buffer = tev_combiner_buffer_color;
 vec4 last_tex_env_out = vec4(0.0);
-vec3 color_output_0 = byteround(clamp((const_color[0].rgb), vec3(0.0), vec3(1.0)));
-float alpha_output_0 = byteround(clamp((const_color[0].a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_0, alpha_output_0), vec4(0.0), vec4(1.0));
+vec3 color_output_0 = (const_color[0].rgb);
+float alpha_output_0 = (const_color[0].a);
+last_tex_env_out = vec4(color_output_0, alpha_output_0);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 next_combiner_buffer.rgb = last_tex_env_out.rgb;
 
 vec3 color_output_1 = byteround(clamp((vec3(1.0) - last_tex_env_out.rgb) * (last_tex_env_out.rgb), vec3(0.0), vec3(1.0)));
-float alpha_output_1 = byteround(clamp((last_tex_env_out.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_1, alpha_output_1), vec4(0.0), vec4(1.0));
+float alpha_output_1 = (last_tex_env_out.a);
+last_tex_env_out = vec4(color_output_1, alpha_output_1);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 
 vec3 color_output_2 = byteround(clamp((vec3(1.0) - last_tex_env_out.rgb) * (last_tex_env_out.rgb) + (last_tex_env_out.rgb), vec3(0.0), vec3(1.0)));
-float alpha_output_2 = byteround(clamp((last_tex_env_out.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_2, alpha_output_2), vec4(0.0), vec4(1.0));
+float alpha_output_2 = (last_tex_env_out.a);
+last_tex_env_out = vec4(color_output_2, alpha_output_2);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 
 combiner_buffer = next_combiner_buffer;
 
 combiner_buffer = next_combiner_buffer;
 
-vec3 color_output_5 = byteround(clamp((const_color[5].rgb), vec3(0.0), vec3(1.0)));
-float alpha_output_5 = byteround(clamp((const_color[5].a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_5, alpha_output_5), vec4(0.0), vec4(1.0));
+vec3 color_output_5 = (const_color[5].rgb);
+float alpha_output_5 = (const_color[5].a);
+last_tex_env_out = vec4(color_output_5, alpha_output_5);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 
 gl_FragDepth = depth;
 color = byteround(last_tex_env_out);
 }
-// reference: 8ECA464FF4B9359E, D0F985825F3FB1F7
-// program: 0000000000000000, 0000000000000000, D0F985825F3FB1F7
-// shader: 8B30, 16120796D48B4037
+// reference: 8ECA464FF4B9359E, 8F86F3491ED7565F
+// program: 0000000000000000, 0000000000000000, 8F86F3491ED7565F
+// shader: 8B30, 7CCF199512A13E27
 
 precision highp int;
 precision highp float;
@@ -25690,9 +24319,10 @@ vec4 texcolor0 = textureLod(tex0, texcoord0, getLod(texcoord0 * vec2(textureSize
 vec4 combiner_buffer = vec4(0.0);
 vec4 next_combiner_buffer = tev_combiner_buffer_color;
 vec4 last_tex_env_out = vec4(0.0);
-vec3 color_output_0 = byteround(clamp((const_color[0].rgb), vec3(0.0), vec3(1.0)));
-float alpha_output_0 = byteround(clamp((texcolor0.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_0, alpha_output_0), vec4(0.0), vec4(1.0));
+vec3 color_output_0 = (const_color[0].rgb);
+float alpha_output_0 = (texcolor0.a);
+last_tex_env_out = vec4(color_output_0, alpha_output_0);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 next_combiner_buffer.rgb = last_tex_env_out.rgb;
 
@@ -25710,9 +24340,9 @@ if (int(last_tex_env_out.a * 255.0) <= alphatest_ref) discard;
 gl_FragDepth = depth;
 color = byteround(last_tex_env_out);
 }
-// reference: 393F8741147FB256, 16120796D48B4037
-// program: 0000000000000000, 0000000000000000, 16120796D48B4037
-// shader: 8B30, F4CA315362976734
+// reference: 393F8741147FB256, 7CCF199512A13E27
+// program: 0000000000000000, 0000000000000000, 7CCF199512A13E27
+// shader: 8B30, D84C759AD9A43DE0
 
 precision highp int;
 precision highp float;
@@ -25863,19 +24493,22 @@ vec4 combiner_buffer = vec4(0.0);
 vec4 next_combiner_buffer = tev_combiner_buffer_color;
 vec4 last_tex_env_out = vec4(0.0);
 vec3 color_output_0 = byteround(clamp((texcolor0.rrr) * (const_color[0].rgb), vec3(0.0), vec3(1.0)));
-float alpha_output_0 = byteround(clamp((texcolor0.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_0, alpha_output_0), vec4(0.0), vec4(1.0));
+float alpha_output_0 = (texcolor0.a);
+last_tex_env_out = vec4(color_output_0, alpha_output_0);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 next_combiner_buffer.rgb = last_tex_env_out.rgb;
 
 vec3 color_output_1 = byteround(clamp((texcolor0.ggg) * (const_color[1].rgb) + (last_tex_env_out.rgb), vec3(0.0), vec3(1.0)));
-float alpha_output_1 = byteround(clamp((last_tex_env_out.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_1, alpha_output_1), vec4(0.0), vec4(1.0));
+float alpha_output_1 = (last_tex_env_out.a);
+last_tex_env_out = vec4(color_output_1, alpha_output_1);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 
 vec3 color_output_2 = byteround(clamp((texcolor0.bbb) * (const_color[2].rgb) + (last_tex_env_out.rgb), vec3(0.0), vec3(1.0)));
-float alpha_output_2 = byteround(clamp((last_tex_env_out.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_2, alpha_output_2), vec4(0.0), vec4(1.0));
+float alpha_output_2 = (last_tex_env_out.a);
+last_tex_env_out = vec4(color_output_2, alpha_output_2);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 
 combiner_buffer = next_combiner_buffer;
@@ -25888,9 +24521,9 @@ if (int(last_tex_env_out.a * 255.0) <= alphatest_ref) discard;
 gl_FragDepth = depth;
 color = byteround(last_tex_env_out);
 }
-// reference: D7DF573C72396B09, F4CA315362976734
-// program: 0000000000000000, 0000000000000000, F4CA315362976734
-// shader: 8B30, 86FC73DFCB85B5EB
+// reference: D7DF573C72396B09, D84C759AD9A43DE0
+// program: 0000000000000000, 0000000000000000, D84C759AD9A43DE0
+// shader: 8B30, 0DED3E82FB2FBC5B
 
 precision highp int;
 precision highp float;
@@ -26039,9 +24672,10 @@ float depth = z_over_w * depth_scale + depth_offset;
 vec4 combiner_buffer = vec4(0.0);
 vec4 next_combiner_buffer = tev_combiner_buffer_color;
 vec4 last_tex_env_out = vec4(0.0);
-vec3 color_output_0 = byteround(clamp((const_color[0].rgb), vec3(0.0), vec3(1.0)));
-float alpha_output_0 = byteround(clamp((const_color[0].a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_0, alpha_output_0), vec4(0.0), vec4(1.0));
+vec3 color_output_0 = (const_color[0].rgb);
+float alpha_output_0 = (const_color[0].a);
+last_tex_env_out = vec4(color_output_0, alpha_output_0);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 next_combiner_buffer.rgb = last_tex_env_out.rgb;
 
@@ -26058,9 +24692,9 @@ combiner_buffer = next_combiner_buffer;
 gl_FragDepth = depth;
 color = byteround(last_tex_env_out);
 }
-// reference: 393F8741ABCDFA3C, 86FC73DFCB85B5EB
-// program: 0000000000000000, 0000000000000000, 86FC73DFCB85B5EB
-// shader: 8B30, 1714CEFD6CB3BAA1
+// reference: 393F8741ABCDFA3C, 0DED3E82FB2FBC5B
+// program: 0000000000000000, 0000000000000000, 0DED3E82FB2FBC5B
+// shader: 8B30, BCBE7A591AB43652
 
 precision highp int;
 precision highp float;
@@ -26210,9 +24844,10 @@ vec4 texcolor0 = textureLod(tex0, texcoord0, getLod(texcoord0 * vec2(textureSize
 vec4 combiner_buffer = vec4(0.0);
 vec4 next_combiner_buffer = tev_combiner_buffer_color;
 vec4 last_tex_env_out = vec4(0.0);
-vec3 color_output_0 = byteround(clamp((texcolor0.rgb), vec3(0.0), vec3(1.0)));
-float alpha_output_0 = byteround(clamp((texcolor0.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_0, alpha_output_0), vec4(0.0), vec4(1.0));
+vec3 color_output_0 = (texcolor0.rgb);
+float alpha_output_0 = (texcolor0.a);
+last_tex_env_out = vec4(color_output_0, alpha_output_0);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 next_combiner_buffer.rgb = last_tex_env_out.rgb;
 
@@ -26230,9 +24865,9 @@ if (int(last_tex_env_out.a * 255.0) <= alphatest_ref) discard;
 gl_FragDepth = depth;
 color = byteround(last_tex_env_out);
 }
-// reference: 393F8741EF9FC3EF, 1714CEFD6CB3BAA1
-// program: 0000000000000000, 0000000000000000, 1714CEFD6CB3BAA1
-// shader: 8B30, 176E2AFEA67EBBA9
+// reference: 393F8741EF9FC3EF, BCBE7A591AB43652
+// program: 0000000000000000, 0000000000000000, BCBE7A591AB43652
+// shader: 8B30, D56D1F8C9966297B
 
 precision highp int;
 precision highp float;
@@ -26381,9 +25016,10 @@ float depth = z_over_w * depth_scale + depth_offset;
 vec4 combiner_buffer = vec4(0.0);
 vec4 next_combiner_buffer = tev_combiner_buffer_color;
 vec4 last_tex_env_out = vec4(0.0);
-vec3 color_output_0 = byteround(clamp((const_color[0].rgb), vec3(0.0), vec3(1.0)));
-float alpha_output_0 = byteround(clamp((const_color[0].a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_0, alpha_output_0), vec4(0.0), vec4(1.0));
+vec3 color_output_0 = (const_color[0].rgb);
+float alpha_output_0 = (const_color[0].a);
+last_tex_env_out = vec4(color_output_0, alpha_output_0);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 next_combiner_buffer.rgb = last_tex_env_out.rgb;
 
@@ -26395,17 +25031,18 @@ combiner_buffer = next_combiner_buffer;
 
 combiner_buffer = next_combiner_buffer;
 
-vec3 color_output_5 = byteround(clamp((const_color[5].rgb), vec3(0.0), vec3(1.0)));
-float alpha_output_5 = byteround(clamp((const_color[5].a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_5, alpha_output_5), vec4(0.0), vec4(1.0));
+vec3 color_output_5 = (const_color[5].rgb);
+float alpha_output_5 = (const_color[5].a);
+last_tex_env_out = vec4(color_output_5, alpha_output_5);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 
 gl_FragDepth = depth;
 color = byteround(last_tex_env_out);
 }
-// reference: 393F8741F4B9359E, 176E2AFEA67EBBA9
-// program: 0000000000000000, 0000000000000000, 176E2AFEA67EBBA9
-// shader: 8B30, 2586265590E5A364
+// reference: 393F8741F4B9359E, D56D1F8C9966297B
+// program: 0000000000000000, 0000000000000000, D56D1F8C9966297B
+// shader: 8B30, 9821B25D39800791
 
 precision highp int;
 precision highp float;
@@ -26555,43 +25192,49 @@ vec4 texcolor0 = textureLod(tex0, texcoord0, getLod(texcoord0 * vec2(textureSize
 vec4 combiner_buffer = vec4(0.0);
 vec4 next_combiner_buffer = tev_combiner_buffer_color;
 vec4 last_tex_env_out = vec4(0.0);
-vec3 color_output_0 = byteround(clamp((const_color[0].rgb), vec3(0.0), vec3(1.0)));
-float alpha_output_0 = byteround(clamp((const_color[0].a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_0, alpha_output_0), vec4(0.0), vec4(1.0));
+vec3 color_output_0 = (const_color[0].rgb);
+float alpha_output_0 = (const_color[0].a);
+last_tex_env_out = vec4(color_output_0, alpha_output_0);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 next_combiner_buffer.rgb = last_tex_env_out.rgb;
 
 vec3 color_output_1 = byteround(clamp((vec3(1.0) - primary_fragment_color.rgb) * (const_color[1].rgb), vec3(0.0), vec3(1.0)));
-float alpha_output_1 = byteround(clamp((last_tex_env_out.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_1, alpha_output_1), vec4(0.0), vec4(1.0));
+float alpha_output_1 = (last_tex_env_out.a);
+last_tex_env_out = vec4(color_output_1, alpha_output_1);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 
 vec3 color_output_2 = byteround(clamp((vec3(1.0) - last_tex_env_out.rgb) * (combiner_buffer.rgb) + (secondary_fragment_color.rgb), vec3(0.0), vec3(1.0)));
-float alpha_output_2 = byteround(clamp((last_tex_env_out.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_2, alpha_output_2), vec4(0.0), vec4(1.0));
+float alpha_output_2 = (last_tex_env_out.a);
+last_tex_env_out = vec4(color_output_2, alpha_output_2);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 
 vec3 color_output_3 = byteround(clamp((const_color[3].rgb) * (vec3(1.0) - texcolor0.rgb), vec3(0.0), vec3(1.0)));
 float alpha_output_3 = byteround(clamp((const_color[3].a) * (1.0 - texcolor0.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_3, alpha_output_3), vec4(0.0), vec4(1.0));
+last_tex_env_out = vec4(color_output_3, alpha_output_3);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 
 vec3 color_output_4 = byteround(clamp((const_color[4].rgb) * (texcolor0.rgb) + (last_tex_env_out.rgb), vec3(0.0), vec3(1.0)));
 float alpha_output_4 = byteround(clamp((const_color[4].a) * (texcolor0.a) + (last_tex_env_out.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_4, alpha_output_4), vec4(0.0), vec4(1.0));
+last_tex_env_out = vec4(color_output_4, alpha_output_4);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 
 vec3 color_output_5 = byteround(clamp((rounded_primary_color.rgb) * (last_tex_env_out.rgb), vec3(0.0), vec3(1.0)));
 float alpha_output_5 = byteround(clamp((rounded_primary_color.a) * (last_tex_env_out.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_5, alpha_output_5), vec4(0.0), vec4(1.0));
+last_tex_env_out = vec4(color_output_5, alpha_output_5);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 
 gl_FragDepth = depth;
 color = byteround(last_tex_env_out);
 }
-// reference: 72E65B0A71E4C4E6, 2586265590E5A364
-// program: A990721D25F019E4, 5D764F9A6220D694, 2586265590E5A364
-// shader: 8B30, 8E05E82DD6C29A65
+// reference: 72E65B0A71E4C4E6, 9821B25D39800791
+// program: A0C32A2C2484E2AE, 42937135801BAA7E, 9821B25D39800791
+// shader: 8B30, D22779FD3539D736
 
 precision highp int;
 precision highp float;
@@ -26741,43 +25384,49 @@ vec4 texcolor0 = textureLod(tex0, texcoord0, getLod(texcoord0 * vec2(textureSize
 vec4 combiner_buffer = vec4(0.0);
 vec4 next_combiner_buffer = tev_combiner_buffer_color;
 vec4 last_tex_env_out = vec4(0.0);
-vec3 color_output_0 = byteround(clamp((const_color[0].rgb), vec3(0.0), vec3(1.0)));
-float alpha_output_0 = byteround(clamp((const_color[0].a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_0, alpha_output_0), vec4(0.0), vec4(1.0));
+vec3 color_output_0 = (const_color[0].rgb);
+float alpha_output_0 = (const_color[0].a);
+last_tex_env_out = vec4(color_output_0, alpha_output_0);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 next_combiner_buffer.rgb = last_tex_env_out.rgb;
 
 vec3 color_output_1 = byteround(clamp((vec3(1.0) - primary_fragment_color.rgb) * (const_color[1].rgb), vec3(0.0), vec3(1.0)));
-float alpha_output_1 = byteround(clamp((last_tex_env_out.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_1, alpha_output_1), vec4(0.0), vec4(1.0));
+float alpha_output_1 = (last_tex_env_out.a);
+last_tex_env_out = vec4(color_output_1, alpha_output_1);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 
 vec3 color_output_2 = byteround(clamp((vec3(1.0) - last_tex_env_out.rgb) * (combiner_buffer.rgb) + (secondary_fragment_color.rgb), vec3(0.0), vec3(1.0)));
-float alpha_output_2 = byteround(clamp((last_tex_env_out.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_2, alpha_output_2), vec4(0.0), vec4(1.0));
+float alpha_output_2 = (last_tex_env_out.a);
+last_tex_env_out = vec4(color_output_2, alpha_output_2);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 
 vec3 color_output_3 = byteround(clamp((vec3(1.0) - texcolor0.rgb) * (const_color[3].rgb), vec3(0.0), vec3(1.0)));
 float alpha_output_3 = byteround(clamp((texcolor0.a) * (const_color[3].a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_3, alpha_output_3), vec4(0.0), vec4(1.0));
+last_tex_env_out = vec4(color_output_3, alpha_output_3);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 
 vec3 color_output_4 = byteround(clamp((texcolor0.rgb) * (const_color[4].rgb) + (last_tex_env_out.rgb), vec3(0.0), vec3(1.0)));
 float alpha_output_4 = byteround(clamp((1.0 - texcolor0.a) * (const_color[4].a) + (last_tex_env_out.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_4, alpha_output_4), vec4(0.0), vec4(1.0));
+last_tex_env_out = vec4(color_output_4, alpha_output_4);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 
 vec3 color_output_5 = byteround(clamp((rounded_primary_color.rgb) * (last_tex_env_out.rgb), vec3(0.0), vec3(1.0)));
 float alpha_output_5 = byteround(clamp((rounded_primary_color.a) * (last_tex_env_out.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_5, alpha_output_5), vec4(0.0), vec4(1.0));
+last_tex_env_out = vec4(color_output_5, alpha_output_5);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 
 gl_FragDepth = depth;
 color = byteround(last_tex_env_out);
 }
-// reference: BD7EBFF5F01BD25C, 8E05E82DD6C29A65
-// program: A990721D25F019E4, 5D764F9A6220D694, 8E05E82DD6C29A65
-// shader: 8B30, A17BC1BBA235F7F5
+// reference: BD7EBFF5F01BD25C, D22779FD3539D736
+// program: A0C32A2C2484E2AE, 42937135801BAA7E, D22779FD3539D736
+// shader: 8B30, 33C035EC63540C05
 
 precision highp int;
 precision highp float;
@@ -26927,43 +25576,49 @@ vec4 texcolor0 = textureLod(tex0, texcoord0, getLod(texcoord0 * vec2(textureSize
 vec4 combiner_buffer = vec4(0.0);
 vec4 next_combiner_buffer = tev_combiner_buffer_color;
 vec4 last_tex_env_out = vec4(0.0);
-vec3 color_output_0 = byteround(clamp((const_color[0].rgb), vec3(0.0), vec3(1.0)));
-float alpha_output_0 = byteround(clamp((const_color[0].a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_0, alpha_output_0), vec4(0.0), vec4(1.0));
+vec3 color_output_0 = (const_color[0].rgb);
+float alpha_output_0 = (const_color[0].a);
+last_tex_env_out = vec4(color_output_0, alpha_output_0);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 next_combiner_buffer.rgb = last_tex_env_out.rgb;
 
 vec3 color_output_1 = byteround(clamp((vec3(1.0) - primary_fragment_color.rgb) * (const_color[1].rgb), vec3(0.0), vec3(1.0)));
-float alpha_output_1 = byteround(clamp((last_tex_env_out.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_1, alpha_output_1), vec4(0.0), vec4(1.0));
+float alpha_output_1 = (last_tex_env_out.a);
+last_tex_env_out = vec4(color_output_1, alpha_output_1);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 
 vec3 color_output_2 = byteround(clamp((vec3(1.0) - last_tex_env_out.rgb) * (combiner_buffer.rgb) + (secondary_fragment_color.rgb), vec3(0.0), vec3(1.0)));
-float alpha_output_2 = byteround(clamp((last_tex_env_out.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_2, alpha_output_2), vec4(0.0), vec4(1.0));
+float alpha_output_2 = (last_tex_env_out.a);
+last_tex_env_out = vec4(color_output_2, alpha_output_2);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 
 vec3 color_output_3 = byteround(clamp((texcolor0.rgb) * (const_color[3].rgb), vec3(0.0), vec3(1.0)));
 float alpha_output_3 = byteround(clamp((texcolor0.a) * (const_color[3].a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_3, alpha_output_3), vec4(0.0), vec4(1.0));
+last_tex_env_out = vec4(color_output_3, alpha_output_3);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 
 vec3 color_output_4 = byteround(clamp((vec3(1.0) - texcolor0.rgb) * (const_color[4].rgb) + (last_tex_env_out.rgb), vec3(0.0), vec3(1.0)));
 float alpha_output_4 = byteround(clamp((1.0 - texcolor0.a) * (const_color[4].a) + (last_tex_env_out.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_4, alpha_output_4), vec4(0.0), vec4(1.0));
+last_tex_env_out = vec4(color_output_4, alpha_output_4);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 
 vec3 color_output_5 = byteround(clamp((rounded_primary_color.rgb) * (last_tex_env_out.rgb), vec3(0.0), vec3(1.0)));
 float alpha_output_5 = byteround(clamp((rounded_primary_color.a) * (last_tex_env_out.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_5, alpha_output_5), vec4(0.0), vec4(1.0));
+last_tex_env_out = vec4(color_output_5, alpha_output_5);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 
 gl_FragDepth = depth;
 color = byteround(last_tex_env_out);
 }
-// reference: CE0C51A4F01BD25C, A17BC1BBA235F7F5
-// program: A990721D25F019E4, 5D764F9A6220D694, A17BC1BBA235F7F5
-// shader: 8B30, 29CEA8462618C993
+// reference: CE0C51A4F01BD25C, 33C035EC63540C05
+// program: A0C32A2C2484E2AE, 42937135801BAA7E, 33C035EC63540C05
+// shader: 8B30, 73AD2BB15F0F41F0
 
 precision highp int;
 precision highp float;
@@ -27115,7 +25770,8 @@ vec4 next_combiner_buffer = tev_combiner_buffer_color;
 vec4 last_tex_env_out = vec4(0.0);
 vec3 color_output_0 = byteround(clamp((rounded_primary_color.rgb) * (texcolor0.rgb), vec3(0.0), vec3(1.0)));
 float alpha_output_0 = byteround(clamp((rounded_primary_color.a) * (texcolor0.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_0, alpha_output_0), vec4(0.0), vec4(1.0));
+last_tex_env_out = vec4(color_output_0, alpha_output_0);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 
 combiner_buffer = next_combiner_buffer;
@@ -27131,10 +25787,10 @@ combiner_buffer = next_combiner_buffer;
 gl_FragDepth = depth;
 color = byteround(last_tex_env_out);
 }
-// reference: CE312E68D7B0A07F, 29CEA8462618C993
-// program: 1F369F37D1E9EDE2, A180773D4B4115BE, 29CEA8462618C993
-// reference: E4C24B1DC68C8EC1, A990721D25F019E4
-// shader: 8B30, A573E96574BEFB10
+// reference: CE312E68D7B0A07F, 73AD2BB15F0F41F0
+// program: 5B88C0147985B75E, 60215D2B1286D4FE, 73AD2BB15F0F41F0
+// reference: E4C24B1D4579E8B3, A0C32A2C2484E2AE
+// shader: 8B30, 399BBD1F5297DCCE
 
 precision highp int;
 precision highp float;
@@ -27286,7 +25942,8 @@ vec4 next_combiner_buffer = tev_combiner_buffer_color;
 vec4 last_tex_env_out = vec4(0.0);
 vec3 color_output_0 = byteround(clamp((rounded_primary_color.rgb) * (texcolor0.rgb), vec3(0.0), vec3(1.0)));
 float alpha_output_0 = byteround(clamp((rounded_primary_color.a) * (texcolor0.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_0, alpha_output_0), vec4(0.0), vec4(1.0));
+last_tex_env_out = vec4(color_output_0, alpha_output_0);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 
 combiner_buffer = next_combiner_buffer;
@@ -27295,26 +25952,29 @@ combiner_buffer = next_combiner_buffer;
 
 vec3 color_output_3 = byteround(clamp((const_color[3].rgb) * (vec3(1.0) - texcolor0.rgb), vec3(0.0), vec3(1.0)));
 float alpha_output_3 = byteround(clamp((const_color[3].a) * (1.0 - texcolor0.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_3, alpha_output_3), vec4(0.0), vec4(1.0));
+last_tex_env_out = vec4(color_output_3, alpha_output_3);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 
 vec3 color_output_4 = byteround(clamp((const_color[4].rgb) * (texcolor0.rgb) + (last_tex_env_out.rgb), vec3(0.0), vec3(1.0)));
 float alpha_output_4 = byteround(clamp((const_color[4].a) * (texcolor0.a) + (last_tex_env_out.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_4, alpha_output_4), vec4(0.0), vec4(1.0));
+last_tex_env_out = vec4(color_output_4, alpha_output_4);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 
 vec3 color_output_5 = byteround(clamp((rounded_primary_color.rgb) * (last_tex_env_out.rgb), vec3(0.0), vec3(1.0)));
 float alpha_output_5 = byteround(clamp((rounded_primary_color.a) * (last_tex_env_out.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_5, alpha_output_5), vec4(0.0), vec4(1.0));
+last_tex_env_out = vec4(color_output_5, alpha_output_5);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 
 gl_FragDepth = depth;
 color = byteround(last_tex_env_out);
 }
-// reference: DFD60A957F848F22, A573E96574BEFB10
-// program: A990721D25F019E4, 5D764F9A6220D694, A573E96574BEFB10
-// reference: 37418CE41D352F86, A990721D25F019E4
-// shader: 8B30, 5F22FF8478E1103F
+// reference: DFD60A957F848F22, 399BBD1F5297DCCE
+// program: A0C32A2C2484E2AE, 42937135801BAA7E, 399BBD1F5297DCCE
+// reference: AA96B45D1D352F86, A0C32A2C2484E2AE
+// shader: 8B30, 29AF966F10C96227
 
 precision highp int;
 precision highp float;
@@ -27466,7 +26126,8 @@ vec4 next_combiner_buffer = tev_combiner_buffer_color;
 vec4 last_tex_env_out = vec4(0.0);
 vec3 color_output_0 = byteround(clamp((rounded_primary_color.rgb) * (texcolor0.rgb), vec3(0.0), vec3(1.0)));
 float alpha_output_0 = byteround(clamp((rounded_primary_color.a) * (texcolor0.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_0, alpha_output_0), vec4(0.0), vec4(1.0));
+last_tex_env_out = vec4(color_output_0, alpha_output_0);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 
 combiner_buffer = next_combiner_buffer;
@@ -27475,25 +26136,28 @@ combiner_buffer = next_combiner_buffer;
 
 vec3 color_output_3 = byteround(clamp((vec3(1.0) - texcolor0.rgb) * (const_color[3].rgb), vec3(0.0), vec3(1.0)));
 float alpha_output_3 = byteround(clamp((texcolor0.a) * (const_color[3].a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_3, alpha_output_3), vec4(0.0), vec4(1.0));
+last_tex_env_out = vec4(color_output_3, alpha_output_3);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 
 vec3 color_output_4 = byteround(clamp((texcolor0.rgb) * (const_color[4].rgb) + (last_tex_env_out.rgb), vec3(0.0), vec3(1.0)));
 float alpha_output_4 = byteround(clamp((1.0 - texcolor0.a) * (const_color[4].a) + (last_tex_env_out.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_4, alpha_output_4), vec4(0.0), vec4(1.0));
+last_tex_env_out = vec4(color_output_4, alpha_output_4);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 
 vec3 color_output_5 = byteround(clamp((rounded_primary_color.rgb) * (last_tex_env_out.rgb), vec3(0.0), vec3(1.0)));
 float alpha_output_5 = byteround(clamp((rounded_primary_color.a) * (last_tex_env_out.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_5, alpha_output_5), vec4(0.0), vec4(1.0));
+last_tex_env_out = vec4(color_output_5, alpha_output_5);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 
 gl_FragDepth = depth;
 color = byteround(last_tex_env_out);
 }
-// reference: 104EEE6AFE7B9998, 5F22FF8478E1103F
-// program: A990721D25F019E4, 5D764F9A6220D694, 5F22FF8478E1103F
-// shader: 8B30, 6BAC827CD1306587
+// reference: 104EEE6AFE7B9998, 29AF966F10C96227
+// program: A0C32A2C2484E2AE, 42937135801BAA7E, 29AF966F10C96227
+// shader: 8B30, 077C0D4D8AED98AC
 
 precision highp int;
 precision highp float;
@@ -27645,7 +26309,8 @@ vec4 next_combiner_buffer = tev_combiner_buffer_color;
 vec4 last_tex_env_out = vec4(0.0);
 vec3 color_output_0 = byteround(clamp((rounded_primary_color.rgb) * (texcolor0.rgb), vec3(0.0), vec3(1.0)));
 float alpha_output_0 = byteround(clamp((rounded_primary_color.a) * (texcolor0.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_0, alpha_output_0), vec4(0.0), vec4(1.0));
+last_tex_env_out = vec4(color_output_0, alpha_output_0);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 
 combiner_buffer = next_combiner_buffer;
@@ -27654,27 +26319,30 @@ combiner_buffer = next_combiner_buffer;
 
 vec3 color_output_3 = byteround(clamp((texcolor0.rgb) * (const_color[3].rgb), vec3(0.0), vec3(1.0)));
 float alpha_output_3 = byteround(clamp((texcolor0.a) * (const_color[3].a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_3, alpha_output_3), vec4(0.0), vec4(1.0));
+last_tex_env_out = vec4(color_output_3, alpha_output_3);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 
 vec3 color_output_4 = byteround(clamp((vec3(1.0) - texcolor0.rgb) * (const_color[4].rgb) + (last_tex_env_out.rgb), vec3(0.0), vec3(1.0)));
 float alpha_output_4 = byteround(clamp((1.0 - texcolor0.a) * (const_color[4].a) + (last_tex_env_out.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_4, alpha_output_4), vec4(0.0), vec4(1.0));
+last_tex_env_out = vec4(color_output_4, alpha_output_4);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 
 vec3 color_output_5 = byteround(clamp((rounded_primary_color.rgb) * (last_tex_env_out.rgb), vec3(0.0), vec3(1.0)));
 float alpha_output_5 = byteround(clamp((rounded_primary_color.a) * (last_tex_env_out.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_5, alpha_output_5), vec4(0.0), vec4(1.0));
+last_tex_env_out = vec4(color_output_5, alpha_output_5);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 
 gl_FragDepth = depth;
 color = byteround(last_tex_env_out);
 }
-// reference: 633C003BFE7B9998, 6BAC827CD1306587
-// program: A990721D25F019E4, 5D764F9A6220D694, 6BAC827CD1306587
-// reference: 0E7AA781373F52B6, 1F369F37D1E9EDE2
-// reference: D9174B842C431CE4, D7D6444831BA9D6A
-// shader: 8B30, AC4F2680A6E28FCA
+// reference: 633C003BFE7B9998, 077C0D4D8AED98AC
+// program: A0C32A2C2484E2AE, 42937135801BAA7E, 077C0D4D8AED98AC
+// reference: 0E7AA781B4CA34C4, 5B88C0147985B75E
+// reference: 44C0733D2C431CE4, E5C31C006FEA5279
+// shader: 8B30, 561D6210DD04030D
 
 precision highp int;
 precision highp float;
@@ -27824,43 +26492,49 @@ vec4 texcolor0 = textureLod(tex0, texcoord0, getLod(texcoord0 * vec2(textureSize
 vec4 combiner_buffer = vec4(0.0);
 vec4 next_combiner_buffer = tev_combiner_buffer_color;
 vec4 last_tex_env_out = vec4(0.0);
-vec3 color_output_0 = byteround(clamp((texcolor0.rgb), vec3(0.0), vec3(1.0)));
-float alpha_output_0 = byteround(clamp((texcolor0.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_0, alpha_output_0), vec4(0.0), vec4(1.0));
+vec3 color_output_0 = (texcolor0.rgb);
+float alpha_output_0 = (texcolor0.a);
+last_tex_env_out = vec4(color_output_0, alpha_output_0);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 next_combiner_buffer.rgb = last_tex_env_out.rgb;
 
 vec3 color_output_1 = byteround(clamp((vec3(1.0) - primary_fragment_color.rgb) * (const_color[1].rgb), vec3(0.0), vec3(1.0)));
-float alpha_output_1 = byteround(clamp((last_tex_env_out.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_1, alpha_output_1), vec4(0.0), vec4(1.0));
+float alpha_output_1 = (last_tex_env_out.a);
+last_tex_env_out = vec4(color_output_1, alpha_output_1);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 
 vec3 color_output_2 = byteround(clamp((vec3(1.0) - last_tex_env_out.rgb) * (combiner_buffer.rgb) + (secondary_fragment_color.rgb), vec3(0.0), vec3(1.0)));
-float alpha_output_2 = byteround(clamp((last_tex_env_out.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_2, alpha_output_2), vec4(0.0), vec4(1.0));
+float alpha_output_2 = (last_tex_env_out.a);
+last_tex_env_out = vec4(color_output_2, alpha_output_2);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 
 vec3 color_output_3 = byteround(clamp((const_color[3].rgb) * (vec3(1.0) - texcolor0.rgb), vec3(0.0), vec3(1.0)));
 float alpha_output_3 = byteround(clamp((const_color[3].a) * (1.0 - texcolor0.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_3, alpha_output_3), vec4(0.0), vec4(1.0));
+last_tex_env_out = vec4(color_output_3, alpha_output_3);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 
 vec3 color_output_4 = byteround(clamp((const_color[4].rgb) * (texcolor0.rgb) + (last_tex_env_out.rgb), vec3(0.0), vec3(1.0)));
 float alpha_output_4 = byteround(clamp((const_color[4].a) * (texcolor0.a) + (last_tex_env_out.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_4, alpha_output_4), vec4(0.0), vec4(1.0));
+last_tex_env_out = vec4(color_output_4, alpha_output_4);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 
 vec3 color_output_5 = byteround(clamp((rounded_primary_color.rgb) * (last_tex_env_out.rgb), vec3(0.0), vec3(1.0)));
 float alpha_output_5 = byteround(clamp((rounded_primary_color.a) * (last_tex_env_out.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_5, alpha_output_5), vec4(0.0), vec4(1.0));
+last_tex_env_out = vec4(color_output_5, alpha_output_5);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 
 gl_FragDepth = depth;
 color = byteround(last_tex_env_out);
 }
-// reference: 72E65B0AD9011636, AC4F2680A6E28FCA
-// program: A990721D25F019E4, 5D764F9A6220D694, AC4F2680A6E28FCA
-// shader: 8B30, 9CD350141D538D60
+// reference: 72E65B0AD9011636, 561D6210DD04030D
+// program: A0C32A2C2484E2AE, 42937135801BAA7E, 561D6210DD04030D
+// shader: 8B30, 99F190CD3E251403
 
 precision highp int;
 precision highp float;
@@ -28010,19 +26684,22 @@ vec4 texcolor0 = textureLod(tex0, texcoord0, getLod(texcoord0 * vec2(textureSize
 vec4 combiner_buffer = vec4(0.0);
 vec4 next_combiner_buffer = tev_combiner_buffer_color;
 vec4 last_tex_env_out = vec4(0.0);
-vec3 color_output_0 = byteround(clamp((const_color[0].rgb), vec3(0.0), vec3(1.0)));
-float alpha_output_0 = byteround(clamp((texcolor0.r), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_0, alpha_output_0), vec4(0.0), vec4(1.0));
+vec3 color_output_0 = (const_color[0].rgb);
+float alpha_output_0 = (texcolor0.r);
+last_tex_env_out = vec4(color_output_0, alpha_output_0);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 
 vec3 color_output_1 = byteround(clamp((last_tex_env_out.rgb) * (texcolor0.rgb) + (const_color[1].rgb) * (vec3(1.0) - (texcolor0.rgb)), vec3(0.0), vec3(1.0)));
 float alpha_output_1 = byteround(clamp((rounded_primary_color.a) * (texcolor0.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_1, alpha_output_1), vec4(0.0), vec4(1.0));
+last_tex_env_out = vec4(color_output_1, alpha_output_1);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 
 vec3 color_output_2 = byteround(clamp((const_color[2].rgb) * (rounded_primary_color.rgb) + (last_tex_env_out.rgb) * (vec3(1.0) - (rounded_primary_color.rgb)), vec3(0.0), vec3(1.0)));
-float alpha_output_2 = byteround(clamp((last_tex_env_out.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_2, alpha_output_2), vec4(0.0), vec4(1.0));
+float alpha_output_2 = (last_tex_env_out.a);
+last_tex_env_out = vec4(color_output_2, alpha_output_2);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 
 combiner_buffer = next_combiner_buffer;
@@ -28032,18 +26709,18 @@ combiner_buffer = next_combiner_buffer;
 combiner_buffer = next_combiner_buffer;
 
 float fog_index = depth * 128.0;
-float fog_i = clamp(floor(fog_index), 0.0, 127.0);
-float fog_f = fog_index - fog_i;
-vec2 fog_lut_entry = texelFetch(texture_buffer_lut_lf, int(fog_i) + fog_lut_offset).rg;
+int fog_i = int(fog_index);
+float fog_f = fract(fog_index);
+vec2 fog_lut_entry = texelFetch(texture_buffer_lut_lf, fog_i + fog_lut_offset).rg;
 float fog_factor = fog_lut_entry.r + fog_lut_entry.g * fog_f;
 fog_factor = clamp(fog_factor, 0.0, 1.0);
 last_tex_env_out.rgb = mix(fog_color.rgb, last_tex_env_out.rgb, fog_factor);
 gl_FragDepth = depth;
 color = byteround(last_tex_env_out);
 }
-// reference: 3303CB8E7B3C0638, 9CD350141D538D60
-// program: F3D442C0013F9392, 6CF3F3B70E23AA85, 9CD350141D538D60
-// shader: 8B30, E789537FC51FD7D4
+// reference: 3303CB8E7B3C0638, 99F190CD3E251403
+// program: 22C3C36B08CEECE7, 7A40B90B17532EA8, 99F190CD3E251403
+// shader: 8B30, 21E48BC562D18AD0
 
 precision highp int;
 precision highp float;
@@ -28193,19 +26870,22 @@ vec4 texcolor0 = textureLod(tex0, texcoord0, getLod(texcoord0 * vec2(textureSize
 vec4 combiner_buffer = vec4(0.0);
 vec4 next_combiner_buffer = tev_combiner_buffer_color;
 vec4 last_tex_env_out = vec4(0.0);
-vec3 color_output_0 = byteround(clamp((const_color[0].rgb), vec3(0.0), vec3(1.0)));
-float alpha_output_0 = byteround(clamp((texcolor0.r), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_0, alpha_output_0), vec4(0.0), vec4(1.0));
+vec3 color_output_0 = (const_color[0].rgb);
+float alpha_output_0 = (texcolor0.r);
+last_tex_env_out = vec4(color_output_0, alpha_output_0);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 
 vec3 color_output_1 = byteround(clamp((last_tex_env_out.rgb) * (texcolor0.rgb) + (const_color[1].rgb) * (vec3(1.0) - (texcolor0.rgb)), vec3(0.0), vec3(1.0)));
 float alpha_output_1 = byteround(clamp((rounded_primary_color.a) * (texcolor0.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_1, alpha_output_1), vec4(0.0), vec4(1.0));
+last_tex_env_out = vec4(color_output_1, alpha_output_1);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 
 vec3 color_output_2 = byteround(clamp((const_color[2].rgb) * (rounded_primary_color.rgb) + (last_tex_env_out.rgb) * (vec3(1.0) - (rounded_primary_color.rgb)), vec3(0.0), vec3(1.0)));
-float alpha_output_2 = byteround(clamp((last_tex_env_out.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_2, alpha_output_2), vec4(0.0), vec4(1.0));
+float alpha_output_2 = (last_tex_env_out.a);
+last_tex_env_out = vec4(color_output_2, alpha_output_2);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 
 combiner_buffer = next_combiner_buffer;
@@ -28216,18 +26896,18 @@ combiner_buffer = next_combiner_buffer;
 
 if (int(last_tex_env_out.a * 255.0) <= alphatest_ref) discard;
 float fog_index = depth * 128.0;
-float fog_i = clamp(floor(fog_index), 0.0, 127.0);
-float fog_f = fog_index - fog_i;
-vec2 fog_lut_entry = texelFetch(texture_buffer_lut_lf, int(fog_i) + fog_lut_offset).rg;
+int fog_i = int(fog_index);
+float fog_f = fract(fog_index);
+vec2 fog_lut_entry = texelFetch(texture_buffer_lut_lf, fog_i + fog_lut_offset).rg;
 float fog_factor = fog_lut_entry.r + fog_lut_entry.g * fog_f;
 fog_factor = clamp(fog_factor, 0.0, 1.0);
 last_tex_env_out.rgb = mix(fog_color.rgb, last_tex_env_out.rgb, fog_factor);
 gl_FragDepth = depth;
 color = byteround(last_tex_env_out);
 }
-// reference: 3303CB8E978BED3B, E789537FC51FD7D4
-// program: F3D442C0013F9392, 6CF3F3B70E23AA85, E789537FC51FD7D4
-// shader: 8B30, 588E895FDF454AB4
+// reference: 3303CB8E978BED3B, 21E48BC562D18AD0
+// program: 22C3C36B08CEECE7, 7A40B90B17532EA8, 21E48BC562D18AD0
+// shader: 8B30, CA945AEB03B072DA
 
 precision highp int;
 precision highp float;
@@ -28377,19 +27057,22 @@ vec4 texcolor0 = textureLod(tex0, texcoord0, getLod(texcoord0 * vec2(textureSize
 vec4 combiner_buffer = vec4(0.0);
 vec4 next_combiner_buffer = tev_combiner_buffer_color;
 vec4 last_tex_env_out = vec4(0.0);
-vec3 color_output_0 = byteround(clamp((const_color[0].rgb), vec3(0.0), vec3(1.0)));
-float alpha_output_0 = byteround(clamp((texcolor0.r), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_0, alpha_output_0), vec4(0.0), vec4(1.0));
+vec3 color_output_0 = (const_color[0].rgb);
+float alpha_output_0 = (texcolor0.r);
+last_tex_env_out = vec4(color_output_0, alpha_output_0);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 
 vec3 color_output_1 = byteround(clamp((last_tex_env_out.rgb) * (last_tex_env_out.aaa) + (const_color[1].rgb) * (vec3(1.0) - (last_tex_env_out.aaa)), vec3(0.0), vec3(1.0)));
 float alpha_output_1 = byteround(clamp((rounded_primary_color.a) * (texcolor0.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_1, alpha_output_1), vec4(0.0), vec4(1.0));
+last_tex_env_out = vec4(color_output_1, alpha_output_1);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 
 vec3 color_output_2 = byteround(clamp((const_color[2].rgb) * (rounded_primary_color.rgb) + (last_tex_env_out.rgb) * (vec3(1.0) - (rounded_primary_color.rgb)), vec3(0.0), vec3(1.0)));
-float alpha_output_2 = byteround(clamp((last_tex_env_out.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_2, alpha_output_2), vec4(0.0), vec4(1.0));
+float alpha_output_2 = (last_tex_env_out.a);
+last_tex_env_out = vec4(color_output_2, alpha_output_2);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 
 combiner_buffer = next_combiner_buffer;
@@ -28399,18 +27082,18 @@ combiner_buffer = next_combiner_buffer;
 combiner_buffer = next_combiner_buffer;
 
 float fog_index = depth * 128.0;
-float fog_i = clamp(floor(fog_index), 0.0, 127.0);
-float fog_f = fog_index - fog_i;
-vec2 fog_lut_entry = texelFetch(texture_buffer_lut_lf, int(fog_i) + fog_lut_offset).rg;
+int fog_i = int(fog_index);
+float fog_f = fract(fog_index);
+vec2 fog_lut_entry = texelFetch(texture_buffer_lut_lf, fog_i + fog_lut_offset).rg;
 float fog_factor = fog_lut_entry.r + fog_lut_entry.g * fog_f;
 fog_factor = clamp(fog_factor, 0.0, 1.0);
 last_tex_env_out.rgb = mix(fog_color.rgb, last_tex_env_out.rgb, fog_factor);
 gl_FragDepth = depth;
 color = byteround(last_tex_env_out);
 }
-// reference: 0FDD46720609BAE4, 588E895FDF454AB4
-// program: F3D442C0013F9392, 6CF3F3B70E23AA85, 588E895FDF454AB4
-// shader: 8B30, BB968D6E7E65DB3B
+// reference: 0FDD46720609BAE4, CA945AEB03B072DA
+// program: 22C3C36B08CEECE7, 7A40B90B17532EA8, CA945AEB03B072DA
+// shader: 8B30, 3EEC119F84C9A48E
 
 precision highp int;
 precision highp float;
@@ -28560,19 +27243,22 @@ vec4 texcolor0 = textureLod(tex0, texcoord0, getLod(texcoord0 * vec2(textureSize
 vec4 combiner_buffer = vec4(0.0);
 vec4 next_combiner_buffer = tev_combiner_buffer_color;
 vec4 last_tex_env_out = vec4(0.0);
-vec3 color_output_0 = byteround(clamp((const_color[0].rgb), vec3(0.0), vec3(1.0)));
-float alpha_output_0 = byteround(clamp((texcolor0.r), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_0, alpha_output_0), vec4(0.0), vec4(1.0));
+vec3 color_output_0 = (const_color[0].rgb);
+float alpha_output_0 = (texcolor0.r);
+last_tex_env_out = vec4(color_output_0, alpha_output_0);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 
 vec3 color_output_1 = byteround(clamp((last_tex_env_out.rgb) * (last_tex_env_out.aaa) + (const_color[1].rgb) * (vec3(1.0) - (last_tex_env_out.aaa)), vec3(0.0), vec3(1.0)));
 float alpha_output_1 = byteround(clamp((rounded_primary_color.a) * (texcolor0.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_1, alpha_output_1), vec4(0.0), vec4(1.0));
+last_tex_env_out = vec4(color_output_1, alpha_output_1);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 
 vec3 color_output_2 = byteround(clamp((const_color[2].rgb) * (rounded_primary_color.rgb) + (last_tex_env_out.rgb) * (vec3(1.0) - (rounded_primary_color.rgb)), vec3(0.0), vec3(1.0)));
 float alpha_output_2 = byteround(clamp((last_tex_env_out.a) * (texcolor0.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_2, alpha_output_2), vec4(0.0), vec4(1.0));
+last_tex_env_out = vec4(color_output_2, alpha_output_2);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 
 combiner_buffer = next_combiner_buffer;
@@ -28583,18 +27269,18 @@ combiner_buffer = next_combiner_buffer;
 
 if (int(last_tex_env_out.a * 255.0) <= alphatest_ref) discard;
 float fog_index = depth * 128.0;
-float fog_i = clamp(floor(fog_index), 0.0, 127.0);
-float fog_f = fog_index - fog_i;
-vec2 fog_lut_entry = texelFetch(texture_buffer_lut_lf, int(fog_i) + fog_lut_offset).rg;
+int fog_i = int(fog_index);
+float fog_f = fract(fog_index);
+vec2 fog_lut_entry = texelFetch(texture_buffer_lut_lf, fog_i + fog_lut_offset).rg;
 float fog_factor = fog_lut_entry.r + fog_lut_entry.g * fog_f;
 fog_factor = clamp(fog_factor, 0.0, 1.0);
 last_tex_env_out.rgb = mix(fog_color.rgb, last_tex_env_out.rgb, fog_factor);
 gl_FragDepth = depth;
 color = byteround(last_tex_env_out);
 }
-// reference: E0A8BFEEEABE51E7, BB968D6E7E65DB3B
-// program: F3D442C0013F9392, 6CF3F3B70E23AA85, BB968D6E7E65DB3B
-// shader: 8B30, 0F2B3212C4F2D6C0
+// reference: E0A8BFEEEABE51E7, 3EEC119F84C9A48E
+// program: 22C3C36B08CEECE7, 7A40B90B17532EA8, 3EEC119F84C9A48E
+// shader: 8B30, F98EFE2E06ECB022
 
 precision highp int;
 precision highp float;
@@ -28744,19 +27430,22 @@ vec4 texcolor0 = textureLod(tex0, texcoord0, getLod(texcoord0 * vec2(textureSize
 vec4 combiner_buffer = vec4(0.0);
 vec4 next_combiner_buffer = tev_combiner_buffer_color;
 vec4 last_tex_env_out = vec4(0.0);
-vec3 color_output_0 = byteround(clamp((const_color[0].rgb), vec3(0.0), vec3(1.0)));
-float alpha_output_0 = byteround(clamp((texcolor0.r), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_0, alpha_output_0), vec4(0.0), vec4(1.0));
+vec3 color_output_0 = (const_color[0].rgb);
+float alpha_output_0 = (texcolor0.r);
+last_tex_env_out = vec4(color_output_0, alpha_output_0);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 
 vec3 color_output_1 = byteround(clamp((last_tex_env_out.rgb) * (last_tex_env_out.aaa) + (const_color[1].rgb) * (vec3(1.0) - (last_tex_env_out.aaa)), vec3(0.0), vec3(1.0)));
 float alpha_output_1 = byteround(clamp((rounded_primary_color.a) * (texcolor0.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_1, alpha_output_1), vec4(0.0), vec4(1.0));
+last_tex_env_out = vec4(color_output_1, alpha_output_1);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 
 vec3 color_output_2 = byteround(clamp((const_color[2].rgb) * (rounded_primary_color.rgb) + (last_tex_env_out.rgb) * (vec3(1.0) - (rounded_primary_color.rgb)), vec3(0.0), vec3(1.0)));
-float alpha_output_2 = byteround(clamp((last_tex_env_out.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_2, alpha_output_2), vec4(0.0), vec4(1.0));
+float alpha_output_2 = (last_tex_env_out.a);
+last_tex_env_out = vec4(color_output_2, alpha_output_2);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 
 combiner_buffer = next_combiner_buffer;
@@ -28767,18 +27456,18 @@ combiner_buffer = next_combiner_buffer;
 
 if (int(last_tex_env_out.a * 255.0) <= alphatest_ref) discard;
 float fog_index = depth * 128.0;
-float fog_i = clamp(floor(fog_index), 0.0, 127.0);
-float fog_f = fog_index - fog_i;
-vec2 fog_lut_entry = texelFetch(texture_buffer_lut_lf, int(fog_i) + fog_lut_offset).rg;
+int fog_i = int(fog_index);
+float fog_f = fract(fog_index);
+vec2 fog_lut_entry = texelFetch(texture_buffer_lut_lf, fog_i + fog_lut_offset).rg;
 float fog_factor = fog_lut_entry.r + fog_lut_entry.g * fog_f;
 fog_factor = clamp(fog_factor, 0.0, 1.0);
 last_tex_env_out.rgb = mix(fog_color.rgb, last_tex_env_out.rgb, fog_factor);
 gl_FragDepth = depth;
 color = byteround(last_tex_env_out);
 }
-// reference: 0FDD4672EABE51E7, 0F2B3212C4F2D6C0
-// program: F3D442C0013F9392, 6CF3F3B70E23AA85, 0F2B3212C4F2D6C0
-// shader: 8B30, 375E9ADE222F6131
+// reference: 0FDD4672EABE51E7, F98EFE2E06ECB022
+// program: 22C3C36B08CEECE7, 7A40B90B17532EA8, F98EFE2E06ECB022
+// shader: 8B30, 1D6FBDE7E2FC4FBE
 
 precision highp int;
 precision highp float;
@@ -28928,47 +27617,52 @@ vec4 texcolor0 = textureLod(tex0, texcoord0, getLod(texcoord0 * vec2(textureSize
 vec4 combiner_buffer = vec4(0.0);
 vec4 next_combiner_buffer = tev_combiner_buffer_color;
 vec4 last_tex_env_out = vec4(0.0);
-vec3 color_output_0 = byteround(clamp((const_color[0].rgb), vec3(0.0), vec3(1.0)));
-float alpha_output_0 = byteround(clamp((texcolor0.r), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_0, alpha_output_0), vec4(0.0), vec4(1.0));
+vec3 color_output_0 = (const_color[0].rgb);
+float alpha_output_0 = (texcolor0.r);
+last_tex_env_out = vec4(color_output_0, alpha_output_0);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 next_combiner_buffer.rgb = last_tex_env_out.rgb;
 
 vec3 color_output_1 = byteround(clamp((rounded_primary_color.rgb) * (rounded_primary_color.rgb), vec3(0.0), vec3(1.0)));
-float alpha_output_1 = byteround(clamp((last_tex_env_out.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_1, alpha_output_1), vec4(0.0), vec4(1.0));
+float alpha_output_1 = (last_tex_env_out.a);
+last_tex_env_out = vec4(color_output_1, alpha_output_1);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 
 vec3 color_output_2 = byteround(clamp((last_tex_env_out.rgb) * (texcolor0.rgb), vec3(0.0), vec3(1.0)));
-float alpha_output_2 = byteround(clamp((last_tex_env_out.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_2, alpha_output_2), vec4(0.0), vec4(1.0));
+float alpha_output_2 = (last_tex_env_out.a);
+last_tex_env_out = vec4(color_output_2, alpha_output_2);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 
 vec3 color_output_3 = byteround(clamp((combiner_buffer.rgb) * (last_tex_env_out.rgb) + (const_color[3].rgb) * (vec3(1.0) - (last_tex_env_out.rgb)), vec3(0.0), vec3(1.0)));
-float alpha_output_3 = byteround(clamp((last_tex_env_out.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_3, alpha_output_3), vec4(0.0), vec4(1.0));
+float alpha_output_3 = (last_tex_env_out.a);
+last_tex_env_out = vec4(color_output_3, alpha_output_3);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 
 vec3 color_output_4 = byteround(clamp((last_tex_env_out.rgb) * (rounded_primary_color.rgb) + (const_color[4].rgb) * (vec3(1.0) - (rounded_primary_color.rgb)), vec3(0.0), vec3(1.0)));
-float alpha_output_4 = byteround(clamp((last_tex_env_out.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_4, alpha_output_4), vec4(0.0), vec4(1.0));
+float alpha_output_4 = (last_tex_env_out.a);
+last_tex_env_out = vec4(color_output_4, alpha_output_4);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 
 combiner_buffer = next_combiner_buffer;
 
 float fog_index = depth * 128.0;
-float fog_i = clamp(floor(fog_index), 0.0, 127.0);
-float fog_f = fog_index - fog_i;
-vec2 fog_lut_entry = texelFetch(texture_buffer_lut_lf, int(fog_i) + fog_lut_offset).rg;
+int fog_i = int(fog_index);
+float fog_f = fract(fog_index);
+vec2 fog_lut_entry = texelFetch(texture_buffer_lut_lf, fog_i + fog_lut_offset).rg;
 float fog_factor = fog_lut_entry.r + fog_lut_entry.g * fog_f;
 fog_factor = clamp(fog_factor, 0.0, 1.0);
 last_tex_env_out.rgb = mix(fog_color.rgb, last_tex_env_out.rgb, fog_factor);
 gl_FragDepth = depth;
 color = byteround(last_tex_env_out);
 }
-// reference: D53F9D5612939136, 375E9ADE222F6131
-// program: F3D442C0013F9392, 6CF3F3B70E23AA85, 375E9ADE222F6131
-// shader: 8B30, 35171A62357B3E74
+// reference: D53F9D5612939136, 1D6FBDE7E2FC4FBE
+// program: 22C3C36B08CEECE7, 7A40B90B17532EA8, 1D6FBDE7E2FC4FBE
+// shader: 8B30, 24CB95B3C74062CB
 
 precision highp int;
 precision highp float;
@@ -29118,19 +27812,22 @@ vec4 texcolor0 = textureLod(tex0, texcoord0, getLod(texcoord0 * vec2(textureSize
 vec4 combiner_buffer = vec4(0.0);
 vec4 next_combiner_buffer = tev_combiner_buffer_color;
 vec4 last_tex_env_out = vec4(0.0);
-vec3 color_output_0 = byteround(clamp((const_color[0].rgb), vec3(0.0), vec3(1.0)));
-float alpha_output_0 = byteround(clamp((texcolor0.r), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_0, alpha_output_0), vec4(0.0), vec4(1.0));
+vec3 color_output_0 = (const_color[0].rgb);
+float alpha_output_0 = (texcolor0.r);
+last_tex_env_out = vec4(color_output_0, alpha_output_0);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 
 vec3 color_output_1 = byteround(clamp((last_tex_env_out.rgb) * (last_tex_env_out.aaa) + (const_color[1].rgb) * (vec3(1.0) - (last_tex_env_out.aaa)), vec3(0.0), vec3(1.0)));
 float alpha_output_1 = byteround(clamp((rounded_primary_color.a) * (texcolor0.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_1, alpha_output_1), vec4(0.0), vec4(1.0));
+last_tex_env_out = vec4(color_output_1, alpha_output_1);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 
 vec3 color_output_2 = byteround(clamp((const_color[2].rgb) * (rounded_primary_color.rgb) + (last_tex_env_out.rgb) * (vec3(1.0) - (rounded_primary_color.rgb)), vec3(0.0), vec3(1.0)));
 float alpha_output_2 = byteround(clamp((last_tex_env_out.a) * (texcolor0.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_2, alpha_output_2), vec4(0.0), vec4(1.0));
+last_tex_env_out = vec4(color_output_2, alpha_output_2);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 
 combiner_buffer = next_combiner_buffer;
@@ -29140,18 +27837,18 @@ combiner_buffer = next_combiner_buffer;
 combiner_buffer = next_combiner_buffer;
 
 float fog_index = depth * 128.0;
-float fog_i = clamp(floor(fog_index), 0.0, 127.0);
-float fog_f = fog_index - fog_i;
-vec2 fog_lut_entry = texelFetch(texture_buffer_lut_lf, int(fog_i) + fog_lut_offset).rg;
+int fog_i = int(fog_index);
+float fog_f = fract(fog_index);
+vec2 fog_lut_entry = texelFetch(texture_buffer_lut_lf, fog_i + fog_lut_offset).rg;
 float fog_factor = fog_lut_entry.r + fog_lut_entry.g * fog_f;
 fog_factor = clamp(fog_factor, 0.0, 1.0);
 last_tex_env_out.rgb = mix(fog_color.rgb, last_tex_env_out.rgb, fog_factor);
 gl_FragDepth = depth;
 color = byteround(last_tex_env_out);
 }
-// reference: E0A8BFEE0609BAE4, 35171A62357B3E74
-// program: F3D442C0013F9392, 6CF3F3B70E23AA85, 35171A62357B3E74
-// shader: 8B30, 8BAFFE648E186CB8
+// reference: E0A8BFEE0609BAE4, 24CB95B3C74062CB
+// program: 22C3C36B08CEECE7, 7A40B90B17532EA8, 24CB95B3C74062CB
+// shader: 8B30, 4B3826268907647D
 
 precision highp int;
 precision highp float;
@@ -29301,24 +27998,28 @@ vec4 texcolor0 = textureLod(tex0, texcoord0, getLod(texcoord0 * vec2(textureSize
 vec4 combiner_buffer = vec4(0.0);
 vec4 next_combiner_buffer = tev_combiner_buffer_color;
 vec4 last_tex_env_out = vec4(0.0);
-vec3 color_output_0 = byteround(clamp((const_color[0].rgb), vec3(0.0), vec3(1.0)));
-float alpha_output_0 = byteround(clamp((texcolor0.r), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_0, alpha_output_0), vec4(0.0), vec4(1.0));
+vec3 color_output_0 = (const_color[0].rgb);
+float alpha_output_0 = (texcolor0.r);
+last_tex_env_out = vec4(color_output_0, alpha_output_0);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 
 vec3 color_output_1 = byteround(clamp((last_tex_env_out.rgb) * (last_tex_env_out.aaa) + (const_color[1].rgb) * (vec3(1.0) - (last_tex_env_out.aaa)), vec3(0.0), vec3(1.0)));
 float alpha_output_1 = byteround(clamp((rounded_primary_color.a) * (texcolor0.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_1, alpha_output_1), vec4(0.0), vec4(1.0));
+last_tex_env_out = vec4(color_output_1, alpha_output_1);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 
 vec3 color_output_2 = byteround(clamp((const_color[2].rgb) * (rounded_primary_color.rgb) + (last_tex_env_out.rgb), vec3(0.0), vec3(1.0)));
-float alpha_output_2 = byteround(clamp((last_tex_env_out.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_2, alpha_output_2), vec4(0.0), vec4(1.0));
+float alpha_output_2 = (last_tex_env_out.a);
+last_tex_env_out = vec4(color_output_2, alpha_output_2);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 
 vec3 color_output_3 = byteround(clamp((const_color[3].rgb) * (vec3(1.0) - rounded_primary_color.aaa) + (last_tex_env_out.rgb) * (vec3(1.0) - (vec3(1.0) - rounded_primary_color.aaa)), vec3(0.0), vec3(1.0)));
-float alpha_output_3 = byteround(clamp((last_tex_env_out.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_3, alpha_output_3), vec4(0.0), vec4(1.0));
+float alpha_output_3 = (last_tex_env_out.a);
+last_tex_env_out = vec4(color_output_3, alpha_output_3);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 
 combiner_buffer = next_combiner_buffer;
@@ -29326,18 +28027,18 @@ combiner_buffer = next_combiner_buffer;
 combiner_buffer = next_combiner_buffer;
 
 float fog_index = depth * 128.0;
-float fog_i = clamp(floor(fog_index), 0.0, 127.0);
-float fog_f = fog_index - fog_i;
-vec2 fog_lut_entry = texelFetch(texture_buffer_lut_lf, int(fog_i) + fog_lut_offset).rg;
+int fog_i = int(fog_index);
+float fog_f = fract(fog_index);
+vec2 fog_lut_entry = texelFetch(texture_buffer_lut_lf, fog_i + fog_lut_offset).rg;
 float fog_factor = fog_lut_entry.r + fog_lut_entry.g * fog_f;
 fog_factor = clamp(fog_factor, 0.0, 1.0);
 last_tex_env_out.rgb = mix(fog_color.rgb, last_tex_env_out.rgb, fog_factor);
 gl_FragDepth = depth;
 color = byteround(last_tex_env_out);
 }
-// reference: 8905ED4EA732D150, 8BAFFE648E186CB8
-// program: F3D442C0013F9392, 6CF3F3B70E23AA85, 8BAFFE648E186CB8
-// shader: 8B30, 78047F20186A179C
+// reference: 8905ED4EA732D150, 4B3826268907647D
+// program: 22C3C36B08CEECE7, 7A40B90B17532EA8, 4B3826268907647D
+// shader: 8B30, D169A8869CABF545
 
 precision highp int;
 precision highp float;
@@ -29512,54 +28213,59 @@ specular_sum.rgb += (((lut_scale_d0 * LookupLightingLUTSigned(0, dot(light_vecto
 diffuse_sum.rgb += lighting_global_ambient;
 primary_fragment_color = clamp(diffuse_sum, vec4(0.0), vec4(1.0));
 secondary_fragment_color = clamp(specular_sum, vec4(0.0), vec4(1.0));
-
 vec4 combiner_buffer = vec4(0.0);
 vec4 next_combiner_buffer = tev_combiner_buffer_color;
 vec4 last_tex_env_out = vec4(0.0);
 vec3 color_output_0 = byteround(clamp((vec3(1.0) - secondary_fragment_color.aaa) * (const_color[0].rgb) + (primary_fragment_color.rgb), vec3(0.0), vec3(1.0)));
-float alpha_output_0 = byteround(clamp((rounded_primary_color.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_0, alpha_output_0), vec4(0.0), vec4(1.0));
+float alpha_output_0 = (rounded_primary_color.a);
+last_tex_env_out = vec4(color_output_0, alpha_output_0);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 
 vec3 color_output_1 = byteround(clamp((const_color[1].rgb) * (last_tex_env_out.rgb), vec3(0.0), vec3(1.0)));
-float alpha_output_1 = byteround(clamp((last_tex_env_out.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_1, alpha_output_1), vec4(0.0), vec4(1.0));
+float alpha_output_1 = (last_tex_env_out.a);
+last_tex_env_out = vec4(color_output_1, alpha_output_1);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 
 vec3 color_output_2 = byteround(clamp((last_tex_env_out.rgb) + (const_color[2].rgb) - vec3(0.5), vec3(0.0), vec3(1.0)));
-float alpha_output_2 = byteround(clamp((last_tex_env_out.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_2, alpha_output_2), vec4(0.0), vec4(1.0));
+float alpha_output_2 = (last_tex_env_out.a);
+last_tex_env_out = vec4(color_output_2, alpha_output_2);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 next_combiner_buffer.rgb = last_tex_env_out.rgb;
 
 vec3 color_output_3 = byteround(clamp((secondary_fragment_color.rgb) * (secondary_fragment_color.rgb) + (last_tex_env_out.rgb), vec3(0.0), vec3(1.0)));
-float alpha_output_3 = byteround(clamp((last_tex_env_out.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_3, alpha_output_3), vec4(0.0), vec4(1.0));
+float alpha_output_3 = (last_tex_env_out.a);
+last_tex_env_out = vec4(color_output_3, alpha_output_3);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 
 vec3 color_output_4 = byteround(clamp(min((rounded_primary_color.rgb) + (const_color[4].rgb), vec3(1.0)) * (last_tex_env_out.rgb), vec3(0.0), vec3(1.0)));
-float alpha_output_4 = byteround(clamp((last_tex_env_out.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_4, alpha_output_4), vec4(0.0), vec4(1.0));
+float alpha_output_4 = (last_tex_env_out.a);
+last_tex_env_out = vec4(color_output_4, alpha_output_4);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 
 vec3 color_output_5 = byteround(clamp((last_tex_env_out.rgb) * (combiner_buffer.rgb) + (last_tex_env_out.rgb), vec3(0.0), vec3(1.0)));
-float alpha_output_5 = byteround(clamp((last_tex_env_out.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_5 * 2.0, alpha_output_5 * 1.0), vec4(0.0), vec4(1.0));
+float alpha_output_5 = (last_tex_env_out.a);
+last_tex_env_out = vec4(color_output_5 * 2.0, alpha_output_5 * 1.0);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 
 float fog_index = depth * 128.0;
-float fog_i = clamp(floor(fog_index), 0.0, 127.0);
-float fog_f = fog_index - fog_i;
-vec2 fog_lut_entry = texelFetch(texture_buffer_lut_lf, int(fog_i) + fog_lut_offset).rg;
+int fog_i = int(fog_index);
+float fog_f = fract(fog_index);
+vec2 fog_lut_entry = texelFetch(texture_buffer_lut_lf, fog_i + fog_lut_offset).rg;
 float fog_factor = fog_lut_entry.r + fog_lut_entry.g * fog_f;
 fog_factor = clamp(fog_factor, 0.0, 1.0);
 last_tex_env_out.rgb = mix(fog_color.rgb, last_tex_env_out.rgb, fog_factor);
 gl_FragDepth = depth;
 color = byteround(last_tex_env_out);
 }
-// reference: 23FFF435EE68475F, 78047F20186A179C
-// program: FBC6AFA380C91748, 4BD70AD09292A3DA, 78047F20186A179C
-// shader: 8B30, 1082608EAB6F66C5
+// reference: 23FFF435EE68475F, D169A8869CABF545
+// program: 668DC2CC893B1519, 80B52B8FBE5FE773, D169A8869CABF545
+// shader: 8B30, DF4311DFCB639B6A
 
 precision highp int;
 precision highp float;
@@ -29735,54 +28441,59 @@ specular_sum.rgb += (((lut_scale_d0 * LookupLightingLUTSigned(0, dot(normal, nor
 diffuse_sum.rgb += lighting_global_ambient;
 primary_fragment_color = clamp(diffuse_sum, vec4(0.0), vec4(1.0));
 secondary_fragment_color = clamp(specular_sum, vec4(0.0), vec4(1.0));
-
 vec4 combiner_buffer = vec4(0.0);
 vec4 next_combiner_buffer = tev_combiner_buffer_color;
 vec4 last_tex_env_out = vec4(0.0);
 vec3 color_output_0 = byteround(clamp((vec3(1.0) - secondary_fragment_color.aaa) * (const_color[0].rgb) + (primary_fragment_color.rgb), vec3(0.0), vec3(1.0)));
 float alpha_output_0 = byteround(clamp((rounded_primary_color.a) * (texcolor0.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_0, alpha_output_0), vec4(0.0), vec4(1.0));
+last_tex_env_out = vec4(color_output_0, alpha_output_0);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 
 vec3 color_output_1 = byteround(clamp((const_color[1].rgb) * (last_tex_env_out.rgb), vec3(0.0), vec3(1.0)));
-float alpha_output_1 = byteround(clamp((last_tex_env_out.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_1, alpha_output_1), vec4(0.0), vec4(1.0));
+float alpha_output_1 = (last_tex_env_out.a);
+last_tex_env_out = vec4(color_output_1, alpha_output_1);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 
 vec3 color_output_2 = byteround(clamp((last_tex_env_out.rgb) + (const_color[2].rgb) - vec3(0.5), vec3(0.0), vec3(1.0)));
-float alpha_output_2 = byteround(clamp((last_tex_env_out.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_2, alpha_output_2), vec4(0.0), vec4(1.0));
+float alpha_output_2 = (last_tex_env_out.a);
+last_tex_env_out = vec4(color_output_2, alpha_output_2);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 next_combiner_buffer.rgb = last_tex_env_out.rgb;
 
 vec3 color_output_3 = byteround(clamp((vec3(1.0) - last_tex_env_out.rgb) * (secondary_fragment_color.rgb) + (last_tex_env_out.rgb) * (vec3(1.0) - (secondary_fragment_color.rgb)), vec3(0.0), vec3(1.0)));
-float alpha_output_3 = byteround(clamp((last_tex_env_out.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_3, alpha_output_3), vec4(0.0), vec4(1.0));
+float alpha_output_3 = (last_tex_env_out.a);
+last_tex_env_out = vec4(color_output_3, alpha_output_3);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 
 vec3 color_output_4 = byteround(clamp(min((rounded_primary_color.rgb) + (const_color[4].rgb), vec3(1.0)) * (last_tex_env_out.rgb), vec3(0.0), vec3(1.0)));
-float alpha_output_4 = byteround(clamp((last_tex_env_out.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_4, alpha_output_4), vec4(0.0), vec4(1.0));
+float alpha_output_4 = (last_tex_env_out.a);
+last_tex_env_out = vec4(color_output_4, alpha_output_4);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 
 vec3 color_output_5 = byteround(clamp((last_tex_env_out.rgb) * (combiner_buffer.rgb) + (last_tex_env_out.rgb), vec3(0.0), vec3(1.0)));
-float alpha_output_5 = byteround(clamp((last_tex_env_out.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_5 * 2.0, alpha_output_5 * 1.0), vec4(0.0), vec4(1.0));
+float alpha_output_5 = (last_tex_env_out.a);
+last_tex_env_out = vec4(color_output_5 * 2.0, alpha_output_5 * 1.0);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 
 float fog_index = depth * 128.0;
-float fog_i = clamp(floor(fog_index), 0.0, 127.0);
-float fog_f = fog_index - fog_i;
-vec2 fog_lut_entry = texelFetch(texture_buffer_lut_lf, int(fog_i) + fog_lut_offset).rg;
+int fog_i = int(fog_index);
+float fog_f = fract(fog_index);
+vec2 fog_lut_entry = texelFetch(texture_buffer_lut_lf, fog_i + fog_lut_offset).rg;
 float fog_factor = fog_lut_entry.r + fog_lut_entry.g * fog_f;
 fog_factor = clamp(fog_factor, 0.0, 1.0);
 last_tex_env_out.rgb = mix(fog_color.rgb, last_tex_env_out.rgb, fog_factor);
 gl_FragDepth = depth;
 color = byteround(last_tex_env_out);
 }
-// reference: 1F43DBBB772E1A78, 1082608EAB6F66C5
-// program: F3D442C0013F9392, 6CF3F3B70E23AA85, 1082608EAB6F66C5
-// shader: 8B30, 53730084BB43574A
+// reference: 1F43DBBB772E1A78, DF4311DFCB639B6A
+// program: 22C3C36B08CEECE7, 7A40B90B17532EA8, DF4311DFCB639B6A
+// shader: 8B30, A14F4C95B67665B6
 
 precision highp int;
 precision highp float;
@@ -29934,17 +28645,20 @@ vec4 next_combiner_buffer = tev_combiner_buffer_color;
 vec4 last_tex_env_out = vec4(0.0);
 vec3 color_output_0 = byteround(clamp((texcolor0.rgb) * (const_color[0].rgb), vec3(0.0), vec3(1.0)));
 float alpha_output_0 = byteround(clamp((rounded_primary_color.a) * (texcolor0.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_0, alpha_output_0), vec4(0.0), vec4(1.0));
+last_tex_env_out = vec4(color_output_0, alpha_output_0);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 
 vec3 color_output_1 = byteround(clamp((last_tex_env_out.rgb) * (rounded_primary_color.rgb), vec3(0.0), vec3(1.0)));
-float alpha_output_1 = byteround(clamp((last_tex_env_out.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_1, alpha_output_1), vec4(0.0), vec4(1.0));
+float alpha_output_1 = (last_tex_env_out.a);
+last_tex_env_out = vec4(color_output_1, alpha_output_1);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 
 vec3 color_output_2 = byteround(clamp((last_tex_env_out.rgb) + (const_color[2].rgb) - vec3(0.5), vec3(0.0), vec3(1.0)));
-float alpha_output_2 = byteround(clamp((last_tex_env_out.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_2 * 2.0, alpha_output_2 * 1.0), vec4(0.0), vec4(1.0));
+float alpha_output_2 = (last_tex_env_out.a);
+last_tex_env_out = vec4(color_output_2 * 2.0, alpha_output_2 * 1.0);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 
 combiner_buffer = next_combiner_buffer;
@@ -29955,20 +28669,20 @@ combiner_buffer = next_combiner_buffer;
 
 if (int(last_tex_env_out.a * 255.0) <= alphatest_ref) discard;
 float fog_index = depth * 128.0;
-float fog_i = clamp(floor(fog_index), 0.0, 127.0);
-float fog_f = fog_index - fog_i;
-vec2 fog_lut_entry = texelFetch(texture_buffer_lut_lf, int(fog_i) + fog_lut_offset).rg;
+int fog_i = int(fog_index);
+float fog_f = fract(fog_index);
+vec2 fog_lut_entry = texelFetch(texture_buffer_lut_lf, fog_i + fog_lut_offset).rg;
 float fog_factor = fog_lut_entry.r + fog_lut_entry.g * fog_f;
 fog_factor = clamp(fog_factor, 0.0, 1.0);
 last_tex_env_out.rgb = mix(fog_color.rgb, last_tex_env_out.rgb, fog_factor);
 gl_FragDepth = depth;
 color = byteround(last_tex_env_out);
 }
-// reference: 47954FB8EF6D6CB4, 53730084BB43574A
-// program: F3D442C0013F9392, 6CF3F3B70E23AA85, 53730084BB43574A
-// reference: 87752AE8DEE17D57, BA694A024E4D4254
-// program: FBC6AFA380C91748, 4BD70AD09292A3DA, BA694A024E4D4254
-// shader: 8B30, E2A9F55387A8BB8A
+// reference: 47954FB8EF6D6CB4, A14F4C95B67665B6
+// program: 22C3C36B08CEECE7, 7A40B90B17532EA8, A14F4C95B67665B6
+// reference: 87752AE8DEE17D57, 980B8F6476575B7A
+// program: 668DC2CC893B1519, 80B52B8FBE5FE773, 980B8F6476575B7A
+// shader: 8B30, 9ACDA9173F9F4B39
 
 precision highp int;
 precision highp float;
@@ -30144,55 +28858,60 @@ specular_sum.rgb += (((lut_scale_d0 * LookupLightingLUTSigned(0, dot(normal, nor
 diffuse_sum.rgb += lighting_global_ambient;
 primary_fragment_color = clamp(diffuse_sum, vec4(0.0), vec4(1.0));
 secondary_fragment_color = clamp(specular_sum, vec4(0.0), vec4(1.0));
-
 vec4 combiner_buffer = vec4(0.0);
 vec4 next_combiner_buffer = tev_combiner_buffer_color;
 vec4 last_tex_env_out = vec4(0.0);
 vec3 color_output_0 = byteround(clamp((vec3(1.0) - secondary_fragment_color.aaa) * (const_color[0].rgb) + (primary_fragment_color.rgb), vec3(0.0), vec3(1.0)));
 float alpha_output_0 = byteround(clamp((rounded_primary_color.a) * (texcolor0.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_0, alpha_output_0), vec4(0.0), vec4(1.0));
+last_tex_env_out = vec4(color_output_0, alpha_output_0);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 
 vec3 color_output_1 = byteround(clamp((const_color[1].rgb) * (last_tex_env_out.rgb), vec3(0.0), vec3(1.0)));
-float alpha_output_1 = byteround(clamp((last_tex_env_out.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_1, alpha_output_1), vec4(0.0), vec4(1.0));
+float alpha_output_1 = (last_tex_env_out.a);
+last_tex_env_out = vec4(color_output_1, alpha_output_1);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 
 vec3 color_output_2 = byteround(clamp((last_tex_env_out.rgb) + (const_color[2].rgb) - vec3(0.5), vec3(0.0), vec3(1.0)));
-float alpha_output_2 = byteround(clamp((last_tex_env_out.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_2, alpha_output_2), vec4(0.0), vec4(1.0));
+float alpha_output_2 = (last_tex_env_out.a);
+last_tex_env_out = vec4(color_output_2, alpha_output_2);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 next_combiner_buffer.rgb = last_tex_env_out.rgb;
 
 vec3 color_output_3 = byteround(clamp((vec3(1.0) - last_tex_env_out.rgb) * (secondary_fragment_color.rgb) + (last_tex_env_out.rgb) * (vec3(1.0) - (secondary_fragment_color.rgb)), vec3(0.0), vec3(1.0)));
-float alpha_output_3 = byteround(clamp((last_tex_env_out.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_3, alpha_output_3), vec4(0.0), vec4(1.0));
+float alpha_output_3 = (last_tex_env_out.a);
+last_tex_env_out = vec4(color_output_3, alpha_output_3);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 
 vec3 color_output_4 = byteround(clamp(min((rounded_primary_color.rgb) + (const_color[4].rgb), vec3(1.0)) * (last_tex_env_out.rgb), vec3(0.0), vec3(1.0)));
-float alpha_output_4 = byteround(clamp((last_tex_env_out.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_4, alpha_output_4), vec4(0.0), vec4(1.0));
+float alpha_output_4 = (last_tex_env_out.a);
+last_tex_env_out = vec4(color_output_4, alpha_output_4);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 
 vec3 color_output_5 = byteround(clamp((last_tex_env_out.rgb) * (combiner_buffer.rgb) + (last_tex_env_out.rgb), vec3(0.0), vec3(1.0)));
-float alpha_output_5 = byteround(clamp((last_tex_env_out.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_5 * 2.0, alpha_output_5 * 1.0), vec4(0.0), vec4(1.0));
+float alpha_output_5 = (last_tex_env_out.a);
+last_tex_env_out = vec4(color_output_5 * 2.0, alpha_output_5 * 1.0);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 
 if (int(last_tex_env_out.a * 255.0) <= alphatest_ref) discard;
 float fog_index = depth * 128.0;
-float fog_i = clamp(floor(fog_index), 0.0, 127.0);
-float fog_f = fog_index - fog_i;
-vec2 fog_lut_entry = texelFetch(texture_buffer_lut_lf, int(fog_i) + fog_lut_offset).rg;
+int fog_i = int(fog_index);
+float fog_f = fract(fog_index);
+vec2 fog_lut_entry = texelFetch(texture_buffer_lut_lf, fog_i + fog_lut_offset).rg;
 float fog_factor = fog_lut_entry.r + fog_lut_entry.g * fog_f;
 fog_factor = clamp(fog_factor, 0.0, 1.0);
 last_tex_env_out.rgb = mix(fog_color.rgb, last_tex_env_out.rgb, fog_factor);
 gl_FragDepth = depth;
 color = byteround(last_tex_env_out);
 }
-// reference: 1F43DBBB9B99F17B, E2A9F55387A8BB8A
-// program: F3D442C0013F9392, 6CF3F3B70E23AA85, E2A9F55387A8BB8A
-// shader: 8B30, 7670260578129532
+// reference: 1F43DBBB9B99F17B, 9ACDA9173F9F4B39
+// program: 22C3C36B08CEECE7, 7A40B90B17532EA8, 9ACDA9173F9F4B39
+// shader: 8B30, 00249B9F25E86369
 
 precision highp int;
 precision highp float;
@@ -30342,9 +29061,10 @@ vec4 texcolor0 = textureLod(tex0, texcoord0, getLod(texcoord0 * vec2(textureSize
 vec4 combiner_buffer = vec4(0.0);
 vec4 next_combiner_buffer = tev_combiner_buffer_color;
 vec4 last_tex_env_out = vec4(0.0);
-vec3 color_output_0 = byteround(clamp((const_color[0].rgb), vec3(0.0), vec3(1.0)));
-float alpha_output_0 = byteround(clamp((texcolor0.r), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_0, alpha_output_0), vec4(0.0), vec4(1.0));
+vec3 color_output_0 = (const_color[0].rgb);
+float alpha_output_0 = (texcolor0.r);
+last_tex_env_out = vec4(color_output_0, alpha_output_0);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 
 combiner_buffer = next_combiner_buffer;
@@ -30359,18 +29079,18 @@ combiner_buffer = next_combiner_buffer;
 
 if (int(last_tex_env_out.a * 255.0) <= alphatest_ref) discard;
 float fog_index = depth * 128.0;
-float fog_i = clamp(floor(fog_index), 0.0, 127.0);
-float fog_f = fog_index - fog_i;
-vec2 fog_lut_entry = texelFetch(texture_buffer_lut_lf, int(fog_i) + fog_lut_offset).rg;
+int fog_i = int(fog_index);
+float fog_f = fract(fog_index);
+vec2 fog_lut_entry = texelFetch(texture_buffer_lut_lf, fog_i + fog_lut_offset).rg;
 float fog_factor = fog_lut_entry.r + fog_lut_entry.g * fog_f;
 fog_factor = clamp(fog_factor, 0.0, 1.0);
 last_tex_env_out.rgb = mix(fog_color.rgb, last_tex_env_out.rgb, fog_factor);
 gl_FragDepth = depth;
 color = byteround(last_tex_env_out);
 }
-// reference: 597F0418F5084EED, 7670260578129532
-// program: F3D442C0013F9392, 6CF3F3B70E23AA85, 7670260578129532
-// shader: 8B30, B6CCA30472B53635
+// reference: 597F0418F5084EED, 00249B9F25E86369
+// program: 22C3C36B08CEECE7, 7A40B90B17532EA8, 00249B9F25E86369
+// shader: 8B30, ABABFD8BE5555BC9
 
 precision highp int;
 precision highp float;
@@ -30519,9 +29239,10 @@ float depth = z_over_w * depth_scale + depth_offset;
 vec4 combiner_buffer = vec4(0.0);
 vec4 next_combiner_buffer = tev_combiner_buffer_color;
 vec4 last_tex_env_out = vec4(0.0);
-vec3 color_output_0 = byteround(clamp((const_color[0].rgb), vec3(0.0), vec3(1.0)));
-float alpha_output_0 = byteround(clamp((rounded_primary_color.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_0, alpha_output_0), vec4(0.0), vec4(1.0));
+vec3 color_output_0 = (const_color[0].rgb);
+float alpha_output_0 = (rounded_primary_color.a);
+last_tex_env_out = vec4(color_output_0, alpha_output_0);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 
 combiner_buffer = next_combiner_buffer;
@@ -30535,18 +29256,18 @@ combiner_buffer = next_combiner_buffer;
 combiner_buffer = next_combiner_buffer;
 
 float fog_index = depth * 128.0;
-float fog_i = clamp(floor(fog_index), 0.0, 127.0);
-float fog_f = fog_index - fog_i;
-vec2 fog_lut_entry = texelFetch(texture_buffer_lut_lf, int(fog_i) + fog_lut_offset).rg;
+int fog_i = int(fog_index);
+float fog_f = fract(fog_index);
+vec2 fog_lut_entry = texelFetch(texture_buffer_lut_lf, fog_i + fog_lut_offset).rg;
 float fog_factor = fog_lut_entry.r + fog_lut_entry.g * fog_f;
 fog_factor = clamp(fog_factor, 0.0, 1.0);
 last_tex_env_out.rgb = mix(fog_color.rgb, last_tex_env_out.rgb, fog_factor);
 gl_FragDepth = depth;
 color = byteround(last_tex_env_out);
 }
-// reference: 87752AE825C0588C, B6CCA30472B53635
-// program: FBC6AFA380C91748, 4BD70AD09292A3DA, B6CCA30472B53635
-// shader: 8B30, B7F808C048B698AF
+// reference: 87752AE825C0588C, ABABFD8BE5555BC9
+// program: 668DC2CC893B1519, 80B52B8FBE5FE773, ABABFD8BE5555BC9
+// shader: 8B30, 75FCB1664613E1D9
 
 precision highp int;
 precision highp float;
@@ -30722,55 +29443,60 @@ specular_sum.rgb += (((lut_scale_d0 * LookupLightingLUTSigned(0, dot(normal, nor
 diffuse_sum.rgb += lighting_global_ambient;
 primary_fragment_color = clamp(diffuse_sum, vec4(0.0), vec4(1.0));
 secondary_fragment_color = clamp(specular_sum, vec4(0.0), vec4(1.0));
-
 vec4 combiner_buffer = vec4(0.0);
 vec4 next_combiner_buffer = tev_combiner_buffer_color;
 vec4 last_tex_env_out = vec4(0.0);
 vec3 color_output_0 = byteround(clamp((vec3(1.0) - secondary_fragment_color.aaa) * (const_color[0].rgb) + (primary_fragment_color.rgb), vec3(0.0), vec3(1.0)));
 float alpha_output_0 = byteround(clamp((rounded_primary_color.a) * (texcolor0.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_0, alpha_output_0), vec4(0.0), vec4(1.0));
+last_tex_env_out = vec4(color_output_0, alpha_output_0);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 
 vec3 color_output_1 = byteround(clamp((texcolor0.rgb) * (last_tex_env_out.rgb), vec3(0.0), vec3(1.0)));
-float alpha_output_1 = byteround(clamp((last_tex_env_out.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_1, alpha_output_1), vec4(0.0), vec4(1.0));
+float alpha_output_1 = (last_tex_env_out.a);
+last_tex_env_out = vec4(color_output_1, alpha_output_1);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 
 vec3 color_output_2 = byteround(clamp((last_tex_env_out.rgb) + (const_color[2].rgb) - vec3(0.5), vec3(0.0), vec3(1.0)));
-float alpha_output_2 = byteround(clamp((last_tex_env_out.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_2, alpha_output_2), vec4(0.0), vec4(1.0));
+float alpha_output_2 = (last_tex_env_out.a);
+last_tex_env_out = vec4(color_output_2, alpha_output_2);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 next_combiner_buffer.rgb = last_tex_env_out.rgb;
 
 vec3 color_output_3 = byteround(clamp((texcolor0.rgb) * (secondary_fragment_color.rgb) + (last_tex_env_out.rgb), vec3(0.0), vec3(1.0)));
-float alpha_output_3 = byteround(clamp((last_tex_env_out.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_3, alpha_output_3), vec4(0.0), vec4(1.0));
+float alpha_output_3 = (last_tex_env_out.a);
+last_tex_env_out = vec4(color_output_3, alpha_output_3);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 
 vec3 color_output_4 = byteround(clamp(min((rounded_primary_color.rgb) + (const_color[4].rgb), vec3(1.0)) * (last_tex_env_out.rgb), vec3(0.0), vec3(1.0)));
-float alpha_output_4 = byteround(clamp((last_tex_env_out.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_4, alpha_output_4), vec4(0.0), vec4(1.0));
+float alpha_output_4 = (last_tex_env_out.a);
+last_tex_env_out = vec4(color_output_4, alpha_output_4);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 
 vec3 color_output_5 = byteround(clamp((last_tex_env_out.rgb) * (combiner_buffer.rgb) + (last_tex_env_out.rgb), vec3(0.0), vec3(1.0)));
-float alpha_output_5 = byteround(clamp((last_tex_env_out.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_5 * 2.0, alpha_output_5 * 1.0), vec4(0.0), vec4(1.0));
+float alpha_output_5 = (last_tex_env_out.a);
+last_tex_env_out = vec4(color_output_5 * 2.0, alpha_output_5 * 1.0);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 
 float fog_index = depth * 128.0;
-float fog_i = clamp(floor(fog_index), 0.0, 127.0);
-float fog_f = fog_index - fog_i;
-vec2 fog_lut_entry = texelFetch(texture_buffer_lut_lf, int(fog_i) + fog_lut_offset).rg;
+int fog_i = int(fog_index);
+float fog_f = fract(fog_index);
+vec2 fog_lut_entry = texelFetch(texture_buffer_lut_lf, fog_i + fog_lut_offset).rg;
 float fog_factor = fog_lut_entry.r + fog_lut_entry.g * fog_f;
 fog_factor = clamp(fog_factor, 0.0, 1.0);
 last_tex_env_out.rgb = mix(fog_color.rgb, last_tex_env_out.rgb, fog_factor);
 gl_FragDepth = depth;
 color = byteround(last_tex_env_out);
 }
-// reference: 638EAB6B6C875857, B7F808C048B698AF
-// program: F3D442C0013F9392, 6CF3F3B70E23AA85, B7F808C048B698AF
-// reference: 87752AE87BFC06FE, B6CCA30472B53635
-// shader: 8B30, 793ECF4A637DC7E4
+// reference: 638EAB6B6C875857, 75FCB1664613E1D9
+// program: 22C3C36B08CEECE7, 7A40B90B17532EA8, 75FCB1664613E1D9
+// reference: 87752AE87BFC06FE, ABABFD8BE5555BC9
+// shader: 8B30, 978CF84569FD5034
 
 precision highp int;
 precision highp float;
@@ -30919,9 +29645,10 @@ float depth = z_over_w * depth_scale + depth_offset;
 vec4 combiner_buffer = vec4(0.0);
 vec4 next_combiner_buffer = tev_combiner_buffer_color;
 vec4 last_tex_env_out = vec4(0.0);
-vec3 color_output_0 = byteround(clamp((const_color[0].rgb), vec3(0.0), vec3(1.0)));
-float alpha_output_0 = byteround(clamp((const_color[0].a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_0, alpha_output_0), vec4(0.0), vec4(1.0));
+vec3 color_output_0 = (const_color[0].rgb);
+float alpha_output_0 = (const_color[0].a);
+last_tex_env_out = vec4(color_output_0, alpha_output_0);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 
 combiner_buffer = next_combiner_buffer;
@@ -30935,18 +29662,18 @@ combiner_buffer = next_combiner_buffer;
 combiner_buffer = next_combiner_buffer;
 
 float fog_index = depth * 128.0;
-float fog_i = clamp(floor(fog_index), 0.0, 127.0);
-float fog_f = fog_index - fog_i;
-vec2 fog_lut_entry = texelFetch(texture_buffer_lut_lf, int(fog_i) + fog_lut_offset).rg;
+int fog_i = int(fog_index);
+float fog_f = fract(fog_index);
+vec2 fog_lut_entry = texelFetch(texture_buffer_lut_lf, fog_i + fog_lut_offset).rg;
 float fog_factor = fog_lut_entry.r + fog_lut_entry.g * fog_f;
 fog_factor = clamp(fog_factor, 0.0, 1.0);
 last_tex_env_out.rgb = mix(fog_color.rgb, last_tex_env_out.rgb, fog_factor);
 gl_FragDepth = depth;
 color = byteround(last_tex_env_out);
 }
-// reference: 87752AE8C4490C09, 793ECF4A637DC7E4
-// program: FBC6AFA380C91748, 4BD70AD09292A3DA, 793ECF4A637DC7E4
-// shader: 8B30, 7A0557887E99274B
+// reference: 87752AE8C4490C09, 978CF84569FD5034
+// program: 668DC2CC893B1519, 80B52B8FBE5FE773, 978CF84569FD5034
+// shader: 8B30, 5129739BCEDF14CF
 
 precision highp int;
 precision highp float;
@@ -31122,52 +29849,56 @@ specular_sum.rgb += (((lut_scale_d0 * LookupLightingLUTSigned(0, dot(normal, nor
 diffuse_sum.rgb += lighting_global_ambient;
 primary_fragment_color = clamp(diffuse_sum, vec4(0.0), vec4(1.0));
 secondary_fragment_color = clamp(specular_sum, vec4(0.0), vec4(1.0));
-
 vec4 combiner_buffer = vec4(0.0);
 vec4 next_combiner_buffer = tev_combiner_buffer_color;
 vec4 last_tex_env_out = vec4(0.0);
 vec3 color_output_0 = byteround(clamp((texcolor0.rgb) * (const_color[0].aaa), vec3(0.0), vec3(1.0)));
 float alpha_output_0 = byteround(clamp((rounded_primary_color.a) * (texcolor0.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_0, alpha_output_0), vec4(0.0), vec4(1.0));
+last_tex_env_out = vec4(color_output_0, alpha_output_0);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 
 vec3 color_output_1 = byteround(clamp((last_tex_env_out.rgb) + (const_color[1].rgb) - vec3(0.5), vec3(0.0), vec3(1.0)));
-float alpha_output_1 = byteround(clamp((last_tex_env_out.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_1, alpha_output_1), vec4(0.0), vec4(1.0));
+float alpha_output_1 = (last_tex_env_out.a);
+last_tex_env_out = vec4(color_output_1, alpha_output_1);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 next_combiner_buffer.rgb = last_tex_env_out.rgb;
 
 vec3 color_output_2 = byteround(clamp((vec3(1.0) - secondary_fragment_color.rgb) * (last_tex_env_out.rgb) + (secondary_fragment_color.rgb), vec3(0.0), vec3(1.0)));
-float alpha_output_2 = byteround(clamp((last_tex_env_out.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_2, alpha_output_2), vec4(0.0), vec4(1.0));
+float alpha_output_2 = (last_tex_env_out.a);
+last_tex_env_out = vec4(color_output_2, alpha_output_2);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 
 vec3 color_output_3 = byteround(clamp(min((rounded_primary_color.rgb) + (const_color[3].rgb), vec3(1.0)) * (last_tex_env_out.rgb), vec3(0.0), vec3(1.0)));
-float alpha_output_3 = byteround(clamp((last_tex_env_out.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_3, alpha_output_3), vec4(0.0), vec4(1.0));
+float alpha_output_3 = (last_tex_env_out.a);
+last_tex_env_out = vec4(color_output_3, alpha_output_3);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 
 vec3 color_output_4 = byteround(clamp((last_tex_env_out.rgb) * (combiner_buffer.rgb) + (last_tex_env_out.rgb), vec3(0.0), vec3(1.0)));
-float alpha_output_4 = byteround(clamp((last_tex_env_out.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_4 * 2.0, alpha_output_4 * 1.0), vec4(0.0), vec4(1.0));
+float alpha_output_4 = (last_tex_env_out.a);
+last_tex_env_out = vec4(color_output_4 * 2.0, alpha_output_4 * 1.0);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 
 combiner_buffer = next_combiner_buffer;
 
 if (int(last_tex_env_out.a * 255.0) <= alphatest_ref) discard;
 float fog_index = depth * 128.0;
-float fog_i = clamp(floor(fog_index), 0.0, 127.0);
-float fog_f = fog_index - fog_i;
-vec2 fog_lut_entry = texelFetch(texture_buffer_lut_lf, int(fog_i) + fog_lut_offset).rg;
+int fog_i = int(fog_index);
+float fog_f = fract(fog_index);
+vec2 fog_lut_entry = texelFetch(texture_buffer_lut_lf, fog_i + fog_lut_offset).rg;
 float fog_factor = fog_lut_entry.r + fog_lut_entry.g * fog_f;
 fog_factor = clamp(fog_factor, 0.0, 1.0);
 last_tex_env_out.rgb = mix(fog_color.rgb, last_tex_env_out.rgb, fog_factor);
 gl_FragDepth = depth;
 color = byteround(last_tex_env_out);
 }
-// reference: 72CAE575250A0B53, 7A0557887E99274B
-// program: F3D442C0013F9392, 6CF3F3B70E23AA85, 7A0557887E99274B
-// shader: 8B30, 2594B3025307F3B9
+// reference: 72CAE575250A0B53, 5129739BCEDF14CF
+// program: 22C3C36B08CEECE7, 7A40B90B17532EA8, 5129739BCEDF14CF
+// shader: 8B30, 816BEB9B7BA87009
 
 precision highp int;
 precision highp float;
@@ -31345,55 +30076,60 @@ specular_sum.rgb += (((lut_scale_d0 * LookupLightingLUTSigned(0, dot(normal, nor
 diffuse_sum.rgb += lighting_global_ambient;
 primary_fragment_color = clamp(diffuse_sum, vec4(0.0), vec4(1.0));
 secondary_fragment_color = clamp(specular_sum, vec4(0.0), vec4(1.0));
-
 vec4 combiner_buffer = vec4(0.0);
 vec4 next_combiner_buffer = tev_combiner_buffer_color;
 vec4 last_tex_env_out = vec4(0.0);
 vec3 color_output_0 = byteround(clamp((vec3(1.0) - secondary_fragment_color.aaa) * (const_color[0].rgb) + (primary_fragment_color.rgb), vec3(0.0), vec3(1.0)));
 float alpha_output_0 = byteround(clamp((rounded_primary_color.a) * (texcolor0.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_0, alpha_output_0), vec4(0.0), vec4(1.0));
+last_tex_env_out = vec4(color_output_0, alpha_output_0);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 
 vec3 color_output_1 = byteround(clamp((texcolor0.rgb) * (last_tex_env_out.rgb), vec3(0.0), vec3(1.0)));
-float alpha_output_1 = byteround(clamp((last_tex_env_out.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_1, alpha_output_1), vec4(0.0), vec4(1.0));
+float alpha_output_1 = (last_tex_env_out.a);
+last_tex_env_out = vec4(color_output_1, alpha_output_1);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 
 vec3 color_output_2 = byteround(clamp((last_tex_env_out.rgb) + (const_color[2].rgb) - vec3(0.5), vec3(0.0), vec3(1.0)));
-float alpha_output_2 = byteround(clamp((last_tex_env_out.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_2, alpha_output_2), vec4(0.0), vec4(1.0));
+float alpha_output_2 = (last_tex_env_out.a);
+last_tex_env_out = vec4(color_output_2, alpha_output_2);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 next_combiner_buffer.rgb = last_tex_env_out.rgb;
 
 vec3 color_output_3 = byteround(clamp((vec3(1.0) - last_tex_env_out.rgb) * (secondary_fragment_color.rgb) + (last_tex_env_out.rgb) * (vec3(1.0) - (secondary_fragment_color.rgb)), vec3(0.0), vec3(1.0)));
-float alpha_output_3 = byteround(clamp((last_tex_env_out.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_3, alpha_output_3), vec4(0.0), vec4(1.0));
+float alpha_output_3 = (last_tex_env_out.a);
+last_tex_env_out = vec4(color_output_3, alpha_output_3);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 
 vec3 color_output_4 = byteround(clamp(min((rounded_primary_color.rgb) + (const_color[4].rgb), vec3(1.0)) * (last_tex_env_out.rgb), vec3(0.0), vec3(1.0)));
-float alpha_output_4 = byteround(clamp((last_tex_env_out.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_4, alpha_output_4), vec4(0.0), vec4(1.0));
+float alpha_output_4 = (last_tex_env_out.a);
+last_tex_env_out = vec4(color_output_4, alpha_output_4);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 
 vec3 color_output_5 = byteround(clamp((last_tex_env_out.rgb) * (combiner_buffer.rgb) + (last_tex_env_out.rgb), vec3(0.0), vec3(1.0)));
-float alpha_output_5 = byteround(clamp((last_tex_env_out.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_5 * 2.0, alpha_output_5 * 1.0), vec4(0.0), vec4(1.0));
+float alpha_output_5 = (last_tex_env_out.a);
+last_tex_env_out = vec4(color_output_5 * 2.0, alpha_output_5 * 1.0);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 
 if (int(last_tex_env_out.a * 255.0) <= alphatest_ref) discard;
 float fog_index = depth * 128.0;
-float fog_i = clamp(floor(fog_index), 0.0, 127.0);
-float fog_f = fog_index - fog_i;
-vec2 fog_lut_entry = texelFetch(texture_buffer_lut_lf, int(fog_i) + fog_lut_offset).rg;
+int fog_i = int(fog_index);
+float fog_f = fract(fog_index);
+vec2 fog_lut_entry = texelFetch(texture_buffer_lut_lf, fog_i + fog_lut_offset).rg;
 float fog_factor = fog_lut_entry.r + fog_lut_entry.g * fog_f;
 fog_factor = clamp(fog_factor, 0.0, 1.0);
 last_tex_env_out.rgb = mix(fog_color.rgb, last_tex_env_out.rgb, fog_factor);
 gl_FragDepth = depth;
 color = byteround(last_tex_env_out);
 }
-// reference: 91016A85D6179832, 2594B3025307F3B9
-// program: 9A0887C21E007189, 3B3AE026C742C7D5, 2594B3025307F3B9
-// shader: 8B30, 8CE9EE3703732B17
+// reference: 91016A85D6179832, 816BEB9B7BA87009
+// program: C2A49A7A2A81571D, D0BDF6740B5CE976, 816BEB9B7BA87009
+// shader: 8B30, 929288C6283F202D
 
 precision highp int;
 precision highp float;
@@ -31569,54 +30305,59 @@ specular_sum.rgb += (((lut_scale_d0 * LookupLightingLUTSigned(0, dot(normalize(v
 diffuse_sum.rgb += lighting_global_ambient;
 primary_fragment_color = clamp(diffuse_sum, vec4(0.0), vec4(1.0));
 secondary_fragment_color = clamp(specular_sum, vec4(0.0), vec4(1.0));
-
 vec4 combiner_buffer = vec4(0.0);
 vec4 next_combiner_buffer = tev_combiner_buffer_color;
 vec4 last_tex_env_out = vec4(0.0);
 vec3 color_output_0 = byteround(clamp((vec3(1.0) - secondary_fragment_color.aaa) * (const_color[0].rgb) + (primary_fragment_color.rgb), vec3(0.0), vec3(1.0)));
 float alpha_output_0 = byteround(clamp((rounded_primary_color.a) * (texcolor0.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_0, alpha_output_0), vec4(0.0), vec4(1.0));
+last_tex_env_out = vec4(color_output_0, alpha_output_0);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 
 vec3 color_output_1 = byteround(clamp((texcolor0.rgb) * (last_tex_env_out.rgb), vec3(0.0), vec3(1.0)));
-float alpha_output_1 = byteround(clamp((last_tex_env_out.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_1, alpha_output_1), vec4(0.0), vec4(1.0));
+float alpha_output_1 = (last_tex_env_out.a);
+last_tex_env_out = vec4(color_output_1, alpha_output_1);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 
 vec3 color_output_2 = byteround(clamp((last_tex_env_out.rgb) + (const_color[2].rgb) - vec3(0.5), vec3(0.0), vec3(1.0)));
-float alpha_output_2 = byteround(clamp((last_tex_env_out.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_2, alpha_output_2), vec4(0.0), vec4(1.0));
+float alpha_output_2 = (last_tex_env_out.a);
+last_tex_env_out = vec4(color_output_2, alpha_output_2);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 next_combiner_buffer.rgb = last_tex_env_out.rgb;
 
 vec3 color_output_3 = byteround(clamp((vec3(1.0) - last_tex_env_out.rgb) * (secondary_fragment_color.rgb) + (last_tex_env_out.rgb) * (vec3(1.0) - (secondary_fragment_color.rgb)), vec3(0.0), vec3(1.0)));
-float alpha_output_3 = byteround(clamp((last_tex_env_out.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_3, alpha_output_3), vec4(0.0), vec4(1.0));
+float alpha_output_3 = (last_tex_env_out.a);
+last_tex_env_out = vec4(color_output_3, alpha_output_3);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 
 vec3 color_output_4 = byteround(clamp(min((rounded_primary_color.rgb) + (const_color[4].rgb), vec3(1.0)) * (last_tex_env_out.rgb), vec3(0.0), vec3(1.0)));
-float alpha_output_4 = byteround(clamp((last_tex_env_out.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_4, alpha_output_4), vec4(0.0), vec4(1.0));
+float alpha_output_4 = (last_tex_env_out.a);
+last_tex_env_out = vec4(color_output_4, alpha_output_4);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 
 vec3 color_output_5 = byteround(clamp((last_tex_env_out.rgb) * (combiner_buffer.rgb) + (last_tex_env_out.rgb), vec3(0.0), vec3(1.0)));
-float alpha_output_5 = byteround(clamp((last_tex_env_out.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_5 * 2.0, alpha_output_5 * 1.0), vec4(0.0), vec4(1.0));
+float alpha_output_5 = (last_tex_env_out.a);
+last_tex_env_out = vec4(color_output_5 * 2.0, alpha_output_5 * 1.0);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 
 float fog_index = depth * 128.0;
-float fog_i = clamp(floor(fog_index), 0.0, 127.0);
-float fog_f = fog_index - fog_i;
-vec2 fog_lut_entry = texelFetch(texture_buffer_lut_lf, int(fog_i) + fog_lut_offset).rg;
+int fog_i = int(fog_index);
+float fog_f = fract(fog_index);
+vec2 fog_lut_entry = texelFetch(texture_buffer_lut_lf, fog_i + fog_lut_offset).rg;
 float fog_factor = fog_lut_entry.r + fog_lut_entry.g * fog_f;
 fog_factor = clamp(fog_factor, 0.0, 1.0);
 last_tex_env_out.rgb = mix(fog_color.rgb, last_tex_env_out.rgb, fog_factor);
 gl_FragDepth = depth;
 color = byteround(last_tex_env_out);
 }
-// reference: D59055342687EB24, 8CE9EE3703732B17
-// program: F3D442C0013F9392, 6CF3F3B70E23AA85, 8CE9EE3703732B17
-// shader: 8B30, 5FB4807AAEDC5733
+// reference: D59055342687EB24, 929288C6283F202D
+// program: 22C3C36B08CEECE7, 7A40B90B17532EA8, 929288C6283F202D
+// shader: 8B30, 770BF4E7E4688B33
 
 precision highp int;
 precision highp float;
@@ -31793,54 +30534,59 @@ specular_sum.rgb += (((lut_scale_d0 * LookupLightingLUTSigned(0, dot(normal, nor
 diffuse_sum.rgb += lighting_global_ambient;
 primary_fragment_color = clamp(diffuse_sum, vec4(0.0), vec4(1.0));
 secondary_fragment_color = clamp(specular_sum, vec4(0.0), vec4(1.0));
-
 vec4 combiner_buffer = vec4(0.0);
 vec4 next_combiner_buffer = tev_combiner_buffer_color;
 vec4 last_tex_env_out = vec4(0.0);
 vec3 color_output_0 = byteround(clamp((texcolor0.rrr) * (const_color[0].aaa), vec3(0.0), vec3(1.0)));
 float alpha_output_0 = byteround(clamp((rounded_primary_color.a) * (texcolor0.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_0, alpha_output_0), vec4(0.0), vec4(1.0));
+last_tex_env_out = vec4(color_output_0, alpha_output_0);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 
 vec3 color_output_1 = byteround(clamp((last_tex_env_out.rgb) * (texcolor1.ggg), vec3(0.0), vec3(1.0)));
-float alpha_output_1 = byteround(clamp((last_tex_env_out.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_1, alpha_output_1), vec4(0.0), vec4(1.0));
+float alpha_output_1 = (last_tex_env_out.a);
+last_tex_env_out = vec4(color_output_1, alpha_output_1);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 
 vec3 color_output_2 = byteround(clamp((last_tex_env_out.rgb) * (texcolor2.bbb) + (secondary_fragment_color.rgb), vec3(0.0), vec3(1.0)));
-float alpha_output_2 = byteround(clamp((last_tex_env_out.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_2, alpha_output_2), vec4(0.0), vec4(1.0));
+float alpha_output_2 = (last_tex_env_out.a);
+last_tex_env_out = vec4(color_output_2, alpha_output_2);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 next_combiner_buffer.rgb = last_tex_env_out.rgb;
 
 vec3 color_output_3 = byteround(clamp((last_tex_env_out.rgb) + (last_tex_env_out.rgb) - vec3(0.5), vec3(0.0), vec3(1.0)));
 float alpha_output_3 = byteround(clamp((last_tex_env_out.r) * (const_color[3].a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_3 * 4.0, alpha_output_3 * 4.0), vec4(0.0), vec4(1.0));
+last_tex_env_out = vec4(color_output_3 * 4.0, alpha_output_3 * 4.0);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 
 vec3 color_output_4 = byteround(clamp((rounded_primary_color.rgb) * (const_color[4].rgb) + (last_tex_env_out.rgb), vec3(0.0), vec3(1.0)));
-float alpha_output_4 = byteround(clamp((last_tex_env_out.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_4, alpha_output_4), vec4(0.0), vec4(1.0));
+float alpha_output_4 = (last_tex_env_out.a);
+last_tex_env_out = vec4(color_output_4, alpha_output_4);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 
 vec3 color_output_5 = byteround(clamp((combiner_buffer.rgb) * (const_color[5].rgb) + (last_tex_env_out.rgb), vec3(0.0), vec3(1.0)));
-float alpha_output_5 = byteround(clamp((last_tex_env_out.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_5, alpha_output_5), vec4(0.0), vec4(1.0));
+float alpha_output_5 = (last_tex_env_out.a);
+last_tex_env_out = vec4(color_output_5, alpha_output_5);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 
 float fog_index = depth * 128.0;
-float fog_i = clamp(floor(fog_index), 0.0, 127.0);
-float fog_f = fog_index - fog_i;
-vec2 fog_lut_entry = texelFetch(texture_buffer_lut_lf, int(fog_i) + fog_lut_offset).rg;
+int fog_i = int(fog_index);
+float fog_f = fract(fog_index);
+vec2 fog_lut_entry = texelFetch(texture_buffer_lut_lf, fog_i + fog_lut_offset).rg;
 float fog_factor = fog_lut_entry.r + fog_lut_entry.g * fog_f;
 fog_factor = clamp(fog_factor, 0.0, 1.0);
 last_tex_env_out.rgb = mix(fog_color.rgb, last_tex_env_out.rgb, fog_factor);
 gl_FragDepth = depth;
 color = byteround(last_tex_env_out);
 }
-// reference: 4C08F67D647FCFD6, 5FB4807AAEDC5733
-// program: D00DCCA29A979BE7, AD7922A63ED54CA7, 5FB4807AAEDC5733
-// shader: 8B30, C41F3BB5572A8B8B
+// reference: 4C08F67D647FCFD6, 770BF4E7E4688B33
+// program: B3C9C1F640F27576, B80FA1B7F97410CD, 770BF4E7E4688B33
+// shader: 8B30, 07F997DA6D00E17F
 
 precision highp int;
 precision highp float;
@@ -32015,54 +30761,59 @@ specular_sum.rgb += (((lut_scale_d0 * LookupLightingLUTSigned(0, dot(normal, nor
 diffuse_sum.rgb += lighting_global_ambient;
 primary_fragment_color = clamp(diffuse_sum, vec4(0.0), vec4(1.0));
 secondary_fragment_color = clamp(specular_sum, vec4(0.0), vec4(1.0));
-
 vec4 combiner_buffer = vec4(0.0);
 vec4 next_combiner_buffer = tev_combiner_buffer_color;
 vec4 last_tex_env_out = vec4(0.0);
 vec3 color_output_0 = byteround(clamp((vec3(1.0) - secondary_fragment_color.aaa) * (const_color[0].rgb) + (primary_fragment_color.rgb), vec3(0.0), vec3(1.0)));
-float alpha_output_0 = byteround(clamp((rounded_primary_color.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_0, alpha_output_0), vec4(0.0), vec4(1.0));
+float alpha_output_0 = (rounded_primary_color.a);
+last_tex_env_out = vec4(color_output_0, alpha_output_0);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 
 vec3 color_output_1 = byteround(clamp((last_tex_env_out.rgb) + (const_color[1].rgb), vec3(0.0), vec3(1.0)));
-float alpha_output_1 = byteround(clamp((last_tex_env_out.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_1, alpha_output_1), vec4(0.0), vec4(1.0));
+float alpha_output_1 = (last_tex_env_out.a);
+last_tex_env_out = vec4(color_output_1, alpha_output_1);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 
 vec3 color_output_2 = byteround(clamp((last_tex_env_out.rgb) + (const_color[2].rgb) - vec3(0.5), vec3(0.0), vec3(1.0)));
-float alpha_output_2 = byteround(clamp((last_tex_env_out.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_2, alpha_output_2), vec4(0.0), vec4(1.0));
+float alpha_output_2 = (last_tex_env_out.a);
+last_tex_env_out = vec4(color_output_2, alpha_output_2);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 next_combiner_buffer.rgb = last_tex_env_out.rgb;
 
 vec3 color_output_3 = byteround(clamp((last_tex_env_out.rgb) * (rounded_primary_color.rgb), vec3(0.0), vec3(1.0)));
-float alpha_output_3 = byteround(clamp((last_tex_env_out.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_3, alpha_output_3), vec4(0.0), vec4(1.0));
+float alpha_output_3 = (last_tex_env_out.a);
+last_tex_env_out = vec4(color_output_3, alpha_output_3);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 
 vec3 color_output_4 = byteround(clamp((last_tex_env_out.rgb) + (secondary_fragment_color.rgb), vec3(0.0), vec3(1.0)));
-float alpha_output_4 = byteround(clamp((last_tex_env_out.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_4, alpha_output_4), vec4(0.0), vec4(1.0));
+float alpha_output_4 = (last_tex_env_out.a);
+last_tex_env_out = vec4(color_output_4, alpha_output_4);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 
 vec3 color_output_5 = byteround(clamp((last_tex_env_out.rgb) * (combiner_buffer.rgb) + (last_tex_env_out.rgb), vec3(0.0), vec3(1.0)));
-float alpha_output_5 = byteround(clamp((last_tex_env_out.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_5 * 2.0, alpha_output_5 * 1.0), vec4(0.0), vec4(1.0));
+float alpha_output_5 = (last_tex_env_out.a);
+last_tex_env_out = vec4(color_output_5 * 2.0, alpha_output_5 * 1.0);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 
 float fog_index = depth * 128.0;
-float fog_i = clamp(floor(fog_index), 0.0, 127.0);
-float fog_f = fog_index - fog_i;
-vec2 fog_lut_entry = texelFetch(texture_buffer_lut_lf, int(fog_i) + fog_lut_offset).rg;
+int fog_i = int(fog_index);
+float fog_f = fract(fog_index);
+vec2 fog_lut_entry = texelFetch(texture_buffer_lut_lf, fog_i + fog_lut_offset).rg;
 float fog_factor = fog_lut_entry.r + fog_lut_entry.g * fog_f;
 fog_factor = clamp(fog_factor, 0.0, 1.0);
 last_tex_env_out.rgb = mix(fog_color.rgb, last_tex_env_out.rgb, fog_factor);
 gl_FragDepth = depth;
 color = byteround(last_tex_env_out);
 }
-// reference: 2D91A3C8B1683E30, C41F3BB5572A8B8B
-// program: FBC6AFA380C91748, 4BD70AD09292A3DA, C41F3BB5572A8B8B
-// shader: 8B30, D63F8F3F22791913
+// reference: 2D91A3C8B1683E30, 07F997DA6D00E17F
+// program: 668DC2CC893B1519, 80B52B8FBE5FE773, 07F997DA6D00E17F
+// shader: 8B30, 55B8BBCB86458CBC
 
 precision highp int;
 precision highp float;
@@ -32211,9 +30962,10 @@ float depth = z_over_w * depth_scale + depth_offset;
 vec4 combiner_buffer = vec4(0.0);
 vec4 next_combiner_buffer = tev_combiner_buffer_color;
 vec4 last_tex_env_out = vec4(0.0);
-vec3 color_output_0 = byteround(clamp((const_color[0].rgb), vec3(0.0), vec3(1.0)));
+vec3 color_output_0 = (const_color[0].rgb);
 float alpha_output_0 = byteround(clamp((rounded_primary_color.a) * (const_color[0].a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_0, alpha_output_0), vec4(0.0), vec4(1.0));
+last_tex_env_out = vec4(color_output_0, alpha_output_0);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 
 combiner_buffer = next_combiner_buffer;
@@ -32227,43 +30979,43 @@ combiner_buffer = next_combiner_buffer;
 combiner_buffer = next_combiner_buffer;
 
 float fog_index = depth * 128.0;
-float fog_i = clamp(floor(fog_index), 0.0, 127.0);
-float fog_f = fog_index - fog_i;
-vec2 fog_lut_entry = texelFetch(texture_buffer_lut_lf, int(fog_i) + fog_lut_offset).rg;
+int fog_i = int(fog_index);
+float fog_f = fract(fog_index);
+vec2 fog_lut_entry = texelFetch(texture_buffer_lut_lf, fog_i + fog_lut_offset).rg;
 float fog_factor = fog_lut_entry.r + fog_lut_entry.g * fog_f;
 fog_factor = clamp(fog_factor, 0.0, 1.0);
 last_tex_env_out.rgb = mix(fog_color.rgb, last_tex_env_out.rgb, fog_factor);
 gl_FragDepth = depth;
 color = byteround(last_tex_env_out);
 }
-// reference: 4301E066AB335202, D63F8F3F22791913
-// program: FBC6AFA380C91748, 4BD70AD09292A3DA, D63F8F3F22791913
-// program: 9C5D7AEF8C3E67F2, 5508714B05507EE9, 32FB8BA38EC76E4F
-// reference: 3303CB8E7AFE6C0F, 9CD350141D538D60
-// reference: 3303CB8E9649870C, E789537FC51FD7D4
-// reference: 0FDD467207CBD0D3, 588E895FDF454AB4
-// reference: E0A8BFEEEB7C3BD0, BB968D6E7E65DB3B
-// reference: 0FDD4672EB7C3BD0, 0F2B3212C4F2D6C0
-// reference: D53F9D561351FB01, 375E9ADE222F6131
-// reference: E0A8BFEE07CBD0D3, 35171A62357B3E74
-// reference: 8905ED4EA6F0BB67, 8BAFFE648E186CB8
-// reference: 23FFF435EFAA2D68, 78047F20186A179C
-// reference: 1F43DBBB76EC704F, 1082608EAB6F66C5
-// reference: 47954FB8EEAF0683, 53730084BB43574A
-// reference: 87752AE8DF231760, BA694A024E4D4254
-// reference: 1F43DBBB9A5B9B4C, E2A9F55387A8BB8A
-// reference: 597F0418F4CA24DA, 7670260578129532
-// reference: 87752AE8240232BB, B6CCA30472B53635
-// reference: 638EAB6B6D453260, B7F808C048B698AF
-// reference: 87752AE87A3E6CC9, B6CCA30472B53635
-// reference: 87752AE8C58B663E, 793ECF4A637DC7E4
-// reference: 72CAE57524C86164, 7A0557887E99274B
-// reference: 91016A85D7D5F205, 2594B3025307F3B9
-// reference: D590553427458113, 8CE9EE3703732B17
-// reference: 4C08F67D65BDA5E1, 5FB4807AAEDC5733
-// reference: 2D91A3C8B0AA5407, C41F3BB5572A8B8B
-// reference: 4301E066AAF13835, D63F8F3F22791913
-// shader: 8B30, A8877664280976B6
+// reference: 4301E066AB335202, 55B8BBCB86458CBC
+// program: 668DC2CC893B1519, 80B52B8FBE5FE773, 55B8BBCB86458CBC
+// program: 4056A7BD49897EA4, 01926B3CAE979003, 2BCCDF1EC382CBB8
+// reference: 3303CB8E7AFE6C0F, 99F190CD3E251403
+// reference: 3303CB8E9649870C, 21E48BC562D18AD0
+// reference: 0FDD467207CBD0D3, CA945AEB03B072DA
+// reference: E0A8BFEEEB7C3BD0, 3EEC119F84C9A48E
+// reference: 0FDD4672EB7C3BD0, F98EFE2E06ECB022
+// reference: D53F9D561351FB01, 1D6FBDE7E2FC4FBE
+// reference: E0A8BFEE07CBD0D3, 24CB95B3C74062CB
+// reference: 8905ED4EA6F0BB67, 4B3826268907647D
+// reference: 23FFF435EFAA2D68, D169A8869CABF545
+// reference: 1F43DBBB76EC704F, DF4311DFCB639B6A
+// reference: 47954FB8EEAF0683, A14F4C95B67665B6
+// reference: 87752AE8DF231760, 980B8F6476575B7A
+// reference: 1F43DBBB9A5B9B4C, 9ACDA9173F9F4B39
+// reference: 597F0418F4CA24DA, 00249B9F25E86369
+// reference: 87752AE8240232BB, ABABFD8BE5555BC9
+// reference: 638EAB6B6D453260, 75FCB1664613E1D9
+// reference: 87752AE87A3E6CC9, ABABFD8BE5555BC9
+// reference: 87752AE8C58B663E, 978CF84569FD5034
+// reference: 72CAE57524C86164, 5129739BCEDF14CF
+// reference: 91016A85D7D5F205, 816BEB9B7BA87009
+// reference: D590553427458113, 929288C6283F202D
+// reference: 4C08F67D65BDA5E1, 770BF4E7E4688B33
+// reference: 2D91A3C8B0AA5407, 07F997DA6D00E17F
+// reference: 4301E066AAF13835, 55B8BBCB86458CBC
+// shader: 8B30, CBAEC99FC4E32F18
 
 precision highp int;
 precision highp float;
@@ -32439,34 +31191,38 @@ specular_sum.rgb += (((lut_scale_d0 * LookupLightingLUTSigned(0, dot(normal, nor
 diffuse_sum.rgb += lighting_global_ambient;
 primary_fragment_color = clamp(diffuse_sum, vec4(0.0), vec4(1.0));
 secondary_fragment_color = clamp(specular_sum, vec4(0.0), vec4(1.0));
-
 vec4 combiner_buffer = vec4(0.0);
 vec4 next_combiner_buffer = tev_combiner_buffer_color;
 vec4 last_tex_env_out = vec4(0.0);
 vec3 color_output_0 = byteround(clamp((texcolor0.rgb) * (const_color[0].aaa), vec3(0.0), vec3(1.0)));
 float alpha_output_0 = byteround(clamp((rounded_primary_color.a) * (texcolor0.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_0, alpha_output_0), vec4(0.0), vec4(1.0));
+last_tex_env_out = vec4(color_output_0, alpha_output_0);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 
 vec3 color_output_1 = byteround(clamp((last_tex_env_out.rgb) + (const_color[1].rgb) - vec3(0.5), vec3(0.0), vec3(1.0)));
-float alpha_output_1 = byteround(clamp((last_tex_env_out.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_1, alpha_output_1), vec4(0.0), vec4(1.0));
+float alpha_output_1 = (last_tex_env_out.a);
+last_tex_env_out = vec4(color_output_1, alpha_output_1);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 next_combiner_buffer.rgb = last_tex_env_out.rgb;
 
 vec3 color_output_2 = byteround(clamp((vec3(1.0) - secondary_fragment_color.rgb) * (last_tex_env_out.rgb) + (secondary_fragment_color.rgb), vec3(0.0), vec3(1.0)));
-float alpha_output_2 = byteround(clamp((last_tex_env_out.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_2, alpha_output_2), vec4(0.0), vec4(1.0));
+float alpha_output_2 = (last_tex_env_out.a);
+last_tex_env_out = vec4(color_output_2, alpha_output_2);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 
 vec3 color_output_3 = byteround(clamp(min((rounded_primary_color.rgb) + (const_color[3].rgb), vec3(1.0)) * (last_tex_env_out.rgb), vec3(0.0), vec3(1.0)));
-float alpha_output_3 = byteround(clamp((last_tex_env_out.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_3, alpha_output_3), vec4(0.0), vec4(1.0));
+float alpha_output_3 = (last_tex_env_out.a);
+last_tex_env_out = vec4(color_output_3, alpha_output_3);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 
 vec3 color_output_4 = byteround(clamp((last_tex_env_out.rgb) * (combiner_buffer.rgb) + (last_tex_env_out.rgb), vec3(0.0), vec3(1.0)));
-float alpha_output_4 = byteround(clamp((last_tex_env_out.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_4 * 2.0, alpha_output_4 * 1.0), vec4(0.0), vec4(1.0));
+float alpha_output_4 = (last_tex_env_out.a);
+last_tex_env_out = vec4(color_output_4 * 2.0, alpha_output_4 * 1.0);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 
 combiner_buffer = next_combiner_buffer;
@@ -32474,9 +31230,9 @@ combiner_buffer = next_combiner_buffer;
 gl_FragDepth = depth;
 color = byteround(last_tex_env_out);
 }
-// reference: 214B7164C9BDE050, A8877664280976B6
-// program: F3D442C0013F9392, 6CF3F3B70E23AA85, A8877664280976B6
-// shader: 8B30, 3DACC6FC6B8E6A46
+// reference: 214B7164C9BDE050, CBAEC99FC4E32F18
+// program: 22C3C36B08CEECE7, 7A40B90B17532EA8, CBAEC99FC4E32F18
+// shader: 8B30, B431F235CAB964C7
 
 precision highp int;
 precision highp float;
@@ -32628,41 +31384,47 @@ vec4 next_combiner_buffer = tev_combiner_buffer_color;
 vec4 last_tex_env_out = vec4(0.0);
 vec3 color_output_0 = byteround(clamp((texcolor0.rgb) * (const_color[0].aaa), vec3(0.0), vec3(1.0)));
 float alpha_output_0 = byteround(clamp((rounded_primary_color.a) * (texcolor0.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_0, alpha_output_0), vec4(0.0), vec4(1.0));
+last_tex_env_out = vec4(color_output_0, alpha_output_0);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 
 vec3 color_output_1 = byteround(clamp((last_tex_env_out.rgb) + (const_color[1].rgb) - vec3(0.5), vec3(0.0), vec3(1.0)));
-float alpha_output_1 = byteround(clamp((last_tex_env_out.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_1, alpha_output_1), vec4(0.0), vec4(1.0));
+float alpha_output_1 = (last_tex_env_out.a);
+last_tex_env_out = vec4(color_output_1, alpha_output_1);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 next_combiner_buffer.rgb = last_tex_env_out.rgb;
 
 vec3 color_output_2 = byteround(clamp((vec3(1.0) - secondary_fragment_color.rgb) * (last_tex_env_out.rgb) + (secondary_fragment_color.rgb), vec3(0.0), vec3(1.0)));
-float alpha_output_2 = byteround(clamp((last_tex_env_out.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_2, alpha_output_2), vec4(0.0), vec4(1.0));
+float alpha_output_2 = (last_tex_env_out.a);
+last_tex_env_out = vec4(color_output_2, alpha_output_2);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 
 vec3 color_output_3 = byteround(clamp((const_color[3].rgb) * (vec3(1.0) - texcolor0.rgb), vec3(0.0), vec3(1.0)));
 float alpha_output_3 = byteround(clamp((const_color[3].a) * (1.0 - texcolor0.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_3, alpha_output_3), vec4(0.0), vec4(1.0));
+last_tex_env_out = vec4(color_output_3, alpha_output_3);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 
 vec3 color_output_4 = byteround(clamp((const_color[4].rgb) * (texcolor0.rgb) + (last_tex_env_out.rgb), vec3(0.0), vec3(1.0)));
 float alpha_output_4 = byteround(clamp((const_color[4].a) * (texcolor0.a) + (last_tex_env_out.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_4, alpha_output_4), vec4(0.0), vec4(1.0));
+last_tex_env_out = vec4(color_output_4, alpha_output_4);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 
 vec3 color_output_5 = byteround(clamp((rounded_primary_color.rgb) * (last_tex_env_out.rgb), vec3(0.0), vec3(1.0)));
 float alpha_output_5 = byteround(clamp((rounded_primary_color.a) * (last_tex_env_out.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_5, alpha_output_5), vec4(0.0), vec4(1.0));
+last_tex_env_out = vec4(color_output_5, alpha_output_5);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 
 gl_FragDepth = depth;
 color = byteround(last_tex_env_out);
 }
-// reference: B51E2CEDCD186C14, 3DACC6FC6B8E6A46
-// program: A990721D25F019E4, 5D764F9A6220D694, 3DACC6FC6B8E6A46
-// shader: 8B30, 0A7E30AA62F97072
+// reference: B51E2CEDCD186C14, B431F235CAB964C7
+// program: A0C32A2C2484E2AE, 42937135801BAA7E, B431F235CAB964C7
+// shader: 8B30, FE373995C600B460
 
 precision highp int;
 precision highp float;
@@ -32814,41 +31576,47 @@ vec4 next_combiner_buffer = tev_combiner_buffer_color;
 vec4 last_tex_env_out = vec4(0.0);
 vec3 color_output_0 = byteround(clamp((texcolor0.rgb) * (const_color[0].aaa), vec3(0.0), vec3(1.0)));
 float alpha_output_0 = byteround(clamp((rounded_primary_color.a) * (texcolor0.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_0, alpha_output_0), vec4(0.0), vec4(1.0));
+last_tex_env_out = vec4(color_output_0, alpha_output_0);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 
 vec3 color_output_1 = byteround(clamp((last_tex_env_out.rgb) + (const_color[1].rgb) - vec3(0.5), vec3(0.0), vec3(1.0)));
-float alpha_output_1 = byteround(clamp((last_tex_env_out.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_1, alpha_output_1), vec4(0.0), vec4(1.0));
+float alpha_output_1 = (last_tex_env_out.a);
+last_tex_env_out = vec4(color_output_1, alpha_output_1);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 next_combiner_buffer.rgb = last_tex_env_out.rgb;
 
 vec3 color_output_2 = byteround(clamp((vec3(1.0) - secondary_fragment_color.rgb) * (last_tex_env_out.rgb) + (secondary_fragment_color.rgb), vec3(0.0), vec3(1.0)));
-float alpha_output_2 = byteround(clamp((last_tex_env_out.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_2, alpha_output_2), vec4(0.0), vec4(1.0));
+float alpha_output_2 = (last_tex_env_out.a);
+last_tex_env_out = vec4(color_output_2, alpha_output_2);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 
 vec3 color_output_3 = byteround(clamp((vec3(1.0) - texcolor0.rgb) * (const_color[3].rgb), vec3(0.0), vec3(1.0)));
 float alpha_output_3 = byteround(clamp((texcolor0.a) * (const_color[3].a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_3, alpha_output_3), vec4(0.0), vec4(1.0));
+last_tex_env_out = vec4(color_output_3, alpha_output_3);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 
 vec3 color_output_4 = byteround(clamp((texcolor0.rgb) * (const_color[4].rgb) + (last_tex_env_out.rgb), vec3(0.0), vec3(1.0)));
 float alpha_output_4 = byteround(clamp((1.0 - texcolor0.a) * (const_color[4].a) + (last_tex_env_out.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_4, alpha_output_4), vec4(0.0), vec4(1.0));
+last_tex_env_out = vec4(color_output_4, alpha_output_4);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 
 vec3 color_output_5 = byteround(clamp((rounded_primary_color.rgb) * (last_tex_env_out.rgb), vec3(0.0), vec3(1.0)));
 float alpha_output_5 = byteround(clamp((rounded_primary_color.a) * (last_tex_env_out.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_5, alpha_output_5), vec4(0.0), vec4(1.0));
+last_tex_env_out = vec4(color_output_5, alpha_output_5);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 
 gl_FragDepth = depth;
 color = byteround(last_tex_env_out);
 }
-// reference: 7A86C8124CE77AAE, 0A7E30AA62F97072
-// program: A990721D25F019E4, 5D764F9A6220D694, 0A7E30AA62F97072
-// shader: 8B30, 0528D5C3B56DF74F
+// reference: 7A86C8124CE77AAE, FE373995C600B460
+// program: A0C32A2C2484E2AE, 42937135801BAA7E, FE373995C600B460
+// shader: 8B30, 1FD07584906D6F53
 
 precision highp int;
 precision highp float;
@@ -33000,488 +31768,47 @@ vec4 next_combiner_buffer = tev_combiner_buffer_color;
 vec4 last_tex_env_out = vec4(0.0);
 vec3 color_output_0 = byteround(clamp((texcolor0.rgb) * (const_color[0].aaa), vec3(0.0), vec3(1.0)));
 float alpha_output_0 = byteround(clamp((rounded_primary_color.a) * (texcolor0.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_0, alpha_output_0), vec4(0.0), vec4(1.0));
+last_tex_env_out = vec4(color_output_0, alpha_output_0);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 
 vec3 color_output_1 = byteround(clamp((last_tex_env_out.rgb) + (const_color[1].rgb) - vec3(0.5), vec3(0.0), vec3(1.0)));
-float alpha_output_1 = byteround(clamp((last_tex_env_out.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_1, alpha_output_1), vec4(0.0), vec4(1.0));
+float alpha_output_1 = (last_tex_env_out.a);
+last_tex_env_out = vec4(color_output_1, alpha_output_1);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 next_combiner_buffer.rgb = last_tex_env_out.rgb;
 
 vec3 color_output_2 = byteround(clamp((vec3(1.0) - secondary_fragment_color.rgb) * (last_tex_env_out.rgb) + (secondary_fragment_color.rgb), vec3(0.0), vec3(1.0)));
-float alpha_output_2 = byteround(clamp((last_tex_env_out.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_2, alpha_output_2), vec4(0.0), vec4(1.0));
+float alpha_output_2 = (last_tex_env_out.a);
+last_tex_env_out = vec4(color_output_2, alpha_output_2);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 
 vec3 color_output_3 = byteround(clamp((texcolor0.rgb) * (const_color[3].rgb), vec3(0.0), vec3(1.0)));
 float alpha_output_3 = byteround(clamp((texcolor0.a) * (const_color[3].a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_3, alpha_output_3), vec4(0.0), vec4(1.0));
+last_tex_env_out = vec4(color_output_3, alpha_output_3);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 
 vec3 color_output_4 = byteround(clamp((vec3(1.0) - texcolor0.rgb) * (const_color[4].rgb) + (last_tex_env_out.rgb), vec3(0.0), vec3(1.0)));
 float alpha_output_4 = byteround(clamp((1.0 - texcolor0.a) * (const_color[4].a) + (last_tex_env_out.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_4, alpha_output_4), vec4(0.0), vec4(1.0));
+last_tex_env_out = vec4(color_output_4, alpha_output_4);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 
 vec3 color_output_5 = byteround(clamp((rounded_primary_color.rgb) * (last_tex_env_out.rgb), vec3(0.0), vec3(1.0)));
 float alpha_output_5 = byteround(clamp((rounded_primary_color.a) * (last_tex_env_out.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_5, alpha_output_5), vec4(0.0), vec4(1.0));
+last_tex_env_out = vec4(color_output_5, alpha_output_5);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 
 gl_FragDepth = depth;
 color = byteround(last_tex_env_out);
 }
-// reference: 09F426434CE77AAE, 0528D5C3B56DF74F
-// program: A990721D25F019E4, 5D764F9A6220D694, 0528D5C3B56DF74F
-// shader: 8B30, 0D8B97CEAB88C248
-
-precision highp int;
-precision highp float;
-precision highp samplerBuffer;
-precision highp usampler2D;
-precision highp uimage2D;
-in vec4 primary_color;
-in vec2 texcoord0;
-in vec2 texcoord1;
-in vec2 texcoord2;
-in float texcoord0_w;
-in vec4 normquat;
-in vec3 view;
-
-#ifndef CITRA_GLES
-in vec4 gl_FragCoord;
-#endif // CITRA_GLES
-out vec4 color;
-
-uniform sampler2D tex0;
-uniform sampler2D tex1;
-uniform sampler2D tex2;
-uniform samplerCube tex_cube;
-uniform samplerBuffer texture_buffer_lut_lf;
-uniform samplerBuffer texture_buffer_lut_rg;
-uniform samplerBuffer texture_buffer_lut_rgba;
-
-#define NUM_TEV_STAGES 6
-#define NUM_LIGHTS 8
-#define NUM_LIGHTING_SAMPLERS 24
-
-struct LightSrc {
-    vec3 specular_0;
-    vec3 specular_1;
-    vec3 diffuse;
-    vec3 ambient;
-    vec3 position;
-    vec3 spot_direction;
-    float dist_atten_bias;
-    float dist_atten_scale;
-};
-
-layout (std140) uniform shader_data {
-    int alphatest_ref;
-    float depth_scale;
-    float depth_offset;
-    float shadow_bias_constant;
-    float shadow_bias_linear;
-    int scissor_x1;
-    int scissor_y1;
-    int scissor_x2;
-    int scissor_y2;
-    int fog_lut_offset;
-    int proctex_noise_lut_offset;
-    int proctex_color_map_offset;
-    int proctex_alpha_map_offset;
-    int proctex_lut_offset;
-    int proctex_diff_lut_offset;
-    float proctex_bias;
-    vec3 fog_color;
-    vec2 proctex_noise_f;
-    vec2 proctex_noise_a;
-    vec2 proctex_noise_p;
-    vec4 const_color[NUM_TEV_STAGES];
-    vec4 tev_combiner_buffer_color;
-    vec4 clip_coef;
-};
-
-layout (std140) uniform shader_light_data {
-    ivec4 lighting_lut_offset[NUM_LIGHTING_SAMPLERS / 4];
-    vec3 lighting_global_ambient;
-    LightSrc light_src[NUM_LIGHTS];
-    float lut_scale_d0;
-    float lut_scale_d1;
-    float lut_scale_sp;
-    float lut_scale_fr;
-    float lut_scale_rb;
-    float lut_scale_rg;
-    float lut_scale_rr;
-    int shadow_texture_bias;
-};
-
-// Rotate the vector v by the quaternion q
-vec3 quaternion_rotate(vec4 q, vec3 v) {
-    return v + 2.0 * cross(q.xyz, cross(q.xyz, v) + q.w * v);
-}
-
-float LookupLightingLUT(int lut_index, int index, float delta) {
-    vec2 entry = texelFetch(texture_buffer_lut_lf, lighting_lut_offset[lut_index >> 2][lut_index & 3] + index).rg;
-    return entry.r + entry.g * delta;
-}
-
-float LookupLightingLUTUnsigned(int lut_index, float pos) {
-    int index = clamp(int(pos * 256.0), 0, 255);
-    float delta = pos * 256.0 - float(index);
-    return LookupLightingLUT(lut_index, index, delta);
-}
-
-float LookupLightingLUTSigned(int lut_index, float pos) {
-    int index = clamp(int(pos * 128.0), -128, 127);
-    float delta = pos * 128.0 - float(index);
-    if (index < 0) index += 256;
-    return LookupLightingLUT(lut_index, index, delta);
-}
-
-float byteround(float x) {
-    return round(x * 255.0) * (1.0 / 255.0);
-}
-
-vec2 byteround(vec2 x) {
-    return round(x * 255.0) * (1.0 / 255.0);
-}
-
-vec3 byteround(vec3 x) {
-    return round(x * 255.0) * (1.0 / 255.0);
-}
-
-vec4 byteround(vec4 x) {
-    return round(x * 255.0) * (1.0 / 255.0);
-}
-
-// PICA's LOD formula for 2D textures.
-// This LOD formula is the same as the LOD lower limit defined in OpenGL.
-// f(x, y) >= max{m_u, m_v, m_w}
-// (See OpenGL 4.6 spec, 8.14.1 - Scale Factor and Level-of-Detail)
-float getLod(vec2 coord) {
-    vec2 d = max(abs(dFdx(coord)), abs(dFdy(coord)));
-    return log2(max(d.x, d.y));
-}
-
-vec4 shadowTexture(vec2 uv, float w) {
-    return vec4(1.0);
-}
-
-vec4 shadowTextureCube(vec2 uv, float w) {
-    return vec4(1.0);
-}
-
-void main() {
-vec4 rounded_primary_color = byteround(primary_color);
-vec4 primary_fragment_color = vec4(0.0);
-vec4 secondary_fragment_color = vec4(0.0);
-if (!(gl_FragCoord.x >= float(scissor_x1) && gl_FragCoord.y >= float(scissor_y1) && gl_FragCoord.x < float(scissor_x2) && gl_FragCoord.y < float(scissor_y2))) discard;
-float z_over_w = 2.0 * gl_FragCoord.z - 1.0;
-float depth = z_over_w * depth_scale + depth_offset;
-vec4 texcolor0 = textureLod(tex0, texcoord0, getLod(texcoord0 * vec2(textureSize(tex0, 0))));
-vec4 texcolor1 = textureLod(tex1, texcoord1, getLod(texcoord1 * vec2(textureSize(tex1, 0))));
-
-vec4 diffuse_sum = vec4(0.0, 0.0, 0.0, 1.0);
-vec4 specular_sum = vec4(0.0, 0.0, 0.0, 1.0);
-vec3 light_vector = vec3(0.0);
-vec3 refl_value = vec3(0.0);
-vec3 spot_dir = vec3(0.0);
-vec3 half_vector = vec3(0.0);
-float dot_product = 0.0;
-float clamp_highlights = 1.0;
-float geo_factor = 1.0;
-vec3 surface_normal = 2.0 * (texcolor1).rgb - 1.0;
-surface_normal.z = sqrt(max((1.0 - (surface_normal.x*surface_normal.x + surface_normal.y*surface_normal.y)), 0.0));
-vec3 surface_tangent = vec3(1.0, 0.0, 0.0);
-vec4 normalized_normquat = normalize(normquat);
-vec3 normal = quaternion_rotate(normalized_normquat, surface_normal);
-vec3 tangent = quaternion_rotate(normalized_normquat, surface_tangent);
-vec4 shadow = vec4(1.0);
-light_vector = normalize(light_src[0].position);
-spot_dir = light_src[0].spot_direction;
-half_vector = normalize(view) + light_vector;
-dot_product = max(dot(light_vector, normal), 0.0);
-refl_value.r = 1.0;
-refl_value.g = refl_value.r;
-refl_value.b = refl_value.r;
-specular_sum.a = (lut_scale_fr * LookupLightingLUTSigned(3, dot(light_vector, normal)));
-diffuse_sum.rgb += ((light_src[0].diffuse * dot_product) + light_src[0].ambient) * 1.0;
-specular_sum.rgb += (((lut_scale_d0 * LookupLightingLUTSigned(0, dot(normal, normalize(half_vector)))) * light_src[0].specular_0) + ((lut_scale_d1 * LookupLightingLUTSigned(1, dot(normal, normalize(view)))) * light_src[0].specular_1)) * clamp_highlights * 1.0;
-diffuse_sum.rgb += lighting_global_ambient;
-primary_fragment_color = clamp(diffuse_sum, vec4(0.0), vec4(1.0));
-secondary_fragment_color = clamp(specular_sum, vec4(0.0), vec4(1.0));
-
-vec4 combiner_buffer = vec4(0.0);
-vec4 next_combiner_buffer = tev_combiner_buffer_color;
-vec4 last_tex_env_out = vec4(0.0);
-vec3 color_output_0 = byteround(clamp((vec3(1.0) - secondary_fragment_color.aaa) * (const_color[0].rgb) + (primary_fragment_color.rgb), vec3(0.0), vec3(1.0)));
-float alpha_output_0 = byteround(clamp((rounded_primary_color.a) * (texcolor0.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_0, alpha_output_0), vec4(0.0), vec4(1.0));
-combiner_buffer = next_combiner_buffer;
-
-vec3 color_output_1 = byteround(clamp((texcolor0.rgb) * (last_tex_env_out.rgb), vec3(0.0), vec3(1.0)));
-float alpha_output_1 = byteround(clamp((last_tex_env_out.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_1, alpha_output_1), vec4(0.0), vec4(1.0));
-combiner_buffer = next_combiner_buffer;
-
-vec3 color_output_2 = byteround(clamp((last_tex_env_out.rgb) + (const_color[2].rgb) - vec3(0.5), vec3(0.0), vec3(1.0)));
-float alpha_output_2 = byteround(clamp((last_tex_env_out.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_2, alpha_output_2), vec4(0.0), vec4(1.0));
-combiner_buffer = next_combiner_buffer;
-next_combiner_buffer.rgb = last_tex_env_out.rgb;
-
-vec3 color_output_3 = byteround(clamp((vec3(1.0) - last_tex_env_out.rgb) * (secondary_fragment_color.rgb) + (last_tex_env_out.rgb) * (vec3(1.0) - (secondary_fragment_color.rgb)), vec3(0.0), vec3(1.0)));
-float alpha_output_3 = byteround(clamp((last_tex_env_out.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_3, alpha_output_3), vec4(0.0), vec4(1.0));
-combiner_buffer = next_combiner_buffer;
-
-vec3 color_output_4 = byteround(clamp(min((rounded_primary_color.rgb) + (const_color[4].rgb), vec3(1.0)) * (last_tex_env_out.rgb), vec3(0.0), vec3(1.0)));
-float alpha_output_4 = byteround(clamp((last_tex_env_out.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_4, alpha_output_4), vec4(0.0), vec4(1.0));
-combiner_buffer = next_combiner_buffer;
-
-vec3 color_output_5 = byteround(clamp((last_tex_env_out.rgb) * (combiner_buffer.rgb) + (last_tex_env_out.rgb), vec3(0.0), vec3(1.0)));
-float alpha_output_5 = byteround(clamp((last_tex_env_out.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_5 * 2.0, alpha_output_5 * 1.0), vec4(0.0), vec4(1.0));
-combiner_buffer = next_combiner_buffer;
-
-float fog_index = depth * 128.0;
-float fog_i = clamp(floor(fog_index), 0.0, 127.0);
-float fog_f = fog_index - fog_i;
-vec2 fog_lut_entry = texelFetch(texture_buffer_lut_lf, int(fog_i) + fog_lut_offset).rg;
-float fog_factor = fog_lut_entry.r + fog_lut_entry.g * fog_f;
-fog_factor = clamp(fog_factor, 0.0, 1.0);
-last_tex_env_out.rgb = mix(fog_color.rgb, last_tex_env_out.rgb, fog_factor);
-gl_FragDepth = depth;
-color = byteround(last_tex_env_out);
-}
-// reference: 91016A853AA07331, 0D8B97CEAB88C248
-// program: 9A0887C21E007189, 3B3AE026C742C7D5, 0D8B97CEAB88C248
-// shader: 8B30, 8CF485E3EE71CFD6
-
-precision highp int;
-precision highp float;
-precision highp samplerBuffer;
-precision highp usampler2D;
-precision highp uimage2D;
-in vec4 primary_color;
-in vec2 texcoord0;
-in vec2 texcoord1;
-in vec2 texcoord2;
-in float texcoord0_w;
-in vec4 normquat;
-in vec3 view;
-
-#ifndef CITRA_GLES
-in vec4 gl_FragCoord;
-#endif // CITRA_GLES
-out vec4 color;
-
-uniform sampler2D tex0;
-uniform sampler2D tex1;
-uniform sampler2D tex2;
-uniform samplerCube tex_cube;
-uniform samplerBuffer texture_buffer_lut_lf;
-uniform samplerBuffer texture_buffer_lut_rg;
-uniform samplerBuffer texture_buffer_lut_rgba;
-
-#define NUM_TEV_STAGES 6
-#define NUM_LIGHTS 8
-#define NUM_LIGHTING_SAMPLERS 24
-
-struct LightSrc {
-    vec3 specular_0;
-    vec3 specular_1;
-    vec3 diffuse;
-    vec3 ambient;
-    vec3 position;
-    vec3 spot_direction;
-    float dist_atten_bias;
-    float dist_atten_scale;
-};
-
-layout (std140) uniform shader_data {
-    int alphatest_ref;
-    float depth_scale;
-    float depth_offset;
-    float shadow_bias_constant;
-    float shadow_bias_linear;
-    int scissor_x1;
-    int scissor_y1;
-    int scissor_x2;
-    int scissor_y2;
-    int fog_lut_offset;
-    int proctex_noise_lut_offset;
-    int proctex_color_map_offset;
-    int proctex_alpha_map_offset;
-    int proctex_lut_offset;
-    int proctex_diff_lut_offset;
-    float proctex_bias;
-    vec3 fog_color;
-    vec2 proctex_noise_f;
-    vec2 proctex_noise_a;
-    vec2 proctex_noise_p;
-    vec4 const_color[NUM_TEV_STAGES];
-    vec4 tev_combiner_buffer_color;
-    vec4 clip_coef;
-};
-
-layout (std140) uniform shader_light_data {
-    ivec4 lighting_lut_offset[NUM_LIGHTING_SAMPLERS / 4];
-    vec3 lighting_global_ambient;
-    LightSrc light_src[NUM_LIGHTS];
-    float lut_scale_d0;
-    float lut_scale_d1;
-    float lut_scale_sp;
-    float lut_scale_fr;
-    float lut_scale_rb;
-    float lut_scale_rg;
-    float lut_scale_rr;
-    int shadow_texture_bias;
-};
-
-// Rotate the vector v by the quaternion q
-vec3 quaternion_rotate(vec4 q, vec3 v) {
-    return v + 2.0 * cross(q.xyz, cross(q.xyz, v) + q.w * v);
-}
-
-float LookupLightingLUT(int lut_index, int index, float delta) {
-    vec2 entry = texelFetch(texture_buffer_lut_lf, lighting_lut_offset[lut_index >> 2][lut_index & 3] + index).rg;
-    return entry.r + entry.g * delta;
-}
-
-float LookupLightingLUTUnsigned(int lut_index, float pos) {
-    int index = clamp(int(pos * 256.0), 0, 255);
-    float delta = pos * 256.0 - float(index);
-    return LookupLightingLUT(lut_index, index, delta);
-}
-
-float LookupLightingLUTSigned(int lut_index, float pos) {
-    int index = clamp(int(pos * 128.0), -128, 127);
-    float delta = pos * 128.0 - float(index);
-    if (index < 0) index += 256;
-    return LookupLightingLUT(lut_index, index, delta);
-}
-
-float byteround(float x) {
-    return round(x * 255.0) * (1.0 / 255.0);
-}
-
-vec2 byteround(vec2 x) {
-    return round(x * 255.0) * (1.0 / 255.0);
-}
-
-vec3 byteround(vec3 x) {
-    return round(x * 255.0) * (1.0 / 255.0);
-}
-
-vec4 byteround(vec4 x) {
-    return round(x * 255.0) * (1.0 / 255.0);
-}
-
-// PICA's LOD formula for 2D textures.
-// This LOD formula is the same as the LOD lower limit defined in OpenGL.
-// f(x, y) >= max{m_u, m_v, m_w}
-// (See OpenGL 4.6 spec, 8.14.1 - Scale Factor and Level-of-Detail)
-float getLod(vec2 coord) {
-    vec2 d = max(abs(dFdx(coord)), abs(dFdy(coord)));
-    return log2(max(d.x, d.y));
-}
-
-vec4 shadowTexture(vec2 uv, float w) {
-    return vec4(1.0);
-}
-
-vec4 shadowTextureCube(vec2 uv, float w) {
-    return vec4(1.0);
-}
-
-void main() {
-vec4 rounded_primary_color = byteround(primary_color);
-vec4 primary_fragment_color = vec4(0.0);
-vec4 secondary_fragment_color = vec4(0.0);
-if (!(gl_FragCoord.x >= float(scissor_x1) && gl_FragCoord.y >= float(scissor_y1) && gl_FragCoord.x < float(scissor_x2) && gl_FragCoord.y < float(scissor_y2))) discard;
-float z_over_w = 2.0 * gl_FragCoord.z - 1.0;
-float depth = z_over_w * depth_scale + depth_offset;
-
-vec4 diffuse_sum = vec4(0.0, 0.0, 0.0, 1.0);
-vec4 specular_sum = vec4(0.0, 0.0, 0.0, 1.0);
-vec3 light_vector = vec3(0.0);
-vec3 refl_value = vec3(0.0);
-vec3 spot_dir = vec3(0.0);
-vec3 half_vector = vec3(0.0);
-float dot_product = 0.0;
-float clamp_highlights = 1.0;
-float geo_factor = 1.0;
-vec3 surface_normal = vec3(0.0, 0.0, 1.0);
-vec3 surface_tangent = vec3(1.0, 0.0, 0.0);
-vec4 normalized_normquat = normalize(normquat);
-vec3 normal = quaternion_rotate(normalized_normquat, surface_normal);
-vec3 tangent = quaternion_rotate(normalized_normquat, surface_tangent);
-vec4 shadow = vec4(1.0);
-light_vector = normalize(light_src[0].position);
-spot_dir = light_src[0].spot_direction;
-half_vector = normalize(view) + light_vector;
-dot_product = max(dot(light_vector, normal), 0.0);
-refl_value.r = 1.0;
-refl_value.g = refl_value.r;
-refl_value.b = refl_value.r;
-specular_sum.a = (lut_scale_fr * LookupLightingLUTSigned(3, dot(light_vector, normal)));
-diffuse_sum.rgb += ((light_src[0].diffuse * dot_product) + light_src[0].ambient) * 1.0;
-specular_sum.rgb += (((lut_scale_d0 * LookupLightingLUTSigned(0, dot(normal, normalize(view)))) * light_src[0].specular_0) + ((lut_scale_d1 * LookupLightingLUTSigned(1, dot(normal, normalize(view)))) * light_src[0].specular_1)) * clamp_highlights * 1.0;
-diffuse_sum.rgb += lighting_global_ambient;
-primary_fragment_color = clamp(diffuse_sum, vec4(0.0), vec4(1.0));
-secondary_fragment_color = clamp(specular_sum, vec4(0.0), vec4(1.0));
-
-vec4 combiner_buffer = vec4(0.0);
-vec4 next_combiner_buffer = tev_combiner_buffer_color;
-vec4 last_tex_env_out = vec4(0.0);
-vec3 color_output_0 = byteround(clamp((vec3(1.0) - secondary_fragment_color.aaa) * (const_color[0].rgb) + (primary_fragment_color.rgb), vec3(0.0), vec3(1.0)));
-float alpha_output_0 = byteround(clamp((rounded_primary_color.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_0, alpha_output_0), vec4(0.0), vec4(1.0));
-combiner_buffer = next_combiner_buffer;
-
-vec3 color_output_1 = byteround(clamp((const_color[1].rgb) * (last_tex_env_out.rgb), vec3(0.0), vec3(1.0)));
-float alpha_output_1 = byteround(clamp((last_tex_env_out.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_1, alpha_output_1), vec4(0.0), vec4(1.0));
-combiner_buffer = next_combiner_buffer;
-
-vec3 color_output_2 = byteround(clamp((last_tex_env_out.rgb) + (const_color[2].rgb) - vec3(0.5), vec3(0.0), vec3(1.0)));
-float alpha_output_2 = byteround(clamp((last_tex_env_out.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_2, alpha_output_2), vec4(0.0), vec4(1.0));
-combiner_buffer = next_combiner_buffer;
-next_combiner_buffer.rgb = last_tex_env_out.rgb;
-
-vec3 color_output_3 = byteround(clamp((vec3(1.0) - last_tex_env_out.rgb) * (secondary_fragment_color.rgb) + (last_tex_env_out.rgb) * (vec3(1.0) - (secondary_fragment_color.rgb)), vec3(0.0), vec3(1.0)));
-float alpha_output_3 = byteround(clamp((last_tex_env_out.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_3, alpha_output_3), vec4(0.0), vec4(1.0));
-combiner_buffer = next_combiner_buffer;
-
-vec3 color_output_4 = byteround(clamp(min((rounded_primary_color.rgb) + (const_color[4].rgb), vec3(1.0)) * (last_tex_env_out.rgb), vec3(0.0), vec3(1.0)));
-float alpha_output_4 = byteround(clamp((last_tex_env_out.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_4, alpha_output_4), vec4(0.0), vec4(1.0));
-combiner_buffer = next_combiner_buffer;
-
-vec3 color_output_5 = byteround(clamp((last_tex_env_out.rgb) * (combiner_buffer.rgb) + (last_tex_env_out.rgb), vec3(0.0), vec3(1.0)));
-float alpha_output_5 = byteround(clamp((last_tex_env_out.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_5 * 2.0, alpha_output_5 * 1.0), vec4(0.0), vec4(1.0));
-combiner_buffer = next_combiner_buffer;
-
-float fog_index = depth * 128.0;
-float fog_i = clamp(floor(fog_index), 0.0, 127.0);
-float fog_f = fog_index - fog_i;
-vec2 fog_lut_entry = texelFetch(texture_buffer_lut_lf, int(fog_i) + fog_lut_offset).rg;
-float fog_factor = fog_lut_entry.r + fog_lut_entry.g * fog_f;
-fog_factor = clamp(fog_factor, 0.0, 1.0);
-last_tex_env_out.rgb = mix(fog_color.rgb, last_tex_env_out.rgb, fog_factor);
-gl_FragDepth = depth;
-color = byteround(last_tex_env_out);
-}
-// reference: 95E10A6A772E1A78, 8CF485E3EE71CFD6
-// program: FBC6AFA380C91748, 4BD70AD09292A3DA, 8CF485E3EE71CFD6
-// shader: 8B30, 5FB901BE36D71A30
+// reference: 09F426434CE77AAE, 1FD07584906D6F53
+// program: A0C32A2C2484E2AE, 42937135801BAA7E, 1FD07584906D6F53
+// shader: 8B30, 804E57390F54F118
 
 precision highp int;
 precision highp float;
@@ -33633,12 +31960,14 @@ vec4 next_combiner_buffer = tev_combiner_buffer_color;
 vec4 last_tex_env_out = vec4(0.0);
 vec3 color_output_0 = byteround(clamp((const_color[0].rgb) * (vec3(1.0) - texcolor0.rgb), vec3(0.0), vec3(1.0)));
 float alpha_output_0 = byteround(clamp((rounded_primary_color.a) * (texcolor0.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_0, alpha_output_0), vec4(0.0), vec4(1.0));
+last_tex_env_out = vec4(color_output_0, alpha_output_0);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 
 vec3 color_output_1 = byteround(clamp((rounded_primary_color.rgb) * (texcolor0.rgb) + (last_tex_env_out.rgb), vec3(0.0), vec3(1.0)));
-float alpha_output_1 = byteround(clamp((last_tex_env_out.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_1, alpha_output_1), vec4(0.0), vec4(1.0));
+float alpha_output_1 = (last_tex_env_out.a);
+last_tex_env_out = vec4(color_output_1, alpha_output_1);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 
 combiner_buffer = next_combiner_buffer;
@@ -33653,9 +31982,9 @@ if (int(last_tex_env_out.a * 255.0) <= alphatest_ref) discard;
 gl_FragDepth = depth;
 color = byteround(last_tex_env_out);
 }
-// reference: 79966E15FEEF3157, 5FB901BE36D71A30
-// program: 9C5D7AEF8C3E67F2, 5508714B05507EE9, 5FB901BE36D71A30
-// shader: 8B30, 5071FDEA5C461B40
+// reference: 79966E15FEEF3157, 804E57390F54F118
+// program: 4056A7BD49897EA4, 01926B3CAE979003, 804E57390F54F118
+// shader: 8B30, D4FB10CE55F5895D
 
 precision highp int;
 precision highp float;
@@ -33807,37 +32136,42 @@ vec4 next_combiner_buffer = tev_combiner_buffer_color;
 vec4 last_tex_env_out = vec4(0.0);
 vec3 color_output_0 = byteround(clamp((const_color[0].rgb) * (vec3(1.0) - texcolor0.rgb), vec3(0.0), vec3(1.0)));
 float alpha_output_0 = byteround(clamp((rounded_primary_color.a) * (texcolor0.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_0, alpha_output_0), vec4(0.0), vec4(1.0));
+last_tex_env_out = vec4(color_output_0, alpha_output_0);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 
 vec3 color_output_1 = byteround(clamp((rounded_primary_color.rgb) * (texcolor0.rgb) + (last_tex_env_out.rgb), vec3(0.0), vec3(1.0)));
-float alpha_output_1 = byteround(clamp((last_tex_env_out.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_1, alpha_output_1), vec4(0.0), vec4(1.0));
+float alpha_output_1 = (last_tex_env_out.a);
+last_tex_env_out = vec4(color_output_1, alpha_output_1);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 
 combiner_buffer = next_combiner_buffer;
 
 vec3 color_output_3 = byteround(clamp((const_color[3].rgb) * (vec3(1.0) - texcolor0.rgb), vec3(0.0), vec3(1.0)));
 float alpha_output_3 = byteround(clamp((const_color[3].a) * (1.0 - texcolor0.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_3, alpha_output_3), vec4(0.0), vec4(1.0));
+last_tex_env_out = vec4(color_output_3, alpha_output_3);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 
 vec3 color_output_4 = byteround(clamp((const_color[4].rgb) * (texcolor0.rgb) + (last_tex_env_out.rgb), vec3(0.0), vec3(1.0)));
 float alpha_output_4 = byteround(clamp((const_color[4].a) * (texcolor0.a) + (last_tex_env_out.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_4, alpha_output_4), vec4(0.0), vec4(1.0));
+last_tex_env_out = vec4(color_output_4, alpha_output_4);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 
 vec3 color_output_5 = byteround(clamp((rounded_primary_color.rgb) * (last_tex_env_out.rgb), vec3(0.0), vec3(1.0)));
 float alpha_output_5 = byteround(clamp((rounded_primary_color.a) * (last_tex_env_out.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_5, alpha_output_5), vec4(0.0), vec4(1.0));
+last_tex_env_out = vec4(color_output_5, alpha_output_5);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 
 gl_FragDepth = depth;
 color = byteround(last_tex_env_out);
 }
-// reference: 68714AE8BBAE9F3E, 5071FDEA5C461B40
-// program: A990721D25F019E4, 5D764F9A6220D694, 5071FDEA5C461B40
-// shader: 8B30, F19FDAE94F7BF6A2
+// reference: 68714AE8BBAE9F3E, D4FB10CE55F5895D
+// program: A0C32A2C2484E2AE, 42937135801BAA7E, D4FB10CE55F5895D
+// shader: 8B30, 40213228ED2A4EDA
 
 precision highp int;
 precision highp float;
@@ -33989,37 +32323,42 @@ vec4 next_combiner_buffer = tev_combiner_buffer_color;
 vec4 last_tex_env_out = vec4(0.0);
 vec3 color_output_0 = byteround(clamp((const_color[0].rgb) * (vec3(1.0) - texcolor0.rgb), vec3(0.0), vec3(1.0)));
 float alpha_output_0 = byteround(clamp((rounded_primary_color.a) * (texcolor0.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_0, alpha_output_0), vec4(0.0), vec4(1.0));
+last_tex_env_out = vec4(color_output_0, alpha_output_0);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 
 vec3 color_output_1 = byteround(clamp((rounded_primary_color.rgb) * (texcolor0.rgb) + (last_tex_env_out.rgb), vec3(0.0), vec3(1.0)));
-float alpha_output_1 = byteround(clamp((last_tex_env_out.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_1, alpha_output_1), vec4(0.0), vec4(1.0));
+float alpha_output_1 = (last_tex_env_out.a);
+last_tex_env_out = vec4(color_output_1, alpha_output_1);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 
 combiner_buffer = next_combiner_buffer;
 
 vec3 color_output_3 = byteround(clamp((texcolor0.rgb) * (const_color[3].rgb), vec3(0.0), vec3(1.0)));
 float alpha_output_3 = byteround(clamp((texcolor0.a) * (const_color[3].a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_3, alpha_output_3), vec4(0.0), vec4(1.0));
+last_tex_env_out = vec4(color_output_3, alpha_output_3);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 
 vec3 color_output_4 = byteround(clamp((vec3(1.0) - texcolor0.rgb) * (const_color[4].rgb) + (last_tex_env_out.rgb), vec3(0.0), vec3(1.0)));
 float alpha_output_4 = byteround(clamp((1.0 - texcolor0.a) * (const_color[4].a) + (last_tex_env_out.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_4, alpha_output_4), vec4(0.0), vec4(1.0));
+last_tex_env_out = vec4(color_output_4, alpha_output_4);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 
 vec3 color_output_5 = byteround(clamp((rounded_primary_color.rgb) * (last_tex_env_out.rgb), vec3(0.0), vec3(1.0)));
 float alpha_output_5 = byteround(clamp((rounded_primary_color.a) * (last_tex_env_out.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_5, alpha_output_5), vec4(0.0), vec4(1.0));
+last_tex_env_out = vec4(color_output_5, alpha_output_5);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 
 gl_FragDepth = depth;
 color = byteround(last_tex_env_out);
 }
-// reference: D49B40463A518984, F19FDAE94F7BF6A2
-// program: A990721D25F019E4, 5D764F9A6220D694, F19FDAE94F7BF6A2
-// shader: 8B30, E48955BA7C99E99B
+// reference: D49B40463A518984, 40213228ED2A4EDA
+// program: A0C32A2C2484E2AE, 42937135801BAA7E, 40213228ED2A4EDA
+// shader: 8B30, 0ABE4A6D5F808B9C
 
 precision highp int;
 precision highp float;
@@ -34195,54 +32534,59 @@ specular_sum.rgb += (((lut_scale_d0 * LookupLightingLUTSigned(0, dot(normal, nor
 diffuse_sum.rgb += lighting_global_ambient;
 primary_fragment_color = clamp(diffuse_sum, vec4(0.0), vec4(1.0));
 secondary_fragment_color = clamp(specular_sum, vec4(0.0), vec4(1.0));
-
 vec4 combiner_buffer = vec4(0.0);
 vec4 next_combiner_buffer = tev_combiner_buffer_color;
 vec4 last_tex_env_out = vec4(0.0);
 vec3 color_output_0 = byteround(clamp((vec3(1.0) - secondary_fragment_color.aaa) * (const_color[0].rgb) + (primary_fragment_color.rgb), vec3(0.0), vec3(1.0)));
-float alpha_output_0 = byteround(clamp((rounded_primary_color.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_0, alpha_output_0), vec4(0.0), vec4(1.0));
+float alpha_output_0 = (rounded_primary_color.a);
+last_tex_env_out = vec4(color_output_0, alpha_output_0);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 
 vec3 color_output_1 = byteround(clamp((texcolor0.rgb) * (last_tex_env_out.rgb), vec3(0.0), vec3(1.0)));
-float alpha_output_1 = byteround(clamp((last_tex_env_out.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_1, alpha_output_1), vec4(0.0), vec4(1.0));
+float alpha_output_1 = (last_tex_env_out.a);
+last_tex_env_out = vec4(color_output_1, alpha_output_1);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 
 vec3 color_output_2 = byteround(clamp((last_tex_env_out.rgb) + (const_color[2].rgb) - vec3(0.5), vec3(0.0), vec3(1.0)));
-float alpha_output_2 = byteround(clamp((last_tex_env_out.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_2, alpha_output_2), vec4(0.0), vec4(1.0));
+float alpha_output_2 = (last_tex_env_out.a);
+last_tex_env_out = vec4(color_output_2, alpha_output_2);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 next_combiner_buffer.rgb = last_tex_env_out.rgb;
 
 vec3 color_output_3 = byteround(clamp((vec3(1.0) - last_tex_env_out.rgb) * (secondary_fragment_color.rgb) + (last_tex_env_out.rgb) * (vec3(1.0) - (secondary_fragment_color.rgb)), vec3(0.0), vec3(1.0)));
-float alpha_output_3 = byteround(clamp((last_tex_env_out.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_3, alpha_output_3), vec4(0.0), vec4(1.0));
+float alpha_output_3 = (last_tex_env_out.a);
+last_tex_env_out = vec4(color_output_3, alpha_output_3);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 
 vec3 color_output_4 = byteround(clamp(min((rounded_primary_color.rgb) + (const_color[4].rgb), vec3(1.0)) * (last_tex_env_out.rgb), vec3(0.0), vec3(1.0)));
-float alpha_output_4 = byteround(clamp((last_tex_env_out.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_4, alpha_output_4), vec4(0.0), vec4(1.0));
+float alpha_output_4 = (last_tex_env_out.a);
+last_tex_env_out = vec4(color_output_4, alpha_output_4);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 
 vec3 color_output_5 = byteround(clamp((last_tex_env_out.rgb) * (combiner_buffer.rgb) + (last_tex_env_out.rgb), vec3(0.0), vec3(1.0)));
-float alpha_output_5 = byteround(clamp((last_tex_env_out.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_5 * 2.0, alpha_output_5 * 1.0), vec4(0.0), vec4(1.0));
+float alpha_output_5 = (last_tex_env_out.a);
+last_tex_env_out = vec4(color_output_5 * 2.0, alpha_output_5 * 1.0);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 
 float fog_index = depth * 128.0;
-float fog_i = clamp(floor(fog_index), 0.0, 127.0);
-float fog_f = fog_index - fog_i;
-vec2 fog_lut_entry = texelFetch(texture_buffer_lut_lf, int(fog_i) + fog_lut_offset).rg;
+int fog_i = int(fog_index);
+float fog_f = fract(fog_index);
+vec2 fog_lut_entry = texelFetch(texture_buffer_lut_lf, fog_i + fog_lut_offset).rg;
 float fog_factor = fog_lut_entry.r + fog_lut_entry.g * fog_f;
 fog_factor = clamp(fog_factor, 0.0, 1.0);
 last_tex_env_out.rgb = mix(fog_color.rgb, last_tex_env_out.rgb, fog_factor);
 gl_FragDepth = depth;
 color = byteround(last_tex_env_out);
 }
-// reference: 95E10A6A2687EB24, E48955BA7C99E99B
-// program: F3D442C0013F9392, 6CF3F3B70E23AA85, E48955BA7C99E99B
-// shader: 8B30, 5310A652D83C118E
+// reference: 95E10A6A2687EB24, 0ABE4A6D5F808B9C
+// program: 22C3C36B08CEECE7, 7A40B90B17532EA8, 0ABE4A6D5F808B9C
+// shader: 8B30, 7AB4B92556834450
 
 precision highp int;
 precision highp float;
@@ -34418,54 +32762,59 @@ specular_sum.rgb += (((lut_scale_d0 * LookupLightingLUTSigned(0, dot(normal, nor
 diffuse_sum.rgb += lighting_global_ambient;
 primary_fragment_color = clamp(diffuse_sum, vec4(0.0), vec4(1.0));
 secondary_fragment_color = clamp(specular_sum, vec4(0.0), vec4(1.0));
-
 vec4 combiner_buffer = vec4(0.0);
 vec4 next_combiner_buffer = tev_combiner_buffer_color;
 vec4 last_tex_env_out = vec4(0.0);
 vec3 color_output_0 = byteround(clamp((vec3(1.0) - secondary_fragment_color.aaa) * (const_color[0].rgb) + (primary_fragment_color.rgb), vec3(0.0), vec3(1.0)));
-float alpha_output_0 = byteround(clamp((rounded_primary_color.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_0, alpha_output_0), vec4(0.0), vec4(1.0));
+float alpha_output_0 = (rounded_primary_color.a);
+last_tex_env_out = vec4(color_output_0, alpha_output_0);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 
 vec3 color_output_1 = byteround(clamp((texcolor0.rgb) * (last_tex_env_out.rgb), vec3(0.0), vec3(1.0)));
-float alpha_output_1 = byteround(clamp((last_tex_env_out.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_1, alpha_output_1), vec4(0.0), vec4(1.0));
+float alpha_output_1 = (last_tex_env_out.a);
+last_tex_env_out = vec4(color_output_1, alpha_output_1);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 
 vec3 color_output_2 = byteround(clamp((last_tex_env_out.rgb) + (const_color[2].rgb) - vec3(0.5), vec3(0.0), vec3(1.0)));
-float alpha_output_2 = byteround(clamp((last_tex_env_out.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_2, alpha_output_2), vec4(0.0), vec4(1.0));
+float alpha_output_2 = (last_tex_env_out.a);
+last_tex_env_out = vec4(color_output_2, alpha_output_2);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 next_combiner_buffer.rgb = last_tex_env_out.rgb;
 
 vec3 color_output_3 = byteround(clamp((texcolor0.rrr) * (secondary_fragment_color.rgb) + (last_tex_env_out.rgb), vec3(0.0), vec3(1.0)));
-float alpha_output_3 = byteround(clamp((last_tex_env_out.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_3, alpha_output_3), vec4(0.0), vec4(1.0));
+float alpha_output_3 = (last_tex_env_out.a);
+last_tex_env_out = vec4(color_output_3, alpha_output_3);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 
 vec3 color_output_4 = byteround(clamp(min((rounded_primary_color.rgb) + (const_color[4].rgb), vec3(1.0)) * (last_tex_env_out.rgb), vec3(0.0), vec3(1.0)));
-float alpha_output_4 = byteround(clamp((last_tex_env_out.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_4, alpha_output_4), vec4(0.0), vec4(1.0));
+float alpha_output_4 = (last_tex_env_out.a);
+last_tex_env_out = vec4(color_output_4, alpha_output_4);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 
 vec3 color_output_5 = byteround(clamp((last_tex_env_out.rgb) * (combiner_buffer.rgb) + (last_tex_env_out.rgb), vec3(0.0), vec3(1.0)));
-float alpha_output_5 = byteround(clamp((last_tex_env_out.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_5 * 2.0, alpha_output_5 * 1.0), vec4(0.0), vec4(1.0));
+float alpha_output_5 = (last_tex_env_out.a);
+last_tex_env_out = vec4(color_output_5 * 2.0, alpha_output_5 * 1.0);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 
 float fog_index = depth * 128.0;
-float fog_i = clamp(floor(fog_index), 0.0, 127.0);
-float fog_f = fog_index - fog_i;
-vec2 fog_lut_entry = texelFetch(texture_buffer_lut_lf, int(fog_i) + fog_lut_offset).rg;
+int fog_i = int(fog_index);
+float fog_f = fract(fog_index);
+vec2 fog_lut_entry = texelFetch(texture_buffer_lut_lf, fog_i + fog_lut_offset).rg;
 float fog_factor = fog_lut_entry.r + fog_lut_entry.g * fog_f;
 fog_factor = clamp(fog_factor, 0.0, 1.0);
 last_tex_env_out.rgb = mix(fog_color.rgb, last_tex_env_out.rgb, fog_factor);
 gl_FragDepth = depth;
 color = byteround(last_tex_env_out);
 }
-// reference: 9C4882E76C875857, 5310A652D83C118E
-// program: F3D442C0013F9392, 6CF3F3B70E23AA85, 5310A652D83C118E
-// shader: 8B30, 457031E0F13E6DA4
+// reference: 9C4882E76C875857, 7AB4B92556834450
+// program: 22C3C36B08CEECE7, 7A40B90B17532EA8, 7AB4B92556834450
+// shader: 8B30, 75F6E58DB17C856F
 
 precision highp int;
 precision highp float;
@@ -34641,31 +32990,33 @@ specular_sum.a = (lut_scale_fr * LookupLightingLUTSigned(3, dot(normal, normaliz
 diffuse_sum.rgb += ((light_src[0].diffuse * dot_product) + light_src[0].ambient) * 1.0;
 specular_sum.rgb += ((light_src[0].specular_0) + (light_src[0].specular_1)) * clamp_highlights * 1.0;
 diffuse_sum.rgb += lighting_global_ambient;
-primary_fragment_color = clamp(diffuse_sum, vec4(0.0), vec4(1.0));
 secondary_fragment_color = clamp(specular_sum, vec4(0.0), vec4(1.0));
-
 vec4 combiner_buffer = vec4(0.0);
 vec4 next_combiner_buffer = tev_combiner_buffer_color;
 vec4 last_tex_env_out = vec4(0.0);
 vec3 color_output_0 = byteround(clamp((secondary_fragment_color.aaa) * (const_color[0].rgb), vec3(0.0), vec3(1.0)));
-float alpha_output_0 = byteround(clamp((rounded_primary_color.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_0, alpha_output_0), vec4(0.0), vec4(1.0));
+float alpha_output_0 = (rounded_primary_color.a);
+last_tex_env_out = vec4(color_output_0, alpha_output_0);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 next_combiner_buffer.rgb = last_tex_env_out.rgb;
 
 vec3 color_output_1 = byteround(clamp((texcolor0.rgb) * (const_color[1].rgb) + (last_tex_env_out.rgb), vec3(0.0), vec3(1.0)));
-float alpha_output_1 = byteround(clamp((last_tex_env_out.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_1, alpha_output_1), vec4(0.0), vec4(1.0));
+float alpha_output_1 = (last_tex_env_out.a);
+last_tex_env_out = vec4(color_output_1, alpha_output_1);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 
 vec3 color_output_2 = byteround(clamp(min((rounded_primary_color.rgb) + (const_color[2].rgb), vec3(1.0)) * (last_tex_env_out.rgb), vec3(0.0), vec3(1.0)));
-float alpha_output_2 = byteround(clamp((last_tex_env_out.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_2, alpha_output_2), vec4(0.0), vec4(1.0));
+float alpha_output_2 = (last_tex_env_out.a);
+last_tex_env_out = vec4(color_output_2, alpha_output_2);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 
 vec3 color_output_3 = byteround(clamp((last_tex_env_out.rgb) * (texcolor1.rgb) + (const_color[3].rgb), vec3(0.0), vec3(1.0)));
-float alpha_output_3 = byteround(clamp((last_tex_env_out.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_3 * 2.0, alpha_output_3 * 1.0), vec4(0.0), vec4(1.0));
+float alpha_output_3 = (last_tex_env_out.a);
+last_tex_env_out = vec4(color_output_3 * 2.0, alpha_output_3 * 1.0);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 
 combiner_buffer = next_combiner_buffer;
@@ -34673,18 +33024,18 @@ combiner_buffer = next_combiner_buffer;
 combiner_buffer = next_combiner_buffer;
 
 float fog_index = depth * 128.0;
-float fog_i = clamp(floor(fog_index), 0.0, 127.0);
-float fog_f = fog_index - fog_i;
-vec2 fog_lut_entry = texelFetch(texture_buffer_lut_lf, int(fog_i) + fog_lut_offset).rg;
+int fog_i = int(fog_index);
+float fog_f = fract(fog_index);
+vec2 fog_lut_entry = texelFetch(texture_buffer_lut_lf, fog_i + fog_lut_offset).rg;
 float fog_factor = fog_lut_entry.r + fog_lut_entry.g * fog_f;
 fog_factor = clamp(fog_factor, 0.0, 1.0);
 last_tex_env_out.rgb = mix(fog_color.rgb, last_tex_env_out.rgb, fog_factor);
 gl_FragDepth = depth;
 color = byteround(last_tex_env_out);
 }
-// reference: 19A7EE8DDAB58DBF, 457031E0F13E6DA4
-// program: 9A0887C21E007189, 3B3AE026C742C7D5, 457031E0F13E6DA4
-// shader: 8B30, 4701705D5C627EF0
+// reference: 19A7EE8DDAB58DBF, 75F6E58DB17C856F
+// program: C2A49A7A2A81571D, D0BDF6740B5CE976, 75F6E58DB17C856F
+// shader: 8B30, 838E7AB42BF62674
 
 precision highp int;
 precision highp float;
@@ -34860,54 +33211,59 @@ specular_sum.rgb += (((lut_scale_d0 * LookupLightingLUTSigned(0, dot(normal, nor
 diffuse_sum.rgb += lighting_global_ambient;
 primary_fragment_color = clamp(diffuse_sum, vec4(0.0), vec4(1.0));
 secondary_fragment_color = clamp(specular_sum, vec4(0.0), vec4(1.0));
-
 vec4 combiner_buffer = vec4(0.0);
 vec4 next_combiner_buffer = tev_combiner_buffer_color;
 vec4 last_tex_env_out = vec4(0.0);
 vec3 color_output_0 = byteround(clamp((vec3(1.0) - secondary_fragment_color.aaa) * (const_color[0].rgb) + (primary_fragment_color.rgb), vec3(0.0), vec3(1.0)));
-float alpha_output_0 = byteround(clamp((rounded_primary_color.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_0, alpha_output_0), vec4(0.0), vec4(1.0));
+float alpha_output_0 = (rounded_primary_color.a);
+last_tex_env_out = vec4(color_output_0, alpha_output_0);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 
 vec3 color_output_1 = byteround(clamp((texcolor0.rgb) * (last_tex_env_out.rgb), vec3(0.0), vec3(1.0)));
-float alpha_output_1 = byteround(clamp((last_tex_env_out.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_1, alpha_output_1), vec4(0.0), vec4(1.0));
+float alpha_output_1 = (last_tex_env_out.a);
+last_tex_env_out = vec4(color_output_1, alpha_output_1);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 
 vec3 color_output_2 = byteround(clamp((last_tex_env_out.rgb) + (const_color[2].rgb) - vec3(0.5), vec3(0.0), vec3(1.0)));
-float alpha_output_2 = byteround(clamp((last_tex_env_out.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_2, alpha_output_2), vec4(0.0), vec4(1.0));
+float alpha_output_2 = (last_tex_env_out.a);
+last_tex_env_out = vec4(color_output_2, alpha_output_2);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 next_combiner_buffer.rgb = last_tex_env_out.rgb;
 
 vec3 color_output_3 = byteround(clamp((vec3(1.0) - last_tex_env_out.rgb) * (secondary_fragment_color.rgb) + (last_tex_env_out.rgb) * (vec3(1.0) - (secondary_fragment_color.rgb)), vec3(0.0), vec3(1.0)));
-float alpha_output_3 = byteround(clamp((last_tex_env_out.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_3, alpha_output_3), vec4(0.0), vec4(1.0));
+float alpha_output_3 = (last_tex_env_out.a);
+last_tex_env_out = vec4(color_output_3, alpha_output_3);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 
 vec3 color_output_4 = byteround(clamp(min((rounded_primary_color.rgb) + (const_color[4].rgb), vec3(1.0)) * (last_tex_env_out.rgb), vec3(0.0), vec3(1.0)));
-float alpha_output_4 = byteround(clamp((last_tex_env_out.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_4, alpha_output_4), vec4(0.0), vec4(1.0));
+float alpha_output_4 = (last_tex_env_out.a);
+last_tex_env_out = vec4(color_output_4, alpha_output_4);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 
 vec3 color_output_5 = byteround(clamp((last_tex_env_out.rgb) * (combiner_buffer.rgb) + (last_tex_env_out.rgb), vec3(0.0), vec3(1.0)));
-float alpha_output_5 = byteround(clamp((last_tex_env_out.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_5 * 2.0, alpha_output_5 * 1.0), vec4(0.0), vec4(1.0));
+float alpha_output_5 = (last_tex_env_out.a);
+last_tex_env_out = vec4(color_output_5 * 2.0, alpha_output_5 * 1.0);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 
 float fog_index = depth * 128.0;
-float fog_i = clamp(floor(fog_index), 0.0, 127.0);
-float fog_f = fog_index - fog_i;
-vec2 fog_lut_entry = texelFetch(texture_buffer_lut_lf, int(fog_i) + fog_lut_offset).rg;
+int fog_i = int(fog_index);
+float fog_f = fract(fog_index);
+vec2 fog_lut_entry = texelFetch(texture_buffer_lut_lf, fog_i + fog_lut_offset).rg;
 float fog_factor = fog_lut_entry.r + fog_lut_entry.g * fog_f;
 fog_factor = clamp(fog_factor, 0.0, 1.0);
 last_tex_env_out.rgb = mix(fog_color.rgb, last_tex_env_out.rgb, fog_factor);
 gl_FragDepth = depth;
 color = byteround(last_tex_env_out);
 }
-// reference: DB3711352687EB24, 4701705D5C627EF0
-// program: F3D442C0013F9392, 6CF3F3B70E23AA85, 4701705D5C627EF0
-// shader: 8B30, F746F061EF6AFB28
+// reference: DB3711352687EB24, 838E7AB42BF62674
+// program: 22C3C36B08CEECE7, 7A40B90B17532EA8, 838E7AB42BF62674
+// shader: 8B30, 4D6461F4DDCAC477
 
 precision highp int;
 precision highp float;
@@ -35082,54 +33438,59 @@ specular_sum.rgb += (((lut_scale_d0 * LookupLightingLUTSigned(0, dot(normal, nor
 diffuse_sum.rgb += lighting_global_ambient;
 primary_fragment_color = clamp(diffuse_sum, vec4(0.0), vec4(1.0));
 secondary_fragment_color = clamp(specular_sum, vec4(0.0), vec4(1.0));
-
 vec4 combiner_buffer = vec4(0.0);
 vec4 next_combiner_buffer = tev_combiner_buffer_color;
 vec4 last_tex_env_out = vec4(0.0);
 vec3 color_output_0 = byteround(clamp((vec3(1.0) - secondary_fragment_color.aaa) * (const_color[0].rgb) + (primary_fragment_color.rgb), vec3(0.0), vec3(1.0)));
-float alpha_output_0 = byteround(clamp((rounded_primary_color.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_0, alpha_output_0), vec4(0.0), vec4(1.0));
+float alpha_output_0 = (rounded_primary_color.a);
+last_tex_env_out = vec4(color_output_0, alpha_output_0);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 
 vec3 color_output_1 = byteround(clamp((texcolor0.rgb) * (last_tex_env_out.rgb), vec3(0.0), vec3(1.0)));
-float alpha_output_1 = byteround(clamp((last_tex_env_out.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_1, alpha_output_1), vec4(0.0), vec4(1.0));
+float alpha_output_1 = (last_tex_env_out.a);
+last_tex_env_out = vec4(color_output_1, alpha_output_1);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 
 vec3 color_output_2 = byteround(clamp((last_tex_env_out.rgb) + (const_color[2].rgb) - vec3(0.5), vec3(0.0), vec3(1.0)));
-float alpha_output_2 = byteround(clamp((last_tex_env_out.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_2, alpha_output_2), vec4(0.0), vec4(1.0));
+float alpha_output_2 = (last_tex_env_out.a);
+last_tex_env_out = vec4(color_output_2, alpha_output_2);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 next_combiner_buffer.rgb = last_tex_env_out.rgb;
 
 vec3 color_output_3 = byteround(clamp((vec3(1.0) - last_tex_env_out.rgb) * (secondary_fragment_color.rgb) + (last_tex_env_out.rgb) * (vec3(1.0) - (secondary_fragment_color.rgb)), vec3(0.0), vec3(1.0)));
-float alpha_output_3 = byteround(clamp((last_tex_env_out.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_3, alpha_output_3), vec4(0.0), vec4(1.0));
+float alpha_output_3 = (last_tex_env_out.a);
+last_tex_env_out = vec4(color_output_3, alpha_output_3);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 
 vec3 color_output_4 = byteround(clamp(min((rounded_primary_color.rgb) + (const_color[4].rgb), vec3(1.0)) * (last_tex_env_out.rgb), vec3(0.0), vec3(1.0)));
-float alpha_output_4 = byteround(clamp((last_tex_env_out.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_4, alpha_output_4), vec4(0.0), vec4(1.0));
+float alpha_output_4 = (last_tex_env_out.a);
+last_tex_env_out = vec4(color_output_4, alpha_output_4);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 
 vec3 color_output_5 = byteround(clamp((last_tex_env_out.rgb) * (combiner_buffer.rgb) + (last_tex_env_out.rgb), vec3(0.0), vec3(1.0)));
-float alpha_output_5 = byteround(clamp((last_tex_env_out.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_5 * 2.0, alpha_output_5 * 1.0), vec4(0.0), vec4(1.0));
+float alpha_output_5 = (last_tex_env_out.a);
+last_tex_env_out = vec4(color_output_5 * 2.0, alpha_output_5 * 1.0);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 
 float fog_index = depth * 128.0;
-float fog_i = clamp(floor(fog_index), 0.0, 127.0);
-float fog_f = fog_index - fog_i;
-vec2 fog_lut_entry = texelFetch(texture_buffer_lut_lf, int(fog_i) + fog_lut_offset).rg;
+int fog_i = int(fog_index);
+float fog_f = fract(fog_index);
+vec2 fog_lut_entry = texelFetch(texture_buffer_lut_lf, fog_i + fog_lut_offset).rg;
 float fog_factor = fog_lut_entry.r + fog_lut_entry.g * fog_f;
 fog_factor = clamp(fog_factor, 0.0, 1.0);
 last_tex_env_out.rgb = mix(fog_color.rgb, last_tex_env_out.rgb, fog_factor);
 gl_FragDepth = depth;
 color = byteround(last_tex_env_out);
 }
-// reference: 5676F56DA3444FF4, F746F061EF6AFB28
-// program: F3D442C0013F9392, 6CF3F3B70E23AA85, F746F061EF6AFB28
-// shader: 8B30, 6FD0B9F1138CD44E
+// reference: 5676F56DA3444FF4, 4D6461F4DDCAC477
+// program: 22C3C36B08CEECE7, 7A40B90B17532EA8, 4D6461F4DDCAC477
+// shader: 8B30, 446F214C1EC835BB
 
 precision highp int;
 precision highp float;
@@ -35305,55 +33666,60 @@ specular_sum.rgb += (((lut_scale_d0 * LookupLightingLUTSigned(0, dot(normal, nor
 diffuse_sum.rgb += lighting_global_ambient;
 primary_fragment_color = clamp(diffuse_sum, vec4(0.0), vec4(1.0));
 secondary_fragment_color = clamp(specular_sum, vec4(0.0), vec4(1.0));
-
 vec4 combiner_buffer = vec4(0.0);
 vec4 next_combiner_buffer = tev_combiner_buffer_color;
 vec4 last_tex_env_out = vec4(0.0);
 vec3 color_output_0 = byteround(clamp((vec3(1.0) - secondary_fragment_color.aaa) * (const_color[0].rgb) + (primary_fragment_color.rgb), vec3(0.0), vec3(1.0)));
 float alpha_output_0 = byteround(clamp((rounded_primary_color.a) * (texcolor0.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_0, alpha_output_0), vec4(0.0), vec4(1.0));
+last_tex_env_out = vec4(color_output_0, alpha_output_0);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 
 vec3 color_output_1 = byteround(clamp((texcolor0.rgb) * (last_tex_env_out.rgb), vec3(0.0), vec3(1.0)));
-float alpha_output_1 = byteround(clamp((last_tex_env_out.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_1, alpha_output_1), vec4(0.0), vec4(1.0));
+float alpha_output_1 = (last_tex_env_out.a);
+last_tex_env_out = vec4(color_output_1, alpha_output_1);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 
 vec3 color_output_2 = byteround(clamp((last_tex_env_out.rgb) + (const_color[2].rgb) - vec3(0.5), vec3(0.0), vec3(1.0)));
-float alpha_output_2 = byteround(clamp((last_tex_env_out.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_2, alpha_output_2), vec4(0.0), vec4(1.0));
+float alpha_output_2 = (last_tex_env_out.a);
+last_tex_env_out = vec4(color_output_2, alpha_output_2);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 next_combiner_buffer.rgb = last_tex_env_out.rgb;
 
 vec3 color_output_3 = byteround(clamp((vec3(1.0) - last_tex_env_out.rgb) * (secondary_fragment_color.rgb) + (last_tex_env_out.rgb) * (vec3(1.0) - (secondary_fragment_color.rgb)), vec3(0.0), vec3(1.0)));
-float alpha_output_3 = byteround(clamp((last_tex_env_out.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_3, alpha_output_3), vec4(0.0), vec4(1.0));
+float alpha_output_3 = (last_tex_env_out.a);
+last_tex_env_out = vec4(color_output_3, alpha_output_3);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 
 vec3 color_output_4 = byteround(clamp(min((rounded_primary_color.rgb) + (const_color[4].rgb), vec3(1.0)) * (last_tex_env_out.rgb), vec3(0.0), vec3(1.0)));
-float alpha_output_4 = byteround(clamp((last_tex_env_out.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_4, alpha_output_4), vec4(0.0), vec4(1.0));
+float alpha_output_4 = (last_tex_env_out.a);
+last_tex_env_out = vec4(color_output_4, alpha_output_4);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 
 vec3 color_output_5 = byteround(clamp((last_tex_env_out.rgb) * (combiner_buffer.rgb) + (last_tex_env_out.rgb), vec3(0.0), vec3(1.0)));
-float alpha_output_5 = byteround(clamp((last_tex_env_out.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_5 * 2.0, alpha_output_5 * 1.0), vec4(0.0), vec4(1.0));
+float alpha_output_5 = (last_tex_env_out.a);
+last_tex_env_out = vec4(color_output_5 * 2.0, alpha_output_5 * 1.0);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 
 if (int(last_tex_env_out.a * 255.0) <= alphatest_ref) discard;
 float fog_index = depth * 128.0;
-float fog_i = clamp(floor(fog_index), 0.0, 127.0);
-float fog_f = fog_index - fog_i;
-vec2 fog_lut_entry = texelFetch(texture_buffer_lut_lf, int(fog_i) + fog_lut_offset).rg;
+int fog_i = int(fog_index);
+float fog_f = fract(fog_index);
+vec2 fog_lut_entry = texelFetch(texture_buffer_lut_lf, fog_i + fog_lut_offset).rg;
 float fog_factor = fog_lut_entry.r + fog_lut_entry.g * fog_f;
 fog_factor = clamp(fog_factor, 0.0, 1.0);
 last_tex_env_out.rgb = mix(fog_color.rgb, last_tex_env_out.rgb, fog_factor);
 gl_FragDepth = depth;
 color = byteround(last_tex_env_out);
 }
-// reference: 5195C0E4CA300027, 6FD0B9F1138CD44E
-// program: F3D442C0013F9392, 6CF3F3B70E23AA85, 6FD0B9F1138CD44E
-// shader: 8B30, 12B458A0661315C2
+// reference: 5195C0E4CA300027, 446F214C1EC835BB
+// program: 22C3C36B08CEECE7, 7A40B90B17532EA8, 446F214C1EC835BB
+// shader: 8B30, 801B5286EB1F4A8F
 
 precision highp int;
 precision highp float;
@@ -35529,55 +33895,60 @@ specular_sum.rgb += (((lut_scale_d0 * LookupLightingLUTSigned(0, dot(normal, nor
 diffuse_sum.rgb += lighting_global_ambient;
 primary_fragment_color = clamp(diffuse_sum, vec4(0.0), vec4(1.0));
 secondary_fragment_color = clamp(specular_sum, vec4(0.0), vec4(1.0));
-
 vec4 combiner_buffer = vec4(0.0);
 vec4 next_combiner_buffer = tev_combiner_buffer_color;
 vec4 last_tex_env_out = vec4(0.0);
 vec3 color_output_0 = byteround(clamp((vec3(1.0) - secondary_fragment_color.aaa) * (const_color[0].rgb) + (primary_fragment_color.rgb), vec3(0.0), vec3(1.0)));
 float alpha_output_0 = byteround(clamp((rounded_primary_color.a) * (texcolor0.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_0, alpha_output_0), vec4(0.0), vec4(1.0));
+last_tex_env_out = vec4(color_output_0, alpha_output_0);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 
 vec3 color_output_1 = byteround(clamp((texcolor0.rgb) * (last_tex_env_out.rgb), vec3(0.0), vec3(1.0)));
-float alpha_output_1 = byteround(clamp((last_tex_env_out.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_1, alpha_output_1), vec4(0.0), vec4(1.0));
+float alpha_output_1 = (last_tex_env_out.a);
+last_tex_env_out = vec4(color_output_1, alpha_output_1);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 
 vec3 color_output_2 = byteround(clamp((last_tex_env_out.rgb) + (const_color[2].rgb) - vec3(0.5), vec3(0.0), vec3(1.0)));
-float alpha_output_2 = byteround(clamp((last_tex_env_out.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_2, alpha_output_2), vec4(0.0), vec4(1.0));
+float alpha_output_2 = (last_tex_env_out.a);
+last_tex_env_out = vec4(color_output_2, alpha_output_2);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 next_combiner_buffer.rgb = last_tex_env_out.rgb;
 
 vec3 color_output_3 = byteround(clamp((vec3(1.0) - last_tex_env_out.rgb) * (secondary_fragment_color.rgb) + (last_tex_env_out.rgb) * (vec3(1.0) - (secondary_fragment_color.rgb)), vec3(0.0), vec3(1.0)));
-float alpha_output_3 = byteround(clamp((last_tex_env_out.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_3, alpha_output_3), vec4(0.0), vec4(1.0));
+float alpha_output_3 = (last_tex_env_out.a);
+last_tex_env_out = vec4(color_output_3, alpha_output_3);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 
 vec3 color_output_4 = byteround(clamp(min((rounded_primary_color.rgb) + (const_color[4].rgb), vec3(1.0)) * (last_tex_env_out.rgb), vec3(0.0), vec3(1.0)));
-float alpha_output_4 = byteround(clamp((last_tex_env_out.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_4, alpha_output_4), vec4(0.0), vec4(1.0));
+float alpha_output_4 = (last_tex_env_out.a);
+last_tex_env_out = vec4(color_output_4, alpha_output_4);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 
 vec3 color_output_5 = byteround(clamp((last_tex_env_out.rgb) * (combiner_buffer.rgb) + (last_tex_env_out.rgb), vec3(0.0), vec3(1.0)));
-float alpha_output_5 = byteround(clamp((last_tex_env_out.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_5 * 2.0, alpha_output_5 * 1.0), vec4(0.0), vec4(1.0));
+float alpha_output_5 = (last_tex_env_out.a);
+last_tex_env_out = vec4(color_output_5 * 2.0, alpha_output_5 * 1.0);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 
 if (int(last_tex_env_out.a * 255.0) <= alphatest_ref) discard;
 float fog_index = depth * 128.0;
-float fog_i = clamp(floor(fog_index), 0.0, 127.0);
-float fog_f = fog_index - fog_i;
-vec2 fog_lut_entry = texelFetch(texture_buffer_lut_lf, int(fog_i) + fog_lut_offset).rg;
+int fog_i = int(fog_index);
+float fog_f = fract(fog_index);
+vec2 fog_lut_entry = texelFetch(texture_buffer_lut_lf, fog_i + fog_lut_offset).rg;
 float fog_factor = fog_lut_entry.r + fog_lut_entry.g * fog_f;
 fog_factor = clamp(fog_factor, 0.0, 1.0);
 last_tex_env_out.rgb = mix(fog_color.rgb, last_tex_env_out.rgb, fog_factor);
 gl_FragDepth = depth;
 color = byteround(last_tex_env_out);
 }
-// reference: 1F43DBBBCA300027, 12B458A0661315C2
-// program: F3D442C0013F9392, 6CF3F3B70E23AA85, 12B458A0661315C2
-// shader: 8B30, 513D6723D470637B
+// reference: 1F43DBBBCA300027, 801B5286EB1F4A8F
+// program: 22C3C36B08CEECE7, 7A40B90B17532EA8, 801B5286EB1F4A8F
+// shader: 8B30, BF04C4096950D7D1
 
 precision highp int;
 precision highp float;
@@ -35754,54 +34125,59 @@ specular_sum.rgb += (((lut_scale_d0 * LookupLightingLUTSigned(0, dot(normal, nor
 diffuse_sum.rgb += lighting_global_ambient;
 primary_fragment_color = clamp(diffuse_sum, vec4(0.0), vec4(1.0));
 secondary_fragment_color = clamp(specular_sum, vec4(0.0), vec4(1.0));
-
 vec4 combiner_buffer = vec4(0.0);
 vec4 next_combiner_buffer = tev_combiner_buffer_color;
 vec4 last_tex_env_out = vec4(0.0);
 vec3 color_output_0 = byteround(clamp((vec3(1.0) - secondary_fragment_color.aaa) * (const_color[0].rgb) + (primary_fragment_color.rgb), vec3(0.0), vec3(1.0)));
-float alpha_output_0 = byteround(clamp((rounded_primary_color.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_0, alpha_output_0), vec4(0.0), vec4(1.0));
+float alpha_output_0 = (rounded_primary_color.a);
+last_tex_env_out = vec4(color_output_0, alpha_output_0);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 
 vec3 color_output_1 = byteround(clamp((texcolor1.rgb) * (last_tex_env_out.rgb) + (texcolor0.rgb), vec3(0.0), vec3(1.0)));
-float alpha_output_1 = byteround(clamp((last_tex_env_out.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_1, alpha_output_1), vec4(0.0), vec4(1.0));
+float alpha_output_1 = (last_tex_env_out.a);
+last_tex_env_out = vec4(color_output_1, alpha_output_1);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 
 vec3 color_output_2 = byteround(clamp((last_tex_env_out.rgb) + (const_color[2].rgb) - vec3(0.5), vec3(0.0), vec3(1.0)));
-float alpha_output_2 = byteround(clamp((last_tex_env_out.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_2, alpha_output_2), vec4(0.0), vec4(1.0));
+float alpha_output_2 = (last_tex_env_out.a);
+last_tex_env_out = vec4(color_output_2, alpha_output_2);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 next_combiner_buffer.rgb = last_tex_env_out.rgb;
 
 vec3 color_output_3 = byteround(clamp((vec3(1.0) - last_tex_env_out.rgb) * (secondary_fragment_color.rgb) + (last_tex_env_out.rgb) * (vec3(1.0) - (secondary_fragment_color.rgb)), vec3(0.0), vec3(1.0)));
-float alpha_output_3 = byteround(clamp((last_tex_env_out.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_3, alpha_output_3), vec4(0.0), vec4(1.0));
+float alpha_output_3 = (last_tex_env_out.a);
+last_tex_env_out = vec4(color_output_3, alpha_output_3);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 
 vec3 color_output_4 = byteround(clamp(min((rounded_primary_color.rgb) + (const_color[4].rgb), vec3(1.0)) * (last_tex_env_out.rgb), vec3(0.0), vec3(1.0)));
-float alpha_output_4 = byteround(clamp((last_tex_env_out.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_4, alpha_output_4), vec4(0.0), vec4(1.0));
+float alpha_output_4 = (last_tex_env_out.a);
+last_tex_env_out = vec4(color_output_4, alpha_output_4);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 
 vec3 color_output_5 = byteround(clamp((last_tex_env_out.rgb) * (combiner_buffer.rgb) + (last_tex_env_out.rgb), vec3(0.0), vec3(1.0)));
-float alpha_output_5 = byteround(clamp((last_tex_env_out.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_5, alpha_output_5), vec4(0.0), vec4(1.0));
+float alpha_output_5 = (last_tex_env_out.a);
+last_tex_env_out = vec4(color_output_5, alpha_output_5);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 
 float fog_index = depth * 128.0;
-float fog_i = clamp(floor(fog_index), 0.0, 127.0);
-float fog_f = fog_index - fog_i;
-vec2 fog_lut_entry = texelFetch(texture_buffer_lut_lf, int(fog_i) + fog_lut_offset).rg;
+int fog_i = int(fog_index);
+float fog_f = fract(fog_index);
+vec2 fog_lut_entry = texelFetch(texture_buffer_lut_lf, fog_i + fog_lut_offset).rg;
 float fog_factor = fog_lut_entry.r + fog_lut_entry.g * fog_f;
 fog_factor = clamp(fog_factor, 0.0, 1.0);
 last_tex_env_out.rgb = mix(fog_color.rgb, last_tex_env_out.rgb, fog_factor);
 gl_FragDepth = depth;
 color = byteround(last_tex_env_out);
 }
-// reference: 8C6DE2A20980D75B, 513D6723D470637B
-// program: 9A0887C21E007189, 3B3AE026C742C7D5, 513D6723D470637B
-// shader: 8B30, 7F31BA710DEB9C72
+// reference: 8C6DE2A20980D75B, BF04C4096950D7D1
+// program: C2A49A7A2A81571D, D0BDF6740B5CE976, BF04C4096950D7D1
+// shader: 8B30, 403A3CE4B3223F26
 
 precision highp int;
 precision highp float;
@@ -35977,51 +34353,55 @@ specular_sum.rgb += ((light_src[0].specular_0) + ((lut_scale_d1 * LookupLighting
 diffuse_sum.rgb += lighting_global_ambient;
 primary_fragment_color = clamp(diffuse_sum, vec4(0.0), vec4(1.0));
 secondary_fragment_color = clamp(specular_sum, vec4(0.0), vec4(1.0));
-
 vec4 combiner_buffer = vec4(0.0);
 vec4 next_combiner_buffer = tev_combiner_buffer_color;
 vec4 last_tex_env_out = vec4(0.0);
 vec3 color_output_0 = byteround(clamp((texcolor0.rgb) * (const_color[0].aaa), vec3(0.0), vec3(1.0)));
 float alpha_output_0 = byteround(clamp((rounded_primary_color.a) * (texcolor0.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_0, alpha_output_0), vec4(0.0), vec4(1.0));
+last_tex_env_out = vec4(color_output_0, alpha_output_0);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 
 vec3 color_output_1 = byteround(clamp((last_tex_env_out.rgb) + (const_color[1].rgb) - vec3(0.5), vec3(0.0), vec3(1.0)));
 float alpha_output_1 = byteround(clamp((last_tex_env_out.a) * (1.0 - secondary_fragment_color.r), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_1, alpha_output_1), vec4(0.0), vec4(1.0));
+last_tex_env_out = vec4(color_output_1, alpha_output_1);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 next_combiner_buffer.rgb = last_tex_env_out.rgb;
 
 vec3 color_output_2 = byteround(clamp((vec3(1.0) - secondary_fragment_color.rgb) * (last_tex_env_out.rgb) + (secondary_fragment_color.rgb), vec3(0.0), vec3(1.0)));
-float alpha_output_2 = byteround(clamp((last_tex_env_out.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_2, alpha_output_2), vec4(0.0), vec4(1.0));
+float alpha_output_2 = (last_tex_env_out.a);
+last_tex_env_out = vec4(color_output_2, alpha_output_2);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 
 vec3 color_output_3 = byteround(clamp(min((rounded_primary_color.rgb) + (const_color[3].rgb), vec3(1.0)) * (last_tex_env_out.rgb), vec3(0.0), vec3(1.0)));
-float alpha_output_3 = byteround(clamp((last_tex_env_out.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_3, alpha_output_3), vec4(0.0), vec4(1.0));
+float alpha_output_3 = (last_tex_env_out.a);
+last_tex_env_out = vec4(color_output_3, alpha_output_3);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 
 vec3 color_output_4 = byteround(clamp((last_tex_env_out.rgb) * (combiner_buffer.rgb) + (last_tex_env_out.rgb), vec3(0.0), vec3(1.0)));
-float alpha_output_4 = byteround(clamp((last_tex_env_out.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_4 * 2.0, alpha_output_4 * 1.0), vec4(0.0), vec4(1.0));
+float alpha_output_4 = (last_tex_env_out.a);
+last_tex_env_out = vec4(color_output_4 * 2.0, alpha_output_4 * 1.0);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 
 combiner_buffer = next_combiner_buffer;
 
 float fog_index = depth * 128.0;
-float fog_i = clamp(floor(fog_index), 0.0, 127.0);
-float fog_f = fog_index - fog_i;
-vec2 fog_lut_entry = texelFetch(texture_buffer_lut_lf, int(fog_i) + fog_lut_offset).rg;
+int fog_i = int(fog_index);
+float fog_f = fract(fog_index);
+vec2 fog_lut_entry = texelFetch(texture_buffer_lut_lf, fog_i + fog_lut_offset).rg;
 float fog_factor = fog_lut_entry.r + fog_lut_entry.g * fog_f;
 fog_factor = clamp(fog_factor, 0.0, 1.0);
 last_tex_env_out.rgb = mix(fog_color.rgb, last_tex_env_out.rgb, fog_factor);
 gl_FragDepth = depth;
 color = byteround(last_tex_env_out);
 }
-// reference: 28E5101D0134566C, 7F31BA710DEB9C72
-// program: F3D442C0013F9392, 6CF3F3B70E23AA85, 7F31BA710DEB9C72
-// shader: 8B30, 5743D477C4C5442A
+// reference: 28E5101D0134566C, 403A3CE4B3223F26
+// program: 22C3C36B08CEECE7, 7A40B90B17532EA8, 403A3CE4B3223F26
+// shader: 8B30, 0D0BB0182DD329F0
 
 precision highp int;
 precision highp float;
@@ -36171,8 +34551,9 @@ vec4 combiner_buffer = vec4(0.0);
 vec4 next_combiner_buffer = tev_combiner_buffer_color;
 vec4 last_tex_env_out = vec4(0.0);
 vec3 color_output_0 = byteround(clamp((rounded_primary_color.rgb) * (const_color[0].rgb), vec3(0.0), vec3(1.0)));
-float alpha_output_0 = byteround(clamp((rounded_primary_color.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_0, alpha_output_0), vec4(0.0), vec4(1.0));
+float alpha_output_0 = (rounded_primary_color.a);
+last_tex_env_out = vec4(color_output_0, alpha_output_0);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 
 combiner_buffer = next_combiner_buffer;
@@ -36186,18 +34567,475 @@ combiner_buffer = next_combiner_buffer;
 combiner_buffer = next_combiner_buffer;
 
 float fog_index = depth * 128.0;
-float fog_i = clamp(floor(fog_index), 0.0, 127.0);
-float fog_f = fog_index - fog_i;
-vec2 fog_lut_entry = texelFetch(texture_buffer_lut_lf, int(fog_i) + fog_lut_offset).rg;
+int fog_i = int(fog_index);
+float fog_f = fract(fog_index);
+vec2 fog_lut_entry = texelFetch(texture_buffer_lut_lf, fog_i + fog_lut_offset).rg;
 float fog_factor = fog_lut_entry.r + fog_lut_entry.g * fog_f;
 fog_factor = clamp(fog_factor, 0.0, 1.0);
 last_tex_env_out.rgb = mix(fog_color.rgb, last_tex_env_out.rgb, fog_factor);
 gl_FragDepth = depth;
 color = byteround(last_tex_env_out);
 }
-// reference: 59C470F79A28C632, 5743D477C4C5442A
-// program: FBC6AFA380C91748, 4BD70AD09292A3DA, 5743D477C4C5442A
-// shader: 8B30, 7F8ADAC33B4FBAD1
+// reference: 59C470F79A28C632, 0D0BB0182DD329F0
+// program: 668DC2CC893B1519, 80B52B8FBE5FE773, 0D0BB0182DD329F0
+// shader: 8B30, 53259EEF4A24C4E5
+
+precision highp int;
+precision highp float;
+precision highp samplerBuffer;
+precision highp usampler2D;
+precision highp uimage2D;
+in vec4 primary_color;
+in vec2 texcoord0;
+in vec2 texcoord1;
+in vec2 texcoord2;
+in float texcoord0_w;
+in vec4 normquat;
+in vec3 view;
+
+#ifndef CITRA_GLES
+in vec4 gl_FragCoord;
+#endif // CITRA_GLES
+out vec4 color;
+
+uniform sampler2D tex0;
+uniform sampler2D tex1;
+uniform sampler2D tex2;
+uniform samplerCube tex_cube;
+uniform samplerBuffer texture_buffer_lut_lf;
+uniform samplerBuffer texture_buffer_lut_rg;
+uniform samplerBuffer texture_buffer_lut_rgba;
+
+#define NUM_TEV_STAGES 6
+#define NUM_LIGHTS 8
+#define NUM_LIGHTING_SAMPLERS 24
+
+struct LightSrc {
+    vec3 specular_0;
+    vec3 specular_1;
+    vec3 diffuse;
+    vec3 ambient;
+    vec3 position;
+    vec3 spot_direction;
+    float dist_atten_bias;
+    float dist_atten_scale;
+};
+
+layout (std140) uniform shader_data {
+    int alphatest_ref;
+    float depth_scale;
+    float depth_offset;
+    float shadow_bias_constant;
+    float shadow_bias_linear;
+    int scissor_x1;
+    int scissor_y1;
+    int scissor_x2;
+    int scissor_y2;
+    int fog_lut_offset;
+    int proctex_noise_lut_offset;
+    int proctex_color_map_offset;
+    int proctex_alpha_map_offset;
+    int proctex_lut_offset;
+    int proctex_diff_lut_offset;
+    float proctex_bias;
+    vec3 fog_color;
+    vec2 proctex_noise_f;
+    vec2 proctex_noise_a;
+    vec2 proctex_noise_p;
+    vec4 const_color[NUM_TEV_STAGES];
+    vec4 tev_combiner_buffer_color;
+    vec4 clip_coef;
+};
+
+layout (std140) uniform shader_light_data {
+    ivec4 lighting_lut_offset[NUM_LIGHTING_SAMPLERS / 4];
+    vec3 lighting_global_ambient;
+    LightSrc light_src[NUM_LIGHTS];
+    float lut_scale_d0;
+    float lut_scale_d1;
+    float lut_scale_sp;
+    float lut_scale_fr;
+    float lut_scale_rb;
+    float lut_scale_rg;
+    float lut_scale_rr;
+    int shadow_texture_bias;
+};
+
+// Rotate the vector v by the quaternion q
+vec3 quaternion_rotate(vec4 q, vec3 v) {
+    return v + 2.0 * cross(q.xyz, cross(q.xyz, v) + q.w * v);
+}
+
+float LookupLightingLUT(int lut_index, int index, float delta) {
+    vec2 entry = texelFetch(texture_buffer_lut_lf, lighting_lut_offset[lut_index >> 2][lut_index & 3] + index).rg;
+    return entry.r + entry.g * delta;
+}
+
+float LookupLightingLUTUnsigned(int lut_index, float pos) {
+    int index = clamp(int(pos * 256.0), 0, 255);
+    float delta = pos * 256.0 - float(index);
+    return LookupLightingLUT(lut_index, index, delta);
+}
+
+float LookupLightingLUTSigned(int lut_index, float pos) {
+    int index = clamp(int(pos * 128.0), -128, 127);
+    float delta = pos * 128.0 - float(index);
+    if (index < 0) index += 256;
+    return LookupLightingLUT(lut_index, index, delta);
+}
+
+float byteround(float x) {
+    return round(x * 255.0) * (1.0 / 255.0);
+}
+
+vec2 byteround(vec2 x) {
+    return round(x * 255.0) * (1.0 / 255.0);
+}
+
+vec3 byteround(vec3 x) {
+    return round(x * 255.0) * (1.0 / 255.0);
+}
+
+vec4 byteround(vec4 x) {
+    return round(x * 255.0) * (1.0 / 255.0);
+}
+
+// PICA's LOD formula for 2D textures.
+// This LOD formula is the same as the LOD lower limit defined in OpenGL.
+// f(x, y) >= max{m_u, m_v, m_w}
+// (See OpenGL 4.6 spec, 8.14.1 - Scale Factor and Level-of-Detail)
+float getLod(vec2 coord) {
+    vec2 d = max(abs(dFdx(coord)), abs(dFdy(coord)));
+    return log2(max(d.x, d.y));
+}
+
+vec4 shadowTexture(vec2 uv, float w) {
+    return vec4(1.0);
+}
+
+vec4 shadowTextureCube(vec2 uv, float w) {
+    return vec4(1.0);
+}
+
+void main() {
+vec4 rounded_primary_color = byteround(primary_color);
+vec4 primary_fragment_color = vec4(0.0);
+vec4 secondary_fragment_color = vec4(0.0);
+if (!(gl_FragCoord.x >= float(scissor_x1) && gl_FragCoord.y >= float(scissor_y1) && gl_FragCoord.x < float(scissor_x2) && gl_FragCoord.y < float(scissor_y2))) discard;
+float z_over_w = 2.0 * gl_FragCoord.z - 1.0;
+float depth = z_over_w * depth_scale + depth_offset;
+vec4 texcolor0 = textureLod(tex0, texcoord0, getLod(texcoord0 * vec2(textureSize(tex0, 0))));
+vec4 texcolor1 = textureLod(tex1, texcoord1, getLod(texcoord1 * vec2(textureSize(tex1, 0))));
+
+vec4 diffuse_sum = vec4(0.0, 0.0, 0.0, 1.0);
+vec4 specular_sum = vec4(0.0, 0.0, 0.0, 1.0);
+vec3 light_vector = vec3(0.0);
+vec3 refl_value = vec3(0.0);
+vec3 spot_dir = vec3(0.0);
+vec3 half_vector = vec3(0.0);
+float dot_product = 0.0;
+float clamp_highlights = 1.0;
+float geo_factor = 1.0;
+vec3 surface_normal = 2.0 * (texcolor1).rgb - 1.0;
+surface_normal.z = sqrt(max((1.0 - (surface_normal.x*surface_normal.x + surface_normal.y*surface_normal.y)), 0.0));
+vec3 surface_tangent = vec3(1.0, 0.0, 0.0);
+vec4 normalized_normquat = normalize(normquat);
+vec3 normal = quaternion_rotate(normalized_normquat, surface_normal);
+vec3 tangent = quaternion_rotate(normalized_normquat, surface_tangent);
+vec4 shadow = vec4(1.0);
+light_vector = normalize(light_src[0].position);
+spot_dir = light_src[0].spot_direction;
+half_vector = normalize(view) + light_vector;
+dot_product = max(dot(light_vector, normal), 0.0);
+refl_value.r = 1.0;
+refl_value.g = refl_value.r;
+refl_value.b = refl_value.r;
+specular_sum.a = (lut_scale_fr * LookupLightingLUTSigned(3, dot(light_vector, normal)));
+diffuse_sum.rgb += ((light_src[0].diffuse * dot_product) + light_src[0].ambient) * 1.0;
+specular_sum.rgb += (((lut_scale_d0 * LookupLightingLUTSigned(0, dot(normal, normalize(half_vector)))) * light_src[0].specular_0) + ((lut_scale_d1 * LookupLightingLUTSigned(1, dot(normal, normalize(view)))) * light_src[0].specular_1)) * clamp_highlights * 1.0;
+diffuse_sum.rgb += lighting_global_ambient;
+primary_fragment_color = clamp(diffuse_sum, vec4(0.0), vec4(1.0));
+secondary_fragment_color = clamp(specular_sum, vec4(0.0), vec4(1.0));
+vec4 combiner_buffer = vec4(0.0);
+vec4 next_combiner_buffer = tev_combiner_buffer_color;
+vec4 last_tex_env_out = vec4(0.0);
+vec3 color_output_0 = byteround(clamp((vec3(1.0) - secondary_fragment_color.aaa) * (const_color[0].rgb) + (primary_fragment_color.rgb), vec3(0.0), vec3(1.0)));
+float alpha_output_0 = byteround(clamp((rounded_primary_color.a) * (texcolor0.a), 0.0, 1.0));
+last_tex_env_out = vec4(color_output_0, alpha_output_0);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
+combiner_buffer = next_combiner_buffer;
+
+vec3 color_output_1 = byteround(clamp((texcolor0.rgb) * (last_tex_env_out.rgb), vec3(0.0), vec3(1.0)));
+float alpha_output_1 = (last_tex_env_out.a);
+last_tex_env_out = vec4(color_output_1, alpha_output_1);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
+combiner_buffer = next_combiner_buffer;
+
+vec3 color_output_2 = byteround(clamp((last_tex_env_out.rgb) + (const_color[2].rgb) - vec3(0.5), vec3(0.0), vec3(1.0)));
+float alpha_output_2 = (last_tex_env_out.a);
+last_tex_env_out = vec4(color_output_2, alpha_output_2);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
+combiner_buffer = next_combiner_buffer;
+next_combiner_buffer.rgb = last_tex_env_out.rgb;
+
+vec3 color_output_3 = byteround(clamp((vec3(1.0) - last_tex_env_out.rgb) * (secondary_fragment_color.rgb) + (last_tex_env_out.rgb) * (vec3(1.0) - (secondary_fragment_color.rgb)), vec3(0.0), vec3(1.0)));
+float alpha_output_3 = (last_tex_env_out.a);
+last_tex_env_out = vec4(color_output_3, alpha_output_3);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
+combiner_buffer = next_combiner_buffer;
+
+vec3 color_output_4 = byteround(clamp(min((rounded_primary_color.rgb) + (const_color[4].rgb), vec3(1.0)) * (last_tex_env_out.rgb), vec3(0.0), vec3(1.0)));
+float alpha_output_4 = (last_tex_env_out.a);
+last_tex_env_out = vec4(color_output_4, alpha_output_4);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
+combiner_buffer = next_combiner_buffer;
+
+vec3 color_output_5 = byteround(clamp((last_tex_env_out.rgb) * (combiner_buffer.rgb) + (last_tex_env_out.rgb), vec3(0.0), vec3(1.0)));
+float alpha_output_5 = (last_tex_env_out.a);
+last_tex_env_out = vec4(color_output_5 * 2.0, alpha_output_5 * 1.0);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
+combiner_buffer = next_combiner_buffer;
+
+float fog_index = depth * 128.0;
+int fog_i = int(fog_index);
+float fog_f = fract(fog_index);
+vec2 fog_lut_entry = texelFetch(texture_buffer_lut_lf, fog_i + fog_lut_offset).rg;
+float fog_factor = fog_lut_entry.r + fog_lut_entry.g * fog_f;
+fog_factor = clamp(fog_factor, 0.0, 1.0);
+last_tex_env_out.rgb = mix(fog_color.rgb, last_tex_env_out.rgb, fog_factor);
+gl_FragDepth = depth;
+color = byteround(last_tex_env_out);
+}
+// reference: 91016A853AA07331, 53259EEF4A24C4E5
+// program: C2A49A7A2A81571D, D0BDF6740B5CE976, 53259EEF4A24C4E5
+// shader: 8B30, 9F868E23399D6FB8
+
+precision highp int;
+precision highp float;
+precision highp samplerBuffer;
+precision highp usampler2D;
+precision highp uimage2D;
+in vec4 primary_color;
+in vec2 texcoord0;
+in vec2 texcoord1;
+in vec2 texcoord2;
+in float texcoord0_w;
+in vec4 normquat;
+in vec3 view;
+
+#ifndef CITRA_GLES
+in vec4 gl_FragCoord;
+#endif // CITRA_GLES
+out vec4 color;
+
+uniform sampler2D tex0;
+uniform sampler2D tex1;
+uniform sampler2D tex2;
+uniform samplerCube tex_cube;
+uniform samplerBuffer texture_buffer_lut_lf;
+uniform samplerBuffer texture_buffer_lut_rg;
+uniform samplerBuffer texture_buffer_lut_rgba;
+
+#define NUM_TEV_STAGES 6
+#define NUM_LIGHTS 8
+#define NUM_LIGHTING_SAMPLERS 24
+
+struct LightSrc {
+    vec3 specular_0;
+    vec3 specular_1;
+    vec3 diffuse;
+    vec3 ambient;
+    vec3 position;
+    vec3 spot_direction;
+    float dist_atten_bias;
+    float dist_atten_scale;
+};
+
+layout (std140) uniform shader_data {
+    int alphatest_ref;
+    float depth_scale;
+    float depth_offset;
+    float shadow_bias_constant;
+    float shadow_bias_linear;
+    int scissor_x1;
+    int scissor_y1;
+    int scissor_x2;
+    int scissor_y2;
+    int fog_lut_offset;
+    int proctex_noise_lut_offset;
+    int proctex_color_map_offset;
+    int proctex_alpha_map_offset;
+    int proctex_lut_offset;
+    int proctex_diff_lut_offset;
+    float proctex_bias;
+    vec3 fog_color;
+    vec2 proctex_noise_f;
+    vec2 proctex_noise_a;
+    vec2 proctex_noise_p;
+    vec4 const_color[NUM_TEV_STAGES];
+    vec4 tev_combiner_buffer_color;
+    vec4 clip_coef;
+};
+
+layout (std140) uniform shader_light_data {
+    ivec4 lighting_lut_offset[NUM_LIGHTING_SAMPLERS / 4];
+    vec3 lighting_global_ambient;
+    LightSrc light_src[NUM_LIGHTS];
+    float lut_scale_d0;
+    float lut_scale_d1;
+    float lut_scale_sp;
+    float lut_scale_fr;
+    float lut_scale_rb;
+    float lut_scale_rg;
+    float lut_scale_rr;
+    int shadow_texture_bias;
+};
+
+// Rotate the vector v by the quaternion q
+vec3 quaternion_rotate(vec4 q, vec3 v) {
+    return v + 2.0 * cross(q.xyz, cross(q.xyz, v) + q.w * v);
+}
+
+float LookupLightingLUT(int lut_index, int index, float delta) {
+    vec2 entry = texelFetch(texture_buffer_lut_lf, lighting_lut_offset[lut_index >> 2][lut_index & 3] + index).rg;
+    return entry.r + entry.g * delta;
+}
+
+float LookupLightingLUTUnsigned(int lut_index, float pos) {
+    int index = clamp(int(pos * 256.0), 0, 255);
+    float delta = pos * 256.0 - float(index);
+    return LookupLightingLUT(lut_index, index, delta);
+}
+
+float LookupLightingLUTSigned(int lut_index, float pos) {
+    int index = clamp(int(pos * 128.0), -128, 127);
+    float delta = pos * 128.0 - float(index);
+    if (index < 0) index += 256;
+    return LookupLightingLUT(lut_index, index, delta);
+}
+
+float byteround(float x) {
+    return round(x * 255.0) * (1.0 / 255.0);
+}
+
+vec2 byteround(vec2 x) {
+    return round(x * 255.0) * (1.0 / 255.0);
+}
+
+vec3 byteround(vec3 x) {
+    return round(x * 255.0) * (1.0 / 255.0);
+}
+
+vec4 byteround(vec4 x) {
+    return round(x * 255.0) * (1.0 / 255.0);
+}
+
+// PICA's LOD formula for 2D textures.
+// This LOD formula is the same as the LOD lower limit defined in OpenGL.
+// f(x, y) >= max{m_u, m_v, m_w}
+// (See OpenGL 4.6 spec, 8.14.1 - Scale Factor and Level-of-Detail)
+float getLod(vec2 coord) {
+    vec2 d = max(abs(dFdx(coord)), abs(dFdy(coord)));
+    return log2(max(d.x, d.y));
+}
+
+vec4 shadowTexture(vec2 uv, float w) {
+    return vec4(1.0);
+}
+
+vec4 shadowTextureCube(vec2 uv, float w) {
+    return vec4(1.0);
+}
+
+void main() {
+vec4 rounded_primary_color = byteround(primary_color);
+vec4 primary_fragment_color = vec4(0.0);
+vec4 secondary_fragment_color = vec4(0.0);
+if (!(gl_FragCoord.x >= float(scissor_x1) && gl_FragCoord.y >= float(scissor_y1) && gl_FragCoord.x < float(scissor_x2) && gl_FragCoord.y < float(scissor_y2))) discard;
+float z_over_w = 2.0 * gl_FragCoord.z - 1.0;
+float depth = z_over_w * depth_scale + depth_offset;
+
+vec4 diffuse_sum = vec4(0.0, 0.0, 0.0, 1.0);
+vec4 specular_sum = vec4(0.0, 0.0, 0.0, 1.0);
+vec3 light_vector = vec3(0.0);
+vec3 refl_value = vec3(0.0);
+vec3 spot_dir = vec3(0.0);
+vec3 half_vector = vec3(0.0);
+float dot_product = 0.0;
+float clamp_highlights = 1.0;
+float geo_factor = 1.0;
+vec3 surface_normal = vec3(0.0, 0.0, 1.0);
+vec3 surface_tangent = vec3(1.0, 0.0, 0.0);
+vec4 normalized_normquat = normalize(normquat);
+vec3 normal = quaternion_rotate(normalized_normquat, surface_normal);
+vec3 tangent = quaternion_rotate(normalized_normquat, surface_tangent);
+vec4 shadow = vec4(1.0);
+light_vector = normalize(light_src[0].position);
+spot_dir = light_src[0].spot_direction;
+half_vector = normalize(view) + light_vector;
+dot_product = max(dot(light_vector, normal), 0.0);
+refl_value.r = 1.0;
+refl_value.g = refl_value.r;
+refl_value.b = refl_value.r;
+specular_sum.a = (lut_scale_fr * LookupLightingLUTSigned(3, dot(light_vector, normal)));
+diffuse_sum.rgb += ((light_src[0].diffuse * dot_product) + light_src[0].ambient) * 1.0;
+specular_sum.rgb += (((lut_scale_d0 * LookupLightingLUTSigned(0, dot(normal, normalize(view)))) * light_src[0].specular_0) + ((lut_scale_d1 * LookupLightingLUTSigned(1, dot(normal, normalize(view)))) * light_src[0].specular_1)) * clamp_highlights * 1.0;
+diffuse_sum.rgb += lighting_global_ambient;
+primary_fragment_color = clamp(diffuse_sum, vec4(0.0), vec4(1.0));
+secondary_fragment_color = clamp(specular_sum, vec4(0.0), vec4(1.0));
+vec4 combiner_buffer = vec4(0.0);
+vec4 next_combiner_buffer = tev_combiner_buffer_color;
+vec4 last_tex_env_out = vec4(0.0);
+vec3 color_output_0 = byteround(clamp((vec3(1.0) - secondary_fragment_color.aaa) * (const_color[0].rgb) + (primary_fragment_color.rgb), vec3(0.0), vec3(1.0)));
+float alpha_output_0 = (rounded_primary_color.a);
+last_tex_env_out = vec4(color_output_0, alpha_output_0);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
+combiner_buffer = next_combiner_buffer;
+
+vec3 color_output_1 = byteround(clamp((const_color[1].rgb) * (last_tex_env_out.rgb), vec3(0.0), vec3(1.0)));
+float alpha_output_1 = (last_tex_env_out.a);
+last_tex_env_out = vec4(color_output_1, alpha_output_1);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
+combiner_buffer = next_combiner_buffer;
+
+vec3 color_output_2 = byteround(clamp((last_tex_env_out.rgb) + (const_color[2].rgb) - vec3(0.5), vec3(0.0), vec3(1.0)));
+float alpha_output_2 = (last_tex_env_out.a);
+last_tex_env_out = vec4(color_output_2, alpha_output_2);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
+combiner_buffer = next_combiner_buffer;
+next_combiner_buffer.rgb = last_tex_env_out.rgb;
+
+vec3 color_output_3 = byteround(clamp((vec3(1.0) - last_tex_env_out.rgb) * (secondary_fragment_color.rgb) + (last_tex_env_out.rgb) * (vec3(1.0) - (secondary_fragment_color.rgb)), vec3(0.0), vec3(1.0)));
+float alpha_output_3 = (last_tex_env_out.a);
+last_tex_env_out = vec4(color_output_3, alpha_output_3);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
+combiner_buffer = next_combiner_buffer;
+
+vec3 color_output_4 = byteround(clamp(min((rounded_primary_color.rgb) + (const_color[4].rgb), vec3(1.0)) * (last_tex_env_out.rgb), vec3(0.0), vec3(1.0)));
+float alpha_output_4 = (last_tex_env_out.a);
+last_tex_env_out = vec4(color_output_4, alpha_output_4);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
+combiner_buffer = next_combiner_buffer;
+
+vec3 color_output_5 = byteround(clamp((last_tex_env_out.rgb) * (combiner_buffer.rgb) + (last_tex_env_out.rgb), vec3(0.0), vec3(1.0)));
+float alpha_output_5 = (last_tex_env_out.a);
+last_tex_env_out = vec4(color_output_5 * 2.0, alpha_output_5 * 1.0);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
+combiner_buffer = next_combiner_buffer;
+
+float fog_index = depth * 128.0;
+int fog_i = int(fog_index);
+float fog_f = fract(fog_index);
+vec2 fog_lut_entry = texelFetch(texture_buffer_lut_lf, fog_i + fog_lut_offset).rg;
+float fog_factor = fog_lut_entry.r + fog_lut_entry.g * fog_f;
+fog_factor = clamp(fog_factor, 0.0, 1.0);
+last_tex_env_out.rgb = mix(fog_color.rgb, last_tex_env_out.rgb, fog_factor);
+gl_FragDepth = depth;
+color = byteround(last_tex_env_out);
+}
+// reference: 95E10A6A772E1A78, 9F868E23399D6FB8
+// program: 668DC2CC893B1519, 80B52B8FBE5FE773, 9F868E23399D6FB8
+// shader: 8B30, 6CEBE3834616DFBF
 
 precision highp int;
 precision highp float;
@@ -36347,9 +35185,10 @@ vec4 texcolor0 = textureLod(tex0, texcoord0, getLod(texcoord0 * vec2(textureSize
 vec4 combiner_buffer = vec4(0.0);
 vec4 next_combiner_buffer = tev_combiner_buffer_color;
 vec4 last_tex_env_out = vec4(0.0);
-vec3 color_output_0 = byteround(clamp((const_color[0].rgb), vec3(0.0), vec3(1.0)));
+vec3 color_output_0 = (const_color[0].rgb);
 float alpha_output_0 = byteround(clamp((texcolor0.g) - (1.0 - rounded_primary_color.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_0 * 1.0, alpha_output_0 * 2.0), vec4(0.0), vec4(1.0));
+last_tex_env_out = vec4(color_output_0 * 1.0, alpha_output_0 * 2.0);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 
 combiner_buffer = next_combiner_buffer;
@@ -36366,9 +35205,9 @@ if (int(last_tex_env_out.a * 255.0) <= alphatest_ref) discard;
 gl_FragDepth = depth;
 color = byteround(last_tex_env_out);
 }
-// reference: 963061A90058FA7E, 7F8ADAC33B4FBAD1
-// program: 9C5D7AEF8C3E67F2, 5508714B05507EE9, 7F8ADAC33B4FBAD1
-// shader: 8B30, B5340F005DB04277
+// reference: 963061A90058FA7E, 6CEBE3834616DFBF
+// program: 4056A7BD49897EA4, 01926B3CAE979003, 6CEBE3834616DFBF
+// shader: 8B30, 78A746570236321C
 
 precision highp int;
 precision highp float;
@@ -36517,9 +35356,10 @@ float depth = z_over_w * depth_scale + depth_offset;
 vec4 combiner_buffer = vec4(0.0);
 vec4 next_combiner_buffer = tev_combiner_buffer_color;
 vec4 last_tex_env_out = vec4(0.0);
-vec3 color_output_0 = byteround(clamp((rounded_primary_color.rgb), vec3(0.0), vec3(1.0)));
-float alpha_output_0 = byteround(clamp((rounded_primary_color.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_0, alpha_output_0), vec4(0.0), vec4(1.0));
+vec3 color_output_0 = (rounded_primary_color.rgb);
+float alpha_output_0 = (rounded_primary_color.a);
+last_tex_env_out = vec4(color_output_0, alpha_output_0);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 
 combiner_buffer = next_combiner_buffer;
@@ -36534,18 +35374,18 @@ combiner_buffer = next_combiner_buffer;
 
 if (int(last_tex_env_out.a * 255.0) <= alphatest_ref) discard;
 float fog_index = depth * 128.0;
-float fog_i = clamp(floor(fog_index), 0.0, 127.0);
-float fog_f = fog_index - fog_i;
-vec2 fog_lut_entry = texelFetch(texture_buffer_lut_lf, int(fog_i) + fog_lut_offset).rg;
+int fog_i = int(fog_index);
+float fog_f = fract(fog_index);
+vec2 fog_lut_entry = texelFetch(texture_buffer_lut_lf, fog_i + fog_lut_offset).rg;
 float fog_factor = fog_lut_entry.r + fog_lut_entry.g * fog_f;
 fog_factor = clamp(fog_factor, 0.0, 1.0);
 last_tex_env_out.rgb = mix(fog_color.rgb, last_tex_env_out.rgb, fog_factor);
 gl_FragDepth = depth;
 color = byteround(last_tex_env_out);
 }
-// reference: FDEA16B97DE8A650, B5340F005DB04277
-// program: 1F369F37D1E9EDE2, A180773D4B4115BE, B5340F005DB04277
-// shader: 8B30, 799DB229C885E25E
+// reference: FDEA16B97DE8A650, 78A746570236321C
+// program: 5B88C0147985B75E, 60215D2B1286D4FE, 78A746570236321C
+// shader: 8B30, 55EB722A6DF6116B
 
 precision highp int;
 precision highp float;
@@ -36725,52 +35565,56 @@ specular_sum.rgb += ((((lut_scale_d0 * LookupLightingLUTSigned(0, dot(normal, no
 diffuse_sum.rgb += lighting_global_ambient;
 primary_fragment_color = clamp(diffuse_sum, vec4(0.0), vec4(1.0));
 secondary_fragment_color = clamp(specular_sum, vec4(0.0), vec4(1.0));
-
 vec4 combiner_buffer = vec4(0.0);
 vec4 next_combiner_buffer = tev_combiner_buffer_color;
 vec4 last_tex_env_out = vec4(0.0);
 vec3 color_output_0 = byteround(clamp((vec3(1.0) - secondary_fragment_color.aaa) * (const_color[0].rgb) + (primary_fragment_color.rgb), vec3(0.0), vec3(1.0)));
 float alpha_output_0 = byteround(clamp((rounded_primary_color.a) * (texcolor0.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_0, alpha_output_0), vec4(0.0), vec4(1.0));
+last_tex_env_out = vec4(color_output_0, alpha_output_0);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 next_combiner_buffer.rgb = last_tex_env_out.rgb;
 
 vec3 color_output_1 = byteround(clamp((texcolor0.rgb) * (const_color[1].rgb), vec3(0.0), vec3(1.0)));
-float alpha_output_1 = byteround(clamp((last_tex_env_out.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_1, alpha_output_1), vec4(0.0), vec4(1.0));
+float alpha_output_1 = (last_tex_env_out.a);
+last_tex_env_out = vec4(color_output_1, alpha_output_1);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 
 vec3 color_output_2 = byteround(clamp((last_tex_env_out.rgb) * (combiner_buffer.rgb), vec3(0.0), vec3(1.0)));
-float alpha_output_2 = byteround(clamp((last_tex_env_out.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_2, alpha_output_2), vec4(0.0), vec4(1.0));
+float alpha_output_2 = (last_tex_env_out.a);
+last_tex_env_out = vec4(color_output_2, alpha_output_2);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 
 vec3 color_output_3 = byteround(clamp((secondary_fragment_color.rgb) + (last_tex_env_out.rgb), vec3(0.0), vec3(1.0)));
-float alpha_output_3 = byteround(clamp((last_tex_env_out.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_3, alpha_output_3), vec4(0.0), vec4(1.0));
+float alpha_output_3 = (last_tex_env_out.a);
+last_tex_env_out = vec4(color_output_3, alpha_output_3);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 
 vec3 color_output_4 = byteround(clamp(min((rounded_primary_color.rgb) + (const_color[4].rgb), vec3(1.0)) * (last_tex_env_out.rgb), vec3(0.0), vec3(1.0)));
-float alpha_output_4 = byteround(clamp((last_tex_env_out.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_4 * 2.0, alpha_output_4 * 1.0), vec4(0.0), vec4(1.0));
+float alpha_output_4 = (last_tex_env_out.a);
+last_tex_env_out = vec4(color_output_4 * 2.0, alpha_output_4 * 1.0);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 
 combiner_buffer = next_combiner_buffer;
 
 if (int(last_tex_env_out.a * 255.0) <= alphatest_ref) discard;
 float fog_index = depth * 128.0;
-float fog_i = clamp(floor(fog_index), 0.0, 127.0);
-float fog_f = fog_index - fog_i;
-vec2 fog_lut_entry = texelFetch(texture_buffer_lut_lf, int(fog_i) + fog_lut_offset).rg;
+int fog_i = int(fog_index);
+float fog_f = fract(fog_index);
+vec2 fog_lut_entry = texelFetch(texture_buffer_lut_lf, fog_i + fog_lut_offset).rg;
 float fog_factor = fog_lut_entry.r + fog_lut_entry.g * fog_f;
 fog_factor = clamp(fog_factor, 0.0, 1.0);
 last_tex_env_out.rgb = mix(fog_color.rgb, last_tex_env_out.rgb, fog_factor);
 gl_FragDepth = depth;
 color = byteround(last_tex_env_out);
 }
-// reference: A297E59452AB5AF1, 799DB229C885E25E
-// program: 9A0887C21E007189, 3B3AE026C742C7D5, 799DB229C885E25E
-// shader: 8B30, 84516EF6BADA2763
+// reference: A297E59452AB5AF1, 55EB722A6DF6116B
+// program: C2A49A7A2A81571D, D0BDF6740B5CE976, 55EB722A6DF6116B
+// shader: 8B30, 0E571BE84AB6FB11
 
 precision highp int;
 precision highp float;
@@ -36948,55 +35792,60 @@ specular_sum.rgb += ((((lut_scale_d0 * LookupLightingLUTSigned(0, dot(normal, no
 diffuse_sum.rgb += lighting_global_ambient;
 primary_fragment_color = clamp(diffuse_sum, vec4(0.0), vec4(1.0));
 secondary_fragment_color = clamp(specular_sum, vec4(0.0), vec4(1.0));
-
 vec4 combiner_buffer = vec4(0.0);
 vec4 next_combiner_buffer = tev_combiner_buffer_color;
 vec4 last_tex_env_out = vec4(0.0);
 vec3 color_output_0 = byteround(clamp((vec3(1.0) - secondary_fragment_color.aaa) * (const_color[0].rgb) + (primary_fragment_color.rgb), vec3(0.0), vec3(1.0)));
 float alpha_output_0 = byteround(clamp((rounded_primary_color.a) * (texcolor0.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_0, alpha_output_0), vec4(0.0), vec4(1.0));
+last_tex_env_out = vec4(color_output_0, alpha_output_0);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 next_combiner_buffer.rgb = last_tex_env_out.rgb;
 
 vec3 color_output_1 = byteround(clamp((texcolor0.rgb) * (const_color[1].rgb), vec3(0.0), vec3(1.0)));
-float alpha_output_1 = byteround(clamp((last_tex_env_out.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_1, alpha_output_1), vec4(0.0), vec4(1.0));
+float alpha_output_1 = (last_tex_env_out.a);
+last_tex_env_out = vec4(color_output_1, alpha_output_1);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 
 vec3 color_output_2 = byteround(clamp((last_tex_env_out.rgb) * (combiner_buffer.rgb) + (secondary_fragment_color.rgb), vec3(0.0), vec3(1.0)));
-float alpha_output_2 = byteround(clamp((last_tex_env_out.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_2, alpha_output_2), vec4(0.0), vec4(1.0));
+float alpha_output_2 = (last_tex_env_out.a);
+last_tex_env_out = vec4(color_output_2, alpha_output_2);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 next_combiner_buffer.rgb = last_tex_env_out.rgb;
 
 vec3 color_output_3 = byteround(clamp((rounded_primary_color.rgb) * (const_color[3].rgb) + (rounded_primary_color.rgb), vec3(0.0), vec3(1.0)));
-float alpha_output_3 = byteround(clamp((last_tex_env_out.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_3, alpha_output_3), vec4(0.0), vec4(1.0));
+float alpha_output_3 = (last_tex_env_out.a);
+last_tex_env_out = vec4(color_output_3, alpha_output_3);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 
 vec3 color_output_4 = byteround(clamp((last_tex_env_out.rgb) * (combiner_buffer.rgb) + (const_color[4].rgb), vec3(0.0), vec3(1.0)));
-float alpha_output_4 = byteround(clamp((last_tex_env_out.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_4 * 2.0, alpha_output_4 * 1.0), vec4(0.0), vec4(1.0));
+float alpha_output_4 = (last_tex_env_out.a);
+last_tex_env_out = vec4(color_output_4 * 2.0, alpha_output_4 * 1.0);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 
 vec3 color_output_5 = byteround(clamp((last_tex_env_out.rgb) * (rounded_primary_color.aaa) + (const_color[5].rgb) * (vec3(1.0) - (rounded_primary_color.aaa)), vec3(0.0), vec3(1.0)));
-float alpha_output_5 = byteround(clamp((last_tex_env_out.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_5, alpha_output_5), vec4(0.0), vec4(1.0));
+float alpha_output_5 = (last_tex_env_out.a);
+last_tex_env_out = vec4(color_output_5, alpha_output_5);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 
 float fog_index = depth * 128.0;
-float fog_i = clamp(floor(fog_index), 0.0, 127.0);
-float fog_f = fog_index - fog_i;
-vec2 fog_lut_entry = texelFetch(texture_buffer_lut_lf, int(fog_i) + fog_lut_offset).rg;
+int fog_i = int(fog_index);
+float fog_f = fract(fog_index);
+vec2 fog_lut_entry = texelFetch(texture_buffer_lut_lf, fog_i + fog_lut_offset).rg;
 float fog_factor = fog_lut_entry.r + fog_lut_entry.g * fog_f;
 fog_factor = clamp(fog_factor, 0.0, 1.0);
 last_tex_env_out.rgb = mix(fog_color.rgb, last_tex_env_out.rgb, fog_factor);
 gl_FragDepth = depth;
 color = byteround(last_tex_env_out);
 }
-// reference: EB048FDE2AE7074B, 84516EF6BADA2763
-// program: 9A0887C21E007189, 3B3AE026C742C7D5, 84516EF6BADA2763
-// shader: 8B30, CFEB33982D74C085
+// reference: EB048FDE2AE7074B, 0E571BE84AB6FB11
+// program: C2A49A7A2A81571D, D0BDF6740B5CE976, 0E571BE84AB6FB11
+// shader: 8B30, 85DACDA44B5D68A7
 
 precision highp int;
 precision highp float;
@@ -37175,55 +36024,60 @@ specular_sum.rgb += ((((lut_scale_d0 * LookupLightingLUTSigned(0, dot(normal, no
 diffuse_sum.rgb += lighting_global_ambient;
 primary_fragment_color = clamp(diffuse_sum, vec4(0.0), vec4(1.0));
 secondary_fragment_color = clamp(specular_sum, vec4(0.0), vec4(1.0));
-
 vec4 combiner_buffer = vec4(0.0);
 vec4 next_combiner_buffer = tev_combiner_buffer_color;
 vec4 last_tex_env_out = vec4(0.0);
 vec3 color_output_0 = byteround(clamp((vec3(1.0) - secondary_fragment_color.aaa) * (const_color[0].rgb) + (primary_fragment_color.rgb), vec3(0.0), vec3(1.0)));
 float alpha_output_0 = byteround(clamp((rounded_primary_color.a) * (texcolor0.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_0, alpha_output_0), vec4(0.0), vec4(1.0));
+last_tex_env_out = vec4(color_output_0, alpha_output_0);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 next_combiner_buffer.rgb = last_tex_env_out.rgb;
 
 vec3 color_output_1 = byteround(clamp((texcolor0.rgb) * (const_color[1].rgb), vec3(0.0), vec3(1.0)));
-float alpha_output_1 = byteround(clamp((last_tex_env_out.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_1, alpha_output_1), vec4(0.0), vec4(1.0));
+float alpha_output_1 = (last_tex_env_out.a);
+last_tex_env_out = vec4(color_output_1, alpha_output_1);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 
 vec3 color_output_2 = byteround(clamp((last_tex_env_out.rgb) * (combiner_buffer.rgb) + (secondary_fragment_color.rgb), vec3(0.0), vec3(1.0)));
-float alpha_output_2 = byteround(clamp((last_tex_env_out.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_2, alpha_output_2), vec4(0.0), vec4(1.0));
+float alpha_output_2 = (last_tex_env_out.a);
+last_tex_env_out = vec4(color_output_2, alpha_output_2);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 
 vec3 color_output_3 = byteround(clamp((texcolor1.rgb) * (const_color[3].rgb) + (last_tex_env_out.rgb), vec3(0.0), vec3(1.0)));
-float alpha_output_3 = byteround(clamp((last_tex_env_out.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_3, alpha_output_3), vec4(0.0), vec4(1.0));
+float alpha_output_3 = (last_tex_env_out.a);
+last_tex_env_out = vec4(color_output_3, alpha_output_3);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 next_combiner_buffer.rgb = last_tex_env_out.rgb;
 
 vec3 color_output_4 = byteround(clamp((rounded_primary_color.rgb) * (const_color[4].rgb) + (rounded_primary_color.rgb), vec3(0.0), vec3(1.0)));
-float alpha_output_4 = byteround(clamp((last_tex_env_out.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_4, alpha_output_4), vec4(0.0), vec4(1.0));
+float alpha_output_4 = (last_tex_env_out.a);
+last_tex_env_out = vec4(color_output_4, alpha_output_4);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 
 vec3 color_output_5 = byteround(clamp((last_tex_env_out.rgb) * (combiner_buffer.rgb) + (const_color[5].rgb), vec3(0.0), vec3(1.0)));
-float alpha_output_5 = byteround(clamp((last_tex_env_out.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_5 * 2.0, alpha_output_5 * 1.0), vec4(0.0), vec4(1.0));
+float alpha_output_5 = (last_tex_env_out.a);
+last_tex_env_out = vec4(color_output_5 * 2.0, alpha_output_5 * 1.0);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 
 float fog_index = depth * 128.0;
-float fog_i = clamp(floor(fog_index), 0.0, 127.0);
-float fog_f = fog_index - fog_i;
-vec2 fog_lut_entry = texelFetch(texture_buffer_lut_lf, int(fog_i) + fog_lut_offset).rg;
+int fog_i = int(fog_index);
+float fog_f = fract(fog_index);
+vec2 fog_lut_entry = texelFetch(texture_buffer_lut_lf, fog_i + fog_lut_offset).rg;
 float fog_factor = fog_lut_entry.r + fog_lut_entry.g * fog_f;
 fog_factor = clamp(fog_factor, 0.0, 1.0);
 last_tex_env_out.rgb = mix(fog_color.rgb, last_tex_env_out.rgb, fog_factor);
 gl_FragDepth = depth;
 color = byteround(last_tex_env_out);
 }
-// reference: 834E92D1475C4A81, CFEB33982D74C085
-// program: 9A0887C21E007189, 3B3AE026C742C7D5, CFEB33982D74C085
-// shader: 8B30, 3B18FCF40B04A624
+// reference: 834E92D1475C4A81, 85DACDA44B5D68A7
+// program: C2A49A7A2A81571D, D0BDF6740B5CE976, 85DACDA44B5D68A7
+// shader: 8B30, 814B9537899683CF
 
 precision highp int;
 precision highp float;
@@ -37401,51 +36255,55 @@ specular_sum.rgb += ((((lut_scale_d0 * LookupLightingLUTSigned(0, dot(normal, no
 diffuse_sum.rgb += lighting_global_ambient;
 primary_fragment_color = clamp(diffuse_sum, vec4(0.0), vec4(1.0));
 secondary_fragment_color = clamp(specular_sum, vec4(0.0), vec4(1.0));
-
 vec4 combiner_buffer = vec4(0.0);
 vec4 next_combiner_buffer = tev_combiner_buffer_color;
 vec4 last_tex_env_out = vec4(0.0);
 vec3 color_output_0 = byteround(clamp((vec3(1.0) - secondary_fragment_color.aaa) * (const_color[0].rgb) + (primary_fragment_color.rgb), vec3(0.0), vec3(1.0)));
 float alpha_output_0 = byteround(clamp((rounded_primary_color.a) * (texcolor0.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_0, alpha_output_0), vec4(0.0), vec4(1.0));
+last_tex_env_out = vec4(color_output_0, alpha_output_0);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 next_combiner_buffer.rgb = last_tex_env_out.rgb;
 
 vec3 color_output_1 = byteround(clamp((last_tex_env_out.rgb) * (const_color[1].rgb), vec3(0.0), vec3(1.0)));
-float alpha_output_1 = byteround(clamp((last_tex_env_out.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_1, alpha_output_1), vec4(0.0), vec4(1.0));
+float alpha_output_1 = (last_tex_env_out.a);
+last_tex_env_out = vec4(color_output_1, alpha_output_1);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 
 vec3 color_output_2 = byteround(clamp((secondary_fragment_color.rgb) + (last_tex_env_out.rgb), vec3(0.0), vec3(1.0)));
-float alpha_output_2 = byteround(clamp((last_tex_env_out.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_2, alpha_output_2), vec4(0.0), vec4(1.0));
+float alpha_output_2 = (last_tex_env_out.a);
+last_tex_env_out = vec4(color_output_2, alpha_output_2);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 
 vec3 color_output_3 = byteround(clamp((secondary_fragment_color.rgb) * (texcolor0.rgb) + (last_tex_env_out.rgb), vec3(0.0), vec3(1.0)));
-float alpha_output_3 = byteround(clamp((last_tex_env_out.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_3, alpha_output_3), vec4(0.0), vec4(1.0));
+float alpha_output_3 = (last_tex_env_out.a);
+last_tex_env_out = vec4(color_output_3, alpha_output_3);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 
 vec3 color_output_4 = byteround(clamp(min((rounded_primary_color.rgb) + (const_color[4].rgb), vec3(1.0)) * (last_tex_env_out.rgb), vec3(0.0), vec3(1.0)));
-float alpha_output_4 = byteround(clamp((last_tex_env_out.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_4 * 2.0, alpha_output_4 * 1.0), vec4(0.0), vec4(1.0));
+float alpha_output_4 = (last_tex_env_out.a);
+last_tex_env_out = vec4(color_output_4 * 2.0, alpha_output_4 * 1.0);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 
 combiner_buffer = next_combiner_buffer;
 
 float fog_index = depth * 128.0;
-float fog_i = clamp(floor(fog_index), 0.0, 127.0);
-float fog_f = fog_index - fog_i;
-vec2 fog_lut_entry = texelFetch(texture_buffer_lut_lf, int(fog_i) + fog_lut_offset).rg;
+int fog_i = int(fog_index);
+float fog_f = fract(fog_index);
+vec2 fog_lut_entry = texelFetch(texture_buffer_lut_lf, fog_i + fog_lut_offset).rg;
 float fog_factor = fog_lut_entry.r + fog_lut_entry.g * fog_f;
 fog_factor = clamp(fog_factor, 0.0, 1.0);
 last_tex_env_out.rgb = mix(fog_color.rgb, last_tex_env_out.rgb, fog_factor);
 gl_FragDepth = depth;
 color = byteround(last_tex_env_out);
 }
-// reference: D63F1B6F645356C4, 3B18FCF40B04A624
-// program: F3D442C0013F9392, 6CF3F3B70E23AA85, 3B18FCF40B04A624
-// shader: 8B30, 7A8346301899D7EA
+// reference: D63F1B6F645356C4, 814B9537899683CF
+// program: 22C3C36B08CEECE7, 7A40B90B17532EA8, 814B9537899683CF
+// shader: 8B30, 57473496F1051179
 
 precision highp int;
 precision highp float;
@@ -37622,56 +36480,61 @@ specular_sum.rgb += (((lut_scale_d0 * LookupLightingLUTSigned(0, dot(normal, nor
 diffuse_sum.rgb += lighting_global_ambient;
 primary_fragment_color = clamp(diffuse_sum, vec4(0.0), vec4(1.0));
 secondary_fragment_color = clamp(specular_sum, vec4(0.0), vec4(1.0));
-
 vec4 combiner_buffer = vec4(0.0);
 vec4 next_combiner_buffer = tev_combiner_buffer_color;
 vec4 last_tex_env_out = vec4(0.0);
 vec3 color_output_0 = byteround(clamp((vec3(1.0) - secondary_fragment_color.aaa) * (const_color[0].rgb) + (primary_fragment_color.rgb), vec3(0.0), vec3(1.0)));
 float alpha_output_0 = byteround(clamp((rounded_primary_color.a) * (texcolor0.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_0, alpha_output_0), vec4(0.0), vec4(1.0));
+last_tex_env_out = vec4(color_output_0, alpha_output_0);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 next_combiner_buffer.rgb = last_tex_env_out.rgb;
 
 vec3 color_output_1 = byteround(clamp((texcolor0.rgb) * (const_color[1].rgb), vec3(0.0), vec3(1.0)));
-float alpha_output_1 = byteround(clamp((last_tex_env_out.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_1, alpha_output_1), vec4(0.0), vec4(1.0));
+float alpha_output_1 = (last_tex_env_out.a);
+last_tex_env_out = vec4(color_output_1, alpha_output_1);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 
 vec3 color_output_2 = byteround(clamp((last_tex_env_out.rgb) * (combiner_buffer.rgb) + (const_color[2].rgb), vec3(0.0), vec3(1.0)));
-float alpha_output_2 = byteround(clamp((last_tex_env_out.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_2, alpha_output_2), vec4(0.0), vec4(1.0));
+float alpha_output_2 = (last_tex_env_out.a);
+last_tex_env_out = vec4(color_output_2, alpha_output_2);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 
 vec3 color_output_3 = byteround(clamp((secondary_fragment_color.rgb) * (vec3(1.0) - combiner_buffer.rgb) + (last_tex_env_out.rgb), vec3(0.0), vec3(1.0)));
-float alpha_output_3 = byteround(clamp((last_tex_env_out.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_3, alpha_output_3), vec4(0.0), vec4(1.0));
+float alpha_output_3 = (last_tex_env_out.a);
+last_tex_env_out = vec4(color_output_3, alpha_output_3);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 
 vec3 color_output_4 = byteround(clamp(min((rounded_primary_color.rgb) + (const_color[4].rgb), vec3(1.0)) * (last_tex_env_out.rgb), vec3(0.0), vec3(1.0)));
-float alpha_output_4 = byteround(clamp((last_tex_env_out.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_4, alpha_output_4), vec4(0.0), vec4(1.0));
+float alpha_output_4 = (last_tex_env_out.a);
+last_tex_env_out = vec4(color_output_4, alpha_output_4);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 
 vec3 color_output_5 = byteround(clamp((last_tex_env_out.rgb) * (last_tex_env_out.rgb) + (last_tex_env_out.rgb), vec3(0.0), vec3(1.0)));
-float alpha_output_5 = byteround(clamp((last_tex_env_out.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_5 * 2.0, alpha_output_5 * 1.0), vec4(0.0), vec4(1.0));
+float alpha_output_5 = (last_tex_env_out.a);
+last_tex_env_out = vec4(color_output_5 * 2.0, alpha_output_5 * 1.0);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 
 if (int(last_tex_env_out.a * 255.0) <= alphatest_ref) discard;
 float fog_index = depth * 128.0;
-float fog_i = clamp(floor(fog_index), 0.0, 127.0);
-float fog_f = fog_index - fog_i;
-vec2 fog_lut_entry = texelFetch(texture_buffer_lut_lf, int(fog_i) + fog_lut_offset).rg;
+int fog_i = int(fog_index);
+float fog_f = fract(fog_index);
+vec2 fog_lut_entry = texelFetch(texture_buffer_lut_lf, fog_i + fog_lut_offset).rg;
 float fog_factor = fog_lut_entry.r + fog_lut_entry.g * fog_f;
 fog_factor = clamp(fog_factor, 0.0, 1.0);
 last_tex_env_out.rgb = mix(fog_color.rgb, last_tex_env_out.rgb, fog_factor);
 gl_FragDepth = depth;
 color = byteround(last_tex_env_out);
 }
-// reference: 0E6C18F4503EF7B9, 7A8346301899D7EA
-// program: F3D442C0013F9392, 6CF3F3B70E23AA85, 7A8346301899D7EA
-// reference: 98D78E9BB73B28DF, B5340F005DB04277
-// shader: 8B30, FD0A98094C2273A1
+// reference: 0E6C18F4503EF7B9, 57473496F1051179
+// program: 22C3C36B08CEECE7, 7A40B90B17532EA8, 57473496F1051179
+// reference: 98D78E9BB73B28DF, 78A746570236321C
+// shader: 8B30, 1ED447970BF08774
 
 precision highp int;
 precision highp float;
@@ -37848,62 +36711,67 @@ specular_sum.rgb += (((lut_scale_d0 * LookupLightingLUTSigned(0, dot(normal, nor
 diffuse_sum.rgb += lighting_global_ambient;
 primary_fragment_color = clamp(diffuse_sum, vec4(0.0), vec4(1.0));
 secondary_fragment_color = clamp(specular_sum, vec4(0.0), vec4(1.0));
-
 vec4 combiner_buffer = vec4(0.0);
 vec4 next_combiner_buffer = tev_combiner_buffer_color;
 vec4 last_tex_env_out = vec4(0.0);
 vec3 color_output_0 = byteround(clamp((texcolor0.rrr) * (const_color[0].aaa), vec3(0.0), vec3(1.0)));
 float alpha_output_0 = byteround(clamp((rounded_primary_color.a) * (texcolor0.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_0, alpha_output_0), vec4(0.0), vec4(1.0));
+last_tex_env_out = vec4(color_output_0, alpha_output_0);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 
 vec3 color_output_1 = byteround(clamp((last_tex_env_out.rgb) * (texcolor1.ggg), vec3(0.0), vec3(1.0)));
-float alpha_output_1 = byteround(clamp((last_tex_env_out.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_1, alpha_output_1), vec4(0.0), vec4(1.0));
+float alpha_output_1 = (last_tex_env_out.a);
+last_tex_env_out = vec4(color_output_1, alpha_output_1);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 
 vec3 color_output_2 = byteround(clamp((last_tex_env_out.rgb) * (texcolor2.bbb) + (secondary_fragment_color.rgb), vec3(0.0), vec3(1.0)));
-float alpha_output_2 = byteround(clamp((last_tex_env_out.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_2, alpha_output_2), vec4(0.0), vec4(1.0));
+float alpha_output_2 = (last_tex_env_out.a);
+last_tex_env_out = vec4(color_output_2, alpha_output_2);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 next_combiner_buffer.rgb = last_tex_env_out.rgb;
 
 vec3 color_output_3 = byteround(clamp((last_tex_env_out.rgb) + (last_tex_env_out.rgb) - vec3(0.5), vec3(0.0), vec3(1.0)));
 float alpha_output_3 = byteround(clamp((last_tex_env_out.r) * (const_color[3].a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_3 * 4.0, alpha_output_3 * 4.0), vec4(0.0), vec4(1.0));
+last_tex_env_out = vec4(color_output_3 * 4.0, alpha_output_3 * 4.0);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 
 vec3 color_output_4 = byteround(clamp(min((last_tex_env_out.rgb) + (const_color[4].rgb), vec3(1.0)) * (rounded_primary_color.rgb), vec3(0.0), vec3(1.0)));
-float alpha_output_4 = byteround(clamp((last_tex_env_out.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_4 * 1.0, alpha_output_4 * 2.0), vec4(0.0), vec4(1.0));
+float alpha_output_4 = (last_tex_env_out.a);
+last_tex_env_out = vec4(color_output_4 * 1.0, alpha_output_4 * 2.0);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 
 vec3 color_output_5 = byteround(clamp((combiner_buffer.rgb) * (const_color[5].rgb) + (last_tex_env_out.rgb), vec3(0.0), vec3(1.0)));
-float alpha_output_5 = byteround(clamp((last_tex_env_out.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_5 * 1.0, alpha_output_5 * 4.0), vec4(0.0), vec4(1.0));
+float alpha_output_5 = (last_tex_env_out.a);
+last_tex_env_out = vec4(color_output_5 * 1.0, alpha_output_5 * 4.0);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 
 float fog_index = depth * 128.0;
-float fog_i = clamp(floor(fog_index), 0.0, 127.0);
-float fog_f = fog_index - fog_i;
-vec2 fog_lut_entry = texelFetch(texture_buffer_lut_lf, int(fog_i) + fog_lut_offset).rg;
+int fog_i = int(fog_index);
+float fog_f = fract(fog_index);
+vec2 fog_lut_entry = texelFetch(texture_buffer_lut_lf, fog_i + fog_lut_offset).rg;
 float fog_factor = fog_lut_entry.r + fog_lut_entry.g * fog_f;
 fog_factor = clamp(fog_factor, 0.0, 1.0);
 last_tex_env_out.rgb = mix(fog_color.rgb, last_tex_env_out.rgb, fog_factor);
 gl_FragDepth = depth;
 color = byteround(last_tex_env_out);
 }
-// reference: 700C89B8AF647879, FD0A98094C2273A1
-// program: D00DCCA29A979BE7, AD7922A63ED54CA7, FD0A98094C2273A1
-// reference: A297E594536930C6, 799DB229C885E25E
-// reference: EB048FDE2B256D7C, 84516EF6BADA2763
-// reference: 834E92D1469E20B6, CFEB33982D74C085
-// reference: D63F1B6F65913CF3, 3B18FCF40B04A624
-// reference: 0E6C18F451FC9D8E, 7A8346301899D7EA
-// reference: 98D78E9BB6F942E8, B5340F005DB04277
-// reference: 700C89B8AEA6124E, FD0A98094C2273A1
-// reference: 8515402A46F0B76B, 9C5D7AEF8C3E67F2
-// shader: 8B30, 6D1922100F24096E
+// reference: 700C89B8AF647879, 1ED447970BF08774
+// program: B3C9C1F640F27576, B80FA1B7F97410CD, 1ED447970BF08774
+// reference: A297E594536930C6, 55EB722A6DF6116B
+// reference: EB048FDE2B256D7C, 0E571BE84AB6FB11
+// reference: 834E92D1469E20B6, 85DACDA44B5D68A7
+// reference: D63F1B6F65913CF3, 814B9537899683CF
+// reference: 0E6C18F451FC9D8E, 57473496F1051179
+// reference: 98D78E9BB6F942E8, 78A746570236321C
+// reference: 700C89B8AEA6124E, 1ED447970BF08774
+// reference: 18C2789346F0B76B, 4056A7BD49897EA4
+// shader: 8B30, B4F9CC0546F2046D
 
 precision highp int;
 precision highp float;
@@ -38079,56 +36947,61 @@ specular_sum.rgb += (((lut_scale_d0 * LookupLightingLUTSigned(0, 0.0)) * light_s
 diffuse_sum.rgb += lighting_global_ambient;
 primary_fragment_color = clamp(diffuse_sum, vec4(0.0), vec4(1.0));
 secondary_fragment_color = clamp(specular_sum, vec4(0.0), vec4(1.0));
-
 vec4 combiner_buffer = vec4(0.0);
 vec4 next_combiner_buffer = tev_combiner_buffer_color;
 vec4 last_tex_env_out = vec4(0.0);
 vec3 color_output_0 = byteround(clamp((texcolor0.rrr) * (const_color[0].aaa), vec3(0.0), vec3(1.0)));
 float alpha_output_0 = byteround(clamp((rounded_primary_color.a) * (texcolor0.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_0, alpha_output_0), vec4(0.0), vec4(1.0));
+last_tex_env_out = vec4(color_output_0, alpha_output_0);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 next_combiner_buffer.rgb = last_tex_env_out.rgb;
 
 vec3 color_output_1 = byteround(clamp((last_tex_env_out.rgb) * (texcolor1.ggg) + (secondary_fragment_color.rgb), vec3(0.0), vec3(1.0)));
-float alpha_output_1 = byteround(clamp((last_tex_env_out.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_1 * 2.0, alpha_output_1 * 1.0), vec4(0.0), vec4(1.0));
+float alpha_output_1 = (last_tex_env_out.a);
+last_tex_env_out = vec4(color_output_1 * 2.0, alpha_output_1 * 1.0);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 next_combiner_buffer.rgb = last_tex_env_out.rgb;
 
 vec3 color_output_2 = byteround(clamp((last_tex_env_out.rgb) * (const_color[2].rgb), vec3(0.0), vec3(1.0)));
 float alpha_output_2 = byteround(clamp((last_tex_env_out.r) * (const_color[2].a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_2 * 2.0, alpha_output_2 * 4.0), vec4(0.0), vec4(1.0));
+last_tex_env_out = vec4(color_output_2 * 2.0, alpha_output_2 * 4.0);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 next_combiner_buffer.rgb = last_tex_env_out.rgb;
 
 vec3 color_output_3 = byteround(clamp(vec3(dot((combiner_buffer.rgb) - vec3(0.5), (const_color[3].rgb) - vec3(0.5)) * 4.0), vec3(0.0), vec3(1.0)));
-float alpha_output_3 = byteround(clamp((last_tex_env_out.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_3 * 4.0, alpha_output_3 * 1.0), vec4(0.0), vec4(1.0));
+float alpha_output_3 = (last_tex_env_out.a);
+last_tex_env_out = vec4(color_output_3 * 4.0, alpha_output_3 * 1.0);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 
 vec3 color_output_4 = byteround(clamp((last_tex_env_out.rgb) * (const_color[4].rgb) + (combiner_buffer.rgb), vec3(0.0), vec3(1.0)));
-float alpha_output_4 = byteround(clamp((last_tex_env_out.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_4, alpha_output_4), vec4(0.0), vec4(1.0));
+float alpha_output_4 = (last_tex_env_out.a);
+last_tex_env_out = vec4(color_output_4, alpha_output_4);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 
 vec3 color_output_5 = byteround(clamp(min((const_color[5].rgb) + (rounded_primary_color.rgb), vec3(1.0)) * (last_tex_env_out.rgb), vec3(0.0), vec3(1.0)));
-float alpha_output_5 = byteround(clamp((last_tex_env_out.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_5, alpha_output_5), vec4(0.0), vec4(1.0));
+float alpha_output_5 = (last_tex_env_out.a);
+last_tex_env_out = vec4(color_output_5, alpha_output_5);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 
 float fog_index = depth * 128.0;
-float fog_i = clamp(floor(fog_index), 0.0, 127.0);
-float fog_f = fog_index - fog_i;
-vec2 fog_lut_entry = texelFetch(texture_buffer_lut_lf, int(fog_i) + fog_lut_offset).rg;
+int fog_i = int(fog_index);
+float fog_f = fract(fog_index);
+vec2 fog_lut_entry = texelFetch(texture_buffer_lut_lf, fog_i + fog_lut_offset).rg;
 float fog_factor = fog_lut_entry.r + fog_lut_entry.g * fog_f;
 fog_factor = clamp(fog_factor, 0.0, 1.0);
 last_tex_env_out.rgb = mix(fog_color.rgb, last_tex_env_out.rgb, fog_factor);
 gl_FragDepth = depth;
 color = byteround(last_tex_env_out);
 }
-// reference: 733C1FE79AEA6746, 6D1922100F24096E
-// program: 9A0887C21E007189, 3B3AE026C742C7D5, 6D1922100F24096E
-// shader: 8B30, 2A50B369FEB8CD3A
+// reference: 733C1FE79AEA6746, B4F9CC0546F2046D
+// program: C2A49A7A2A81571D, D0BDF6740B5CE976, B4F9CC0546F2046D
+// shader: 8B30, 5F0AC5AD41A0F7ED
 
 precision highp int;
 precision highp float;
@@ -38281,17 +37154,20 @@ vec4 next_combiner_buffer = tev_combiner_buffer_color;
 vec4 last_tex_env_out = vec4(0.0);
 vec3 color_output_0 = byteround(clamp((texcolor1.rgb) + (texcolor0.rgb), vec3(0.0), vec3(1.0)));
 float alpha_output_0 = byteround(clamp((rounded_primary_color.a) * (texcolor0.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_0, alpha_output_0), vec4(0.0), vec4(1.0));
+last_tex_env_out = vec4(color_output_0, alpha_output_0);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 
 vec3 color_output_1 = byteround(clamp((last_tex_env_out.rgb) * (const_color[1].rgb), vec3(0.0), vec3(1.0)));
-float alpha_output_1 = byteround(clamp((last_tex_env_out.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_1, alpha_output_1), vec4(0.0), vec4(1.0));
+float alpha_output_1 = (last_tex_env_out.a);
+last_tex_env_out = vec4(color_output_1, alpha_output_1);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 
 vec3 color_output_2 = byteround(clamp((last_tex_env_out.rgb) * (rounded_primary_color.rgb), vec3(0.0), vec3(1.0)));
-float alpha_output_2 = byteround(clamp((last_tex_env_out.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_2, alpha_output_2), vec4(0.0), vec4(1.0));
+float alpha_output_2 = (last_tex_env_out.a);
+last_tex_env_out = vec4(color_output_2, alpha_output_2);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 
 combiner_buffer = next_combiner_buffer;
@@ -38301,20 +37177,20 @@ combiner_buffer = next_combiner_buffer;
 combiner_buffer = next_combiner_buffer;
 
 float fog_index = depth * 128.0;
-float fog_i = clamp(floor(fog_index), 0.0, 127.0);
-float fog_f = fog_index - fog_i;
-vec2 fog_lut_entry = texelFetch(texture_buffer_lut_lf, int(fog_i) + fog_lut_offset).rg;
+int fog_i = int(fog_index);
+float fog_f = fract(fog_index);
+vec2 fog_lut_entry = texelFetch(texture_buffer_lut_lf, fog_i + fog_lut_offset).rg;
 float fog_factor = fog_lut_entry.r + fog_lut_entry.g * fog_f;
 fog_factor = clamp(fog_factor, 0.0, 1.0);
 last_tex_env_out.rgb = mix(fog_color.rgb, last_tex_env_out.rgb, fog_factor);
 gl_FragDepth = depth;
 color = byteround(last_tex_env_out);
 }
-// reference: CC1D666E7E8B385C, 2A50B369FEB8CD3A
-// program: 9A0887C21E007189, 3B3AE026C742C7D5, 2A50B369FEB8CD3A
-// reference: 733C1FE79B280D71, 6D1922100F24096E
-// reference: CC1D666E7F49526B, 2A50B369FEB8CD3A
-// shader: 8B30, C2331BC0CCAAE95A
+// reference: CC1D666E7E8B385C, 5F0AC5AD41A0F7ED
+// program: C2A49A7A2A81571D, D0BDF6740B5CE976, 5F0AC5AD41A0F7ED
+// reference: 733C1FE79B280D71, B4F9CC0546F2046D
+// reference: CC1D666E7F49526B, 5F0AC5AD41A0F7ED
+// shader: 8B30, 60E90E01E37D74C7
 
 precision highp int;
 precision highp float;
@@ -38493,62 +37369,67 @@ specular_sum.rgb += (((lut_scale_d0 * LookupLightingLUTSigned(0, dot(normal, nor
 diffuse_sum.rgb += lighting_global_ambient;
 primary_fragment_color = clamp(diffuse_sum, vec4(0.0), vec4(1.0));
 secondary_fragment_color = clamp(specular_sum, vec4(0.0), vec4(1.0));
-
 vec4 combiner_buffer = vec4(0.0);
 vec4 next_combiner_buffer = tev_combiner_buffer_color;
 vec4 last_tex_env_out = vec4(0.0);
 vec3 color_output_0 = byteround(clamp((vec3(1.0) - secondary_fragment_color.aaa) * (const_color[0].rgb) + (primary_fragment_color.rgb), vec3(0.0), vec3(1.0)));
 float alpha_output_0 = byteround(clamp((rounded_primary_color.a) * (texcolor0.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_0, alpha_output_0), vec4(0.0), vec4(1.0));
+last_tex_env_out = vec4(color_output_0, alpha_output_0);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 
 vec3 color_output_1 = byteround(clamp((texcolor0.rgb) * (last_tex_env_out.rgb), vec3(0.0), vec3(1.0)));
-float alpha_output_1 = byteround(clamp((last_tex_env_out.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_1, alpha_output_1), vec4(0.0), vec4(1.0));
+float alpha_output_1 = (last_tex_env_out.a);
+last_tex_env_out = vec4(color_output_1, alpha_output_1);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 
 vec3 color_output_2 = byteround(clamp((last_tex_env_out.rgb) + (const_color[2].rgb) - vec3(0.5), vec3(0.0), vec3(1.0)));
-float alpha_output_2 = byteround(clamp((last_tex_env_out.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_2, alpha_output_2), vec4(0.0), vec4(1.0));
+float alpha_output_2 = (last_tex_env_out.a);
+last_tex_env_out = vec4(color_output_2, alpha_output_2);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 next_combiner_buffer.rgb = last_tex_env_out.rgb;
 
 vec3 color_output_3 = byteround(clamp((texcolor1.rgb) * (secondary_fragment_color.rgb) + (last_tex_env_out.rgb), vec3(0.0), vec3(1.0)));
-float alpha_output_3 = byteround(clamp((last_tex_env_out.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_3, alpha_output_3), vec4(0.0), vec4(1.0));
+float alpha_output_3 = (last_tex_env_out.a);
+last_tex_env_out = vec4(color_output_3, alpha_output_3);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 
 vec3 color_output_4 = byteround(clamp(min((rounded_primary_color.rgb) + (const_color[4].rgb), vec3(1.0)) * (last_tex_env_out.rgb), vec3(0.0), vec3(1.0)));
-float alpha_output_4 = byteround(clamp((last_tex_env_out.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_4, alpha_output_4), vec4(0.0), vec4(1.0));
+float alpha_output_4 = (last_tex_env_out.a);
+last_tex_env_out = vec4(color_output_4, alpha_output_4);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 
 vec3 color_output_5 = byteround(clamp((last_tex_env_out.rgb) * (combiner_buffer.rgb) + (last_tex_env_out.rgb), vec3(0.0), vec3(1.0)));
-float alpha_output_5 = byteround(clamp((last_tex_env_out.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_5 * 2.0, alpha_output_5 * 1.0), vec4(0.0), vec4(1.0));
+float alpha_output_5 = (last_tex_env_out.a);
+last_tex_env_out = vec4(color_output_5 * 2.0, alpha_output_5 * 1.0);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 
 float fog_index = depth * 128.0;
-float fog_i = clamp(floor(fog_index), 0.0, 127.0);
-float fog_f = fog_index - fog_i;
-vec2 fog_lut_entry = texelFetch(texture_buffer_lut_lf, int(fog_i) + fog_lut_offset).rg;
+int fog_i = int(fog_index);
+float fog_f = fract(fog_index);
+vec2 fog_lut_entry = texelFetch(texture_buffer_lut_lf, fog_i + fog_lut_offset).rg;
 float fog_factor = fog_lut_entry.r + fog_lut_entry.g * fog_f;
 fog_factor = clamp(fog_factor, 0.0, 1.0);
 last_tex_env_out.rgb = mix(fog_color.rgb, last_tex_env_out.rgb, fog_factor);
 gl_FragDepth = depth;
 color = byteround(last_tex_env_out);
 }
-// reference: EDCC1A5518224A7C, C2331BC0CCAAE95A
-// program: D00DCCA29A979BE7, AD7922A63ED54CA7, C2331BC0CCAAE95A
-// reference: 70A5B2D26E1C2124, F3D442C0013F9392
-// reference: BA10E5FBC22FA0AA, 9C5D7AEF8C3E67F2
-// reference: 69288406CB67F307, A990721D25F019E4
-// reference: 5A19025A58CAC78F, 9A0887C21E007189
-// reference: F55D901DC79F2DBA, D00DCCA29A979BE7
-// reference: 1F43DBBBCBF26A10, 12B458A0661315C2
-// reference: EDCC1A5519E0204B, C2331BC0CCAAE95A
-// reference: 8515402A896EA0A3, 9C5D7AEF8C3E67F2
-// shader: 8B30, F19FDAE92475FBBE
+// reference: EDCC1A5518224A7C, 60E90E01E37D74C7
+// program: B3C9C1F640F27576, B80FA1B7F97410CD, 60E90E01E37D74C7
+// reference: ED728A6B6E1C2124, 22C3C36B08CEECE7
+// reference: 27C7DD42C22FA0AA, 4056A7BD49897EA4
+// reference: F4FFBCBFCB67F307, A0C32A2C2484E2AE
+// reference: C7CE3AE358CAC78F, C2A49A7A2A81571D
+// reference: 688AA8A4C79F2DBA, B3C9C1F640F27576
+// reference: 1F43DBBBCBF26A10, 801B5286EB1F4A8F
+// reference: EDCC1A5519E0204B, 60E90E01E37D74C7
+// reference: 18C27893896EA0A3, 4056A7BD49897EA4
+// shader: 8B30, 402132280793AAE8
 
 precision highp int;
 precision highp float;
@@ -38700,37 +37581,42 @@ vec4 next_combiner_buffer = tev_combiner_buffer_color;
 vec4 last_tex_env_out = vec4(0.0);
 vec3 color_output_0 = byteround(clamp((const_color[0].rgb) * (vec3(1.0) - texcolor0.rgb), vec3(0.0), vec3(1.0)));
 float alpha_output_0 = byteround(clamp((rounded_primary_color.a) * (texcolor0.g), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_0, alpha_output_0), vec4(0.0), vec4(1.0));
+last_tex_env_out = vec4(color_output_0, alpha_output_0);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 
 vec3 color_output_1 = byteround(clamp((rounded_primary_color.rgb) * (texcolor0.rgb) + (last_tex_env_out.rgb), vec3(0.0), vec3(1.0)));
-float alpha_output_1 = byteround(clamp((last_tex_env_out.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_1, alpha_output_1), vec4(0.0), vec4(1.0));
+float alpha_output_1 = (last_tex_env_out.a);
+last_tex_env_out = vec4(color_output_1, alpha_output_1);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 
 combiner_buffer = next_combiner_buffer;
 
 vec3 color_output_3 = byteround(clamp((texcolor0.rgb) * (const_color[3].rgb), vec3(0.0), vec3(1.0)));
 float alpha_output_3 = byteround(clamp((texcolor0.a) * (const_color[3].a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_3, alpha_output_3), vec4(0.0), vec4(1.0));
+last_tex_env_out = vec4(color_output_3, alpha_output_3);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 
 vec3 color_output_4 = byteround(clamp((vec3(1.0) - texcolor0.rgb) * (const_color[4].rgb) + (last_tex_env_out.rgb), vec3(0.0), vec3(1.0)));
 float alpha_output_4 = byteround(clamp((1.0 - texcolor0.a) * (const_color[4].a) + (last_tex_env_out.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_4, alpha_output_4), vec4(0.0), vec4(1.0));
+last_tex_env_out = vec4(color_output_4, alpha_output_4);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 
 vec3 color_output_5 = byteround(clamp((rounded_primary_color.rgb) * (last_tex_env_out.rgb), vec3(0.0), vec3(1.0)));
 float alpha_output_5 = byteround(clamp((rounded_primary_color.a) * (last_tex_env_out.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_5, alpha_output_5), vec4(0.0), vec4(1.0));
+last_tex_env_out = vec4(color_output_5, alpha_output_5);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 
 gl_FragDepth = depth;
 color = byteround(last_tex_env_out);
 }
-// reference: 147BE5133A518984, F19FDAE92475FBBE
-// program: A990721D25F019E4, 5D764F9A6220D694, F19FDAE92475FBBE
-// shader: 8B30, 5071FDEA3748165C
+// reference: 147BE5133A518984, 402132280793AAE8
+// program: A0C32A2C2484E2AE, 42937135801BAA7E, 402132280793AAE8
+// shader: 8B30, D4FB10CEBF4C6D6F
 
 precision highp int;
 precision highp float;
@@ -38882,38 +37768,43 @@ vec4 next_combiner_buffer = tev_combiner_buffer_color;
 vec4 last_tex_env_out = vec4(0.0);
 vec3 color_output_0 = byteround(clamp((const_color[0].rgb) * (vec3(1.0) - texcolor0.rgb), vec3(0.0), vec3(1.0)));
 float alpha_output_0 = byteround(clamp((rounded_primary_color.a) * (texcolor0.g), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_0, alpha_output_0), vec4(0.0), vec4(1.0));
+last_tex_env_out = vec4(color_output_0, alpha_output_0);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 
 vec3 color_output_1 = byteround(clamp((rounded_primary_color.rgb) * (texcolor0.rgb) + (last_tex_env_out.rgb), vec3(0.0), vec3(1.0)));
-float alpha_output_1 = byteround(clamp((last_tex_env_out.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_1, alpha_output_1), vec4(0.0), vec4(1.0));
+float alpha_output_1 = (last_tex_env_out.a);
+last_tex_env_out = vec4(color_output_1, alpha_output_1);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 
 combiner_buffer = next_combiner_buffer;
 
 vec3 color_output_3 = byteround(clamp((const_color[3].rgb) * (vec3(1.0) - texcolor0.rgb), vec3(0.0), vec3(1.0)));
 float alpha_output_3 = byteround(clamp((const_color[3].a) * (1.0 - texcolor0.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_3, alpha_output_3), vec4(0.0), vec4(1.0));
+last_tex_env_out = vec4(color_output_3, alpha_output_3);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 
 vec3 color_output_4 = byteround(clamp((const_color[4].rgb) * (texcolor0.rgb) + (last_tex_env_out.rgb), vec3(0.0), vec3(1.0)));
 float alpha_output_4 = byteround(clamp((const_color[4].a) * (texcolor0.a) + (last_tex_env_out.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_4, alpha_output_4), vec4(0.0), vec4(1.0));
+last_tex_env_out = vec4(color_output_4, alpha_output_4);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 
 vec3 color_output_5 = byteround(clamp((rounded_primary_color.rgb) * (last_tex_env_out.rgb), vec3(0.0), vec3(1.0)));
 float alpha_output_5 = byteround(clamp((rounded_primary_color.a) * (last_tex_env_out.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_5, alpha_output_5), vec4(0.0), vec4(1.0));
+last_tex_env_out = vec4(color_output_5, alpha_output_5);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 
 gl_FragDepth = depth;
 color = byteround(last_tex_env_out);
 }
-// reference: A891EFBDBBAE9F3E, 5071FDEA3748165C
-// program: A990721D25F019E4, 5D764F9A6220D694, 5071FDEA3748165C
-// reference: 214B7164C87F8A67, A8877664280976B6
-// shader: 8B30, FB90A54EDBD00279
+// reference: A891EFBDBBAE9F3E, D4FB10CEBF4C6D6F
+// program: A0C32A2C2484E2AE, 42937135801BAA7E, D4FB10CEBF4C6D6F
+// reference: 214B7164C87F8A67, CBAEC99FC4E32F18
+// shader: 8B30, AB80B2E41C224054
 
 precision highp int;
 precision highp float;
@@ -39089,55 +37980,60 @@ specular_sum.rgb += (((lut_scale_d0 * LookupLightingLUTSigned(0, dot(normal, nor
 diffuse_sum.rgb += lighting_global_ambient;
 primary_fragment_color = clamp(diffuse_sum, vec4(0.0), vec4(1.0));
 secondary_fragment_color = clamp(specular_sum, vec4(0.0), vec4(1.0));
-
 vec4 combiner_buffer = vec4(0.0);
 vec4 next_combiner_buffer = tev_combiner_buffer_color;
 vec4 last_tex_env_out = vec4(0.0);
 vec3 color_output_0 = byteround(clamp((vec3(1.0) - secondary_fragment_color.aaa) * (const_color[0].rgb) + (primary_fragment_color.rgb), vec3(0.0), vec3(1.0)));
 float alpha_output_0 = byteround(clamp((rounded_primary_color.a) * (texcolor0.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_0, alpha_output_0), vec4(0.0), vec4(1.0));
+last_tex_env_out = vec4(color_output_0, alpha_output_0);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 next_combiner_buffer.rgb = last_tex_env_out.rgb;
 
 vec3 color_output_1 = byteround(clamp((texcolor0.rgb) * (const_color[1].rgb), vec3(0.0), vec3(1.0)));
-float alpha_output_1 = byteround(clamp((last_tex_env_out.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_1, alpha_output_1), vec4(0.0), vec4(1.0));
+float alpha_output_1 = (last_tex_env_out.a);
+last_tex_env_out = vec4(color_output_1, alpha_output_1);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 
 vec3 color_output_2 = byteround(clamp((last_tex_env_out.rgb) * (combiner_buffer.rgb), vec3(0.0), vec3(1.0)));
-float alpha_output_2 = byteround(clamp((last_tex_env_out.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_2, alpha_output_2), vec4(0.0), vec4(1.0));
+float alpha_output_2 = (last_tex_env_out.a);
+last_tex_env_out = vec4(color_output_2, alpha_output_2);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 
 vec3 color_output_3 = byteround(clamp((secondary_fragment_color.rgb) * (const_color[3].rgb) + (last_tex_env_out.rgb), vec3(0.0), vec3(1.0)));
-float alpha_output_3 = byteround(clamp((last_tex_env_out.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_3, alpha_output_3), vec4(0.0), vec4(1.0));
+float alpha_output_3 = (last_tex_env_out.a);
+last_tex_env_out = vec4(color_output_3, alpha_output_3);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 next_combiner_buffer.rgb = last_tex_env_out.rgb;
 
 vec3 color_output_4 = byteround(clamp((rounded_primary_color.rgb) * (const_color[4].rgb), vec3(0.0), vec3(1.0)));
-float alpha_output_4 = byteround(clamp((last_tex_env_out.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_4 * 2.0, alpha_output_4 * 1.0), vec4(0.0), vec4(1.0));
+float alpha_output_4 = (last_tex_env_out.a);
+last_tex_env_out = vec4(color_output_4 * 2.0, alpha_output_4 * 1.0);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 
 vec3 color_output_5 = byteround(clamp(min((last_tex_env_out.rgb) + (rounded_primary_color.rgb), vec3(1.0)) * (combiner_buffer.rgb), vec3(0.0), vec3(1.0)));
-float alpha_output_5 = byteround(clamp((last_tex_env_out.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_5 * 2.0, alpha_output_5 * 1.0), vec4(0.0), vec4(1.0));
+float alpha_output_5 = (last_tex_env_out.a);
+last_tex_env_out = vec4(color_output_5 * 2.0, alpha_output_5 * 1.0);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 
 float fog_index = depth * 128.0;
-float fog_i = clamp(floor(fog_index), 0.0, 127.0);
-float fog_f = fog_index - fog_i;
-vec2 fog_lut_entry = texelFetch(texture_buffer_lut_lf, int(fog_i) + fog_lut_offset).rg;
+int fog_i = int(fog_index);
+float fog_f = fract(fog_index);
+vec2 fog_lut_entry = texelFetch(texture_buffer_lut_lf, fog_i + fog_lut_offset).rg;
 float fog_factor = fog_lut_entry.r + fog_lut_entry.g * fog_f;
 fog_factor = clamp(fog_factor, 0.0, 1.0);
 last_tex_env_out.rgb = mix(fog_color.rgb, last_tex_env_out.rgb, fog_factor);
 gl_FragDepth = depth;
 color = byteround(last_tex_env_out);
 }
-// reference: B1C03DBA0BD08880, FB90A54EDBD00279
-// program: F3D442C0013F9392, 6CF3F3B70E23AA85, FB90A54EDBD00279
-// shader: 8B30, 7750DC5DA681B75E
+// reference: B1C03DBA0BD08880, AB80B2E41C224054
+// program: 22C3C36B08CEECE7, 7A40B90B17532EA8, AB80B2E41C224054
+// shader: 8B30, 220C3398F6FBCC1A
 
 precision highp int;
 precision highp float;
@@ -39313,807 +38209,63 @@ specular_sum.rgb += (((lut_scale_d0 * LookupLightingLUTSigned(0, dot(normal, nor
 diffuse_sum.rgb += lighting_global_ambient;
 primary_fragment_color = clamp(diffuse_sum, vec4(0.0), vec4(1.0));
 secondary_fragment_color = clamp(specular_sum, vec4(0.0), vec4(1.0));
-
 vec4 combiner_buffer = vec4(0.0);
 vec4 next_combiner_buffer = tev_combiner_buffer_color;
 vec4 last_tex_env_out = vec4(0.0);
 vec3 color_output_0 = byteround(clamp((vec3(1.0) - secondary_fragment_color.aaa) * (const_color[0].rgb) + (primary_fragment_color.rgb), vec3(0.0), vec3(1.0)));
 float alpha_output_0 = byteround(clamp((rounded_primary_color.a) * (texcolor0.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_0, alpha_output_0), vec4(0.0), vec4(1.0));
+last_tex_env_out = vec4(color_output_0, alpha_output_0);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 next_combiner_buffer.rgb = last_tex_env_out.rgb;
 
 vec3 color_output_1 = byteround(clamp((texcolor0.rgb) * (const_color[1].rgb), vec3(0.0), vec3(1.0)));
-float alpha_output_1 = byteround(clamp((last_tex_env_out.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_1, alpha_output_1), vec4(0.0), vec4(1.0));
+float alpha_output_1 = (last_tex_env_out.a);
+last_tex_env_out = vec4(color_output_1, alpha_output_1);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 
 vec3 color_output_2 = byteround(clamp((last_tex_env_out.rgb) * (combiner_buffer.rgb), vec3(0.0), vec3(1.0)));
-float alpha_output_2 = byteround(clamp((last_tex_env_out.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_2, alpha_output_2), vec4(0.0), vec4(1.0));
+float alpha_output_2 = (last_tex_env_out.a);
+last_tex_env_out = vec4(color_output_2, alpha_output_2);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 
 vec3 color_output_3 = byteround(clamp((secondary_fragment_color.rgb) + (last_tex_env_out.rgb), vec3(0.0), vec3(1.0)));
-float alpha_output_3 = byteround(clamp((last_tex_env_out.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_3, alpha_output_3), vec4(0.0), vec4(1.0));
+float alpha_output_3 = (last_tex_env_out.a);
+last_tex_env_out = vec4(color_output_3, alpha_output_3);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 next_combiner_buffer.rgb = last_tex_env_out.rgb;
 
 vec3 color_output_4 = byteround(clamp((rounded_primary_color.rgb) * (const_color[4].rgb), vec3(0.0), vec3(1.0)));
-float alpha_output_4 = byteround(clamp((last_tex_env_out.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_4 * 2.0, alpha_output_4 * 1.0), vec4(0.0), vec4(1.0));
+float alpha_output_4 = (last_tex_env_out.a);
+last_tex_env_out = vec4(color_output_4 * 2.0, alpha_output_4 * 1.0);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 
 vec3 color_output_5 = byteround(clamp(min((last_tex_env_out.rgb) + (rounded_primary_color.rgb), vec3(1.0)) * (combiner_buffer.rgb), vec3(0.0), vec3(1.0)));
-float alpha_output_5 = byteround(clamp((last_tex_env_out.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_5 * 2.0, alpha_output_5 * 1.0), vec4(0.0), vec4(1.0));
+float alpha_output_5 = (last_tex_env_out.a);
+last_tex_env_out = vec4(color_output_5 * 2.0, alpha_output_5 * 1.0);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 
 float fog_index = depth * 128.0;
-float fog_i = clamp(floor(fog_index), 0.0, 127.0);
-float fog_f = fog_index - fog_i;
-vec2 fog_lut_entry = texelFetch(texture_buffer_lut_lf, int(fog_i) + fog_lut_offset).rg;
+int fog_i = int(fog_index);
+float fog_f = fract(fog_index);
+vec2 fog_lut_entry = texelFetch(texture_buffer_lut_lf, fog_i + fog_lut_offset).rg;
 float fog_factor = fog_lut_entry.r + fog_lut_entry.g * fog_f;
 fog_factor = clamp(fog_factor, 0.0, 1.0);
 last_tex_env_out.rgb = mix(fog_color.rgb, last_tex_env_out.rgb, fog_factor);
 gl_FragDepth = depth;
 color = byteround(last_tex_env_out);
 }
-// reference: 6195D31249F78371, 7750DC5DA681B75E
-// program: F3D442C0013F9392, 6CF3F3B70E23AA85, 7750DC5DA681B75E
-// reference: B1C03DBA0A12E2B7, FB90A54EDBD00279
-// reference: 6195D3124835E946, 7750DC5DA681B75E
-// shader: 8B30, 33856F4EE5DA30DB
-
-precision highp int;
-precision highp float;
-precision highp samplerBuffer;
-precision highp usampler2D;
-precision highp uimage2D;
-in vec4 primary_color;
-in vec2 texcoord0;
-in vec2 texcoord1;
-in vec2 texcoord2;
-in float texcoord0_w;
-in vec4 normquat;
-in vec3 view;
-
-#ifndef CITRA_GLES
-in vec4 gl_FragCoord;
-#endif // CITRA_GLES
-out vec4 color;
-
-uniform sampler2D tex0;
-uniform sampler2D tex1;
-uniform sampler2D tex2;
-uniform samplerCube tex_cube;
-uniform samplerBuffer texture_buffer_lut_lf;
-uniform samplerBuffer texture_buffer_lut_rg;
-uniform samplerBuffer texture_buffer_lut_rgba;
-
-#define NUM_TEV_STAGES 6
-#define NUM_LIGHTS 8
-#define NUM_LIGHTING_SAMPLERS 24
-
-struct LightSrc {
-    vec3 specular_0;
-    vec3 specular_1;
-    vec3 diffuse;
-    vec3 ambient;
-    vec3 position;
-    vec3 spot_direction;
-    float dist_atten_bias;
-    float dist_atten_scale;
-};
-
-layout (std140) uniform shader_data {
-    int alphatest_ref;
-    float depth_scale;
-    float depth_offset;
-    float shadow_bias_constant;
-    float shadow_bias_linear;
-    int scissor_x1;
-    int scissor_y1;
-    int scissor_x2;
-    int scissor_y2;
-    int fog_lut_offset;
-    int proctex_noise_lut_offset;
-    int proctex_color_map_offset;
-    int proctex_alpha_map_offset;
-    int proctex_lut_offset;
-    int proctex_diff_lut_offset;
-    float proctex_bias;
-    vec3 fog_color;
-    vec2 proctex_noise_f;
-    vec2 proctex_noise_a;
-    vec2 proctex_noise_p;
-    vec4 const_color[NUM_TEV_STAGES];
-    vec4 tev_combiner_buffer_color;
-    vec4 clip_coef;
-};
-
-layout (std140) uniform shader_light_data {
-    ivec4 lighting_lut_offset[NUM_LIGHTING_SAMPLERS / 4];
-    vec3 lighting_global_ambient;
-    LightSrc light_src[NUM_LIGHTS];
-    float lut_scale_d0;
-    float lut_scale_d1;
-    float lut_scale_sp;
-    float lut_scale_fr;
-    float lut_scale_rb;
-    float lut_scale_rg;
-    float lut_scale_rr;
-    int shadow_texture_bias;
-};
-
-// Rotate the vector v by the quaternion q
-vec3 quaternion_rotate(vec4 q, vec3 v) {
-    return v + 2.0 * cross(q.xyz, cross(q.xyz, v) + q.w * v);
-}
-
-float LookupLightingLUT(int lut_index, int index, float delta) {
-    vec2 entry = texelFetch(texture_buffer_lut_lf, lighting_lut_offset[lut_index >> 2][lut_index & 3] + index).rg;
-    return entry.r + entry.g * delta;
-}
-
-float LookupLightingLUTUnsigned(int lut_index, float pos) {
-    int index = clamp(int(pos * 256.0), 0, 255);
-    float delta = pos * 256.0 - float(index);
-    return LookupLightingLUT(lut_index, index, delta);
-}
-
-float LookupLightingLUTSigned(int lut_index, float pos) {
-    int index = clamp(int(pos * 128.0), -128, 127);
-    float delta = pos * 128.0 - float(index);
-    if (index < 0) index += 256;
-    return LookupLightingLUT(lut_index, index, delta);
-}
-
-float byteround(float x) {
-    return round(x * 255.0) * (1.0 / 255.0);
-}
-
-vec2 byteround(vec2 x) {
-    return round(x * 255.0) * (1.0 / 255.0);
-}
-
-vec3 byteround(vec3 x) {
-    return round(x * 255.0) * (1.0 / 255.0);
-}
-
-vec4 byteround(vec4 x) {
-    return round(x * 255.0) * (1.0 / 255.0);
-}
-
-// PICA's LOD formula for 2D textures.
-// This LOD formula is the same as the LOD lower limit defined in OpenGL.
-// f(x, y) >= max{m_u, m_v, m_w}
-// (See OpenGL 4.6 spec, 8.14.1 - Scale Factor and Level-of-Detail)
-float getLod(vec2 coord) {
-    vec2 d = max(abs(dFdx(coord)), abs(dFdy(coord)));
-    return log2(max(d.x, d.y));
-}
-
-vec4 shadowTexture(vec2 uv, float w) {
-    return vec4(1.0);
-}
-
-vec4 shadowTextureCube(vec2 uv, float w) {
-    return vec4(1.0);
-}
-
-void main() {
-vec4 rounded_primary_color = byteround(primary_color);
-vec4 primary_fragment_color = vec4(0.0);
-vec4 secondary_fragment_color = vec4(0.0);
-if (!(gl_FragCoord.x >= float(scissor_x1) && gl_FragCoord.y >= float(scissor_y1) && gl_FragCoord.x < float(scissor_x2) && gl_FragCoord.y < float(scissor_y2))) discard;
-float z_over_w = 2.0 * gl_FragCoord.z - 1.0;
-float depth = z_over_w * depth_scale + depth_offset;
-
-vec4 diffuse_sum = vec4(0.0, 0.0, 0.0, 1.0);
-vec4 specular_sum = vec4(0.0, 0.0, 0.0, 1.0);
-vec3 light_vector = vec3(0.0);
-vec3 refl_value = vec3(0.0);
-vec3 spot_dir = vec3(0.0);
-vec3 half_vector = vec3(0.0);
-float dot_product = 0.0;
-float clamp_highlights = 1.0;
-float geo_factor = 1.0;
-vec3 surface_normal = vec3(0.0, 0.0, 1.0);
-vec3 surface_tangent = vec3(1.0, 0.0, 0.0);
-vec4 normalized_normquat = normalize(normquat);
-vec3 normal = quaternion_rotate(normalized_normquat, surface_normal);
-vec3 tangent = quaternion_rotate(normalized_normquat, surface_tangent);
-vec4 shadow = vec4(1.0);
-light_vector = normalize(light_src[0].position);
-spot_dir = light_src[0].spot_direction;
-half_vector = normalize(view) + light_vector;
-dot_product = max(dot(light_vector, normal), 0.0);
-refl_value.r = 1.0;
-refl_value.g = refl_value.r;
-refl_value.b = refl_value.r;
-diffuse_sum.rgb += ((light_src[0].diffuse * dot_product) + light_src[0].ambient) * 1.0;
-specular_sum.rgb += (((lut_scale_d0 * LookupLightingLUTSigned(0, dot(normal, normalize(view)))) * light_src[0].specular_0) + (light_src[0].specular_1)) * clamp_highlights * 1.0;
-diffuse_sum.rgb += lighting_global_ambient;
-primary_fragment_color = clamp(diffuse_sum, vec4(0.0), vec4(1.0));
-secondary_fragment_color = clamp(specular_sum, vec4(0.0), vec4(1.0));
-
-vec4 combiner_buffer = vec4(0.0);
-vec4 next_combiner_buffer = tev_combiner_buffer_color;
-vec4 last_tex_env_out = vec4(0.0);
-vec3 color_output_0 = byteround(clamp((const_color[0].rgb), vec3(0.0), vec3(1.0)));
-float alpha_output_0 = byteround(clamp((rounded_primary_color.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_0, alpha_output_0), vec4(0.0), vec4(1.0));
-combiner_buffer = next_combiner_buffer;
-
-vec3 color_output_1 = byteround(clamp((combiner_buffer.rgb) * (secondary_fragment_color.rgb) + (const_color[1].rgb) * (vec3(1.0) - (secondary_fragment_color.rgb)), vec3(0.0), vec3(1.0)));
-float alpha_output_1 = byteround(clamp((last_tex_env_out.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_1, alpha_output_1), vec4(0.0), vec4(1.0));
-combiner_buffer = next_combiner_buffer;
-
-combiner_buffer = next_combiner_buffer;
-
-combiner_buffer = next_combiner_buffer;
-
-combiner_buffer = next_combiner_buffer;
-
-combiner_buffer = next_combiner_buffer;
-
-float fog_index = depth * 128.0;
-float fog_i = clamp(floor(fog_index), 0.0, 127.0);
-float fog_f = fog_index - fog_i;
-vec2 fog_lut_entry = texelFetch(texture_buffer_lut_lf, int(fog_i) + fog_lut_offset).rg;
-float fog_factor = fog_lut_entry.r + fog_lut_entry.g * fog_f;
-fog_factor = clamp(fog_factor, 0.0, 1.0);
-last_tex_env_out.rgb = mix(fog_color.rgb, last_tex_env_out.rgb, fog_factor);
-gl_FragDepth = depth;
-color = byteround(last_tex_env_out);
-}
-// reference: 2CCF7DC036460CD8, 33856F4EE5DA30DB
-// program: FBC6AFA380C91748, 4BD70AD09292A3DA, 33856F4EE5DA30DB
-// reference: 2CCF7DC0378466EF, 33856F4EE5DA30DB
-// shader: 8B30, 331BDE69440E2373
-
-precision highp int;
-precision highp float;
-precision highp samplerBuffer;
-precision highp usampler2D;
-precision highp uimage2D;
-in vec4 primary_color;
-in vec2 texcoord0;
-in vec2 texcoord1;
-in vec2 texcoord2;
-in float texcoord0_w;
-in vec4 normquat;
-in vec3 view;
-
-#ifndef CITRA_GLES
-in vec4 gl_FragCoord;
-#endif // CITRA_GLES
-out vec4 color;
-
-uniform sampler2D tex0;
-uniform sampler2D tex1;
-uniform sampler2D tex2;
-uniform samplerCube tex_cube;
-uniform samplerBuffer texture_buffer_lut_lf;
-uniform samplerBuffer texture_buffer_lut_rg;
-uniform samplerBuffer texture_buffer_lut_rgba;
-
-#define NUM_TEV_STAGES 6
-#define NUM_LIGHTS 8
-#define NUM_LIGHTING_SAMPLERS 24
-
-struct LightSrc {
-    vec3 specular_0;
-    vec3 specular_1;
-    vec3 diffuse;
-    vec3 ambient;
-    vec3 position;
-    vec3 spot_direction;
-    float dist_atten_bias;
-    float dist_atten_scale;
-};
-
-layout (std140) uniform shader_data {
-    int alphatest_ref;
-    float depth_scale;
-    float depth_offset;
-    float shadow_bias_constant;
-    float shadow_bias_linear;
-    int scissor_x1;
-    int scissor_y1;
-    int scissor_x2;
-    int scissor_y2;
-    int fog_lut_offset;
-    int proctex_noise_lut_offset;
-    int proctex_color_map_offset;
-    int proctex_alpha_map_offset;
-    int proctex_lut_offset;
-    int proctex_diff_lut_offset;
-    float proctex_bias;
-    vec3 fog_color;
-    vec2 proctex_noise_f;
-    vec2 proctex_noise_a;
-    vec2 proctex_noise_p;
-    vec4 const_color[NUM_TEV_STAGES];
-    vec4 tev_combiner_buffer_color;
-    vec4 clip_coef;
-};
-
-layout (std140) uniform shader_light_data {
-    ivec4 lighting_lut_offset[NUM_LIGHTING_SAMPLERS / 4];
-    vec3 lighting_global_ambient;
-    LightSrc light_src[NUM_LIGHTS];
-    float lut_scale_d0;
-    float lut_scale_d1;
-    float lut_scale_sp;
-    float lut_scale_fr;
-    float lut_scale_rb;
-    float lut_scale_rg;
-    float lut_scale_rr;
-    int shadow_texture_bias;
-};
-
-// Rotate the vector v by the quaternion q
-vec3 quaternion_rotate(vec4 q, vec3 v) {
-    return v + 2.0 * cross(q.xyz, cross(q.xyz, v) + q.w * v);
-}
-
-float LookupLightingLUT(int lut_index, int index, float delta) {
-    vec2 entry = texelFetch(texture_buffer_lut_lf, lighting_lut_offset[lut_index >> 2][lut_index & 3] + index).rg;
-    return entry.r + entry.g * delta;
-}
-
-float LookupLightingLUTUnsigned(int lut_index, float pos) {
-    int index = clamp(int(pos * 256.0), 0, 255);
-    float delta = pos * 256.0 - float(index);
-    return LookupLightingLUT(lut_index, index, delta);
-}
-
-float LookupLightingLUTSigned(int lut_index, float pos) {
-    int index = clamp(int(pos * 128.0), -128, 127);
-    float delta = pos * 128.0 - float(index);
-    if (index < 0) index += 256;
-    return LookupLightingLUT(lut_index, index, delta);
-}
-
-float byteround(float x) {
-    return round(x * 255.0) * (1.0 / 255.0);
-}
-
-vec2 byteround(vec2 x) {
-    return round(x * 255.0) * (1.0 / 255.0);
-}
-
-vec3 byteround(vec3 x) {
-    return round(x * 255.0) * (1.0 / 255.0);
-}
-
-vec4 byteround(vec4 x) {
-    return round(x * 255.0) * (1.0 / 255.0);
-}
-
-// PICA's LOD formula for 2D textures.
-// This LOD formula is the same as the LOD lower limit defined in OpenGL.
-// f(x, y) >= max{m_u, m_v, m_w}
-// (See OpenGL 4.6 spec, 8.14.1 - Scale Factor and Level-of-Detail)
-float getLod(vec2 coord) {
-    vec2 d = max(abs(dFdx(coord)), abs(dFdy(coord)));
-    return log2(max(d.x, d.y));
-}
-
-vec4 shadowTexture(vec2 uv, float w) {
-    return vec4(1.0);
-}
-
-vec4 shadowTextureCube(vec2 uv, float w) {
-    return vec4(1.0);
-}
-
-void main() {
-vec4 rounded_primary_color = byteround(primary_color);
-vec4 primary_fragment_color = vec4(0.0);
-vec4 secondary_fragment_color = vec4(0.0);
-if (!(gl_FragCoord.x >= float(scissor_x1) && gl_FragCoord.y >= float(scissor_y1) && gl_FragCoord.x < float(scissor_x2) && gl_FragCoord.y < float(scissor_y2))) discard;
-float z_over_w = 2.0 * gl_FragCoord.z - 1.0;
-float depth = z_over_w * depth_scale + depth_offset;
-vec4 texcolor0 = textureLod(tex0, texcoord0, getLod(texcoord0 * vec2(textureSize(tex0, 0))));
-vec4 combiner_buffer = vec4(0.0);
-vec4 next_combiner_buffer = tev_combiner_buffer_color;
-vec4 last_tex_env_out = vec4(0.0);
-vec3 color_output_0 = byteround(clamp((const_color[0].rgb) * (texcolor0.rgb) + (rounded_primary_color.rgb), vec3(0.0), vec3(1.0)));
-float alpha_output_0 = byteround(clamp((rounded_primary_color.a) * (texcolor0.g), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_0, alpha_output_0), vec4(0.0), vec4(1.0));
-combiner_buffer = next_combiner_buffer;
-
-combiner_buffer = next_combiner_buffer;
-
-combiner_buffer = next_combiner_buffer;
-
-combiner_buffer = next_combiner_buffer;
-
-combiner_buffer = next_combiner_buffer;
-
-combiner_buffer = next_combiner_buffer;
-
-if (int(last_tex_env_out.a * 255.0) <= alphatest_ref) discard;
-float fog_index = depth * 128.0;
-float fog_i = clamp(floor(fog_index), 0.0, 127.0);
-float fog_f = fog_index - fog_i;
-vec2 fog_lut_entry = texelFetch(texture_buffer_lut_lf, int(fog_i) + fog_lut_offset).rg;
-float fog_factor = fog_lut_entry.r + fog_lut_entry.g * fog_f;
-fog_factor = clamp(fog_factor, 0.0, 1.0);
-last_tex_env_out.rgb = mix(fog_color.rgb, last_tex_env_out.rgb, fog_factor);
-gl_FragDepth = depth;
-color = byteround(last_tex_env_out);
-}
-// reference: C0DE8A8E15F06067, 331BDE69440E2373
-// program: 9C5D7AEF8C3E67F2, 5508714B05507EE9, 331BDE69440E2373
-// reference: C0DE8A8E14320A50, 331BDE69440E2373
-// shader: 8B30, 61FD5349ECE93FB9
-
-precision highp int;
-precision highp float;
-precision highp samplerBuffer;
-precision highp usampler2D;
-precision highp uimage2D;
-in vec4 primary_color;
-in vec2 texcoord0;
-in vec2 texcoord1;
-in vec2 texcoord2;
-in float texcoord0_w;
-in vec4 normquat;
-in vec3 view;
-
-#ifndef CITRA_GLES
-in vec4 gl_FragCoord;
-#endif // CITRA_GLES
-out vec4 color;
-
-uniform sampler2D tex0;
-uniform sampler2D tex1;
-uniform sampler2D tex2;
-uniform samplerCube tex_cube;
-uniform samplerBuffer texture_buffer_lut_lf;
-uniform samplerBuffer texture_buffer_lut_rg;
-uniform samplerBuffer texture_buffer_lut_rgba;
-
-#define NUM_TEV_STAGES 6
-#define NUM_LIGHTS 8
-#define NUM_LIGHTING_SAMPLERS 24
-
-struct LightSrc {
-    vec3 specular_0;
-    vec3 specular_1;
-    vec3 diffuse;
-    vec3 ambient;
-    vec3 position;
-    vec3 spot_direction;
-    float dist_atten_bias;
-    float dist_atten_scale;
-};
-
-layout (std140) uniform shader_data {
-    int alphatest_ref;
-    float depth_scale;
-    float depth_offset;
-    float shadow_bias_constant;
-    float shadow_bias_linear;
-    int scissor_x1;
-    int scissor_y1;
-    int scissor_x2;
-    int scissor_y2;
-    int fog_lut_offset;
-    int proctex_noise_lut_offset;
-    int proctex_color_map_offset;
-    int proctex_alpha_map_offset;
-    int proctex_lut_offset;
-    int proctex_diff_lut_offset;
-    float proctex_bias;
-    vec3 fog_color;
-    vec2 proctex_noise_f;
-    vec2 proctex_noise_a;
-    vec2 proctex_noise_p;
-    vec4 const_color[NUM_TEV_STAGES];
-    vec4 tev_combiner_buffer_color;
-    vec4 clip_coef;
-};
-
-layout (std140) uniform shader_light_data {
-    ivec4 lighting_lut_offset[NUM_LIGHTING_SAMPLERS / 4];
-    vec3 lighting_global_ambient;
-    LightSrc light_src[NUM_LIGHTS];
-    float lut_scale_d0;
-    float lut_scale_d1;
-    float lut_scale_sp;
-    float lut_scale_fr;
-    float lut_scale_rb;
-    float lut_scale_rg;
-    float lut_scale_rr;
-    int shadow_texture_bias;
-};
-
-// Rotate the vector v by the quaternion q
-vec3 quaternion_rotate(vec4 q, vec3 v) {
-    return v + 2.0 * cross(q.xyz, cross(q.xyz, v) + q.w * v);
-}
-
-float LookupLightingLUT(int lut_index, int index, float delta) {
-    vec2 entry = texelFetch(texture_buffer_lut_lf, lighting_lut_offset[lut_index >> 2][lut_index & 3] + index).rg;
-    return entry.r + entry.g * delta;
-}
-
-float LookupLightingLUTUnsigned(int lut_index, float pos) {
-    int index = clamp(int(pos * 256.0), 0, 255);
-    float delta = pos * 256.0 - float(index);
-    return LookupLightingLUT(lut_index, index, delta);
-}
-
-float LookupLightingLUTSigned(int lut_index, float pos) {
-    int index = clamp(int(pos * 128.0), -128, 127);
-    float delta = pos * 128.0 - float(index);
-    if (index < 0) index += 256;
-    return LookupLightingLUT(lut_index, index, delta);
-}
-
-float byteround(float x) {
-    return round(x * 255.0) * (1.0 / 255.0);
-}
-
-vec2 byteround(vec2 x) {
-    return round(x * 255.0) * (1.0 / 255.0);
-}
-
-vec3 byteround(vec3 x) {
-    return round(x * 255.0) * (1.0 / 255.0);
-}
-
-vec4 byteround(vec4 x) {
-    return round(x * 255.0) * (1.0 / 255.0);
-}
-
-// PICA's LOD formula for 2D textures.
-// This LOD formula is the same as the LOD lower limit defined in OpenGL.
-// f(x, y) >= max{m_u, m_v, m_w}
-// (See OpenGL 4.6 spec, 8.14.1 - Scale Factor and Level-of-Detail)
-float getLod(vec2 coord) {
-    vec2 d = max(abs(dFdx(coord)), abs(dFdy(coord)));
-    return log2(max(d.x, d.y));
-}
-
-vec4 shadowTexture(vec2 uv, float w) {
-    return vec4(1.0);
-}
-
-vec4 shadowTextureCube(vec2 uv, float w) {
-    return vec4(1.0);
-}
-
-void main() {
-vec4 rounded_primary_color = byteround(primary_color);
-vec4 primary_fragment_color = vec4(0.0);
-vec4 secondary_fragment_color = vec4(0.0);
-if (!(gl_FragCoord.x >= float(scissor_x1) && gl_FragCoord.y >= float(scissor_y1) && gl_FragCoord.x < float(scissor_x2) && gl_FragCoord.y < float(scissor_y2))) discard;
-float z_over_w = 2.0 * gl_FragCoord.z - 1.0;
-float depth = z_over_w * depth_scale + depth_offset;
-vec4 texcolor0 = textureLod(tex0, texcoord0, getLod(texcoord0 * vec2(textureSize(tex0, 0))));
-vec4 combiner_buffer = vec4(0.0);
-vec4 next_combiner_buffer = tev_combiner_buffer_color;
-vec4 last_tex_env_out = vec4(0.0);
-vec3 color_output_0 = byteround(clamp((const_color[0].rgb) * (texcolor0.rgb), vec3(0.0), vec3(1.0)));
-float alpha_output_0 = byteround(clamp((rounded_primary_color.a) * (texcolor0.g), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_0, alpha_output_0), vec4(0.0), vec4(1.0));
-combiner_buffer = next_combiner_buffer;
-
-combiner_buffer = next_combiner_buffer;
-
-combiner_buffer = next_combiner_buffer;
-
-combiner_buffer = next_combiner_buffer;
-
-combiner_buffer = next_combiner_buffer;
-
-combiner_buffer = next_combiner_buffer;
-
-if (int(last_tex_env_out.a * 255.0) <= alphatest_ref) discard;
-float fog_index = depth * 128.0;
-float fog_i = clamp(floor(fog_index), 0.0, 127.0);
-float fog_f = fog_index - fog_i;
-vec2 fog_lut_entry = texelFetch(texture_buffer_lut_lf, int(fog_i) + fog_lut_offset).rg;
-float fog_factor = fog_lut_entry.r + fog_lut_entry.g * fog_f;
-fog_factor = clamp(fog_factor, 0.0, 1.0);
-last_tex_env_out.rgb = mix(fog_color.rgb, last_tex_env_out.rgb, fog_factor);
-gl_FragDepth = depth;
-color = byteround(last_tex_env_out);
-}
-// reference: 5D501F2C55E2EB09, 61FD5349ECE93FB9
-// program: 9C5D7AEF8C3E67F2, 5508714B05507EE9, 61FD5349ECE93FB9
-// shader: 8B30, 43211135B70DF38F
-
-precision highp int;
-precision highp float;
-precision highp samplerBuffer;
-precision highp usampler2D;
-precision highp uimage2D;
-in vec4 primary_color;
-in vec2 texcoord0;
-in vec2 texcoord1;
-in vec2 texcoord2;
-in float texcoord0_w;
-in vec4 normquat;
-in vec3 view;
-
-#ifndef CITRA_GLES
-in vec4 gl_FragCoord;
-#endif // CITRA_GLES
-out vec4 color;
-
-uniform sampler2D tex0;
-uniform sampler2D tex1;
-uniform sampler2D tex2;
-uniform samplerCube tex_cube;
-uniform samplerBuffer texture_buffer_lut_lf;
-uniform samplerBuffer texture_buffer_lut_rg;
-uniform samplerBuffer texture_buffer_lut_rgba;
-
-#define NUM_TEV_STAGES 6
-#define NUM_LIGHTS 8
-#define NUM_LIGHTING_SAMPLERS 24
-
-struct LightSrc {
-    vec3 specular_0;
-    vec3 specular_1;
-    vec3 diffuse;
-    vec3 ambient;
-    vec3 position;
-    vec3 spot_direction;
-    float dist_atten_bias;
-    float dist_atten_scale;
-};
-
-layout (std140) uniform shader_data {
-    int alphatest_ref;
-    float depth_scale;
-    float depth_offset;
-    float shadow_bias_constant;
-    float shadow_bias_linear;
-    int scissor_x1;
-    int scissor_y1;
-    int scissor_x2;
-    int scissor_y2;
-    int fog_lut_offset;
-    int proctex_noise_lut_offset;
-    int proctex_color_map_offset;
-    int proctex_alpha_map_offset;
-    int proctex_lut_offset;
-    int proctex_diff_lut_offset;
-    float proctex_bias;
-    vec3 fog_color;
-    vec2 proctex_noise_f;
-    vec2 proctex_noise_a;
-    vec2 proctex_noise_p;
-    vec4 const_color[NUM_TEV_STAGES];
-    vec4 tev_combiner_buffer_color;
-    vec4 clip_coef;
-};
-
-layout (std140) uniform shader_light_data {
-    ivec4 lighting_lut_offset[NUM_LIGHTING_SAMPLERS / 4];
-    vec3 lighting_global_ambient;
-    LightSrc light_src[NUM_LIGHTS];
-    float lut_scale_d0;
-    float lut_scale_d1;
-    float lut_scale_sp;
-    float lut_scale_fr;
-    float lut_scale_rb;
-    float lut_scale_rg;
-    float lut_scale_rr;
-    int shadow_texture_bias;
-};
-
-// Rotate the vector v by the quaternion q
-vec3 quaternion_rotate(vec4 q, vec3 v) {
-    return v + 2.0 * cross(q.xyz, cross(q.xyz, v) + q.w * v);
-}
-
-float LookupLightingLUT(int lut_index, int index, float delta) {
-    vec2 entry = texelFetch(texture_buffer_lut_lf, lighting_lut_offset[lut_index >> 2][lut_index & 3] + index).rg;
-    return entry.r + entry.g * delta;
-}
-
-float LookupLightingLUTUnsigned(int lut_index, float pos) {
-    int index = clamp(int(pos * 256.0), 0, 255);
-    float delta = pos * 256.0 - float(index);
-    return LookupLightingLUT(lut_index, index, delta);
-}
-
-float LookupLightingLUTSigned(int lut_index, float pos) {
-    int index = clamp(int(pos * 128.0), -128, 127);
-    float delta = pos * 128.0 - float(index);
-    if (index < 0) index += 256;
-    return LookupLightingLUT(lut_index, index, delta);
-}
-
-float byteround(float x) {
-    return round(x * 255.0) * (1.0 / 255.0);
-}
-
-vec2 byteround(vec2 x) {
-    return round(x * 255.0) * (1.0 / 255.0);
-}
-
-vec3 byteround(vec3 x) {
-    return round(x * 255.0) * (1.0 / 255.0);
-}
-
-vec4 byteround(vec4 x) {
-    return round(x * 255.0) * (1.0 / 255.0);
-}
-
-// PICA's LOD formula for 2D textures.
-// This LOD formula is the same as the LOD lower limit defined in OpenGL.
-// f(x, y) >= max{m_u, m_v, m_w}
-// (See OpenGL 4.6 spec, 8.14.1 - Scale Factor and Level-of-Detail)
-float getLod(vec2 coord) {
-    vec2 d = max(abs(dFdx(coord)), abs(dFdy(coord)));
-    return log2(max(d.x, d.y));
-}
-
-vec4 shadowTexture(vec2 uv, float w) {
-    return vec4(1.0);
-}
-
-vec4 shadowTextureCube(vec2 uv, float w) {
-    return vec4(1.0);
-}
-
-void main() {
-vec4 rounded_primary_color = byteround(primary_color);
-vec4 primary_fragment_color = vec4(0.0);
-vec4 secondary_fragment_color = vec4(0.0);
-if (!(gl_FragCoord.x >= float(scissor_x1) && gl_FragCoord.y >= float(scissor_y1) && gl_FragCoord.x < float(scissor_x2) && gl_FragCoord.y < float(scissor_y2))) discard;
-float z_over_w = 2.0 * gl_FragCoord.z - 1.0;
-float depth = z_over_w * depth_scale + depth_offset;
-vec4 texcolor0 = textureLod(tex0, texcoord0, getLod(texcoord0 * vec2(textureSize(tex0, 0))));
-vec4 combiner_buffer = vec4(0.0);
-vec4 next_combiner_buffer = tev_combiner_buffer_color;
-vec4 last_tex_env_out = vec4(0.0);
-vec3 color_output_0 = byteround(clamp((const_color[0].rgb) * (vec3(1.0) - texcolor0.rgb), vec3(0.0), vec3(1.0)));
-float alpha_output_0 = byteround(clamp((rounded_primary_color.a) * (texcolor0.g), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_0, alpha_output_0), vec4(0.0), vec4(1.0));
-combiner_buffer = next_combiner_buffer;
-
-vec3 color_output_1 = byteround(clamp((rounded_primary_color.rgb) * (texcolor0.rgb) + (last_tex_env_out.rgb), vec3(0.0), vec3(1.0)));
-float alpha_output_1 = byteround(clamp((last_tex_env_out.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_1, alpha_output_1), vec4(0.0), vec4(1.0));
-combiner_buffer = next_combiner_buffer;
-
-combiner_buffer = next_combiner_buffer;
-
-combiner_buffer = next_combiner_buffer;
-
-combiner_buffer = next_combiner_buffer;
-
-combiner_buffer = next_combiner_buffer;
-
-if (int(last_tex_env_out.a * 255.0) <= alphatest_ref) discard;
-float fog_index = depth * 128.0;
-float fog_i = clamp(floor(fog_index), 0.0, 127.0);
-float fog_f = fog_index - fog_i;
-vec2 fog_lut_entry = texelFetch(texture_buffer_lut_lf, int(fog_i) + fog_lut_offset).rg;
-float fog_factor = fog_lut_entry.r + fog_lut_entry.g * fog_f;
-fog_factor = clamp(fog_factor, 0.0, 1.0);
-last_tex_env_out.rgb = mix(fog_color.rgb, last_tex_env_out.rgb, fog_factor);
-gl_FragDepth = depth;
-color = byteround(last_tex_env_out);
-}
-// reference: EAF75F51FEEF3157, 43211135B70DF38F
-// program: 9C5D7AEF8C3E67F2, 5508714B05507EE9, 43211135B70DF38F
-// reference: 5D501F2C5420813E, 61FD5349ECE93FB9
-// reference: EAF75F51FF2D5B60, 43211135B70DF38F
-// reference: 79966E15FF2D5B60, 5FB901BE36D71A30
-// shader: 8B30, EAAE4A9833F17460
+// reference: 6195D31249F78371, 220C3398F6FBCC1A
+// program: 22C3C36B08CEECE7, 7A40B90B17532EA8, 220C3398F6FBCC1A
+// reference: B1C03DBA0A12E2B7, AB80B2E41C224054
+// reference: 6195D3124835E946, 220C3398F6FBCC1A
+// reference: 79966E15FF2D5B60, 804E57390F54F118
+// shader: 8B30, ED1570C54F7F916E
 
 precision highp int;
 precision highp float;
@@ -40288,54 +38440,59 @@ specular_sum.rgb += (((lut_scale_d0 * LookupLightingLUTSigned(0, dot(normal, nor
 diffuse_sum.rgb += lighting_global_ambient;
 primary_fragment_color = clamp(diffuse_sum, vec4(0.0), vec4(1.0));
 secondary_fragment_color = clamp(specular_sum, vec4(0.0), vec4(1.0));
-
 vec4 combiner_buffer = vec4(0.0);
 vec4 next_combiner_buffer = tev_combiner_buffer_color;
 vec4 last_tex_env_out = vec4(0.0);
 vec3 color_output_0 = byteround(clamp((vec3(1.0) - secondary_fragment_color.aaa) * (const_color[0].rgb) + (primary_fragment_color.rgb), vec3(0.0), vec3(1.0)));
-float alpha_output_0 = byteround(clamp((rounded_primary_color.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_0, alpha_output_0), vec4(0.0), vec4(1.0));
+float alpha_output_0 = (rounded_primary_color.a);
+last_tex_env_out = vec4(color_output_0, alpha_output_0);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 
 vec3 color_output_1 = byteround(clamp((const_color[1].rgb) * (last_tex_env_out.rgb), vec3(0.0), vec3(1.0)));
-float alpha_output_1 = byteround(clamp((last_tex_env_out.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_1, alpha_output_1), vec4(0.0), vec4(1.0));
+float alpha_output_1 = (last_tex_env_out.a);
+last_tex_env_out = vec4(color_output_1, alpha_output_1);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 
 vec3 color_output_2 = byteround(clamp((last_tex_env_out.rgb) + (const_color[2].rgb) - vec3(0.5), vec3(0.0), vec3(1.0)));
-float alpha_output_2 = byteround(clamp((last_tex_env_out.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_2, alpha_output_2), vec4(0.0), vec4(1.0));
+float alpha_output_2 = (last_tex_env_out.a);
+last_tex_env_out = vec4(color_output_2, alpha_output_2);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 next_combiner_buffer.rgb = last_tex_env_out.rgb;
 
 vec3 color_output_3 = byteround(clamp((vec3(1.0) - last_tex_env_out.rgb) * (secondary_fragment_color.rgb) + (last_tex_env_out.rgb) * (vec3(1.0) - (secondary_fragment_color.rgb)), vec3(0.0), vec3(1.0)));
-float alpha_output_3 = byteround(clamp((last_tex_env_out.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_3, alpha_output_3), vec4(0.0), vec4(1.0));
+float alpha_output_3 = (last_tex_env_out.a);
+last_tex_env_out = vec4(color_output_3, alpha_output_3);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 
 vec3 color_output_4 = byteround(clamp(min((rounded_primary_color.rgb) + (const_color[4].rgb), vec3(1.0)) * (last_tex_env_out.rgb), vec3(0.0), vec3(1.0)));
-float alpha_output_4 = byteround(clamp((last_tex_env_out.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_4, alpha_output_4), vec4(0.0), vec4(1.0));
+float alpha_output_4 = (last_tex_env_out.a);
+last_tex_env_out = vec4(color_output_4, alpha_output_4);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 
 vec3 color_output_5 = byteround(clamp((last_tex_env_out.rgb) * (combiner_buffer.rgb) + (last_tex_env_out.rgb), vec3(0.0), vec3(1.0)));
-float alpha_output_5 = byteround(clamp((last_tex_env_out.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_5 * 2.0, alpha_output_5 * 1.0), vec4(0.0), vec4(1.0));
+float alpha_output_5 = (last_tex_env_out.a);
+last_tex_env_out = vec4(color_output_5 * 2.0, alpha_output_5 * 1.0);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 
 float fog_index = depth * 128.0;
-float fog_i = clamp(floor(fog_index), 0.0, 127.0);
-float fog_f = fog_index - fog_i;
-vec2 fog_lut_entry = texelFetch(texture_buffer_lut_lf, int(fog_i) + fog_lut_offset).rg;
+int fog_i = int(fog_index);
+float fog_f = fract(fog_index);
+vec2 fog_lut_entry = texelFetch(texture_buffer_lut_lf, fog_i + fog_lut_offset).rg;
 float fog_factor = fog_lut_entry.r + fog_lut_entry.g * fog_f;
 fog_factor = clamp(fog_factor, 0.0, 1.0);
 last_tex_env_out.rgb = mix(fog_color.rgb, last_tex_env_out.rgb, fog_factor);
 gl_FragDepth = depth;
 color = byteround(last_tex_env_out);
 }
-// reference: DB37113529388944, EAAE4A9833F17460
-// program: FBC6AFA380C91748, 4BD70AD09292A3DA, EAAE4A9833F17460
-// shader: 8B30, 370344D512CD2C86
+// reference: DB37113529388944, ED1570C54F7F916E
+// program: 668DC2CC893B1519, 80B52B8FBE5FE773, ED1570C54F7F916E
+// shader: 8B30, FDD31742BD2F37C4
 
 precision highp int;
 precision highp float;
@@ -40511,58 +38668,63 @@ specular_sum.rgb += ((light_src[0].specular_0) + (light_src[0].specular_1)) * cl
 diffuse_sum.rgb += lighting_global_ambient;
 primary_fragment_color = clamp(diffuse_sum, vec4(0.0), vec4(1.0));
 secondary_fragment_color = clamp(specular_sum, vec4(0.0), vec4(1.0));
-
 vec4 combiner_buffer = vec4(0.0);
 vec4 next_combiner_buffer = tev_combiner_buffer_color;
 vec4 last_tex_env_out = vec4(0.0);
 vec3 color_output_0 = byteround(clamp((vec3(1.0) - secondary_fragment_color.aaa) * (const_color[0].rgb) + (primary_fragment_color.rgb), vec3(0.0), vec3(1.0)));
-float alpha_output_0 = byteround(clamp((rounded_primary_color.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_0, alpha_output_0), vec4(0.0), vec4(1.0));
+float alpha_output_0 = (rounded_primary_color.a);
+last_tex_env_out = vec4(color_output_0, alpha_output_0);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 
 vec3 color_output_1 = byteround(clamp((const_color[1].rgb) * (last_tex_env_out.rgb), vec3(0.0), vec3(1.0)));
-float alpha_output_1 = byteround(clamp((last_tex_env_out.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_1, alpha_output_1), vec4(0.0), vec4(1.0));
+float alpha_output_1 = (last_tex_env_out.a);
+last_tex_env_out = vec4(color_output_1, alpha_output_1);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 
 vec3 color_output_2 = byteround(clamp((last_tex_env_out.rgb) + (const_color[2].rgb) - vec3(0.5), vec3(0.0), vec3(1.0)));
-float alpha_output_2 = byteround(clamp((last_tex_env_out.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_2, alpha_output_2), vec4(0.0), vec4(1.0));
+float alpha_output_2 = (last_tex_env_out.a);
+last_tex_env_out = vec4(color_output_2, alpha_output_2);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 next_combiner_buffer.rgb = last_tex_env_out.rgb;
 
 vec3 color_output_3 = byteround(clamp((vec3(1.0) - last_tex_env_out.rgb) * (texcolor0.rgb) + (last_tex_env_out.rgb) * (vec3(1.0) - (texcolor0.rgb)), vec3(0.0), vec3(1.0)));
-float alpha_output_3 = byteround(clamp((last_tex_env_out.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_3, alpha_output_3), vec4(0.0), vec4(1.0));
+float alpha_output_3 = (last_tex_env_out.a);
+last_tex_env_out = vec4(color_output_3, alpha_output_3);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 
 vec3 color_output_4 = byteround(clamp(min((rounded_primary_color.rgb) + (const_color[4].rgb), vec3(1.0)) * (last_tex_env_out.rgb), vec3(0.0), vec3(1.0)));
-float alpha_output_4 = byteround(clamp((last_tex_env_out.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_4, alpha_output_4), vec4(0.0), vec4(1.0));
+float alpha_output_4 = (last_tex_env_out.a);
+last_tex_env_out = vec4(color_output_4, alpha_output_4);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 
 vec3 color_output_5 = byteround(clamp((last_tex_env_out.rgb) * (combiner_buffer.rgb) + (last_tex_env_out.rgb), vec3(0.0), vec3(1.0)));
-float alpha_output_5 = byteround(clamp((last_tex_env_out.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_5 * 2.0, alpha_output_5 * 1.0), vec4(0.0), vec4(1.0));
+float alpha_output_5 = (last_tex_env_out.a);
+last_tex_env_out = vec4(color_output_5 * 2.0, alpha_output_5 * 1.0);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 
 float fog_index = depth * 128.0;
-float fog_i = clamp(floor(fog_index), 0.0, 127.0);
-float fog_f = fog_index - fog_i;
-vec2 fog_lut_entry = texelFetch(texture_buffer_lut_lf, int(fog_i) + fog_lut_offset).rg;
+int fog_i = int(fog_index);
+float fog_f = fract(fog_index);
+vec2 fog_lut_entry = texelFetch(texture_buffer_lut_lf, fog_i + fog_lut_offset).rg;
 float fog_factor = fog_lut_entry.r + fog_lut_entry.g * fog_f;
 fog_factor = clamp(fog_factor, 0.0, 1.0);
 last_tex_env_out.rgb = mix(fog_color.rgb, last_tex_env_out.rgb, fog_factor);
 gl_FragDepth = depth;
 color = byteround(last_tex_env_out);
 }
-// reference: 04B1567C68D98AC9, 370344D512CD2C86
-// program: F3D442C0013F9392, 6CF3F3B70E23AA85, 370344D512CD2C86
-// reference: DB37113528FAE373, EAAE4A9833F17460
-// reference: 04B1567C691BE0FE, 370344D512CD2C86
-// reference: 8C97864AA491FAE9, B0F8C6C7E7AE2D9A
-// program: B0F8C6C7E7AE2D9A, 6073F2A2E32CD1D3, 04F67C85E322A9C7
-// shader: 8B30, 49CE10C6B787C00F
+// reference: 04B1567C68D98AC9, FDD31742BD2F37C4
+// program: 22C3C36B08CEECE7, 7A40B90B17532EA8, FDD31742BD2F37C4
+// reference: DB37113528FAE373, ED1570C54F7F916E
+// reference: 04B1567C691BE0FE, FDD31742BD2F37C4
+// reference: 1140BEF3A491FAE9, A89AA8D22DE7350F
+// program: A89AA8D22DE7350F, E9AB8C38CA194A54, 0C593EB2DC12C096
+// shader: 8B30, F8CE25D083899495
 
 precision highp int;
 precision highp float;
@@ -40735,55 +38897,411 @@ specular_sum.a = (lut_scale_fr * LookupLightingLUTSigned(3, dot(light_vector, no
 diffuse_sum.rgb += ((light_src[0].diffuse * dot_product) + light_src[0].ambient) * 1.0;
 specular_sum.rgb += (((lut_scale_d0 * LookupLightingLUTSigned(0, dot(normal, normalize(half_vector)))) * light_src[0].specular_0) + ((lut_scale_d1 * LookupLightingLUTSigned(1, dot(normal, normalize(view)))) * light_src[0].specular_1)) * clamp_highlights * 1.0;
 diffuse_sum.rgb += lighting_global_ambient;
-primary_fragment_color = clamp(diffuse_sum, vec4(0.0), vec4(1.0));
 secondary_fragment_color = clamp(specular_sum, vec4(0.0), vec4(1.0));
-
 vec4 combiner_buffer = vec4(0.0);
 vec4 next_combiner_buffer = tev_combiner_buffer_color;
 vec4 last_tex_env_out = vec4(0.0);
-vec3 color_output_0 = byteround(clamp((const_color[0].rgb), vec3(0.0), vec3(1.0)));
-float alpha_output_0 = byteround(clamp((secondary_fragment_color.r), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_0 * 1.0, alpha_output_0 * 4.0), vec4(0.0), vec4(1.0));
+vec3 color_output_0 = (const_color[0].rgb);
+float alpha_output_0 = (secondary_fragment_color.r);
+last_tex_env_out = vec4(color_output_0 * 1.0, alpha_output_0 * 4.0);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 next_combiner_buffer.rgb = last_tex_env_out.rgb;
 next_combiner_buffer.a = last_tex_env_out.a;
 
 vec3 color_output_1 = byteround(clamp((last_tex_env_out.rgb) * (combiner_buffer.rgb) + (secondary_fragment_color.rgb), vec3(0.0), vec3(1.0)));
-float alpha_output_1 = byteround(clamp((const_color[1].a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_1, alpha_output_1), vec4(0.0), vec4(1.0));
+float alpha_output_1 = (const_color[1].a);
+last_tex_env_out = vec4(color_output_1, alpha_output_1);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 
 vec3 color_output_2 = byteround(clamp((secondary_fragment_color.rgb) * (vec3(1.0) - combiner_buffer.rgb) + (last_tex_env_out.rgb), vec3(0.0), vec3(1.0)));
 float alpha_output_2 = byteround(clamp((last_tex_env_out.a) * (rounded_primary_color.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_2, alpha_output_2), vec4(0.0), vec4(1.0));
+last_tex_env_out = vec4(color_output_2, alpha_output_2);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 
 vec3 color_output_3 = byteround(clamp(min((rounded_primary_color.rgb) + (const_color[3].rgb), vec3(1.0)) * (last_tex_env_out.rgb), vec3(0.0), vec3(1.0)));
 float alpha_output_3 = byteround(clamp((last_tex_env_out.a) + (combiner_buffer.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_3, alpha_output_3), vec4(0.0), vec4(1.0));
+last_tex_env_out = vec4(color_output_3, alpha_output_3);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 
 vec3 color_output_4 = byteround(clamp((last_tex_env_out.rgb) * (last_tex_env_out.rgb) + (last_tex_env_out.rgb), vec3(0.0), vec3(1.0)));
-float alpha_output_4 = byteround(clamp((last_tex_env_out.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_4 * 2.0, alpha_output_4 * 1.0), vec4(0.0), vec4(1.0));
+float alpha_output_4 = (last_tex_env_out.a);
+last_tex_env_out = vec4(color_output_4 * 2.0, alpha_output_4 * 1.0);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 
 combiner_buffer = next_combiner_buffer;
 
 float fog_index = depth * 128.0;
-float fog_i = clamp(floor(fog_index), 0.0, 127.0);
-float fog_f = fog_index - fog_i;
-vec2 fog_lut_entry = texelFetch(texture_buffer_lut_lf, int(fog_i) + fog_lut_offset).rg;
+int fog_i = int(fog_index);
+float fog_f = fract(fog_index);
+vec2 fog_lut_entry = texelFetch(texture_buffer_lut_lf, fog_i + fog_lut_offset).rg;
 float fog_factor = fog_lut_entry.r + fog_lut_entry.g * fog_f;
 fog_factor = clamp(fog_factor, 0.0, 1.0);
 last_tex_env_out.rgb = mix(fog_color.rgb, last_tex_env_out.rgb, fog_factor);
 gl_FragDepth = depth;
 color = byteround(last_tex_env_out);
 }
-// reference: 3E857AE151FBFE83, 49CE10C6B787C00F
-// program: FBC6AFA380C91748, 4BD70AD09292A3DA, 49CE10C6B787C00F
-// reference: 3E857AE1503994B4, 49CE10C6B787C00F
-// shader: 8B30, 63612EEF2507A256
+// reference: 3E857AE151FBFE83, F8CE25D083899495
+// program: 668DC2CC893B1519, 80B52B8FBE5FE773, F8CE25D083899495
+// shader: 8B30, 081BE5C7C3282DFC
+
+precision highp int;
+precision highp float;
+precision highp samplerBuffer;
+precision highp usampler2D;
+precision highp uimage2D;
+in vec4 primary_color;
+in vec2 texcoord0;
+in vec2 texcoord1;
+in vec2 texcoord2;
+in float texcoord0_w;
+in vec4 normquat;
+in vec3 view;
+
+#ifndef CITRA_GLES
+in vec4 gl_FragCoord;
+#endif // CITRA_GLES
+out vec4 color;
+
+uniform sampler2D tex0;
+uniform sampler2D tex1;
+uniform sampler2D tex2;
+uniform samplerCube tex_cube;
+uniform samplerBuffer texture_buffer_lut_lf;
+uniform samplerBuffer texture_buffer_lut_rg;
+uniform samplerBuffer texture_buffer_lut_rgba;
+
+#define NUM_TEV_STAGES 6
+#define NUM_LIGHTS 8
+#define NUM_LIGHTING_SAMPLERS 24
+
+struct LightSrc {
+    vec3 specular_0;
+    vec3 specular_1;
+    vec3 diffuse;
+    vec3 ambient;
+    vec3 position;
+    vec3 spot_direction;
+    float dist_atten_bias;
+    float dist_atten_scale;
+};
+
+layout (std140) uniform shader_data {
+    int alphatest_ref;
+    float depth_scale;
+    float depth_offset;
+    float shadow_bias_constant;
+    float shadow_bias_linear;
+    int scissor_x1;
+    int scissor_y1;
+    int scissor_x2;
+    int scissor_y2;
+    int fog_lut_offset;
+    int proctex_noise_lut_offset;
+    int proctex_color_map_offset;
+    int proctex_alpha_map_offset;
+    int proctex_lut_offset;
+    int proctex_diff_lut_offset;
+    float proctex_bias;
+    vec3 fog_color;
+    vec2 proctex_noise_f;
+    vec2 proctex_noise_a;
+    vec2 proctex_noise_p;
+    vec4 const_color[NUM_TEV_STAGES];
+    vec4 tev_combiner_buffer_color;
+    vec4 clip_coef;
+};
+
+layout (std140) uniform shader_light_data {
+    ivec4 lighting_lut_offset[NUM_LIGHTING_SAMPLERS / 4];
+    vec3 lighting_global_ambient;
+    LightSrc light_src[NUM_LIGHTS];
+    float lut_scale_d0;
+    float lut_scale_d1;
+    float lut_scale_sp;
+    float lut_scale_fr;
+    float lut_scale_rb;
+    float lut_scale_rg;
+    float lut_scale_rr;
+    int shadow_texture_bias;
+};
+
+// Rotate the vector v by the quaternion q
+vec3 quaternion_rotate(vec4 q, vec3 v) {
+    return v + 2.0 * cross(q.xyz, cross(q.xyz, v) + q.w * v);
+}
+
+float LookupLightingLUT(int lut_index, int index, float delta) {
+    vec2 entry = texelFetch(texture_buffer_lut_lf, lighting_lut_offset[lut_index >> 2][lut_index & 3] + index).rg;
+    return entry.r + entry.g * delta;
+}
+
+float LookupLightingLUTUnsigned(int lut_index, float pos) {
+    int index = clamp(int(pos * 256.0), 0, 255);
+    float delta = pos * 256.0 - float(index);
+    return LookupLightingLUT(lut_index, index, delta);
+}
+
+float LookupLightingLUTSigned(int lut_index, float pos) {
+    int index = clamp(int(pos * 128.0), -128, 127);
+    float delta = pos * 128.0 - float(index);
+    if (index < 0) index += 256;
+    return LookupLightingLUT(lut_index, index, delta);
+}
+
+float byteround(float x) {
+    return round(x * 255.0) * (1.0 / 255.0);
+}
+
+vec2 byteround(vec2 x) {
+    return round(x * 255.0) * (1.0 / 255.0);
+}
+
+vec3 byteround(vec3 x) {
+    return round(x * 255.0) * (1.0 / 255.0);
+}
+
+vec4 byteround(vec4 x) {
+    return round(x * 255.0) * (1.0 / 255.0);
+}
+
+// PICA's LOD formula for 2D textures.
+// This LOD formula is the same as the LOD lower limit defined in OpenGL.
+// f(x, y) >= max{m_u, m_v, m_w}
+// (See OpenGL 4.6 spec, 8.14.1 - Scale Factor and Level-of-Detail)
+float getLod(vec2 coord) {
+    vec2 d = max(abs(dFdx(coord)), abs(dFdy(coord)));
+    return log2(max(d.x, d.y));
+}
+
+vec4 shadowTexture(vec2 uv, float w) {
+    return vec4(1.0);
+}
+
+vec4 shadowTextureCube(vec2 uv, float w) {
+    return vec4(1.0);
+}
+
+void main() {
+vec4 rounded_primary_color = byteround(primary_color);
+vec4 primary_fragment_color = vec4(0.0);
+vec4 secondary_fragment_color = vec4(0.0);
+if (!(gl_FragCoord.x >= float(scissor_x1) && gl_FragCoord.y >= float(scissor_y1) && gl_FragCoord.x < float(scissor_x2) && gl_FragCoord.y < float(scissor_y2))) discard;
+float z_over_w = 2.0 * gl_FragCoord.z - 1.0;
+float depth = z_over_w * depth_scale + depth_offset;
+vec4 texcolor0 = textureLod(tex0, texcoord0, getLod(texcoord0 * vec2(textureSize(tex0, 0))));
+vec4 combiner_buffer = vec4(0.0);
+vec4 next_combiner_buffer = tev_combiner_buffer_color;
+vec4 last_tex_env_out = vec4(0.0);
+vec3 color_output_0 = byteround(clamp((const_color[0].rgb) * (texcolor0.rgb), vec3(0.0), vec3(1.0)));
+float alpha_output_0 = byteround(clamp((rounded_primary_color.a) * (texcolor0.g), 0.0, 1.0));
+last_tex_env_out = vec4(color_output_0, alpha_output_0);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
+combiner_buffer = next_combiner_buffer;
+
+combiner_buffer = next_combiner_buffer;
+
+combiner_buffer = next_combiner_buffer;
+
+combiner_buffer = next_combiner_buffer;
+
+combiner_buffer = next_combiner_buffer;
+
+combiner_buffer = next_combiner_buffer;
+
+if (int(last_tex_env_out.a * 255.0) <= alphatest_ref) discard;
+float fog_index = depth * 128.0;
+int fog_i = int(fog_index);
+float fog_f = fract(fog_index);
+vec2 fog_lut_entry = texelFetch(texture_buffer_lut_lf, fog_i + fog_lut_offset).rg;
+float fog_factor = fog_lut_entry.r + fog_lut_entry.g * fog_f;
+fog_factor = clamp(fog_factor, 0.0, 1.0);
+last_tex_env_out.rgb = mix(fog_color.rgb, last_tex_env_out.rgb, fog_factor);
+gl_FragDepth = depth;
+color = byteround(last_tex_env_out);
+}
+// reference: 5D501F2C55E2EB09, 081BE5C7C3282DFC
+// program: 4056A7BD49897EA4, 01926B3CAE979003, 081BE5C7C3282DFC
+// reference: 3E857AE1503994B4, F8CE25D083899495
+// reference: 5D501F2C5420813E, 081BE5C7C3282DFC
+// shader: 8B30, 663F90542152E32F
+
+precision highp int;
+precision highp float;
+precision highp samplerBuffer;
+precision highp usampler2D;
+precision highp uimage2D;
+in vec4 primary_color;
+in vec2 texcoord0;
+in vec2 texcoord1;
+in vec2 texcoord2;
+in float texcoord0_w;
+in vec4 normquat;
+in vec3 view;
+
+#ifndef CITRA_GLES
+in vec4 gl_FragCoord;
+#endif // CITRA_GLES
+out vec4 color;
+
+uniform sampler2D tex0;
+uniform sampler2D tex1;
+uniform sampler2D tex2;
+uniform samplerCube tex_cube;
+uniform samplerBuffer texture_buffer_lut_lf;
+uniform samplerBuffer texture_buffer_lut_rg;
+uniform samplerBuffer texture_buffer_lut_rgba;
+
+#define NUM_TEV_STAGES 6
+#define NUM_LIGHTS 8
+#define NUM_LIGHTING_SAMPLERS 24
+
+struct LightSrc {
+    vec3 specular_0;
+    vec3 specular_1;
+    vec3 diffuse;
+    vec3 ambient;
+    vec3 position;
+    vec3 spot_direction;
+    float dist_atten_bias;
+    float dist_atten_scale;
+};
+
+layout (std140) uniform shader_data {
+    int alphatest_ref;
+    float depth_scale;
+    float depth_offset;
+    float shadow_bias_constant;
+    float shadow_bias_linear;
+    int scissor_x1;
+    int scissor_y1;
+    int scissor_x2;
+    int scissor_y2;
+    int fog_lut_offset;
+    int proctex_noise_lut_offset;
+    int proctex_color_map_offset;
+    int proctex_alpha_map_offset;
+    int proctex_lut_offset;
+    int proctex_diff_lut_offset;
+    float proctex_bias;
+    vec3 fog_color;
+    vec2 proctex_noise_f;
+    vec2 proctex_noise_a;
+    vec2 proctex_noise_p;
+    vec4 const_color[NUM_TEV_STAGES];
+    vec4 tev_combiner_buffer_color;
+    vec4 clip_coef;
+};
+
+layout (std140) uniform shader_light_data {
+    ivec4 lighting_lut_offset[NUM_LIGHTING_SAMPLERS / 4];
+    vec3 lighting_global_ambient;
+    LightSrc light_src[NUM_LIGHTS];
+    float lut_scale_d0;
+    float lut_scale_d1;
+    float lut_scale_sp;
+    float lut_scale_fr;
+    float lut_scale_rb;
+    float lut_scale_rg;
+    float lut_scale_rr;
+    int shadow_texture_bias;
+};
+
+// Rotate the vector v by the quaternion q
+vec3 quaternion_rotate(vec4 q, vec3 v) {
+    return v + 2.0 * cross(q.xyz, cross(q.xyz, v) + q.w * v);
+}
+
+float LookupLightingLUT(int lut_index, int index, float delta) {
+    vec2 entry = texelFetch(texture_buffer_lut_lf, lighting_lut_offset[lut_index >> 2][lut_index & 3] + index).rg;
+    return entry.r + entry.g * delta;
+}
+
+float LookupLightingLUTUnsigned(int lut_index, float pos) {
+    int index = clamp(int(pos * 256.0), 0, 255);
+    float delta = pos * 256.0 - float(index);
+    return LookupLightingLUT(lut_index, index, delta);
+}
+
+float LookupLightingLUTSigned(int lut_index, float pos) {
+    int index = clamp(int(pos * 128.0), -128, 127);
+    float delta = pos * 128.0 - float(index);
+    if (index < 0) index += 256;
+    return LookupLightingLUT(lut_index, index, delta);
+}
+
+float byteround(float x) {
+    return round(x * 255.0) * (1.0 / 255.0);
+}
+
+vec2 byteround(vec2 x) {
+    return round(x * 255.0) * (1.0 / 255.0);
+}
+
+vec3 byteround(vec3 x) {
+    return round(x * 255.0) * (1.0 / 255.0);
+}
+
+vec4 byteround(vec4 x) {
+    return round(x * 255.0) * (1.0 / 255.0);
+}
+
+// PICA's LOD formula for 2D textures.
+// This LOD formula is the same as the LOD lower limit defined in OpenGL.
+// f(x, y) >= max{m_u, m_v, m_w}
+// (See OpenGL 4.6 spec, 8.14.1 - Scale Factor and Level-of-Detail)
+float getLod(vec2 coord) {
+    vec2 d = max(abs(dFdx(coord)), abs(dFdy(coord)));
+    return log2(max(d.x, d.y));
+}
+
+vec4 shadowTexture(vec2 uv, float w) {
+    return vec4(1.0);
+}
+
+vec4 shadowTextureCube(vec2 uv, float w) {
+    return vec4(1.0);
+}
+
+void main() {
+vec4 rounded_primary_color = byteround(primary_color);
+vec4 primary_fragment_color = vec4(0.0);
+vec4 secondary_fragment_color = vec4(0.0);
+if (!(gl_FragCoord.x >= float(scissor_x1) && gl_FragCoord.y >= float(scissor_y1) && gl_FragCoord.x < float(scissor_x2) && gl_FragCoord.y < float(scissor_y2))) discard;
+float z_over_w = 2.0 * gl_FragCoord.z - 1.0;
+float depth = z_over_w * depth_scale + depth_offset;
+vec4 texcolor0 = textureLod(tex0, texcoord0, getLod(texcoord0 * vec2(textureSize(tex0, 0))));
+vec4 combiner_buffer = vec4(0.0);
+vec4 next_combiner_buffer = tev_combiner_buffer_color;
+vec4 last_tex_env_out = vec4(0.0);
+vec3 color_output_0 = (rounded_primary_color.rgb);
+float alpha_output_0 = byteround(clamp((rounded_primary_color.a) * (texcolor0.a), 0.0, 1.0));
+last_tex_env_out = vec4(color_output_0, alpha_output_0);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
+combiner_buffer = next_combiner_buffer;
+
+combiner_buffer = next_combiner_buffer;
+
+combiner_buffer = next_combiner_buffer;
+
+combiner_buffer = next_combiner_buffer;
+
+combiner_buffer = next_combiner_buffer;
+
+combiner_buffer = next_combiner_buffer;
+
+if (int(last_tex_env_out.a * 255.0) <= alphatest_ref) discard;
+gl_FragDepth = depth;
+color = byteround(last_tex_env_out);
+}
+// reference: 1080747764F97F39, 663F90542152E32F
+// program: 4056A7BD49897EA4, 01926B3CAE979003, 663F90542152E32F
+// reference: 10807477653B150E, 663F90542152E32F
+// shader: 8B30, 1D60D7A85602E8E8
 
 precision highp int;
 precision highp float;
@@ -40935,7 +39453,8 @@ vec4 next_combiner_buffer = tev_combiner_buffer_color;
 vec4 last_tex_env_out = vec4(0.0);
 vec3 color_output_0 = byteround(clamp((texcolor0.rgb) + (const_color[0].rgb), vec3(0.0), vec3(1.0)));
 float alpha_output_0 = byteround(clamp((rounded_primary_color.a) * (texcolor0.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_0, alpha_output_0), vec4(0.0), vec4(1.0));
+last_tex_env_out = vec4(color_output_0, alpha_output_0);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 
 combiner_buffer = next_combiner_buffer;
@@ -40949,191 +39468,19 @@ combiner_buffer = next_combiner_buffer;
 combiner_buffer = next_combiner_buffer;
 
 float fog_index = depth * 128.0;
-float fog_i = clamp(floor(fog_index), 0.0, 127.0);
-float fog_f = fog_index - fog_i;
-vec2 fog_lut_entry = texelFetch(texture_buffer_lut_lf, int(fog_i) + fog_lut_offset).rg;
+int fog_i = int(fog_index);
+float fog_f = fract(fog_index);
+vec2 fog_lut_entry = texelFetch(texture_buffer_lut_lf, fog_i + fog_lut_offset).rg;
 float fog_factor = fog_lut_entry.r + fog_lut_entry.g * fog_f;
 fog_factor = clamp(fog_factor, 0.0, 1.0);
 last_tex_env_out.rgb = mix(fog_color.rgb, last_tex_env_out.rgb, fog_factor);
 gl_FragDepth = depth;
 color = byteround(last_tex_env_out);
 }
-// reference: 251252197EF0D3F0, 63612EEF2507A256
-// program: F3D442C0013F9392, 6CF3F3B70E23AA85, 63612EEF2507A256
-// reference: 251252197F32B9C7, 63612EEF2507A256
-// shader: 8B30, 34D6219C2B988F6F
-
-precision highp int;
-precision highp float;
-precision highp samplerBuffer;
-precision highp usampler2D;
-precision highp uimage2D;
-in vec4 primary_color;
-in vec2 texcoord0;
-in vec2 texcoord1;
-in vec2 texcoord2;
-in float texcoord0_w;
-in vec4 normquat;
-in vec3 view;
-
-#ifndef CITRA_GLES
-in vec4 gl_FragCoord;
-#endif // CITRA_GLES
-out vec4 color;
-
-uniform sampler2D tex0;
-uniform sampler2D tex1;
-uniform sampler2D tex2;
-uniform samplerCube tex_cube;
-uniform samplerBuffer texture_buffer_lut_lf;
-uniform samplerBuffer texture_buffer_lut_rg;
-uniform samplerBuffer texture_buffer_lut_rgba;
-
-#define NUM_TEV_STAGES 6
-#define NUM_LIGHTS 8
-#define NUM_LIGHTING_SAMPLERS 24
-
-struct LightSrc {
-    vec3 specular_0;
-    vec3 specular_1;
-    vec3 diffuse;
-    vec3 ambient;
-    vec3 position;
-    vec3 spot_direction;
-    float dist_atten_bias;
-    float dist_atten_scale;
-};
-
-layout (std140) uniform shader_data {
-    int alphatest_ref;
-    float depth_scale;
-    float depth_offset;
-    float shadow_bias_constant;
-    float shadow_bias_linear;
-    int scissor_x1;
-    int scissor_y1;
-    int scissor_x2;
-    int scissor_y2;
-    int fog_lut_offset;
-    int proctex_noise_lut_offset;
-    int proctex_color_map_offset;
-    int proctex_alpha_map_offset;
-    int proctex_lut_offset;
-    int proctex_diff_lut_offset;
-    float proctex_bias;
-    vec3 fog_color;
-    vec2 proctex_noise_f;
-    vec2 proctex_noise_a;
-    vec2 proctex_noise_p;
-    vec4 const_color[NUM_TEV_STAGES];
-    vec4 tev_combiner_buffer_color;
-    vec4 clip_coef;
-};
-
-layout (std140) uniform shader_light_data {
-    ivec4 lighting_lut_offset[NUM_LIGHTING_SAMPLERS / 4];
-    vec3 lighting_global_ambient;
-    LightSrc light_src[NUM_LIGHTS];
-    float lut_scale_d0;
-    float lut_scale_d1;
-    float lut_scale_sp;
-    float lut_scale_fr;
-    float lut_scale_rb;
-    float lut_scale_rg;
-    float lut_scale_rr;
-    int shadow_texture_bias;
-};
-
-// Rotate the vector v by the quaternion q
-vec3 quaternion_rotate(vec4 q, vec3 v) {
-    return v + 2.0 * cross(q.xyz, cross(q.xyz, v) + q.w * v);
-}
-
-float LookupLightingLUT(int lut_index, int index, float delta) {
-    vec2 entry = texelFetch(texture_buffer_lut_lf, lighting_lut_offset[lut_index >> 2][lut_index & 3] + index).rg;
-    return entry.r + entry.g * delta;
-}
-
-float LookupLightingLUTUnsigned(int lut_index, float pos) {
-    int index = clamp(int(pos * 256.0), 0, 255);
-    float delta = pos * 256.0 - float(index);
-    return LookupLightingLUT(lut_index, index, delta);
-}
-
-float LookupLightingLUTSigned(int lut_index, float pos) {
-    int index = clamp(int(pos * 128.0), -128, 127);
-    float delta = pos * 128.0 - float(index);
-    if (index < 0) index += 256;
-    return LookupLightingLUT(lut_index, index, delta);
-}
-
-float byteround(float x) {
-    return round(x * 255.0) * (1.0 / 255.0);
-}
-
-vec2 byteround(vec2 x) {
-    return round(x * 255.0) * (1.0 / 255.0);
-}
-
-vec3 byteround(vec3 x) {
-    return round(x * 255.0) * (1.0 / 255.0);
-}
-
-vec4 byteround(vec4 x) {
-    return round(x * 255.0) * (1.0 / 255.0);
-}
-
-// PICA's LOD formula for 2D textures.
-// This LOD formula is the same as the LOD lower limit defined in OpenGL.
-// f(x, y) >= max{m_u, m_v, m_w}
-// (See OpenGL 4.6 spec, 8.14.1 - Scale Factor and Level-of-Detail)
-float getLod(vec2 coord) {
-    vec2 d = max(abs(dFdx(coord)), abs(dFdy(coord)));
-    return log2(max(d.x, d.y));
-}
-
-vec4 shadowTexture(vec2 uv, float w) {
-    return vec4(1.0);
-}
-
-vec4 shadowTextureCube(vec2 uv, float w) {
-    return vec4(1.0);
-}
-
-void main() {
-vec4 rounded_primary_color = byteround(primary_color);
-vec4 primary_fragment_color = vec4(0.0);
-vec4 secondary_fragment_color = vec4(0.0);
-if (!(gl_FragCoord.x >= float(scissor_x1) && gl_FragCoord.y >= float(scissor_y1) && gl_FragCoord.x < float(scissor_x2) && gl_FragCoord.y < float(scissor_y2))) discard;
-float z_over_w = 2.0 * gl_FragCoord.z - 1.0;
-float depth = z_over_w * depth_scale + depth_offset;
-vec4 texcolor0 = textureLod(tex0, texcoord0, getLod(texcoord0 * vec2(textureSize(tex0, 0))));
-vec4 combiner_buffer = vec4(0.0);
-vec4 next_combiner_buffer = tev_combiner_buffer_color;
-vec4 last_tex_env_out = vec4(0.0);
-vec3 color_output_0 = byteround(clamp((rounded_primary_color.rgb), vec3(0.0), vec3(1.0)));
-float alpha_output_0 = byteround(clamp((rounded_primary_color.a) * (texcolor0.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_0, alpha_output_0), vec4(0.0), vec4(1.0));
-combiner_buffer = next_combiner_buffer;
-
-combiner_buffer = next_combiner_buffer;
-
-combiner_buffer = next_combiner_buffer;
-
-combiner_buffer = next_combiner_buffer;
-
-combiner_buffer = next_combiner_buffer;
-
-combiner_buffer = next_combiner_buffer;
-
-if (int(last_tex_env_out.a * 255.0) <= alphatest_ref) discard;
-gl_FragDepth = depth;
-color = byteround(last_tex_env_out);
-}
-// reference: 1080747764F97F39, 34D6219C2B988F6F
-// program: 9C5D7AEF8C3E67F2, 5508714B05507EE9, 34D6219C2B988F6F
-// reference: 10807477653B150E, 34D6219C2B988F6F
-// shader: 8B30, A91B0F0B91A4BC9C
+// reference: 251252197EF0D3F0, 1D60D7A85602E8E8
+// program: 22C3C36B08CEECE7, 7A40B90B17532EA8, 1D60D7A85602E8E8
+// reference: 251252197F32B9C7, 1D60D7A85602E8E8
+// shader: 8B30, C81B5ECF275EFD99
 
 precision highp int;
 precision highp float;
@@ -41312,57 +39659,428 @@ specular_sum.rgb += ((((lut_scale_d0 * LookupLightingLUTSigned(0, dot(normal, no
 diffuse_sum.rgb += lighting_global_ambient;
 primary_fragment_color = clamp(diffuse_sum, vec4(0.0), vec4(1.0));
 secondary_fragment_color = clamp(specular_sum, vec4(0.0), vec4(1.0));
-
 vec4 combiner_buffer = vec4(0.0);
 vec4 next_combiner_buffer = tev_combiner_buffer_color;
 vec4 last_tex_env_out = vec4(0.0);
 vec3 color_output_0 = byteround(clamp((vec3(1.0) - secondary_fragment_color.aaa) * (const_color[0].rgb) + (primary_fragment_color.rgb), vec3(0.0), vec3(1.0)));
 float alpha_output_0 = byteround(clamp((rounded_primary_color.a) * (texcolor0.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_0, alpha_output_0), vec4(0.0), vec4(1.0));
+last_tex_env_out = vec4(color_output_0, alpha_output_0);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 next_combiner_buffer.rgb = last_tex_env_out.rgb;
 
 vec3 color_output_1 = byteround(clamp((texcolor0.rgb) * (const_color[1].rgb), vec3(0.0), vec3(1.0)));
-float alpha_output_1 = byteround(clamp((last_tex_env_out.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_1, alpha_output_1), vec4(0.0), vec4(1.0));
+float alpha_output_1 = (last_tex_env_out.a);
+last_tex_env_out = vec4(color_output_1, alpha_output_1);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 
 vec3 color_output_2 = byteround(clamp((last_tex_env_out.rgb) * (combiner_buffer.rgb) + (secondary_fragment_color.rgb), vec3(0.0), vec3(1.0)));
-float alpha_output_2 = byteround(clamp((last_tex_env_out.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_2, alpha_output_2), vec4(0.0), vec4(1.0));
+float alpha_output_2 = (last_tex_env_out.a);
+last_tex_env_out = vec4(color_output_2, alpha_output_2);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 
 vec3 color_output_3 = byteround(clamp((texcolor1.rgb) * (const_color[3].rgb) + (last_tex_env_out.rgb), vec3(0.0), vec3(1.0)));
-float alpha_output_3 = byteround(clamp((last_tex_env_out.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_3, alpha_output_3), vec4(0.0), vec4(1.0));
+float alpha_output_3 = (last_tex_env_out.a);
+last_tex_env_out = vec4(color_output_3, alpha_output_3);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 next_combiner_buffer.rgb = last_tex_env_out.rgb;
 
 vec3 color_output_4 = byteround(clamp((rounded_primary_color.rgb) * (const_color[4].rgb) + (rounded_primary_color.rgb), vec3(0.0), vec3(1.0)));
-float alpha_output_4 = byteround(clamp((last_tex_env_out.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_4, alpha_output_4), vec4(0.0), vec4(1.0));
+float alpha_output_4 = (last_tex_env_out.a);
+last_tex_env_out = vec4(color_output_4, alpha_output_4);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 
 vec3 color_output_5 = byteround(clamp((last_tex_env_out.rgb) * (combiner_buffer.rgb) + (const_color[5].rgb), vec3(0.0), vec3(1.0)));
-float alpha_output_5 = byteround(clamp((last_tex_env_out.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_5 * 2.0, alpha_output_5 * 1.0), vec4(0.0), vec4(1.0));
+float alpha_output_5 = (last_tex_env_out.a);
+last_tex_env_out = vec4(color_output_5 * 2.0, alpha_output_5 * 1.0);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 
 if (int(last_tex_env_out.a * 255.0) <= alphatest_ref) discard;
 float fog_index = depth * 128.0;
-float fog_i = clamp(floor(fog_index), 0.0, 127.0);
-float fog_f = fog_index - fog_i;
-vec2 fog_lut_entry = texelFetch(texture_buffer_lut_lf, int(fog_i) + fog_lut_offset).rg;
+int fog_i = int(fog_index);
+float fog_f = fract(fog_index);
+vec2 fog_lut_entry = texelFetch(texture_buffer_lut_lf, fog_i + fog_lut_offset).rg;
 float fog_factor = fog_lut_entry.r + fog_lut_entry.g * fog_f;
 fog_factor = clamp(fog_factor, 0.0, 1.0);
 last_tex_env_out.rgb = mix(fog_color.rgb, last_tex_env_out.rgb, fog_factor);
 gl_FragDepth = depth;
 color = byteround(last_tex_env_out);
 }
-// reference: 834E92D1E53DBADD, A91B0F0B91A4BC9C
-// program: 9A0887C21E007189, 3B3AE026C742C7D5, A91B0F0B91A4BC9C
-// reference: 834E92D1E4FFD0EA, A91B0F0B91A4BC9C
-// shader: 8B30, 5C4758596E457E5A
+// reference: 834E92D1E53DBADD, C81B5ECF275EFD99
+// program: C2A49A7A2A81571D, D0BDF6740B5CE976, C81B5ECF275EFD99
+// reference: 834E92D1E4FFD0EA, C81B5ECF275EFD99
+// shader: 8B30, 7618D125DE449B98
+
+precision highp int;
+precision highp float;
+precision highp samplerBuffer;
+precision highp usampler2D;
+precision highp uimage2D;
+in vec4 primary_color;
+in vec2 texcoord0;
+in vec2 texcoord1;
+in vec2 texcoord2;
+in float texcoord0_w;
+in vec4 normquat;
+in vec3 view;
+
+#ifndef CITRA_GLES
+in vec4 gl_FragCoord;
+#endif // CITRA_GLES
+out vec4 color;
+
+uniform sampler2D tex0;
+uniform sampler2D tex1;
+uniform sampler2D tex2;
+uniform samplerCube tex_cube;
+uniform samplerBuffer texture_buffer_lut_lf;
+uniform samplerBuffer texture_buffer_lut_rg;
+uniform samplerBuffer texture_buffer_lut_rgba;
+
+#define NUM_TEV_STAGES 6
+#define NUM_LIGHTS 8
+#define NUM_LIGHTING_SAMPLERS 24
+
+struct LightSrc {
+    vec3 specular_0;
+    vec3 specular_1;
+    vec3 diffuse;
+    vec3 ambient;
+    vec3 position;
+    vec3 spot_direction;
+    float dist_atten_bias;
+    float dist_atten_scale;
+};
+
+layout (std140) uniform shader_data {
+    int alphatest_ref;
+    float depth_scale;
+    float depth_offset;
+    float shadow_bias_constant;
+    float shadow_bias_linear;
+    int scissor_x1;
+    int scissor_y1;
+    int scissor_x2;
+    int scissor_y2;
+    int fog_lut_offset;
+    int proctex_noise_lut_offset;
+    int proctex_color_map_offset;
+    int proctex_alpha_map_offset;
+    int proctex_lut_offset;
+    int proctex_diff_lut_offset;
+    float proctex_bias;
+    vec3 fog_color;
+    vec2 proctex_noise_f;
+    vec2 proctex_noise_a;
+    vec2 proctex_noise_p;
+    vec4 const_color[NUM_TEV_STAGES];
+    vec4 tev_combiner_buffer_color;
+    vec4 clip_coef;
+};
+
+layout (std140) uniform shader_light_data {
+    ivec4 lighting_lut_offset[NUM_LIGHTING_SAMPLERS / 4];
+    vec3 lighting_global_ambient;
+    LightSrc light_src[NUM_LIGHTS];
+    float lut_scale_d0;
+    float lut_scale_d1;
+    float lut_scale_sp;
+    float lut_scale_fr;
+    float lut_scale_rb;
+    float lut_scale_rg;
+    float lut_scale_rr;
+    int shadow_texture_bias;
+};
+
+// Rotate the vector v by the quaternion q
+vec3 quaternion_rotate(vec4 q, vec3 v) {
+    return v + 2.0 * cross(q.xyz, cross(q.xyz, v) + q.w * v);
+}
+
+float LookupLightingLUT(int lut_index, int index, float delta) {
+    vec2 entry = texelFetch(texture_buffer_lut_lf, lighting_lut_offset[lut_index >> 2][lut_index & 3] + index).rg;
+    return entry.r + entry.g * delta;
+}
+
+float LookupLightingLUTUnsigned(int lut_index, float pos) {
+    int index = clamp(int(pos * 256.0), 0, 255);
+    float delta = pos * 256.0 - float(index);
+    return LookupLightingLUT(lut_index, index, delta);
+}
+
+float LookupLightingLUTSigned(int lut_index, float pos) {
+    int index = clamp(int(pos * 128.0), -128, 127);
+    float delta = pos * 128.0 - float(index);
+    if (index < 0) index += 256;
+    return LookupLightingLUT(lut_index, index, delta);
+}
+
+float byteround(float x) {
+    return round(x * 255.0) * (1.0 / 255.0);
+}
+
+vec2 byteround(vec2 x) {
+    return round(x * 255.0) * (1.0 / 255.0);
+}
+
+vec3 byteround(vec3 x) {
+    return round(x * 255.0) * (1.0 / 255.0);
+}
+
+vec4 byteround(vec4 x) {
+    return round(x * 255.0) * (1.0 / 255.0);
+}
+
+// PICA's LOD formula for 2D textures.
+// This LOD formula is the same as the LOD lower limit defined in OpenGL.
+// f(x, y) >= max{m_u, m_v, m_w}
+// (See OpenGL 4.6 spec, 8.14.1 - Scale Factor and Level-of-Detail)
+float getLod(vec2 coord) {
+    vec2 d = max(abs(dFdx(coord)), abs(dFdy(coord)));
+    return log2(max(d.x, d.y));
+}
+
+vec4 shadowTexture(vec2 uv, float w) {
+    return vec4(1.0);
+}
+
+vec4 shadowTextureCube(vec2 uv, float w) {
+    return vec4(1.0);
+}
+
+void main() {
+vec4 rounded_primary_color = byteround(primary_color);
+vec4 primary_fragment_color = vec4(0.0);
+vec4 secondary_fragment_color = vec4(0.0);
+if (!(gl_FragCoord.x >= float(scissor_x1) && gl_FragCoord.y >= float(scissor_y1) && gl_FragCoord.x < float(scissor_x2) && gl_FragCoord.y < float(scissor_y2))) discard;
+float z_over_w = 2.0 * gl_FragCoord.z - 1.0;
+float depth = z_over_w * depth_scale + depth_offset;
+vec4 texcolor0 = textureLod(tex0, texcoord0, getLod(texcoord0 * vec2(textureSize(tex0, 0))));
+vec4 combiner_buffer = vec4(0.0);
+vec4 next_combiner_buffer = tev_combiner_buffer_color;
+vec4 last_tex_env_out = vec4(0.0);
+vec3 color_output_0 = (const_color[0].rgb);
+float alpha_output_0 = byteround(clamp((rounded_primary_color.a) * (texcolor0.a), 0.0, 1.0));
+last_tex_env_out = vec4(color_output_0, alpha_output_0);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
+combiner_buffer = next_combiner_buffer;
+
+combiner_buffer = next_combiner_buffer;
+
+combiner_buffer = next_combiner_buffer;
+
+vec3 color_output_3 = byteround(clamp((texcolor0.rgb) * (const_color[3].rgb), vec3(0.0), vec3(1.0)));
+float alpha_output_3 = byteround(clamp((texcolor0.a) * (const_color[3].a), 0.0, 1.0));
+last_tex_env_out = vec4(color_output_3, alpha_output_3);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
+combiner_buffer = next_combiner_buffer;
+
+vec3 color_output_4 = byteround(clamp((vec3(1.0) - texcolor0.rgb) * (const_color[4].rgb) + (last_tex_env_out.rgb), vec3(0.0), vec3(1.0)));
+float alpha_output_4 = byteround(clamp((1.0 - texcolor0.a) * (const_color[4].a) + (last_tex_env_out.a), 0.0, 1.0));
+last_tex_env_out = vec4(color_output_4, alpha_output_4);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
+combiner_buffer = next_combiner_buffer;
+
+vec3 color_output_5 = byteround(clamp((rounded_primary_color.rgb) * (last_tex_env_out.rgb), vec3(0.0), vec3(1.0)));
+float alpha_output_5 = byteround(clamp((rounded_primary_color.a) * (last_tex_env_out.a), 0.0, 1.0));
+last_tex_env_out = vec4(color_output_5, alpha_output_5);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
+combiner_buffer = next_combiner_buffer;
+
+gl_FragDepth = depth;
+color = byteround(last_tex_env_out);
+}
+// reference: BD8D5A24CF600DA8, 7618D125DE449B98
+// program: A0C32A2C2484E2AE, 42937135801BAA7E, 7618D125DE449B98
+// shader: 8B30, 2CCCDAB175A51C29
+
+precision highp int;
+precision highp float;
+precision highp samplerBuffer;
+precision highp usampler2D;
+precision highp uimage2D;
+in vec4 primary_color;
+in vec2 texcoord0;
+in vec2 texcoord1;
+in vec2 texcoord2;
+in float texcoord0_w;
+in vec4 normquat;
+in vec3 view;
+
+#ifndef CITRA_GLES
+in vec4 gl_FragCoord;
+#endif // CITRA_GLES
+out vec4 color;
+
+uniform sampler2D tex0;
+uniform sampler2D tex1;
+uniform sampler2D tex2;
+uniform samplerCube tex_cube;
+uniform samplerBuffer texture_buffer_lut_lf;
+uniform samplerBuffer texture_buffer_lut_rg;
+uniform samplerBuffer texture_buffer_lut_rgba;
+
+#define NUM_TEV_STAGES 6
+#define NUM_LIGHTS 8
+#define NUM_LIGHTING_SAMPLERS 24
+
+struct LightSrc {
+    vec3 specular_0;
+    vec3 specular_1;
+    vec3 diffuse;
+    vec3 ambient;
+    vec3 position;
+    vec3 spot_direction;
+    float dist_atten_bias;
+    float dist_atten_scale;
+};
+
+layout (std140) uniform shader_data {
+    int alphatest_ref;
+    float depth_scale;
+    float depth_offset;
+    float shadow_bias_constant;
+    float shadow_bias_linear;
+    int scissor_x1;
+    int scissor_y1;
+    int scissor_x2;
+    int scissor_y2;
+    int fog_lut_offset;
+    int proctex_noise_lut_offset;
+    int proctex_color_map_offset;
+    int proctex_alpha_map_offset;
+    int proctex_lut_offset;
+    int proctex_diff_lut_offset;
+    float proctex_bias;
+    vec3 fog_color;
+    vec2 proctex_noise_f;
+    vec2 proctex_noise_a;
+    vec2 proctex_noise_p;
+    vec4 const_color[NUM_TEV_STAGES];
+    vec4 tev_combiner_buffer_color;
+    vec4 clip_coef;
+};
+
+layout (std140) uniform shader_light_data {
+    ivec4 lighting_lut_offset[NUM_LIGHTING_SAMPLERS / 4];
+    vec3 lighting_global_ambient;
+    LightSrc light_src[NUM_LIGHTS];
+    float lut_scale_d0;
+    float lut_scale_d1;
+    float lut_scale_sp;
+    float lut_scale_fr;
+    float lut_scale_rb;
+    float lut_scale_rg;
+    float lut_scale_rr;
+    int shadow_texture_bias;
+};
+
+// Rotate the vector v by the quaternion q
+vec3 quaternion_rotate(vec4 q, vec3 v) {
+    return v + 2.0 * cross(q.xyz, cross(q.xyz, v) + q.w * v);
+}
+
+float LookupLightingLUT(int lut_index, int index, float delta) {
+    vec2 entry = texelFetch(texture_buffer_lut_lf, lighting_lut_offset[lut_index >> 2][lut_index & 3] + index).rg;
+    return entry.r + entry.g * delta;
+}
+
+float LookupLightingLUTUnsigned(int lut_index, float pos) {
+    int index = clamp(int(pos * 256.0), 0, 255);
+    float delta = pos * 256.0 - float(index);
+    return LookupLightingLUT(lut_index, index, delta);
+}
+
+float LookupLightingLUTSigned(int lut_index, float pos) {
+    int index = clamp(int(pos * 128.0), -128, 127);
+    float delta = pos * 128.0 - float(index);
+    if (index < 0) index += 256;
+    return LookupLightingLUT(lut_index, index, delta);
+}
+
+float byteround(float x) {
+    return round(x * 255.0) * (1.0 / 255.0);
+}
+
+vec2 byteround(vec2 x) {
+    return round(x * 255.0) * (1.0 / 255.0);
+}
+
+vec3 byteround(vec3 x) {
+    return round(x * 255.0) * (1.0 / 255.0);
+}
+
+vec4 byteround(vec4 x) {
+    return round(x * 255.0) * (1.0 / 255.0);
+}
+
+// PICA's LOD formula for 2D textures.
+// This LOD formula is the same as the LOD lower limit defined in OpenGL.
+// f(x, y) >= max{m_u, m_v, m_w}
+// (See OpenGL 4.6 spec, 8.14.1 - Scale Factor and Level-of-Detail)
+float getLod(vec2 coord) {
+    vec2 d = max(abs(dFdx(coord)), abs(dFdy(coord)));
+    return log2(max(d.x, d.y));
+}
+
+vec4 shadowTexture(vec2 uv, float w) {
+    return vec4(1.0);
+}
+
+vec4 shadowTextureCube(vec2 uv, float w) {
+    return vec4(1.0);
+}
+
+void main() {
+vec4 rounded_primary_color = byteround(primary_color);
+vec4 primary_fragment_color = vec4(0.0);
+vec4 secondary_fragment_color = vec4(0.0);
+if (!(gl_FragCoord.x >= float(scissor_x1) && gl_FragCoord.y >= float(scissor_y1) && gl_FragCoord.x < float(scissor_x2) && gl_FragCoord.y < float(scissor_y2))) discard;
+float z_over_w = 2.0 * gl_FragCoord.z - 1.0;
+float depth = z_over_w * depth_scale + depth_offset;
+vec4 texcolor0 = textureLod(tex0, texcoord0, getLod(texcoord0 * vec2(textureSize(tex0, 0))));
+vec4 combiner_buffer = vec4(0.0);
+vec4 next_combiner_buffer = tev_combiner_buffer_color;
+vec4 last_tex_env_out = vec4(0.0);
+vec3 color_output_0 = (const_color[0].rgb);
+float alpha_output_0 = byteround(clamp((rounded_primary_color.a) * (texcolor0.a), 0.0, 1.0));
+last_tex_env_out = vec4(color_output_0, alpha_output_0);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
+combiner_buffer = next_combiner_buffer;
+
+combiner_buffer = next_combiner_buffer;
+
+combiner_buffer = next_combiner_buffer;
+
+vec3 color_output_3 = byteround(clamp((const_color[3].rgb) * (vec3(1.0) - texcolor0.rgb), vec3(0.0), vec3(1.0)));
+float alpha_output_3 = byteround(clamp((const_color[3].a) * (1.0 - texcolor0.a), 0.0, 1.0));
+last_tex_env_out = vec4(color_output_3, alpha_output_3);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
+combiner_buffer = next_combiner_buffer;
+
+vec3 color_output_4 = byteround(clamp((const_color[4].rgb) * (texcolor0.rgb) + (last_tex_env_out.rgb), vec3(0.0), vec3(1.0)));
+float alpha_output_4 = byteround(clamp((const_color[4].a) * (texcolor0.a) + (last_tex_env_out.a), 0.0, 1.0));
+last_tex_env_out = vec4(color_output_4, alpha_output_4);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
+combiner_buffer = next_combiner_buffer;
+
+vec3 color_output_5 = byteround(clamp((rounded_primary_color.rgb) * (last_tex_env_out.rgb), vec3(0.0), vec3(1.0)));
+float alpha_output_5 = byteround(clamp((rounded_primary_color.a) * (last_tex_env_out.a), 0.0, 1.0));
+last_tex_env_out = vec4(color_output_5, alpha_output_5);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
+combiner_buffer = next_combiner_buffer;
+
+gl_FragDepth = depth;
+color = byteround(last_tex_env_out);
+}
+// reference: 0167508A4E9F1B12, 2CCCDAB175A51C29
+// program: A0C32A2C2484E2AE, 42937135801BAA7E, 2CCCDAB175A51C29
+// shader: 8B30, FE1174DAA5E42EF3
 
 precision highp int;
 precision highp float;
@@ -41537,54 +40255,59 @@ specular_sum.rgb += (((lut_scale_d0 * LookupLightingLUTSigned(0, dot(normal, nor
 diffuse_sum.rgb += lighting_global_ambient;
 primary_fragment_color = clamp(diffuse_sum, vec4(0.0), vec4(1.0));
 secondary_fragment_color = clamp(specular_sum, vec4(0.0), vec4(1.0));
-
 vec4 combiner_buffer = vec4(0.0);
 vec4 next_combiner_buffer = tev_combiner_buffer_color;
 vec4 last_tex_env_out = vec4(0.0);
 vec3 color_output_0 = byteround(clamp((vec3(1.0) - secondary_fragment_color.aaa) * (const_color[0].rgb) + (primary_fragment_color.rgb), vec3(0.0), vec3(1.0)));
 float alpha_output_0 = byteround(clamp((rounded_primary_color.a) * (last_tex_env_out.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_0, alpha_output_0), vec4(0.0), vec4(1.0));
+last_tex_env_out = vec4(color_output_0, alpha_output_0);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 
 vec3 color_output_1 = byteround(clamp((const_color[1].rgb) * (last_tex_env_out.rgb), vec3(0.0), vec3(1.0)));
-float alpha_output_1 = byteround(clamp((last_tex_env_out.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_1, alpha_output_1), vec4(0.0), vec4(1.0));
+float alpha_output_1 = (last_tex_env_out.a);
+last_tex_env_out = vec4(color_output_1, alpha_output_1);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 
 vec3 color_output_2 = byteround(clamp((last_tex_env_out.rgb) + (const_color[2].rgb) - vec3(0.5), vec3(0.0), vec3(1.0)));
-float alpha_output_2 = byteround(clamp((last_tex_env_out.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_2, alpha_output_2), vec4(0.0), vec4(1.0));
+float alpha_output_2 = (last_tex_env_out.a);
+last_tex_env_out = vec4(color_output_2, alpha_output_2);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 next_combiner_buffer.rgb = last_tex_env_out.rgb;
 
 vec3 color_output_3 = byteround(clamp((vec3(1.0) - last_tex_env_out.rgb) * (secondary_fragment_color.rgb) + (last_tex_env_out.rgb) * (vec3(1.0) - (secondary_fragment_color.rgb)), vec3(0.0), vec3(1.0)));
-float alpha_output_3 = byteround(clamp((last_tex_env_out.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_3, alpha_output_3), vec4(0.0), vec4(1.0));
+float alpha_output_3 = (last_tex_env_out.a);
+last_tex_env_out = vec4(color_output_3, alpha_output_3);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 
 vec3 color_output_4 = byteround(clamp(min((rounded_primary_color.rgb) + (const_color[4].rgb), vec3(1.0)) * (last_tex_env_out.rgb), vec3(0.0), vec3(1.0)));
-float alpha_output_4 = byteround(clamp((last_tex_env_out.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_4, alpha_output_4), vec4(0.0), vec4(1.0));
+float alpha_output_4 = (last_tex_env_out.a);
+last_tex_env_out = vec4(color_output_4, alpha_output_4);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 
 vec3 color_output_5 = byteround(clamp((last_tex_env_out.rgb) * (combiner_buffer.rgb) + (last_tex_env_out.rgb), vec3(0.0), vec3(1.0)));
-float alpha_output_5 = byteround(clamp((last_tex_env_out.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_5 * 2.0, alpha_output_5 * 1.0), vec4(0.0), vec4(1.0));
+float alpha_output_5 = (last_tex_env_out.a);
+last_tex_env_out = vec4(color_output_5 * 2.0, alpha_output_5 * 1.0);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 
 float fog_index = depth * 128.0;
-float fog_i = clamp(floor(fog_index), 0.0, 127.0);
-float fog_f = fog_index - fog_i;
-vec2 fog_lut_entry = texelFetch(texture_buffer_lut_lf, int(fog_i) + fog_lut_offset).rg;
+int fog_i = int(fog_index);
+float fog_f = fract(fog_index);
+vec2 fog_lut_entry = texelFetch(texture_buffer_lut_lf, fog_i + fog_lut_offset).rg;
 float fog_factor = fog_lut_entry.r + fog_lut_entry.g * fog_f;
 fog_factor = clamp(fog_factor, 0.0, 1.0);
 last_tex_env_out.rgb = mix(fog_color.rgb, last_tex_env_out.rgb, fog_factor);
 gl_FragDepth = depth;
 color = byteround(last_tex_env_out);
 }
-// reference: 1F43DBBB682876B1, 5C4758596E457E5A
-// program: FBC6AFA380C91748, 4BD70AD09292A3DA, 5C4758596E457E5A
-// shader: 8B30, F6511877959577CC
+// reference: 1F43DBBB682876B1, FE1174DAA5E42EF3
+// program: 668DC2CC893B1519, 80B52B8FBE5FE773, FE1174DAA5E42EF3
+// shader: 8B30, 8873F7EDAFEA7944
 
 precision highp int;
 precision highp float;
@@ -41760,56 +40483,61 @@ specular_sum.rgb += ((light_src[0].specular_0) + (light_src[0].specular_1)) * cl
 diffuse_sum.rgb += lighting_global_ambient;
 primary_fragment_color = clamp(diffuse_sum, vec4(0.0), vec4(1.0));
 secondary_fragment_color = clamp(specular_sum, vec4(0.0), vec4(1.0));
-
 vec4 combiner_buffer = vec4(0.0);
 vec4 next_combiner_buffer = tev_combiner_buffer_color;
 vec4 last_tex_env_out = vec4(0.0);
 vec3 color_output_0 = byteround(clamp((vec3(1.0) - secondary_fragment_color.aaa) * (const_color[0].rgb) + (primary_fragment_color.rgb), vec3(0.0), vec3(1.0)));
 float alpha_output_0 = byteround(clamp((rounded_primary_color.a) * (last_tex_env_out.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_0, alpha_output_0), vec4(0.0), vec4(1.0));
+last_tex_env_out = vec4(color_output_0, alpha_output_0);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 
 vec3 color_output_1 = byteround(clamp((const_color[1].rgb) * (last_tex_env_out.rgb), vec3(0.0), vec3(1.0)));
-float alpha_output_1 = byteround(clamp((last_tex_env_out.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_1, alpha_output_1), vec4(0.0), vec4(1.0));
+float alpha_output_1 = (last_tex_env_out.a);
+last_tex_env_out = vec4(color_output_1, alpha_output_1);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 
 vec3 color_output_2 = byteround(clamp((last_tex_env_out.rgb) + (const_color[2].rgb) - vec3(0.5), vec3(0.0), vec3(1.0)));
-float alpha_output_2 = byteround(clamp((last_tex_env_out.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_2, alpha_output_2), vec4(0.0), vec4(1.0));
+float alpha_output_2 = (last_tex_env_out.a);
+last_tex_env_out = vec4(color_output_2, alpha_output_2);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 next_combiner_buffer.rgb = last_tex_env_out.rgb;
 
 vec3 color_output_3 = byteround(clamp((vec3(1.0) - last_tex_env_out.rgb) * (texcolor0.rgb) + (last_tex_env_out.rgb) * (vec3(1.0) - (texcolor0.rgb)), vec3(0.0), vec3(1.0)));
-float alpha_output_3 = byteround(clamp((last_tex_env_out.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_3, alpha_output_3), vec4(0.0), vec4(1.0));
+float alpha_output_3 = (last_tex_env_out.a);
+last_tex_env_out = vec4(color_output_3, alpha_output_3);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 
 vec3 color_output_4 = byteround(clamp(min((rounded_primary_color.rgb) + (const_color[4].rgb), vec3(1.0)) * (last_tex_env_out.rgb), vec3(0.0), vec3(1.0)));
-float alpha_output_4 = byteround(clamp((last_tex_env_out.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_4, alpha_output_4), vec4(0.0), vec4(1.0));
+float alpha_output_4 = (last_tex_env_out.a);
+last_tex_env_out = vec4(color_output_4, alpha_output_4);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 
 vec3 color_output_5 = byteround(clamp((last_tex_env_out.rgb) * (combiner_buffer.rgb) + (last_tex_env_out.rgb), vec3(0.0), vec3(1.0)));
-float alpha_output_5 = byteround(clamp((last_tex_env_out.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_5 * 2.0, alpha_output_5 * 1.0), vec4(0.0), vec4(1.0));
+float alpha_output_5 = (last_tex_env_out.a);
+last_tex_env_out = vec4(color_output_5 * 2.0, alpha_output_5 * 1.0);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 
 float fog_index = depth * 128.0;
-float fog_i = clamp(floor(fog_index), 0.0, 127.0);
-float fog_f = fog_index - fog_i;
-vec2 fog_lut_entry = texelFetch(texture_buffer_lut_lf, int(fog_i) + fog_lut_offset).rg;
+int fog_i = int(fog_index);
+float fog_f = fract(fog_index);
+vec2 fog_lut_entry = texelFetch(texture_buffer_lut_lf, fog_i + fog_lut_offset).rg;
 float fog_factor = fog_lut_entry.r + fog_lut_entry.g * fog_f;
 fog_factor = clamp(fog_factor, 0.0, 1.0);
 last_tex_env_out.rgb = mix(fog_color.rgb, last_tex_env_out.rgb, fog_factor);
 gl_FragDepth = depth;
 color = byteround(last_tex_env_out);
 }
-// reference: C0C59CF277DFE600, F6511877959577CC
-// program: F3D442C0013F9392, 6CF3F3B70E23AA85, F6511877959577CC
-// reference: 1F43DBBB69EA1C86, 5C4758596E457E5A
-// reference: C0C59CF2761D8C37, F6511877959577CC
-// shader: 8B30, 71B4410E77C4876C
+// reference: C0C59CF277DFE600, 8873F7EDAFEA7944
+// program: 22C3C36B08CEECE7, 7A40B90B17532EA8, 8873F7EDAFEA7944
+// reference: 1F43DBBB69EA1C86, FE1174DAA5E42EF3
+// reference: C0C59CF2761D8C37, 8873F7EDAFEA7944
+// shader: 8B30, 871FEF4C3A5FC8D2
 
 precision highp int;
 precision highp float;
@@ -41986,53 +40714,802 @@ specular_sum.rgb += (((lut_scale_d0 * LookupLightingLUTSigned(0, dot(normal, nor
 diffuse_sum.rgb += lighting_global_ambient;
 primary_fragment_color = clamp(diffuse_sum, vec4(0.0), vec4(1.0));
 secondary_fragment_color = clamp(specular_sum, vec4(0.0), vec4(1.0));
-
 vec4 combiner_buffer = vec4(0.0);
 vec4 next_combiner_buffer = tev_combiner_buffer_color;
 vec4 last_tex_env_out = vec4(0.0);
 vec3 color_output_0 = byteround(clamp((texcolor0.rgb) * (const_color[0].aaa), vec3(0.0), vec3(1.0)));
 float alpha_output_0 = byteround(clamp((rounded_primary_color.a) * (texcolor0.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_0, alpha_output_0), vec4(0.0), vec4(1.0));
+last_tex_env_out = vec4(color_output_0, alpha_output_0);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 
 vec3 color_output_1 = byteround(clamp((last_tex_env_out.rgb) + (const_color[1].rgb) - vec3(0.5), vec3(0.0), vec3(1.0)));
-float alpha_output_1 = byteround(clamp((last_tex_env_out.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_1, alpha_output_1), vec4(0.0), vec4(1.0));
+float alpha_output_1 = (last_tex_env_out.a);
+last_tex_env_out = vec4(color_output_1, alpha_output_1);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 next_combiner_buffer.rgb = last_tex_env_out.rgb;
 
 vec3 color_output_2 = byteround(clamp((texcolor1.rgb) * (secondary_fragment_color.rgb) + (last_tex_env_out.rgb), vec3(0.0), vec3(1.0)));
-float alpha_output_2 = byteround(clamp((last_tex_env_out.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_2, alpha_output_2), vec4(0.0), vec4(1.0));
+float alpha_output_2 = (last_tex_env_out.a);
+last_tex_env_out = vec4(color_output_2, alpha_output_2);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 
 vec3 color_output_3 = byteround(clamp(min((rounded_primary_color.rgb) + (const_color[3].rgb), vec3(1.0)) * (last_tex_env_out.rgb), vec3(0.0), vec3(1.0)));
-float alpha_output_3 = byteround(clamp((last_tex_env_out.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_3, alpha_output_3), vec4(0.0), vec4(1.0));
+float alpha_output_3 = (last_tex_env_out.a);
+last_tex_env_out = vec4(color_output_3, alpha_output_3);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 
 vec3 color_output_4 = byteround(clamp((last_tex_env_out.rgb) * (combiner_buffer.rgb) + (last_tex_env_out.rgb), vec3(0.0), vec3(1.0)));
-float alpha_output_4 = byteround(clamp((last_tex_env_out.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_4 * 2.0, alpha_output_4 * 1.0), vec4(0.0), vec4(1.0));
+float alpha_output_4 = (last_tex_env_out.a);
+last_tex_env_out = vec4(color_output_4 * 2.0, alpha_output_4 * 1.0);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 
 combiner_buffer = next_combiner_buffer;
 
 float fog_index = depth * 128.0;
-float fog_i = clamp(floor(fog_index), 0.0, 127.0);
-float fog_f = fog_index - fog_i;
-vec2 fog_lut_entry = texelFetch(texture_buffer_lut_lf, int(fog_i) + fog_lut_offset).rg;
+int fog_i = int(fog_index);
+float fog_f = fract(fog_index);
+vec2 fog_lut_entry = texelFetch(texture_buffer_lut_lf, fog_i + fog_lut_offset).rg;
 float fog_factor = fog_lut_entry.r + fog_lut_entry.g * fog_f;
 fog_factor = clamp(fog_factor, 0.0, 1.0);
 last_tex_env_out.rgb = mix(fog_color.rgb, last_tex_env_out.rgb, fog_factor);
 gl_FragDepth = depth;
 color = byteround(last_tex_env_out);
 }
-// reference: EDC3DD0D3BEF708B, 71B4410E77C4876C
-// program: 9A0887C21E007189, 3B3AE026C742C7D5, 71B4410E77C4876C
-// reference: EDC3DD0D3A2D1ABC, 71B4410E77C4876C
-// reference: B392239B204EED28, B0F8C6C7E7AE2D9A
-// shader: 8B30, 4A88526CD809841D
+// reference: EDC3DD0D3BEF708B, 871FEF4C3A5FC8D2
+// program: C2A49A7A2A81571D, D0BDF6740B5CE976, 871FEF4C3A5FC8D2
+// reference: EDC3DD0D3A2D1ABC, 871FEF4C3A5FC8D2
+// reference: 2E451B22204EED28, A89AA8D22DE7350F
+// reference: FDEA16B9915F4D53, 980B8F6476575B7A
+// reference: FDEA16B9909D2764, 980B8F6476575B7A
+// shader: 8B30, D7191892471815C2
+
+precision highp int;
+precision highp float;
+precision highp samplerBuffer;
+precision highp usampler2D;
+precision highp uimage2D;
+in vec4 primary_color;
+in vec2 texcoord0;
+in vec2 texcoord1;
+in vec2 texcoord2;
+in float texcoord0_w;
+in vec4 normquat;
+in vec3 view;
+
+#ifndef CITRA_GLES
+in vec4 gl_FragCoord;
+#endif // CITRA_GLES
+out vec4 color;
+
+uniform sampler2D tex0;
+uniform sampler2D tex1;
+uniform sampler2D tex2;
+uniform samplerCube tex_cube;
+uniform samplerBuffer texture_buffer_lut_lf;
+uniform samplerBuffer texture_buffer_lut_rg;
+uniform samplerBuffer texture_buffer_lut_rgba;
+
+#define NUM_TEV_STAGES 6
+#define NUM_LIGHTS 8
+#define NUM_LIGHTING_SAMPLERS 24
+
+struct LightSrc {
+    vec3 specular_0;
+    vec3 specular_1;
+    vec3 diffuse;
+    vec3 ambient;
+    vec3 position;
+    vec3 spot_direction;
+    float dist_atten_bias;
+    float dist_atten_scale;
+};
+
+layout (std140) uniform shader_data {
+    int alphatest_ref;
+    float depth_scale;
+    float depth_offset;
+    float shadow_bias_constant;
+    float shadow_bias_linear;
+    int scissor_x1;
+    int scissor_y1;
+    int scissor_x2;
+    int scissor_y2;
+    int fog_lut_offset;
+    int proctex_noise_lut_offset;
+    int proctex_color_map_offset;
+    int proctex_alpha_map_offset;
+    int proctex_lut_offset;
+    int proctex_diff_lut_offset;
+    float proctex_bias;
+    vec3 fog_color;
+    vec2 proctex_noise_f;
+    vec2 proctex_noise_a;
+    vec2 proctex_noise_p;
+    vec4 const_color[NUM_TEV_STAGES];
+    vec4 tev_combiner_buffer_color;
+    vec4 clip_coef;
+};
+
+layout (std140) uniform shader_light_data {
+    ivec4 lighting_lut_offset[NUM_LIGHTING_SAMPLERS / 4];
+    vec3 lighting_global_ambient;
+    LightSrc light_src[NUM_LIGHTS];
+    float lut_scale_d0;
+    float lut_scale_d1;
+    float lut_scale_sp;
+    float lut_scale_fr;
+    float lut_scale_rb;
+    float lut_scale_rg;
+    float lut_scale_rr;
+    int shadow_texture_bias;
+};
+
+// Rotate the vector v by the quaternion q
+vec3 quaternion_rotate(vec4 q, vec3 v) {
+    return v + 2.0 * cross(q.xyz, cross(q.xyz, v) + q.w * v);
+}
+
+float LookupLightingLUT(int lut_index, int index, float delta) {
+    vec2 entry = texelFetch(texture_buffer_lut_lf, lighting_lut_offset[lut_index >> 2][lut_index & 3] + index).rg;
+    return entry.r + entry.g * delta;
+}
+
+float LookupLightingLUTUnsigned(int lut_index, float pos) {
+    int index = clamp(int(pos * 256.0), 0, 255);
+    float delta = pos * 256.0 - float(index);
+    return LookupLightingLUT(lut_index, index, delta);
+}
+
+float LookupLightingLUTSigned(int lut_index, float pos) {
+    int index = clamp(int(pos * 128.0), -128, 127);
+    float delta = pos * 128.0 - float(index);
+    if (index < 0) index += 256;
+    return LookupLightingLUT(lut_index, index, delta);
+}
+
+float byteround(float x) {
+    return round(x * 255.0) * (1.0 / 255.0);
+}
+
+vec2 byteround(vec2 x) {
+    return round(x * 255.0) * (1.0 / 255.0);
+}
+
+vec3 byteround(vec3 x) {
+    return round(x * 255.0) * (1.0 / 255.0);
+}
+
+vec4 byteround(vec4 x) {
+    return round(x * 255.0) * (1.0 / 255.0);
+}
+
+// PICA's LOD formula for 2D textures.
+// This LOD formula is the same as the LOD lower limit defined in OpenGL.
+// f(x, y) >= max{m_u, m_v, m_w}
+// (See OpenGL 4.6 spec, 8.14.1 - Scale Factor and Level-of-Detail)
+float getLod(vec2 coord) {
+    vec2 d = max(abs(dFdx(coord)), abs(dFdy(coord)));
+    return log2(max(d.x, d.y));
+}
+
+vec4 shadowTexture(vec2 uv, float w) {
+    return vec4(1.0);
+}
+
+vec4 shadowTextureCube(vec2 uv, float w) {
+    return vec4(1.0);
+}
+
+void main() {
+vec4 rounded_primary_color = byteround(primary_color);
+vec4 primary_fragment_color = vec4(0.0);
+vec4 secondary_fragment_color = vec4(0.0);
+if (!(gl_FragCoord.x >= float(scissor_x1) && gl_FragCoord.y >= float(scissor_y1) && gl_FragCoord.x < float(scissor_x2) && gl_FragCoord.y < float(scissor_y2))) discard;
+float z_over_w = 2.0 * gl_FragCoord.z - 1.0;
+float depth = z_over_w * depth_scale + depth_offset;
+vec4 texcolor0 = textureLod(tex0, texcoord0, getLod(texcoord0 * vec2(textureSize(tex0, 0))));
+vec4 combiner_buffer = vec4(0.0);
+vec4 next_combiner_buffer = tev_combiner_buffer_color;
+vec4 last_tex_env_out = vec4(0.0);
+vec3 color_output_0 = byteround(clamp((const_color[0].rgb) * (texcolor0.rgb), vec3(0.0), vec3(1.0)));
+float alpha_output_0 = byteround(clamp((texcolor0.g) - (1.0 - rounded_primary_color.a), 0.0, 1.0));
+last_tex_env_out = vec4(color_output_0 * 1.0, alpha_output_0 * 2.0);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
+combiner_buffer = next_combiner_buffer;
+
+vec3 color_output_1 = byteround(clamp((rounded_primary_color.rgb) * (vec3(1.0) - texcolor0.rgb) + (last_tex_env_out.rgb), vec3(0.0), vec3(1.0)));
+float alpha_output_1 = (last_tex_env_out.a);
+last_tex_env_out = vec4(color_output_1, alpha_output_1);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
+combiner_buffer = next_combiner_buffer;
+
+combiner_buffer = next_combiner_buffer;
+
+combiner_buffer = next_combiner_buffer;
+
+combiner_buffer = next_combiner_buffer;
+
+combiner_buffer = next_combiner_buffer;
+
+if (int(last_tex_env_out.a * 255.0) <= alphatest_ref) discard;
+gl_FragDepth = depth;
+color = byteround(last_tex_env_out);
+}
+// reference: 007B91C5F5697E52, D7191892471815C2
+// program: 4056A7BD49897EA4, 01926B3CAE979003, D7191892471815C2
+// reference: 007B91C5F4AB1465, D7191892471815C2
+// reference: 58BCB0AD51FBFE83, F8CE25D083899495
+// reference: 58BCB0AD503994B4, F8CE25D083899495
+// shader: 8B30, CBF96BEC0B8F0F8E
+
+precision highp int;
+precision highp float;
+precision highp samplerBuffer;
+precision highp usampler2D;
+precision highp uimage2D;
+in vec4 primary_color;
+in vec2 texcoord0;
+in vec2 texcoord1;
+in vec2 texcoord2;
+in float texcoord0_w;
+in vec4 normquat;
+in vec3 view;
+
+#ifndef CITRA_GLES
+in vec4 gl_FragCoord;
+#endif // CITRA_GLES
+out vec4 color;
+
+uniform sampler2D tex0;
+uniform sampler2D tex1;
+uniform sampler2D tex2;
+uniform samplerCube tex_cube;
+uniform samplerBuffer texture_buffer_lut_lf;
+uniform samplerBuffer texture_buffer_lut_rg;
+uniform samplerBuffer texture_buffer_lut_rgba;
+
+#define NUM_TEV_STAGES 6
+#define NUM_LIGHTS 8
+#define NUM_LIGHTING_SAMPLERS 24
+
+struct LightSrc {
+    vec3 specular_0;
+    vec3 specular_1;
+    vec3 diffuse;
+    vec3 ambient;
+    vec3 position;
+    vec3 spot_direction;
+    float dist_atten_bias;
+    float dist_atten_scale;
+};
+
+layout (std140) uniform shader_data {
+    int alphatest_ref;
+    float depth_scale;
+    float depth_offset;
+    float shadow_bias_constant;
+    float shadow_bias_linear;
+    int scissor_x1;
+    int scissor_y1;
+    int scissor_x2;
+    int scissor_y2;
+    int fog_lut_offset;
+    int proctex_noise_lut_offset;
+    int proctex_color_map_offset;
+    int proctex_alpha_map_offset;
+    int proctex_lut_offset;
+    int proctex_diff_lut_offset;
+    float proctex_bias;
+    vec3 fog_color;
+    vec2 proctex_noise_f;
+    vec2 proctex_noise_a;
+    vec2 proctex_noise_p;
+    vec4 const_color[NUM_TEV_STAGES];
+    vec4 tev_combiner_buffer_color;
+    vec4 clip_coef;
+};
+
+layout (std140) uniform shader_light_data {
+    ivec4 lighting_lut_offset[NUM_LIGHTING_SAMPLERS / 4];
+    vec3 lighting_global_ambient;
+    LightSrc light_src[NUM_LIGHTS];
+    float lut_scale_d0;
+    float lut_scale_d1;
+    float lut_scale_sp;
+    float lut_scale_fr;
+    float lut_scale_rb;
+    float lut_scale_rg;
+    float lut_scale_rr;
+    int shadow_texture_bias;
+};
+
+// Rotate the vector v by the quaternion q
+vec3 quaternion_rotate(vec4 q, vec3 v) {
+    return v + 2.0 * cross(q.xyz, cross(q.xyz, v) + q.w * v);
+}
+
+float LookupLightingLUT(int lut_index, int index, float delta) {
+    vec2 entry = texelFetch(texture_buffer_lut_lf, lighting_lut_offset[lut_index >> 2][lut_index & 3] + index).rg;
+    return entry.r + entry.g * delta;
+}
+
+float LookupLightingLUTUnsigned(int lut_index, float pos) {
+    int index = clamp(int(pos * 256.0), 0, 255);
+    float delta = pos * 256.0 - float(index);
+    return LookupLightingLUT(lut_index, index, delta);
+}
+
+float LookupLightingLUTSigned(int lut_index, float pos) {
+    int index = clamp(int(pos * 128.0), -128, 127);
+    float delta = pos * 128.0 - float(index);
+    if (index < 0) index += 256;
+    return LookupLightingLUT(lut_index, index, delta);
+}
+
+float byteround(float x) {
+    return round(x * 255.0) * (1.0 / 255.0);
+}
+
+vec2 byteround(vec2 x) {
+    return round(x * 255.0) * (1.0 / 255.0);
+}
+
+vec3 byteround(vec3 x) {
+    return round(x * 255.0) * (1.0 / 255.0);
+}
+
+vec4 byteround(vec4 x) {
+    return round(x * 255.0) * (1.0 / 255.0);
+}
+
+// PICA's LOD formula for 2D textures.
+// This LOD formula is the same as the LOD lower limit defined in OpenGL.
+// f(x, y) >= max{m_u, m_v, m_w}
+// (See OpenGL 4.6 spec, 8.14.1 - Scale Factor and Level-of-Detail)
+float getLod(vec2 coord) {
+    vec2 d = max(abs(dFdx(coord)), abs(dFdy(coord)));
+    return log2(max(d.x, d.y));
+}
+
+vec4 shadowTexture(vec2 uv, float w) {
+    return vec4(1.0);
+}
+
+vec4 shadowTextureCube(vec2 uv, float w) {
+    return vec4(1.0);
+}
+
+void main() {
+vec4 rounded_primary_color = byteround(primary_color);
+vec4 primary_fragment_color = vec4(0.0);
+vec4 secondary_fragment_color = vec4(0.0);
+if (!(gl_FragCoord.x >= float(scissor_x1) && gl_FragCoord.y >= float(scissor_y1) && gl_FragCoord.x < float(scissor_x2) && gl_FragCoord.y < float(scissor_y2))) discard;
+float z_over_w = 2.0 * gl_FragCoord.z - 1.0;
+float depth = z_over_w * depth_scale + depth_offset;
+vec4 texcolor0 = textureLod(tex0, texcoord0, getLod(texcoord0 * vec2(textureSize(tex0, 0))));
+vec4 combiner_buffer = vec4(0.0);
+vec4 next_combiner_buffer = tev_combiner_buffer_color;
+vec4 last_tex_env_out = vec4(0.0);
+vec3 color_output_0 = byteround(clamp((const_color[0].rgb) * (texcolor0.rgb), vec3(0.0), vec3(1.0)));
+float alpha_output_0 = byteround(clamp((texcolor0.g) - (1.0 - rounded_primary_color.a), 0.0, 1.0));
+last_tex_env_out = vec4(color_output_0 * 1.0, alpha_output_0 * 2.0);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
+combiner_buffer = next_combiner_buffer;
+
+vec3 color_output_1 = byteround(clamp((rounded_primary_color.rgb) * (vec3(1.0) - texcolor0.rgb) + (last_tex_env_out.rgb), vec3(0.0), vec3(1.0)));
+float alpha_output_1 = (last_tex_env_out.a);
+last_tex_env_out = vec4(color_output_1, alpha_output_1);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
+combiner_buffer = next_combiner_buffer;
+
+combiner_buffer = next_combiner_buffer;
+
+vec3 color_output_3 = byteround(clamp((const_color[3].rgb) * (vec3(1.0) - texcolor0.rgb), vec3(0.0), vec3(1.0)));
+float alpha_output_3 = byteround(clamp((const_color[3].a) * (1.0 - texcolor0.a), 0.0, 1.0));
+last_tex_env_out = vec4(color_output_3, alpha_output_3);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
+combiner_buffer = next_combiner_buffer;
+
+vec3 color_output_4 = byteround(clamp((const_color[4].rgb) * (texcolor0.rgb) + (last_tex_env_out.rgb), vec3(0.0), vec3(1.0)));
+float alpha_output_4 = byteround(clamp((const_color[4].a) * (texcolor0.a) + (last_tex_env_out.a), 0.0, 1.0));
+last_tex_env_out = vec4(color_output_4, alpha_output_4);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
+combiner_buffer = next_combiner_buffer;
+
+vec3 color_output_5 = byteround(clamp((rounded_primary_color.rgb) * (last_tex_env_out.rgb), vec3(0.0), vec3(1.0)));
+float alpha_output_5 = byteround(clamp((rounded_primary_color.a) * (last_tex_env_out.a), 0.0, 1.0));
+last_tex_env_out = vec4(color_output_5, alpha_output_5);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
+combiner_buffer = next_combiner_buffer;
+
+gl_FragDepth = depth;
+color = byteround(last_tex_env_out);
+}
+// reference: 119CB538B028D03B, CBF96BEC0B8F0F8E
+// program: A0C32A2C2484E2AE, 42937135801BAA7E, CBF96BEC0B8F0F8E
+// shader: 8B30, B240E4616FE70CCC
+
+precision highp int;
+precision highp float;
+precision highp samplerBuffer;
+precision highp usampler2D;
+precision highp uimage2D;
+in vec4 primary_color;
+in vec2 texcoord0;
+in vec2 texcoord1;
+in vec2 texcoord2;
+in float texcoord0_w;
+in vec4 normquat;
+in vec3 view;
+
+#ifndef CITRA_GLES
+in vec4 gl_FragCoord;
+#endif // CITRA_GLES
+out vec4 color;
+
+uniform sampler2D tex0;
+uniform sampler2D tex1;
+uniform sampler2D tex2;
+uniform samplerCube tex_cube;
+uniform samplerBuffer texture_buffer_lut_lf;
+uniform samplerBuffer texture_buffer_lut_rg;
+uniform samplerBuffer texture_buffer_lut_rgba;
+
+#define NUM_TEV_STAGES 6
+#define NUM_LIGHTS 8
+#define NUM_LIGHTING_SAMPLERS 24
+
+struct LightSrc {
+    vec3 specular_0;
+    vec3 specular_1;
+    vec3 diffuse;
+    vec3 ambient;
+    vec3 position;
+    vec3 spot_direction;
+    float dist_atten_bias;
+    float dist_atten_scale;
+};
+
+layout (std140) uniform shader_data {
+    int alphatest_ref;
+    float depth_scale;
+    float depth_offset;
+    float shadow_bias_constant;
+    float shadow_bias_linear;
+    int scissor_x1;
+    int scissor_y1;
+    int scissor_x2;
+    int scissor_y2;
+    int fog_lut_offset;
+    int proctex_noise_lut_offset;
+    int proctex_color_map_offset;
+    int proctex_alpha_map_offset;
+    int proctex_lut_offset;
+    int proctex_diff_lut_offset;
+    float proctex_bias;
+    vec3 fog_color;
+    vec2 proctex_noise_f;
+    vec2 proctex_noise_a;
+    vec2 proctex_noise_p;
+    vec4 const_color[NUM_TEV_STAGES];
+    vec4 tev_combiner_buffer_color;
+    vec4 clip_coef;
+};
+
+layout (std140) uniform shader_light_data {
+    ivec4 lighting_lut_offset[NUM_LIGHTING_SAMPLERS / 4];
+    vec3 lighting_global_ambient;
+    LightSrc light_src[NUM_LIGHTS];
+    float lut_scale_d0;
+    float lut_scale_d1;
+    float lut_scale_sp;
+    float lut_scale_fr;
+    float lut_scale_rb;
+    float lut_scale_rg;
+    float lut_scale_rr;
+    int shadow_texture_bias;
+};
+
+// Rotate the vector v by the quaternion q
+vec3 quaternion_rotate(vec4 q, vec3 v) {
+    return v + 2.0 * cross(q.xyz, cross(q.xyz, v) + q.w * v);
+}
+
+float LookupLightingLUT(int lut_index, int index, float delta) {
+    vec2 entry = texelFetch(texture_buffer_lut_lf, lighting_lut_offset[lut_index >> 2][lut_index & 3] + index).rg;
+    return entry.r + entry.g * delta;
+}
+
+float LookupLightingLUTUnsigned(int lut_index, float pos) {
+    int index = clamp(int(pos * 256.0), 0, 255);
+    float delta = pos * 256.0 - float(index);
+    return LookupLightingLUT(lut_index, index, delta);
+}
+
+float LookupLightingLUTSigned(int lut_index, float pos) {
+    int index = clamp(int(pos * 128.0), -128, 127);
+    float delta = pos * 128.0 - float(index);
+    if (index < 0) index += 256;
+    return LookupLightingLUT(lut_index, index, delta);
+}
+
+float byteround(float x) {
+    return round(x * 255.0) * (1.0 / 255.0);
+}
+
+vec2 byteround(vec2 x) {
+    return round(x * 255.0) * (1.0 / 255.0);
+}
+
+vec3 byteround(vec3 x) {
+    return round(x * 255.0) * (1.0 / 255.0);
+}
+
+vec4 byteround(vec4 x) {
+    return round(x * 255.0) * (1.0 / 255.0);
+}
+
+// PICA's LOD formula for 2D textures.
+// This LOD formula is the same as the LOD lower limit defined in OpenGL.
+// f(x, y) >= max{m_u, m_v, m_w}
+// (See OpenGL 4.6 spec, 8.14.1 - Scale Factor and Level-of-Detail)
+float getLod(vec2 coord) {
+    vec2 d = max(abs(dFdx(coord)), abs(dFdy(coord)));
+    return log2(max(d.x, d.y));
+}
+
+vec4 shadowTexture(vec2 uv, float w) {
+    return vec4(1.0);
+}
+
+vec4 shadowTextureCube(vec2 uv, float w) {
+    return vec4(1.0);
+}
+
+void main() {
+vec4 rounded_primary_color = byteround(primary_color);
+vec4 primary_fragment_color = vec4(0.0);
+vec4 secondary_fragment_color = vec4(0.0);
+if (!(gl_FragCoord.x >= float(scissor_x1) && gl_FragCoord.y >= float(scissor_y1) && gl_FragCoord.x < float(scissor_x2) && gl_FragCoord.y < float(scissor_y2))) discard;
+float z_over_w = 2.0 * gl_FragCoord.z - 1.0;
+float depth = z_over_w * depth_scale + depth_offset;
+vec4 texcolor0 = textureLod(tex0, texcoord0, getLod(texcoord0 * vec2(textureSize(tex0, 0))));
+vec4 combiner_buffer = vec4(0.0);
+vec4 next_combiner_buffer = tev_combiner_buffer_color;
+vec4 last_tex_env_out = vec4(0.0);
+vec3 color_output_0 = byteround(clamp((const_color[0].rgb) * (texcolor0.rgb), vec3(0.0), vec3(1.0)));
+float alpha_output_0 = byteround(clamp((texcolor0.g) - (1.0 - rounded_primary_color.a), 0.0, 1.0));
+last_tex_env_out = vec4(color_output_0 * 1.0, alpha_output_0 * 2.0);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
+combiner_buffer = next_combiner_buffer;
+
+vec3 color_output_1 = byteround(clamp((rounded_primary_color.rgb) * (vec3(1.0) - texcolor0.rgb) + (last_tex_env_out.rgb), vec3(0.0), vec3(1.0)));
+float alpha_output_1 = (last_tex_env_out.a);
+last_tex_env_out = vec4(color_output_1, alpha_output_1);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
+combiner_buffer = next_combiner_buffer;
+
+combiner_buffer = next_combiner_buffer;
+
+vec3 color_output_3 = byteround(clamp((vec3(1.0) - texcolor0.rgb) * (const_color[3].rgb), vec3(0.0), vec3(1.0)));
+float alpha_output_3 = byteround(clamp((texcolor0.a) * (const_color[3].a), 0.0, 1.0));
+last_tex_env_out = vec4(color_output_3, alpha_output_3);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
+combiner_buffer = next_combiner_buffer;
+
+vec3 color_output_4 = byteround(clamp((texcolor0.rgb) * (const_color[4].rgb) + (last_tex_env_out.rgb), vec3(0.0), vec3(1.0)));
+float alpha_output_4 = byteround(clamp((1.0 - texcolor0.a) * (const_color[4].a) + (last_tex_env_out.a), 0.0, 1.0));
+last_tex_env_out = vec4(color_output_4, alpha_output_4);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
+combiner_buffer = next_combiner_buffer;
+
+vec3 color_output_5 = byteround(clamp((rounded_primary_color.rgb) * (last_tex_env_out.rgb), vec3(0.0), vec3(1.0)));
+float alpha_output_5 = byteround(clamp((rounded_primary_color.a) * (last_tex_env_out.a), 0.0, 1.0));
+last_tex_env_out = vec4(color_output_5, alpha_output_5);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
+combiner_buffer = next_combiner_buffer;
+
+gl_FragDepth = depth;
+color = byteround(last_tex_env_out);
+}
+// reference: DE0451C731D7C681, B240E4616FE70CCC
+// program: A0C32A2C2484E2AE, 42937135801BAA7E, B240E4616FE70CCC
+// shader: 8B30, AA5C08602371A26C
+
+precision highp int;
+precision highp float;
+precision highp samplerBuffer;
+precision highp usampler2D;
+precision highp uimage2D;
+in vec4 primary_color;
+in vec2 texcoord0;
+in vec2 texcoord1;
+in vec2 texcoord2;
+in float texcoord0_w;
+in vec4 normquat;
+in vec3 view;
+
+#ifndef CITRA_GLES
+in vec4 gl_FragCoord;
+#endif // CITRA_GLES
+out vec4 color;
+
+uniform sampler2D tex0;
+uniform sampler2D tex1;
+uniform sampler2D tex2;
+uniform samplerCube tex_cube;
+uniform samplerBuffer texture_buffer_lut_lf;
+uniform samplerBuffer texture_buffer_lut_rg;
+uniform samplerBuffer texture_buffer_lut_rgba;
+
+#define NUM_TEV_STAGES 6
+#define NUM_LIGHTS 8
+#define NUM_LIGHTING_SAMPLERS 24
+
+struct LightSrc {
+    vec3 specular_0;
+    vec3 specular_1;
+    vec3 diffuse;
+    vec3 ambient;
+    vec3 position;
+    vec3 spot_direction;
+    float dist_atten_bias;
+    float dist_atten_scale;
+};
+
+layout (std140) uniform shader_data {
+    int alphatest_ref;
+    float depth_scale;
+    float depth_offset;
+    float shadow_bias_constant;
+    float shadow_bias_linear;
+    int scissor_x1;
+    int scissor_y1;
+    int scissor_x2;
+    int scissor_y2;
+    int fog_lut_offset;
+    int proctex_noise_lut_offset;
+    int proctex_color_map_offset;
+    int proctex_alpha_map_offset;
+    int proctex_lut_offset;
+    int proctex_diff_lut_offset;
+    float proctex_bias;
+    vec3 fog_color;
+    vec2 proctex_noise_f;
+    vec2 proctex_noise_a;
+    vec2 proctex_noise_p;
+    vec4 const_color[NUM_TEV_STAGES];
+    vec4 tev_combiner_buffer_color;
+    vec4 clip_coef;
+};
+
+layout (std140) uniform shader_light_data {
+    ivec4 lighting_lut_offset[NUM_LIGHTING_SAMPLERS / 4];
+    vec3 lighting_global_ambient;
+    LightSrc light_src[NUM_LIGHTS];
+    float lut_scale_d0;
+    float lut_scale_d1;
+    float lut_scale_sp;
+    float lut_scale_fr;
+    float lut_scale_rb;
+    float lut_scale_rg;
+    float lut_scale_rr;
+    int shadow_texture_bias;
+};
+
+// Rotate the vector v by the quaternion q
+vec3 quaternion_rotate(vec4 q, vec3 v) {
+    return v + 2.0 * cross(q.xyz, cross(q.xyz, v) + q.w * v);
+}
+
+float LookupLightingLUT(int lut_index, int index, float delta) {
+    vec2 entry = texelFetch(texture_buffer_lut_lf, lighting_lut_offset[lut_index >> 2][lut_index & 3] + index).rg;
+    return entry.r + entry.g * delta;
+}
+
+float LookupLightingLUTUnsigned(int lut_index, float pos) {
+    int index = clamp(int(pos * 256.0), 0, 255);
+    float delta = pos * 256.0 - float(index);
+    return LookupLightingLUT(lut_index, index, delta);
+}
+
+float LookupLightingLUTSigned(int lut_index, float pos) {
+    int index = clamp(int(pos * 128.0), -128, 127);
+    float delta = pos * 128.0 - float(index);
+    if (index < 0) index += 256;
+    return LookupLightingLUT(lut_index, index, delta);
+}
+
+float byteround(float x) {
+    return round(x * 255.0) * (1.0 / 255.0);
+}
+
+vec2 byteround(vec2 x) {
+    return round(x * 255.0) * (1.0 / 255.0);
+}
+
+vec3 byteround(vec3 x) {
+    return round(x * 255.0) * (1.0 / 255.0);
+}
+
+vec4 byteround(vec4 x) {
+    return round(x * 255.0) * (1.0 / 255.0);
+}
+
+// PICA's LOD formula for 2D textures.
+// This LOD formula is the same as the LOD lower limit defined in OpenGL.
+// f(x, y) >= max{m_u, m_v, m_w}
+// (See OpenGL 4.6 spec, 8.14.1 - Scale Factor and Level-of-Detail)
+float getLod(vec2 coord) {
+    vec2 d = max(abs(dFdx(coord)), abs(dFdy(coord)));
+    return log2(max(d.x, d.y));
+}
+
+vec4 shadowTexture(vec2 uv, float w) {
+    return vec4(1.0);
+}
+
+vec4 shadowTextureCube(vec2 uv, float w) {
+    return vec4(1.0);
+}
+
+void main() {
+vec4 rounded_primary_color = byteround(primary_color);
+vec4 primary_fragment_color = vec4(0.0);
+vec4 secondary_fragment_color = vec4(0.0);
+if (!(gl_FragCoord.x >= float(scissor_x1) && gl_FragCoord.y >= float(scissor_y1) && gl_FragCoord.x < float(scissor_x2) && gl_FragCoord.y < float(scissor_y2))) discard;
+float z_over_w = 2.0 * gl_FragCoord.z - 1.0;
+float depth = z_over_w * depth_scale + depth_offset;
+vec4 texcolor0 = textureLod(tex0, texcoord0, getLod(texcoord0 * vec2(textureSize(tex0, 0))));
+vec4 combiner_buffer = vec4(0.0);
+vec4 next_combiner_buffer = tev_combiner_buffer_color;
+vec4 last_tex_env_out = vec4(0.0);
+vec3 color_output_0 = byteround(clamp((const_color[0].rgb) * (texcolor0.rgb), vec3(0.0), vec3(1.0)));
+float alpha_output_0 = byteround(clamp((texcolor0.g) - (1.0 - rounded_primary_color.a), 0.0, 1.0));
+last_tex_env_out = vec4(color_output_0 * 1.0, alpha_output_0 * 2.0);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
+combiner_buffer = next_combiner_buffer;
+
+vec3 color_output_1 = byteround(clamp((rounded_primary_color.rgb) * (vec3(1.0) - texcolor0.rgb) + (last_tex_env_out.rgb), vec3(0.0), vec3(1.0)));
+float alpha_output_1 = (last_tex_env_out.a);
+last_tex_env_out = vec4(color_output_1, alpha_output_1);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
+combiner_buffer = next_combiner_buffer;
+
+combiner_buffer = next_combiner_buffer;
+
+vec3 color_output_3 = byteround(clamp((texcolor0.rgb) * (const_color[3].rgb), vec3(0.0), vec3(1.0)));
+float alpha_output_3 = byteround(clamp((texcolor0.a) * (const_color[3].a), 0.0, 1.0));
+last_tex_env_out = vec4(color_output_3, alpha_output_3);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
+combiner_buffer = next_combiner_buffer;
+
+vec3 color_output_4 = byteround(clamp((vec3(1.0) - texcolor0.rgb) * (const_color[4].rgb) + (last_tex_env_out.rgb), vec3(0.0), vec3(1.0)));
+float alpha_output_4 = byteround(clamp((1.0 - texcolor0.a) * (const_color[4].a) + (last_tex_env_out.a), 0.0, 1.0));
+last_tex_env_out = vec4(color_output_4, alpha_output_4);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
+combiner_buffer = next_combiner_buffer;
+
+vec3 color_output_5 = byteround(clamp((rounded_primary_color.rgb) * (last_tex_env_out.rgb), vec3(0.0), vec3(1.0)));
+float alpha_output_5 = byteround(clamp((rounded_primary_color.a) * (last_tex_env_out.a), 0.0, 1.0));
+last_tex_env_out = vec4(color_output_5, alpha_output_5);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
+combiner_buffer = next_combiner_buffer;
+
+gl_FragDepth = depth;
+color = byteround(last_tex_env_out);
+}
+// reference: AD76BF9631D7C681, AA5C08602371A26C
+// program: A0C32A2C2484E2AE, 42937135801BAA7E, AA5C08602371A26C
+// reference: 4751C9D269C3ED48, 980B8F6476575B7A
+// reference: 4751C9D26801877F, 980B8F6476575B7A
+// reference: 402E58C12318E439, 5B88C0147985B75E
+// shader: 8B30, 338B4B63021DACCE
 
 precision highp int;
 precision highp float;
@@ -42211,53 +41688,57 @@ specular_sum.rgb += (((light_src[0].specular_0) * geo_factor) + (light_src[0].sp
 diffuse_sum.rgb += lighting_global_ambient;
 primary_fragment_color = clamp(diffuse_sum, vec4(0.0), vec4(1.0));
 secondary_fragment_color = clamp(specular_sum, vec4(0.0), vec4(1.0));
-
 vec4 combiner_buffer = vec4(0.0);
 vec4 next_combiner_buffer = tev_combiner_buffer_color;
 vec4 last_tex_env_out = vec4(0.0);
 vec3 color_output_0 = byteround(clamp((vec3(1.0) - secondary_fragment_color.aaa) * (const_color[0].rgb) + (primary_fragment_color.rgb), vec3(0.0), vec3(1.0)));
 float alpha_output_0 = byteround(clamp((rounded_primary_color.a) * (texcolor0.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_0, alpha_output_0), vec4(0.0), vec4(1.0));
+last_tex_env_out = vec4(color_output_0, alpha_output_0);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 next_combiner_buffer.rgb = last_tex_env_out.rgb;
 
 vec3 color_output_1 = byteround(clamp((texcolor0.rgb) * (const_color[1].rgb), vec3(0.0), vec3(1.0)));
-float alpha_output_1 = byteround(clamp((last_tex_env_out.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_1, alpha_output_1), vec4(0.0), vec4(1.0));
+float alpha_output_1 = (last_tex_env_out.a);
+last_tex_env_out = vec4(color_output_1, alpha_output_1);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 
 vec3 color_output_2 = byteround(clamp((last_tex_env_out.rgb) * (combiner_buffer.rgb), vec3(0.0), vec3(1.0)));
-float alpha_output_2 = byteround(clamp((last_tex_env_out.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_2, alpha_output_2), vec4(0.0), vec4(1.0));
+float alpha_output_2 = (last_tex_env_out.a);
+last_tex_env_out = vec4(color_output_2, alpha_output_2);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 
 vec3 color_output_3 = byteround(clamp((secondary_fragment_color.rgb) * (last_tex_env_out.rgb) + (last_tex_env_out.rgb), vec3(0.0), vec3(1.0)));
-float alpha_output_3 = byteround(clamp((last_tex_env_out.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_3, alpha_output_3), vec4(0.0), vec4(1.0));
+float alpha_output_3 = (last_tex_env_out.a);
+last_tex_env_out = vec4(color_output_3, alpha_output_3);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 
 vec3 color_output_4 = byteround(clamp(min((rounded_primary_color.rgb) + (const_color[4].rgb), vec3(1.0)) * (last_tex_env_out.rgb), vec3(0.0), vec3(1.0)));
-float alpha_output_4 = byteround(clamp((last_tex_env_out.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_4 * 2.0, alpha_output_4 * 1.0), vec4(0.0), vec4(1.0));
+float alpha_output_4 = (last_tex_env_out.a);
+last_tex_env_out = vec4(color_output_4 * 2.0, alpha_output_4 * 1.0);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 
 combiner_buffer = next_combiner_buffer;
 
 if (int(last_tex_env_out.a * 255.0) <= alphatest_ref) discard;
 float fog_index = depth * 128.0;
-float fog_i = clamp(floor(fog_index), 0.0, 127.0);
-float fog_f = fog_index - fog_i;
-vec2 fog_lut_entry = texelFetch(texture_buffer_lut_lf, int(fog_i) + fog_lut_offset).rg;
+int fog_i = int(fog_index);
+float fog_f = fract(fog_index);
+vec2 fog_lut_entry = texelFetch(texture_buffer_lut_lf, fog_i + fog_lut_offset).rg;
 float fog_factor = fog_lut_entry.r + fog_lut_entry.g * fog_f;
 fog_factor = clamp(fog_factor, 0.0, 1.0);
 last_tex_env_out.rgb = mix(fog_color.rgb, last_tex_env_out.rgb, fog_factor);
 gl_FragDepth = depth;
 color = byteround(last_tex_env_out);
 }
-// reference: 463B6569DFDC9EF2, 4A88526CD809841D
-// program: F3D442C0013F9392, 6CF3F3B70E23AA85, 4A88526CD809841D
-// reference: 463B6569DE1EF4C5, 4A88526CD809841D
-// shader: 8B30, DDCC8554A58151F7
+// reference: 463B6569DFDC9EF2, 338B4B63021DACCE
+// program: 22C3C36B08CEECE7, 7A40B90B17532EA8, 338B4B63021DACCE
+// reference: 463B6569DE1EF4C5, 338B4B63021DACCE
+// shader: 8B30, 1C097AFEF40B62EC
 
 precision highp int;
 precision highp float;
@@ -42435,53 +41916,57 @@ specular_sum.rgb += (((light_src[0].specular_0) * geo_factor) + (light_src[0].sp
 diffuse_sum.rgb += lighting_global_ambient;
 primary_fragment_color = clamp(diffuse_sum, vec4(0.0), vec4(1.0));
 secondary_fragment_color = clamp(specular_sum, vec4(0.0), vec4(1.0));
-
 vec4 combiner_buffer = vec4(0.0);
 vec4 next_combiner_buffer = tev_combiner_buffer_color;
 vec4 last_tex_env_out = vec4(0.0);
 vec3 color_output_0 = byteround(clamp((vec3(1.0) - secondary_fragment_color.aaa) * (const_color[0].rgb) + (primary_fragment_color.rgb), vec3(0.0), vec3(1.0)));
 float alpha_output_0 = byteround(clamp((rounded_primary_color.a) * (texcolor0.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_0, alpha_output_0), vec4(0.0), vec4(1.0));
+last_tex_env_out = vec4(color_output_0, alpha_output_0);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 next_combiner_buffer.rgb = last_tex_env_out.rgb;
 
 vec3 color_output_1 = byteround(clamp((texcolor0.rgb) * (const_color[1].rgb), vec3(0.0), vec3(1.0)));
-float alpha_output_1 = byteround(clamp((last_tex_env_out.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_1, alpha_output_1), vec4(0.0), vec4(1.0));
+float alpha_output_1 = (last_tex_env_out.a);
+last_tex_env_out = vec4(color_output_1, alpha_output_1);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 
 vec3 color_output_2 = byteround(clamp((last_tex_env_out.rgb) * (combiner_buffer.rgb), vec3(0.0), vec3(1.0)));
-float alpha_output_2 = byteround(clamp((last_tex_env_out.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_2, alpha_output_2), vec4(0.0), vec4(1.0));
+float alpha_output_2 = (last_tex_env_out.a);
+last_tex_env_out = vec4(color_output_2, alpha_output_2);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 
 vec3 color_output_3 = byteround(clamp((secondary_fragment_color.rgb) * (last_tex_env_out.rgb) + (last_tex_env_out.rgb), vec3(0.0), vec3(1.0)));
-float alpha_output_3 = byteround(clamp((last_tex_env_out.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_3, alpha_output_3), vec4(0.0), vec4(1.0));
+float alpha_output_3 = (last_tex_env_out.a);
+last_tex_env_out = vec4(color_output_3, alpha_output_3);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 
 vec3 color_output_4 = byteround(clamp(min((rounded_primary_color.rgb) + (const_color[4].rgb), vec3(1.0)) * (last_tex_env_out.rgb), vec3(0.0), vec3(1.0)));
-float alpha_output_4 = byteround(clamp((last_tex_env_out.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_4 * 2.0, alpha_output_4 * 1.0), vec4(0.0), vec4(1.0));
+float alpha_output_4 = (last_tex_env_out.a);
+last_tex_env_out = vec4(color_output_4 * 2.0, alpha_output_4 * 1.0);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 
 combiner_buffer = next_combiner_buffer;
 
 if (int(last_tex_env_out.a * 255.0) <= alphatest_ref) discard;
 float fog_index = depth * 128.0;
-float fog_i = clamp(floor(fog_index), 0.0, 127.0);
-float fog_f = fog_index - fog_i;
-vec2 fog_lut_entry = texelFetch(texture_buffer_lut_lf, int(fog_i) + fog_lut_offset).rg;
+int fog_i = int(fog_index);
+float fog_f = fract(fog_index);
+vec2 fog_lut_entry = texelFetch(texture_buffer_lut_lf, fog_i + fog_lut_offset).rg;
 float fog_factor = fog_lut_entry.r + fog_lut_entry.g * fog_f;
 fog_factor = clamp(fog_factor, 0.0, 1.0);
 last_tex_env_out.rgb = mix(fog_color.rgb, last_tex_env_out.rgb, fog_factor);
 gl_FragDepth = depth;
 color = byteround(last_tex_env_out);
 }
-// reference: 2306FD4BDFDC9EF2, DDCC8554A58151F7
-// program: F3D442C0013F9392, 6CF3F3B70E23AA85, DDCC8554A58151F7
-// reference: 2306FD4BDE1EF4C5, DDCC8554A58151F7
-// shader: 8B30, 5B5331209BE73E3B
+// reference: 2306FD4BDFDC9EF2, 1C097AFEF40B62EC
+// program: 22C3C36B08CEECE7, 7A40B90B17532EA8, 1C097AFEF40B62EC
+// reference: 2306FD4BDE1EF4C5, 1C097AFEF40B62EC
+// shader: 8B30, 5E80B8A7B82C0EE4
 
 precision highp int;
 precision highp float;
@@ -42627,215 +42112,29 @@ vec4 secondary_fragment_color = vec4(0.0);
 if (!(gl_FragCoord.x >= float(scissor_x1) && gl_FragCoord.y >= float(scissor_y1) && gl_FragCoord.x < float(scissor_x2) && gl_FragCoord.y < float(scissor_y2))) discard;
 float z_over_w = 2.0 * gl_FragCoord.z - 1.0;
 float depth = z_over_w * depth_scale + depth_offset;
-vec4 texcolor0 = textureLod(tex0, texcoord0, getLod(texcoord0 * vec2(textureSize(tex0, 0))));
 vec4 combiner_buffer = vec4(0.0);
 vec4 next_combiner_buffer = tev_combiner_buffer_color;
 vec4 last_tex_env_out = vec4(0.0);
-vec3 color_output_0 = byteround(clamp((const_color[0].rgb) * (texcolor0.rgb) + (rounded_primary_color.rgb), vec3(0.0), vec3(1.0)));
-float alpha_output_0 = byteround(clamp((rounded_primary_color.a) * (texcolor0.g), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_0, alpha_output_0), vec4(0.0), vec4(1.0));
+vec3 color_output_0 = (rounded_primary_color.rgb);
+float alpha_output_0 = (rounded_primary_color.a);
+last_tex_env_out = vec4(color_output_0, alpha_output_0);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 
 combiner_buffer = next_combiner_buffer;
 
 combiner_buffer = next_combiner_buffer;
 
-vec3 color_output_3 = byteround(clamp((texcolor0.rgb) * (const_color[3].rgb), vec3(0.0), vec3(1.0)));
-float alpha_output_3 = byteround(clamp((texcolor0.a) * (const_color[3].a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_3, alpha_output_3), vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 
-vec3 color_output_4 = byteround(clamp((vec3(1.0) - texcolor0.rgb) * (const_color[4].rgb) + (last_tex_env_out.rgb), vec3(0.0), vec3(1.0)));
-float alpha_output_4 = byteround(clamp((1.0 - texcolor0.a) * (const_color[4].a) + (last_tex_env_out.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_4, alpha_output_4), vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 
-vec3 color_output_5 = byteround(clamp((rounded_primary_color.rgb) * (last_tex_env_out.rgb), vec3(0.0), vec3(1.0)));
-float alpha_output_5 = byteround(clamp((rounded_primary_color.a) * (last_tex_env_out.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_5, alpha_output_5), vec4(0.0), vec4(1.0));
 combiner_buffer = next_combiner_buffer;
 
+if (int(last_tex_env_out.a * 255.0) <= alphatest_ref) discard;
 gl_FragDepth = depth;
 color = byteround(last_tex_env_out);
 }
-// reference: 3E5230CCD14ED8B4, 5B5331209BE73E3B
-// program: A990721D25F019E4, 5D764F9A6220D694, 5B5331209BE73E3B
-// shader: 8B30, 8E8A2FD7E38F835F
-
-precision highp int;
-precision highp float;
-precision highp samplerBuffer;
-precision highp usampler2D;
-precision highp uimage2D;
-in vec4 primary_color;
-in vec2 texcoord0;
-in vec2 texcoord1;
-in vec2 texcoord2;
-in float texcoord0_w;
-in vec4 normquat;
-in vec3 view;
-
-#ifndef CITRA_GLES
-in vec4 gl_FragCoord;
-#endif // CITRA_GLES
-out vec4 color;
-
-uniform sampler2D tex0;
-uniform sampler2D tex1;
-uniform sampler2D tex2;
-uniform samplerCube tex_cube;
-uniform samplerBuffer texture_buffer_lut_lf;
-uniform samplerBuffer texture_buffer_lut_rg;
-uniform samplerBuffer texture_buffer_lut_rgba;
-
-#define NUM_TEV_STAGES 6
-#define NUM_LIGHTS 8
-#define NUM_LIGHTING_SAMPLERS 24
-
-struct LightSrc {
-    vec3 specular_0;
-    vec3 specular_1;
-    vec3 diffuse;
-    vec3 ambient;
-    vec3 position;
-    vec3 spot_direction;
-    float dist_atten_bias;
-    float dist_atten_scale;
-};
-
-layout (std140) uniform shader_data {
-    int alphatest_ref;
-    float depth_scale;
-    float depth_offset;
-    float shadow_bias_constant;
-    float shadow_bias_linear;
-    int scissor_x1;
-    int scissor_y1;
-    int scissor_x2;
-    int scissor_y2;
-    int fog_lut_offset;
-    int proctex_noise_lut_offset;
-    int proctex_color_map_offset;
-    int proctex_alpha_map_offset;
-    int proctex_lut_offset;
-    int proctex_diff_lut_offset;
-    float proctex_bias;
-    vec3 fog_color;
-    vec2 proctex_noise_f;
-    vec2 proctex_noise_a;
-    vec2 proctex_noise_p;
-    vec4 const_color[NUM_TEV_STAGES];
-    vec4 tev_combiner_buffer_color;
-    vec4 clip_coef;
-};
-
-layout (std140) uniform shader_light_data {
-    ivec4 lighting_lut_offset[NUM_LIGHTING_SAMPLERS / 4];
-    vec3 lighting_global_ambient;
-    LightSrc light_src[NUM_LIGHTS];
-    float lut_scale_d0;
-    float lut_scale_d1;
-    float lut_scale_sp;
-    float lut_scale_fr;
-    float lut_scale_rb;
-    float lut_scale_rg;
-    float lut_scale_rr;
-    int shadow_texture_bias;
-};
-
-// Rotate the vector v by the quaternion q
-vec3 quaternion_rotate(vec4 q, vec3 v) {
-    return v + 2.0 * cross(q.xyz, cross(q.xyz, v) + q.w * v);
-}
-
-float LookupLightingLUT(int lut_index, int index, float delta) {
-    vec2 entry = texelFetch(texture_buffer_lut_lf, lighting_lut_offset[lut_index >> 2][lut_index & 3] + index).rg;
-    return entry.r + entry.g * delta;
-}
-
-float LookupLightingLUTUnsigned(int lut_index, float pos) {
-    int index = clamp(int(pos * 256.0), 0, 255);
-    float delta = pos * 256.0 - float(index);
-    return LookupLightingLUT(lut_index, index, delta);
-}
-
-float LookupLightingLUTSigned(int lut_index, float pos) {
-    int index = clamp(int(pos * 128.0), -128, 127);
-    float delta = pos * 128.0 - float(index);
-    if (index < 0) index += 256;
-    return LookupLightingLUT(lut_index, index, delta);
-}
-
-float byteround(float x) {
-    return round(x * 255.0) * (1.0 / 255.0);
-}
-
-vec2 byteround(vec2 x) {
-    return round(x * 255.0) * (1.0 / 255.0);
-}
-
-vec3 byteround(vec3 x) {
-    return round(x * 255.0) * (1.0 / 255.0);
-}
-
-vec4 byteround(vec4 x) {
-    return round(x * 255.0) * (1.0 / 255.0);
-}
-
-// PICA's LOD formula for 2D textures.
-// This LOD formula is the same as the LOD lower limit defined in OpenGL.
-// f(x, y) >= max{m_u, m_v, m_w}
-// (See OpenGL 4.6 spec, 8.14.1 - Scale Factor and Level-of-Detail)
-float getLod(vec2 coord) {
-    vec2 d = max(abs(dFdx(coord)), abs(dFdy(coord)));
-    return log2(max(d.x, d.y));
-}
-
-vec4 shadowTexture(vec2 uv, float w) {
-    return vec4(1.0);
-}
-
-vec4 shadowTextureCube(vec2 uv, float w) {
-    return vec4(1.0);
-}
-
-void main() {
-vec4 rounded_primary_color = byteround(primary_color);
-vec4 primary_fragment_color = vec4(0.0);
-vec4 secondary_fragment_color = vec4(0.0);
-if (!(gl_FragCoord.x >= float(scissor_x1) && gl_FragCoord.y >= float(scissor_y1) && gl_FragCoord.x < float(scissor_x2) && gl_FragCoord.y < float(scissor_y2))) discard;
-float z_over_w = 2.0 * gl_FragCoord.z - 1.0;
-float depth = z_over_w * depth_scale + depth_offset;
-vec4 texcolor0 = textureLod(tex0, texcoord0, getLod(texcoord0 * vec2(textureSize(tex0, 0))));
-vec4 combiner_buffer = vec4(0.0);
-vec4 next_combiner_buffer = tev_combiner_buffer_color;
-vec4 last_tex_env_out = vec4(0.0);
-vec3 color_output_0 = byteround(clamp((const_color[0].rgb) * (texcolor0.rgb) + (rounded_primary_color.rgb), vec3(0.0), vec3(1.0)));
-float alpha_output_0 = byteround(clamp((rounded_primary_color.a) * (texcolor0.g), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_0, alpha_output_0), vec4(0.0), vec4(1.0));
-combiner_buffer = next_combiner_buffer;
-
-combiner_buffer = next_combiner_buffer;
-
-combiner_buffer = next_combiner_buffer;
-
-vec3 color_output_3 = byteround(clamp((const_color[3].rgb) * (vec3(1.0) - texcolor0.rgb), vec3(0.0), vec3(1.0)));
-float alpha_output_3 = byteround(clamp((const_color[3].a) * (1.0 - texcolor0.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_3, alpha_output_3), vec4(0.0), vec4(1.0));
-combiner_buffer = next_combiner_buffer;
-
-vec3 color_output_4 = byteround(clamp((const_color[4].rgb) * (texcolor0.rgb) + (last_tex_env_out.rgb), vec3(0.0), vec3(1.0)));
-float alpha_output_4 = byteround(clamp((const_color[4].a) * (texcolor0.a) + (last_tex_env_out.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_4, alpha_output_4), vec4(0.0), vec4(1.0));
-combiner_buffer = next_combiner_buffer;
-
-vec3 color_output_5 = byteround(clamp((rounded_primary_color.rgb) * (last_tex_env_out.rgb), vec3(0.0), vec3(1.0)));
-float alpha_output_5 = byteround(clamp((rounded_primary_color.a) * (last_tex_env_out.a), 0.0, 1.0));
-last_tex_env_out = clamp(vec4(color_output_5, alpha_output_5), vec4(0.0), vec4(1.0));
-combiner_buffer = next_combiner_buffer;
-
-gl_FragDepth = depth;
-color = byteround(last_tex_env_out);
-}
-// reference: 82B83A6250B1CE0E, 8E8A2FD7E38F835F
-// program: A990721D25F019E4, 5D764F9A6220D694, 8E8A2FD7E38F835F
+// reference: B2CD74B5A6F39DCE, 5E80B8A7B82C0EE4
+// program: 5B88C0147985B75E, 60215D2B1286D4FE, 5E80B8A7B82C0EE4
+// reference: B2CD74B5A731F7F9, 5E80B8A7B82C0EE4
