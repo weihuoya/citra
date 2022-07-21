@@ -1,4 +1,11 @@
-// shader: 8B31, F143EAD1C2940119
+// shader: 8B31, F9543D43C2B3E096
+
+#define mul_s(x, y) (x * y)
+#define fma_s(x, y, z) fma(x, y, z)
+#define rcp_s(x) (1.0 / x)
+#define rsq_s(x) inversesqrt(x)
+#define dot_s(x, y) dot(x, y)
+#define dot_3(x, y) dot(x, y)
 
 struct pica_uniforms {
     bool b[16];
@@ -12,7 +19,6 @@ bool exec_shader();
 layout (std140) uniform vs_config {
     pica_uniforms uniforms;
 };
-
 layout(location = 0) in vec4 vs_in_reg0;
 layout(location = 2) in vec4 vs_in_reg2;
 layout(location = 4) in vec4 vs_in_reg4;
@@ -29,14 +35,6 @@ void main() {
     vs_out_attr3 = vec4(0.0, 0.0, 0.0, 1.0);
     exec_shader();
 }
-
-#define mul_s(x, y) (x * y)
-#define fma_s(x, y, z) fma(x, y, z)
-#define rcp_s(x) (1.0 / x)
-#define rsq_s(x) inversesqrt(x)
-#define dot_s(x, y) dot(x, y)
-#define dot_3(x, y) dot(x, y)
-
 bvec2 conditional_code = bvec2(false);
 ivec3 address_registers = ivec3(0);
 vec4 reg_tmp0 = vec4(0.0, 0.0, 0.0, 1.0);
@@ -56,23 +54,23 @@ vec4 reg_tmp13 = vec4(0.0, 0.0, 0.0, 1.0);
 vec4 reg_tmp14 = vec4(0.0, 0.0, 0.0, 1.0);
 vec4 reg_tmp15 = vec4(0.0, 0.0, 0.0, 1.0);
 
-bool sub_0_4096();
-bool sub_4_5();
-bool sub_5_6();
+bool sub_0();
+bool sub_1();
+bool sub_2();
 
 bool exec_shader() {
-    sub_0_4096();
+    sub_0();
     return true;
 }
 
-bool sub_0_4096() {
+bool sub_0() {
     reg_tmp10.xyz = (vs_in_reg0.xyzz).xyz;
     reg_tmp10.w = (uniforms.f[92].yyyy).w;
     conditional_code = equal(uniforms.f[4].xx, reg_tmp10.ww);
     if (!conditional_code.x) {
-        sub_4_5();
+        sub_1();
     } else {
-        sub_5_6();
+        sub_2();
     }
     vs_out_attr0.x = dot_s(uniforms.f[0], reg_tmp10);
     vs_out_attr0.y = dot_s(uniforms.f[1], reg_tmp10);
@@ -83,16 +81,16 @@ bool sub_0_4096() {
     vs_out_attr2 = uniforms.f[92].xxxx;
     return true;
 }
-bool sub_4_5() {
+bool sub_1() {
     reg_tmp10.x = (reg_tmp10.xxxx + vs_in_reg4.xxxx).x;
     return false;
 }
-bool sub_5_6() {
+bool sub_2() {
     reg_tmp10.x = (reg_tmp10.xxxx + -vs_in_reg4.xxxx).x;
     return false;
 }
-// reference: A9A962FE46768075, F143EAD1C2940119
-// shader: 8DD9, 4908B2784B1E4CE5
+// reference: 15A698DFB8B29424, F9543D43C2B3E096
+// shader: 8DD9, 6ABDA25F3FF910CD
 
 layout(triangles) in;
 layout(triangle_strip, max_vertices = 3) out;
@@ -106,20 +104,6 @@ out vec4 normquat;
 out vec3 view;
 
 #define NUM_TEV_STAGES 6
-#define NUM_LIGHTS 8
-#define NUM_LIGHTING_SAMPLERS 24
-
-struct LightSrc {
-    vec3 specular_0;
-    vec3 specular_1;
-    vec3 diffuse;
-    vec3 ambient;
-    vec3 position;
-    vec3 spot_direction;
-    float dist_atten_bias;
-    float dist_atten_scale;
-};
-
 layout (std140) uniform shader_data {
     int alphatest_ref;
     float depth_scale;
@@ -144,20 +128,6 @@ layout (std140) uniform shader_data {
     vec4 const_color[NUM_TEV_STAGES];
     vec4 tev_combiner_buffer_color;
     vec4 clip_coef;
-};
-
-layout (std140) uniform shader_light_data {
-    ivec4 lighting_lut_offset[NUM_LIGHTING_SAMPLERS / 4];
-    vec3 lighting_global_ambient;
-    LightSrc light_src[NUM_LIGHTS];
-    float lut_scale_d0;
-    float lut_scale_d1;
-    float lut_scale_sp;
-    float lut_scale_fr;
-    float lut_scale_rb;
-    float lut_scale_rg;
-    float lut_scale_rr;
-    int shadow_texture_bias;
 };
 
 in vec4 vs_out_attr0[];
@@ -214,14 +184,8 @@ void main() {
     prim_buffer[2].attributes = vec4[4](vs_out_attr0[2], vs_out_attr1[2], vs_out_attr2[2], vs_out_attr3[2]);
     EmitPrim(prim_buffer[0], prim_buffer[1], prim_buffer[2]);
 }
-// reference: E57938FA9E46D0AE, 4908B2784B1E4CE5
-// shader: 8B30, 5E80B8A7B82C0EE4
-
-precision highp int;
-precision highp float;
-precision highp samplerBuffer;
-precision highp usampler2D;
-precision highp uimage2D;
+// reference: E57938FA9E46D0AE, 6ABDA25F3FF910CD
+// shader: 8B30, 55DC97714BEADD97
 in vec4 primary_color;
 in vec2 texcoord0;
 in vec2 texcoord1;
@@ -244,20 +208,6 @@ uniform samplerBuffer texture_buffer_lut_rg;
 uniform samplerBuffer texture_buffer_lut_rgba;
 
 #define NUM_TEV_STAGES 6
-#define NUM_LIGHTS 8
-#define NUM_LIGHTING_SAMPLERS 24
-
-struct LightSrc {
-    vec3 specular_0;
-    vec3 specular_1;
-    vec3 diffuse;
-    vec3 ambient;
-    vec3 position;
-    vec3 spot_direction;
-    float dist_atten_bias;
-    float dist_atten_scale;
-};
-
 layout (std140) uniform shader_data {
     int alphatest_ref;
     float depth_scale;
@@ -284,6 +234,18 @@ layout (std140) uniform shader_data {
     vec4 clip_coef;
 };
 
+#define NUM_LIGHTS 8
+#define NUM_LIGHTING_SAMPLERS 24
+struct LightSrc {
+    vec3 specular_0;
+    vec3 specular_1;
+    vec3 diffuse;
+    vec3 ambient;
+    vec3 position;
+    vec3 spot_direction;
+    float dist_atten_bias;
+    float dist_atten_scale;
+};
 layout (std140) uniform shader_light_data {
     ivec4 lighting_lut_offset[NUM_LIGHTING_SAMPLERS / 4];
     vec3 lighting_global_ambient;
@@ -337,10 +299,6 @@ vec4 byteround(vec4 x) {
     return round(x * 255.0) * (1.0 / 255.0);
 }
 
-// PICA's LOD formula for 2D textures.
-// This LOD formula is the same as the LOD lower limit defined in OpenGL.
-// f(x, y) >= max{m_u, m_v, m_w}
-// (See OpenGL 4.6 spec, 8.14.1 - Scale Factor and Level-of-Detail)
 float getLod(vec2 coord) {
     vec2 d = max(abs(dFdx(coord)), abs(dFdy(coord)));
     return log2(max(d.x, d.y));
@@ -384,9 +342,16 @@ if (int(last_tex_env_out.a * 255.0) <= alphatest_ref) discard;
 gl_FragDepth = depth;
 color = byteround(last_tex_env_out);
 }
-// reference: D4F4BEF9A6F39DCE, 5E80B8A7B82C0EE4
-// program: F143EAD1C2940119, 4908B2784B1E4CE5, 5E80B8A7B82C0EE4
-// shader: 8B31, 71E691D3E34A8575
+// reference: D4F4BEF9A6F39DCE, 55DC97714BEADD97
+// program: F9543D43C2B3E096, 6ABDA25F3FF910CD, 55DC97714BEADD97
+// shader: 8B31, 116BD640B975736D
+
+#define mul_s(x, y) (x * y)
+#define fma_s(x, y, z) fma(x, y, z)
+#define rcp_s(x) (1.0 / x)
+#define rsq_s(x) inversesqrt(x)
+#define dot_s(x, y) dot(x, y)
+#define dot_3(x, y) dot(x, y)
 
 struct pica_uniforms {
     bool b[16];
@@ -400,7 +365,6 @@ bool exec_shader();
 layout (std140) uniform vs_config {
     pica_uniforms uniforms;
 };
-
 layout(location = 0) in vec4 vs_in_reg0;
 layout(location = 1) in vec4 vs_in_reg1;
 layout(location = 2) in vec4 vs_in_reg2;
@@ -423,14 +387,6 @@ void main() {
     vs_out_attr5 = vec4(0.0, 0.0, 0.0, 1.0);
     exec_shader();
 }
-
-#define mul_s(x, y) (x * y)
-#define fma_s(x, y, z) fma(x, y, z)
-#define rcp_s(x) (1.0 / x)
-#define rsq_s(x) inversesqrt(x)
-#define dot_s(x, y) dot(x, y)
-#define dot_3(x, y) dot(x, y)
-
 bvec2 conditional_code = bvec2(false);
 ivec3 address_registers = ivec3(0);
 vec4 reg_tmp0 = vec4(0.0, 0.0, 0.0, 1.0);
@@ -450,23 +406,23 @@ vec4 reg_tmp13 = vec4(0.0, 0.0, 0.0, 1.0);
 vec4 reg_tmp14 = vec4(0.0, 0.0, 0.0, 1.0);
 vec4 reg_tmp15 = vec4(0.0, 0.0, 0.0, 1.0);
 
-bool sub_0_4096();
-bool sub_4_5();
-bool sub_5_6();
+bool sub_0();
+bool sub_1();
+bool sub_2();
 
 bool exec_shader() {
-    sub_0_4096();
+    sub_0();
     return true;
 }
 
-bool sub_0_4096() {
+bool sub_0() {
     reg_tmp10.xyz = (vs_in_reg0.xyzz).xyz;
     reg_tmp10.w = (uniforms.f[92].yyyy).w;
     conditional_code = equal(uniforms.f[4].xx, reg_tmp10.ww);
     if (!conditional_code.x) {
-        sub_4_5();
+        sub_1();
     } else {
-        sub_5_6();
+        sub_2();
     }
     vs_out_attr0.x = dot_s(uniforms.f[0], reg_tmp10);
     vs_out_attr0.y = dot_s(uniforms.f[1], reg_tmp10);
@@ -479,16 +435,16 @@ bool sub_0_4096() {
     vs_out_attr3 = uniforms.f[92].xxxx;
     return true;
 }
-bool sub_4_5() {
+bool sub_1() {
     reg_tmp10.x = (reg_tmp10.xxxx + vs_in_reg4.xxxx).x;
     return false;
 }
-bool sub_5_6() {
+bool sub_2() {
     reg_tmp10.x = (reg_tmp10.xxxx + -vs_in_reg4.xxxx).x;
     return false;
 }
-// reference: 5C68B6C140A25A6D, 71E691D3E34A8575
-// shader: 8DD9, 6A83C96D57F9EA6D
+// reference: ADCE1E117BAA925B, 116BD640B975736D
+// shader: 8DD9, 4A747B492333D0CE
 
 layout(triangles) in;
 layout(triangle_strip, max_vertices = 3) out;
@@ -502,20 +458,6 @@ out vec4 normquat;
 out vec3 view;
 
 #define NUM_TEV_STAGES 6
-#define NUM_LIGHTS 8
-#define NUM_LIGHTING_SAMPLERS 24
-
-struct LightSrc {
-    vec3 specular_0;
-    vec3 specular_1;
-    vec3 diffuse;
-    vec3 ambient;
-    vec3 position;
-    vec3 spot_direction;
-    float dist_atten_bias;
-    float dist_atten_scale;
-};
-
 layout (std140) uniform shader_data {
     int alphatest_ref;
     float depth_scale;
@@ -540,20 +482,6 @@ layout (std140) uniform shader_data {
     vec4 const_color[NUM_TEV_STAGES];
     vec4 tev_combiner_buffer_color;
     vec4 clip_coef;
-};
-
-layout (std140) uniform shader_light_data {
-    ivec4 lighting_lut_offset[NUM_LIGHTING_SAMPLERS / 4];
-    vec3 lighting_global_ambient;
-    LightSrc light_src[NUM_LIGHTS];
-    float lut_scale_d0;
-    float lut_scale_d1;
-    float lut_scale_sp;
-    float lut_scale_fr;
-    float lut_scale_rb;
-    float lut_scale_rg;
-    float lut_scale_rr;
-    int shadow_texture_bias;
 };
 
 in vec4 vs_out_attr0[];
@@ -612,14 +540,8 @@ void main() {
     prim_buffer[2].attributes = vec4[6](vs_out_attr0[2], vs_out_attr1[2], vs_out_attr2[2], vs_out_attr3[2], vs_out_attr4[2], vs_out_attr5[2]);
     EmitPrim(prim_buffer[0], prim_buffer[1], prim_buffer[2]);
 }
-// reference: 0609F6E5CDD506D3, 6A83C96D57F9EA6D
-// shader: 8B30, CA6C61E8102D5415
-
-precision highp int;
-precision highp float;
-precision highp samplerBuffer;
-precision highp usampler2D;
-precision highp uimage2D;
+// reference: 0609F6E5CDD506D3, 4A747B492333D0CE
+// shader: 8B30, 8345E6DD67E9F995
 in vec4 primary_color;
 in vec2 texcoord0;
 in vec2 texcoord1;
@@ -642,20 +564,6 @@ uniform samplerBuffer texture_buffer_lut_rg;
 uniform samplerBuffer texture_buffer_lut_rgba;
 
 #define NUM_TEV_STAGES 6
-#define NUM_LIGHTS 8
-#define NUM_LIGHTING_SAMPLERS 24
-
-struct LightSrc {
-    vec3 specular_0;
-    vec3 specular_1;
-    vec3 diffuse;
-    vec3 ambient;
-    vec3 position;
-    vec3 spot_direction;
-    float dist_atten_bias;
-    float dist_atten_scale;
-};
-
 layout (std140) uniform shader_data {
     int alphatest_ref;
     float depth_scale;
@@ -682,6 +590,18 @@ layout (std140) uniform shader_data {
     vec4 clip_coef;
 };
 
+#define NUM_LIGHTS 8
+#define NUM_LIGHTING_SAMPLERS 24
+struct LightSrc {
+    vec3 specular_0;
+    vec3 specular_1;
+    vec3 diffuse;
+    vec3 ambient;
+    vec3 position;
+    vec3 spot_direction;
+    float dist_atten_bias;
+    float dist_atten_scale;
+};
 layout (std140) uniform shader_light_data {
     ivec4 lighting_lut_offset[NUM_LIGHTING_SAMPLERS / 4];
     vec3 lighting_global_ambient;
@@ -735,10 +655,6 @@ vec4 byteround(vec4 x) {
     return round(x * 255.0) * (1.0 / 255.0);
 }
 
-// PICA's LOD formula for 2D textures.
-// This LOD formula is the same as the LOD lower limit defined in OpenGL.
-// f(x, y) >= max{m_u, m_v, m_w}
-// (See OpenGL 4.6 spec, 8.14.1 - Scale Factor and Level-of-Detail)
 float getLod(vec2 coord) {
     vec2 d = max(abs(dFdx(coord)), abs(dFdy(coord)));
     return log2(max(d.x, d.y));
@@ -834,11 +750,17 @@ if (int(last_tex_env_out.a * 255.0) <= alphatest_ref) discard;
 gl_FragDepth = depth;
 color = byteround(last_tex_env_out);
 }
-// reference: D79CB68E5FFB6238, CA6C61E8102D5415
-// program: 71E691D3E34A8575, 6A83C96D57F9EA6D, CA6C61E8102D5415
-// reference: 0A6A6FCF52C60131, F143EAD1C2940119
-// reference: 443E908FD1336743, F143EAD1C2940119
-// shader: 8B31, C0C4A4AB08EB4B75
+// reference: D79CB68E5FFB6238, 8345E6DD67E9F995
+// program: 116BD640B975736D, 4A747B492333D0CE, 8345E6DD67E9F995
+// reference: 5BF2679F3B47F256, F9543D43C2B3E096
+// shader: 8B31, EC3BAFA855289E1F
+
+#define mul_s(x, y) (x * y)
+#define fma_s(x, y, z) fma(x, y, z)
+#define rcp_s(x) (1.0 / x)
+#define rsq_s(x) inversesqrt(x)
+#define dot_s(x, y) dot(x, y)
+#define dot_3(x, y) dot(x, y)
 
 struct pica_uniforms {
     bool b[16];
@@ -852,7 +774,6 @@ bool exec_shader();
 layout (std140) uniform vs_config {
     pica_uniforms uniforms;
 };
-
 layout(location = 0) in vec4 vs_in_reg0;
 layout(location = 1) in vec4 vs_in_reg1;
 layout(location = 2) in vec4 vs_in_reg2;
@@ -872,14 +793,6 @@ void main() {
     vs_out_attr4 = vec4(0.0, 0.0, 0.0, 1.0);
     exec_shader();
 }
-
-#define mul_s(x, y) (x * y)
-#define fma_s(x, y, z) fma(x, y, z)
-#define rcp_s(x) (1.0 / x)
-#define rsq_s(x) inversesqrt(x)
-#define dot_s(x, y) dot(x, y)
-#define dot_3(x, y) dot(x, y)
-
 bvec2 conditional_code = bvec2(false);
 ivec3 address_registers = ivec3(0);
 vec4 reg_tmp0 = vec4(0.0, 0.0, 0.0, 1.0);
@@ -899,23 +812,23 @@ vec4 reg_tmp13 = vec4(0.0, 0.0, 0.0, 1.0);
 vec4 reg_tmp14 = vec4(0.0, 0.0, 0.0, 1.0);
 vec4 reg_tmp15 = vec4(0.0, 0.0, 0.0, 1.0);
 
-bool sub_0_4096();
-bool sub_4_5();
-bool sub_5_6();
+bool sub_0();
+bool sub_1();
+bool sub_2();
 
 bool exec_shader() {
-    sub_0_4096();
+    sub_0();
     return true;
 }
 
-bool sub_0_4096() {
+bool sub_0() {
     reg_tmp10.xyz = (vs_in_reg0.xyzz).xyz;
     reg_tmp10.w = (uniforms.f[92].yyyy).w;
     conditional_code = equal(uniforms.f[4].xx, reg_tmp10.ww);
     if (!conditional_code.x) {
-        sub_4_5();
+        sub_1();
     } else {
-        sub_5_6();
+        sub_2();
     }
     vs_out_attr0.x = dot_s(uniforms.f[0], reg_tmp10);
     vs_out_attr0.y = dot_s(uniforms.f[1], reg_tmp10);
@@ -927,16 +840,16 @@ bool sub_0_4096() {
     vs_out_attr3 = uniforms.f[92].xxxx;
     return true;
 }
-bool sub_4_5() {
+bool sub_1() {
     reg_tmp10.x = (reg_tmp10.xxxx + vs_in_reg4.xxxx).x;
     return false;
 }
-bool sub_5_6() {
+bool sub_2() {
     reg_tmp10.x = (reg_tmp10.xxxx + -vs_in_reg4.xxxx).x;
     return false;
 }
-// reference: 76D40649E8BFB2C7, C0C4A4AB08EB4B75
-// shader: 8DD9, 01926B3CAE979003
+// reference: 8772AE99C2854885, EC3BAFA855289E1F
+// shader: 8DD9, 24CFA9CD0C9C43C4
 
 layout(triangles) in;
 layout(triangle_strip, max_vertices = 3) out;
@@ -950,20 +863,6 @@ out vec4 normquat;
 out vec3 view;
 
 #define NUM_TEV_STAGES 6
-#define NUM_LIGHTS 8
-#define NUM_LIGHTING_SAMPLERS 24
-
-struct LightSrc {
-    vec3 specular_0;
-    vec3 specular_1;
-    vec3 diffuse;
-    vec3 ambient;
-    vec3 position;
-    vec3 spot_direction;
-    float dist_atten_bias;
-    float dist_atten_scale;
-};
-
 layout (std140) uniform shader_data {
     int alphatest_ref;
     float depth_scale;
@@ -988,20 +887,6 @@ layout (std140) uniform shader_data {
     vec4 const_color[NUM_TEV_STAGES];
     vec4 tev_combiner_buffer_color;
     vec4 clip_coef;
-};
-
-layout (std140) uniform shader_light_data {
-    ivec4 lighting_lut_offset[NUM_LIGHTING_SAMPLERS / 4];
-    vec3 lighting_global_ambient;
-    LightSrc light_src[NUM_LIGHTS];
-    float lut_scale_d0;
-    float lut_scale_d1;
-    float lut_scale_sp;
-    float lut_scale_fr;
-    float lut_scale_rb;
-    float lut_scale_rg;
-    float lut_scale_rr;
-    int shadow_texture_bias;
 };
 
 in vec4 vs_out_attr0[];
@@ -1059,14 +944,8 @@ void main() {
     prim_buffer[2].attributes = vec4[5](vs_out_attr0[2], vs_out_attr1[2], vs_out_attr2[2], vs_out_attr3[2], vs_out_attr4[2]);
     EmitPrim(prim_buffer[0], prim_buffer[1], prim_buffer[2]);
 }
-// reference: 8D2B248358E40AB0, 01926B3CAE979003
-// shader: 8B30, BC632B389D86C7E4
-
-precision highp int;
-precision highp float;
-precision highp samplerBuffer;
-precision highp usampler2D;
-precision highp uimage2D;
+// reference: 8D2B248358E40AB0, 24CFA9CD0C9C43C4
+// shader: 8B30, 123AEB0EDF90A3FE
 in vec4 primary_color;
 in vec2 texcoord0;
 in vec2 texcoord1;
@@ -1089,20 +968,6 @@ uniform samplerBuffer texture_buffer_lut_rg;
 uniform samplerBuffer texture_buffer_lut_rgba;
 
 #define NUM_TEV_STAGES 6
-#define NUM_LIGHTS 8
-#define NUM_LIGHTING_SAMPLERS 24
-
-struct LightSrc {
-    vec3 specular_0;
-    vec3 specular_1;
-    vec3 diffuse;
-    vec3 ambient;
-    vec3 position;
-    vec3 spot_direction;
-    float dist_atten_bias;
-    float dist_atten_scale;
-};
-
 layout (std140) uniform shader_data {
     int alphatest_ref;
     float depth_scale;
@@ -1129,6 +994,18 @@ layout (std140) uniform shader_data {
     vec4 clip_coef;
 };
 
+#define NUM_LIGHTS 8
+#define NUM_LIGHTING_SAMPLERS 24
+struct LightSrc {
+    vec3 specular_0;
+    vec3 specular_1;
+    vec3 diffuse;
+    vec3 ambient;
+    vec3 position;
+    vec3 spot_direction;
+    float dist_atten_bias;
+    float dist_atten_scale;
+};
 layout (std140) uniform shader_light_data {
     ivec4 lighting_lut_offset[NUM_LIGHTING_SAMPLERS / 4];
     vec3 lighting_global_ambient;
@@ -1182,10 +1059,6 @@ vec4 byteround(vec4 x) {
     return round(x * 255.0) * (1.0 / 255.0);
 }
 
-// PICA's LOD formula for 2D textures.
-// This LOD formula is the same as the LOD lower limit defined in OpenGL.
-// f(x, y) >= max{m_u, m_v, m_w}
-// (See OpenGL 4.6 spec, 8.14.1 - Scale Factor and Level-of-Detail)
 float getLod(vec2 coord) {
     vec2 d = max(abs(dFdx(coord)), abs(dFdy(coord)));
     return log2(max(d.x, d.y));
@@ -1230,18 +1103,7 @@ if (int(last_tex_env_out.a * 255.0) <= alphatest_ref) discard;
 gl_FragDepth = depth;
 color = byteround(last_tex_env_out);
 }
-// reference: CE312E683AC5214B, BC632B389D86C7E4
-// program: C0C4A4AB08EB4B75, 01926B3CAE979003, BC632B389D86C7E4
-// reference: 0A6A6FCF46768075, F143EAD1C2940119
-// reference: 3880F9096B4AD4B5, C0C4A4AB08EB4B75
-// reference: 123C4981C3573C1F, 71E691D3E34A8575
-// reference: 443E908FC583E607, F143EAD1C2940119
-// program: 0000000000000000, 0000000000000000, 5E80B8A7B82C0EE4
-// program: 0000000000000000, 0000000000000000, CA6C61E8102D5415
-// program: 0000000000000000, 0000000000000000, BC632B389D86C7E4
-// reference: E7FD9DBEC583E607, F143EAD1C2940119
-// reference: 4EDD192F40A25A6D, 71E691D3E34A8575
-// reference: 568B3F61D1336743, F143EAD1C2940119
-// reference: 6461A9A7E8BFB2C7, C0C4A4AB08EB4B75
-// reference: 568B3F61C583E607, F143EAD1C2940119
-// reference: F5483250C583E607, F143EAD1C2940119
+// reference: CE312E683AC5214B, 123AEB0EDF90A3FE
+// program: EC3BAFA855289E1F, 24CFA9CD0C9C43C4, 123AEB0EDF90A3FE
+// reference: C92651D941702EF7, EC3BAFA855289E1F
+// reference: E39AE151F85FF429, 116BD640B975736D
