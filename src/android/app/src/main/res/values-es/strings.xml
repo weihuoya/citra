@@ -281,7 +281,7 @@
     <string name="button_start">START</string>
     <string name="button_select">SELECT</string>
     <string name="button_home">SWAP SCREEN</string>
-    <string name="button_debug">SETTING DIALOG</string>
+    <string name="button_debug">SETTINGS/ALT SPEED</string>
 
     <string name="nnf_new_folder">Nueva carpeta</string>
     <string name="nnf_create_folder_error">Error al crear la carpeta</string>

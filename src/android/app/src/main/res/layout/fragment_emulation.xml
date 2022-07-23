@@ -57,6 +57,9 @@
         android:longClickable="false"
         android:shadowColor="@android:color/black"
         android:textColor="@color/citra_accent_white"
+        android:shadowRadius="2"
+        android:shadowDx="-2"
+        android:shadowDy="-2"
         android:textSize="14sp" />
 
     <TextView
