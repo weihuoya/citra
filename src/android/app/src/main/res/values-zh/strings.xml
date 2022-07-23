@@ -281,7 +281,7 @@
     <string name="button_start">START</string>
     <string name="button_select">SELECT</string>
     <string name="button_home">切换屏幕</string>
-    <string name="button_debug">设置弹框</string>
+    <string name="button_debug">设置/加速</string>
 
     <string name="nnf_new_folder">New folder</string>
     <string name="nnf_create_folder_error">Failed to create folder</string>
