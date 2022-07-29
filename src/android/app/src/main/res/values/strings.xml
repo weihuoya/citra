@@ -33,6 +33,7 @@
     <string name="setting_skip_cpu_write">Skip CPU Access</string>
     <string name="setting_skip_texture_copy">Skip Texture Copy</string>
     <string name="setting_use_linear_filter">Use Linear Filter</string>
+    <string name="setting_use_hw_gs">Enable Geometry Shader</string>
     <string name="use_haptic_feedback">Haptic Feedback (Vibration)</string>
     <string name="joystick_relative_center">Joystick use relative center</string>
     <string name="show_right_joystick">Show Right Joystick</string>

@@ -53,6 +53,7 @@ const ConfigInfo<std::string> CAMERA_DEVICE{{"Camera", "camera_type"}, "blank"};
 
 // debug
 const ConfigInfo<bool> ALLOW_SHADOW{{"Debug", "allow_shadow"}, false};
+const ConfigInfo<bool> USE_HW_GS{{"Debug", "use_hw_gs"}, false};
 const ConfigInfo<u8> SHADER_TYPE{{"Debug", "shader_type"}, 1};
 const ConfigInfo<bool> USE_PRESENT_THREAD{{"Debug", "use_present_thread"}, true};
 const ConfigInfo<bool> CPU_USAGE_LIMIT{{"Debug", "cpu_usage_limit"}, false};

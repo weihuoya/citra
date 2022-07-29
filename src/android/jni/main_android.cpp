@@ -437,8 +437,10 @@ JNIEXPORT void JNICALL Java_org_citra_emu_NativeLibrary_Run(JNIEnv* env, jclass 
     Settings::values.is_new_3ds = Config::Get(Config::IS_NEW_3DS);
     Settings::values.use_virtual_sd = Config::Get(Config::USE_VIRTUAL_SD);
     Settings::values.region_value = Config::Get(Config::SYSTEM_REGION);
+    Settings::values.shared_font_type = Config::Get(Config::SHARED_FONT_TYPE);
     // renderer
     Settings::values.use_direct_display = true;
+    Settings::values.use_hw_gs = Config::Get(Config::USE_HW_GS);
     Settings::values.use_gles = Config::Get(Config::USE_GLES);
     Settings::values.show_fps = Config::Get(Config::SHOW_FPS);
     Settings::values.use_hw_renderer = Config::Get(Config::USE_HW_RENDERER);
@@ -547,7 +549,7 @@ JNIEXPORT void JNICALL Java_org_citra_emu_NativeLibrary_StopEmulation(JNIEnv* en
 JNIEXPORT jintArray JNICALL Java_org_citra_emu_NativeLibrary_getRunningSettings(JNIEnv* env,
                                                                                 jclass obj) {
     int i = 0;
-    int settings[10];
+    int settings[11];
 
     // get settings
     settings[i++] = Settings::values.core_ticks_hack > 0;
@@ -555,6 +557,7 @@ JNIEXPORT jintArray JNICALL Java_org_citra_emu_NativeLibrary_getRunningSettings(
     settings[i++] = Settings::values.skip_cpu_write;
     settings[i++] = Settings::values.skip_texture_copy;
     settings[i++] = Settings::values.use_linear_filter;
+    settings[i++] = Settings::values.use_hw_gs;
     settings[i++] = std::min(std::max(Settings::values.resolution_factor - 1, 0), 3);
     settings[i++] = static_cast<int>(Settings::values.layout_option);
     settings[i++] = static_cast<int>(Settings::values.shaders_accurate_mul);

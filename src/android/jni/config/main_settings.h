@@ -56,6 +56,7 @@ extern const ConfigInfo<std::string> CAMERA_DEVICE;
 
 // debug
 extern const ConfigInfo<bool> ALLOW_SHADOW;
+extern const ConfigInfo<bool> USE_HW_GS;
 extern const ConfigInfo<u8> SHADER_TYPE;
 extern const ConfigInfo<bool> USE_PRESENT_THREAD;
 extern const ConfigInfo<bool> CPU_USAGE_LIMIT;

@@ -178,7 +178,6 @@ struct Values {
     std::string pp_shader_name;
 
     bool custom_textures;
-    bool preload_textures;
 
     // Audio
     bool enable_dsp_lle;
@@ -218,6 +217,7 @@ struct Values {
     bool use_present_thread;
     bool use_direct_display;
     bool use_fence_sync;
+    bool use_hw_gs;
     SharedFontType shared_font_type;
     AccurateMul shaders_accurate_mul;
     std::string remote_shader_host;
