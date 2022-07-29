@@ -33,6 +33,7 @@
     <string name="setting_skip_cpu_write">Omitir acceso a la CPU</string>
     <string name="setting_skip_texture_copy">Saltar copia de textura</string>
     <string name="setting_use_linear_filter">Usar filtro lineal</string>
+    <string name="setting_use_hw_gs">Habilitar sombreador de geometría</string>
     <string name="use_haptic_feedback">Retroalimentación háptica (vibración)</string>
     <string name="joystick_relative_center">Centro relativo de uso del joystick</string>
     <string name="show_right_joystick">Mostrar joystick C</string>

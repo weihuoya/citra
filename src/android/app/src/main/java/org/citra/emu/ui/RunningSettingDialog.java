@@ -123,11 +123,12 @@ public class RunningSettingDialog extends DialogFragment {
         public static final int SETTING_SKIP_CPU_WRITE = 2;
         public static final int SETTING_SKIP_TEXTURE_COPY = 3;
         public static final int SETTING_USE_LINEAR_FILTER = 4;
-        public static final int SETTING_SCALE_FACTOR = 5;
-        public static final int SETTING_SCREEN_LAYOUT = 6;
-        public static final int SETTING_ACCURATE_MUL = 7;
-        public static final int SETTING_CUSTOM_LAYOUT = 8;
-        public static final int SETTING_FRAME_LIMIT = 9;
+        public static final int SETTING_USE_HW_GS = 5;
+        public static final int SETTING_SCALE_FACTOR = 6;
+        public static final int SETTING_SCREEN_LAYOUT = 7;
+        public static final int SETTING_ACCURATE_MUL = 8;
+        public static final int SETTING_CUSTOM_LAYOUT = 9;
+        public static final int SETTING_FRAME_LIMIT = 10;
 
         // pref
         public static final int SETTING_JOYSTICK_RELATIVE = 100;
@@ -672,6 +673,9 @@ public class RunningSettingDialog extends DialogFragment {
                     SettingsItem.TYPE_CHECKBOX, mRunningSettings[i++]));
             mSettings.add(new SettingsItem(SettingsItem.SETTING_USE_LINEAR_FILTER,
                     R.string.setting_use_linear_filter,
+                    SettingsItem.TYPE_CHECKBOX, mRunningSettings[i++]));
+            mSettings.add(new SettingsItem(SettingsItem.SETTING_USE_HW_GS,
+                    R.string.setting_use_hw_gs,
                     SettingsItem.TYPE_CHECKBOX, mRunningSettings[i++]));
             mSettings.add(new SettingsItem(SettingsItem.SETTING_SCALE_FACTOR,
                     R.string.running_resolution, SettingsItem.TYPE_RADIO_GROUP,

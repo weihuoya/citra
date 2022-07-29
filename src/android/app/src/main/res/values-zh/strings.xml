@@ -33,6 +33,7 @@
     <string name="setting_skip_cpu_write">跳过CPU访问</string>
     <string name="setting_skip_texture_copy">跳过纹理复制</string>
     <string name="setting_use_linear_filter">使用线性过滤</string>
+    <string name="setting_use_hw_gs">启用几何着色器</string>
     <string name="use_haptic_feedback">按键反馈（震动）</string>
     <string name="joystick_relative_center">摇杆使用相对位置</string>
     <string name="show_right_joystick">显示右摇杆</string>
