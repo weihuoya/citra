@@ -10,7 +10,11 @@ import android.content.Intent;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.provider.Settings;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 import android.view.View;
@@ -21,6 +25,7 @@ import android.widget.Toast;
 
 import org.citra.emu.NativeLibrary;
 import org.citra.emu.R;
+import org.citra.emu.utils.CitraDirectory;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
@@ -172,6 +177,25 @@ public class AboutActivity extends AppCompatActivity implements SurfaceHolder.Ca
         btnOpenWeibo.setOnClickListener(view -> openUrl("https://weibo.com/1725027100"));
 
         new RefreshTask().execute();
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        MenuInflater inflater = getMenuInflater();
+        inflater.inflate(R.menu.menu_about, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        if (item.getItemId() == R.id.menu_about_info) {
+            Intent intent = new Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS);
+            Uri uri = Uri.fromParts("package", getPackageName(), null);
+            intent.setData(uri);
+            startActivity(intent);
+            return true;
+        }
+        return false;
     }
 
     @Override

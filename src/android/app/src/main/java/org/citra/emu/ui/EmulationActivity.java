@@ -247,7 +247,7 @@ public final class EmulationActivity extends AppCompatActivity {
 
         if (requestCode == REQUEST_PICK_IMAGE) {
             if (data == null || data.getData() == null || resultCode != Activity.RESULT_OK) {
-                NativeLibrary.HandleImage(null, 0, 0);
+                NativeLibrary.HandleImage(new int[0], 0, 0);
                 return;
             }
 
@@ -255,7 +255,7 @@ public final class EmulationActivity extends AppCompatActivity {
             try {
                 inputStream = getContentResolver().openInputStream(data.getData());
             } catch (IOException e) {
-                NativeLibrary.HandleImage(null, 0, 0);
+                NativeLibrary.HandleImage(new int[0], 0, 0);
                 return;
             }
 

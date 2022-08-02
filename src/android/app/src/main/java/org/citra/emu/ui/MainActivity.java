@@ -448,13 +448,13 @@ public final class MainActivity extends AppCompatActivity {
         mMediator = new TabLayoutMediator(mTabLayout, mViewPager, (tab, position) -> {
             switch (position) {
                 case PAGE_FRAGMENT_EXTERNAL:
-                    tab.setCustomView(getCustomTabView(R.drawable.outline_create_new_folder_24));
+                    tab.setCustomView(getCustomTabView(R.drawable.ic_folder));
                     break;
                 case PAGE_FRAGMENT_INSTALLED:
-                    tab.setCustomView(getCustomTabView(R.drawable.outline_shop_24));
+                    tab.setCustomView(getCustomTabView(R.drawable.ic_shop));
                     break;
                 case PAGE_FRAGMENT_CONTENT:
-                    tab.setCustomView(getCustomTabView(R.drawable.outline_extension_24));
+                    tab.setCustomView(getCustomTabView(R.drawable.ic_extension));
                     break;
             }
         });

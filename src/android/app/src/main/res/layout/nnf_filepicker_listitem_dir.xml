@@ -18,7 +18,7 @@
         android:layout_height="56dp"
         android:adjustViewBounds="true"
         android:scaleType="center"
-        app:srcCompat="@drawable/nnf_ic_folder_black_48dp"
+        app:srcCompat="@drawable/ic_folder_black"
         app:tint="?attr/nnf_dir_icon_color"
         tools:ignore="ContentDescription" />
 

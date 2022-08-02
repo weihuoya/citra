@@ -595,7 +595,7 @@ public abstract class AbstractFilePickerFragment<T>
     @Override
     public void onBindViewHolder(@NonNull DirViewHolder vh, int position, @NonNull T data) {
         vh.file = data;
-        vh.icon.setImageResource(isDir(data) ? R.drawable.nnf_ic_folder_black_48dp
+        vh.icon.setImageResource(isDir(data) ? R.drawable.ic_folder_black
                                              : R.mipmap.ic_country);
         vh.text.setText(getName(data));
 

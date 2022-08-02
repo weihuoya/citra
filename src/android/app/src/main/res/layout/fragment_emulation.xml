@@ -123,7 +123,7 @@
             android:layout_height="wrap_content"/>
 
         <ImageButton
-            android:src="@drawable/outline_message_24"
+            android:src="@drawable/ic_message"
             android:background="@drawable/rounded"
             android:backgroundTint="#F9F9F9F9"
             android:id="@+id/chat_send_button"
@@ -133,12 +133,12 @@
             android:layout_marginEnd="2dp"
             android:layout_marginBottom="2dp"
             android:layout_marginTop="0dp"
-            android:tint="@color/citra_orange"
             style="@style/CitraTheme.Button"
             android:stateListAnimator="@null"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:contentDescription="TODO" />
+            android:contentDescription="TODO"
+            app:tint="@color/citra_orange" />
     </LinearLayout>
 
 </FrameLayout>
