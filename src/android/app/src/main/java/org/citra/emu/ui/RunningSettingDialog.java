@@ -451,7 +451,7 @@ public class RunningSettingDialog extends DialogFragment {
                 radio2.setText(R.string.accurate_mul_accurate);
 
                 RadioButton radio3 = mRadioGroup.findViewById(R.id.radio3);
-                radio3.setVisibility(View.INVISIBLE);
+                radio3.setVisibility(View.GONE);
             }
         }
 

@@ -3,9 +3,9 @@
       xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <item
-        android:id="@+id/menu_reset_setting"
-        android:title="@string/reset_setting"
-        android:icon="@drawable/ic_refresh"
-        app:showAsAction="never"/>
+        android:id="@+id/menu_about_info"
+        android:title="@string/about"
+        android:icon="@drawable/ic_info"
+        app:showAsAction="always"/>
 
 </menu>

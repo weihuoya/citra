@@ -244,6 +244,7 @@ static void UpdateDisplayRotation() {
 
     // custom layout
     if (NativeLibrary::IsPortrait()) {
+        Settings::values.layout_option = Config::Get(Config::LAYOUT_OPTION);
         Settings::values.custom_top_left = Config::Get(Config::PORTRAIT_TOP_LEFT);
         Settings::values.custom_top_top = Config::Get(Config::PORTRAIT_TOP_TOP);
         Settings::values.custom_top_right = Config::Get(Config::PORTRAIT_TOP_RIGHT);
@@ -253,6 +254,7 @@ static void UpdateDisplayRotation() {
         Settings::values.custom_bottom_right = Config::Get(Config::PORTRAIT_BOTTOM_RIGHT);
         Settings::values.custom_bottom_bottom = Config::Get(Config::PORTRAIT_BOTTOM_BOTTOM);
     } else {
+        Settings::values.layout_option = Config::Get(Config::LANDSCAPE_LAYOUT_OPTION);
         Settings::values.custom_top_left = Config::Get(Config::LANDSCAPE_TOP_LEFT);
         Settings::values.custom_top_top = Config::Get(Config::LANDSCAPE_TOP_TOP);
         Settings::values.custom_top_right = Config::Get(Config::LANDSCAPE_TOP_RIGHT);
@@ -452,7 +454,6 @@ JNIEXPORT void JNICALL Java_org_citra_emu_NativeLibrary_Run(JNIEnv* env, jclass 
     Settings::values.resolution_factor = Config::Get(Config::RESOLUTION_FACTOR);
     Settings::values.factor_3d = Config::Get(Config::FACTOR_3D);
     Settings::values.custom_textures = Config::Get(Config::CUSTOM_TEXTURES);
-    Settings::values.layout_option = Config::Get(Config::LAYOUT_OPTION);
     Settings::values.pp_shader_name = Config::Get(Config::POST_PROCESSING_SHADER);
     Settings::values.remote_shader_host = Config::Get(Config::REMOTE_SHADER_HOST);
     // audio
@@ -589,14 +590,21 @@ JNIEXPORT void JNICALL Java_org_citra_emu_NativeLibrary_setRunningSettings(JNIEn
     // Use Linear Filter
     Settings::values.use_linear_filter = settings[i++] > 0;
 
+    // Use HW GS
+    Settings::values.use_hw_gs = settings[i++] > 0;
+    Config::Set(Config::USE_HW_GS, Settings::values.use_hw_gs);
+
     // Scale Factor
     Settings::values.resolution_factor = settings[i++] + 1;
     Config::Set(Config::RESOLUTION_FACTOR, Settings::values.resolution_factor);
 
     // Change Layout
-    auto screen_layout = static_cast<Settings::LayoutOption>(settings[i++]);
-    Settings::values.layout_option = screen_layout;
-    Config::Set(Config::LAYOUT_OPTION, Settings::values.layout_option);
+    Settings::values.layout_option = static_cast<Settings::LayoutOption>(settings[i++]);
+    if (NativeLibrary::IsPortrait()) {
+        Config::Set(Config::LAYOUT_OPTION, Settings::values.layout_option);
+    } else {
+        Config::Set(Config::LANDSCAPE_LAYOUT_OPTION, Settings::values.layout_option);
+    }
 
     // Accurate Mul
     Settings::values.shaders_accurate_mul = static_cast<Settings::AccurateMul>(settings[i++]);
