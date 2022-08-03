@@ -36,6 +36,7 @@ extern const ConfigInfo<u8> FACTOR_3D;
 extern const ConfigInfo<bool> USE_FENCE_SYNC;
 extern const ConfigInfo<bool> CUSTOM_TEXTURES;
 extern const ConfigInfo<Settings::LayoutOption> LAYOUT_OPTION;
+extern const ConfigInfo<Settings::LayoutOption> LANDSCAPE_LAYOUT_OPTION;
 extern const ConfigInfo<std::string> POST_PROCESSING_SHADER;
 extern const ConfigInfo<std::string> REMOTE_SHADER_HOST;
 
