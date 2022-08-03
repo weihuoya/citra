@@ -30,6 +30,8 @@ const ConfigInfo<bool> USE_FENCE_SYNC{{"Renderer", "use_fence_sync"}, false};
 const ConfigInfo<bool> CUSTOM_TEXTURES{{"Renderer", "custom_textures"}, false};
 const ConfigInfo<Settings::LayoutOption> LAYOUT_OPTION{{"Renderer", "layout_option"},
                                                        Settings::LayoutOption::Default};
+const ConfigInfo<Settings::LayoutOption> LANDSCAPE_LAYOUT_OPTION{
+    {"Renderer", "landscape_layout_option"}, Settings::LayoutOption::Default};
 const ConfigInfo<std::string> POST_PROCESSING_SHADER{{"Renderer", "pp_shader_name"}, ""};
 const ConfigInfo<std::string> REMOTE_SHADER_HOST{
     {"Renderer", "remote_shader_host"},
