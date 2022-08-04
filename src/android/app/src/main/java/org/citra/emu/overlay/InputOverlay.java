@@ -84,6 +84,8 @@ public final class InputOverlay extends View {
     private boolean mIsLandscape = false;
     private boolean mInEditMode = false;
     private boolean mBeingMoved = false;
+    private int mInEditPosX = 0;
+    private int mInEditPosY = 0;
     private InputObject mInputBeingConfigured;
     private InputOverlayPointer mOverlayPointer;
     private Paint mPaint;
@@ -279,6 +281,8 @@ public final class InputOverlay extends View {
                 return false;
             }
             mBeingMoved = false;
+            mInEditPosX = pointerX;
+            mInEditPosY = pointerY;
             for (InputObject input : mInputObjects) {
                 if (input.getBounds().contains(pointerX, pointerY)) {
                     mInputBeingConfigured = input;
@@ -299,7 +303,7 @@ public final class InputOverlay extends View {
         case MotionEvent.ACTION_POINTER_UP:
             if (mInputBeingConfigured != null) {
                 int id = mInputBeingConfigured.getButtonId();
-                if (mBeingMoved) {
+                if (mBeingMoved && (mInEditPosX != pointerX || mInEditPosY != pointerY)) {
                     saveControlPosition(id, mInputBeingConfigured.getBounds());
                 } else {
                     mInputVisibles.put(id, !mInputVisibles.get(id));
