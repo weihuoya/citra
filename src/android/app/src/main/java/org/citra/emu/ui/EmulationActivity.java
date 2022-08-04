@@ -52,9 +52,6 @@ public final class EmulationActivity extends AppCompatActivity {
     private class InitTask extends AsyncTask<Context, Void, Map<Integer, Bitmap>> {
         @Override
         protected Map<Integer, Bitmap> doInBackground(Context... contexts) {
-            if (!CitraDirectory.isInitialized()) {
-                CitraDirectory.start(contexts[0]);
-            }
             Settings settings = new Settings();
             settings.loadSettings(mGameId);
             SettingSection section = settings.getSection(Settings.SECTION_INI_CORE);
@@ -112,6 +109,15 @@ public final class EmulationActivity extends AppCompatActivity {
             mGameId = savedInstanceState.getString(EXTRA_GAME_ID);
             mGameName = savedInstanceState.getString(EXTRA_GAME_NAME);
             mGamePath = savedInstanceState.getString(EXTRA_GAME_PATH);
+        }
+
+        if (!CitraDirectory.isInitialized()) {
+            CitraDirectory.start(this);
+        }
+
+        if (mGameId == null || mGameId.isEmpty()) {
+            mGameId = NativeLibrary.GetAppId(mGamePath);
+            mGameName = NativeLibrary.GetAppTitle(mGamePath);
         }
 
         // Find or create the EmulationFragment
