@@ -88,11 +88,6 @@ public class MainPageFragment extends Fragment {
         return root;
     }
 
-    @Override
-    public void onConfigurationChanged(@NonNull Configuration newConfig) {
-        super.onConfigurationChanged(newConfig);
-    }
-
     public void setGames(List<GameFile> games) {
         if (games.size() == 0) {
             mPageInfo.setVisibility(View.VISIBLE);

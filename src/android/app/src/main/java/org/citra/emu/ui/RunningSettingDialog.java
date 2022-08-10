@@ -135,8 +135,7 @@ public class RunningSettingDialog extends DialogFragment {
         public static final int SETTING_HIDE_INPUT_OVERLAY = 101;
         public static final int SETTING_CONTROLLER_SCALE = 102;
         public static final int SETTING_CONTROLLER_ALPHA = 103;
-        public static final int SETTING_SHOW_RIGHT_JOYSTICK = 104;
-        public static final int SETTING_USE_HAPTIC_FEEDBACK = 105;
+        public static final int SETTING_USE_HAPTIC_FEEDBACK = 104;
 
         // func
         public static final int SETTING_LOAD_SUBMENU = 201;
@@ -546,7 +545,6 @@ public class RunningSettingDialog extends DialogFragment {
         private int[] mRunningSettings;
         private int mUseHapticFeedback;
         private int mJoystickRelative;
-        private int mShowRightJoystick;
         private int mHideInputOverlay;
         private int mControllerScale;
         private int mControllerAlpha;
@@ -637,11 +635,6 @@ public class RunningSettingDialog extends DialogFragment {
             mSettings.add(new SettingsItem(SettingsItem.SETTING_JOYSTICK_RELATIVE,
                     R.string.joystick_relative_center,
                     SettingsItem.TYPE_CHECKBOX, mJoystickRelative));
-
-            mShowRightJoystick = InputOverlay.sShowRightJoystick ? 1 : 0;
-            mSettings.add(new SettingsItem(SettingsItem.SETTING_SHOW_RIGHT_JOYSTICK,
-                    R.string.show_right_joystick,
-                    SettingsItem.TYPE_CHECKBOX, mShowRightJoystick));
 
             mHideInputOverlay = InputOverlay.sHideInputOverlay ? 1 : 0;
             mSettings.add(new SettingsItem(SettingsItem.SETTING_HIDE_INPUT_OVERLAY,
@@ -770,13 +763,6 @@ public class RunningSettingDialog extends DialogFragment {
             if (mJoystickRelative != relative) {
                 editor.putBoolean(InputOverlay.PREF_JOYSTICK_RELATIVE, relative > 0);
                 InputOverlay.sJoystickRelative = relative > 0;
-            }
-            mSettings.remove(0);
-
-            int rightJoystick = mSettings.get(0).getValue();
-            if (mShowRightJoystick != rightJoystick) {
-                editor.putBoolean(InputOverlay.PREF_SHOW_RIGHT_JOYSTICK, rightJoystick > 0);
-                InputOverlay.sShowRightJoystick = rightJoystick > 0;
             }
             mSettings.remove(0);
 

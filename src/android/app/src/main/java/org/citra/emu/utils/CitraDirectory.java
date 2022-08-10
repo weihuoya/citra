@@ -262,6 +262,7 @@ public final class CitraDirectory {
         try {
             FileOutputStream outputStream = new FileOutputStream(file);
             ZipOutputStream zipOut = new ZipOutputStream(new BufferedOutputStream(outputStream));
+            // copy buttons
             for (int i = 0; i < inputIds.length; ++i) {
                 ZipEntry entry = new ZipEntry(inputNames[i]);
                 zipOut.putNextEntry(entry);
@@ -272,6 +273,12 @@ public final class CitraDirectory {
                 }
                 bitmap.compress(format, 90, zipOut);
             }
+            // copy glsl
+            String glsl = "background.glsl";
+            ZipEntry entry = new ZipEntry(glsl);
+            zipOut.putNextEntry(entry);
+            copyFile(context.getAssets().open(glsl), zipOut);
+            // close
             zipOut.close();
         } catch (IOException e) {
             Log.e("citra", "saveInputOverlay error", e);
@@ -304,10 +311,21 @@ public final class CitraDirectory {
 
             ZipEntry entry;
             while ((entry = zipIn.getNextEntry()) != null) {
+                if (entry.isDirectory()) {
+                    continue;
+                }
+                // background glsl
+                if ("background.glsl".equals(entry.getName())) {
+                    ByteArrayOutputStream output = new ByteArrayOutputStream();
+                    copyFile(zipIn, output);
+                    NativeLibrary.SetBackgroundGLSL(output.toString());
+                    continue;
+                }
+                // buttons and background images
                 for (int i = 0; i < inputNames.length; ++i) {
-                    if (!entry.isDirectory() && inputNames[i].equals(entry.getName())) {
-                        Bitmap bitmap = BitmapFactory.decodeStream(zipIn);
-                        inputs.put(inputIds[i], bitmap);
+                    if (inputNames[i].equals(entry.getName())) {
+                        inputs.put(inputIds[i], BitmapFactory.decodeStream(zipIn));
+                        break;
                     }
                 }
             }
