@@ -36,7 +36,6 @@
     <string name="setting_use_hw_gs">Habilitar sombreador de geometría</string>
     <string name="use_haptic_feedback">Retroalimentación háptica (vibración)</string>
     <string name="joystick_relative_center">Centro relativo de uso del joystick</string>
-    <string name="show_right_joystick">Mostrar joystick C</string>
     <string name="hide_input_overlay">Ocultar botones virtuales</string>
     <string name="controller_scale">Escala de los controles</string>
     <string name="controller_alpha">Opacidad de los controles</string>

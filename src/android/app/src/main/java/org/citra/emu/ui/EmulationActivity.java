@@ -471,15 +471,9 @@ public final class EmulationActivity extends AppCompatActivity {
     }
 
     public Bitmap getInputBitmap(int id, float scale) {
-        // Determine the button size based on the smaller screen dimension.
-        // This makes sure the buttons are the same size in both portrait and landscape.
-        DisplayMetrics dm = getResources().getDisplayMetrics();
-        int dimension = (int)(Math.min(dm.widthPixels, dm.heightPixels) * scale);
         Bitmap bitmap = mBitmaps.get(id);
-        int dstWidth = bitmap.getWidth();
-        int dstHeight = bitmap.getHeight();
-        dstHeight = dstHeight * dimension / dstWidth;
-        dstWidth = dimension;
+        int dstWidth = (int)(bitmap.getWidth() * scale);
+        int dstHeight = (int)(bitmap.getHeight() * scale);
         return Bitmap.createScaledBitmap(mBitmaps.get(id), dstWidth, dstHeight, true);
     }
 }
