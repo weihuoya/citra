@@ -44785,3 +44785,767 @@ color = byteround(last_tex_env_out);
 }
 // reference: 62E21ADFDAD2B6F6, 1A78AC00DD4AC832
 // program: 79C10E219316E144, 0D30074279C2FEED, 1A78AC00DD4AC832
+// reference: 36039D85497C438D, F1D5794402A3D3AC
+// reference: 36039D8517698253, C5D2409D6A10BFE5
+// reference: 69EBD5B6A2EE128C, 018B3456CF2EE29F
+// reference: 0785D9BC873F9AF7, 1C1A468E71C64F7D
+// reference: CAB3BB42AD7F1DF6, 01EA368C6BA4171E
+// reference: 3F54434A85F513A5, E0EDD055036CEC5E
+// reference: 0A45E4E6D0AD9B10, D3456A2285EEAC59
+// reference: 2EBE407D42A63935, 52045573E4595417
+// reference: 0C5A5F18B26CD5C1, F4BF34B777D1741F
+// reference: 70BBE7190A3808D7, F2B0D3B7D18D65E8
+// reference: 486C28ED442266F6, 28FA779EA7130B30
+// reference: 2632FB622524025B, 7323F9C1716BF3F6
+// reference: 1144B3FFDE98A3C9, FC3F418640763CFB
+// reference: E3B56C8B255B1541, E7C746960B5B3996
+// reference: 4609680C49AF6349, EDA325017BA61D01
+// reference: E80055798B73AB41, 3433516010C6BEA2
+// reference: 6E7DBD01255B1541, C46882B10B5B3996
+// reference: 0F1305C754AAFC54, B954E9FDBC1DC44B
+// reference: 19BFB8C9B732BFA0, C22CBA4576AE4630
+// reference: 5736B360B732BFA0, C22CBA4576AE4630
+// reference: 5C556EE9DC523788, 72F4BAF29D3FA90F
+// reference: 1A221652CB1CF9A9, 82226A670D2BE50E
+// reference: EA01D31EB9B5DADF, ADF9D7C10F44CA33
+// reference: 7A5F580AA3197EFE, 3167E46DF69CE3F5
+// reference: 54AB1DFBCB1CF9A9, 82226A670D2BE50E
+// reference: 88F425D15762A39B, 6EDE5754383E29B3
+// reference: 0847786CAA763AAC, A9E72D24B6899D74
+// reference: 4579CDF91F1239CB, 98E6FB16C30267A8
+// reference: 62E21ADFDAD2B6F6, 1A78AC00DD4AC832
+// reference: 719548EDFC6A1AC6, BA0490B5E1C5B26E
+// reference: 95C9D7F87A98CED3, 0136A4EA06F279CE
+// reference: E7051C9C9A7BC798, 91EA815521D593A0
+// reference: A7ACE7CC5FB00765, 3B808385EFD3AB57
+// reference: FDA99CDC3F40D011, 0A440BA576EDECEC
+// reference: 1080747781DE1D70, 1A48563EE40699E2
+// reference: F351A4451F0B8A8A, 0CC9EF3980F95392
+// reference: 679604173E76288A, 103CFA27C1E8EA1E
+// reference: FDA99CDC4AB92C70, A0F0C2882011651B
+// reference: CE68DCC4D49A9FCF, A1865452B700313E
+// reference: D4481992FC6E05A2, C74443EF652F1366
+// reference: 5F0AA39FC6A18B95, FECCDB075D3282D4
+// reference: 6CED2276BC14CF52, B6634D5A23D66FEF
+// reference: 7D9E4A9E8F704569, 8DBD2C82619963E6
+// reference: 8C28E12D4298FEF1, 48B3DB9DAC92C18A
+// reference: C00D3B90933B49ED, 525C22BF2CE5B1A9
+// reference: E837C9007203ECD5, FE4221B421A9C5D8
+// reference: 5F0AA39FDFD683B7, 8B51B3395997CADA
+// reference: A46A21D507045535, A974D447DEF40206
+// reference: 6FE6392B3610C897, F4E927B588BED9B2
+// reference: 439126AFF9980BCF, F4E927B588BED9B2
+// reference: E006E3BA38DBD927, 6CDC9104D989A2C0
+// reference: 988FA8FC7DE41699, 6F98706C77D1741F
+// reference: 824A386DC7E8ECE9, EDB119573789A56A
+// reference: F883A17DDD625223, 7974F3663498993D
+// reference: 44B0DC52F6418466, A6D58F0FB2B128DD
+// reference: 14F4445155F304C0, 91EA815521D593A0
+// reference: CB85F1C7F6418466, 1965180B0A253658
+// reference: 5C81BDD19EFBE886, E74322B229543881
+// reference: 850CFA6EF6418466, 1965180B0A253658
+// reference: CE312E687A3E6CC9, C298B755F0C532F0
+// reference: A5A4A0E7887371F3, E8EC477A24DC6BE3
+// reference: 0A45E4E6E96850A3, 7EEFB1DCDC4479A1
+// reference: FE9A07D0C4C04310, 609EA6924D525774
+// reference: BDD8AFEC1F0B8A8A, 0CC9EF3980F95392
+// reference: D4F4BEF959D7EB60, E695FB54FF05D1B9
+// reference: A62290528011E34F, EDB119573789A56A
+// reference: CC610829680996A0, B75FD81076088674
+// reference: E5EAB735698D0AD6, 2C8A98DF5B5EF521
+// reference: 67DAB4CF3AD65FDF, DE98B1652D55AFF9
+// reference: 022256D501807C30, ABA06A53B615E7C9
+// reference: AE3D27E908602FB1, EDB119573789A56A
+// reference: 065015F96E365435, C61243900AD28655
+// reference: 926202EB8F9A79EC, 8AF0B29CD9F6EF6C
+// reference: EA791C6FF31B0D4B, C6AA1A4A58ACF6F9
+// reference: F55682D0BA0E18EF, 0FC43FA7965D97A8
+// reference: 5D4601A9529E8CCA, 77E613176BB06E8B
+// reference: 419A0E6E54AAFC54, B954E9FDBC1DC44B
+// reference: 5C831B5E6E7E41FF, 295C24200BE22554
+// reference: 0A39D7FBF6418466, A6D58F0FB2B128DD
+// reference: E3A84451C92EF350, 893C87571BB0E183
+// reference: 7489E62C0A40FA29, 92936C14B8C77EDA
+// reference: 889C9E2ED43294FA, FEEC3AA11F0C7C68
+// reference: 7F87A97685750974, 7C96EBECB346C618
+// reference: AE3D27E93E737D07, B6B08DE01E86DE2D
+// reference: C737C7CBCB53C289, C4F04D618447549B
+// reference: 7617F0C92853A06C, F598ABCE1BF83FD5
+// reference: B3FB990804A91260, 36347B17DF6D8043
+// reference: FAA7A7449D5785CD, E762C647243D321A
+// reference: BE748272FC6E05A2, D442FF5E8587DCEE
+// reference: 6E46F2822B8526DD, 537C8048600B0587
+// reference: 70741796ED363931, 745610703ACA08B7
+// reference: 8274FBA715EB702B, 9D48A657370E9D2A
+// reference: 1C77547B7698F0F9, 6DFF5822FB0F7FBA
+// reference: 2F94A1A80D04D8D0, 25C3AC4899F1B1DB
+// reference: E24631EC2FF1D412, 20662BE770E7B409
+// reference: 829960430D04D8D0, 129AC264C03D2C9A
+// reference: 3A00ED850A40FA29, 92936C14B8C77EDA
+// reference: E837C900603C4A0E, 0F59E48A4D658524
+// reference: 5F0AA39F0B52A89A, F857CCE39F03B03B
+// reference: AEDC3F21847F8777, 89438B8F29D3CF7E
+// reference: 10807477B1D33827, 7B9CEBCFCDAC9440
+// reference: 0A45E4E6EFE824C8, 12E8B0B647E3C392
+// reference: 3052C0A72D837EB1, 7F8810072BCAFAE4
+// reference: F0FD89DBCC6320F5, 10207D1EC47B592E
+// reference: CE312E68251483DC, C786C9A5300270D0
+// reference: 291F0FBE3E76288A, 103CFA27C1E8EA1E
+// reference: E24631ECF0A8F1F1, 7CBDA86A8D426FE4
+// reference: DCEB09429A9B5D85, 7974F3663498993D
+// reference: 50E14E134DB9F58F, BEB20B40BBE9B93E
+// reference: 2F94A1A846652F8B, 9EE65AF504AC33E3
+// reference: 72E7F62E9E6F2132, 8BC373EE08A09FB8
+// reference: 9F56AFD3801AA348, F9CEE0A9615CAE3D
+// reference: 14134624B0EB37F7, AB68B1B6446986C5
+// reference: F0FD89DBFC6E05A2, D442FF5E8587DCEE
+// reference: 5F0AA39F2F7E5CF7, 82BE7E14B7C1C17D
+// reference: 58B8C8BBED363931, 40A49EB0B95DE326
+// reference: 47C1586BC7729DC9, 0A631A5A7F9FE4BB
+// reference: 5F0AA39F2449A6E3, 3CA0ADEC69CE92CD
+// reference: 5B835BF59B2B2298, 655FFD4060F406B6
+// reference: FD1CAA61ECEC2813, F3A5CE3EBC36C51F
+// reference: 5CCCF89DC5B0CB8F, F2B0D3B7D18D65E8
+// reference: 2107EBCFA102DE9C, B8089EFEB68C1951
+// reference: 48D91E506E365435, C61243900AD28655
+// reference: ACCF3A452FF1D412, 20662BE770E7B409
+// reference: 783505D7C145CA36, 7974F3663498993D
+// reference: FDA99CDC7C52DBFD, A0F0C2882011651B
+// reference: CE312E681519A68B, 9A4719A519F0D3B1
+// reference: E24631ECF34B1A46, B5ACA20C42608BC5
+// reference: 0B81236E52870B0F, D8BE7B9C6361A9AC
+// reference: 9740E0631C678D67, 1BC182922368739F
+// reference: 56B49F6879A5FCA9, 87E4DD1B4E4F9BA1
+// reference: 9740E06317507773, F437CC0DAF2ECC46
+// reference: A9A63BDFE5CB2C30, B9BBE7296A166511
+// reference: 0A45E4E60B23B66B, 51B7C4041FB13355
+// reference: 43F9FFE2D7B0A07F, 9A4719A51884521E
+// reference: 2632FB627086AF4E, 3E9E0F4925AF4C7A
+// reference: 88FBB8B195D0D989, C5D2409D6A10BFE5
+// reference: 308CF188AC447CF9, 60F649948F9DDB0F
+// reference: 6F8EE066A102DE9C, B8089EFEB68C1951
+// reference: 920FAA8094F4BFFE, 761C5ACCCE29EBF2
+// reference: C45E129C49E0F511, CE863144767559A3
+// reference: 07FFAEFE5BD85006, 0B95832CF652E6FD
+// reference: DC86A12994F4BFFE, 761C5ACCCE29EBF2
+// reference: 5F0AA39F3D41FA2C, 4513080BBAB785A8
+// reference: 52BED45BE441A8AD, 4109B60D9CD4FBC2
+// reference: DA32DDDA6712BA94, B7C1B59932D02FC1
+// reference: CE312E68D672CA48, 9A4719A519F0D3B1
+// reference: B4F8B778B26CD5C1, 6F98706C77D1741F
+// reference: 2BE0918E2DD7538D, C9440EF8F1468FF3
+// reference: 3F1C4344FC6A1AC6, BA0490B5E1C5B26E
+// reference: 36B4CD7F9BAB382E, 80D8579A47780278
+// reference: ADF0BAB67A3E6CC9, D627ADB073B9AA8E
+// reference: 65699A272DD7538D, C9440EF8F1468FF3
+// reference: FA27AFCEE5CB2C30, E8D71939E4FA1F2C
+// reference: 12DC6540DC523788, 72F4BAF29D3FA90F
+// reference: DB40DC517A98CED3, 0136A4EA06F279CE
+// reference: DCEB09428F9A79EC, 8AF0B29CD9F6EF6C
+// reference: A488D8B7B9B5DADF, ADF9D7C10F44CA33
+// reference: 8F89EBA515C6A5BA, A1DAB4CC63639AF5
+// reference: E06237D5E33502C7, 78DBE905FE238EAF
+// reference: CE697B21FE4CD579, BAE5D1D630A0E9E5
+// reference: C6159587D43294FA, FEEC3AA11F0C7C68
+// reference: B2E70C86C2862184, 4C9CCF58A05B1C8F
+// reference: 6590628EAA0789EF, FBDEFFFAE3D442C5
+// reference: CE312E687BE989CC, 57F3982423F0F900
+// reference: 12DC6540382D74CC, 9573D0022CBBC642
+// reference: B7261CD4C2862184, 8AAE0455E1B2EBC1
+// reference: 0A45E4E6E0FD2A0E, 461BD4CCC0CE2320
+// reference: 3EC98F01820C0305, 06542AF32ABD1DBF
+// reference: 8465A01D5C2C167F, 65811048AA78B058
+// reference: D6A8AFCEC473B351, 86DF71758A7EC33F
+// reference: AE0ABD06F5730E08, A0618D1ED5CAE456
+// reference: 7352D65A3F2032A9, 7CBDA86A62E0EE33
+// reference: FD7292A104A91260, 36347B17DF6D8043
+// reference: A845CC983BAD9170, B7FC64F9712095FE
+// reference: 746127E23B1B9A32, C7C7561CED13AFC1
+// reference: F970FC1AA944BD87, 6761979508970A07
+// reference: 96BC928DFCF426EA, 7974F3663498993D
+// reference: 1F78A607BDA1EDB2, 2B730240EE2A8461
+// reference: F3DBBF5ADFDD739D, E169D4AC1A4DB412
+// reference: 124A538A480019B3, 9C4924FA28F6423B
+// reference: 3EAB7AC46C352912, 5FD342B7B8C861E7
+// reference: 703709193E737D07, B6B08DE0C83FF4C8
+// reference: B7943D3214B8D4B4, FE9B9BDF3FAB9EFE
+// reference: 27BF2AF6A2EE128C, 018B3456CF2EE29F
+// reference: 4F2FA6E184F25752, BAC745BE51A3D8C2
+// reference: 1F78A6079D3050EB, 61C2DBAB611E2111
+// reference: 9740E063F4A4562D, 6748BCB5543B09AE
+// reference: 78EBB36129874E59, 77A0DB8166D86465
+// reference: 0F8839B16A2E5C2B, 8A2D4FAFDA7E3C58
+// reference: 37948223965F2838, 446C9A37848848A2
+// reference: 0A45E4E643A974D4, 497BE594327A5545
+// reference: AD214FF8C92EF350, 893C87571BB0E183
+// reference: 0067DD778C2FD6D5, A0C611900101E00A
+// reference: B08B3E3FD574516A, 2095EA9A79BB6D2C
+// reference: B8434AFC75328FEB, 928B864E55FF86DF
+// reference: 861BF14BB732BFA0, FA7D8F537A9DCAD5
+// reference: 80E07088FE4CD579, BAE5D1D630A0E9E5
+// reference: E91E9331D1E6D337, D1F605AE9B7E7F5E
+// reference: 824A386DF1FBBE5F, B6B08DE01E86DE2D
+// reference: E4F7B2D0B91387FF, 012B7A10CA21EFD6
+// reference: ABE1439A523FAA1C, 67C4DBE4F973791A
+// reference: 36B4CD7F7FD47B6A, B7481A9B2593F5FD
+// reference: 9821903EB732BFA0, 8F59831167C81055
+// reference: 47E3068F013638F5, F1AA1E09410B6615
+// reference: 7DCC3B20C145CA36, 7974F3663498993D
+// reference: 11992A6F0F2B6A94, B35EFE43E319BB63
+// reference: 213F9093BE2CC472, 574DB760DE45354A
+// reference: B32097757C52DBFD, A0F0C2882011651B
+// reference: 21213524E96850A3, 7A16A957688DF1C2
+// reference: 2D5112B21FFCF145, 50500D9E79FB7E85
+// reference: 0D4BCDF8D43EC2B3, A3FEA7A43A2EBC9B
+// reference: 025A535DCB53C289, C4F04D618447549B
+// reference: 8AD7193549E0F511, CE863144767559A3
+// reference: AEF3D2F0D45BA536, 946784890402A637
+// reference: D4F4BEF9864F9AE1, 7974F3663498993D
+// reference: 10807477864F9AE1, 357EA601E8E997F2
+// reference: 934279EE1C3C2B25, FDA39D014AA51966
+// reference: 6198A39D29FF7FA9, 391569D14EA066DA
+// reference: A55C6948CCF76B42, 13A54CCD8AA1DDA2
+// reference: 5F0AA39FCDE9256C, C2071DB0F8F8BF8F
+// reference: 792EA99644908663, 713C8CEBEAF5CE16
+// reference: E44CA1B2E96850A3, 7A16A957688DF1C2
+// reference: 7730510F3EEE268F, 35C14D6210F58CCE
+// reference: 34894355FC6E05A2, C722245637F0F7EA
+// reference: 1391827794F4BFFE, 7ED0F9AF7E46944E
+// reference: B6933CA03DAFF2AF, A5C9901F3BBDC30D
+// reference: E006E3BAEC893F45, 567219828E7DAA7E
+// reference: 3C6D4AFA4E143FFF, B9FCE945291EA03B
+// reference: 3C8F6E7B8A98931C, E3CB8AD183C4F463
+// reference: D4F4BEF9D9BFE034, B9F0B9C1491F2BA4
+// reference: 1F78A6079678FE12, 082E3B90B3AC61B8
+// reference: E24631EC1FFCF145, FD912EEC90800055
+// reference: 1482AF1B058A8D4E, 8196A39E2E19886C
+// reference: 9BB606CBB26CD5C1, 54631D0B77D1741F
+// reference: D4F4BEF912EA917B, 7974F3663498993D
+// reference: FC74FA4ACA1C8C74, 0D30074279C2FEED
+// reference: 53DE24D79A9B5D85, 7974F3663498993D
+// reference: 43F9FFE265AEB16F, 639F8A006397724C
+// reference: 778A9810C2862184, 4C9CCF58A05B1C8F
+// reference: 11992A6F12EA917B, 7974F3663498993D
+// reference: 11992A6F864F9AE1, 7974F3663498993D
+// reference: 1F78A60766D02152, 2B730240EE2A8461
+// reference: D5A39F4654BFC8BF, C99361ED2AFCC13E
+// reference: 2E517FC4B1B88BC0, BB7F1F9D86EF8AA7
+// reference: 054EB0BF8D748F94, 6ECDF8131DC68157
+// reference: 5DAD5699F59B3586, 1C4CBC8096EA16CD
+// reference: 90066158E48CC4D4, 3900DAADB4BEFA86
+// reference: D4F4BEF91328FB4C, 7974F3663498993D
+// reference: DDCB461EDC523788, 59CA928BB42A7D63
+// reference: 51EA5334F6F44E0C, 420D60AE0B5B3996
+// reference: 409EC8FB15C6A5BA, 6D77912AA6228860
+// reference: C892FAE2B732BFA0, FA7D8F537A9DCAD5
+// reference: CE312E68D7B0A07F, 9A4719A519F0D3B1
+// reference: 59A685326DDC3DD8, 729D02AE54B59585
+// reference: A0D030541F0B8A8A, FB4F200E6A833907
+// reference: 6B9FFBE9B9B5DADF, 15F1B2BC3D18B4D3
+// reference: F0635A881F0B8A8A, D36C04ADD0F3EA19
+// reference: 3DBF427B255B1541, 420D60AE0B5B3996
+// reference: 6D98C2C476DC3F58, CBBC43C38774091B
+// reference: 7B07DA3E334A19B0, 219384019281D7FD
+// reference: 341790063E76288A, 0F0EE499A4856589
+// reference: C00D3B90639396AD, 8452F84059CCC666
+// reference: 2BE0918E15DB8BBF, C9440EF8F1468FF3
+// reference: 381FFC443161FF5F, 429105D76D21B489
+// reference: D4F4BEF90F2B6A94, B35EFE43E319BB63
+// reference: 5F6AADDB4F8046DB, 42FB300882861DE4
+// reference: 7D465C552D2441F4, AA8CB9DBC6BC5403
+// reference: 61F0F4F8E7C53B6D, 8B48F35DF8D74DDF
+// reference: 65FB8771464191AB, 1A24B2D6E71C1241
+// reference: 10807477E96850A3, 816FF9AC5FE0332A
+// reference: 6E53C8C72D2EC7F5, D4C96B63B8EA9971
+// reference: B7261CD43F2032A9, 26B080C3A27691A8
+// reference: D4F4BEF903F8A64D, 54969B8AD9EE39CE
+// reference: 0F8839B152228419, 8A2D4FAFDA7E3C58
+// reference: A6229052B602B1F9, B6B08DE01E86DE2D
+// reference: 0A2711236DDC3DD8, 35B054FE962D2AC7
+// reference: 785762C5497C438D, F1D5794402A3D3AC
+// reference: 77B68CE8DD625223, 7974F3663498993D
+// reference: 6307A4814E03B096, F6540B1749718C1F
+// reference: A4F017C6F31B0D4B, C6AA1A4A58ACF6F9
+// reference: 7B73E49D02092470, 8E58B89AC325D45F
+// reference: 19869DD48F9A79EC, 8AF0B29CD9F6EF6C
+// reference: 667B7B2502092470, C82E6381F78117E1
+// reference: 35FAEF3402092470, 8E58B89AC325D45F
+// reference: D36077257698F0F9, B51C3D7C34605BC6
+// reference: 12DC65407B3F7F20, B3F3925978E9A828
+// reference: 785762C517698253, C5D2409D6A10BFE5
+// reference: CF287070E96850A3, 7EEFB1DCDC4479A1
+// reference: D04052482AF58D7C, 3994F1926E4D24CE
+// reference: CFC2730FEAD3D619, E7C746960B5B3996
+// reference: 9249CF409A19B734, 79C10E219316E144
+// reference: 36039D85CA8925FF, F1D5794402A3D3AC
+// reference: 896F315385750974, 7C96EBECB346C618
+// reference: 64A157659A19B734, 79C10E219316E144
+// program: 79C10E219316E144, 0D30074279C2FEED, 60F649948F9DDB0F
+// program: 79C10E219316E144, 0D30074279C2FEED, 42FB300882861DE4
+// program: 79C10E219316E144, 0D30074279C2FEED, 7EEFB1DCDC4479A1
+// program: 79C10E219316E144, 0D30074279C2FEED, 761C5ACCCE29EBF2
+// program: 79C10E219316E144, 0D30074279C2FEED, FD912EEC90800055
+// program: 79C10E219316E144, 0D30074279C2FEED, C298B755F0C532F0
+// program: 79C10E219316E144, 0D30074279C2FEED, 1965180B0A253658
+// program: 79C10E219316E144, 0D30074279C2FEED, E74322B229543881
+// program: 79C10E219316E144, 0D30074279C2FEED, 0FC43FA7965D97A8
+// program: 79C10E219316E144, 0D30074279C2FEED, 537C8048600B0587
+// program: 79C10E219316E144, 0D30074279C2FEED, A6D58F0FB2B128DD
+// program: 79C10E219316E144, 0D30074279C2FEED, 9573D0022CBBC642
+// program: 79C10E219316E144, 0D30074279C2FEED, C9440EF8F1468FF3
+// program: 79C10E219316E144, 0D30074279C2FEED, 6DFF5822FB0F7FBA
+// program: 79C10E219316E144, 0D30074279C2FEED, A1DAB4CC63639AF5
+// program: 79C10E219316E144, 0D30074279C2FEED, ADF9D7C10F44CA33
+// program: 79C10E219316E144, 0D30074279C2FEED, 72F4BAF29D3FA90F
+// reference: 15D7A4B59B2B2298, 655FFD4060F406B6
+// program: 655FFD4060F406B6, 13A54CCD8AA1DDA2, B6B08DE01E86DE2D
+// program: 655FFD4060F406B6, 13A54CCD8AA1DDA2, 54631D0B77D1741F
+// reference: 2BC49DCEAA0789EF, FBDEFFFAE3D442C5
+// program: FBDEFFFAE3D442C5, 13A54CCD8AA1DDA2, B6B08DE01E86DE2D
+// program: 7C96EBECB346C618, 1C4CBC8096EA16CD, 4513080BBAB785A8
+// reference: F9C0C27214B8D4B4, FE9B9BDF3FAB9EFE
+// program: FE9B9BDF3FAB9EFE, 13A54CCD8AA1DDA2, B6B08DE01E86DE2D
+// reference: 9E14AD082AF58D7C, 3994F1926E4D24CE
+// program: 3994F1926E4D24CE, 13A54CCD8AA1DDA2, B6B08DE01E86DE2D
+// program: 655FFD4060F406B6, 13A54CCD8AA1DDA2, F4E927B588BED9B2
+// program: 7C96EBECB346C618, 1C4CBC8096EA16CD, A974D447DEF40206
+// program: 79C10E219316E144, 0D30074279C2FEED, 1A24B2D6E71C1241
+// program: 7C96EBECB346C618, 1C4CBC8096EA16CD, F437CC0DAF2ECC46
+// program: 7C96EBECB346C618, 1C4CBC8096EA16CD, 1BC182922368739F
+// shader: 8B30, E585B9B035D72382
+in vec4 primary_color;
+in vec2 texcoord0;
+in vec2 texcoord1;
+in vec2 texcoord2;
+in float texcoord0_w;
+in vec4 normquat;
+in vec3 view;
+
+#ifndef CITRA_GLES
+in vec4 gl_FragCoord;
+#endif // CITRA_GLES
+out vec4 color;
+
+uniform sampler2D tex0;
+uniform sampler2D tex1;
+uniform sampler2D tex2;
+uniform samplerCube tex_cube;
+uniform samplerBuffer texture_buffer_lut_lf;
+uniform samplerBuffer texture_buffer_lut_rg;
+uniform samplerBuffer texture_buffer_lut_rgba;
+
+#define NUM_TEV_STAGES 6
+layout (std140) uniform shader_data {
+    int alphatest_ref;
+    float depth_scale;
+    float depth_offset;
+    float shadow_bias_constant;
+    float shadow_bias_linear;
+    int scissor_x1;
+    int scissor_y1;
+    int scissor_x2;
+    int scissor_y2;
+    int fog_lut_offset;
+    int proctex_noise_lut_offset;
+    int proctex_color_map_offset;
+    int proctex_alpha_map_offset;
+    int proctex_lut_offset;
+    int proctex_diff_lut_offset;
+    float proctex_bias;
+    vec3 fog_color;
+    vec2 proctex_noise_f;
+    vec2 proctex_noise_a;
+    vec2 proctex_noise_p;
+    vec4 const_color[NUM_TEV_STAGES];
+    vec4 tev_combiner_buffer_color;
+    vec4 clip_coef;
+};
+
+#define NUM_LIGHTS 8
+#define NUM_LIGHTING_SAMPLERS 24
+struct LightSrc {
+    vec3 specular_0;
+    vec3 specular_1;
+    vec3 diffuse;
+    vec3 ambient;
+    vec3 position;
+    vec3 spot_direction;
+    float dist_atten_bias;
+    float dist_atten_scale;
+};
+layout (std140) uniform shader_light_data {
+    ivec4 lighting_lut_offset[NUM_LIGHTING_SAMPLERS / 4];
+    vec3 lighting_global_ambient;
+    LightSrc light_src[NUM_LIGHTS];
+    float lut_scale_d0;
+    float lut_scale_d1;
+    float lut_scale_sp;
+    float lut_scale_fr;
+    float lut_scale_rb;
+    float lut_scale_rg;
+    float lut_scale_rr;
+    int shadow_texture_bias;
+};
+
+// Rotate the vector v by the quaternion q
+vec3 quaternion_rotate(vec4 q, vec3 v) {
+    return v + 2.0 * cross(q.xyz, cross(q.xyz, v) + q.w * v);
+}
+
+float LookupLightingLUT(int lut_index, int index, float delta) {
+    vec2 entry = texelFetch(texture_buffer_lut_lf, lighting_lut_offset[lut_index >> 2][lut_index & 3] + index).rg;
+    return entry.r + entry.g * delta;
+}
+
+float LookupLightingLUTUnsigned(int lut_index, float pos) {
+    int index = clamp(int(pos * 256.0), 0, 255);
+    float delta = pos * 256.0 - float(index);
+    return LookupLightingLUT(lut_index, index, delta);
+}
+
+float LookupLightingLUTSigned(int lut_index, float pos) {
+    int index = clamp(int(pos * 128.0), -128, 127);
+    float delta = pos * 128.0 - float(index);
+    if (index < 0) index += 256;
+    return LookupLightingLUT(lut_index, index, delta);
+}
+
+float byteround(float x) {
+    return round(x * 255.0) * (1.0 / 255.0);
+}
+
+vec2 byteround(vec2 x) {
+    return round(x * 255.0) * (1.0 / 255.0);
+}
+
+vec3 byteround(vec3 x) {
+    return round(x * 255.0) * (1.0 / 255.0);
+}
+
+vec4 byteround(vec4 x) {
+    return round(x * 255.0) * (1.0 / 255.0);
+}
+
+float getLod(vec2 coord) {
+    vec2 d = max(abs(dFdx(coord)), abs(dFdy(coord)));
+    return log2(max(d.x, d.y));
+}
+
+vec4 shadowTexture(vec2 uv, float w) {
+    return vec4(1.0);
+}
+
+vec4 shadowTextureCube(vec2 uv, float w) {
+    return vec4(1.0);
+}
+
+void main() {
+vec4 rounded_primary_color = byteround(primary_color);
+vec4 primary_fragment_color = vec4(0.0);
+vec4 secondary_fragment_color = vec4(0.0);
+if (!(gl_FragCoord.x >= float(scissor_x1) && gl_FragCoord.y >= float(scissor_y1) && gl_FragCoord.x < float(scissor_x2) && gl_FragCoord.y < float(scissor_y2))) discard;
+float z_over_w = 2.0 * gl_FragCoord.z - 1.0;
+float depth = z_over_w * depth_scale + depth_offset;
+vec4 texcolor1 = textureLod(tex1, texcoord1, getLod(texcoord1 * vec2(textureSize(tex1, 0))));
+vec4 combiner_buffer = vec4(0.0);
+vec4 next_combiner_buffer = tev_combiner_buffer_color;
+vec4 last_tex_env_out = vec4(0.0);
+vec3 color_output_0 = (const_color[0].rgb);
+float alpha_output_0 = (const_color[0].a);
+last_tex_env_out = vec4(color_output_0, alpha_output_0);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
+combiner_buffer = next_combiner_buffer;
+next_combiner_buffer.rgb = last_tex_env_out.rgb;
+next_combiner_buffer.a = last_tex_env_out.a;
+
+vec3 color_output_1 = byteround(clamp((const_color[1].rgb) * (last_tex_env_out.rgb), vec3(0.0), vec3(1.0)));
+float alpha_output_1 = byteround(clamp((texcolor1.a) * (last_tex_env_out.a), 0.0, 1.0));
+last_tex_env_out = vec4(color_output_1, alpha_output_1);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
+combiner_buffer = next_combiner_buffer;
+
+combiner_buffer = next_combiner_buffer;
+
+vec3 color_output_3 = (const_color[3].rgb);
+float alpha_output_3 = (const_color[3].a);
+last_tex_env_out = vec4(color_output_3, alpha_output_3);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
+combiner_buffer = next_combiner_buffer;
+
+vec3 color_output_4 = byteround(clamp((const_color[4].rgb) * (combiner_buffer.rgb) + (last_tex_env_out.rgb) * (vec3(1.0) - (combiner_buffer.rgb)), vec3(0.0), vec3(1.0)));
+float alpha_output_4 = byteround(clamp((const_color[4].a) * (combiner_buffer.a) + (last_tex_env_out.a) * (1.0 - (combiner_buffer.a)), 0.0, 1.0));
+last_tex_env_out = vec4(color_output_4, alpha_output_4);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
+combiner_buffer = next_combiner_buffer;
+
+vec3 color_output_5 = byteround(clamp((rounded_primary_color.rgb) * (last_tex_env_out.rgb), vec3(0.0), vec3(1.0)));
+float alpha_output_5 = byteround(clamp((rounded_primary_color.a) * (last_tex_env_out.a), 0.0, 1.0));
+last_tex_env_out = vec4(color_output_5, alpha_output_5);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
+combiner_buffer = next_combiner_buffer;
+
+gl_FragDepth = depth;
+color = byteround(last_tex_env_out);
+}
+// reference: 9740E063ECCF5227, E585B9B035D72382
+// program: 7C96EBECB346C618, 1C4CBC8096EA16CD, E585B9B035D72382
+// shader: 8B30, 4F5A91F99EE556C6
+in vec4 primary_color;
+in vec2 texcoord0;
+in vec2 texcoord1;
+in vec2 texcoord2;
+in float texcoord0_w;
+in vec4 normquat;
+in vec3 view;
+
+#ifndef CITRA_GLES
+in vec4 gl_FragCoord;
+#endif // CITRA_GLES
+out vec4 color;
+
+uniform sampler2D tex0;
+uniform sampler2D tex1;
+uniform sampler2D tex2;
+uniform samplerCube tex_cube;
+uniform samplerBuffer texture_buffer_lut_lf;
+uniform samplerBuffer texture_buffer_lut_rg;
+uniform samplerBuffer texture_buffer_lut_rgba;
+
+#define NUM_TEV_STAGES 6
+layout (std140) uniform shader_data {
+    int alphatest_ref;
+    float depth_scale;
+    float depth_offset;
+    float shadow_bias_constant;
+    float shadow_bias_linear;
+    int scissor_x1;
+    int scissor_y1;
+    int scissor_x2;
+    int scissor_y2;
+    int fog_lut_offset;
+    int proctex_noise_lut_offset;
+    int proctex_color_map_offset;
+    int proctex_alpha_map_offset;
+    int proctex_lut_offset;
+    int proctex_diff_lut_offset;
+    float proctex_bias;
+    vec3 fog_color;
+    vec2 proctex_noise_f;
+    vec2 proctex_noise_a;
+    vec2 proctex_noise_p;
+    vec4 const_color[NUM_TEV_STAGES];
+    vec4 tev_combiner_buffer_color;
+    vec4 clip_coef;
+};
+
+#define NUM_LIGHTS 8
+#define NUM_LIGHTING_SAMPLERS 24
+struct LightSrc {
+    vec3 specular_0;
+    vec3 specular_1;
+    vec3 diffuse;
+    vec3 ambient;
+    vec3 position;
+    vec3 spot_direction;
+    float dist_atten_bias;
+    float dist_atten_scale;
+};
+layout (std140) uniform shader_light_data {
+    ivec4 lighting_lut_offset[NUM_LIGHTING_SAMPLERS / 4];
+    vec3 lighting_global_ambient;
+    LightSrc light_src[NUM_LIGHTS];
+    float lut_scale_d0;
+    float lut_scale_d1;
+    float lut_scale_sp;
+    float lut_scale_fr;
+    float lut_scale_rb;
+    float lut_scale_rg;
+    float lut_scale_rr;
+    int shadow_texture_bias;
+};
+
+// Rotate the vector v by the quaternion q
+vec3 quaternion_rotate(vec4 q, vec3 v) {
+    return v + 2.0 * cross(q.xyz, cross(q.xyz, v) + q.w * v);
+}
+
+float LookupLightingLUT(int lut_index, int index, float delta) {
+    vec2 entry = texelFetch(texture_buffer_lut_lf, lighting_lut_offset[lut_index >> 2][lut_index & 3] + index).rg;
+    return entry.r + entry.g * delta;
+}
+
+float LookupLightingLUTUnsigned(int lut_index, float pos) {
+    int index = clamp(int(pos * 256.0), 0, 255);
+    float delta = pos * 256.0 - float(index);
+    return LookupLightingLUT(lut_index, index, delta);
+}
+
+float LookupLightingLUTSigned(int lut_index, float pos) {
+    int index = clamp(int(pos * 128.0), -128, 127);
+    float delta = pos * 128.0 - float(index);
+    if (index < 0) index += 256;
+    return LookupLightingLUT(lut_index, index, delta);
+}
+
+float byteround(float x) {
+    return round(x * 255.0) * (1.0 / 255.0);
+}
+
+vec2 byteround(vec2 x) {
+    return round(x * 255.0) * (1.0 / 255.0);
+}
+
+vec3 byteround(vec3 x) {
+    return round(x * 255.0) * (1.0 / 255.0);
+}
+
+vec4 byteround(vec4 x) {
+    return round(x * 255.0) * (1.0 / 255.0);
+}
+
+float getLod(vec2 coord) {
+    vec2 d = max(abs(dFdx(coord)), abs(dFdy(coord)));
+    return log2(max(d.x, d.y));
+}
+
+vec4 shadowTexture(vec2 uv, float w) {
+    return vec4(1.0);
+}
+
+vec4 shadowTextureCube(vec2 uv, float w) {
+    return vec4(1.0);
+}
+
+void main() {
+vec4 rounded_primary_color = byteround(primary_color);
+vec4 primary_fragment_color = vec4(0.0);
+vec4 secondary_fragment_color = vec4(0.0);
+if (!(gl_FragCoord.x >= float(scissor_x1) && gl_FragCoord.y >= float(scissor_y1) && gl_FragCoord.x < float(scissor_x2) && gl_FragCoord.y < float(scissor_y2))) discard;
+float z_over_w = 2.0 * gl_FragCoord.z - 1.0;
+float depth = z_over_w * depth_scale + depth_offset;
+vec4 texcolor0 = textureLod(tex0, texcoord0, getLod(texcoord0 * vec2(textureSize(tex0, 0))));
+vec4 texcolor1 = textureLod(tex1, texcoord1, getLod(texcoord1 * vec2(textureSize(tex1, 0))));
+vec4 combiner_buffer = vec4(0.0);
+vec4 next_combiner_buffer = tev_combiner_buffer_color;
+vec4 last_tex_env_out = vec4(0.0);
+vec3 color_output_0 = byteround(clamp((texcolor0.aaa) - (const_color[0].rgb), vec3(0.0), vec3(1.0)));
+float alpha_output_0 = byteround(clamp((texcolor0.a) * (const_color[0].a) + (texcolor0.a), 0.0, 1.0));
+last_tex_env_out = vec4(color_output_0 * 2.0, alpha_output_0 * 2.0);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
+combiner_buffer = next_combiner_buffer;
+next_combiner_buffer.rgb = last_tex_env_out.rgb;
+next_combiner_buffer.a = last_tex_env_out.a;
+
+vec3 color_output_1 = byteround(clamp((const_color[1].rgb) * (last_tex_env_out.rgb), vec3(0.0), vec3(1.0)));
+float alpha_output_1 = byteround(clamp((texcolor1.a) * (last_tex_env_out.a), 0.0, 1.0));
+last_tex_env_out = vec4(color_output_1, alpha_output_1);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
+combiner_buffer = next_combiner_buffer;
+
+combiner_buffer = next_combiner_buffer;
+
+vec3 color_output_3 = (const_color[3].rgb);
+float alpha_output_3 = (const_color[3].a);
+last_tex_env_out = vec4(color_output_3, alpha_output_3);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
+combiner_buffer = next_combiner_buffer;
+
+vec3 color_output_4 = byteround(clamp((const_color[4].rgb) * (combiner_buffer.rgb) + (last_tex_env_out.rgb) * (vec3(1.0) - (combiner_buffer.rgb)), vec3(0.0), vec3(1.0)));
+float alpha_output_4 = byteround(clamp((const_color[4].a) * (combiner_buffer.a) + (last_tex_env_out.a) * (1.0 - (combiner_buffer.a)), 0.0, 1.0));
+last_tex_env_out = vec4(color_output_4, alpha_output_4);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
+combiner_buffer = next_combiner_buffer;
+
+vec3 color_output_5 = byteround(clamp((rounded_primary_color.rgb) * (last_tex_env_out.rgb), vec3(0.0), vec3(1.0)));
+float alpha_output_5 = byteround(clamp((rounded_primary_color.a) * (last_tex_env_out.a), 0.0, 1.0));
+last_tex_env_out = vec4(color_output_5, alpha_output_5);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
+combiner_buffer = next_combiner_buffer;
+
+gl_FragDepth = depth;
+color = byteround(last_tex_env_out);
+}
+// reference: 207D8AFC411A3D45, 4F5A91F99EE556C6
+// program: 7C96EBECB346C618, 1C4CBC8096EA16CD, 4F5A91F99EE556C6
+// program: FBDEFFFAE3D442C5, 13A54CCD8AA1DDA2, D8BE7B9C6361A9AC
+// program: FBDEFFFAE3D442C5, 13A54CCD8AA1DDA2, B6B08DE0C83FF4C8
+// program: 7C96EBECB346C618, 1C4CBC8096EA16CD, C2071DB0F8F8BF8F
+// program: 7C96EBECB346C618, 1C4CBC8096EA16CD, 0F59E48A4D658524
+// program: 7C96EBECB346C618, 1C4CBC8096EA16CD, 8452F84059CCC666
+// program: 7C96EBECB346C618, 1C4CBC8096EA16CD, 525C22BF2CE5B1A9
+// program: 7C96EBECB346C618, 1C4CBC8096EA16CD, 35C14D6210F58CCE
+// program: 79C10E219316E144, 0D30074279C2FEED, 48B3DB9DAC92C18A
+// program: 79C10E219316E144, 0D30074279C2FEED, 8DBD2C82619963E6
+// program: 79C10E219316E144, 0D30074279C2FEED, B6634D5A23D66FEF
+// reference: 5C1EACCA480019B3, 9C4924FA28F6423B
+// program: 9C4924FA28F6423B, 13A54CCD8AA1DDA2, 6F98706C77D1741F
+// program: 7C96EBECB346C618, 1C4CBC8096EA16CD, FECCDB075D3282D4
+// program: 79C10E219316E144, 0D30074279C2FEED, C74443EF652F1366
+// program: 79C10E219316E144, 0D30074279C2FEED, A1865452B700313E
+// program: 79C10E219316E144, 0D30074279C2FEED, E8D71939E4FA1F2C
+// program: 79C10E219316E144, 0D30074279C2FEED, 729D02AE54B59585
+// program: 79C10E219316E144, 0D30074279C2FEED, A0F0C2882011651B
+// program: 79C10E219316E144, 0D30074279C2FEED, 103CFA27C1E8EA1E
+// program: 79C10E219316E144, 0D30074279C2FEED, 8E58B89AC325D45F
+// program: 79C10E219316E144, 0D30074279C2FEED, 0CC9EF3980F95392
+// program: 79C10E219316E144, 0D30074279C2FEED, 0136A4EA06F279CE
+// program: 79C10E219316E144, 0D30074279C2FEED, 1A48563EE40699E2
+// program: 79C10E219316E144, 0D30074279C2FEED, 77A0DB8166D86465
+// program: 79C10E219316E144, 0D30074279C2FEED, 92936C14B8C77EDA
+// program: 79C10E219316E144, 0D30074279C2FEED, 0A440BA576EDECEC
+// program: 79C10E219316E144, 0D30074279C2FEED, B5ACA20C42608BC5
+// program: 79C10E219316E144, 0D30074279C2FEED, C61243900AD28655
+// program: 79C10E219316E144, 0D30074279C2FEED, 3B808385EFD3AB57
+// program: 79C10E219316E144, 0D30074279C2FEED, BA0490B5E1C5B26E
+// program: 79C10E219316E144, 0D30074279C2FEED, 91EA815521D593A0
+// program: 79C10E219316E144, 0D30074279C2FEED, 98E6FB16C30267A8
+// program: 7C96EBECB346C618, 1C4CBC8096EA16CD, 3CA0ADEC69CE92CD
+// program: 7C96EBECB346C618, 1C4CBC8096EA16CD, 82BE7E14B7C1C17D
+// program: FBDEFFFAE3D442C5, 13A54CCD8AA1DDA2, 6761979508970A07
+// program: 7C96EBECB346C618, 1C4CBC8096EA16CD, A9E72D24B6899D74
+// program: FBDEFFFAE3D442C5, 13A54CCD8AA1DDA2, F2B0D3B7D18D65E8
+// program: 9C4924FA28F6423B, 13A54CCD8AA1DDA2, F2B0D3B7D18D65E8
+// reference: AE521CFAEC893F45, 567219828E7DAA7E
+// program: 567219828E7DAA7E, 13A54CCD8AA1DDA2, F2B0D3B7D18D65E8
+// program: 7C96EBECB346C618, 1C4CBC8096EA16CD, 6748BCB5543B09AE
+// program: 655FFD4060F406B6, 13A54CCD8AA1DDA2, B6B08DE0C83FF4C8
+// program: 79C10E219316E144, 0D30074279C2FEED, D4C96B63B8EA9971
+// program: 79C10E219316E144, 0D30074279C2FEED, 6EDE5754383E29B3
+// program: 79C10E219316E144, 0D30074279C2FEED, 8BC373EE08A09FB8
+// program: 79C10E219316E144, 0D30074279C2FEED, 82226A670D2BE50E
+// program: 79C10E219316E144, 0D30074279C2FEED, 3167E46DF69CE3F5
+// reference: 017B59A184F25752, BAC745BE51A3D8C2
+// program: BAC745BE51A3D8C2, 13A54CCD8AA1DDA2, F2B0D3B7D18D65E8
+// reference: AE521CFA38DBD927, 6CDC9104D989A2C0
+// program: 6CDC9104D989A2C0, 13A54CCD8AA1DDA2, F2B0D3B7D18D65E8
+// reference: C6AF47F195D0D989, C5D2409D6A10BFE5
+// program: C5D2409D6A10BFE5, 219384019281D7FD, 9A4719A51884521E
+// program: FBDEFFFAE3D442C5, 13A54CCD8AA1DDA2, 54631D0B77D1741F
+// program: 655FFD4060F406B6, 13A54CCD8AA1DDA2, F2B0D3B7D18D65E8
+// program: 79C10E219316E144, 0D30074279C2FEED, B8089EFEB68C1951
+// program: 567219828E7DAA7E, 13A54CCD8AA1DDA2, 89438B8F29D3CF7E
+// program: 7C96EBECB346C618, 1C4CBC8096EA16CD, F857CCE39F03B03B
+// program: 79C10E219316E144, 0D30074279C2FEED, 12E8B0B647E3C392
+// program: 79C10E219316E144, 0D30074279C2FEED, B954E9FDBC1DC44B
+// program: 79C10E219316E144, 0D30074279C2FEED, A5C9901F3BBDC30D
+// program: 79C10E219316E144, 0D30074279C2FEED, 928B864E55FF86DF
+// program: 79C10E219316E144, 0D30074279C2FEED, E8EC477A24DC6BE3
+// program: 79C10E219316E144, 0D30074279C2FEED, 3E9E0F4925AF4C7A
+// program: 79C10E219316E144, 0D30074279C2FEED, C22CBA4576AE4630
+// program: 79C10E219316E144, 0D30074279C2FEED, FDA39D014AA51966
+// program: 567219828E7DAA7E, 13A54CCD8AA1DDA2, B6B08DE01E86DE2D
+// reference: 38430F892853A06C, F598ABCE1BF83FD5
+// program: F598ABCE1BF83FD5, 13A54CCD8AA1DDA2, F2B0D3B7D18D65E8
+// program: FBDEFFFAE3D442C5, 13A54CCD8AA1DDA2, C46882B10B5B3996
+// program: 655FFD4060F406B6, 13A54CCD8AA1DDA2, C46882B10B5B3996
+// program: FBDEFFFAE3D442C5, 13A54CCD8AA1DDA2, 6F98706C77D1741F
+// reference: 0995A72BC7729DC9, 0A631A5A7F9FE4BB
+// program: 0A631A5A7F9FE4BB, 13A54CCD8AA1DDA2, B6B08DE01E86DE2D
+// reference: A654AA398B73AB41, 3433516010C6BEA2
+// program: 3433516010C6BEA2, 13A54CCD8AA1DDA2, B6B08DE01E86DE2D
+// program: BAC745BE51A3D8C2, 13A54CCD8AA1DDA2, 54631D0B77D1741F
+// reference: 49AB51BE5BD85006, 0B95832CF652E6FD
+// program: 0B95832CF652E6FD, 13A54CCD8AA1DDA2, B6B08DE01E86DE2D
+// program: 79C10E219316E144, 0D30074279C2FEED, 20662BE770E7B409
+// program: 655FFD4060F406B6, 13A54CCD8AA1DDA2, EDA325017BA61D01
+// program: 79C10E219316E144, 0D30074279C2FEED, B3F3925978E9A828

@@ -85,6 +85,9 @@ const ConfigInfo<std::string> CIRCLE_PAD_X{{"Controls", "circle_pad_x"}, "code:0
 const ConfigInfo<std::string> CIRCLE_PAD_Y{{"Controls", "circle_pad_y"}, "code:1"};
 const ConfigInfo<std::string> C_STICK_X{{"Controls", "c_stick_x"}, "code:11"};
 const ConfigInfo<std::string> C_STICK_Y{{"Controls", "c_stick_y"}, "code:14"};
+const ConfigInfo<std::string> COMBO_KEY_0{{"Controls", "combo_key_0"}, ""};
+const ConfigInfo<std::string> COMBO_KEY_1{{"Controls", "combo_key_1"}, ""};
+const ConfigInfo<std::string> COMBO_KEY_2{{"Controls", "combo_key_2"}, ""};
 
 // custom layout
 const ConfigInfo<bool> USE_CUSTOM_LAYOUT{{"Layout", "custom_layout"}, false};

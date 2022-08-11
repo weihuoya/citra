@@ -27489,3 +27489,2661 @@ color = byteround(last_tex_env_out);
 }
 // reference: 63EA116FF2FDCC91, AA4CC2204A1915B5
 // program: 270E94B55796EDB7, B99A1F5927E7BF45, AA4CC2204A1915B5
+// reference: E07DBC51294BAAD9, 77C3EE176B2D5FFB
+// reference: DABAE56B18D2F6D1, 821B2E6F196E4B62
+// reference: 8972D72140453EB9, 75C7F5FD26A5FF54
+// shader: 8DD9, 0920F64BD0BE6DC7
+
+#define mul_s(x, y) (x * y)
+#define fma_s(x, y, z) fma(x, y, z)
+#define rcp_s(x) (1.0 / x)
+#define rsq_s(x) inversesqrt(x)
+#define dot_s(x, y) dot(x, y)
+#define dot_3(x, y) dot(x, y)
+layout(points) in;
+layout(triangle_strip, max_vertices = 30) out;
+out vec4 primary_color;
+out vec2 texcoord0;
+out vec2 texcoord1;
+out vec2 texcoord2;
+out float texcoord0_w;
+out vec4 normquat;
+out vec3 view;
+
+#define NUM_TEV_STAGES 6
+layout (std140) uniform shader_data {
+    int alphatest_ref;
+    float depth_scale;
+    float depth_offset;
+    float shadow_bias_constant;
+    float shadow_bias_linear;
+    int scissor_x1;
+    int scissor_y1;
+    int scissor_x2;
+    int scissor_y2;
+    int fog_lut_offset;
+    int proctex_noise_lut_offset;
+    int proctex_color_map_offset;
+    int proctex_alpha_map_offset;
+    int proctex_lut_offset;
+    int proctex_diff_lut_offset;
+    float proctex_bias;
+    vec3 fog_color;
+    vec2 proctex_noise_f;
+    vec2 proctex_noise_a;
+    vec2 proctex_noise_p;
+    vec4 const_color[NUM_TEV_STAGES];
+    vec4 tev_combiner_buffer_color;
+    vec4 clip_coef;
+};
+
+in vec4 vs_out_attr0[];
+in vec4 vs_out_attr1[];
+in vec4 vs_out_attr2[];
+in vec4 vs_out_attr3[];
+in vec4 vs_out_attr4[];
+in vec4 vs_out_attr5[];
+in vec4 vs_out_attr6[];
+in vec4 vs_out_attr7[];
+
+struct pica_uniforms {
+    bool b[16];
+    uvec4 i[4];
+    vec4 f[96];
+};
+
+bool exec_shader();
+
+#define uniforms gs_uniforms
+layout (std140) uniform gs_config {
+    pica_uniforms uniforms;
+};
+struct Vertex {
+    vec4 attributes[4];
+};
+
+vec4 GetVertexQuaternion(Vertex vtx) {
+    return vec4(0.0, 0.0, 0.0, 0.0);
+}
+
+void EmitVtx(Vertex vtx, bool quats_opposite) {
+    vec4 vtx_pos = vec4(vtx.attributes[0].x, vtx.attributes[0].y, vtx.attributes[0].z, vtx.attributes[0].w);
+    gl_Position = vtx_pos;
+#if !defined(CITRA_GLES) || defined(GL_EXT_clip_cull_distance)
+    gl_ClipDistance[0] = -vtx_pos.z;
+    gl_ClipDistance[1] = dot(clip_coef, vtx_pos);
+#endif // !defined(CITRA_GLES) || defined(GL_EXT_clip_cull_distance)
+
+    vec4 vtx_quat = GetVertexQuaternion(vtx);
+    normquat = mix(vtx_quat, -vtx_quat, bvec4(quats_opposite));
+
+    vec4 vtx_color = vec4(vtx.attributes[1].x, vtx.attributes[1].y, vtx.attributes[1].z, vtx.attributes[1].w);
+    primary_color = min(abs(vtx_color), vec4(1.0));
+
+    texcoord0 = vec2(vtx.attributes[2].x, vtx.attributes[2].y);
+    texcoord1 = vec2(vtx.attributes[2].z, vtx.attributes[2].w);
+
+    texcoord0_w = 0.0;
+    view = vec3(0.0, 0.0, 0.0);
+    texcoord2 = vec2(vtx.attributes[3].x, vtx.attributes[3].y);
+
+    EmitVertex();
+}
+
+bool AreQuaternionsOpposite(vec4 qa, vec4 qb) {
+    return (dot(qa, qb) < 0.0);
+}
+
+void EmitPrim(Vertex vtx0, Vertex vtx1, Vertex vtx2) {
+    EmitVtx(vtx0, false);
+    EmitVtx(vtx1, AreQuaternionsOpposite(GetVertexQuaternion(vtx0), GetVertexQuaternion(vtx1)));
+    EmitVtx(vtx2, AreQuaternionsOpposite(GetVertexQuaternion(vtx0), GetVertexQuaternion(vtx2)));
+    EndPrimitive();
+}
+
+Vertex output_buffer;
+Vertex prim_buffer[3];
+uint vertex_id = 0u;
+bool prim_emit = false;
+bool winding = false;
+void setemit(uint vertex_id_, bool prim_emit_, bool winding_);
+void emit();
+void main() {
+    output_buffer.attributes[0] = vec4(0.0, 0.0, 0.0, 1.0);
+    output_buffer.attributes[1] = vec4(0.0, 0.0, 0.0, 1.0);
+    output_buffer.attributes[2] = vec4(0.0, 0.0, 0.0, 1.0);
+    output_buffer.attributes[3] = vec4(0.0, 0.0, 0.0, 1.0);
+    exec_shader();
+}
+
+void setemit(uint vertex_id_, bool prim_emit_, bool winding_) {
+    vertex_id = vertex_id_;
+    prim_emit = prim_emit_;
+    winding = winding_;
+}
+void emit() {
+    prim_buffer[vertex_id] = output_buffer;
+    if (prim_emit) {
+        if (winding) {
+            EmitPrim(prim_buffer[1], prim_buffer[0], prim_buffer[2]);
+            winding = false;
+        } else {
+            EmitPrim(prim_buffer[0], prim_buffer[1], prim_buffer[2]);
+        }
+    }
+}
+bvec2 conditional_code = bvec2(false);
+ivec3 address_registers = ivec3(0);
+vec4 reg_tmp0 = vec4(0.0, 0.0, 0.0, 1.0);
+vec4 reg_tmp1 = vec4(0.0, 0.0, 0.0, 1.0);
+vec4 reg_tmp2 = vec4(0.0, 0.0, 0.0, 1.0);
+vec4 reg_tmp3 = vec4(0.0, 0.0, 0.0, 1.0);
+vec4 reg_tmp4 = vec4(0.0, 0.0, 0.0, 1.0);
+vec4 reg_tmp5 = vec4(0.0, 0.0, 0.0, 1.0);
+vec4 reg_tmp6 = vec4(0.0, 0.0, 0.0, 1.0);
+vec4 reg_tmp7 = vec4(0.0, 0.0, 0.0, 1.0);
+vec4 reg_tmp8 = vec4(0.0, 0.0, 0.0, 1.0);
+vec4 reg_tmp9 = vec4(0.0, 0.0, 0.0, 1.0);
+vec4 reg_tmp10 = vec4(0.0, 0.0, 0.0, 1.0);
+vec4 reg_tmp11 = vec4(0.0, 0.0, 0.0, 1.0);
+vec4 reg_tmp12 = vec4(0.0, 0.0, 0.0, 1.0);
+vec4 reg_tmp13 = vec4(0.0, 0.0, 0.0, 1.0);
+vec4 reg_tmp14 = vec4(0.0, 0.0, 0.0, 1.0);
+vec4 reg_tmp15 = vec4(0.0, 0.0, 0.0, 1.0);
+
+bool sub_0();
+
+bool exec_shader() {
+    sub_0();
+    return true;
+}
+
+bool sub_0() {
+    reg_tmp0.xy = (vs_out_attr0[0].xyyy).xy;
+    reg_tmp2.xy = (vs_out_attr1[0].zwzw).xy;
+    output_buffer.attributes[1] = vs_out_attr4[0];
+    output_buffer.attributes[2].xy = (vs_out_attr2[0].xyyy).xy;
+    output_buffer.attributes[2].zw = (vs_out_attr2[0].xyxy).zw;
+    output_buffer.attributes[3].xy = (reg_tmp2.xyyy).xy;
+    output_buffer.attributes[0].xy = (reg_tmp0.xyyy).xy;
+    output_buffer.attributes[0].zw = (uniforms.f[90].wzwz).zw;
+    setemit(0u, false, false);
+    emit();
+    reg_tmp0.zw = (reg_tmp0.xyxy + vs_out_attr0[0].zwzw).zw;
+    output_buffer.attributes[1] = vs_out_attr5[0];
+    output_buffer.attributes[2].xy = (vs_out_attr2[0].zwww).xy;
+    output_buffer.attributes[2].zw = (vs_out_attr2[0].zwzw).zw;
+    output_buffer.attributes[3].xy = (reg_tmp2.xyyy).xy;
+    output_buffer.attributes[0].xy = (reg_tmp0.zwww).xy;
+    output_buffer.attributes[0].zw = (uniforms.f[90].wzwz).zw;
+    setemit(1u, false, false);
+    emit();
+    reg_tmp1.xy = (reg_tmp0.xyyy + vs_out_attr1[0].xyyy).xy;
+    output_buffer.attributes[1] = vs_out_attr6[0];
+    output_buffer.attributes[2].xy = (vs_out_attr3[0].xyyy).xy;
+    output_buffer.attributes[2].zw = (vs_out_attr3[0].xyxy).zw;
+    output_buffer.attributes[3].xy = (reg_tmp2.xyyy).xy;
+    output_buffer.attributes[0].xy = (reg_tmp1.xyyy).xy;
+    output_buffer.attributes[0].zw = (uniforms.f[90].wzwz).zw;
+    setemit(2u, true, false);
+    emit();
+    reg_tmp1.zw = (reg_tmp0.zwzw + vs_out_attr1[0].xyxy).zw;
+    output_buffer.attributes[1] = vs_out_attr7[0];
+    output_buffer.attributes[2].xy = (vs_out_attr3[0].zwww).xy;
+    output_buffer.attributes[2].zw = (vs_out_attr3[0].zwzw).zw;
+    output_buffer.attributes[3].xy = (reg_tmp2.xyyy).xy;
+    output_buffer.attributes[0].xy = (reg_tmp1.zwww).xy;
+    output_buffer.attributes[0].zw = (uniforms.f[90].wzwz).zw;
+    setemit(0u, true, true);
+    emit();
+    return true;
+}
+// reference: B4829227806BC5BD, 0920F64BD0BE6DC7
+// shader: 8B31, 0EFEBBE6E05F1C87
+
+#define mul_s(x, y) (x * y)
+#define fma_s(x, y, z) fma(x, y, z)
+#define rcp_s(x) (1.0 / x)
+#define rsq_s(x) inversesqrt(x)
+#define dot_s(x, y) dot(x, y)
+#define dot_3(x, y) dot(x, y)
+
+struct pica_uniforms {
+    bool b[16];
+    uvec4 i[4];
+    vec4 f[96];
+};
+
+bool exec_shader();
+
+#define uniforms vs_uniforms
+layout (std140) uniform vs_config {
+    pica_uniforms uniforms;
+};
+layout(location = 0) in vec4 vs_in_reg0;
+layout(location = 1) in vec4 vs_in_reg1;
+layout(location = 2) in vec4 vs_in_reg2;
+layout(location = 3) in vec4 vs_in_reg3;
+layout(location = 4) in vec4 vs_in_reg4;
+layout(location = 5) in vec4 vs_in_reg5;
+layout(location = 6) in vec4 vs_in_reg6;
+layout(location = 7) in vec4 vs_in_reg7;
+
+out vec4 vs_out_attr0;
+out vec4 vs_out_attr1;
+out vec4 vs_out_attr2;
+out vec4 vs_out_attr3;
+out vec4 vs_out_attr4;
+out vec4 vs_out_attr5;
+out vec4 vs_out_attr6;
+out vec4 vs_out_attr7;
+
+void main() {
+    vs_out_attr0 = vec4(0.0, 0.0, 0.0, 1.0);
+    vs_out_attr1 = vec4(0.0, 0.0, 0.0, 1.0);
+    vs_out_attr2 = vec4(0.0, 0.0, 0.0, 1.0);
+    vs_out_attr3 = vec4(0.0, 0.0, 0.0, 1.0);
+    vs_out_attr4 = vec4(0.0, 0.0, 0.0, 1.0);
+    vs_out_attr5 = vec4(0.0, 0.0, 0.0, 1.0);
+    vs_out_attr6 = vec4(0.0, 0.0, 0.0, 1.0);
+    vs_out_attr7 = vec4(0.0, 0.0, 0.0, 1.0);
+    exec_shader();
+}
+bvec2 conditional_code = bvec2(false);
+ivec3 address_registers = ivec3(0);
+vec4 reg_tmp0 = vec4(0.0, 0.0, 0.0, 1.0);
+vec4 reg_tmp1 = vec4(0.0, 0.0, 0.0, 1.0);
+vec4 reg_tmp2 = vec4(0.0, 0.0, 0.0, 1.0);
+vec4 reg_tmp3 = vec4(0.0, 0.0, 0.0, 1.0);
+vec4 reg_tmp4 = vec4(0.0, 0.0, 0.0, 1.0);
+vec4 reg_tmp5 = vec4(0.0, 0.0, 0.0, 1.0);
+vec4 reg_tmp6 = vec4(0.0, 0.0, 0.0, 1.0);
+vec4 reg_tmp7 = vec4(0.0, 0.0, 0.0, 1.0);
+vec4 reg_tmp8 = vec4(0.0, 0.0, 0.0, 1.0);
+vec4 reg_tmp9 = vec4(0.0, 0.0, 0.0, 1.0);
+vec4 reg_tmp10 = vec4(0.0, 0.0, 0.0, 1.0);
+vec4 reg_tmp11 = vec4(0.0, 0.0, 0.0, 1.0);
+vec4 reg_tmp12 = vec4(0.0, 0.0, 0.0, 1.0);
+vec4 reg_tmp13 = vec4(0.0, 0.0, 0.0, 1.0);
+vec4 reg_tmp14 = vec4(0.0, 0.0, 0.0, 1.0);
+vec4 reg_tmp15 = vec4(0.0, 0.0, 0.0, 1.0);
+
+bool sub_0();
+bool sub_1();
+bool sub_2();
+bool sub_3();
+bool sub_4();
+bool sub_5();
+bool sub_6();
+bool sub_7();
+
+bool exec_shader() {
+    sub_0();
+    return true;
+}
+
+bool sub_0() {
+    reg_tmp0.xy = (-vs_in_reg1.xyyy).xy;
+    reg_tmp0.zw = (uniforms.f[90].wzwz).zw;
+    reg_tmp1.x = (-vs_in_reg1.xxxx).x;
+    reg_tmp1.y = (-vs_in_reg1.wwww).y;
+    reg_tmp1.zw = (uniforms.f[90].wzwz).zw;
+    reg_tmp2.x = (-vs_in_reg1.zzzz).x;
+    reg_tmp2.y = (-vs_in_reg1.yyyy).y;
+    reg_tmp2.zw = (uniforms.f[90].wzwz).zw;
+    reg_tmp4.z = (vs_in_reg0.zzzz).z;
+    reg_tmp5.xy = (vs_in_reg7.zwww).xy;
+    reg_tmp5.z = (uniforms.f[90].wwww).z;
+    reg_tmp5.w = (vs_in_reg0.xxxx).w;
+    reg_tmp6.x = (-vs_in_reg7.wwww).x;
+    reg_tmp6.y = (vs_in_reg7.zzzz).y;
+    reg_tmp6.z = (uniforms.f[90].wwww).z;
+    reg_tmp6.w = (vs_in_reg0.yyyy).w;
+    reg_tmp7.x = dot_s(reg_tmp0, reg_tmp5);
+    reg_tmp7.y = dot_s(reg_tmp0, reg_tmp6);
+    reg_tmp7.z = dot_s(reg_tmp1, reg_tmp5);
+    reg_tmp7.w = dot_s(reg_tmp1, reg_tmp6);
+    reg_tmp8.x = dot_s(reg_tmp2, reg_tmp5);
+    reg_tmp8.y = dot_s(reg_tmp2, reg_tmp6);
+    reg_tmp10 = mul_s(uniforms.f[91].wwwz, vs_in_reg2);
+    reg_tmp11 = mul_s(uniforms.f[91].wwwz, vs_in_reg3);
+    reg_tmp12 = mul_s(uniforms.f[91].wwwz, vs_in_reg4);
+    reg_tmp13 = mul_s(uniforms.f[91].wwwz, vs_in_reg5);
+    reg_tmp4.x = (vs_in_reg0.wwww).x;
+    reg_tmp0.xy = (reg_tmp7.xyyy).xy;
+    reg_tmp1.xy = (reg_tmp7.zwww).xy;
+    reg_tmp2.xy = (reg_tmp8.xyyy).xy;
+    if (uniforms.b[0]) {
+        sub_1();
+    }
+    reg_tmp4.z = (uniforms.f[21].yyyy + reg_tmp4.zzzz).z;
+    reg_tmp0.xy = (uniforms.f[21].wzzz + reg_tmp0.xyyy).xy;
+    reg_tmp1.xy = (uniforms.f[21].wzzz + reg_tmp1.xyyy).xy;
+    reg_tmp2.xy = (uniforms.f[21].wzzz + reg_tmp2.xyyy).xy;
+    reg_tmp10 = mul_s(uniforms.f[22].wzyx, reg_tmp10);
+    reg_tmp11 = mul_s(uniforms.f[22].wzyx, reg_tmp11);
+    reg_tmp12 = mul_s(uniforms.f[22].wzyx, reg_tmp12);
+    reg_tmp13 = mul_s(uniforms.f[22].wzyx, reg_tmp13);
+    reg_tmp15.y = (uniforms.f[90].wwww).y;
+    reg_tmp15.x = (mul_s(uniforms.f[90].yyyy, reg_tmp4.xxxx)).x;
+    if (uniforms.b[4]) {
+        sub_5();
+    }
+    reg_tmp6 = vs_in_reg6.zwww;
+    reg_tmp7 = vs_in_reg7.xyyy;
+    reg_tmp4.xy = (vs_in_reg6.xyyy).xy;
+    reg_tmp8 = reg_tmp6 + reg_tmp7;
+    reg_tmp5.xy = (vs_in_reg6.xyyy + reg_tmp7.xyyy).xy;
+    reg_tmp4.zw = (vs_in_reg6.xyxy + reg_tmp6.xyxy).zw;
+    reg_tmp5.zw = (vs_in_reg6.xyxy + reg_tmp8.xyxy).zw;
+    reg_tmp6.x = dot_s(uniforms.f[24].wzyx, reg_tmp0.yxzw);
+    reg_tmp6.y = dot_s(uniforms.f[25].wzyx, reg_tmp0.yxzw);
+    reg_tmp7.x = dot_s(uniforms.f[24].wzyx, reg_tmp2.yxzw);
+    reg_tmp7.y = dot_s(uniforms.f[25].wzyx, reg_tmp2.yxzw);
+    reg_tmp8.x = dot_s(uniforms.f[24].wzyx, reg_tmp1.yxzw);
+    reg_tmp8.y = dot_s(uniforms.f[25].wzyx, reg_tmp1.yxzw);
+    reg_tmp4.yw = (uniforms.f[90].zzzz + -reg_tmp4.yyww).yw;
+    reg_tmp5.yw = (uniforms.f[90].zzzz + -reg_tmp5.yyww).yw;
+    vs_out_attr4 = reg_tmp10;
+    vs_out_attr5 = reg_tmp11;
+    vs_out_attr6 = reg_tmp12;
+    vs_out_attr7 = reg_tmp13;
+    vs_out_attr2 = reg_tmp4;
+    vs_out_attr3 = reg_tmp5;
+    vs_out_attr0.xy = (reg_tmp6.xyyy).xy;
+    vs_out_attr0.zw = (reg_tmp7.xyxy + -reg_tmp6.xyxy).zw;
+    vs_out_attr1.xy = (reg_tmp8.xyyy + -reg_tmp6.xyxy).xy;
+    vs_out_attr1.zw = (reg_tmp15.xyxy).zw;
+    return true;
+}
+bool sub_1() {
+    if (uniforms.b[1]) {
+        sub_2();
+    }
+    reg_tmp7.x = dot_s(uniforms.f[17].wzyx, reg_tmp0);
+    reg_tmp7.y = dot_s(uniforms.f[18].wzyx, reg_tmp0);
+    reg_tmp7.z = dot_s(uniforms.f[17].wzyx, reg_tmp1);
+    reg_tmp7.w = dot_s(uniforms.f[18].wzyx, reg_tmp1);
+    reg_tmp8.x = dot_s(uniforms.f[17].wzyx, reg_tmp2);
+    reg_tmp8.y = dot_s(uniforms.f[18].wzyx, reg_tmp2);
+    reg_tmp4.x = (mul_s(uniforms.f[19].wwww, reg_tmp4.xxxx)).x;
+    reg_tmp4.z = (uniforms.f[19].yyyy + reg_tmp4.zzzz).z;
+    reg_tmp10 = mul_s(uniforms.f[20].wzyx, reg_tmp10);
+    reg_tmp11 = mul_s(uniforms.f[20].wzyx, reg_tmp11);
+    reg_tmp12 = mul_s(uniforms.f[20].wzyx, reg_tmp12);
+    reg_tmp13 = mul_s(uniforms.f[20].wzyx, reg_tmp13);
+    reg_tmp0.xy = (reg_tmp7.xyyy).xy;
+    reg_tmp1.xy = (reg_tmp7.zwww).xy;
+    reg_tmp2.xy = (reg_tmp8.xyyy).xy;
+    return false;
+}
+bool sub_2() {
+    if (uniforms.b[2]) {
+        sub_3();
+    }
+    reg_tmp7.x = dot_s(uniforms.f[13].wzyx, reg_tmp0);
+    reg_tmp7.y = dot_s(uniforms.f[14].wzyx, reg_tmp0);
+    reg_tmp7.z = dot_s(uniforms.f[13].wzyx, reg_tmp1);
+    reg_tmp7.w = dot_s(uniforms.f[14].wzyx, reg_tmp1);
+    reg_tmp8.x = dot_s(uniforms.f[13].wzyx, reg_tmp2);
+    reg_tmp8.y = dot_s(uniforms.f[14].wzyx, reg_tmp2);
+    reg_tmp4.x = (mul_s(uniforms.f[15].wwww, reg_tmp4.xxxx)).x;
+    reg_tmp4.z = (uniforms.f[15].yyyy + reg_tmp4.zzzz).z;
+    reg_tmp10 = mul_s(uniforms.f[16].wzyx, reg_tmp10);
+    reg_tmp11 = mul_s(uniforms.f[16].wzyx, reg_tmp11);
+    reg_tmp12 = mul_s(uniforms.f[16].wzyx, reg_tmp12);
+    reg_tmp13 = mul_s(uniforms.f[16].wzyx, reg_tmp13);
+    reg_tmp0.xy = (reg_tmp7.xyyy).xy;
+    reg_tmp1.xy = (reg_tmp7.zwww).xy;
+    reg_tmp2.xy = (reg_tmp8.xyyy).xy;
+    return false;
+}
+bool sub_3() {
+    if (uniforms.b[3]) {
+        sub_4();
+    }
+    reg_tmp7.x = dot_s(uniforms.f[9].wzyx, reg_tmp0);
+    reg_tmp7.y = dot_s(uniforms.f[10].wzyx, reg_tmp0);
+    reg_tmp7.z = dot_s(uniforms.f[9].wzyx, reg_tmp1);
+    reg_tmp7.w = dot_s(uniforms.f[10].wzyx, reg_tmp1);
+    reg_tmp8.x = dot_s(uniforms.f[9].wzyx, reg_tmp2);
+    reg_tmp8.y = dot_s(uniforms.f[10].wzyx, reg_tmp2);
+    reg_tmp4.x = (mul_s(uniforms.f[11].wwww, reg_tmp4.xxxx)).x;
+    reg_tmp4.z = (uniforms.f[11].yyyy + reg_tmp4.zzzz).z;
+    reg_tmp10 = mul_s(uniforms.f[12].wzyx, reg_tmp10);
+    reg_tmp11 = mul_s(uniforms.f[12].wzyx, reg_tmp11);
+    reg_tmp12 = mul_s(uniforms.f[12].wzyx, reg_tmp12);
+    reg_tmp13 = mul_s(uniforms.f[12].wzyx, reg_tmp13);
+    reg_tmp0.xy = (reg_tmp7.xyyy).xy;
+    reg_tmp1.xy = (reg_tmp7.zwww).xy;
+    reg_tmp2.xy = (reg_tmp8.xyyy).xy;
+    return false;
+}
+bool sub_4() {
+    reg_tmp7.x = dot_s(uniforms.f[5].wzyx, reg_tmp0);
+    reg_tmp7.y = dot_s(uniforms.f[6].wzyx, reg_tmp0);
+    reg_tmp7.z = dot_s(uniforms.f[5].wzyx, reg_tmp1);
+    reg_tmp7.w = dot_s(uniforms.f[6].wzyx, reg_tmp1);
+    reg_tmp8.x = dot_s(uniforms.f[5].wzyx, reg_tmp2);
+    reg_tmp8.y = dot_s(uniforms.f[6].wzyx, reg_tmp2);
+    reg_tmp4.x = (mul_s(uniforms.f[7].wwww, reg_tmp4.xxxx)).x;
+    reg_tmp4.z = (uniforms.f[7].yyyy + reg_tmp4.zzzz).z;
+    reg_tmp10 = mul_s(uniforms.f[8].wzyx, reg_tmp10);
+    reg_tmp11 = mul_s(uniforms.f[8].wzyx, reg_tmp11);
+    reg_tmp12 = mul_s(uniforms.f[8].wzyx, reg_tmp12);
+    reg_tmp13 = mul_s(uniforms.f[8].wzyx, reg_tmp13);
+    reg_tmp0.xy = (reg_tmp7.xyyy).xy;
+    reg_tmp1.xy = (reg_tmp7.zwww).xy;
+    reg_tmp2.xy = (reg_tmp8.xyyy).xy;
+    return false;
+}
+bool sub_5() {
+    reg_tmp4.y = (mul_s(uniforms.f[23].wwww, reg_tmp4.zzzz)).y;
+    reg_tmp4.w = (uniforms.f[4].wzyx).w;
+    conditional_code = lessThanEqual(uniforms.f[90].ww, reg_tmp4.ww);
+    if (conditional_code.x) {
+        sub_6();
+    } else {
+        sub_7();
+    }
+    return false;
+}
+bool sub_6() {
+    reg_tmp0.x = (reg_tmp0.xxxx + reg_tmp4.yyyy).x;
+    reg_tmp1.x = (reg_tmp1.xxxx + reg_tmp4.yyyy).x;
+    reg_tmp2.x = (reg_tmp2.xxxx + reg_tmp4.yyyy).x;
+    return false;
+}
+bool sub_7() {
+    reg_tmp0.x = (reg_tmp0.xxxx + -reg_tmp4.yyyy).x;
+    reg_tmp1.x = (reg_tmp1.xxxx + -reg_tmp4.yyyy).x;
+    reg_tmp2.x = (reg_tmp2.xxxx + -reg_tmp4.yyyy).x;
+    return false;
+}
+// reference: 770225E374137338, 0EFEBBE6E05F1C87
+// program: 0EFEBBE6E05F1C87, 0920F64BD0BE6DC7, 5E65ED330DD86C52
+// reference: FFD94EEE17C4AB90, 3AB14680080BE202
+// program: 0EFEBBE6E05F1C87, 0920F64BD0BE6DC7, 6D01EE845EDC7252
+// reference: 80D0425FBCFCBF76, F910B80DE3D8A6F4
+// reference: FEB574DB55FF2CAC, 79B4E5D7AC154F19
+// reference: E48CD0A4ACA459CD, 618378764C54D2BC
+// reference: 3232E311FC98E414, B7CC05B4C0A6559A
+// reference: 8A2DA5208889CBBC, 22186AF454C341E4
+// reference: 0515C1CC64C6047E, 270E94B55796EDB7
+// reference: D07428F494C33EF2, 62717CCBAEE1596E
+// reference: 8C55E46D30EE6011, 2A2E1A8AA22599BA
+// shader: 8DD9, DDD543B7EFD7D3AC
+
+#define mul_s(x, y) (x * y)
+#define fma_s(x, y, z) fma(x, y, z)
+#define rcp_s(x) (1.0 / x)
+#define rsq_s(x) inversesqrt(x)
+#define dot_s(x, y) dot(x, y)
+#define dot_3(x, y) dot(x, y)
+layout(points) in;
+layout(triangle_strip, max_vertices = 30) out;
+out vec4 primary_color;
+out vec2 texcoord0;
+out vec2 texcoord1;
+out vec2 texcoord2;
+out float texcoord0_w;
+out vec4 normquat;
+out vec3 view;
+
+#define NUM_TEV_STAGES 6
+layout (std140) uniform shader_data {
+    int alphatest_ref;
+    float depth_scale;
+    float depth_offset;
+    float shadow_bias_constant;
+    float shadow_bias_linear;
+    int scissor_x1;
+    int scissor_y1;
+    int scissor_x2;
+    int scissor_y2;
+    int fog_lut_offset;
+    int proctex_noise_lut_offset;
+    int proctex_color_map_offset;
+    int proctex_alpha_map_offset;
+    int proctex_lut_offset;
+    int proctex_diff_lut_offset;
+    float proctex_bias;
+    vec3 fog_color;
+    vec2 proctex_noise_f;
+    vec2 proctex_noise_a;
+    vec2 proctex_noise_p;
+    vec4 const_color[NUM_TEV_STAGES];
+    vec4 tev_combiner_buffer_color;
+    vec4 clip_coef;
+};
+
+in vec4 vs_out_attr0[];
+in vec4 vs_out_attr1[];
+in vec4 vs_out_attr2[];
+in vec4 vs_out_attr3[];
+in vec4 vs_out_attr4[];
+in vec4 vs_out_attr5[];
+in vec4 vs_out_attr6[];
+in vec4 vs_out_attr7[];
+
+struct pica_uniforms {
+    bool b[16];
+    uvec4 i[4];
+    vec4 f[96];
+};
+
+bool exec_shader();
+
+#define uniforms gs_uniforms
+layout (std140) uniform gs_config {
+    pica_uniforms uniforms;
+};
+struct Vertex {
+    vec4 attributes[3];
+};
+
+vec4 GetVertexQuaternion(Vertex vtx) {
+    return vec4(0.0, 0.0, 0.0, 0.0);
+}
+
+void EmitVtx(Vertex vtx, bool quats_opposite) {
+    vec4 vtx_pos = vec4(vtx.attributes[0].x, vtx.attributes[0].y, vtx.attributes[0].z, vtx.attributes[0].w);
+    gl_Position = vtx_pos;
+#if !defined(CITRA_GLES) || defined(GL_EXT_clip_cull_distance)
+    gl_ClipDistance[0] = -vtx_pos.z;
+    gl_ClipDistance[1] = dot(clip_coef, vtx_pos);
+#endif // !defined(CITRA_GLES) || defined(GL_EXT_clip_cull_distance)
+
+    vec4 vtx_quat = GetVertexQuaternion(vtx);
+    normquat = mix(vtx_quat, -vtx_quat, bvec4(quats_opposite));
+
+    vec4 vtx_color = vec4(vtx.attributes[1].x, vtx.attributes[1].y, vtx.attributes[1].z, vtx.attributes[1].w);
+    primary_color = min(abs(vtx_color), vec4(1.0));
+
+    texcoord0 = vec2(vtx.attributes[2].x, vtx.attributes[2].y);
+    texcoord1 = vec2(0.0, 0.0);
+
+    texcoord0_w = 0.0;
+    view = vec3(0.0, 0.0, 0.0);
+    texcoord2 = vec2(0.0, 0.0);
+
+    EmitVertex();
+}
+
+bool AreQuaternionsOpposite(vec4 qa, vec4 qb) {
+    return (dot(qa, qb) < 0.0);
+}
+
+void EmitPrim(Vertex vtx0, Vertex vtx1, Vertex vtx2) {
+    EmitVtx(vtx0, false);
+    EmitVtx(vtx1, AreQuaternionsOpposite(GetVertexQuaternion(vtx0), GetVertexQuaternion(vtx1)));
+    EmitVtx(vtx2, AreQuaternionsOpposite(GetVertexQuaternion(vtx0), GetVertexQuaternion(vtx2)));
+    EndPrimitive();
+}
+
+Vertex output_buffer;
+Vertex prim_buffer[3];
+uint vertex_id = 0u;
+bool prim_emit = false;
+bool winding = false;
+void setemit(uint vertex_id_, bool prim_emit_, bool winding_);
+void emit();
+void main() {
+    output_buffer.attributes[0] = vec4(0.0, 0.0, 0.0, 1.0);
+    output_buffer.attributes[1] = vec4(0.0, 0.0, 0.0, 1.0);
+    output_buffer.attributes[2] = vec4(0.0, 0.0, 0.0, 1.0);
+    exec_shader();
+}
+
+void setemit(uint vertex_id_, bool prim_emit_, bool winding_) {
+    vertex_id = vertex_id_;
+    prim_emit = prim_emit_;
+    winding = winding_;
+}
+void emit() {
+    prim_buffer[vertex_id] = output_buffer;
+    if (prim_emit) {
+        if (winding) {
+            EmitPrim(prim_buffer[1], prim_buffer[0], prim_buffer[2]);
+            winding = false;
+        } else {
+            EmitPrim(prim_buffer[0], prim_buffer[1], prim_buffer[2]);
+        }
+    }
+}
+bvec2 conditional_code = bvec2(false);
+ivec3 address_registers = ivec3(0);
+vec4 reg_tmp0 = vec4(0.0, 0.0, 0.0, 1.0);
+vec4 reg_tmp1 = vec4(0.0, 0.0, 0.0, 1.0);
+vec4 reg_tmp2 = vec4(0.0, 0.0, 0.0, 1.0);
+vec4 reg_tmp3 = vec4(0.0, 0.0, 0.0, 1.0);
+vec4 reg_tmp4 = vec4(0.0, 0.0, 0.0, 1.0);
+vec4 reg_tmp5 = vec4(0.0, 0.0, 0.0, 1.0);
+vec4 reg_tmp6 = vec4(0.0, 0.0, 0.0, 1.0);
+vec4 reg_tmp7 = vec4(0.0, 0.0, 0.0, 1.0);
+vec4 reg_tmp8 = vec4(0.0, 0.0, 0.0, 1.0);
+vec4 reg_tmp9 = vec4(0.0, 0.0, 0.0, 1.0);
+vec4 reg_tmp10 = vec4(0.0, 0.0, 0.0, 1.0);
+vec4 reg_tmp11 = vec4(0.0, 0.0, 0.0, 1.0);
+vec4 reg_tmp12 = vec4(0.0, 0.0, 0.0, 1.0);
+vec4 reg_tmp13 = vec4(0.0, 0.0, 0.0, 1.0);
+vec4 reg_tmp14 = vec4(0.0, 0.0, 0.0, 1.0);
+vec4 reg_tmp15 = vec4(0.0, 0.0, 0.0, 1.0);
+
+bool sub_0();
+bool sub_1();
+bool sub_2();
+bool sub_3();
+bool sub_4();
+bool sub_5();
+bool sub_9();
+bool sub_10();
+bool sub_6();
+bool sub_7();
+bool sub_8();
+
+bool exec_shader() {
+    sub_0();
+    return true;
+}
+
+bool sub_0() {
+    uint jmp_to = 88u;
+    while (true) {
+        switch (jmp_to) {
+        case 88u: {
+            conditional_code = lessThan(uniforms.f[82].zz, vs_out_attr3[0].ww);
+            if (conditional_code.x) {
+                { jmp_to = 298u; break; }
+            }
+            reg_tmp8.x = (vs_out_attr3[0].wwww).x;
+            reg_tmp9.x = (mul_s(uniforms.f[80].zzzz, reg_tmp8.xxxx)).x;
+            reg_tmp9.x = (floor(reg_tmp9.xxxx)).x;
+            reg_tmp9.x = (mul_s(uniforms.f[82].yyyy, reg_tmp9.xxxx)).x;
+            reg_tmp8.x = (reg_tmp8.xxxx + -reg_tmp9.xxxx).x;
+            reg_tmp9.y = (mul_s(uniforms.f[81].yyyy, reg_tmp8.xxxx)).y;
+            reg_tmp9.y = (floor(reg_tmp9.yyyy)).y;
+            reg_tmp9.y = (mul_s(uniforms.f[81].wwww, reg_tmp9.yyyy)).y;
+            reg_tmp8.x = (reg_tmp8.xxxx + -reg_tmp9.yyyy).x;
+            reg_tmp7.x = (reg_tmp8.xxxx).x;
+            reg_tmp7.y = (uniforms.f[81].zzzz).y;
+            reg_tmp2.xy = (vs_out_attr2[0].xyyy).xy;
+            reg_tmp3.xy = (vs_out_attr2[0].zyyy).xy;
+            reg_tmp4.xy = (vs_out_attr2[0].xwww).xy;
+            reg_tmp5.xy = (vs_out_attr2[0].zwww).xy;
+            conditional_code = lessThan(uniforms.f[81].xx, reg_tmp7.xy);
+            if (conditional_code.x) {
+                sub_1();
+            }
+            conditional_code = lessThan(uniforms.f[81].xx, reg_tmp9.xy);
+            if (conditional_code.y) {
+                sub_2();
+            }
+            if (conditional_code.x) {
+                sub_3();
+            }
+            reg_tmp7.xy = (reg_tmp2.xyyy).xy;
+            reg_tmp7.z = (reg_tmp3.xxxx).z;
+            reg_tmp7.w = (reg_tmp3.yyyy).w;
+            reg_tmp8.xy = (reg_tmp4.xyyy).xy;
+            reg_tmp8.z = (reg_tmp5.xxxx).z;
+            reg_tmp8.w = (reg_tmp5.yyyy).w;
+            reg_tmp6.xy = (reg_tmp15.zwww).xy;
+            conditional_code = lessThan(uniforms.f[81].xx, reg_tmp6.xy);
+            if (conditional_code.y) {
+                { jmp_to = 224u; break; }
+            }
+            reg_tmp1.xy = (vs_out_attr3[0].xyyy).xy;
+            reg_tmp1.z = (mul_s(uniforms.f[81].yyyy, vs_out_attr3[0].xxxx)).z;
+            reg_tmp1.w = (mul_s(uniforms.f[81].yyyy, vs_out_attr3[0].yyyy)).w;
+            reg_tmp0.x = (vs_out_attr5[0].zzzz).x;
+            reg_tmp0.y = (vs_out_attr6[0].zzzz).y;
+            reg_tmp0.z = (vs_out_attr7[0].zzzz).z;
+            reg_tmp9.x = (mul_s(reg_tmp0.xxxx, vs_out_attr0[0].wwww)).x;
+            reg_tmp9.y = (mul_s(reg_tmp0.yyyy, vs_out_attr0[0].wwww)).y;
+            reg_tmp9.z = (mul_s(reg_tmp0.zzzz, vs_out_attr0[0].wwww)).z;
+            reg_tmp2.x = (vs_out_attr4[0].xxxx).x;
+            reg_tmp2.y = (vs_out_attr3[0].zzzz).y;
+            reg_tmp2.y = (reg_tmp2.yyyy + vs_out_attr4[0].zzzz).y;
+            reg_tmp3.x = rcp_s(uniforms.f[80].x);
+            reg_tmp3.x = (mul_s(reg_tmp2.yyyy, reg_tmp3.xxxx)).x;
+            reg_tmp3.x = (floor(reg_tmp3.xxxx)).x;
+            reg_tmp3.x = (mul_s(uniforms.f[80].xxxx, reg_tmp3.xxxx)).x;
+            reg_tmp2.y = (reg_tmp2.yyyy + -reg_tmp3.xxxx).y;
+            reg_tmp2.y = (-uniforms.f[80].yyyy + reg_tmp2.yyyy).y;
+            reg_tmp3 = uniforms.f[95];
+            reg_tmp4 = uniforms.f[94];
+            reg_tmp0.z = (mul_s(reg_tmp2.yyyy, reg_tmp2.yyyy)).z;
+            reg_tmp0.xy = (fma_s(reg_tmp0.zzzz, reg_tmp3.xyyy, reg_tmp3.zwww)).xy;
+            reg_tmp0.xy = (fma_s(reg_tmp0.zzzz, reg_tmp0.xyyy, reg_tmp4.xyyy)).xy;
+            reg_tmp0.xy = (fma_s(reg_tmp0.zzzz, reg_tmp0.xyyy, reg_tmp4.zwww)).xy;
+            reg_tmp3 = uniforms.f[93];
+            reg_tmp0.xy = (fma_s(reg_tmp0.zzzz, reg_tmp0.xyyy, reg_tmp3.xyyy)).xy;
+            reg_tmp0.xy = (fma_s(reg_tmp0.zzzz, reg_tmp0.xyyy, reg_tmp3.zwww)).xy;
+            reg_tmp0.y = (mul_s(reg_tmp0.yyyy, reg_tmp2.yyyy)).y;
+            reg_tmp0.xy = (mul_s(-uniforms.f[81].zzzz, reg_tmp0.xyyy)).xy;
+            conditional_code = lessThan(uniforms.f[81].xx, reg_tmp10.zz);
+            if (conditional_code.x) {
+                sub_4();
+            } else {
+                sub_5();
+            }
+            reg_tmp10 = reg_tmp0.xyxy;
+            reg_tmp2 = -reg_tmp3.xwxw;
+            reg_tmp4 = mul_s(reg_tmp2, reg_tmp10.xxyy);
+            reg_tmp2.x = (reg_tmp4.zzzz + -reg_tmp4.yyyy).x;
+            reg_tmp2.y = (reg_tmp4.xxxx + reg_tmp4.wwww).y;
+            reg_tmp2.zw = (uniforms.f[81].xxxx).zw;
+            {
+                sub_6();
+            }
+            output_buffer.attributes[1] = vs_out_attr1[0];
+            output_buffer.attributes[2].xy = (reg_tmp7.xyyy).xy;
+            setemit(0u, false, false);
+            emit();
+            reg_tmp2.xz = (reg_tmp3.zzzz).xz;
+            reg_tmp2.yw = (-reg_tmp3.wwww).yw;
+            reg_tmp4 = mul_s(reg_tmp2, reg_tmp10.xxyy);
+            reg_tmp2.x = (reg_tmp4.zzzz + -reg_tmp4.yyyy).x;
+            reg_tmp2.y = (reg_tmp4.xxxx + reg_tmp4.wwww).y;
+            reg_tmp2.zw = (uniforms.f[81].xxxx).zw;
+            {
+                sub_6();
+            }
+            output_buffer.attributes[1] = vs_out_attr1[0];
+            output_buffer.attributes[2].xy = (reg_tmp7.zwww).xy;
+            setemit(1u, false, false);
+            emit();
+            reg_tmp2.xz = (-reg_tmp3.xxxx).xz;
+            reg_tmp2.yw = (reg_tmp3.yyyy).yw;
+            reg_tmp4 = mul_s(reg_tmp2, reg_tmp10.xxyy);
+            reg_tmp2.x = (reg_tmp4.zzzz + -reg_tmp4.yyyy).x;
+            reg_tmp2.y = (reg_tmp4.xxxx + reg_tmp4.wwww).y;
+            reg_tmp2.zw = (uniforms.f[81].xxxx).zw;
+            {
+                sub_6();
+            }
+            output_buffer.attributes[1] = vs_out_attr1[0];
+            output_buffer.attributes[2].xy = (reg_tmp8.xyyy).xy;
+            setemit(2u, true, false);
+            emit();
+            reg_tmp2 = reg_tmp3.zyzy;
+            reg_tmp4 = mul_s(reg_tmp2, reg_tmp10.xxyy);
+            reg_tmp2.x = (reg_tmp4.zzzz + -reg_tmp4.yyyy).x;
+            reg_tmp2.y = (reg_tmp4.xxxx + reg_tmp4.wwww).y;
+            reg_tmp2.zw = (uniforms.f[81].xxxx).zw;
+            {
+                sub_6();
+            }
+            output_buffer.attributes[1] = vs_out_attr1[0];
+            output_buffer.attributes[2].xy = (reg_tmp8.zwww).xy;
+            setemit(0u, true, true);
+            emit();
+            return true;
+        }
+        case 224u: {
+            reg_tmp1.xy = (-reg_tmp10.xyyy).xy;
+            reg_tmp1.z = (reg_tmp15.xxxx + -reg_tmp10.xxxx).z;
+            reg_tmp1.w = (reg_tmp15.yyyy + -reg_tmp10.yyyy).w;
+            reg_tmp9.x = (reg_tmp10.wwww).x;
+            reg_tmp2.y = (reg_tmp15.zzzz).y;
+            reg_tmp2.y = (reg_tmp2.yyyy + vs_out_attr4[0].zzzz).y;
+            reg_tmp3.x = rcp_s(uniforms.f[80].x);
+            reg_tmp3.x = (mul_s(reg_tmp2.yyyy, reg_tmp3.xxxx)).x;
+            reg_tmp3.x = (floor(reg_tmp3.xxxx)).x;
+            reg_tmp3.x = (mul_s(uniforms.f[80].xxxx, reg_tmp3.xxxx)).x;
+            reg_tmp2.y = (reg_tmp2.yyyy + -reg_tmp3.xxxx).y;
+            reg_tmp2.y = (-uniforms.f[80].yyyy + reg_tmp2.yyyy).y;
+            reg_tmp3 = uniforms.f[95];
+            reg_tmp4 = uniforms.f[94];
+            reg_tmp0.z = (mul_s(reg_tmp2.yyyy, reg_tmp2.yyyy)).z;
+            reg_tmp0.xy = (fma_s(reg_tmp0.zzzz, reg_tmp3.xyyy, reg_tmp3.zwww)).xy;
+            reg_tmp0.xy = (fma_s(reg_tmp0.zzzz, reg_tmp0.xyyy, reg_tmp4.xyyy)).xy;
+            reg_tmp0.xy = (fma_s(reg_tmp0.zzzz, reg_tmp0.xyyy, reg_tmp4.zwww)).xy;
+            reg_tmp3 = uniforms.f[93];
+            reg_tmp0.xy = (fma_s(reg_tmp0.zzzz, reg_tmp0.xyyy, reg_tmp3.xyyy)).xy;
+            reg_tmp0.xy = (fma_s(reg_tmp0.zzzz, reg_tmp0.xyyy, reg_tmp3.zwww)).xy;
+            reg_tmp0.y = (mul_s(reg_tmp0.yyyy, reg_tmp2.yyyy)).y;
+            reg_tmp0.xy = (mul_s(-uniforms.f[81].zzzz, reg_tmp0.xyyy)).xy;
+            reg_tmp10 = reg_tmp0.xyxy;
+            reg_tmp0 = mul_s(reg_tmp1.xwxw, reg_tmp10.xxyy);
+            reg_tmp6.x = (reg_tmp0.zzzz + -reg_tmp0.yyyy).x;
+            reg_tmp6.y = (reg_tmp0.xxxx + reg_tmp0.wwww).y;
+            reg_tmp6 = mul_s(reg_tmp6, reg_tmp9.xxxx);
+            reg_tmp3.xyz = (vs_out_attr0[0].xyzz).xyz;
+            reg_tmp3.xy = (reg_tmp3.xyyy + reg_tmp6.xyyy).xy;
+            reg_tmp3.w = (uniforms.f[81].zzzz).w;
+            {
+                sub_6();
+            }
+            output_buffer.attributes[1] = vs_out_attr1[0];
+            output_buffer.attributes[2].xy = (reg_tmp7.xyyy).xy;
+            setemit(0u, false, false);
+            emit();
+            reg_tmp0 = mul_s(reg_tmp1.zwzw, reg_tmp10.xxyy);
+            reg_tmp6.x = (reg_tmp0.zzzz + -reg_tmp0.yyyy).x;
+            reg_tmp6.y = (reg_tmp0.xxxx + reg_tmp0.wwww).y;
+            reg_tmp6 = mul_s(reg_tmp6, reg_tmp9.xxxx);
+            reg_tmp3.xyz = (vs_out_attr0[0].xyzz).xyz;
+            reg_tmp3.xy = (reg_tmp3.xyyy + reg_tmp6.xyyy).xy;
+            reg_tmp3.w = (uniforms.f[81].zzzz).w;
+            {
+                sub_6();
+            }
+            output_buffer.attributes[1] = vs_out_attr1[0];
+            output_buffer.attributes[2].xy = (reg_tmp7.zwww).xy;
+            setemit(1u, false, false);
+            emit();
+            reg_tmp0 = mul_s(reg_tmp1.xyxy, reg_tmp10.xxyy);
+            reg_tmp6.x = (reg_tmp0.zzzz + -reg_tmp0.yyyy).x;
+            reg_tmp6.y = (reg_tmp0.xxxx + reg_tmp0.wwww).y;
+            reg_tmp6 = mul_s(reg_tmp6, reg_tmp9.xxxx);
+            reg_tmp3.xyz = (vs_out_attr0[0].xyzz).xyz;
+            reg_tmp3.xy = (reg_tmp3.xyyy + reg_tmp6.xyyy).xy;
+            reg_tmp3.w = (uniforms.f[81].zzzz).w;
+            {
+                sub_6();
+            }
+            output_buffer.attributes[1] = vs_out_attr1[0];
+            output_buffer.attributes[2].xy = (reg_tmp8.xyyy).xy;
+            setemit(2u, true, false);
+            emit();
+            reg_tmp0 = mul_s(reg_tmp1.zyzy, reg_tmp10.xxyy);
+            reg_tmp6.x = (reg_tmp0.zzzz + -reg_tmp0.yyyy).x;
+            reg_tmp6.y = (reg_tmp0.xxxx + reg_tmp0.wwww).y;
+            reg_tmp6 = mul_s(reg_tmp6, reg_tmp9.xxxx);
+            reg_tmp3.xyz = (vs_out_attr0[0].xyzz).xyz;
+            reg_tmp3.xy = (reg_tmp3.xyyy + reg_tmp6.xyyy).xy;
+            reg_tmp3.w = (uniforms.f[81].zzzz).w;
+            {
+                sub_6();
+            }
+            output_buffer.attributes[1] = vs_out_attr1[0];
+            output_buffer.attributes[2].xy = (reg_tmp8.zwww).xy;
+            setemit(0u, true, true);
+            emit();
+            return true;
+        }
+        case 298u: {
+            reg_tmp10 = vs_out_attr0[0].xyzz;
+            reg_tmp11 = vs_out_attr4[0];
+            reg_tmp12 = vs_out_attr5[0];
+            reg_tmp13 = vs_out_attr6[0];
+            reg_tmp14 = vs_out_attr7[0];
+            reg_tmp0.xy = (vs_out_attr3[0].zzzz).xy;
+            conditional_code = lessThan(uniforms.f[81].xx, reg_tmp0.xy);
+            if (conditional_code.x) {
+                sub_9();
+            } else {
+                sub_10();
+            }
+            return true;
+        }
+        default: return false;
+        }
+    }
+    return false;
+}
+bool sub_1() {
+    reg_tmp0.xy = (reg_tmp2.xyyy).xy;
+    reg_tmp2.xy = (reg_tmp3.xyyy).xy;
+    reg_tmp3.xy = (reg_tmp0.xyyy).xy;
+    reg_tmp0.xy = (reg_tmp4.xyyy).xy;
+    reg_tmp4.xy = (reg_tmp5.xyyy).xy;
+    reg_tmp5.xy = (reg_tmp0.xyyy).xy;
+    return false;
+}
+bool sub_2() {
+    reg_tmp0.xy = (reg_tmp2.xyyy).xy;
+    reg_tmp2.xy = (reg_tmp4.xyyy).xy;
+    reg_tmp4.xy = (reg_tmp0.xyyy).xy;
+    reg_tmp0.xy = (reg_tmp3.xyyy).xy;
+    reg_tmp3.xy = (reg_tmp5.xyyy).xy;
+    reg_tmp5.xy = (reg_tmp0.xyyy).xy;
+    return false;
+}
+bool sub_3() {
+    reg_tmp0.xy = (reg_tmp2.xyyy).xy;
+    reg_tmp2.xy = (reg_tmp4.xyyy).xy;
+    reg_tmp4.xy = (reg_tmp5.xyyy).xy;
+    reg_tmp5.xy = (reg_tmp3.xyyy).xy;
+    reg_tmp3.xy = (reg_tmp0.xyyy).xy;
+    return false;
+}
+bool sub_4() {
+    reg_tmp3.xy = (reg_tmp10.xyyy).xy;
+    reg_tmp3.z = (reg_tmp1.xxxx + -reg_tmp10.xxxx).z;
+    reg_tmp3.w = (reg_tmp1.yyyy + -reg_tmp10.yyyy).w;
+    reg_tmp3 = mul_s(reg_tmp3, reg_tmp2.xxxx);
+    reg_tmp3.x = (mul_s(reg_tmp3.xxxx, vs_out_attr4[0].yyyy)).x;
+    reg_tmp3.z = (mul_s(reg_tmp3.zzzz, vs_out_attr4[0].yyyy)).z;
+    return false;
+}
+bool sub_5() {
+    reg_tmp3.x = (reg_tmp1.zzzz).x;
+    reg_tmp3.y = (reg_tmp1.wwww).y;
+    reg_tmp3.z = (reg_tmp1.zzzz).z;
+    reg_tmp3.w = (reg_tmp1.wwww).w;
+    reg_tmp3 = mul_s(reg_tmp3, reg_tmp2.xxxx);
+    reg_tmp3.xz = (mul_s(reg_tmp3.xzzz, vs_out_attr4[0].yyyy)).xz;
+    return false;
+}
+bool sub_9() {
+    reg_tmp10.w = (vs_out_attr0[0].wwww).w;
+    reg_tmp15.xy = (vs_out_attr3[0].xyyy).xy;
+    reg_tmp15.z = (vs_out_attr0[0].zzzz).z;
+    reg_tmp15.w = (uniforms.f[81].zzzz).w;
+    return false;
+}
+bool sub_10() {
+    reg_tmp15 = uniforms.f[81].xxxx;
+    return false;
+}
+bool sub_6() {
+    reg_tmp6.xy = (reg_tmp15.zwww).xy;
+    conditional_code = lessThan(uniforms.f[81].xx, reg_tmp6.xy);
+    if (conditional_code.y) {
+        sub_7();
+    } else {
+        sub_8();
+    }
+    return false;
+}
+bool sub_7() {
+    output_buffer.attributes[0].x = dot_s(reg_tmp3, reg_tmp11);
+    output_buffer.attributes[0].y = dot_s(reg_tmp3, reg_tmp12);
+    output_buffer.attributes[0].z = dot_s(reg_tmp3, reg_tmp13);
+    output_buffer.attributes[0].w = dot_s(reg_tmp3, reg_tmp14);
+    return false;
+}
+bool sub_8() {
+    reg_tmp6.x = dot_s(reg_tmp2, vs_out_attr5[0]);
+    reg_tmp6.y = dot_s(reg_tmp2, vs_out_attr6[0]);
+    reg_tmp6.z = dot_s(reg_tmp2, vs_out_attr7[0]);
+    reg_tmp6.xyz = (reg_tmp6.xyzz + vs_out_attr0[0].xyzz).xyz;
+    reg_tmp6.w = (uniforms.f[81].zzzz).w;
+    output_buffer.attributes[0].x = dot_s(reg_tmp6, reg_tmp11);
+    output_buffer.attributes[0].y = dot_s(reg_tmp6, reg_tmp12);
+    reg_tmp4.w = dot_s(reg_tmp6, reg_tmp14);
+    reg_tmp0.xyz = (reg_tmp9.xyzz + reg_tmp6.xyzz).xyz;
+    reg_tmp0.w = (uniforms.f[81].zzzz).w;
+    reg_tmp6.w = dot_s(reg_tmp0, reg_tmp14);
+    reg_tmp6.z = dot_s(reg_tmp0, -reg_tmp13);
+    reg_tmp6.z = (mul_s(reg_tmp4.wwww, reg_tmp6.zzzz)).z;
+    reg_tmp2 = vec4(rcp_s(reg_tmp6.w));
+    output_buffer.attributes[0].z = (mul_s(reg_tmp6.zzzz, reg_tmp2.zzzz)).z;
+    output_buffer.attributes[0].w = (reg_tmp4.wwww).w;
+    return false;
+}
+// reference: 08FD94C98B1DD023, DDD543B7EFD7D3AC
+// shader: 8B31, 309177F344E6BF06
+
+#define mul_s(x, y) (x * y)
+#define fma_s(x, y, z) fma(x, y, z)
+#define rcp_s(x) (1.0 / x)
+#define rsq_s(x) inversesqrt(x)
+#define dot_s(x, y) dot(x, y)
+#define dot_3(x, y) dot(x, y)
+
+struct pica_uniforms {
+    bool b[16];
+    uvec4 i[4];
+    vec4 f[96];
+};
+
+bool exec_shader();
+
+#define uniforms vs_uniforms
+layout (std140) uniform vs_config {
+    pica_uniforms uniforms;
+};
+layout(location = 0) in vec4 vs_in_reg0;
+layout(location = 1) in vec4 vs_in_reg1;
+layout(location = 2) in vec4 vs_in_reg2;
+layout(location = 3) in vec4 vs_in_reg3;
+layout(location = 4) in vec4 vs_in_reg4;
+
+out vec4 vs_out_attr0;
+out vec4 vs_out_attr1;
+out vec4 vs_out_attr2;
+out vec4 vs_out_attr3;
+out vec4 vs_out_attr4;
+out vec4 vs_out_attr5;
+out vec4 vs_out_attr6;
+out vec4 vs_out_attr7;
+
+void main() {
+    vs_out_attr0 = vec4(0.0, 0.0, 0.0, 1.0);
+    vs_out_attr1 = vec4(0.0, 0.0, 0.0, 1.0);
+    vs_out_attr2 = vec4(0.0, 0.0, 0.0, 1.0);
+    vs_out_attr3 = vec4(0.0, 0.0, 0.0, 1.0);
+    vs_out_attr4 = vec4(0.0, 0.0, 0.0, 1.0);
+    vs_out_attr5 = vec4(0.0, 0.0, 0.0, 1.0);
+    vs_out_attr6 = vec4(0.0, 0.0, 0.0, 1.0);
+    vs_out_attr7 = vec4(0.0, 0.0, 0.0, 1.0);
+    exec_shader();
+}
+bvec2 conditional_code = bvec2(false);
+ivec3 address_registers = ivec3(0);
+vec4 reg_tmp0 = vec4(0.0, 0.0, 0.0, 1.0);
+vec4 reg_tmp1 = vec4(0.0, 0.0, 0.0, 1.0);
+vec4 reg_tmp2 = vec4(0.0, 0.0, 0.0, 1.0);
+vec4 reg_tmp3 = vec4(0.0, 0.0, 0.0, 1.0);
+vec4 reg_tmp4 = vec4(0.0, 0.0, 0.0, 1.0);
+vec4 reg_tmp5 = vec4(0.0, 0.0, 0.0, 1.0);
+vec4 reg_tmp6 = vec4(0.0, 0.0, 0.0, 1.0);
+vec4 reg_tmp7 = vec4(0.0, 0.0, 0.0, 1.0);
+vec4 reg_tmp8 = vec4(0.0, 0.0, 0.0, 1.0);
+vec4 reg_tmp9 = vec4(0.0, 0.0, 0.0, 1.0);
+vec4 reg_tmp10 = vec4(0.0, 0.0, 0.0, 1.0);
+vec4 reg_tmp11 = vec4(0.0, 0.0, 0.0, 1.0);
+vec4 reg_tmp12 = vec4(0.0, 0.0, 0.0, 1.0);
+vec4 reg_tmp13 = vec4(0.0, 0.0, 0.0, 1.0);
+vec4 reg_tmp14 = vec4(0.0, 0.0, 0.0, 1.0);
+vec4 reg_tmp15 = vec4(0.0, 0.0, 0.0, 1.0);
+
+bool sub_0();
+bool sub_1();
+bool sub_2();
+
+bool exec_shader() {
+    sub_0();
+    return true;
+}
+
+bool sub_0() {
+    uint jmp_to = 0u;
+    while (true) {
+        switch (jmp_to) {
+        case 0u: {
+            reg_tmp15 = uniforms.f[5].wzyx;
+            conditional_code = greaterThan(uniforms.f[6].wz, reg_tmp15.xy);
+            if (conditional_code.y) {
+                { jmp_to = 30u; break; }
+            }
+            reg_tmp1.xy = (vs_in_reg4.wwww).xy;
+            conditional_code = lessThan(uniforms.f[89].ww, reg_tmp1.xy);
+            if (conditional_code.x) {
+                { jmp_to = 68u; break; }
+            }
+            vs_out_attr0.xyz = (vs_in_reg0.xyzz).xyz;
+            vs_out_attr0.w = (mul_s(uniforms.f[7].wwww, vs_in_reg2.zzzz)).w;
+            vs_out_attr1 = mul_s(uniforms.f[90].yyyy, vs_in_reg1);
+            reg_tmp0.z = (vs_in_reg3.xxxx).z;
+            reg_tmp0.w = (vs_in_reg3.yyyy).w;
+            reg_tmp1.x = (uniforms.f[8].xxxx + -vs_in_reg2.yyyy).x;
+            reg_tmp0.y = (reg_tmp1.xxxx + -reg_tmp0.wwww).y;
+            reg_tmp0.x = (vs_in_reg2.xxxx).x;
+            reg_tmp0.xy = (mul_s(uniforms.f[8].wzzz, reg_tmp0.xyyy)).xy;
+            vs_out_attr2.xy = (reg_tmp0.xyyy).xy;
+            reg_tmp1.xy = (-uniforms.f[90].xxxx + reg_tmp0.zwww).xy;
+            reg_tmp1.xy = (mul_s(uniforms.f[8].wzzz, reg_tmp1.xyyy)).xy;
+            vs_out_attr2.z = (reg_tmp0.xxxx + reg_tmp1.xxxx).z;
+            vs_out_attr2.w = (reg_tmp0.yyyy + reg_tmp1.yyyy).w;
+            vs_out_attr3.xy = (uniforms.f[90].wwww).xy;
+            vs_out_attr3.z = (vs_in_reg4.zzzz).z;
+            vs_out_attr3.w = (vs_in_reg4.wwww).w;
+            vs_out_attr4.z = (uniforms.f[9].wwww).z;
+            vs_out_attr4.xyw = (uniforms.f[90].wwww).xyw;
+            vs_out_attr5 = uniforms.f[90].wwww;
+            vs_out_attr6 = uniforms.f[90].wwww;
+            vs_out_attr7 = uniforms.f[90].wwww;
+            return true;
+        }
+        case 30u: {
+            vs_out_attr0.xyz = (vs_in_reg0.xyzz).xyz;
+            vs_out_attr0.w = (mul_s(uniforms.f[7].wwww, vs_in_reg2.zzzz)).w;
+            vs_out_attr1 = mul_s(uniforms.f[90].yyyy, vs_in_reg1);
+            reg_tmp1.xy = (vs_in_reg4.wwww).xy;
+            conditional_code = lessThan(uniforms.f[89].ww, reg_tmp1.xy);
+            if (conditional_code.x) {
+                { jmp_to = 59u; break; }
+            }
+            reg_tmp0.z = (mul_s(uniforms.f[89].wwww, vs_in_reg4.xxxx)).z;
+            reg_tmp0.w = (mul_s(uniforms.f[89].wwww, vs_in_reg4.yyyy)).w;
+            reg_tmp1.x = (uniforms.f[8].xxxx + -vs_in_reg2.yyyy).x;
+            reg_tmp0.y = (reg_tmp1.xxxx + -reg_tmp0.wwww).y;
+            reg_tmp0.x = (vs_in_reg2.xxxx).x;
+            reg_tmp0.xy = (mul_s(uniforms.f[8].wzzz, reg_tmp0.xyyy)).xy;
+            vs_out_attr2.xy = (reg_tmp0.xyyy).xy;
+            reg_tmp1.xy = (-uniforms.f[90].xxxx + reg_tmp0.zwww).xy;
+            reg_tmp1.xy = (mul_s(uniforms.f[8].wzzz, reg_tmp1.xyyy)).xy;
+            vs_out_attr2.z = (reg_tmp0.xxxx + reg_tmp1.xxxx).z;
+            vs_out_attr2.w = (reg_tmp0.yyyy + reg_tmp1.yyyy).w;
+            vs_out_attr3.xy = (reg_tmp0.zwww).xy;
+            vs_out_attr3.z = (mul_s(uniforms.f[90].zzzz, vs_in_reg3.yyyy)).z;
+            vs_out_attr3.w = (vs_in_reg4.wwww).w;
+            vs_out_attr4.x = (mul_s(uniforms.f[90].yyyy, vs_in_reg3.xxxx)).x;
+            vs_out_attr4.y = (mul_s(uniforms.f[91].yyyy, vs_in_reg4.zzzz)).y;
+            vs_out_attr4.z = (uniforms.f[9].wwww).z;
+            vs_out_attr4.w = (uniforms.f[90].wwww).w;
+            vs_out_attr5 = uniforms.f[10].wzyx;
+            vs_out_attr6 = uniforms.f[11].wzyx;
+            vs_out_attr7 = uniforms.f[12].wzyx;
+            return true;
+        }
+        case 59u: {
+            vs_out_attr2 = uniforms.f[90].wwww;
+            vs_out_attr3.xyz = (uniforms.f[90].wwww).xyz;
+            vs_out_attr3.w = (vs_in_reg4.wwww).w;
+            vs_out_attr4 = uniforms.f[0].wzyx;
+            vs_out_attr5 = uniforms.f[1].wzyx;
+            vs_out_attr6 = uniforms.f[2].wzyx;
+            vs_out_attr7 = uniforms.f[3].wzyx;
+            return true;
+        }
+        case 68u: {
+            vs_out_attr0.xyz = (vs_in_reg0.xyzz).xyz;
+            vs_out_attr0.w = (mul_s(uniforms.f[90].yyyy, vs_in_reg2.wwww)).w;
+            vs_out_attr1 = uniforms.f[90].wwww;
+            vs_out_attr2 = uniforms.f[90].wwww;
+            vs_out_attr3.x = (vs_in_reg3.xxxx).x;
+            vs_out_attr3.y = (vs_in_reg3.yyyy).y;
+            vs_out_attr3.z = (uniforms.f[90].xxxx).z;
+            vs_out_attr3.w = (vs_in_reg4.wwww).w;
+            conditional_code = equal(uniforms.f[90].ww, vs_in_reg4.zz);
+            if (conditional_code.x) {
+                sub_1();
+            } else {
+                sub_2();
+            }
+            return true;
+        }
+        default: return false;
+        }
+    }
+    return false;
+}
+bool sub_1() {
+    vs_out_attr4 = uniforms.f[14].wzyx;
+    vs_out_attr5 = uniforms.f[15].wzyx;
+    vs_out_attr6 = uniforms.f[16].wzyx;
+    vs_out_attr7 = uniforms.f[17].wzyx;
+    return false;
+}
+bool sub_2() {
+    vs_out_attr4 = uniforms.f[18].wzyx;
+    vs_out_attr5 = uniforms.f[19].wzyx;
+    vs_out_attr6 = uniforms.f[20].wzyx;
+    vs_out_attr7 = uniforms.f[21].wzyx;
+    return false;
+}
+// reference: 2AE417A070FC8698, 309177F344E6BF06
+// program: 309177F344E6BF06, DDD543B7EFD7D3AC, 7A2A9F5E151699CA
+// reference: 33E921DBDCD5ED69, 0920F64BD0BE6DC7
+// shader: 8B31, EE99BAD0122362FE
+
+#define mul_s(x, y) (x * y)
+#define fma_s(x, y, z) fma(x, y, z)
+#define rcp_s(x) (1.0 / x)
+#define rsq_s(x) inversesqrt(x)
+#define dot_s(x, y) dot(x, y)
+#define dot_3(x, y) dot(x, y)
+
+struct pica_uniforms {
+    bool b[16];
+    uvec4 i[4];
+    vec4 f[96];
+};
+
+bool exec_shader();
+
+#define uniforms vs_uniforms
+layout (std140) uniform vs_config {
+    pica_uniforms uniforms;
+};
+layout(location = 0) in vec4 vs_in_reg0;
+layout(location = 1) in vec4 vs_in_reg1;
+layout(location = 2) in vec4 vs_in_reg2;
+layout(location = 3) in vec4 vs_in_reg3;
+layout(location = 4) in vec4 vs_in_reg4;
+layout(location = 5) in vec4 vs_in_reg5;
+layout(location = 6) in vec4 vs_in_reg6;
+layout(location = 7) in vec4 vs_in_reg7;
+
+out vec4 vs_out_attr0;
+out vec4 vs_out_attr1;
+out vec4 vs_out_attr2;
+out vec4 vs_out_attr3;
+out vec4 vs_out_attr4;
+out vec4 vs_out_attr5;
+out vec4 vs_out_attr6;
+out vec4 vs_out_attr7;
+
+void main() {
+    vs_out_attr0 = vec4(0.0, 0.0, 0.0, 1.0);
+    vs_out_attr1 = vec4(0.0, 0.0, 0.0, 1.0);
+    vs_out_attr2 = vec4(0.0, 0.0, 0.0, 1.0);
+    vs_out_attr3 = vec4(0.0, 0.0, 0.0, 1.0);
+    vs_out_attr4 = vec4(0.0, 0.0, 0.0, 1.0);
+    vs_out_attr5 = vec4(0.0, 0.0, 0.0, 1.0);
+    vs_out_attr6 = vec4(0.0, 0.0, 0.0, 1.0);
+    vs_out_attr7 = vec4(0.0, 0.0, 0.0, 1.0);
+    exec_shader();
+}
+bvec2 conditional_code = bvec2(false);
+ivec3 address_registers = ivec3(0);
+vec4 reg_tmp0 = vec4(0.0, 0.0, 0.0, 1.0);
+vec4 reg_tmp1 = vec4(0.0, 0.0, 0.0, 1.0);
+vec4 reg_tmp2 = vec4(0.0, 0.0, 0.0, 1.0);
+vec4 reg_tmp3 = vec4(0.0, 0.0, 0.0, 1.0);
+vec4 reg_tmp4 = vec4(0.0, 0.0, 0.0, 1.0);
+vec4 reg_tmp5 = vec4(0.0, 0.0, 0.0, 1.0);
+vec4 reg_tmp6 = vec4(0.0, 0.0, 0.0, 1.0);
+vec4 reg_tmp7 = vec4(0.0, 0.0, 0.0, 1.0);
+vec4 reg_tmp8 = vec4(0.0, 0.0, 0.0, 1.0);
+vec4 reg_tmp9 = vec4(0.0, 0.0, 0.0, 1.0);
+vec4 reg_tmp10 = vec4(0.0, 0.0, 0.0, 1.0);
+vec4 reg_tmp11 = vec4(0.0, 0.0, 0.0, 1.0);
+vec4 reg_tmp12 = vec4(0.0, 0.0, 0.0, 1.0);
+vec4 reg_tmp13 = vec4(0.0, 0.0, 0.0, 1.0);
+vec4 reg_tmp14 = vec4(0.0, 0.0, 0.0, 1.0);
+vec4 reg_tmp15 = vec4(0.0, 0.0, 0.0, 1.0);
+
+bool sub_0();
+bool sub_1();
+bool sub_2();
+bool sub_3();
+bool sub_4();
+bool sub_5();
+bool sub_6();
+bool sub_7();
+bool sub_8();
+bool sub_9();
+bool sub_10();
+bool sub_11();
+bool sub_12();
+bool sub_13();
+
+bool exec_shader() {
+    sub_0();
+    return true;
+}
+
+bool sub_0() {
+    if (uniforms.b[0]) {
+        sub_1();
+    } else {
+        sub_7();
+    }
+    conditional_code = greaterThan(uniforms.f[90].xx, reg_tmp4.ww);
+    if (conditional_code.x) {
+        sub_10();
+    }
+    reg_tmp15.y = (uniforms.f[90].wwww).y;
+    reg_tmp15.x = (mul_s(uniforms.f[90].yyyy, reg_tmp4.xxxx)).x;
+    reg_tmp4.z = (uniforms.f[26].yyyy + reg_tmp4.zzzz).z;
+    reg_tmp0.xy = (uniforms.f[26].wzzz + reg_tmp0.xyyy).xy;
+    reg_tmp1.xy = (uniforms.f[26].wzzz + reg_tmp1.xyyy).xy;
+    reg_tmp2.xy = (uniforms.f[26].wzzz + reg_tmp2.xyyy).xy;
+    reg_tmp10 = mul_s(uniforms.f[27].wzyx, reg_tmp10);
+    reg_tmp11 = mul_s(uniforms.f[27].wzyx, reg_tmp11);
+    reg_tmp12 = mul_s(uniforms.f[27].wzyx, reg_tmp12);
+    reg_tmp13 = mul_s(uniforms.f[27].wzyx, reg_tmp13);
+    if (uniforms.b[5]) {
+        sub_11();
+    }
+    reg_tmp6 = vs_in_reg6.zwww;
+    reg_tmp7 = vs_in_reg7.xyyy;
+    reg_tmp4.xy = (vs_in_reg6.xyyy).xy;
+    reg_tmp8 = reg_tmp6 + reg_tmp7;
+    reg_tmp5.xy = (vs_in_reg6.xyyy + reg_tmp7.xyyy).xy;
+    reg_tmp4.zw = (vs_in_reg6.xyxy + reg_tmp6.xyxy).zw;
+    reg_tmp5.zw = (vs_in_reg6.xyxy + reg_tmp8.xyxy).zw;
+    reg_tmp6.x = dot_s(uniforms.f[28].wzyx, reg_tmp0.yxzw);
+    reg_tmp6.y = dot_s(uniforms.f[29].wzyx, reg_tmp0.yxzw);
+    reg_tmp7.x = dot_s(uniforms.f[28].wzyx, reg_tmp2.yxzw);
+    reg_tmp7.y = dot_s(uniforms.f[29].wzyx, reg_tmp2.yxzw);
+    reg_tmp8.x = dot_s(uniforms.f[28].wzyx, reg_tmp1.yxzw);
+    reg_tmp8.y = dot_s(uniforms.f[29].wzyx, reg_tmp1.yxzw);
+    reg_tmp4.yw = (uniforms.f[90].zzzz + -reg_tmp4.yyww).yw;
+    reg_tmp5.yw = (uniforms.f[90].zzzz + -reg_tmp5.yyww).yw;
+    vs_out_attr4 = reg_tmp10;
+    vs_out_attr5 = reg_tmp11;
+    vs_out_attr6 = reg_tmp12;
+    vs_out_attr7 = reg_tmp13;
+    vs_out_attr2 = reg_tmp4;
+    vs_out_attr3 = reg_tmp5;
+    vs_out_attr0.xy = (reg_tmp6.xyyy).xy;
+    vs_out_attr0.zw = (reg_tmp7.xyxy + -reg_tmp6.xyxy).zw;
+    vs_out_attr1.xy = (reg_tmp8.xyyy + -reg_tmp6.xyxy).xy;
+    vs_out_attr1.zw = (reg_tmp15.xyxy).zw;
+    return true;
+}
+bool sub_1() {
+    reg_tmp8.x = (uniforms.f[5].xxxx).x;
+    reg_tmp8.y = (uniforms.f[6].xxxx).y;
+    reg_tmp8.zw = (uniforms.f[7].yxyx).zw;
+    reg_tmp4.z = (vs_in_reg0.zzzz).z;
+    if (uniforms.b[1]) {
+        sub_2();
+    } else {
+        sub_3();
+    }
+    reg_tmp0.xy = (-vs_in_reg1.xyyy).xy;
+    reg_tmp0.zw = (uniforms.f[90].wzwz).zw;
+    reg_tmp1.x = (-vs_in_reg1.xxxx).x;
+    reg_tmp1.y = (-vs_in_reg1.wwww).y;
+    reg_tmp1.zw = (uniforms.f[90].wzwz).zw;
+    reg_tmp7 = vec4(rcp_s(reg_tmp9.w));
+    reg_tmp2.x = (-vs_in_reg1.zzzz).x;
+    reg_tmp2.y = (-vs_in_reg1.yyyy).y;
+    reg_tmp2.zw = (uniforms.f[90].wzwz).zw;
+    reg_tmp4.w = (reg_tmp9.wwww).w;
+    reg_tmp9 = mul_s(reg_tmp9, reg_tmp7);
+    reg_tmp5.xy = (vs_in_reg7.zwww).xy;
+    reg_tmp5.z = (uniforms.f[90].wwww).z;
+    reg_tmp8.xy = (mul_s(uniforms.f[12].yzzz, reg_tmp9.yxxx)).xy;
+    reg_tmp6.x = (-vs_in_reg7.wwww).x;
+    reg_tmp6.y = (vs_in_reg7.zzzz).y;
+    reg_tmp6.z = (uniforms.f[90].wwww).z;
+    reg_tmp5.w = (reg_tmp8.xxxx + vs_in_reg0.xxxx).w;
+    reg_tmp6.w = (reg_tmp8.yyyy + vs_in_reg0.yyyy).w;
+    reg_tmp7.x = dot_s(reg_tmp0, reg_tmp5);
+    reg_tmp7.y = dot_s(reg_tmp0, reg_tmp6);
+    reg_tmp7.z = dot_s(reg_tmp1, reg_tmp5);
+    reg_tmp7.w = dot_s(reg_tmp1, reg_tmp6);
+    reg_tmp8.x = dot_s(reg_tmp2, reg_tmp5);
+    reg_tmp8.y = dot_s(reg_tmp2, reg_tmp6);
+    reg_tmp10 = mul_s(uniforms.f[91].wwwz, vs_in_reg2);
+    reg_tmp11 = mul_s(uniforms.f[91].wwwz, vs_in_reg3);
+    reg_tmp12 = mul_s(uniforms.f[91].wwwz, vs_in_reg4);
+    reg_tmp13 = mul_s(uniforms.f[91].wwwz, vs_in_reg5);
+    reg_tmp4.x = (vs_in_reg0.wwww).x;
+    reg_tmp0.xy = (reg_tmp7.xyyy).xy;
+    reg_tmp1.xy = (reg_tmp7.zwww).xy;
+    reg_tmp2.xy = (reg_tmp8.xyyy).xy;
+    if (uniforms.b[2]) {
+        sub_4();
+    }
+    reg_tmp5 = uniforms.f[5].wzyx;
+    reg_tmp5.w = (uniforms.f[90].wwww).w;
+    reg_tmp6 = uniforms.f[6].wzyx;
+    reg_tmp6.w = (uniforms.f[90].wwww).w;
+    reg_tmp7.x = dot_s(reg_tmp0, reg_tmp5);
+    reg_tmp7.y = dot_s(reg_tmp0, reg_tmp6);
+    reg_tmp7.z = dot_s(reg_tmp1, reg_tmp5);
+    reg_tmp7.w = dot_s(reg_tmp1, reg_tmp6);
+    reg_tmp8.x = dot_s(reg_tmp2, reg_tmp5);
+    reg_tmp8.y = dot_s(reg_tmp2, reg_tmp6);
+    reg_tmp4.x = (mul_s(uniforms.f[7].wwww, reg_tmp4.xxxx)).x;
+    reg_tmp10 = mul_s(uniforms.f[25].wzyx, reg_tmp10);
+    reg_tmp11 = mul_s(uniforms.f[25].wzyx, reg_tmp11);
+    reg_tmp12 = mul_s(uniforms.f[25].wzyx, reg_tmp12);
+    reg_tmp13 = mul_s(uniforms.f[25].wzyx, reg_tmp13);
+    reg_tmp0.xy = (reg_tmp7.xyyy).xy;
+    reg_tmp1.xy = (reg_tmp7.zwww).xy;
+    reg_tmp2.xy = (reg_tmp8.xyyy).xy;
+    return false;
+}
+bool sub_2() {
+    reg_tmp9.x = dot_s(uniforms.f[0].wzyx, reg_tmp8);
+    reg_tmp9.y = dot_s(uniforms.f[1].wzyx, reg_tmp8);
+    reg_tmp9.z = dot_s(uniforms.f[2].wzyx, reg_tmp8);
+    reg_tmp9.w = dot_s(uniforms.f[3].wzyx, reg_tmp8);
+    return false;
+}
+bool sub_3() {
+    reg_tmp9.x = dot_s(uniforms.f[8].wzyx, reg_tmp8);
+    reg_tmp9.y = dot_s(uniforms.f[9].wzyx, reg_tmp8);
+    reg_tmp9.z = dot_s(uniforms.f[10].wzyx, reg_tmp8);
+    reg_tmp9.w = dot_s(uniforms.f[11].wzyx, reg_tmp8);
+    return false;
+}
+bool sub_4() {
+    if (uniforms.b[3]) {
+        sub_5();
+    }
+    reg_tmp7.x = dot_s(uniforms.f[21].wzyx, reg_tmp0);
+    reg_tmp7.y = dot_s(uniforms.f[22].wzyx, reg_tmp0);
+    reg_tmp7.z = dot_s(uniforms.f[21].wzyx, reg_tmp1);
+    reg_tmp7.w = dot_s(uniforms.f[22].wzyx, reg_tmp1);
+    reg_tmp8.x = dot_s(uniforms.f[21].wzyx, reg_tmp2);
+    reg_tmp8.y = dot_s(uniforms.f[22].wzyx, reg_tmp2);
+    reg_tmp4.x = (mul_s(uniforms.f[23].wwww, reg_tmp4.xxxx)).x;
+    reg_tmp4.z = (uniforms.f[23].yyyy + reg_tmp4.zzzz).z;
+    reg_tmp10 = mul_s(uniforms.f[24].wzyx, reg_tmp10);
+    reg_tmp11 = mul_s(uniforms.f[24].wzyx, reg_tmp11);
+    reg_tmp12 = mul_s(uniforms.f[24].wzyx, reg_tmp12);
+    reg_tmp13 = mul_s(uniforms.f[24].wzyx, reg_tmp13);
+    reg_tmp0.xy = (reg_tmp7.xyyy).xy;
+    reg_tmp1.xy = (reg_tmp7.zwww).xy;
+    reg_tmp2.xy = (reg_tmp8.xyyy).xy;
+    return false;
+}
+bool sub_5() {
+    if (uniforms.b[4]) {
+        sub_6();
+    }
+    reg_tmp7.x = dot_s(uniforms.f[17].wzyx, reg_tmp0);
+    reg_tmp7.y = dot_s(uniforms.f[18].wzyx, reg_tmp0);
+    reg_tmp7.z = dot_s(uniforms.f[17].wzyx, reg_tmp1);
+    reg_tmp7.w = dot_s(uniforms.f[18].wzyx, reg_tmp1);
+    reg_tmp8.x = dot_s(uniforms.f[17].wzyx, reg_tmp2);
+    reg_tmp8.y = dot_s(uniforms.f[18].wzyx, reg_tmp2);
+    reg_tmp4.x = (mul_s(uniforms.f[19].wwww, reg_tmp4.xxxx)).x;
+    reg_tmp4.z = (uniforms.f[19].yyyy + reg_tmp4.zzzz).z;
+    reg_tmp10 = mul_s(uniforms.f[20].wzyx, reg_tmp10);
+    reg_tmp11 = mul_s(uniforms.f[20].wzyx, reg_tmp11);
+    reg_tmp12 = mul_s(uniforms.f[20].wzyx, reg_tmp12);
+    reg_tmp13 = mul_s(uniforms.f[20].wzyx, reg_tmp13);
+    reg_tmp0.xy = (reg_tmp7.xyyy).xy;
+    reg_tmp1.xy = (reg_tmp7.zwww).xy;
+    reg_tmp2.xy = (reg_tmp8.xyyy).xy;
+    return false;
+}
+bool sub_6() {
+    reg_tmp7.x = dot_s(uniforms.f[13].wzyx, reg_tmp0);
+    reg_tmp7.y = dot_s(uniforms.f[14].wzyx, reg_tmp0);
+    reg_tmp7.z = dot_s(uniforms.f[13].wzyx, reg_tmp1);
+    reg_tmp7.w = dot_s(uniforms.f[14].wzyx, reg_tmp1);
+    reg_tmp8.x = dot_s(uniforms.f[13].wzyx, reg_tmp2);
+    reg_tmp8.y = dot_s(uniforms.f[14].wzyx, reg_tmp2);
+    reg_tmp4.x = (mul_s(uniforms.f[15].wwww, reg_tmp4.xxxx)).x;
+    reg_tmp4.z = (uniforms.f[15].yyyy + reg_tmp4.zzzz).z;
+    reg_tmp10 = mul_s(uniforms.f[16].wzyx, reg_tmp10);
+    reg_tmp11 = mul_s(uniforms.f[16].wzyx, reg_tmp11);
+    reg_tmp12 = mul_s(uniforms.f[16].wzyx, reg_tmp12);
+    reg_tmp13 = mul_s(uniforms.f[16].wzyx, reg_tmp13);
+    reg_tmp0.xy = (reg_tmp7.xyyy).xy;
+    reg_tmp1.xy = (reg_tmp7.zwww).xy;
+    reg_tmp2.xy = (reg_tmp8.xyyy).xy;
+    return false;
+}
+bool sub_7() {
+    reg_tmp10 = vs_in_reg0.xyzz;
+    reg_tmp10.w = (uniforms.f[90].zzzz).w;
+    reg_tmp4.z = (uniforms.f[90].wwww).z;
+    if (uniforms.b[1]) {
+        sub_8();
+    } else {
+        sub_9();
+    }
+    reg_tmp0.xy = (-vs_in_reg1.xyyy).xy;
+    reg_tmp0.zw = (uniforms.f[90].wzwz).zw;
+    reg_tmp1.x = (-vs_in_reg1.xxxx).x;
+    reg_tmp1.y = (-vs_in_reg1.wwww).y;
+    reg_tmp1.zw = (uniforms.f[90].wzwz).zw;
+    reg_tmp7 = vec4(rcp_s(reg_tmp9.w));
+    reg_tmp2.x = (-vs_in_reg1.zzzz).x;
+    reg_tmp2.y = (-vs_in_reg1.yyyy).y;
+    reg_tmp2.zw = (uniforms.f[90].wzwz).zw;
+    reg_tmp4.w = (reg_tmp9.wwww).w;
+    reg_tmp9 = mul_s(reg_tmp9, reg_tmp7);
+    reg_tmp5.xy = (vs_in_reg7.zwww).xy;
+    reg_tmp5.z = (uniforms.f[90].wwww).z;
+    reg_tmp8.xy = (mul_s(uniforms.f[12].yzzz, reg_tmp9.yxxx)).xy;
+    reg_tmp6.x = (-vs_in_reg7.wwww).x;
+    reg_tmp6.y = (vs_in_reg7.zzzz).y;
+    reg_tmp6.z = (uniforms.f[90].wwww).z;
+    reg_tmp5.w = (reg_tmp8.xxxx).w;
+    reg_tmp6.w = (reg_tmp8.yyyy).w;
+    reg_tmp7.x = dot_s(reg_tmp0, reg_tmp5);
+    reg_tmp7.y = dot_s(reg_tmp0, reg_tmp6);
+    reg_tmp7.z = dot_s(reg_tmp1, reg_tmp5);
+    reg_tmp7.w = dot_s(reg_tmp1, reg_tmp6);
+    reg_tmp8.x = dot_s(reg_tmp2, reg_tmp5);
+    reg_tmp8.y = dot_s(reg_tmp2, reg_tmp6);
+    reg_tmp10 = mul_s(uniforms.f[91].wwwz, vs_in_reg2);
+    reg_tmp11 = mul_s(uniforms.f[91].wwwz, vs_in_reg3);
+    reg_tmp12 = mul_s(uniforms.f[91].wwwz, vs_in_reg4);
+    reg_tmp13 = mul_s(uniforms.f[91].wwwz, vs_in_reg5);
+    reg_tmp4.x = (vs_in_reg0.wwww).x;
+    reg_tmp0.xy = (reg_tmp7.xyyy).xy;
+    reg_tmp1.xy = (reg_tmp7.zwww).xy;
+    reg_tmp2.xy = (reg_tmp8.xyyy).xy;
+    return false;
+}
+bool sub_8() {
+    reg_tmp9.x = dot_s(uniforms.f[0].wzyx, reg_tmp10);
+    reg_tmp9.y = dot_s(uniforms.f[1].wzyx, reg_tmp10);
+    reg_tmp9.z = dot_s(uniforms.f[2].wzyx, reg_tmp10);
+    reg_tmp9.w = dot_s(uniforms.f[3].wzyx, reg_tmp10);
+    return false;
+}
+bool sub_9() {
+    reg_tmp9.x = dot_s(uniforms.f[8].wzyx, reg_tmp10);
+    reg_tmp9.y = dot_s(uniforms.f[9].wzyx, reg_tmp10);
+    reg_tmp9.z = dot_s(uniforms.f[10].wzyx, reg_tmp10);
+    reg_tmp9.w = dot_s(uniforms.f[11].wzyx, reg_tmp10);
+    return false;
+}
+bool sub_10() {
+    reg_tmp0 = uniforms.f[90].wwwz;
+    reg_tmp1 = uniforms.f[90].wwwz;
+    reg_tmp2 = uniforms.f[90].wwwz;
+    return false;
+}
+bool sub_11() {
+    reg_tmp4.x = (mul_s(uniforms.f[12].wwww, reg_tmp4.zzzz)).x;
+    reg_tmp4.w = (uniforms.f[4].wzyx).w;
+    conditional_code = lessThanEqual(uniforms.f[90].ww, reg_tmp4.ww);
+    if (conditional_code.x) {
+        sub_12();
+    } else {
+        sub_13();
+    }
+    return false;
+}
+bool sub_12() {
+    reg_tmp0.x = (reg_tmp0.xxxx + reg_tmp4.xxxx).x;
+    reg_tmp1.x = (reg_tmp1.xxxx + reg_tmp4.xxxx).x;
+    reg_tmp2.x = (reg_tmp2.xxxx + reg_tmp4.xxxx).x;
+    return false;
+}
+bool sub_13() {
+    reg_tmp0.x = (reg_tmp0.xxxx + -reg_tmp4.xxxx).x;
+    reg_tmp1.x = (reg_tmp1.xxxx + -reg_tmp4.xxxx).x;
+    reg_tmp2.x = (reg_tmp2.xxxx + -reg_tmp4.xxxx).x;
+    return false;
+}
+// reference: A173A79C536DDF4B, EE99BAD0122362FE
+// program: EE99BAD0122362FE, 0920F64BD0BE6DC7, 5E65ED330DD86C52
+// program: 309177F344E6BF06, DDD543B7EFD7D3AC, 44776903C2844A30
+// shader: 8B30, 2FD5F2CA112E5E9C
+in vec4 primary_color;
+in vec2 texcoord0;
+in vec2 texcoord1;
+in vec2 texcoord2;
+in float texcoord0_w;
+in vec4 normquat;
+in vec3 view;
+
+#ifndef CITRA_GLES
+in vec4 gl_FragCoord;
+#endif // CITRA_GLES
+out vec4 color;
+
+uniform sampler2D tex0;
+uniform sampler2D tex1;
+uniform sampler2D tex2;
+uniform samplerCube tex_cube;
+uniform samplerBuffer texture_buffer_lut_lf;
+uniform samplerBuffer texture_buffer_lut_rg;
+uniform samplerBuffer texture_buffer_lut_rgba;
+
+#define NUM_TEV_STAGES 6
+layout (std140) uniform shader_data {
+    int alphatest_ref;
+    float depth_scale;
+    float depth_offset;
+    float shadow_bias_constant;
+    float shadow_bias_linear;
+    int scissor_x1;
+    int scissor_y1;
+    int scissor_x2;
+    int scissor_y2;
+    int fog_lut_offset;
+    int proctex_noise_lut_offset;
+    int proctex_color_map_offset;
+    int proctex_alpha_map_offset;
+    int proctex_lut_offset;
+    int proctex_diff_lut_offset;
+    float proctex_bias;
+    vec3 fog_color;
+    vec2 proctex_noise_f;
+    vec2 proctex_noise_a;
+    vec2 proctex_noise_p;
+    vec4 const_color[NUM_TEV_STAGES];
+    vec4 tev_combiner_buffer_color;
+    vec4 clip_coef;
+};
+
+#define NUM_LIGHTS 8
+#define NUM_LIGHTING_SAMPLERS 24
+struct LightSrc {
+    vec3 specular_0;
+    vec3 specular_1;
+    vec3 diffuse;
+    vec3 ambient;
+    vec3 position;
+    vec3 spot_direction;
+    float dist_atten_bias;
+    float dist_atten_scale;
+};
+layout (std140) uniform shader_light_data {
+    ivec4 lighting_lut_offset[NUM_LIGHTING_SAMPLERS / 4];
+    vec3 lighting_global_ambient;
+    LightSrc light_src[NUM_LIGHTS];
+    float lut_scale_d0;
+    float lut_scale_d1;
+    float lut_scale_sp;
+    float lut_scale_fr;
+    float lut_scale_rb;
+    float lut_scale_rg;
+    float lut_scale_rr;
+    int shadow_texture_bias;
+};
+
+// Rotate the vector v by the quaternion q
+vec3 quaternion_rotate(vec4 q, vec3 v) {
+    return v + 2.0 * cross(q.xyz, cross(q.xyz, v) + q.w * v);
+}
+
+float LookupLightingLUT(int lut_index, int index, float delta) {
+    vec2 entry = texelFetch(texture_buffer_lut_lf, lighting_lut_offset[lut_index >> 2][lut_index & 3] + index).rg;
+    return entry.r + entry.g * delta;
+}
+
+float LookupLightingLUTUnsigned(int lut_index, float pos) {
+    int index = clamp(int(pos * 256.0), 0, 255);
+    float delta = pos * 256.0 - float(index);
+    return LookupLightingLUT(lut_index, index, delta);
+}
+
+float LookupLightingLUTSigned(int lut_index, float pos) {
+    int index = clamp(int(pos * 128.0), -128, 127);
+    float delta = pos * 128.0 - float(index);
+    if (index < 0) index += 256;
+    return LookupLightingLUT(lut_index, index, delta);
+}
+
+float byteround(float x) {
+    return round(x * 255.0) * (1.0 / 255.0);
+}
+
+vec2 byteround(vec2 x) {
+    return round(x * 255.0) * (1.0 / 255.0);
+}
+
+vec3 byteround(vec3 x) {
+    return round(x * 255.0) * (1.0 / 255.0);
+}
+
+vec4 byteround(vec4 x) {
+    return round(x * 255.0) * (1.0 / 255.0);
+}
+
+float getLod(vec2 coord) {
+    vec2 d = max(abs(dFdx(coord)), abs(dFdy(coord)));
+    return log2(max(d.x, d.y));
+}
+
+vec4 shadowTexture(vec2 uv, float w) {
+    return vec4(1.0);
+}
+
+vec4 shadowTextureCube(vec2 uv, float w) {
+    return vec4(1.0);
+}
+
+void main() {
+vec4 rounded_primary_color = byteround(primary_color);
+vec4 primary_fragment_color = vec4(0.0);
+vec4 secondary_fragment_color = vec4(0.0);
+if (!(gl_FragCoord.x >= float(scissor_x1) && gl_FragCoord.y >= float(scissor_y1) && gl_FragCoord.x < float(scissor_x2) && gl_FragCoord.y < float(scissor_y2))) discard;
+float z_over_w = 2.0 * gl_FragCoord.z - 1.0;
+float depth = z_over_w * depth_scale + depth_offset;
+vec4 texcolor0 = textureLod(tex0, texcoord0, getLod(texcoord0 * vec2(textureSize(tex0, 0))));
+vec4 texcolor1 = textureLod(tex1, texcoord1, getLod(texcoord1 * vec2(textureSize(tex1, 0))));
+
+vec4 diffuse_sum = vec4(0.0, 0.0, 0.0, 1.0);
+vec4 specular_sum = vec4(0.0, 0.0, 0.0, 1.0);
+vec3 light_vector = vec3(0.0);
+vec3 refl_value = vec3(0.0);
+vec3 spot_dir = vec3(0.0);
+vec3 half_vector = vec3(0.0);
+float dot_product = 0.0;
+float clamp_highlights = 1.0;
+float geo_factor = 1.0;
+vec3 surface_normal = vec3(0.0, 0.0, 1.0);
+vec3 surface_tangent = vec3(1.0, 0.0, 0.0);
+vec4 normalized_normquat = normalize(normquat);
+vec3 normal = quaternion_rotate(normalized_normquat, surface_normal);
+vec3 tangent = quaternion_rotate(normalized_normquat, surface_tangent);
+vec4 shadow = texcolor0;
+light_vector = normalize(light_src[0].position);
+spot_dir = light_src[0].spot_direction;
+half_vector = normalize(view) + light_vector;
+dot_product = max(dot(light_vector, normal), 0.0);
+clamp_highlights = sign(dot_product);
+refl_value.r = (lut_scale_rr * LookupLightingLUTUnsigned(6, max(dot(normal, normalize(half_vector)), 0.0)));
+refl_value.g = refl_value.r;
+refl_value.b = refl_value.r;
+diffuse_sum.rgb += ((light_src[0].diffuse * dot_product) + light_src[0].ambient) * 1.0;
+specular_sum.rgb += ((light_src[0].specular_0) + (refl_value * light_src[0].specular_1)) * clamp_highlights * 1.0;
+light_vector = normalize(light_src[1].position);
+spot_dir = light_src[1].spot_direction;
+half_vector = normalize(view) + light_vector;
+dot_product = max(dot(light_vector, normal), 0.0);
+clamp_highlights = sign(dot_product);
+refl_value.r = (lut_scale_rr * LookupLightingLUTUnsigned(6, max(dot(normal, normalize(half_vector)), 0.0)));
+refl_value.g = refl_value.r;
+refl_value.b = refl_value.r;
+diffuse_sum.a = (lut_scale_fr * LookupLightingLUTUnsigned(3, max(dot(normal, normalize(view)), 0.0)));
+specular_sum.a = (lut_scale_fr * LookupLightingLUTUnsigned(3, max(dot(normal, normalize(view)), 0.0)));
+diffuse_sum.rgb += ((light_src[1].diffuse * dot_product) + light_src[1].ambient) * 1.0;
+specular_sum.rgb += ((light_src[1].specular_0) + (refl_value * light_src[1].specular_1)) * clamp_highlights * 1.0;
+diffuse_sum.rgb += lighting_global_ambient;
+primary_fragment_color = clamp(diffuse_sum, vec4(0.0), vec4(1.0));
+secondary_fragment_color = clamp(specular_sum, vec4(0.0), vec4(1.0));
+vec4 combiner_buffer = vec4(0.0);
+vec4 next_combiner_buffer = tev_combiner_buffer_color;
+vec4 last_tex_env_out = vec4(0.0);
+vec3 color_output_0 = byteround(clamp((texcolor1.rgb) * (const_color[0].rgb), vec3(0.0), vec3(1.0)));
+float alpha_output_0 = (texcolor1.a);
+last_tex_env_out = vec4(color_output_0, alpha_output_0);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
+combiner_buffer = next_combiner_buffer;
+next_combiner_buffer.rgb = last_tex_env_out.rgb;
+next_combiner_buffer.a = last_tex_env_out.a;
+
+vec3 color_output_1 = byteround(clamp(min((const_color[1].aaa) + (const_color[1].rgb), vec3(1.0)) * (rounded_primary_color.rgb), vec3(0.0), vec3(1.0)));
+float alpha_output_1 = (last_tex_env_out.a);
+last_tex_env_out = vec4(color_output_1, alpha_output_1);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
+combiner_buffer = next_combiner_buffer;
+next_combiner_buffer.rgb = last_tex_env_out.rgb;
+next_combiner_buffer.a = last_tex_env_out.a;
+
+vec3 color_output_2 = byteround(clamp(min((last_tex_env_out.rgb) + (primary_fragment_color.rgb), vec3(1.0)) * (combiner_buffer.rgb), vec3(0.0), vec3(1.0)));
+float alpha_output_2 = byteround(clamp((last_tex_env_out.a) * (const_color[2].a), 0.0, 1.0));
+last_tex_env_out = vec4(color_output_2, alpha_output_2);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
+combiner_buffer = next_combiner_buffer;
+next_combiner_buffer.rgb = last_tex_env_out.rgb;
+next_combiner_buffer.a = last_tex_env_out.a;
+
+vec3 color_output_3 = byteround(clamp((last_tex_env_out.aaa) * (texcolor1.rgb), vec3(0.0), vec3(1.0)));
+float alpha_output_3 = (texcolor1.a);
+last_tex_env_out = vec4(color_output_3, alpha_output_3);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
+combiner_buffer = next_combiner_buffer;
+next_combiner_buffer.a = last_tex_env_out.a;
+
+vec3 color_output_4 = byteround(clamp(min((secondary_fragment_color.rgb) + (secondary_fragment_color.aaa), vec3(1.0)) * (last_tex_env_out.rgb), vec3(0.0), vec3(1.0)));
+float alpha_output_4 = (const_color[4].a);
+last_tex_env_out = vec4(color_output_4, alpha_output_4);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
+combiner_buffer = next_combiner_buffer;
+
+vec3 color_output_5 = byteround(clamp(min((last_tex_env_out.rgb) + (combiner_buffer.rgb), vec3(1.0)) * (last_tex_env_out.aaa), vec3(0.0), vec3(1.0)));
+float alpha_output_5 = byteround(clamp((combiner_buffer.a) * (const_color[5].a), 0.0, 1.0));
+last_tex_env_out = vec4(color_output_5, alpha_output_5);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
+combiner_buffer = next_combiner_buffer;
+
+float fog_index = depth * 128.0;
+int fog_i = int(fog_index);
+float fog_f = fract(fog_index);
+vec2 fog_lut_entry = texelFetch(texture_buffer_lut_lf, fog_i + fog_lut_offset).rg;
+float fog_factor = fog_lut_entry.r + fog_lut_entry.g * fog_f;
+fog_factor = clamp(fog_factor, 0.0, 1.0);
+last_tex_env_out.rgb = mix(fog_color.rgb, last_tex_env_out.rgb, fog_factor);
+gl_FragDepth = depth;
+color = byteround(last_tex_env_out);
+}
+// reference: 15B46380D306C47B, 2FD5F2CA112E5E9C
+// program: 22186AF454C341E4, A29BAEF5C1BA44F2, 2FD5F2CA112E5E9C
+// reference: 65D82EDF5BA70EEA, 2E087FB340C37151
+// program: 270E94B55796EDB7, B99A1F5927E7BF45, ADCD78D3AA75430B
+// program: 2E087FB340C37151, B99A1F5927E7BF45, F9B4C593A3D3DA16
+// program: 2E087FB340C37151, B99A1F5927E7BF45, 1C8DEB3984887738
+// program: 270E94B55796EDB7, B99A1F5927E7BF45, 6828EA115E3DDD8F
+// program: 270E94B55796EDB7, B99A1F5927E7BF45, 61A1DE6946426EC9
+// program: 270E94B55796EDB7, B99A1F5927E7BF45, 237DD5B809CF981D
+// program: 270E94B55796EDB7, B99A1F5927E7BF45, 026BCDEDBD69CC00
+// program: 2E087FB340C37151, B99A1F5927E7BF45, CF4056FA84410282
+// program: 270E94B55796EDB7, B99A1F5927E7BF45, D93A97F40FE3F073
+// shader: 8B30, 67843FD39430F224
+in vec4 primary_color;
+in vec2 texcoord0;
+in vec2 texcoord1;
+in vec2 texcoord2;
+in float texcoord0_w;
+in vec4 normquat;
+in vec3 view;
+
+#ifndef CITRA_GLES
+in vec4 gl_FragCoord;
+#endif // CITRA_GLES
+out vec4 color;
+
+uniform sampler2D tex0;
+uniform sampler2D tex1;
+uniform sampler2D tex2;
+uniform samplerCube tex_cube;
+uniform samplerBuffer texture_buffer_lut_lf;
+uniform samplerBuffer texture_buffer_lut_rg;
+uniform samplerBuffer texture_buffer_lut_rgba;
+
+#define NUM_TEV_STAGES 6
+layout (std140) uniform shader_data {
+    int alphatest_ref;
+    float depth_scale;
+    float depth_offset;
+    float shadow_bias_constant;
+    float shadow_bias_linear;
+    int scissor_x1;
+    int scissor_y1;
+    int scissor_x2;
+    int scissor_y2;
+    int fog_lut_offset;
+    int proctex_noise_lut_offset;
+    int proctex_color_map_offset;
+    int proctex_alpha_map_offset;
+    int proctex_lut_offset;
+    int proctex_diff_lut_offset;
+    float proctex_bias;
+    vec3 fog_color;
+    vec2 proctex_noise_f;
+    vec2 proctex_noise_a;
+    vec2 proctex_noise_p;
+    vec4 const_color[NUM_TEV_STAGES];
+    vec4 tev_combiner_buffer_color;
+    vec4 clip_coef;
+};
+
+#define NUM_LIGHTS 8
+#define NUM_LIGHTING_SAMPLERS 24
+struct LightSrc {
+    vec3 specular_0;
+    vec3 specular_1;
+    vec3 diffuse;
+    vec3 ambient;
+    vec3 position;
+    vec3 spot_direction;
+    float dist_atten_bias;
+    float dist_atten_scale;
+};
+layout (std140) uniform shader_light_data {
+    ivec4 lighting_lut_offset[NUM_LIGHTING_SAMPLERS / 4];
+    vec3 lighting_global_ambient;
+    LightSrc light_src[NUM_LIGHTS];
+    float lut_scale_d0;
+    float lut_scale_d1;
+    float lut_scale_sp;
+    float lut_scale_fr;
+    float lut_scale_rb;
+    float lut_scale_rg;
+    float lut_scale_rr;
+    int shadow_texture_bias;
+};
+
+// Rotate the vector v by the quaternion q
+vec3 quaternion_rotate(vec4 q, vec3 v) {
+    return v + 2.0 * cross(q.xyz, cross(q.xyz, v) + q.w * v);
+}
+
+float LookupLightingLUT(int lut_index, int index, float delta) {
+    vec2 entry = texelFetch(texture_buffer_lut_lf, lighting_lut_offset[lut_index >> 2][lut_index & 3] + index).rg;
+    return entry.r + entry.g * delta;
+}
+
+float LookupLightingLUTUnsigned(int lut_index, float pos) {
+    int index = clamp(int(pos * 256.0), 0, 255);
+    float delta = pos * 256.0 - float(index);
+    return LookupLightingLUT(lut_index, index, delta);
+}
+
+float LookupLightingLUTSigned(int lut_index, float pos) {
+    int index = clamp(int(pos * 128.0), -128, 127);
+    float delta = pos * 128.0 - float(index);
+    if (index < 0) index += 256;
+    return LookupLightingLUT(lut_index, index, delta);
+}
+
+float byteround(float x) {
+    return round(x * 255.0) * (1.0 / 255.0);
+}
+
+vec2 byteround(vec2 x) {
+    return round(x * 255.0) * (1.0 / 255.0);
+}
+
+vec3 byteround(vec3 x) {
+    return round(x * 255.0) * (1.0 / 255.0);
+}
+
+vec4 byteround(vec4 x) {
+    return round(x * 255.0) * (1.0 / 255.0);
+}
+
+float getLod(vec2 coord) {
+    vec2 d = max(abs(dFdx(coord)), abs(dFdy(coord)));
+    return log2(max(d.x, d.y));
+}
+
+vec4 shadowTexture(vec2 uv, float w) {
+    return vec4(1.0);
+}
+
+vec4 shadowTextureCube(vec2 uv, float w) {
+    return vec4(1.0);
+}
+
+void main() {
+vec4 rounded_primary_color = byteround(primary_color);
+vec4 primary_fragment_color = vec4(0.0);
+vec4 secondary_fragment_color = vec4(0.0);
+if (!(gl_FragCoord.x >= float(scissor_x1) && gl_FragCoord.y >= float(scissor_y1) && gl_FragCoord.x < float(scissor_x2) && gl_FragCoord.y < float(scissor_y2))) discard;
+float z_over_w = 2.0 * gl_FragCoord.z - 1.0;
+float depth = z_over_w * depth_scale + depth_offset;
+vec4 texcolor1 = textureLod(tex1, texcoord1, getLod(texcoord1 * vec2(textureSize(tex1, 0))));
+
+vec4 diffuse_sum = vec4(0.0, 0.0, 0.0, 1.0);
+vec4 specular_sum = vec4(0.0, 0.0, 0.0, 1.0);
+vec3 light_vector = vec3(0.0);
+vec3 refl_value = vec3(0.0);
+vec3 spot_dir = vec3(0.0);
+vec3 half_vector = vec3(0.0);
+float dot_product = 0.0;
+float clamp_highlights = 1.0;
+float geo_factor = 1.0;
+vec3 surface_normal = vec3(0.0, 0.0, 1.0);
+vec3 surface_tangent = vec3(1.0, 0.0, 0.0);
+vec4 normalized_normquat = normalize(normquat);
+vec3 normal = quaternion_rotate(normalized_normquat, surface_normal);
+vec3 tangent = quaternion_rotate(normalized_normquat, surface_tangent);
+vec4 shadow = shadowTexture(texcoord0, texcoord0_w);
+light_vector = normalize(light_src[0].position);
+spot_dir = light_src[0].spot_direction;
+half_vector = normalize(view) + light_vector;
+dot_product = max(dot(light_vector, normal), 0.0);
+clamp_highlights = sign(dot_product);
+refl_value.r = (lut_scale_rr * LookupLightingLUTUnsigned(6, max(dot(normal, normalize(half_vector)), 0.0)));
+refl_value.g = refl_value.r;
+refl_value.b = refl_value.r;
+diffuse_sum.rgb += ((light_src[0].diffuse * dot_product) + light_src[0].ambient) * 1.0;
+specular_sum.rgb += ((light_src[0].specular_0) + (refl_value * light_src[0].specular_1)) * clamp_highlights * 1.0;
+light_vector = normalize(light_src[1].position);
+spot_dir = light_src[1].spot_direction;
+half_vector = normalize(view) + light_vector;
+dot_product = max(dot(light_vector, normal), 0.0);
+clamp_highlights = sign(dot_product);
+refl_value.r = (lut_scale_rr * LookupLightingLUTUnsigned(6, max(dot(normal, normalize(half_vector)), 0.0)));
+refl_value.g = refl_value.r;
+refl_value.b = refl_value.r;
+diffuse_sum.a = (lut_scale_fr * LookupLightingLUTUnsigned(3, max(dot(normal, normalize(view)), 0.0)));
+specular_sum.a = (lut_scale_fr * LookupLightingLUTUnsigned(3, max(dot(normal, normalize(view)), 0.0)));
+diffuse_sum.rgb += ((light_src[1].diffuse * dot_product) + light_src[1].ambient) * 1.0;
+specular_sum.rgb += ((light_src[1].specular_0) + (refl_value * light_src[1].specular_1)) * clamp_highlights * 1.0;
+diffuse_sum.rgb += lighting_global_ambient;
+primary_fragment_color = clamp(diffuse_sum, vec4(0.0), vec4(1.0));
+secondary_fragment_color = clamp(specular_sum, vec4(0.0), vec4(1.0));
+vec4 combiner_buffer = vec4(0.0);
+vec4 next_combiner_buffer = tev_combiner_buffer_color;
+vec4 last_tex_env_out = vec4(0.0);
+vec3 color_output_0 = byteround(clamp((texcolor1.rgb) * (const_color[0].rgb), vec3(0.0), vec3(1.0)));
+float alpha_output_0 = (const_color[0].a);
+last_tex_env_out = vec4(color_output_0, alpha_output_0);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
+combiner_buffer = next_combiner_buffer;
+next_combiner_buffer.rgb = last_tex_env_out.rgb;
+next_combiner_buffer.a = last_tex_env_out.a;
+
+vec3 color_output_1 = byteround(clamp(min((const_color[1].aaa) + (const_color[1].rgb), vec3(1.0)) * (rounded_primary_color.rgb), vec3(0.0), vec3(1.0)));
+float alpha_output_1 = (last_tex_env_out.a);
+last_tex_env_out = vec4(color_output_1, alpha_output_1);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
+combiner_buffer = next_combiner_buffer;
+next_combiner_buffer.rgb = last_tex_env_out.rgb;
+next_combiner_buffer.a = last_tex_env_out.a;
+
+vec3 color_output_2 = byteround(clamp(min((last_tex_env_out.rgb) + (primary_fragment_color.rgb), vec3(1.0)) * (combiner_buffer.rgb), vec3(0.0), vec3(1.0)));
+float alpha_output_2 = byteround(clamp((last_tex_env_out.a) * (const_color[2].a), 0.0, 1.0));
+last_tex_env_out = vec4(color_output_2, alpha_output_2);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
+combiner_buffer = next_combiner_buffer;
+next_combiner_buffer.rgb = last_tex_env_out.rgb;
+next_combiner_buffer.a = last_tex_env_out.a;
+
+vec3 color_output_3 = byteround(clamp((last_tex_env_out.aaa) * (const_color[3].rgb), vec3(0.0), vec3(1.0)));
+float alpha_output_3 = (texcolor1.a);
+last_tex_env_out = vec4(color_output_3, alpha_output_3);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
+combiner_buffer = next_combiner_buffer;
+next_combiner_buffer.a = last_tex_env_out.a;
+
+vec3 color_output_4 = byteround(clamp((last_tex_env_out.rgb) * (secondary_fragment_color.rgb), vec3(0.0), vec3(1.0)));
+float alpha_output_4 = (const_color[4].a);
+last_tex_env_out = vec4(color_output_4, alpha_output_4);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
+combiner_buffer = next_combiner_buffer;
+
+vec3 color_output_5 = byteround(clamp(min((last_tex_env_out.rgb) + (combiner_buffer.rgb), vec3(1.0)) * (last_tex_env_out.aaa), vec3(0.0), vec3(1.0)));
+float alpha_output_5 = byteround(clamp((combiner_buffer.a) * (const_color[5].a), 0.0, 1.0));
+last_tex_env_out = vec4(color_output_5, alpha_output_5);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
+combiner_buffer = next_combiner_buffer;
+
+float fog_index = depth * 128.0;
+int fog_i = int(fog_index);
+float fog_f = fract(fog_index);
+vec2 fog_lut_entry = texelFetch(texture_buffer_lut_lf, fog_i + fog_lut_offset).rg;
+float fog_factor = fog_lut_entry.r + fog_lut_entry.g * fog_f;
+fog_factor = clamp(fog_factor, 0.0, 1.0);
+last_tex_env_out.rgb = mix(fog_color.rgb, last_tex_env_out.rgb, fog_factor);
+gl_FragDepth = depth;
+color = byteround(last_tex_env_out);
+}
+// reference: 3FBDC4992EEA4A8B, 67843FD39430F224
+// program: 270E94B55796EDB7, B99A1F5927E7BF45, 67843FD39430F224
+// program: 270E94B55796EDB7, B99A1F5927E7BF45, 1B8AE513BBEBC6FA
+// program: 270E94B55796EDB7, B99A1F5927E7BF45, F50FD774C8409F03
+// program: 270E94B55796EDB7, B99A1F5927E7BF45, 9EA87616687FAC17
+// program: 270E94B55796EDB7, B99A1F5927E7BF45, 53D1E9C1333B1A79
+// program: 270E94B55796EDB7, B99A1F5927E7BF45, 7DB86084B088A375
+// program: 270E94B55796EDB7, B99A1F5927E7BF45, 5F278AB424CC2FBC
+// program: 270E94B55796EDB7, B99A1F5927E7BF45, 6F1A00558B054241
+// program: 270E94B55796EDB7, B99A1F5927E7BF45, 35B3B5DDAD8E239E
+// program: 270E94B55796EDB7, B99A1F5927E7BF45, 7C0AABC1B728EF26
+// program: 270E94B55796EDB7, B99A1F5927E7BF45, BCA8A7285BEEEC3A
+// program: 270E94B55796EDB7, B99A1F5927E7BF45, 06A195032577E0B8
+// program: 270E94B55796EDB7, B99A1F5927E7BF45, F3780D1DC3E223B9
+// program: 270E94B55796EDB7, B99A1F5927E7BF45, E327B924D509AEE3
+// program: 270E94B55796EDB7, B99A1F5927E7BF45, 4CF26D26743FEB37
+// program: 270E94B55796EDB7, B99A1F5927E7BF45, 4D649C5FF903D8AF
+// reference: 2D9C866F9D939A31, E45928C189BB7782
+// program: E45928C189BB7782, 219384019281D7FD, 7A2A9F5E151699CA
+// program: E45928C189BB7782, 219384019281D7FD, 44776903C2844A30
+// program: 270E94B55796EDB7, B99A1F5927E7BF45, F782916E616C85B3
+// program: 270E94B55796EDB7, B99A1F5927E7BF45, 71DBA48A30815B8C
+// program: 270E94B55796EDB7, B99A1F5927E7BF45, 6F2035C4E85743D6
+// program: 270E94B55796EDB7, B99A1F5927E7BF45, 115527923A7F28C5
+// program: 22186AF454C341E4, A29BAEF5C1BA44F2, CDB9F2D760D81614
+// program: 270E94B55796EDB7, B99A1F5927E7BF45, 91E0DB69EB539CEF
+// program: 270E94B55796EDB7, B99A1F5927E7BF45, 3C4BFB839BFA6723
+// program: 2E087FB340C37151, B99A1F5927E7BF45, 03135BF29768B71F
+// program: 270E94B55796EDB7, B99A1F5927E7BF45, 377207C07BC006AC
+// program: 270E94B55796EDB7, B99A1F5927E7BF45, B76B839C9EF7EB27
+// program: 270E94B55796EDB7, B99A1F5927E7BF45, 4397B804D112188A
+// program: 270E94B55796EDB7, B99A1F5927E7BF45, 30857717E5AAD6DA
+// program: 2E087FB340C37151, B99A1F5927E7BF45, E287DA1ECFF10132
+// program: 270E94B55796EDB7, B99A1F5927E7BF45, A465F49DB5A5715A
+// program: 270E94B55796EDB7, B99A1F5927E7BF45, A3CA4945E32FEB23
+// program: 270E94B55796EDB7, B99A1F5927E7BF45, F4C15CE718A90893
+// shader: 8DD9, B663310C37F5108B
+
+#define mul_s(x, y) (x * y)
+#define fma_s(x, y, z) fma(x, y, z)
+#define rcp_s(x) (1.0 / x)
+#define rsq_s(x) inversesqrt(x)
+#define dot_s(x, y) dot(x, y)
+#define dot_3(x, y) dot(x, y)
+layout(points) in;
+layout(triangle_strip, max_vertices = 30) out;
+out vec4 primary_color;
+out vec2 texcoord0;
+out vec2 texcoord1;
+out vec2 texcoord2;
+out float texcoord0_w;
+out vec4 normquat;
+out vec3 view;
+
+#define NUM_TEV_STAGES 6
+layout (std140) uniform shader_data {
+    int alphatest_ref;
+    float depth_scale;
+    float depth_offset;
+    float shadow_bias_constant;
+    float shadow_bias_linear;
+    int scissor_x1;
+    int scissor_y1;
+    int scissor_x2;
+    int scissor_y2;
+    int fog_lut_offset;
+    int proctex_noise_lut_offset;
+    int proctex_color_map_offset;
+    int proctex_alpha_map_offset;
+    int proctex_lut_offset;
+    int proctex_diff_lut_offset;
+    float proctex_bias;
+    vec3 fog_color;
+    vec2 proctex_noise_f;
+    vec2 proctex_noise_a;
+    vec2 proctex_noise_p;
+    vec4 const_color[NUM_TEV_STAGES];
+    vec4 tev_combiner_buffer_color;
+    vec4 clip_coef;
+};
+
+in vec4 vs_out_attr0[];
+in vec4 vs_out_attr1[];
+in vec4 vs_out_attr2[];
+in vec4 vs_out_attr3[];
+in vec4 vs_out_attr4[];
+in vec4 vs_out_attr5[];
+in vec4 vs_out_attr6[];
+in vec4 vs_out_attr7[];
+
+struct pica_uniforms {
+    bool b[16];
+    uvec4 i[4];
+    vec4 f[96];
+};
+
+bool exec_shader();
+
+#define uniforms gs_uniforms
+layout (std140) uniform gs_config {
+    pica_uniforms uniforms;
+};
+struct Vertex {
+    vec4 attributes[5];
+};
+
+vec4 GetVertexQuaternion(Vertex vtx) {
+    return vec4(vtx.attributes[3].x, vtx.attributes[3].y, vtx.attributes[3].z, vtx.attributes[3].w);
+}
+
+void EmitVtx(Vertex vtx, bool quats_opposite) {
+    vec4 vtx_pos = vec4(vtx.attributes[0].x, vtx.attributes[0].y, vtx.attributes[0].z, vtx.attributes[0].w);
+    gl_Position = vtx_pos;
+#if !defined(CITRA_GLES) || defined(GL_EXT_clip_cull_distance)
+    gl_ClipDistance[0] = -vtx_pos.z;
+    gl_ClipDistance[1] = dot(clip_coef, vtx_pos);
+#endif // !defined(CITRA_GLES) || defined(GL_EXT_clip_cull_distance)
+
+    vec4 vtx_quat = GetVertexQuaternion(vtx);
+    normquat = mix(vtx_quat, -vtx_quat, bvec4(quats_opposite));
+
+    vec4 vtx_color = vec4(vtx.attributes[1].x, vtx.attributes[1].y, vtx.attributes[1].z, vtx.attributes[1].w);
+    primary_color = min(abs(vtx_color), vec4(1.0));
+
+    texcoord0 = vec2(vtx.attributes[2].z, vtx.attributes[2].w);
+    texcoord1 = vec2(vtx.attributes[2].x, vtx.attributes[2].y);
+
+    texcoord0_w = vtx.attributes[4].w;
+    view = vec3(vtx.attributes[4].x, vtx.attributes[4].y, vtx.attributes[4].z);
+    texcoord2 = vec2(0.0, 0.0);
+
+    EmitVertex();
+}
+
+bool AreQuaternionsOpposite(vec4 qa, vec4 qb) {
+    return (dot(qa, qb) < 0.0);
+}
+
+void EmitPrim(Vertex vtx0, Vertex vtx1, Vertex vtx2) {
+    EmitVtx(vtx0, false);
+    EmitVtx(vtx1, AreQuaternionsOpposite(GetVertexQuaternion(vtx0), GetVertexQuaternion(vtx1)));
+    EmitVtx(vtx2, AreQuaternionsOpposite(GetVertexQuaternion(vtx0), GetVertexQuaternion(vtx2)));
+    EndPrimitive();
+}
+
+Vertex output_buffer;
+Vertex prim_buffer[3];
+uint vertex_id = 0u;
+bool prim_emit = false;
+bool winding = false;
+void setemit(uint vertex_id_, bool prim_emit_, bool winding_);
+void emit();
+void main() {
+    output_buffer.attributes[0] = vec4(0.0, 0.0, 0.0, 1.0);
+    output_buffer.attributes[1] = vec4(0.0, 0.0, 0.0, 1.0);
+    output_buffer.attributes[2] = vec4(0.0, 0.0, 0.0, 1.0);
+    output_buffer.attributes[3] = vec4(0.0, 0.0, 0.0, 1.0);
+    output_buffer.attributes[4] = vec4(0.0, 0.0, 0.0, 1.0);
+    exec_shader();
+}
+
+void setemit(uint vertex_id_, bool prim_emit_, bool winding_) {
+    vertex_id = vertex_id_;
+    prim_emit = prim_emit_;
+    winding = winding_;
+}
+void emit() {
+    prim_buffer[vertex_id] = output_buffer;
+    if (prim_emit) {
+        if (winding) {
+            EmitPrim(prim_buffer[1], prim_buffer[0], prim_buffer[2]);
+            winding = false;
+        } else {
+            EmitPrim(prim_buffer[0], prim_buffer[1], prim_buffer[2]);
+        }
+    }
+}
+bvec2 conditional_code = bvec2(false);
+ivec3 address_registers = ivec3(0);
+vec4 reg_tmp0 = vec4(0.0, 0.0, 0.0, 1.0);
+vec4 reg_tmp1 = vec4(0.0, 0.0, 0.0, 1.0);
+vec4 reg_tmp2 = vec4(0.0, 0.0, 0.0, 1.0);
+vec4 reg_tmp3 = vec4(0.0, 0.0, 0.0, 1.0);
+vec4 reg_tmp4 = vec4(0.0, 0.0, 0.0, 1.0);
+vec4 reg_tmp5 = vec4(0.0, 0.0, 0.0, 1.0);
+vec4 reg_tmp6 = vec4(0.0, 0.0, 0.0, 1.0);
+vec4 reg_tmp7 = vec4(0.0, 0.0, 0.0, 1.0);
+vec4 reg_tmp8 = vec4(0.0, 0.0, 0.0, 1.0);
+vec4 reg_tmp9 = vec4(0.0, 0.0, 0.0, 1.0);
+vec4 reg_tmp10 = vec4(0.0, 0.0, 0.0, 1.0);
+vec4 reg_tmp11 = vec4(0.0, 0.0, 0.0, 1.0);
+vec4 reg_tmp12 = vec4(0.0, 0.0, 0.0, 1.0);
+vec4 reg_tmp13 = vec4(0.0, 0.0, 0.0, 1.0);
+vec4 reg_tmp14 = vec4(0.0, 0.0, 0.0, 1.0);
+vec4 reg_tmp15 = vec4(0.0, 0.0, 0.0, 1.0);
+
+bool sub_0();
+
+bool exec_shader() {
+    sub_0();
+    return true;
+}
+
+bool sub_0() {
+    uint jmp_to = 77u;
+    while (true) {
+        switch (jmp_to) {
+        case 77u: {
+            conditional_code = greaterThanEqual(uniforms.f[10].ww, vs_out_attr4[0].ww);
+            if (conditional_code.x) {
+                { jmp_to = 155u; break; }
+            }
+            reg_tmp5.xyz = (vs_out_attr4[0]).xyz;
+            reg_tmp5.w = (uniforms.f[95].wwww).w;
+            reg_tmp6.w = (uniforms.f[95].wwww).w;
+            reg_tmp9 = vs_out_attr6[0];
+            reg_tmp1.w = (uniforms.f[95].wwww).w;
+            reg_tmp2.x = dot_s(uniforms.f[5].wzyx, reg_tmp5);
+            reg_tmp2.y = dot_s(uniforms.f[6].wzyx, reg_tmp5);
+            reg_tmp2.z = dot_s(uniforms.f[7].wzyx, reg_tmp5);
+            reg_tmp2.w = dot_s(uniforms.f[8].wzyx, reg_tmp5);
+            reg_tmp8.zw = (vs_out_attr7[0].wwww).zw;
+            reg_tmp8.xy = (reg_tmp9.wwww).xy;
+            reg_tmp1.xyz = (-vs_out_attr7[0]).xyz;
+            reg_tmp6.xyz = (reg_tmp5 + reg_tmp1).xyz;
+            output_buffer.attributes[0].x = dot_s(reg_tmp1, vs_out_attr0[0]);
+            output_buffer.attributes[0].y = dot_s(reg_tmp1, vs_out_attr1[0]);
+            output_buffer.attributes[0].z = dot_s(reg_tmp1, -vs_out_attr2[0]);
+            output_buffer.attributes[0].w = dot_s(reg_tmp1, vs_out_attr3[0]);
+            output_buffer.attributes[1] = vs_out_attr5[0];
+            output_buffer.attributes[3] = uniforms.f[9].wzyx;
+            output_buffer.attributes[2].xy = (uniforms.f[45].wzyx).xy;
+            output_buffer.attributes[2].z = dot_s(uniforms.f[13].wzyx, reg_tmp6);
+            output_buffer.attributes[2].w = dot_s(uniforms.f[14].wzyx, reg_tmp6);
+            output_buffer.attributes[4].xyz = (-reg_tmp2).xyz;
+            output_buffer.attributes[4].w = dot_s(uniforms.f[15].wzyx, reg_tmp6);
+            setemit(0u, false, true);
+            emit();
+            reg_tmp1.xyz = (vs_out_attr7[0]).xyz;
+            reg_tmp6.xyz = (reg_tmp5 + reg_tmp1).xyz;
+            output_buffer.attributes[0].x = dot_s(reg_tmp1, vs_out_attr0[0]);
+            output_buffer.attributes[0].y = dot_s(reg_tmp1, vs_out_attr1[0]);
+            output_buffer.attributes[0].z = dot_s(reg_tmp1, -vs_out_attr2[0]);
+            output_buffer.attributes[0].w = dot_s(reg_tmp1, vs_out_attr3[0]);
+            output_buffer.attributes[1] = vs_out_attr5[0];
+            output_buffer.attributes[3] = uniforms.f[9].wzyx;
+            output_buffer.attributes[2].xy = (uniforms.f[46].wzyx).xy;
+            output_buffer.attributes[2].z = dot_s(uniforms.f[13].wzyx, reg_tmp6);
+            output_buffer.attributes[2].w = dot_s(uniforms.f[14].wzyx, reg_tmp6);
+            output_buffer.attributes[4].xyz = (-reg_tmp2).xyz;
+            output_buffer.attributes[4].w = dot_s(uniforms.f[15].wzyx, reg_tmp6);
+            setemit(1u, false, true);
+            emit();
+            reg_tmp1.xyz = (reg_tmp9 + -vs_out_attr7[0]).xyz;
+            reg_tmp1.xz = (fma_s(reg_tmp8.xzzz, uniforms.f[47].zzzz, reg_tmp1.xzzz)).xz;
+            reg_tmp6.xyz = (reg_tmp5 + reg_tmp1).xyz;
+            output_buffer.attributes[0].x = dot_s(reg_tmp1, vs_out_attr0[0]);
+            output_buffer.attributes[0].y = dot_s(reg_tmp1, vs_out_attr1[0]);
+            output_buffer.attributes[0].z = dot_s(reg_tmp1, -vs_out_attr2[0]);
+            output_buffer.attributes[0].w = dot_s(reg_tmp1, vs_out_attr3[0]);
+            output_buffer.attributes[1] = vs_out_attr5[0];
+            output_buffer.attributes[3] = uniforms.f[9].wzyx;
+            output_buffer.attributes[2].xy = (uniforms.f[47].wzyx).xy;
+            output_buffer.attributes[2].z = dot_s(uniforms.f[13].wzyx, reg_tmp6);
+            output_buffer.attributes[2].w = dot_s(uniforms.f[14].wzyx, reg_tmp6);
+            output_buffer.attributes[4].xyz = (-reg_tmp2).xyz;
+            output_buffer.attributes[4].w = dot_s(uniforms.f[15].wzyx, reg_tmp6);
+            setemit(2u, true, true);
+            emit();
+            reg_tmp1.xyz = (reg_tmp9 + vs_out_attr7[0]).xyz;
+            reg_tmp1.xz = (fma_s(reg_tmp8.xzzz, uniforms.f[48].zzzz, reg_tmp1.xzzz)).xz;
+            reg_tmp6.xyz = (reg_tmp5 + reg_tmp1).xyz;
+            output_buffer.attributes[0].x = dot_s(reg_tmp1, vs_out_attr0[0]);
+            output_buffer.attributes[0].y = dot_s(reg_tmp1, vs_out_attr1[0]);
+            output_buffer.attributes[0].z = dot_s(reg_tmp1, -vs_out_attr2[0]);
+            output_buffer.attributes[0].w = dot_s(reg_tmp1, vs_out_attr3[0]);
+            output_buffer.attributes[1] = vs_out_attr5[0];
+            output_buffer.attributes[2] = uniforms.f[48].wzyx;
+            output_buffer.attributes[3] = uniforms.f[9].wzyx;
+            output_buffer.attributes[2].xy = (uniforms.f[48].wzyx).xy;
+            output_buffer.attributes[2].z = dot_s(uniforms.f[13].wzyx, reg_tmp6);
+            output_buffer.attributes[2].w = dot_s(uniforms.f[14].wzyx, reg_tmp6);
+            output_buffer.attributes[4].xyz = (-reg_tmp2).xyz;
+            output_buffer.attributes[4].w = dot_s(uniforms.f[15].wzyx, reg_tmp6);
+            setemit(0u, true, false);
+            emit();
+            return true;
+        }
+        case 155u: {
+            return true;
+        }
+        default: return false;
+        }
+    }
+    return false;
+}
+// reference: 72C12D3F364A8CE9, B663310C37F5108B
+// shader: 8B31, 50CE36683993503C
+
+#define mul_s(x, y) (x * y)
+#define fma_s(x, y, z) fma(x, y, z)
+#define rcp_s(x) (1.0 / x)
+#define rsq_s(x) inversesqrt(x)
+#define dot_s(x, y) dot(x, y)
+#define dot_3(x, y) dot(x, y)
+
+struct pica_uniforms {
+    bool b[16];
+    uvec4 i[4];
+    vec4 f[96];
+};
+
+bool exec_shader();
+
+#define uniforms vs_uniforms
+layout (std140) uniform vs_config {
+    pica_uniforms uniforms;
+};
+layout(location = 0) in vec4 vs_in_reg0;
+layout(location = 1) in vec4 vs_in_reg1;
+layout(location = 2) in vec4 vs_in_reg2;
+layout(location = 3) in vec4 vs_in_reg3;
+
+out vec4 vs_out_attr0;
+out vec4 vs_out_attr1;
+out vec4 vs_out_attr2;
+out vec4 vs_out_attr3;
+out vec4 vs_out_attr4;
+out vec4 vs_out_attr5;
+out vec4 vs_out_attr6;
+out vec4 vs_out_attr7;
+
+void main() {
+    vs_out_attr0 = vec4(0.0, 0.0, 0.0, 1.0);
+    vs_out_attr1 = vec4(0.0, 0.0, 0.0, 1.0);
+    vs_out_attr2 = vec4(0.0, 0.0, 0.0, 1.0);
+    vs_out_attr3 = vec4(0.0, 0.0, 0.0, 1.0);
+    vs_out_attr4 = vec4(0.0, 0.0, 0.0, 1.0);
+    vs_out_attr5 = vec4(0.0, 0.0, 0.0, 1.0);
+    vs_out_attr6 = vec4(0.0, 0.0, 0.0, 1.0);
+    vs_out_attr7 = vec4(0.0, 0.0, 0.0, 1.0);
+    exec_shader();
+}
+bvec2 conditional_code = bvec2(false);
+ivec3 address_registers = ivec3(0);
+vec4 reg_tmp0 = vec4(0.0, 0.0, 0.0, 1.0);
+vec4 reg_tmp1 = vec4(0.0, 0.0, 0.0, 1.0);
+vec4 reg_tmp2 = vec4(0.0, 0.0, 0.0, 1.0);
+vec4 reg_tmp3 = vec4(0.0, 0.0, 0.0, 1.0);
+vec4 reg_tmp4 = vec4(0.0, 0.0, 0.0, 1.0);
+vec4 reg_tmp5 = vec4(0.0, 0.0, 0.0, 1.0);
+vec4 reg_tmp6 = vec4(0.0, 0.0, 0.0, 1.0);
+vec4 reg_tmp7 = vec4(0.0, 0.0, 0.0, 1.0);
+vec4 reg_tmp8 = vec4(0.0, 0.0, 0.0, 1.0);
+vec4 reg_tmp9 = vec4(0.0, 0.0, 0.0, 1.0);
+vec4 reg_tmp10 = vec4(0.0, 0.0, 0.0, 1.0);
+vec4 reg_tmp11 = vec4(0.0, 0.0, 0.0, 1.0);
+vec4 reg_tmp12 = vec4(0.0, 0.0, 0.0, 1.0);
+vec4 reg_tmp13 = vec4(0.0, 0.0, 0.0, 1.0);
+vec4 reg_tmp14 = vec4(0.0, 0.0, 0.0, 1.0);
+vec4 reg_tmp15 = vec4(0.0, 0.0, 0.0, 1.0);
+
+bool sub_0();
+bool sub_1();
+bool sub_2();
+bool sub_3();
+bool sub_5();
+bool sub_6();
+bool sub_4();
+
+bool exec_shader() {
+    sub_0();
+    return true;
+}
+
+bool sub_0() {
+    reg_tmp4 = uniforms.f[76].wwww;
+    reg_tmp3.x = (uniforms.f[5].wzyx).x;
+    reg_tmp1 = mul_s(uniforms.f[6].wzyx, vs_in_reg0.xyzz);
+    reg_tmp1 = uniforms.f[7].wzyx + reg_tmp1;
+    reg_tmp1.w = (uniforms.f[76].zzzz).w;
+    reg_tmp3.x = (mul_s(-uniforms.f[5].wzyx, reg_tmp3.xxxx)).x;
+    reg_tmp2.xyz = (-uniforms.f[8].wzyy + reg_tmp1.xyzz).xyz;
+    reg_tmp3.z = dot_3(reg_tmp2.xyz, reg_tmp2.xyz);
+    reg_tmp3.y = (reg_tmp3.zzzz + reg_tmp3.xxxx).y;
+    reg_tmp12.x = rsq_s(reg_tmp3.z);
+    vs_out_attr4.xyz = (reg_tmp1).xyz;
+    vs_out_attr4.w = (reg_tmp3.yyyy).w;
+    vs_out_attr7.xyz = (mul_s(uniforms.f[9].wwww, vs_in_reg2.xyzz)).xyz;
+    vs_out_attr6.xyz = (mul_s(uniforms.f[10].wwww, vs_in_reg3.xyzz)).xyz;
+    if (uniforms.b[0]) {
+        sub_1();
+    }
+    vs_out_attr6.w = (reg_tmp4.xxxx).w;
+    vs_out_attr7.w = (reg_tmp4.yyyy).w;
+    reg_tmp3.x = (mul_s(uniforms.f[78].xxxx, vs_in_reg1.zzzz)).x;
+    reg_tmp11.x = rcp_s(reg_tmp12.x);
+    vs_out_attr0.xyz = (mul_s(uniforms.f[0].wzyx, reg_tmp3.xxxx)).xyz;
+    vs_out_attr1.xyz = (mul_s(uniforms.f[1].wzyx, reg_tmp3.xxxx)).xyz;
+    vs_out_attr2.xyz = (mul_s(uniforms.f[2].wzyx, reg_tmp3.xxxx)).xyz;
+    vs_out_attr3.xyz = (mul_s(uniforms.f[3].wzyx, reg_tmp3.xxxx)).xyz;
+    reg_tmp3 = uniforms.f[27].wzyx;
+    reg_tmp10.x = (mul_s(uniforms.f[28].zzzz, reg_tmp11.xxxx)).x;
+    vs_out_attr0.w = dot_s(uniforms.f[0].wzyx, reg_tmp1);
+    vs_out_attr1.w = dot_s(uniforms.f[1].wzyx, reg_tmp1);
+    vs_out_attr2.w = dot_s(uniforms.f[2].wzyx, reg_tmp1);
+    vs_out_attr3.w = dot_s(uniforms.f[3].wzyx, reg_tmp1);
+    reg_tmp3.xz = (mul_s(uniforms.f[78].xxxx, reg_tmp3.xzzz)).xz;
+    reg_tmp9.x = (uniforms.f[28].wwww + reg_tmp10.xxxx).x;
+    vs_out_attr5.x = (fma_s(vs_in_reg1.wwww, reg_tmp3.xxxx, reg_tmp3.yyyy)).x;
+    vs_out_attr5.y = (fma_s(vs_in_reg1.yyyy, reg_tmp3.zzzz, reg_tmp3.wwww)).y;
+    reg_tmp8.w = (min(uniforms.f[95].wwww, reg_tmp9.xxxx)).w;
+    vs_out_attr5.z = (mul_s(uniforms.f[78].xxxx, vs_in_reg0.wwww)).z;
+    vs_out_attr5.w = (max(uniforms.f[95].zzzz, reg_tmp8.wwww)).w;
+    return true;
+}
+bool sub_1() {
+    reg_tmp12.y = (uniforms.f[95].wwww).y;
+    if (uniforms.b[1]) {
+        sub_2();
+    }
+    if (uniforms.b[2]) {
+        sub_5();
+    }
+    return false;
+}
+bool sub_2() {
+    address_registers.z = int(uniforms.i[0].y);
+    for (uint loop17 = 0u; loop17 <= uniforms.i[0].x; address_registers.z += int(uniforms.i[0].z), ++loop17) {
+        sub_3();
+    }
+    return false;
+}
+bool sub_3() {
+    reg_tmp2.yz = (uniforms.f[11 + address_registers.z].wzyx).yz;
+    reg_tmp2.x = dot_3(uniforms.f[19 + address_registers.z].wzy, reg_tmp1.xyz);
+    reg_tmp3.x = (fma_s(reg_tmp2.xxxx, reg_tmp2.yyyy, reg_tmp2.zzzz)).x;
+    {
+        sub_4();
+    }
+    reg_tmp4 = fma_s(reg_tmp2.xyxx, uniforms.f[11 + address_registers.z].wwww, reg_tmp4);
+    return false;
+}
+bool sub_5() {
+    address_registers.z = int(uniforms.i[1].y);
+    for (uint loop25 = 0u; loop25 <= uniforms.i[1].x; address_registers.z += int(uniforms.i[1].z), ++loop25) {
+        sub_6();
+    }
+    return false;
+}
+bool sub_6() {
+    reg_tmp10 = -uniforms.f[19 + address_registers.z].wzyx + reg_tmp1;
+    reg_tmp11.x = dot_3(reg_tmp10.xyz, reg_tmp10.xyz);
+    reg_tmp11.x = rsq_s(reg_tmp11.x);
+    reg_tmp3.yz = (uniforms.f[11 + address_registers.z].wzyx).yz;
+    reg_tmp10.w = rcp_s(reg_tmp11.x);
+    reg_tmp10.xyz = (mul_s(reg_tmp10, reg_tmp11.xxxx)).xyz;
+    reg_tmp3.x = (fma_s(reg_tmp10.wwww, reg_tmp3.yyyy, reg_tmp3.zzzz)).x;
+    {
+        sub_4();
+    }
+    reg_tmp3.x = (fma_s(reg_tmp10.wwww, -uniforms.f[19 + address_registers.z].xxxx, reg_tmp12.yyyy)).x;
+    reg_tmp10.xyz = (reg_tmp10.xyzz + -reg_tmp2.xyxx).xyz;
+    reg_tmp11.x = (mul_s(uniforms.f[11 + address_registers.z].wwww, reg_tmp3.xxxx)).x;
+    reg_tmp5.x = (mul_s(reg_tmp3.xxxx, reg_tmp3.xxxx)).x;
+    reg_tmp11.x = (max(uniforms.f[95].zzzz, reg_tmp11.xxxx)).x;
+    reg_tmp3.xyz = (fma_s(reg_tmp5.xxxx, reg_tmp10.xyzz, reg_tmp2.xyxx)).xyz;
+    reg_tmp4 = fma_s(reg_tmp3, reg_tmp11.xxxx, reg_tmp4);
+    return false;
+}
+bool sub_4() {
+    reg_tmp2 = uniforms.f[75].wzyx;
+    reg_tmp3.x = (mul_s(uniforms.f[95].yyyy, reg_tmp3.xxxx)).x;
+    reg_tmp3.y = (reg_tmp3.xxxx + -reg_tmp2.xxxx).y;
+    reg_tmp3.zw = (floor(reg_tmp3.xyxy)).zw;
+    reg_tmp3.xy = (reg_tmp3.xyyy + -reg_tmp3.zwww).xy;
+    reg_tmp3.xy = (fma_s(reg_tmp3.xyyy, reg_tmp2.zzzz, -reg_tmp2.yyyy)).xy;
+    reg_tmp3.xy = (abs(reg_tmp3.xyyy)).xy;
+    reg_tmp3.zw = (fma_s(reg_tmp3.xyxy, -reg_tmp2.zzzz, reg_tmp2.wwww)).zw;
+    reg_tmp3.xy = (mul_s(reg_tmp3.xyyy, reg_tmp3.xyyy)).xy;
+    reg_tmp3.xy = (mul_s(reg_tmp3.zwww, reg_tmp3.xyyy)).xy;
+    reg_tmp2.xy = (fma_s(reg_tmp3.xyyy, reg_tmp2.zzzz, -reg_tmp2.yyyy)).xy;
+    return false;
+}
+// reference: 48BED5D4B749E936, 50CE36683993503C
+// program: 50CE36683993503C, B663310C37F5108B, 6123534D776BE656
+// program: 0EFEBBE6E05F1C87, 0920F64BD0BE6DC7, 5E65ED330DD86C52
+// program: 0EFEBBE6E05F1C87, 0920F64BD0BE6DC7, 6D01EE845EDC7252
+// program: EE99BAD0122362FE, 0920F64BD0BE6DC7, 5E65ED330DD86C52
+// program: 309177F344E6BF06, DDD543B7EFD7D3AC, 7A2A9F5E151699CA
+// program: 309177F344E6BF06, DDD543B7EFD7D3AC, 44776903C2844A30
+// program: 0EFEBBE6E05F1C87, 0920F64BD0BE6DC7, 5E65ED330DD86C52
+// program: 0EFEBBE6E05F1C87, 0920F64BD0BE6DC7, 6D01EE845EDC7252
+// program: 309177F344E6BF06, DDD543B7EFD7D3AC, 7A2A9F5E151699CA
+// program: EE99BAD0122362FE, 0920F64BD0BE6DC7, 5E65ED330DD86C52
+// program: 309177F344E6BF06, DDD543B7EFD7D3AC, 44776903C2844A30
+// program: 22186AF454C341E4, A29BAEF5C1BA44F2, 2FD5F2CA112E5E9C
+// program: 270E94B55796EDB7, B99A1F5927E7BF45, ADCD78D3AA75430B
+// program: 2E087FB340C37151, B99A1F5927E7BF45, F9B4C593A3D3DA16
+// program: 2E087FB340C37151, B99A1F5927E7BF45, 1C8DEB3984887738
+// program: 270E94B55796EDB7, B99A1F5927E7BF45, 6828EA115E3DDD8F
+// program: 270E94B55796EDB7, B99A1F5927E7BF45, 61A1DE6946426EC9
+// program: 270E94B55796EDB7, B99A1F5927E7BF45, 237DD5B809CF981D
+// program: 270E94B55796EDB7, B99A1F5927E7BF45, 026BCDEDBD69CC00
+// program: 2E087FB340C37151, B99A1F5927E7BF45, CF4056FA84410282
+// program: 270E94B55796EDB7, B99A1F5927E7BF45, D93A97F40FE3F073
+// program: 270E94B55796EDB7, B99A1F5927E7BF45, 1B8AE513BBEBC6FA
+// program: 270E94B55796EDB7, B99A1F5927E7BF45, F50FD774C8409F03
+// program: 270E94B55796EDB7, B99A1F5927E7BF45, 9EA87616687FAC17
+// program: 270E94B55796EDB7, B99A1F5927E7BF45, 53D1E9C1333B1A79
+// program: 270E94B55796EDB7, B99A1F5927E7BF45, 7DB86084B088A375
+// program: 270E94B55796EDB7, B99A1F5927E7BF45, 5F278AB424CC2FBC
+// program: 270E94B55796EDB7, B99A1F5927E7BF45, 6F1A00558B054241
+// program: 270E94B55796EDB7, B99A1F5927E7BF45, 35B3B5DDAD8E239E
+// program: 270E94B55796EDB7, B99A1F5927E7BF45, 7C0AABC1B728EF26
+// program: 270E94B55796EDB7, B99A1F5927E7BF45, BCA8A7285BEEEC3A
+// program: 270E94B55796EDB7, B99A1F5927E7BF45, 06A195032577E0B8
+// program: 270E94B55796EDB7, B99A1F5927E7BF45, F3780D1DC3E223B9
+// program: 270E94B55796EDB7, B99A1F5927E7BF45, E327B924D509AEE3
+// program: 270E94B55796EDB7, B99A1F5927E7BF45, 4CF26D26743FEB37
+// program: 270E94B55796EDB7, B99A1F5927E7BF45, 4D649C5FF903D8AF
+// program: E45928C189BB7782, 219384019281D7FD, 7A2A9F5E151699CA
+// program: E45928C189BB7782, 219384019281D7FD, 44776903C2844A30
+// program: 270E94B55796EDB7, B99A1F5927E7BF45, F782916E616C85B3
+// program: 270E94B55796EDB7, B99A1F5927E7BF45, 71DBA48A30815B8C
+// program: 270E94B55796EDB7, B99A1F5927E7BF45, 6F2035C4E85743D6
+// program: 270E94B55796EDB7, B99A1F5927E7BF45, 115527923A7F28C5
+// program: 22186AF454C341E4, A29BAEF5C1BA44F2, CDB9F2D760D81614
+// program: 270E94B55796EDB7, B99A1F5927E7BF45, 91E0DB69EB539CEF
+// program: 270E94B55796EDB7, B99A1F5927E7BF45, 3C4BFB839BFA6723
+// program: 2E087FB340C37151, B99A1F5927E7BF45, 03135BF29768B71F
+// program: 270E94B55796EDB7, B99A1F5927E7BF45, 377207C07BC006AC
+// program: 270E94B55796EDB7, B99A1F5927E7BF45, B76B839C9EF7EB27
+// program: 270E94B55796EDB7, B99A1F5927E7BF45, 4397B804D112188A
+// program: 270E94B55796EDB7, B99A1F5927E7BF45, 30857717E5AAD6DA
+// program: 2E087FB340C37151, B99A1F5927E7BF45, E287DA1ECFF10132
+// program: 270E94B55796EDB7, B99A1F5927E7BF45, A465F49DB5A5715A
+// program: 270E94B55796EDB7, B99A1F5927E7BF45, A3CA4945E32FEB23
+// program: 270E94B55796EDB7, B99A1F5927E7BF45, F4C15CE718A90893
+// program: 50CE36683993503C, B663310C37F5108B, 6123534D776BE656
+// program: EE99BAD0122362FE, 0920F64BD0BE6DC7, 6D01EE845EDC7252
+// program: 270E94B55796EDB7, B99A1F5927E7BF45, 0F534FB12269D959
+// program: 270E94B55796EDB7, B99A1F5927E7BF45, B80AD61B9998EFF2
+// program: 22186AF454C341E4, A29BAEF5C1BA44F2, F4A5D60665875B48
+// program: 22186AF454C341E4, A29BAEF5C1BA44F2, 9BC4BF4BD43735CB
+// program: 270E94B55796EDB7, B99A1F5927E7BF45, F1E48A35D0EDD8CB
+// program: 270E94B55796EDB7, B99A1F5927E7BF45, 9D1098971ACFFECB
+// program: 270E94B55796EDB7, B99A1F5927E7BF45, CD65D47D0BC83478
+// program: 270E94B55796EDB7, B99A1F5927E7BF45, A29620DC8EBD5489
+// program: 270E94B55796EDB7, B99A1F5927E7BF45, A95D011F9EECFD72
+// program: 22186AF454C341E4, A29BAEF5C1BA44F2, DE298F392B12948F
+// program: 270E94B55796EDB7, B99A1F5927E7BF45, AE5926EBE38FF18B
+// shader: 8B31, AF7897D521D713F6
+
+#define mul_s(x, y) (x * y)
+#define fma_s(x, y, z) fma(x, y, z)
+#define rcp_s(x) (1.0 / x)
+#define rsq_s(x) inversesqrt(x)
+#define dot_s(x, y) dot(x, y)
+#define dot_3(x, y) dot(x, y)
+
+struct pica_uniforms {
+    bool b[16];
+    uvec4 i[4];
+    vec4 f[96];
+};
+
+bool exec_shader();
+
+#define uniforms vs_uniforms
+layout (std140) uniform vs_config {
+    pica_uniforms uniforms;
+};
+layout(location = 0) in vec4 vs_in_reg0;
+layout(location = 2) in vec4 vs_in_reg2;
+
+out vec4 vs_out_attr0;
+out vec4 vs_out_attr1;
+
+void main() {
+    vs_out_attr0 = vec4(0.0, 0.0, 0.0, 1.0);
+    vs_out_attr1 = vec4(0.0, 0.0, 0.0, 1.0);
+    exec_shader();
+}
+bvec2 conditional_code = bvec2(false);
+ivec3 address_registers = ivec3(0);
+vec4 reg_tmp0 = vec4(0.0, 0.0, 0.0, 1.0);
+vec4 reg_tmp1 = vec4(0.0, 0.0, 0.0, 1.0);
+vec4 reg_tmp2 = vec4(0.0, 0.0, 0.0, 1.0);
+vec4 reg_tmp3 = vec4(0.0, 0.0, 0.0, 1.0);
+vec4 reg_tmp4 = vec4(0.0, 0.0, 0.0, 1.0);
+vec4 reg_tmp5 = vec4(0.0, 0.0, 0.0, 1.0);
+vec4 reg_tmp6 = vec4(0.0, 0.0, 0.0, 1.0);
+vec4 reg_tmp7 = vec4(0.0, 0.0, 0.0, 1.0);
+vec4 reg_tmp8 = vec4(0.0, 0.0, 0.0, 1.0);
+vec4 reg_tmp9 = vec4(0.0, 0.0, 0.0, 1.0);
+vec4 reg_tmp10 = vec4(0.0, 0.0, 0.0, 1.0);
+vec4 reg_tmp11 = vec4(0.0, 0.0, 0.0, 1.0);
+vec4 reg_tmp12 = vec4(0.0, 0.0, 0.0, 1.0);
+vec4 reg_tmp13 = vec4(0.0, 0.0, 0.0, 1.0);
+vec4 reg_tmp14 = vec4(0.0, 0.0, 0.0, 1.0);
+vec4 reg_tmp15 = vec4(0.0, 0.0, 0.0, 1.0);
+
+bool sub_0();
+
+bool exec_shader() {
+    sub_0();
+    return true;
+}
+
+bool sub_0() {
+    reg_tmp1 = vs_in_reg0.xyzz;
+    reg_tmp1.w = (uniforms.f[95].wwww).w;
+    reg_tmp8.x = dot_s(uniforms.f[5].wzyx, reg_tmp1);
+    reg_tmp8.y = dot_s(uniforms.f[6].wzyx, reg_tmp1);
+    reg_tmp8.z = dot_s(uniforms.f[7].wzyx, reg_tmp1);
+    reg_tmp8.w = (uniforms.f[95].wwww).w;
+    vs_out_attr0.x = dot_s(uniforms.f[0].wzyx, reg_tmp8);
+    vs_out_attr0.y = dot_s(uniforms.f[1].wzyx, reg_tmp8);
+    vs_out_attr0.z = dot_s(-uniforms.f[2].wzyx, reg_tmp8);
+    vs_out_attr0.w = dot_s(uniforms.f[3].wzyx, reg_tmp8);
+    reg_tmp3 = vs_in_reg2.xyyy;
+    reg_tmp3.z = (uniforms.f[95].zzzz).z;
+    reg_tmp3.w = (uniforms.f[95].wwww).w;
+    reg_tmp4.xz = vec2(dot_s(uniforms.f[8].wzyx, reg_tmp3));
+    reg_tmp4.yw = vec2(dot_s(uniforms.f[9].wzyx, reg_tmp3));
+    vs_out_attr1 = reg_tmp4;
+    return true;
+}
+// reference: 9D55B29AEB126869, AF7897D521D713F6
