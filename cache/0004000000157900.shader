@@ -8682,3 +8682,1428 @@ color = byteround(last_tex_env_out);
 }
 // reference: F3D1FBE01D283EFF, 99F29492977E54DE
 // program: A78B7269EB0C3515, B181AC2A009F07AA, 99F29492977E54DE
+// reference: C2226AEA017744A2, A78B7269EB0C3515
+// reference: 456A7DE6F31AC733, FC7F4467554D34E5
+// reference: 364493F6FB5EBA75, 8635541B484946A9
+// shader: 8DD9, 91617ECCFBAAF156
+
+#define mul_s(x, y) (x * y)
+#define fma_s(x, y, z) fma(x, y, z)
+#define rcp_s(x) (1.0 / x)
+#define rsq_s(x) inversesqrt(x)
+#define dot_s(x, y) dot(x, y)
+#define dot_3(x, y) dot(x, y)
+layout(points) in;
+layout(triangle_strip, max_vertices = 30) out;
+out vec4 primary_color;
+out vec2 texcoord0;
+out vec2 texcoord1;
+out vec2 texcoord2;
+out float texcoord0_w;
+out vec4 normquat;
+out vec3 view;
+
+#define NUM_TEV_STAGES 6
+layout (std140) uniform shader_data {
+    int alphatest_ref;
+    float depth_scale;
+    float depth_offset;
+    float shadow_bias_constant;
+    float shadow_bias_linear;
+    int scissor_x1;
+    int scissor_y1;
+    int scissor_x2;
+    int scissor_y2;
+    int fog_lut_offset;
+    int proctex_noise_lut_offset;
+    int proctex_color_map_offset;
+    int proctex_alpha_map_offset;
+    int proctex_lut_offset;
+    int proctex_diff_lut_offset;
+    float proctex_bias;
+    vec3 fog_color;
+    vec2 proctex_noise_f;
+    vec2 proctex_noise_a;
+    vec2 proctex_noise_p;
+    vec4 const_color[NUM_TEV_STAGES];
+    vec4 tev_combiner_buffer_color;
+    vec4 clip_coef;
+};
+
+in vec4 vs_out_attr0[];
+in vec4 vs_out_attr1[];
+in vec4 vs_out_attr2[];
+
+struct pica_uniforms {
+    bool b[16];
+    uvec4 i[4];
+    vec4 f[96];
+};
+
+bool exec_shader();
+
+#define uniforms gs_uniforms
+layout (std140) uniform gs_config {
+    pica_uniforms uniforms;
+};
+struct Vertex {
+    vec4 attributes[3];
+};
+
+vec4 GetVertexQuaternion(Vertex vtx) {
+    return vec4(0.0, 0.0, 0.0, 0.0);
+}
+
+void EmitVtx(Vertex vtx, bool quats_opposite) {
+    vec4 vtx_pos = vec4(vtx.attributes[0].x, vtx.attributes[0].y, vtx.attributes[0].z, vtx.attributes[0].w);
+    gl_Position = vtx_pos;
+#if !defined(CITRA_GLES) || defined(GL_EXT_clip_cull_distance)
+    gl_ClipDistance[0] = -vtx_pos.z;
+    gl_ClipDistance[1] = dot(clip_coef, vtx_pos);
+#endif // !defined(CITRA_GLES) || defined(GL_EXT_clip_cull_distance)
+
+    vec4 vtx_quat = GetVertexQuaternion(vtx);
+    normquat = mix(vtx_quat, -vtx_quat, bvec4(quats_opposite));
+
+    vec4 vtx_color = vec4(vtx.attributes[1].x, vtx.attributes[1].y, vtx.attributes[1].z, vtx.attributes[1].w);
+    primary_color = min(abs(vtx_color), vec4(1.0));
+
+    texcoord0 = vec2(vtx.attributes[2].x, vtx.attributes[2].y);
+    texcoord1 = vec2(0.0, 0.0);
+
+    texcoord0_w = 0.0;
+    view = vec3(0.0, 0.0, 0.0);
+    texcoord2 = vec2(0.0, 0.0);
+
+    EmitVertex();
+}
+
+bool AreQuaternionsOpposite(vec4 qa, vec4 qb) {
+    return (dot(qa, qb) < 0.0);
+}
+
+void EmitPrim(Vertex vtx0, Vertex vtx1, Vertex vtx2) {
+    EmitVtx(vtx0, false);
+    EmitVtx(vtx1, AreQuaternionsOpposite(GetVertexQuaternion(vtx0), GetVertexQuaternion(vtx1)));
+    EmitVtx(vtx2, AreQuaternionsOpposite(GetVertexQuaternion(vtx0), GetVertexQuaternion(vtx2)));
+    EndPrimitive();
+}
+
+Vertex output_buffer;
+Vertex prim_buffer[3];
+uint vertex_id = 0u;
+bool prim_emit = false;
+bool winding = false;
+void setemit(uint vertex_id_, bool prim_emit_, bool winding_);
+void emit();
+void main() {
+    output_buffer.attributes[0] = vec4(0.0, 0.0, 0.0, 1.0);
+    output_buffer.attributes[1] = vec4(0.0, 0.0, 0.0, 1.0);
+    output_buffer.attributes[2] = vec4(0.0, 0.0, 0.0, 1.0);
+    exec_shader();
+}
+
+void setemit(uint vertex_id_, bool prim_emit_, bool winding_) {
+    vertex_id = vertex_id_;
+    prim_emit = prim_emit_;
+    winding = winding_;
+}
+void emit() {
+    prim_buffer[vertex_id] = output_buffer;
+    if (prim_emit) {
+        if (winding) {
+            EmitPrim(prim_buffer[1], prim_buffer[0], prim_buffer[2]);
+            winding = false;
+        } else {
+            EmitPrim(prim_buffer[0], prim_buffer[1], prim_buffer[2]);
+        }
+    }
+}
+bvec2 conditional_code = bvec2(false);
+ivec3 address_registers = ivec3(0);
+vec4 reg_tmp0 = vec4(0.0, 0.0, 0.0, 1.0);
+vec4 reg_tmp1 = vec4(0.0, 0.0, 0.0, 1.0);
+vec4 reg_tmp2 = vec4(0.0, 0.0, 0.0, 1.0);
+vec4 reg_tmp3 = vec4(0.0, 0.0, 0.0, 1.0);
+vec4 reg_tmp4 = vec4(0.0, 0.0, 0.0, 1.0);
+vec4 reg_tmp5 = vec4(0.0, 0.0, 0.0, 1.0);
+vec4 reg_tmp6 = vec4(0.0, 0.0, 0.0, 1.0);
+vec4 reg_tmp7 = vec4(0.0, 0.0, 0.0, 1.0);
+vec4 reg_tmp8 = vec4(0.0, 0.0, 0.0, 1.0);
+vec4 reg_tmp9 = vec4(0.0, 0.0, 0.0, 1.0);
+vec4 reg_tmp10 = vec4(0.0, 0.0, 0.0, 1.0);
+vec4 reg_tmp11 = vec4(0.0, 0.0, 0.0, 1.0);
+vec4 reg_tmp12 = vec4(0.0, 0.0, 0.0, 1.0);
+vec4 reg_tmp13 = vec4(0.0, 0.0, 0.0, 1.0);
+vec4 reg_tmp14 = vec4(0.0, 0.0, 0.0, 1.0);
+vec4 reg_tmp15 = vec4(0.0, 0.0, 0.0, 1.0);
+
+bool sub_0();
+bool sub_1();
+bool sub_2();
+bool sub_3();
+bool sub_4();
+bool sub_5();
+bool sub_6();
+bool sub_7();
+bool sub_8();
+bool sub_9();
+bool sub_10();
+bool sub_11();
+bool sub_12();
+bool sub_13();
+bool sub_14();
+bool sub_15();
+bool sub_16();
+bool sub_17();
+bool sub_18();
+bool sub_19();
+bool sub_20();
+bool sub_21();
+bool sub_22();
+bool sub_23();
+bool sub_24();
+bool sub_25();
+bool sub_26();
+bool sub_27();
+
+bool exec_shader() {
+    sub_0();
+    return true;
+}
+
+bool sub_0() {
+    reg_tmp0.x = (reg_tmp7.wwww).x;
+    if (uniforms.b[15]) {
+        sub_1();
+    } else {
+        sub_2();
+    }
+    conditional_code = equal(uniforms.f[76].xx, reg_tmp0.xy);
+    reg_tmp0.x = (reg_tmp8.zzzz).x;
+    if (any(conditional_code)) {
+        sub_3();
+    } else {
+        sub_4();
+    }
+    reg_tmp7.w = (uniforms.f[76].yyyy + reg_tmp7.wwww).w;
+    reg_tmp8 = vs_out_attr0[0];
+    conditional_code = equal(uniforms.f[76].zz, reg_tmp7.ww);
+    reg_tmp9 = vs_out_attr1[0];
+    reg_tmp10 = vs_out_attr2[0];
+    if (conditional_code.x) {
+        sub_27();
+    }
+    return true;
+}
+bool sub_1() {
+    reg_tmp0.y = (uniforms.f[76].yyyy).y;
+    return false;
+}
+bool sub_2() {
+    reg_tmp0.y = (uniforms.f[76].xxxx).y;
+    reg_tmp15.x = rcp_s(uniforms.f[67].x);
+    reg_tmp15.y = rcp_s(uniforms.f[67].y);
+    return false;
+}
+bool sub_3() {
+    reg_tmp7 = uniforms.f[76].xxxx;
+    return false;
+}
+bool sub_4() {
+    uint jmp_to = 110u;
+    while (true) {
+        switch (jmp_to) {
+        case 110u: {
+            reg_tmp0.y = (vs_out_attr0[0].zzzz).y;
+            conditional_code = lessThan(uniforms.f[76].xx, reg_tmp0.xy);
+            reg_tmp6.x = (vec4(lessThan(reg_tmp7.wwww, uniforms.f[76].zzzz))).x;
+            reg_tmp1 = vs_out_attr0[0];
+            if (all(conditional_code)) {
+                { jmp_to = 252u; break; }
+            }
+            if (all(not(conditional_code))) {
+                { jmp_to = 137u; break; }
+            }
+            if (all(bvec2(conditional_code.x, !conditional_code.y))) {
+                sub_5();
+            } else {
+                sub_6();
+            }
+        }
+        case 137u: {
+            reg_tmp0.xy = (mul_s(reg_tmp8, reg_tmp1.wwww)).xy;
+            reg_tmp3.z = (reg_tmp6.xxxx).z;
+            reg_tmp2 = uniforms.f[76].xxxx;
+            reg_tmp0.xy = (fma_s(reg_tmp1, reg_tmp8.wwww, -reg_tmp0)).xy;
+            reg_tmp3.w = (uniforms.f[76].xxxx).w;
+            reg_tmp2.y = (reg_tmp1.wwww).y;
+            reg_tmp1.xy = (abs(reg_tmp0)).xy;
+            reg_tmp1.xy = (mul_s(reg_tmp1, reg_tmp15.yxxx)).xy;
+            conditional_code.x = reg_tmp1.xxxx.x > reg_tmp1.yyyy.x;
+            conditional_code.y = reg_tmp1.xxxx.y == reg_tmp1.yyyy.y;
+            reg_tmp1 = uniforms.f[76].xxxx;
+            if (conditional_code.x) {
+                sub_7();
+            } else {
+                sub_10();
+            }
+            conditional_code.x = reg_tmp3.xzzz.x == reg_tmp3.ywww.x;
+            conditional_code.y = reg_tmp3.xzzz.y > reg_tmp3.ywww.y;
+            if (any(bvec2(!conditional_code.x, conditional_code.y))) {
+                sub_13();
+            } else {
+                sub_14();
+            }
+            if (conditional_code.x) {
+                sub_15();
+            } else {
+                sub_16();
+            }
+            if (conditional_code.x) {
+                sub_17();
+            } else {
+                sub_22();
+            }
+        }
+        case 252u: {
+            reg_tmp7.x = (reg_tmp7.yyyy).x;
+        }
+        default: return false;
+        }
+    }
+    return false;
+}
+bool sub_5() {
+    reg_tmp0 = reg_tmp8.zzzz + -vs_out_attr0[0].zzzz;
+    reg_tmp0 = vec4(rcp_s(reg_tmp0.x));
+    reg_tmp6.x = (uniforms.f[76].yyyy).x;
+    reg_tmp1.x = (mul_s(reg_tmp0, reg_tmp8.zzzz)).x;
+    reg_tmp1.y = (mul_s(-reg_tmp0, vs_out_attr0[0].zzzz)).y;
+    reg_tmp8 = mul_s(reg_tmp1.yyyy, reg_tmp8);
+    reg_tmp9 = mul_s(reg_tmp1.yyyy, reg_tmp9);
+    reg_tmp10 = mul_s(reg_tmp1.yyyy, reg_tmp10);
+    reg_tmp8 = fma_s(reg_tmp1.xxxx, vs_out_attr0[0], reg_tmp8);
+    reg_tmp9 = fma_s(reg_tmp1.xxxx, vs_out_attr1[0], reg_tmp9);
+    reg_tmp10 = fma_s(reg_tmp1.xxxx, vs_out_attr2[0], reg_tmp10);
+    reg_tmp8.z = (uniforms.f[76].xxxx).z;
+    reg_tmp1 = vs_out_attr0[0];
+    return false;
+}
+bool sub_6() {
+    reg_tmp0 = vs_out_attr0[0].zzzz + -reg_tmp8.zzzz;
+    reg_tmp0 = vec4(rcp_s(reg_tmp0.x));
+    reg_tmp0.x = (mul_s(reg_tmp0, vs_out_attr0[0].zzzz)).x;
+    reg_tmp0.y = (mul_s(-reg_tmp0, reg_tmp8.zzzz)).y;
+    reg_tmp1 = mul_s(reg_tmp0.yyyy, vs_out_attr0[0]);
+    reg_tmp1 = fma_s(reg_tmp0.xxxx, reg_tmp8, reg_tmp1);
+    reg_tmp1.z = (uniforms.f[76].xxxx).z;
+    return false;
+}
+bool sub_7() {
+    conditional_code.x = uniforms.f[76].xxxx.x < reg_tmp0.xxxx.x;
+    conditional_code.y = uniforms.f[76].xxxx.y == reg_tmp0.xxxx.y;
+    reg_tmp2.y = (mul_s(reg_tmp2.yyyy, reg_tmp15.yyyy)).y;
+    reg_tmp1.y = (mul_s(reg_tmp8.wwww, reg_tmp15.yyyy)).y;
+    if (conditional_code.x) {
+        sub_8();
+    } else {
+        sub_9();
+    }
+    reg_tmp3.xy = (abs(reg_tmp7)).xy;
+    return false;
+}
+bool sub_8() {
+    reg_tmp7.y = (uniforms.f[76].yyyy).y;
+    return false;
+}
+bool sub_9() {
+    reg_tmp7.y = (-uniforms.f[76].yyyy).y;
+    return false;
+}
+bool sub_10() {
+    reg_tmp2.y = (mul_s(reg_tmp2.yyyy, reg_tmp15.xxxx)).y;
+    conditional_code.x = uniforms.f[76].xxxx.x < reg_tmp0.yyyy.x;
+    conditional_code.y = uniforms.f[76].xxxx.y == reg_tmp0.yyyy.y;
+    reg_tmp1.x = (mul_s(-reg_tmp8.wwww, reg_tmp15.xxxx)).x;
+    reg_tmp2.x = (-reg_tmp2.yyyy).x;
+    if (conditional_code.x) {
+        sub_11();
+    } else {
+        sub_12();
+    }
+    reg_tmp3.xy = (abs(reg_tmp7)).xy;
+    reg_tmp2.y = (uniforms.f[76].xxxx).y;
+    return false;
+}
+bool sub_11() {
+    reg_tmp7.y = (uniforms.f[76].zzzz).y;
+    return false;
+}
+bool sub_12() {
+    reg_tmp7.y = (-uniforms.f[76].zzzz).y;
+    return false;
+}
+bool sub_13() {
+    conditional_code.x = uniforms.f[76].xxxx.x >= vs_out_attr0[0].zzzz.x;
+    conditional_code.y = uniforms.f[76].xxxx.y == vs_out_attr0[0].zzzz.y;
+    output_buffer.attributes[1] = reg_tmp9;
+    output_buffer.attributes[2] = reg_tmp10;
+    setemit(0u, false, false);
+    output_buffer.attributes[0] = reg_tmp8 + reg_tmp1;
+    emit();
+    setemit(1u, false, false);
+    emit();
+    output_buffer.attributes[0] = reg_tmp8 + -reg_tmp1;
+    setemit(1u, false, false);
+    reg_tmp7.z = (uniforms.f[76].zzzz).z;
+    emit();
+    return false;
+}
+bool sub_14() {
+    conditional_code.x = uniforms.f[76].xxxx.x >= vs_out_attr0[0].zzzz.x;
+    conditional_code.y = uniforms.f[76].xxxx.y == vs_out_attr0[0].zzzz.y;
+    return false;
+}
+bool sub_15() {
+    conditional_code = lessThan(uniforms.f[76].xx, reg_tmp7.yy);
+    reg_tmp3 = vs_out_attr0[0];
+    output_buffer.attributes[1] = vs_out_attr1[0];
+    output_buffer.attributes[2] = vs_out_attr2[0];
+    return false;
+}
+bool sub_16() {
+    conditional_code = lessThan(uniforms.f[76].xx, reg_tmp7.yy);
+    reg_tmp1 = vs_out_attr0[0].zzzz + -reg_tmp8.zzzz;
+    reg_tmp1 = vec4(rcp_s(reg_tmp1.x));
+    reg_tmp3.x = (mul_s(reg_tmp1, vs_out_attr0[0].zzzz)).x;
+    reg_tmp3.y = (mul_s(-reg_tmp1, reg_tmp8.zzzz)).y;
+    reg_tmp1 = mul_s(reg_tmp3.yyyy, vs_out_attr0[0]);
+    reg_tmp4 = mul_s(reg_tmp3.yyyy, vs_out_attr1[0]);
+    reg_tmp1 = fma_s(reg_tmp3.xxxx, reg_tmp8, reg_tmp1);
+    reg_tmp6 = mul_s(reg_tmp3.yyyy, vs_out_attr2[0]);
+    output_buffer.attributes[1] = fma_s(reg_tmp3.xxxx, reg_tmp9, reg_tmp4);
+    reg_tmp1.z = (uniforms.f[76].xxxx).z;
+    output_buffer.attributes[2] = fma_s(reg_tmp3.xxxx, reg_tmp10, reg_tmp6);
+    reg_tmp3 = reg_tmp1;
+    return false;
+}
+bool sub_17() {
+    conditional_code = equal(uniforms.f[76].xy, reg_tmp7.zz);
+    output_buffer.attributes[0] = reg_tmp3 + reg_tmp2;
+    if (conditional_code.x) {
+        sub_18();
+    } else {
+        sub_19();
+    }
+    emit();
+    return false;
+}
+bool sub_18() {
+    setemit(0u, true, false);
+    emit();
+    setemit(1u, false, true);
+    emit();
+    output_buffer.attributes[0] = reg_tmp3 + -reg_tmp2;
+    setemit(1u, true, true);
+    reg_tmp7.z = (uniforms.f[76].zzzz).z;
+    return false;
+}
+bool sub_19() {
+    if (conditional_code.y) {
+        sub_20();
+    } else {
+        sub_21();
+    }
+    return false;
+}
+bool sub_20() {
+    setemit(1u, true, false);
+    emit();
+    setemit(2u, false, true);
+    emit();
+    output_buffer.attributes[0] = reg_tmp3 + -reg_tmp2;
+    setemit(2u, true, true);
+    reg_tmp7.z = (uniforms.f[76].xxxx).z;
+    return false;
+}
+bool sub_21() {
+    setemit(2u, true, false);
+    emit();
+    setemit(0u, false, true);
+    emit();
+    output_buffer.attributes[0] = reg_tmp3 + -reg_tmp2;
+    setemit(0u, true, true);
+    reg_tmp7.z = (uniforms.f[76].yyyy).z;
+    return false;
+}
+bool sub_22() {
+    conditional_code = equal(uniforms.f[76].xy, reg_tmp7.zz);
+    output_buffer.attributes[0] = reg_tmp3 + reg_tmp2;
+    if (conditional_code.x) {
+        sub_23();
+    } else {
+        sub_24();
+    }
+    emit();
+    return false;
+}
+bool sub_23() {
+    setemit(0u, true, true);
+    emit();
+    setemit(1u, false, false);
+    emit();
+    output_buffer.attributes[0] = reg_tmp3 + -reg_tmp2;
+    setemit(1u, true, false);
+    reg_tmp7.z = (uniforms.f[76].zzzz).z;
+    return false;
+}
+bool sub_24() {
+    if (conditional_code.y) {
+        sub_25();
+    } else {
+        sub_26();
+    }
+    return false;
+}
+bool sub_25() {
+    setemit(1u, true, true);
+    emit();
+    setemit(2u, false, false);
+    emit();
+    output_buffer.attributes[0] = reg_tmp3 + -reg_tmp2;
+    setemit(2u, true, false);
+    reg_tmp7.z = (uniforms.f[76].xxxx).z;
+    return false;
+}
+bool sub_26() {
+    setemit(2u, true, true);
+    emit();
+    setemit(0u, false, false);
+    emit();
+    output_buffer.attributes[0] = reg_tmp3 + -reg_tmp2;
+    setemit(0u, true, false);
+    reg_tmp7.z = (uniforms.f[76].yyyy).z;
+    return false;
+}
+bool sub_27() {
+    reg_tmp7.w = (uniforms.f[76].xxxx).w;
+    return false;
+}
+// reference: 61118184D8398DBC, 91617ECCFBAAF156
+// shader: 8B31, C5F007F915FA63DD
+
+#define mul_s(x, y) (x * y)
+#define fma_s(x, y, z) fma(x, y, z)
+#define rcp_s(x) (1.0 / x)
+#define rsq_s(x) inversesqrt(x)
+#define dot_s(x, y) dot(x, y)
+#define dot_3(x, y) dot(x, y)
+
+struct pica_uniforms {
+    bool b[16];
+    uvec4 i[4];
+    vec4 f[96];
+};
+
+bool exec_shader();
+
+#define uniforms vs_uniforms
+layout (std140) uniform vs_config {
+    pica_uniforms uniforms;
+};
+layout(location = 0) in vec4 vs_in_reg0;
+layout(location = 1) in vec4 vs_in_reg1;
+layout(location = 2) in vec4 vs_in_reg2;
+
+out vec4 vs_out_attr0;
+out vec4 vs_out_attr1;
+out vec4 vs_out_attr2;
+
+void main() {
+    vs_out_attr0 = vec4(0.0, 0.0, 0.0, 1.0);
+    vs_out_attr1 = vec4(0.0, 0.0, 0.0, 1.0);
+    vs_out_attr2 = vec4(0.0, 0.0, 0.0, 1.0);
+    exec_shader();
+}
+bvec2 conditional_code = bvec2(false);
+ivec3 address_registers = ivec3(0);
+vec4 reg_tmp0 = vec4(0.0, 0.0, 0.0, 1.0);
+vec4 reg_tmp1 = vec4(0.0, 0.0, 0.0, 1.0);
+vec4 reg_tmp2 = vec4(0.0, 0.0, 0.0, 1.0);
+vec4 reg_tmp3 = vec4(0.0, 0.0, 0.0, 1.0);
+vec4 reg_tmp4 = vec4(0.0, 0.0, 0.0, 1.0);
+vec4 reg_tmp5 = vec4(0.0, 0.0, 0.0, 1.0);
+vec4 reg_tmp6 = vec4(0.0, 0.0, 0.0, 1.0);
+vec4 reg_tmp7 = vec4(0.0, 0.0, 0.0, 1.0);
+vec4 reg_tmp8 = vec4(0.0, 0.0, 0.0, 1.0);
+vec4 reg_tmp9 = vec4(0.0, 0.0, 0.0, 1.0);
+vec4 reg_tmp10 = vec4(0.0, 0.0, 0.0, 1.0);
+vec4 reg_tmp11 = vec4(0.0, 0.0, 0.0, 1.0);
+vec4 reg_tmp12 = vec4(0.0, 0.0, 0.0, 1.0);
+vec4 reg_tmp13 = vec4(0.0, 0.0, 0.0, 1.0);
+vec4 reg_tmp14 = vec4(0.0, 0.0, 0.0, 1.0);
+vec4 reg_tmp15 = vec4(0.0, 0.0, 0.0, 1.0);
+
+bool sub_1();
+bool sub_2();
+bool sub_0();
+
+bool exec_shader() {
+    sub_0();
+    return true;
+}
+
+bool sub_1() {
+    reg_tmp14.x = dot_s(uniforms.f[8], reg_tmp13);
+    reg_tmp14.y = dot_s(uniforms.f[9], reg_tmp13);
+    reg_tmp14.z = dot_s(uniforms.f[10], reg_tmp13);
+    reg_tmp14.w = dot_s(uniforms.f[11], reg_tmp13);
+    return false;
+}
+bool sub_2() {
+    reg_tmp15.x = dot_s(uniforms.f[4], reg_tmp14);
+    reg_tmp15.y = dot_s(uniforms.f[5], reg_tmp14);
+    reg_tmp15.z = dot_s(uniforms.f[6], reg_tmp14);
+    reg_tmp15.w = dot_s(uniforms.f[7], reg_tmp14);
+    vs_out_attr0.x = dot_s(uniforms.f[0], reg_tmp15);
+    vs_out_attr0.y = dot_s(uniforms.f[1], reg_tmp15);
+    vs_out_attr0.z = dot_s(uniforms.f[2], reg_tmp15);
+    vs_out_attr0.w = dot_s(uniforms.f[3], reg_tmp15);
+    return false;
+}
+bool sub_0() {
+    reg_tmp13 = vs_in_reg0;
+    {
+        sub_1();
+    }
+    {
+        sub_2();
+    }
+    vs_out_attr1 = vs_in_reg1;
+    vs_out_attr2 = vs_in_reg2;
+    return true;
+}
+// reference: 6AA5C35815026B69, C5F007F915FA63DD
+// program: C5F007F915FA63DD, 91617ECCFBAAF156, 55DC97714BEADD97
+// program: C5F007F915FA63DD, 91617ECCFBAAF156, 4D5CFC1E9D9B8FEC
+// shader: 8DD9, 7896DD12430341DD
+
+#define mul_s(x, y) (x * y)
+#define fma_s(x, y, z) fma(x, y, z)
+#define rcp_s(x) (1.0 / x)
+#define rsq_s(x) inversesqrt(x)
+#define dot_s(x, y) dot(x, y)
+#define dot_3(x, y) dot(x, y)
+layout(points) in;
+layout(triangle_strip, max_vertices = 30) out;
+out vec4 primary_color;
+out vec2 texcoord0;
+out vec2 texcoord1;
+out vec2 texcoord2;
+out float texcoord0_w;
+out vec4 normquat;
+out vec3 view;
+
+#define NUM_TEV_STAGES 6
+layout (std140) uniform shader_data {
+    int alphatest_ref;
+    float depth_scale;
+    float depth_offset;
+    float shadow_bias_constant;
+    float shadow_bias_linear;
+    int scissor_x1;
+    int scissor_y1;
+    int scissor_x2;
+    int scissor_y2;
+    int fog_lut_offset;
+    int proctex_noise_lut_offset;
+    int proctex_color_map_offset;
+    int proctex_alpha_map_offset;
+    int proctex_lut_offset;
+    int proctex_diff_lut_offset;
+    float proctex_bias;
+    vec3 fog_color;
+    vec2 proctex_noise_f;
+    vec2 proctex_noise_a;
+    vec2 proctex_noise_p;
+    vec4 const_color[NUM_TEV_STAGES];
+    vec4 tev_combiner_buffer_color;
+    vec4 clip_coef;
+};
+
+in vec4 vs_out_attr0[];
+in vec4 vs_out_attr1[];
+in vec4 vs_out_attr2[];
+in vec4 vs_out_attr3[];
+
+struct pica_uniforms {
+    bool b[16];
+    uvec4 i[4];
+    vec4 f[96];
+};
+
+bool exec_shader();
+
+#define uniforms gs_uniforms
+layout (std140) uniform gs_config {
+    pica_uniforms uniforms;
+};
+struct Vertex {
+    vec4 attributes[3];
+};
+
+vec4 GetVertexQuaternion(Vertex vtx) {
+    return vec4(0.0, 0.0, 0.0, 0.0);
+}
+
+void EmitVtx(Vertex vtx, bool quats_opposite) {
+    vec4 vtx_pos = vec4(vtx.attributes[0].x, vtx.attributes[0].y, vtx.attributes[0].z, vtx.attributes[0].w);
+    gl_Position = vtx_pos;
+#if !defined(CITRA_GLES) || defined(GL_EXT_clip_cull_distance)
+    gl_ClipDistance[0] = -vtx_pos.z;
+    gl_ClipDistance[1] = dot(clip_coef, vtx_pos);
+#endif // !defined(CITRA_GLES) || defined(GL_EXT_clip_cull_distance)
+
+    vec4 vtx_quat = GetVertexQuaternion(vtx);
+    normquat = mix(vtx_quat, -vtx_quat, bvec4(quats_opposite));
+
+    vec4 vtx_color = vec4(vtx.attributes[2].x, vtx.attributes[2].y, vtx.attributes[2].z, vtx.attributes[2].w);
+    primary_color = min(abs(vtx_color), vec4(1.0));
+
+    texcoord0 = vec2(vtx.attributes[1].x, vtx.attributes[1].y);
+    texcoord1 = vec2(0.0, 0.0);
+
+    texcoord0_w = 0.0;
+    view = vec3(0.0, 0.0, 0.0);
+    texcoord2 = vec2(0.0, 0.0);
+
+    EmitVertex();
+}
+
+bool AreQuaternionsOpposite(vec4 qa, vec4 qb) {
+    return (dot(qa, qb) < 0.0);
+}
+
+void EmitPrim(Vertex vtx0, Vertex vtx1, Vertex vtx2) {
+    EmitVtx(vtx0, false);
+    EmitVtx(vtx1, AreQuaternionsOpposite(GetVertexQuaternion(vtx0), GetVertexQuaternion(vtx1)));
+    EmitVtx(vtx2, AreQuaternionsOpposite(GetVertexQuaternion(vtx0), GetVertexQuaternion(vtx2)));
+    EndPrimitive();
+}
+
+Vertex output_buffer;
+Vertex prim_buffer[3];
+uint vertex_id = 0u;
+bool prim_emit = false;
+bool winding = false;
+void setemit(uint vertex_id_, bool prim_emit_, bool winding_);
+void emit();
+void main() {
+    output_buffer.attributes[0] = vec4(0.0, 0.0, 0.0, 1.0);
+    output_buffer.attributes[1] = vec4(0.0, 0.0, 0.0, 1.0);
+    output_buffer.attributes[2] = vec4(0.0, 0.0, 0.0, 1.0);
+    exec_shader();
+}
+
+void setemit(uint vertex_id_, bool prim_emit_, bool winding_) {
+    vertex_id = vertex_id_;
+    prim_emit = prim_emit_;
+    winding = winding_;
+}
+void emit() {
+    prim_buffer[vertex_id] = output_buffer;
+    if (prim_emit) {
+        if (winding) {
+            EmitPrim(prim_buffer[1], prim_buffer[0], prim_buffer[2]);
+            winding = false;
+        } else {
+            EmitPrim(prim_buffer[0], prim_buffer[1], prim_buffer[2]);
+        }
+    }
+}
+bvec2 conditional_code = bvec2(false);
+ivec3 address_registers = ivec3(0);
+vec4 reg_tmp0 = vec4(0.0, 0.0, 0.0, 1.0);
+vec4 reg_tmp1 = vec4(0.0, 0.0, 0.0, 1.0);
+vec4 reg_tmp2 = vec4(0.0, 0.0, 0.0, 1.0);
+vec4 reg_tmp3 = vec4(0.0, 0.0, 0.0, 1.0);
+vec4 reg_tmp4 = vec4(0.0, 0.0, 0.0, 1.0);
+vec4 reg_tmp5 = vec4(0.0, 0.0, 0.0, 1.0);
+vec4 reg_tmp6 = vec4(0.0, 0.0, 0.0, 1.0);
+vec4 reg_tmp7 = vec4(0.0, 0.0, 0.0, 1.0);
+vec4 reg_tmp8 = vec4(0.0, 0.0, 0.0, 1.0);
+vec4 reg_tmp9 = vec4(0.0, 0.0, 0.0, 1.0);
+vec4 reg_tmp10 = vec4(0.0, 0.0, 0.0, 1.0);
+vec4 reg_tmp11 = vec4(0.0, 0.0, 0.0, 1.0);
+vec4 reg_tmp12 = vec4(0.0, 0.0, 0.0, 1.0);
+vec4 reg_tmp13 = vec4(0.0, 0.0, 0.0, 1.0);
+vec4 reg_tmp14 = vec4(0.0, 0.0, 0.0, 1.0);
+vec4 reg_tmp15 = vec4(0.0, 0.0, 0.0, 1.0);
+
+bool sub_0();
+bool sub_1();
+bool sub_2();
+bool sub_3();
+
+bool exec_shader() {
+    sub_0();
+    return true;
+}
+
+bool sub_0() {
+    reg_tmp9.xyz = (uniforms.f[76].xxxx).xyz;
+    reg_tmp9.w = (-vs_out_attr0[0].wwww).w;
+    conditional_code.x = vs_out_attr0[0].zzzz.x > reg_tmp9.xwww.x;
+    conditional_code.y = vs_out_attr0[0].zzzz.y < reg_tmp9.xwww.y;
+    if (uniforms.b[0]) {
+        sub_1();
+    } else {
+        sub_2();
+    }
+    if (all(not(conditional_code))) {
+        sub_3();
+    }
+    return true;
+}
+bool sub_1() {
+    reg_tmp10 = uniforms.f[67].xyyy;
+    return false;
+}
+bool sub_2() {
+    reg_tmp10 = mul_s(uniforms.f[67].xyyy, vs_out_attr0[0].wwww);
+    return false;
+}
+bool sub_3() {
+    reg_tmp10.zw = (-reg_tmp10.xxxy).zw;
+    output_buffer.attributes[2] = vs_out_attr3[0];
+    reg_tmp10 = mul_s(reg_tmp10, vs_out_attr1[0]);
+    output_buffer.attributes[1] = uniforms.f[76].xxxx;
+    setemit(0u, false, false);
+    output_buffer.attributes[0].zw = (vs_out_attr0[0]).zw;
+    output_buffer.attributes[0].xy = (vs_out_attr0[0] + reg_tmp10.zwww).xy;
+    emit();
+    output_buffer.attributes[2] = vs_out_attr3[0];
+    output_buffer.attributes[1] = uniforms.f[76].yxxx;
+    setemit(1u, false, false);
+    output_buffer.attributes[0].zw = (vs_out_attr0[0]).zw;
+    output_buffer.attributes[0].xy = (vs_out_attr0[0] + reg_tmp10.xwww).xy;
+    emit();
+    output_buffer.attributes[1] = uniforms.f[76].xyyy;
+    setemit(2u, true, false);
+    output_buffer.attributes[0].xy = (vs_out_attr0[0] + reg_tmp10.zyyy).xy;
+    emit();
+    output_buffer.attributes[1] = uniforms.f[76].yyyy;
+    setemit(0u, true, true);
+    output_buffer.attributes[0].xy = (vs_out_attr0[0] + reg_tmp10.xyyy).xy;
+    emit();
+    return false;
+}
+// reference: 89EB8E5610DC74BF, 7896DD12430341DD
+// shader: 8B31, FA29D73AFE9C5342
+
+#define mul_s(x, y) (x * y)
+#define fma_s(x, y, z) fma(x, y, z)
+#define rcp_s(x) (1.0 / x)
+#define rsq_s(x) inversesqrt(x)
+#define dot_s(x, y) dot(x, y)
+#define dot_3(x, y) dot(x, y)
+
+struct pica_uniforms {
+    bool b[16];
+    uvec4 i[4];
+    vec4 f[96];
+};
+
+bool exec_shader();
+
+#define uniforms vs_uniforms
+layout (std140) uniform vs_config {
+    pica_uniforms uniforms;
+};
+layout(location = 0) in vec4 vs_in_reg0;
+layout(location = 1) in vec4 vs_in_reg1;
+layout(location = 2) in vec4 vs_in_reg2;
+
+out vec4 vs_out_attr0;
+out vec4 vs_out_attr1;
+out vec4 vs_out_attr2;
+out vec4 vs_out_attr3;
+
+void main() {
+    vs_out_attr0 = vec4(0.0, 0.0, 0.0, 1.0);
+    vs_out_attr1 = vec4(0.0, 0.0, 0.0, 1.0);
+    vs_out_attr2 = vec4(0.0, 0.0, 0.0, 1.0);
+    vs_out_attr3 = vec4(0.0, 0.0, 0.0, 1.0);
+    exec_shader();
+}
+bvec2 conditional_code = bvec2(false);
+ivec3 address_registers = ivec3(0);
+vec4 reg_tmp0 = vec4(0.0, 0.0, 0.0, 1.0);
+vec4 reg_tmp1 = vec4(0.0, 0.0, 0.0, 1.0);
+vec4 reg_tmp2 = vec4(0.0, 0.0, 0.0, 1.0);
+vec4 reg_tmp3 = vec4(0.0, 0.0, 0.0, 1.0);
+vec4 reg_tmp4 = vec4(0.0, 0.0, 0.0, 1.0);
+vec4 reg_tmp5 = vec4(0.0, 0.0, 0.0, 1.0);
+vec4 reg_tmp6 = vec4(0.0, 0.0, 0.0, 1.0);
+vec4 reg_tmp7 = vec4(0.0, 0.0, 0.0, 1.0);
+vec4 reg_tmp8 = vec4(0.0, 0.0, 0.0, 1.0);
+vec4 reg_tmp9 = vec4(0.0, 0.0, 0.0, 1.0);
+vec4 reg_tmp10 = vec4(0.0, 0.0, 0.0, 1.0);
+vec4 reg_tmp11 = vec4(0.0, 0.0, 0.0, 1.0);
+vec4 reg_tmp12 = vec4(0.0, 0.0, 0.0, 1.0);
+vec4 reg_tmp13 = vec4(0.0, 0.0, 0.0, 1.0);
+vec4 reg_tmp14 = vec4(0.0, 0.0, 0.0, 1.0);
+vec4 reg_tmp15 = vec4(0.0, 0.0, 0.0, 1.0);
+
+bool sub_1();
+bool sub_0();
+
+bool exec_shader() {
+    sub_0();
+    return true;
+}
+
+bool sub_1() {
+    reg_tmp15.x = dot_s(uniforms.f[4], vs_in_reg0);
+    reg_tmp15.y = dot_s(uniforms.f[5], vs_in_reg0);
+    reg_tmp15.z = dot_s(uniforms.f[6], vs_in_reg0);
+    reg_tmp15.w = dot_s(uniforms.f[7], vs_in_reg0);
+    vs_out_attr0.x = dot_s(uniforms.f[0], reg_tmp15);
+    vs_out_attr0.y = dot_s(uniforms.f[1], reg_tmp15);
+    vs_out_attr0.z = dot_s(uniforms.f[2], reg_tmp15);
+    vs_out_attr0.w = dot_s(uniforms.f[3], reg_tmp15);
+    return false;
+}
+bool sub_0() {
+    {
+        sub_1();
+    }
+    vs_out_attr1 = vs_in_reg2.xxxx;
+    vs_out_attr2 = reg_tmp0;
+    vs_out_attr3 = vs_in_reg1;
+    return true;
+}
+// reference: 44DE5659E1E56897, FA29D73AFE9C5342
+// program: FA29D73AFE9C5342, 7896DD12430341DD, 55DC97714BEADD97
+// reference: 49167E2ECFE235F0, D80F841F5676DCD6
+// reference: C829796880171CDD, F731F0F86839876A
+// reference: 6D66F8AD4820F16A, BA68CBC12B9F4EF9
+// reference: 49167E2E5C05C16A, 205C277040CE1703
+// reference: E2EE0AE4F48967E4, 589F55F830B1115C
+// reference: C8297968A37F6F4C, 748F847C1BF7AE6B
+// reference: 70951E0D7338BB5A, E4B869FAEBBF1420
+// reference: C8297968EE05BF69, 8A115A9EA7E9DB25
+// shader: 8DD9, 138E1D35EB16C63F
+
+#define mul_s(x, y) (x * y)
+#define fma_s(x, y, z) fma(x, y, z)
+#define rcp_s(x) (1.0 / x)
+#define rsq_s(x) inversesqrt(x)
+#define dot_s(x, y) dot(x, y)
+#define dot_3(x, y) dot(x, y)
+layout(points) in;
+layout(triangle_strip, max_vertices = 30) out;
+out vec4 primary_color;
+out vec2 texcoord0;
+out vec2 texcoord1;
+out vec2 texcoord2;
+out float texcoord0_w;
+out vec4 normquat;
+out vec3 view;
+
+#define NUM_TEV_STAGES 6
+layout (std140) uniform shader_data {
+    int alphatest_ref;
+    float depth_scale;
+    float depth_offset;
+    float shadow_bias_constant;
+    float shadow_bias_linear;
+    int scissor_x1;
+    int scissor_y1;
+    int scissor_x2;
+    int scissor_y2;
+    int fog_lut_offset;
+    int proctex_noise_lut_offset;
+    int proctex_color_map_offset;
+    int proctex_alpha_map_offset;
+    int proctex_lut_offset;
+    int proctex_diff_lut_offset;
+    float proctex_bias;
+    vec3 fog_color;
+    vec2 proctex_noise_f;
+    vec2 proctex_noise_a;
+    vec2 proctex_noise_p;
+    vec4 const_color[NUM_TEV_STAGES];
+    vec4 tev_combiner_buffer_color;
+    vec4 clip_coef;
+};
+
+in vec4 vs_out_attr0[];
+in vec4 vs_out_attr1[];
+in vec4 vs_out_attr2[];
+
+struct pica_uniforms {
+    bool b[16];
+    uvec4 i[4];
+    vec4 f[96];
+};
+
+bool exec_shader();
+
+#define uniforms gs_uniforms
+layout (std140) uniform gs_config {
+    pica_uniforms uniforms;
+};
+struct Vertex {
+    vec4 attributes[3];
+};
+
+vec4 GetVertexQuaternion(Vertex vtx) {
+    return vec4(0.0, 0.0, 0.0, 0.0);
+}
+
+void EmitVtx(Vertex vtx, bool quats_opposite) {
+    vec4 vtx_pos = vec4(vtx.attributes[0].x, vtx.attributes[0].y, vtx.attributes[0].z, vtx.attributes[0].w);
+    gl_Position = vtx_pos;
+#if !defined(CITRA_GLES) || defined(GL_EXT_clip_cull_distance)
+    gl_ClipDistance[0] = -vtx_pos.z;
+    gl_ClipDistance[1] = dot(clip_coef, vtx_pos);
+#endif // !defined(CITRA_GLES) || defined(GL_EXT_clip_cull_distance)
+
+    vec4 vtx_quat = GetVertexQuaternion(vtx);
+    normquat = mix(vtx_quat, -vtx_quat, bvec4(quats_opposite));
+
+    vec4 vtx_color = vec4(vtx.attributes[1].x, vtx.attributes[1].y, vtx.attributes[1].z, vtx.attributes[1].w);
+    primary_color = min(abs(vtx_color), vec4(1.0));
+
+    texcoord0 = vec2(vtx.attributes[2].x, vtx.attributes[2].y);
+    texcoord1 = vec2(0.0, 0.0);
+
+    texcoord0_w = 0.0;
+    view = vec3(0.0, 0.0, 0.0);
+    texcoord2 = vec2(0.0, 0.0);
+
+    EmitVertex();
+}
+
+bool AreQuaternionsOpposite(vec4 qa, vec4 qb) {
+    return (dot(qa, qb) < 0.0);
+}
+
+void EmitPrim(Vertex vtx0, Vertex vtx1, Vertex vtx2) {
+    EmitVtx(vtx0, false);
+    EmitVtx(vtx1, AreQuaternionsOpposite(GetVertexQuaternion(vtx0), GetVertexQuaternion(vtx1)));
+    EmitVtx(vtx2, AreQuaternionsOpposite(GetVertexQuaternion(vtx0), GetVertexQuaternion(vtx2)));
+    EndPrimitive();
+}
+
+Vertex output_buffer;
+Vertex prim_buffer[3];
+uint vertex_id = 0u;
+bool prim_emit = false;
+bool winding = false;
+void setemit(uint vertex_id_, bool prim_emit_, bool winding_);
+void emit();
+void main() {
+    output_buffer.attributes[0] = vec4(0.0, 0.0, 0.0, 1.0);
+    output_buffer.attributes[1] = vec4(0.0, 0.0, 0.0, 1.0);
+    output_buffer.attributes[2] = vec4(0.0, 0.0, 0.0, 1.0);
+    exec_shader();
+}
+
+void setemit(uint vertex_id_, bool prim_emit_, bool winding_) {
+    vertex_id = vertex_id_;
+    prim_emit = prim_emit_;
+    winding = winding_;
+}
+void emit() {
+    prim_buffer[vertex_id] = output_buffer;
+    if (prim_emit) {
+        if (winding) {
+            EmitPrim(prim_buffer[1], prim_buffer[0], prim_buffer[2]);
+            winding = false;
+        } else {
+            EmitPrim(prim_buffer[0], prim_buffer[1], prim_buffer[2]);
+        }
+    }
+}
+bvec2 conditional_code = bvec2(false);
+ivec3 address_registers = ivec3(0);
+vec4 reg_tmp0 = vec4(0.0, 0.0, 0.0, 1.0);
+vec4 reg_tmp1 = vec4(0.0, 0.0, 0.0, 1.0);
+vec4 reg_tmp2 = vec4(0.0, 0.0, 0.0, 1.0);
+vec4 reg_tmp3 = vec4(0.0, 0.0, 0.0, 1.0);
+vec4 reg_tmp4 = vec4(0.0, 0.0, 0.0, 1.0);
+vec4 reg_tmp5 = vec4(0.0, 0.0, 0.0, 1.0);
+vec4 reg_tmp6 = vec4(0.0, 0.0, 0.0, 1.0);
+vec4 reg_tmp7 = vec4(0.0, 0.0, 0.0, 1.0);
+vec4 reg_tmp8 = vec4(0.0, 0.0, 0.0, 1.0);
+vec4 reg_tmp9 = vec4(0.0, 0.0, 0.0, 1.0);
+vec4 reg_tmp10 = vec4(0.0, 0.0, 0.0, 1.0);
+vec4 reg_tmp11 = vec4(0.0, 0.0, 0.0, 1.0);
+vec4 reg_tmp12 = vec4(0.0, 0.0, 0.0, 1.0);
+vec4 reg_tmp13 = vec4(0.0, 0.0, 0.0, 1.0);
+vec4 reg_tmp14 = vec4(0.0, 0.0, 0.0, 1.0);
+vec4 reg_tmp15 = vec4(0.0, 0.0, 0.0, 1.0);
+
+bool sub_0();
+bool sub_1();
+bool sub_2();
+bool sub_3();
+bool sub_4();
+bool sub_5();
+bool sub_6();
+bool sub_7();
+bool sub_8();
+bool sub_9();
+bool sub_10();
+bool sub_11();
+bool sub_12();
+bool sub_13();
+bool sub_14();
+bool sub_15();
+bool sub_16();
+bool sub_17();
+bool sub_18();
+bool sub_19();
+bool sub_20();
+bool sub_21();
+bool sub_22();
+bool sub_23();
+bool sub_24();
+bool sub_25();
+bool sub_26();
+bool sub_27();
+
+bool exec_shader() {
+    sub_0();
+    return true;
+}
+
+bool sub_0() {
+    reg_tmp0.x = (reg_tmp7.wwww).x;
+    if (uniforms.b[15]) {
+        sub_1();
+    } else {
+        sub_2();
+    }
+    conditional_code = equal(uniforms.f[76].xx, reg_tmp0.xy);
+    reg_tmp0.x = (reg_tmp8.zzzz).x;
+    if (any(conditional_code)) {
+        sub_3();
+    } else {
+        sub_4();
+    }
+    reg_tmp7.w = (uniforms.f[76].yyyy + reg_tmp7.wwww).w;
+    reg_tmp8 = vs_out_attr0[0];
+    conditional_code = equal(uniforms.f[76].zz, reg_tmp7.ww);
+    reg_tmp9 = vs_out_attr1[0];
+    reg_tmp10 = vs_out_attr2[0];
+    if (conditional_code.x) {
+        sub_27();
+    }
+    return true;
+}
+bool sub_1() {
+    reg_tmp0.y = (uniforms.f[76].yyyy).y;
+    return false;
+}
+bool sub_2() {
+    reg_tmp0.y = (uniforms.f[76].xxxx).y;
+    reg_tmp15.x = rcp_s(uniforms.f[67].x);
+    reg_tmp15.y = rcp_s(uniforms.f[67].y);
+    return false;
+}
+bool sub_3() {
+    reg_tmp7 = uniforms.f[76].xxxx;
+    return false;
+}
+bool sub_4() {
+    uint jmp_to = 314u;
+    while (true) {
+        switch (jmp_to) {
+        case 314u: {
+            reg_tmp0.y = (vs_out_attr0[0].zzzz).y;
+            conditional_code = lessThan(uniforms.f[76].xx, reg_tmp0.xy);
+            reg_tmp6.x = (vec4(lessThan(reg_tmp7.wwww, uniforms.f[76].zzzz))).x;
+            reg_tmp1 = vs_out_attr0[0];
+            if (all(conditional_code)) {
+                { jmp_to = 456u; break; }
+            }
+            if (all(not(conditional_code))) {
+                { jmp_to = 341u; break; }
+            }
+            if (all(bvec2(conditional_code.x, !conditional_code.y))) {
+                sub_5();
+            } else {
+                sub_6();
+            }
+        }
+        case 341u: {
+            reg_tmp0.xy = (mul_s(reg_tmp8, reg_tmp1.wwww)).xy;
+            reg_tmp3.z = (reg_tmp6.xxxx).z;
+            reg_tmp2 = uniforms.f[76].xxxx;
+            reg_tmp0.xy = (fma_s(reg_tmp1, reg_tmp8.wwww, -reg_tmp0)).xy;
+            reg_tmp3.w = (uniforms.f[76].xxxx).w;
+            reg_tmp2.y = (reg_tmp1.wwww).y;
+            reg_tmp1.xy = (abs(reg_tmp0)).xy;
+            reg_tmp1.xy = (mul_s(reg_tmp1, reg_tmp15.yxxx)).xy;
+            conditional_code.x = reg_tmp1.xxxx.x > reg_tmp1.yyyy.x;
+            conditional_code.y = reg_tmp1.xxxx.y == reg_tmp1.yyyy.y;
+            reg_tmp1 = uniforms.f[76].xxxx;
+            if (conditional_code.x) {
+                sub_7();
+            } else {
+                sub_10();
+            }
+            conditional_code.x = reg_tmp3.xzzz.x == reg_tmp3.ywww.x;
+            conditional_code.y = reg_tmp3.xzzz.y > reg_tmp3.ywww.y;
+            if (any(bvec2(!conditional_code.x, conditional_code.y))) {
+                sub_13();
+            } else {
+                sub_14();
+            }
+            if (conditional_code.x) {
+                sub_15();
+            } else {
+                sub_16();
+            }
+            if (conditional_code.x) {
+                sub_17();
+            } else {
+                sub_22();
+            }
+        }
+        case 456u: {
+            reg_tmp7.x = (reg_tmp7.yyyy).x;
+        }
+        default: return false;
+        }
+    }
+    return false;
+}
+bool sub_5() {
+    reg_tmp0 = reg_tmp8.zzzz + -vs_out_attr0[0].zzzz;
+    reg_tmp0 = vec4(rcp_s(reg_tmp0.x));
+    reg_tmp6.x = (uniforms.f[76].yyyy).x;
+    reg_tmp1.x = (mul_s(reg_tmp0, reg_tmp8.zzzz)).x;
+    reg_tmp1.y = (mul_s(-reg_tmp0, vs_out_attr0[0].zzzz)).y;
+    reg_tmp8 = mul_s(reg_tmp1.yyyy, reg_tmp8);
+    reg_tmp9 = mul_s(reg_tmp1.yyyy, reg_tmp9);
+    reg_tmp10 = mul_s(reg_tmp1.yyyy, reg_tmp10);
+    reg_tmp8 = fma_s(reg_tmp1.xxxx, vs_out_attr0[0], reg_tmp8);
+    reg_tmp9 = fma_s(reg_tmp1.xxxx, vs_out_attr1[0], reg_tmp9);
+    reg_tmp10 = fma_s(reg_tmp1.xxxx, vs_out_attr2[0], reg_tmp10);
+    reg_tmp8.z = (uniforms.f[76].xxxx).z;
+    reg_tmp1 = vs_out_attr0[0];
+    return false;
+}
+bool sub_6() {
+    reg_tmp0 = vs_out_attr0[0].zzzz + -reg_tmp8.zzzz;
+    reg_tmp0 = vec4(rcp_s(reg_tmp0.x));
+    reg_tmp0.x = (mul_s(reg_tmp0, vs_out_attr0[0].zzzz)).x;
+    reg_tmp0.y = (mul_s(-reg_tmp0, reg_tmp8.zzzz)).y;
+    reg_tmp1 = mul_s(reg_tmp0.yyyy, vs_out_attr0[0]);
+    reg_tmp1 = fma_s(reg_tmp0.xxxx, reg_tmp8, reg_tmp1);
+    reg_tmp1.z = (uniforms.f[76].xxxx).z;
+    return false;
+}
+bool sub_7() {
+    conditional_code.x = uniforms.f[76].xxxx.x < reg_tmp0.xxxx.x;
+    conditional_code.y = uniforms.f[76].xxxx.y == reg_tmp0.xxxx.y;
+    reg_tmp2.y = (mul_s(reg_tmp2.yyyy, reg_tmp15.yyyy)).y;
+    reg_tmp1.y = (mul_s(reg_tmp8.wwww, reg_tmp15.yyyy)).y;
+    if (conditional_code.x) {
+        sub_8();
+    } else {
+        sub_9();
+    }
+    reg_tmp3.xy = (abs(reg_tmp7)).xy;
+    return false;
+}
+bool sub_8() {
+    reg_tmp7.y = (uniforms.f[76].yyyy).y;
+    return false;
+}
+bool sub_9() {
+    reg_tmp7.y = (-uniforms.f[76].yyyy).y;
+    return false;
+}
+bool sub_10() {
+    reg_tmp2.y = (mul_s(reg_tmp2.yyyy, reg_tmp15.xxxx)).y;
+    conditional_code.x = uniforms.f[76].xxxx.x < reg_tmp0.yyyy.x;
+    conditional_code.y = uniforms.f[76].xxxx.y == reg_tmp0.yyyy.y;
+    reg_tmp1.x = (mul_s(-reg_tmp8.wwww, reg_tmp15.xxxx)).x;
+    reg_tmp2.x = (-reg_tmp2.yyyy).x;
+    if (conditional_code.x) {
+        sub_11();
+    } else {
+        sub_12();
+    }
+    reg_tmp3.xy = (abs(reg_tmp7)).xy;
+    reg_tmp2.y = (uniforms.f[76].xxxx).y;
+    return false;
+}
+bool sub_11() {
+    reg_tmp7.y = (uniforms.f[76].zzzz).y;
+    return false;
+}
+bool sub_12() {
+    reg_tmp7.y = (-uniforms.f[76].zzzz).y;
+    return false;
+}
+bool sub_13() {
+    conditional_code.x = uniforms.f[76].xxxx.x >= vs_out_attr0[0].zzzz.x;
+    conditional_code.y = uniforms.f[76].xxxx.y == vs_out_attr0[0].zzzz.y;
+    output_buffer.attributes[1] = reg_tmp9;
+    output_buffer.attributes[2] = reg_tmp10;
+    setemit(0u, false, false);
+    output_buffer.attributes[0] = reg_tmp8 + reg_tmp1;
+    emit();
+    setemit(1u, false, false);
+    emit();
+    output_buffer.attributes[0] = reg_tmp8 + -reg_tmp1;
+    setemit(1u, false, false);
+    reg_tmp7.z = (uniforms.f[76].zzzz).z;
+    emit();
+    return false;
+}
+bool sub_14() {
+    conditional_code.x = uniforms.f[76].xxxx.x >= vs_out_attr0[0].zzzz.x;
+    conditional_code.y = uniforms.f[76].xxxx.y == vs_out_attr0[0].zzzz.y;
+    return false;
+}
+bool sub_15() {
+    conditional_code = lessThan(uniforms.f[76].xx, reg_tmp7.yy);
+    reg_tmp3 = vs_out_attr0[0];
+    output_buffer.attributes[1] = vs_out_attr1[0];
+    output_buffer.attributes[2] = vs_out_attr2[0];
+    return false;
+}
+bool sub_16() {
+    conditional_code = lessThan(uniforms.f[76].xx, reg_tmp7.yy);
+    reg_tmp1 = vs_out_attr0[0].zzzz + -reg_tmp8.zzzz;
+    reg_tmp1 = vec4(rcp_s(reg_tmp1.x));
+    reg_tmp3.x = (mul_s(reg_tmp1, vs_out_attr0[0].zzzz)).x;
+    reg_tmp3.y = (mul_s(-reg_tmp1, reg_tmp8.zzzz)).y;
+    reg_tmp1 = mul_s(reg_tmp3.yyyy, vs_out_attr0[0]);
+    reg_tmp4 = mul_s(reg_tmp3.yyyy, vs_out_attr1[0]);
+    reg_tmp1 = fma_s(reg_tmp3.xxxx, reg_tmp8, reg_tmp1);
+    reg_tmp6 = mul_s(reg_tmp3.yyyy, vs_out_attr2[0]);
+    output_buffer.attributes[1] = fma_s(reg_tmp3.xxxx, reg_tmp9, reg_tmp4);
+    reg_tmp1.z = (uniforms.f[76].xxxx).z;
+    output_buffer.attributes[2] = fma_s(reg_tmp3.xxxx, reg_tmp10, reg_tmp6);
+    reg_tmp3 = reg_tmp1;
+    return false;
+}
+bool sub_17() {
+    conditional_code = equal(uniforms.f[76].xy, reg_tmp7.zz);
+    output_buffer.attributes[0] = reg_tmp3 + reg_tmp2;
+    if (conditional_code.x) {
+        sub_18();
+    } else {
+        sub_19();
+    }
+    emit();
+    return false;
+}
+bool sub_18() {
+    setemit(0u, true, false);
+    emit();
+    setemit(1u, false, true);
+    emit();
+    output_buffer.attributes[0] = reg_tmp3 + -reg_tmp2;
+    setemit(1u, true, true);
+    reg_tmp7.z = (uniforms.f[76].zzzz).z;
+    return false;
+}
+bool sub_19() {
+    if (conditional_code.y) {
+        sub_20();
+    } else {
+        sub_21();
+    }
+    return false;
+}
+bool sub_20() {
+    setemit(1u, true, false);
+    emit();
+    setemit(2u, false, true);
+    emit();
+    output_buffer.attributes[0] = reg_tmp3 + -reg_tmp2;
+    setemit(2u, true, true);
+    reg_tmp7.z = (uniforms.f[76].xxxx).z;
+    return false;
+}
+bool sub_21() {
+    setemit(2u, true, false);
+    emit();
+    setemit(0u, false, true);
+    emit();
+    output_buffer.attributes[0] = reg_tmp3 + -reg_tmp2;
+    setemit(0u, true, true);
+    reg_tmp7.z = (uniforms.f[76].yyyy).z;
+    return false;
+}
+bool sub_22() {
+    conditional_code = equal(uniforms.f[76].xy, reg_tmp7.zz);
+    output_buffer.attributes[0] = reg_tmp3 + reg_tmp2;
+    if (conditional_code.x) {
+        sub_23();
+    } else {
+        sub_24();
+    }
+    emit();
+    return false;
+}
+bool sub_23() {
+    setemit(0u, true, true);
+    emit();
+    setemit(1u, false, false);
+    emit();
+    output_buffer.attributes[0] = reg_tmp3 + -reg_tmp2;
+    setemit(1u, true, false);
+    reg_tmp7.z = (uniforms.f[76].zzzz).z;
+    return false;
+}
+bool sub_24() {
+    if (conditional_code.y) {
+        sub_25();
+    } else {
+        sub_26();
+    }
+    return false;
+}
+bool sub_25() {
+    setemit(1u, true, true);
+    emit();
+    setemit(2u, false, false);
+    emit();
+    output_buffer.attributes[0] = reg_tmp3 + -reg_tmp2;
+    setemit(2u, true, false);
+    reg_tmp7.z = (uniforms.f[76].xxxx).z;
+    return false;
+}
+bool sub_26() {
+    setemit(2u, true, true);
+    emit();
+    setemit(0u, false, false);
+    emit();
+    output_buffer.attributes[0] = reg_tmp3 + -reg_tmp2;
+    setemit(0u, true, false);
+    reg_tmp7.z = (uniforms.f[76].yyyy).z;
+    return false;
+}
+bool sub_27() {
+    reg_tmp7.w = (uniforms.f[76].xxxx).w;
+    return false;
+}
+// reference: 8B760B72AC4F6C7F, 138E1D35EB16C63F
+// reference: 9074CF4B8550D11C, C5F007F915FA63DD
+// program: C5F007F915FA63DD, 138E1D35EB16C63F, 79F977E4C0FF493B
+// reference: CC2F6252A7ECF06D, 3AD634DEC143146E
+// reference: 665DC46915026B69, C5F007F915FA63DD
+// reference: D7798CEFD8398DBC, 91617ECCFBAAF156
+// reference: 3F83833D10DC74BF, 7896DD12430341DD
+// reference: 48265168E1E56897, FA29D73AFE9C5342

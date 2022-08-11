@@ -35656,3 +35656,1939 @@ color = byteround(last_tex_env_out);
 // reference: 877AE86195B27457, DA4EC051850122A7
 // program: 270E94B55796EDB7, B99A1F5927E7BF45, DA4EC051850122A7
 // program: 270E94B55796EDB7, B99A1F5927E7BF45, 98CAF1B03EAF2563
+// reference: 2B36498EF1482F92, 79E395C39CA04EA3
+// reference: ADD67FF497946708, A67039B44C511A38
+// reference: 7BB647230ABC056D, 9D1098971ACFFECB
+// reference: EC9323464ABA5AE7, AC3051A05FCF56E7
+// reference: BEDBD3B56913452D, 877EA791AA03C3C0
+// reference: A0A8F44F44681395, 23A4A3546058793D
+// reference: 4E628C2A63F32250, 14228412C8D58B4A
+// reference: 85F3789BCB0825F6, 39081E4EC36B5CCF
+// reference: FD516A53D8F9056B, 7BF3002D6A6817CC
+// reference: FD516A53CB0825F6, FE00A0FE0D1781DF
+// reference: 502BE3BF86CC8177, 895E44BD60CC7857
+// reference: 3FBDC4992EEA4A8B, 67843FD39430F224
+// reference: 5E2AB73E62C37A6C, F7C76447CC8C600E
+// reference: E9DDFC4ED06D68AE, 372BD861F5D87034
+// reference: 43538A94253A75CA, C31EAC271AD2C422
+// reference: 495182C9C59E5EB8, E287DA1ECFF10132
+// reference: BD646B4C0ABC056D, F1E48A35D0EDD8CB
+// reference: D0D9F716A54000A9, 26E2577A60781C48
+// reference: 29A3D0B76913452D, 96D065B691102FCA
+// reference: 25CA29A9B504C337, AEE6A24F58F73FD5
+// reference: 00A43E411D7545E0, D8EA095901CB87F1
+// reference: 96F9CFD00E0EE40C, DDC487E3BEDCF14F
+// reference: 96F9CFD01DFFC491, 9F7E710E758318B5
+// reference: BFF1F275F1482F92, 0CCBD8541B42A312
+// reference: 3911C40F97946708, A67039B44C511A38
+// reference: 7BB64723E60BEE6E, E225F6DE2162D8FF
+// reference: 29FEB7D04ABA5AE7, 48EAB615415F9889
+// reference: 74434B80C0F7E4E6, 9A74E489080D6FEC
+// reference: 74434B805A06CB37, 44AC55C96DF43BAB
+// reference: A68785F9F2FDCC91, 85161BA3AC78C85F
+// reference: 0790BA8762DF1FA8, 98CAF1B03EAF2563
+// reference: 15B46380C0F7E4E6, 7F06EBA22C2875C8
+// reference: 2350FAB67AE265B0, 011EDF6552609A46
+// reference: 8A6452D1228ACA40, DEF6C0B1A85FD48E
+// reference: CC1A9514BF8BB164, 372BD861F5D87034
+// reference: 4E66C3A68E708F79, B19132076F7599CB
+// reference: D0D9F716B6B12034, DB0FEF6C8CED6825
+// reference: A9498251FDD16E92, A465F49DB5A5715A
+// reference: 2837D3320ABC056D, F1E48A35D0EDD8CB
+// reference: 4609680C6A6F3A47, 5FD2A68F151699CA
+// reference: F1AF3FC4FDD16E92, 16B8264845387C35
+// reference: 441E4CED49F7EBAA, 470B1F7A250D3334
+// reference: 6E17EBF42EEA4A8B, 8A6E54724D809F80
+// reference: 3FBDC4994B5DAEC4, 173878AC76342B7B
+// reference: 4C4D78DA713644E7, 1C26EE83F667EF9B
+// reference: A4AC3E856E14474F, A232CB8346C67C03
+// reference: 179FD8FCB6B12034, 782C5BE0EA453B0E
+// reference: 7A2244A60ABC056D, 1B8AE513BBEBC6FA
+// reference: FAC81640FDD16E92, CB65AC04CC77B70C
+// reference: 15B4638049F7EBAA, C5729CB22BC0A020
+// reference: 4C4D78DA9D81AFE4, 31BF22EFAFE7961A
+// reference: 4C4D78DA8E708F79, ED02481408D1A08D
+// reference: 8581A6FB253A75CA, 5A483BAEE86C4852
+// reference: 2E9BD3A43CDA83AD, 0AA4BF712DACA503
+// reference: ADD67FF47B238C0B, 0AA4BF712DACA503
+// reference: 91BCC71FEF9EA286, 075A5034223F1416
+// reference: 764BBDB8B504C337, 5BAB52E5626B643D
+// reference: 179FD8FCA54000A9, B1800A6CA75EEB8B
+// reference: A949825111668591, 3C4BFB839BFA6723
+// reference: 7A2244A6E60BEE6E, 7D2CCE5F4DD17FFF
+// reference: 554D9EBA8E74916F, CFDBEB985D40792E
+// reference: 70D16EA785A4AE2E, 4859AB52F91B1AA4
+// reference: EE5BDD181DFFC491, DEE1E1E4A4C6C22D
+// reference: 6DED7225BDD73118, 9523794674EE04C1
+// reference: D4F4BEF9BEAA1363, 30B703594147E54C
+// reference: FAC8164011668591, 7755B3EE6BBF3372
+// reference: 3EAB7AC43736F56E, 07E09BEA5420C264
+// reference: 1FCCECCB9D81AFE4, EAE6B64F82CD29E7
+// reference: BEDBD3B5E60BEE6E, 71DBA48A30815B8C
+// reference: 2B886BCBE60BEE6E, 71DBA48A30815B8C
+// reference: FE57EBE57B238C0B, 184A00E1953AF942
+// reference: 179FD8FC5A06CB37, F8B7D9EE28205072
+// reference: 8B0B5730713644E7, 18ED1D8CC0129667
+// reference: AF4AEC0EB4F347AF, 80D1D7D314667808
+// reference: 441E4CEDA54000A9, 93C2C9006D57004F
+// reference: FFC3E8607B238C0B, 184A00E1953AF942
+// reference: F72DAA946E14474F, 79EC0C63A3EA88D7
+// reference: 441E4CED5A06CB37, EF555E8FF9613DAC
+// reference: BD646B4CE60BEE6E, A95D011F9EECFD72
+// reference: D60032EA253A75CA, C31EAC271AD2C422
+// reference: 2E9BD3A4D06D68AE, A67039B44C511A38
+// reference: FD516A5351F90A27, C6037A478C9FBA89
+// reference: 4E66C3A6F4AECF39, B02EDE96885DB80A
+// reference: 29A3D0B70ABC056D, 613AE5594B30F9F2
+// reference: 29A3D0B7E60BEE6E, 75A47BF6600F47EC
+// reference: 7D1A47B53CDA83AD, 184A00E1953AF942
+// reference: 6B04539B7B238C0B, 184A00E1953AF942
+// reference: 3E6CE634BDD73118, 4ED73E7A76B7BF4A
+// reference: 4236AB4D2929B5BB, 03135BF29768B71F
+// reference: D4F4BEF9E9B49EAD, 8D084CC0A7D7F1B9
+// reference: C98CCDDEB6B12034, 2C97C7E621BD9062
+// reference: 9EAAFBE7C98980DF, 820A1FEECA3746B0
+// reference: 563A95EA44681395, AB3DBBBC3829BB3F
+// reference: 6A90501E97946708, 372BD861F5D87034
+// reference: E6B9C0083BD4C706, 7974F3663498993D
+// reference: 1FCCECCB07708035, 93D963B37E8E2353
+// reference: 4E10985FAC79C0CE, 2B53AD27A2B515F0
+// reference: BA5C685FD06D68AE, A67039B44C511A38
+// reference: 4E66C3A607708035, 14602E4F28A76544
+// reference: 2999884939626C3C, A29BAEF5C1BA44F2
+// reference: 6E17EBF44B5DAEC4, 2AA0D7A23616FE26
+// reference: D4F4BEF913CB116A, 7974F3663498993D
+// reference: 9EAAFBE740898F93, C3446E3A287D710C
+// reference: 2BD50CAC4ABA5AE7, 73221AB7EF0AE76F
+// reference: 7BB6472385A4AE2E, 871BF72CDFF95B09
+// reference: 94F139E8F2FDCC91, 85161BA3AC78C85F
+// reference: 5F60CD595A06CB37, C7C94577139364B7
+// reference: 27C2DF9149F7EBAA, C5729CB22BC0A020
+// reference: D4F4BEF986CEC0A6, B9F0B9C1491F2BA4
+// reference: 6B173230E819ADDF, 34BED21BE5F81B21
+// reference: 27C2DF915A06CB37, 340D3C0D3D0EFE65
+// reference: E9DDFC4E3CDA83AD, 184A00E1953AF942
+// reference: 27C2DF91C0F7E4E6, 7F06EBA22C2875C8
+// reference: 1FCCECCBF4AECF39, 97F9CEE046EF954B
+// reference: 3885C78A7B238C0B, 0AA4BF712DACA503
+// reference: A22EABD5FDD16E92, 4397B804D112188A
+// reference: 1FCCECCB8E708F79, FC24716D5C9C7361
+// reference: 15B463805A06CB37, 340D3C0D3D0EFE65
+// reference: D0B4B4C330EE6011, 2A2E1A8AA22599BA
+// reference: 877AE86195B27457, DA4EC051850122A7
+// reference: 8581A6FBC98D9EC9, 8F3DB898AC7D35B3
+// reference: 877AE861B305786A, 725FC46D3A7E60B6
+// reference: A68785F96E14474F, 544D57582CF1D435
+// reference: 2CB068D83CDA83AD, 184A00E1953AF942
+// reference: D4F4BEF9870CAA91, B9F0B9C1491F2BA4
+// reference: 502BE3BF0FCC8E3B, EFD2FD22A44CEC0C
+// reference: E0848BBF5E0215D9, 36482B4E295C6EDF
+// reference: 1FCCECCB713644E7, 76F4A62228A1D26D
+// reference: D60032EAC98D9EC9, 377207C07BC006AC
+// reference: 54D508CE228ACA40, FAE775F74BE89F7B
+// reference: 7BB647236913452D, 5392904C2645E2C1
+// reference: CE84BD1FBCFCBF76, F910B80DE3D8A6F4
+// reference: 52A13DB132A2DFEE, F63831B89ABA550B
+// reference: DE3D45FDE3A7AD67, ED54FBE93FC6D7EE
+// reference: 12644881ACA459CD, 618378764C54D2BC
+// reference: BE86B4D24ABA5AE7, 73221AB7EF0AE76F
+// reference: DC023AB7C59E5EB8, AAABDA65A1E786C9
+// reference: 4C4D78DAF4AECF39, 9A86C7C598BB0609
+// reference: BCF068C9E60BEE6E, 75A47BF6600F47EC
+// reference: B0E18B9B55FF2CAC, 79B4E5D7AC154F19
+// reference: B797414D85A4AE2E, 4045E83468A260AE
+// reference: BCF068C90ABC056D, 613AE5594B30F9F2
+// reference: A94982519E7E2ED2, 104BCCF75DBC5291
+// reference: 377D13ABFDD16E92, 7DB86084B088A375
+// reference: 4E66C3A69D81AFE4, 555B87B582458AD7
+// reference: 0790BA8744681395, 7A7806F5D7DC005C
+// reference: 5F60CD59B6B12034, 426A1380800E53E0
+// reference: 5325AA501D7545E0, 67053ACF7A28C29B
+// reference: 39397E715BA70EEA, 2E087FB340C37151
+// reference: B797414D7AE265B0, 6CA314C0B94B6475
+// reference: 0ECAE234B6B12034, 0C37E14A2DDB4181
+// reference: DABAE56B9B2790A3, 821B2E6F196E4B62
+// reference: 65C560D944681395, 0B53C721868EFC0D
+// reference: F155A33764C29FD9, B08A1382F46AA708
+// reference: 8A6452D12348A077, DEF6C0B1A85FD48E
+// reference: 6A90501E7B238C0B, 184A00E1953AF942
+// reference: FE57EBE597946708, 372BD861F5D87034
+// reference: D4F4BEF912097B5D, 7974F3663498993D
+// reference: BCF068C985A4AE2E, E18490D2DAD9B9DE
+// reference: 2889F1771C3DAEA6, 926D45BFE1D1560B
+// reference: 6B173230E9DBC7E8, 34BED21BE5F81B21
+// reference: AB3F5E4ABDD73118, 19F8C08F6A788D01
+// reference: C676122E1D7545E0, 67053ACF7A28C29B
+// reference: 6C5884352934E1EB, AE7CB40E411B6D93
+// reference: C770ADF9F2FDCC91, 77A28655679C6927
+// reference: 502BE3BF1C3DAEA6, 9419416B8CEE6192
+// reference: 3C1A3A2F11668591, 79BAB145BB7E966B
+// reference: 46D4F628ABD6EA28, B99A1F5927E7BF45
+// reference: 2CB068D83D18E99A, 184A00E1953AF942
+// reference: 2837D332E60BEE6E, A95D011F9EECFD72
+// reference: 3911C40F7B238C0B, 0AA4BF712DACA503
+// reference: 441E4CEDB6B12034, 1C216D3D1A77473B
+// reference: 3885C78A97946708, A67039B44C511A38
+// reference: 9E20D7B494C33EF2, 62717CCBAEE1596E
+// reference: 94EE1A2B18D2F6D1, 821B2E6F196E4B62
+// reference: 2889F177F08A45A5, A1A91C83D8B90E89
+// reference: 7D1A47B5D06D68AE, 372BD861F5D87034
+// reference: FC7C50997B238C0B, 0AA4BF712DACA503
+// reference: D6CCF58E8889CBBC, 22186AF454C341E4
+// reference: AE294311294BAAD9, 77C3EE176B2D5FFB
+// reference: 3C1A3A2F9E7E2ED2, D93A97F40FE3F073
+// reference: FFC3E86097946708, 372BD861F5D87034
+// reference: 9BAE47BB32F33547, 90AA141942BD616B
+// reference: 0A45E4E6E9B49EAD, E7C75A2FFF03996B
+// reference: 0CE159485A06CB37, 97A744F8E9C4859E
+// reference: 59F4916264C6047E, 270E94B55796EDB7
+// reference: E31805C6B4C6A900, 5BAB52E5626B643D
+// reference: D4F4BEF9BF687954, 30B703594147E54C
+// reference: 6C3C50882EEA4A8B, 343F2B1835B28DF1
+// reference: A4AC3E85F2FDCC91, AFCFC16C8BA50181
+// reference: C726286140453EB9, 75C7F5FD26A5FF54
+// reference: 9A0D59CFB6B12034, 402A35152311DA1E
+// reference: 65F46C587C2DC8A0, 7974F3663498993D
+// reference: ED5A47A4E60BEE6E, BA6F809439296064
+// reference: 70D16EA70ABC056D, F3780D1DC3E223B9
+// reference: 6B04539B97946708, 372BD861F5D87034
+// reference: 6E17EBF4B41B655A, 2DD4A08B99E4300C
+// reference: 740EEEAAB290EC56, 2FFCFD3BCBB0B878
+// reference: 4E10985FADBBAAF9, 2B53AD27A2B515F0
+// reference: 9357017C44681395, BD9E2F4A8B028773
+// reference: 2837D3326913452D, 83865D39B3C73669
+// reference: 6D1671485A06CB37, C7C94577139364B7
+// reference: F72DAA94F2FDCC91, 4D649C5FF903D8AF
+// reference: D4F4BEF94FC0A614, B35EFE43E319BB63
+// reference: 5BC76F7136CF4B41, 14F1B0DC91AE01E8
+// reference: 70D16EA77AE265B0, B199BC7AC9496075
+// reference: C4DA7B34FC98E414, B7CC05B4C0A6559A
+// reference: B18DB1AE17C4AB90, 3AB14680080BE202
+// reference: 4609680CDE585AFD, 44776903C2844A30
+// reference: 74434B8049F7EBAA, 1936FE55892D528E
+// reference: 3CBC5E25B6B12034, 0C37E14A2DDB4181
+// reference: 2837D33285A4AE2E, 78E73EA5CDAEB2F6
+// reference: D4F4BEF9BAB13DC4, 30B703594147E54C
+// reference: 11B73F5C2929B5BB, 2A362A6BD5D4803C
+// reference: E07DBC51AABECCAB, 77C3EE176B2D5FFB
+// reference: BCF068C96913452D, 96D065B691102FCA
+// reference: 43538A94C98D9EC9, 377207C07BC006AC
+// reference: E0A3E62E72D05152, 6B49BF5FD5349480
+// reference: 54D508CE2348A077, FAE775F74BE89F7B
+// reference: 9137C34418C9FBF5, CFB695EB731701B7
+// reference: 96F9CFD0870EEB40, 2D0FFD7CA4ED9041
+// reference: 409EEC0D27BFCEF5, AEBC24202070E06F
+// reference: 6D98C2C476DC3F58, CBBC43C38774091B
+// program: 270E94B55796EDB7, B99A1F5927E7BF45, 98CAF1B03EAF2563
+// program: 270E94B55796EDB7, B99A1F5927E7BF45, AB3DBBBC3829BB3F
+// reference: E07DBC51294BAAD9, 77C3EE176B2D5FFB
+// reference: DABAE56B18D2F6D1, 821B2E6F196E4B62
+// reference: 8972D72140453EB9, 75C7F5FD26A5FF54
+// shader: 8DD9, 23B87C5B1F79AE3C
+
+#define mul_s(x, y) (x * y)
+#define fma_s(x, y, z) fma(x, y, z)
+#define rcp_s(x) (1.0 / x)
+#define rsq_s(x) inversesqrt(x)
+#define dot_s(x, y) dot(x, y)
+#define dot_3(x, y) dot(x, y)
+layout(points) in;
+layout(triangle_strip, max_vertices = 30) out;
+out vec4 primary_color;
+out vec2 texcoord0;
+out vec2 texcoord1;
+out vec2 texcoord2;
+out float texcoord0_w;
+out vec4 normquat;
+out vec3 view;
+
+#define NUM_TEV_STAGES 6
+layout (std140) uniform shader_data {
+    int alphatest_ref;
+    float depth_scale;
+    float depth_offset;
+    float shadow_bias_constant;
+    float shadow_bias_linear;
+    int scissor_x1;
+    int scissor_y1;
+    int scissor_x2;
+    int scissor_y2;
+    int fog_lut_offset;
+    int proctex_noise_lut_offset;
+    int proctex_color_map_offset;
+    int proctex_alpha_map_offset;
+    int proctex_lut_offset;
+    int proctex_diff_lut_offset;
+    float proctex_bias;
+    vec3 fog_color;
+    vec2 proctex_noise_f;
+    vec2 proctex_noise_a;
+    vec2 proctex_noise_p;
+    vec4 const_color[NUM_TEV_STAGES];
+    vec4 tev_combiner_buffer_color;
+    vec4 clip_coef;
+};
+
+in vec4 vs_out_attr0[];
+in vec4 vs_out_attr1[];
+in vec4 vs_out_attr2[];
+in vec4 vs_out_attr3[];
+in vec4 vs_out_attr4[];
+in vec4 vs_out_attr5[];
+in vec4 vs_out_attr6[];
+in vec4 vs_out_attr7[];
+in vec4 vs_out_attr8[];
+in vec4 vs_out_attr9[];
+
+struct pica_uniforms {
+    bool b[16];
+    uvec4 i[4];
+    vec4 f[96];
+};
+
+bool exec_shader();
+
+#define uniforms gs_uniforms
+layout (std140) uniform gs_config {
+    pica_uniforms uniforms;
+};
+struct Vertex {
+    vec4 attributes[3];
+};
+
+vec4 GetVertexQuaternion(Vertex vtx) {
+    return vec4(0.0, 0.0, 0.0, 0.0);
+}
+
+void EmitVtx(Vertex vtx, bool quats_opposite) {
+    vec4 vtx_pos = vec4(vtx.attributes[0].x, vtx.attributes[0].y, vtx.attributes[0].z, vtx.attributes[0].w);
+    gl_Position = vtx_pos;
+#if !defined(CITRA_GLES) || defined(GL_EXT_clip_cull_distance)
+    gl_ClipDistance[0] = -vtx_pos.z;
+    gl_ClipDistance[1] = dot(clip_coef, vtx_pos);
+#endif // !defined(CITRA_GLES) || defined(GL_EXT_clip_cull_distance)
+
+    vec4 vtx_quat = GetVertexQuaternion(vtx);
+    normquat = mix(vtx_quat, -vtx_quat, bvec4(quats_opposite));
+
+    vec4 vtx_color = vec4(vtx.attributes[1].x, vtx.attributes[1].y, vtx.attributes[1].z, vtx.attributes[1].w);
+    primary_color = min(abs(vtx_color), vec4(1.0));
+
+    texcoord0 = vec2(vtx.attributes[2].x, vtx.attributes[2].y);
+    texcoord1 = vec2(0.0, 0.0);
+
+    texcoord0_w = 0.0;
+    view = vec3(0.0, 0.0, 0.0);
+    texcoord2 = vec2(0.0, 0.0);
+
+    EmitVertex();
+}
+
+bool AreQuaternionsOpposite(vec4 qa, vec4 qb) {
+    return (dot(qa, qb) < 0.0);
+}
+
+void EmitPrim(Vertex vtx0, Vertex vtx1, Vertex vtx2) {
+    EmitVtx(vtx0, false);
+    EmitVtx(vtx1, AreQuaternionsOpposite(GetVertexQuaternion(vtx0), GetVertexQuaternion(vtx1)));
+    EmitVtx(vtx2, AreQuaternionsOpposite(GetVertexQuaternion(vtx0), GetVertexQuaternion(vtx2)));
+    EndPrimitive();
+}
+
+Vertex output_buffer;
+Vertex prim_buffer[3];
+uint vertex_id = 0u;
+bool prim_emit = false;
+bool winding = false;
+void setemit(uint vertex_id_, bool prim_emit_, bool winding_);
+void emit();
+void main() {
+    output_buffer.attributes[0] = vec4(0.0, 0.0, 0.0, 1.0);
+    output_buffer.attributes[1] = vec4(0.0, 0.0, 0.0, 1.0);
+    output_buffer.attributes[2] = vec4(0.0, 0.0, 0.0, 1.0);
+    exec_shader();
+}
+
+void setemit(uint vertex_id_, bool prim_emit_, bool winding_) {
+    vertex_id = vertex_id_;
+    prim_emit = prim_emit_;
+    winding = winding_;
+}
+void emit() {
+    prim_buffer[vertex_id] = output_buffer;
+    if (prim_emit) {
+        if (winding) {
+            EmitPrim(prim_buffer[1], prim_buffer[0], prim_buffer[2]);
+            winding = false;
+        } else {
+            EmitPrim(prim_buffer[0], prim_buffer[1], prim_buffer[2]);
+        }
+    }
+}
+bvec2 conditional_code = bvec2(false);
+ivec3 address_registers = ivec3(0);
+vec4 reg_tmp0 = vec4(0.0, 0.0, 0.0, 1.0);
+vec4 reg_tmp1 = vec4(0.0, 0.0, 0.0, 1.0);
+vec4 reg_tmp2 = vec4(0.0, 0.0, 0.0, 1.0);
+vec4 reg_tmp3 = vec4(0.0, 0.0, 0.0, 1.0);
+vec4 reg_tmp4 = vec4(0.0, 0.0, 0.0, 1.0);
+vec4 reg_tmp5 = vec4(0.0, 0.0, 0.0, 1.0);
+vec4 reg_tmp6 = vec4(0.0, 0.0, 0.0, 1.0);
+vec4 reg_tmp7 = vec4(0.0, 0.0, 0.0, 1.0);
+vec4 reg_tmp8 = vec4(0.0, 0.0, 0.0, 1.0);
+vec4 reg_tmp9 = vec4(0.0, 0.0, 0.0, 1.0);
+vec4 reg_tmp10 = vec4(0.0, 0.0, 0.0, 1.0);
+vec4 reg_tmp11 = vec4(0.0, 0.0, 0.0, 1.0);
+vec4 reg_tmp12 = vec4(0.0, 0.0, 0.0, 1.0);
+vec4 reg_tmp13 = vec4(0.0, 0.0, 0.0, 1.0);
+vec4 reg_tmp14 = vec4(0.0, 0.0, 0.0, 1.0);
+vec4 reg_tmp15 = vec4(0.0, 0.0, 0.0, 1.0);
+
+bool sub_0();
+bool sub_1();
+bool sub_2();
+bool sub_3();
+bool sub_4();
+bool sub_5();
+bool sub_6();
+
+bool exec_shader() {
+    sub_0();
+    return true;
+}
+
+bool sub_0() {
+    conditional_code = equal(uniforms.f[80].wz, vs_out_attr6[0].xy);
+    reg_tmp4.xy = (vs_out_attr0[0].xyyy).xy;
+    reg_tmp5.xy = (vs_out_attr0[0].zyyy).xy;
+    reg_tmp6.xy = (vs_out_attr0[0].xwww).xy;
+    reg_tmp7.xy = (vs_out_attr0[0].zwww).xy;
+    reg_tmp4.zw = (uniforms.f[80].wzwz).zw;
+    reg_tmp5.zw = (uniforms.f[80].wzwz).zw;
+    reg_tmp6.zw = (uniforms.f[80].wzwz).zw;
+    reg_tmp7.zw = (uniforms.f[80].wzwz).zw;
+    if (!conditional_code.y) {
+        sub_1();
+    } else {
+        sub_4();
+    }
+    return true;
+}
+bool sub_1() {
+    reg_tmp0.x = dot_s(reg_tmp4, vs_out_attr7[0]);
+    reg_tmp1.x = dot_s(reg_tmp5, vs_out_attr7[0]);
+    reg_tmp2.x = dot_s(reg_tmp6, vs_out_attr7[0]);
+    reg_tmp3.x = dot_s(reg_tmp7, vs_out_attr7[0]);
+    reg_tmp0.y = dot_s(reg_tmp4, vs_out_attr8[0]);
+    reg_tmp1.y = dot_s(reg_tmp5, vs_out_attr8[0]);
+    reg_tmp2.y = dot_s(reg_tmp6, vs_out_attr8[0]);
+    reg_tmp3.y = dot_s(reg_tmp7, vs_out_attr8[0]);
+    reg_tmp4.xy = (mul_s(reg_tmp0.xyyy, vs_out_attr9[0].xyyy)).xy;
+    reg_tmp5.xy = (mul_s(reg_tmp1.xyyy, vs_out_attr9[0].xyyy)).xy;
+    reg_tmp6.xy = (mul_s(reg_tmp2.xyyy, vs_out_attr9[0].xyyy)).xy;
+    reg_tmp7.xy = (mul_s(reg_tmp3.xyyy, vs_out_attr9[0].xyyy)).xy;
+    reg_tmp4.y = (reg_tmp4.yyyy + vs_out_attr6[0].wwww).y;
+    reg_tmp5.y = (reg_tmp5.yyyy + vs_out_attr6[0].wwww).y;
+    reg_tmp6.y = (reg_tmp6.yyyy + vs_out_attr6[0].wwww).y;
+    reg_tmp7.y = (reg_tmp7.yyyy + vs_out_attr6[0].wwww).y;
+    if (!conditional_code.x) {
+        sub_2();
+    } else {
+        sub_3();
+    }
+    return false;
+}
+bool sub_2() {
+    output_buffer.attributes[0].xy = (reg_tmp4.xyyy + vs_out_attr9[0].zwww).xy;
+    output_buffer.attributes[0].z = (vs_out_attr6[0].zzzz).z;
+    output_buffer.attributes[0].w = (uniforms.f[80].zzzz).w;
+    output_buffer.attributes[1] = vs_out_attr1[0];
+    output_buffer.attributes[2].xy = (vs_out_attr5[0].xyyy).xy;
+    setemit(0u, false, false);
+    emit();
+    output_buffer.attributes[0].xy = (reg_tmp5.xyyy + vs_out_attr9[0].zwww).xy;
+    output_buffer.attributes[0].z = (vs_out_attr6[0].zzzz).z;
+    output_buffer.attributes[0].w = (uniforms.f[80].zzzz).w;
+    output_buffer.attributes[1] = vs_out_attr2[0];
+    output_buffer.attributes[2].xy = (vs_out_attr5[0].zyyy).xy;
+    setemit(1u, false, false);
+    emit();
+    output_buffer.attributes[0].xy = (reg_tmp6.xyyy + vs_out_attr9[0].zwww).xy;
+    output_buffer.attributes[0].z = (vs_out_attr6[0].zzzz).z;
+    output_buffer.attributes[0].w = (uniforms.f[80].zzzz).w;
+    output_buffer.attributes[1] = vs_out_attr3[0];
+    output_buffer.attributes[2].xy = (vs_out_attr5[0].xwww).xy;
+    setemit(2u, true, false);
+    emit();
+    output_buffer.attributes[0].xy = (reg_tmp7.xyyy + vs_out_attr9[0].zwww).xy;
+    output_buffer.attributes[0].z = (vs_out_attr6[0].zzzz).z;
+    output_buffer.attributes[0].w = (uniforms.f[80].zzzz).w;
+    output_buffer.attributes[1] = vs_out_attr4[0];
+    output_buffer.attributes[2].xy = (vs_out_attr5[0].zwww).xy;
+    setemit(0u, true, true);
+    emit();
+    return false;
+}
+bool sub_3() {
+    output_buffer.attributes[0].xy = (reg_tmp5.xyyy + vs_out_attr9[0].zwww).xy;
+    output_buffer.attributes[0].z = (vs_out_attr6[0].zzzz).z;
+    output_buffer.attributes[0].w = (uniforms.f[80].zzzz).w;
+    output_buffer.attributes[1] = vs_out_attr2[0];
+    output_buffer.attributes[2].xy = (vs_out_attr5[0].zyyy).xy;
+    setemit(0u, false, false);
+    emit();
+    output_buffer.attributes[0].xy = (reg_tmp4.xyyy + vs_out_attr9[0].zwww).xy;
+    output_buffer.attributes[0].z = (vs_out_attr6[0].zzzz).z;
+    output_buffer.attributes[0].w = (uniforms.f[80].zzzz).w;
+    output_buffer.attributes[1] = vs_out_attr1[0];
+    output_buffer.attributes[2].xy = (vs_out_attr5[0].xyyy).xy;
+    setemit(1u, false, false);
+    emit();
+    output_buffer.attributes[0].xy = (reg_tmp7.xyyy + vs_out_attr9[0].zwww).xy;
+    output_buffer.attributes[0].z = (vs_out_attr6[0].zzzz).z;
+    output_buffer.attributes[0].w = (uniforms.f[80].zzzz).w;
+    output_buffer.attributes[1] = vs_out_attr4[0];
+    output_buffer.attributes[2].xy = (vs_out_attr5[0].zwww).xy;
+    setemit(2u, true, false);
+    emit();
+    output_buffer.attributes[0].xy = (reg_tmp6.xyyy + vs_out_attr9[0].zwww).xy;
+    output_buffer.attributes[0].z = (vs_out_attr6[0].zzzz).z;
+    output_buffer.attributes[0].w = (uniforms.f[80].zzzz).w;
+    output_buffer.attributes[1] = vs_out_attr3[0];
+    output_buffer.attributes[2].xy = (vs_out_attr5[0].xwww).xy;
+    setemit(0u, true, true);
+    emit();
+    return false;
+}
+bool sub_4() {
+    reg_tmp0.x = dot_s(reg_tmp4, vs_out_attr7[0]);
+    reg_tmp1.x = dot_s(reg_tmp5, vs_out_attr7[0]);
+    reg_tmp2.x = dot_s(reg_tmp6, vs_out_attr7[0]);
+    reg_tmp3.x = dot_s(reg_tmp7, vs_out_attr7[0]);
+    reg_tmp0.y = dot_s(reg_tmp4, vs_out_attr8[0]);
+    reg_tmp1.y = dot_s(reg_tmp5, vs_out_attr8[0]);
+    reg_tmp2.y = dot_s(reg_tmp6, vs_out_attr8[0]);
+    reg_tmp3.y = dot_s(reg_tmp7, vs_out_attr8[0]);
+    reg_tmp0.z = dot_s(reg_tmp4, -vs_out_attr9[0]);
+    reg_tmp1.z = dot_s(reg_tmp5, -vs_out_attr9[0]);
+    reg_tmp2.z = dot_s(reg_tmp6, -vs_out_attr9[0]);
+    reg_tmp3.z = dot_s(reg_tmp7, -vs_out_attr9[0]);
+    reg_tmp0.w = dot_s(reg_tmp4, vec4(0.0, 0.0, 0.0, 1.0));
+    reg_tmp1.w = dot_s(reg_tmp5, vec4(0.0, 0.0, 0.0, 1.0));
+    reg_tmp2.w = dot_s(reg_tmp6, vec4(0.0, 0.0, 0.0, 1.0));
+    reg_tmp3.w = dot_s(reg_tmp7, vec4(0.0, 0.0, 0.0, 1.0));
+    reg_tmp5.x = (mul_s(uniforms.f[95].wwww, vs_out_attr6[0].zzzz)).x;
+    reg_tmp4.x = (mul_s(reg_tmp0.zzzz, reg_tmp5.xxxx)).x;
+    reg_tmp4.y = (mul_s(reg_tmp1.zzzz, reg_tmp5.xxxx)).y;
+    reg_tmp4.z = (mul_s(reg_tmp2.zzzz, reg_tmp5.xxxx)).z;
+    reg_tmp4.w = (mul_s(reg_tmp3.zzzz, reg_tmp5.xxxx)).w;
+    reg_tmp0.z = (reg_tmp0.zzzz + reg_tmp4.xxxx).z;
+    reg_tmp1.z = (reg_tmp1.zzzz + reg_tmp4.yyyy).z;
+    reg_tmp2.z = (reg_tmp2.zzzz + reg_tmp4.zzzz).z;
+    reg_tmp3.z = (reg_tmp3.zzzz + reg_tmp4.wwww).z;
+    if (!conditional_code.x) {
+        sub_5();
+    } else {
+        sub_6();
+    }
+    return false;
+}
+bool sub_5() {
+    output_buffer.attributes[0] = reg_tmp0;
+    output_buffer.attributes[1] = vs_out_attr1[0];
+    output_buffer.attributes[2].xy = (vs_out_attr5[0].xyyy).xy;
+    setemit(0u, false, false);
+    emit();
+    output_buffer.attributes[0] = reg_tmp1;
+    output_buffer.attributes[1] = vs_out_attr2[0];
+    output_buffer.attributes[2].xy = (vs_out_attr5[0].zyyy).xy;
+    setemit(1u, false, false);
+    emit();
+    output_buffer.attributes[0] = reg_tmp2;
+    output_buffer.attributes[1] = vs_out_attr3[0];
+    output_buffer.attributes[2].xy = (vs_out_attr5[0].xwww).xy;
+    setemit(2u, true, false);
+    emit();
+    output_buffer.attributes[0] = reg_tmp3;
+    output_buffer.attributes[1] = vs_out_attr4[0];
+    output_buffer.attributes[2].xy = (vs_out_attr5[0].zwww).xy;
+    setemit(0u, true, true);
+    emit();
+    return false;
+}
+bool sub_6() {
+    output_buffer.attributes[0] = reg_tmp1;
+    output_buffer.attributes[1] = vs_out_attr2[0];
+    output_buffer.attributes[2].xy = (vs_out_attr5[0].zyyy).xy;
+    setemit(0u, false, false);
+    emit();
+    output_buffer.attributes[0] = reg_tmp0;
+    output_buffer.attributes[1] = vs_out_attr1[0];
+    output_buffer.attributes[2].xy = (vs_out_attr5[0].xyyy).xy;
+    setemit(1u, false, false);
+    emit();
+    output_buffer.attributes[0] = reg_tmp3;
+    output_buffer.attributes[1] = vs_out_attr4[0];
+    output_buffer.attributes[2].xy = (vs_out_attr5[0].zwww).xy;
+    setemit(2u, true, false);
+    emit();
+    output_buffer.attributes[0] = reg_tmp2;
+    output_buffer.attributes[1] = vs_out_attr3[0];
+    output_buffer.attributes[2].xy = (vs_out_attr5[0].xwww).xy;
+    setemit(0u, true, true);
+    emit();
+    return false;
+}
+// reference: 04D18B6804C33B81, 23B87C5B1F79AE3C
+// shader: 8B31, A226445F0A79E9EE
+
+#define mul_s(x, y) (x * y)
+#define fma_s(x, y, z) fma(x, y, z)
+#define rcp_s(x) (1.0 / x)
+#define rsq_s(x) inversesqrt(x)
+#define dot_s(x, y) dot(x, y)
+#define dot_3(x, y) dot(x, y)
+
+struct pica_uniforms {
+    bool b[16];
+    uvec4 i[4];
+    vec4 f[96];
+};
+
+bool exec_shader();
+
+#define uniforms vs_uniforms
+layout (std140) uniform vs_config {
+    pica_uniforms uniforms;
+};
+layout(location = 0) in vec4 vs_in_reg0;
+layout(location = 1) in vec4 vs_in_reg1;
+layout(location = 2) in vec4 vs_in_reg2;
+layout(location = 3) in vec4 vs_in_reg3;
+layout(location = 4) in vec4 vs_in_reg4;
+layout(location = 5) in vec4 vs_in_reg5;
+layout(location = 6) in vec4 vs_in_reg6;
+
+out vec4 vs_out_attr0;
+out vec4 vs_out_attr1;
+out vec4 vs_out_attr2;
+out vec4 vs_out_attr3;
+out vec4 vs_out_attr4;
+out vec4 vs_out_attr5;
+out vec4 vs_out_attr6;
+out vec4 vs_out_attr7;
+out vec4 vs_out_attr8;
+out vec4 vs_out_attr9;
+
+void main() {
+    vs_out_attr0 = vec4(0.0, 0.0, 0.0, 1.0);
+    vs_out_attr1 = vec4(0.0, 0.0, 0.0, 1.0);
+    vs_out_attr2 = vec4(0.0, 0.0, 0.0, 1.0);
+    vs_out_attr3 = vec4(0.0, 0.0, 0.0, 1.0);
+    vs_out_attr4 = vec4(0.0, 0.0, 0.0, 1.0);
+    vs_out_attr5 = vec4(0.0, 0.0, 0.0, 1.0);
+    vs_out_attr6 = vec4(0.0, 0.0, 0.0, 1.0);
+    vs_out_attr7 = vec4(0.0, 0.0, 0.0, 1.0);
+    vs_out_attr8 = vec4(0.0, 0.0, 0.0, 1.0);
+    vs_out_attr9 = vec4(0.0, 0.0, 0.0, 1.0);
+    exec_shader();
+}
+bvec2 conditional_code = bvec2(false);
+ivec3 address_registers = ivec3(0);
+vec4 reg_tmp0 = vec4(0.0, 0.0, 0.0, 1.0);
+vec4 reg_tmp1 = vec4(0.0, 0.0, 0.0, 1.0);
+vec4 reg_tmp2 = vec4(0.0, 0.0, 0.0, 1.0);
+vec4 reg_tmp3 = vec4(0.0, 0.0, 0.0, 1.0);
+vec4 reg_tmp4 = vec4(0.0, 0.0, 0.0, 1.0);
+vec4 reg_tmp5 = vec4(0.0, 0.0, 0.0, 1.0);
+vec4 reg_tmp6 = vec4(0.0, 0.0, 0.0, 1.0);
+vec4 reg_tmp7 = vec4(0.0, 0.0, 0.0, 1.0);
+vec4 reg_tmp8 = vec4(0.0, 0.0, 0.0, 1.0);
+vec4 reg_tmp9 = vec4(0.0, 0.0, 0.0, 1.0);
+vec4 reg_tmp10 = vec4(0.0, 0.0, 0.0, 1.0);
+vec4 reg_tmp11 = vec4(0.0, 0.0, 0.0, 1.0);
+vec4 reg_tmp12 = vec4(0.0, 0.0, 0.0, 1.0);
+vec4 reg_tmp13 = vec4(0.0, 0.0, 0.0, 1.0);
+vec4 reg_tmp14 = vec4(0.0, 0.0, 0.0, 1.0);
+vec4 reg_tmp15 = vec4(0.0, 0.0, 0.0, 1.0);
+
+bool sub_0();
+bool sub_1();
+bool sub_2();
+bool sub_3();
+bool sub_4();
+bool sub_5();
+bool sub_6();
+bool sub_7();
+bool sub_8();
+bool sub_9();
+bool sub_10();
+bool sub_11();
+bool sub_12();
+
+bool exec_shader() {
+    sub_0();
+    return true;
+}
+
+bool sub_0() {
+    reg_tmp7 = uniforms.f[5].wzyx;
+    conditional_code = equal(uniforms.f[90].wz, reg_tmp7.xy);
+    vs_out_attr0 = vs_in_reg0;
+    if (uniforms.b[0]) {
+        sub_1();
+    } else {
+        sub_4();
+    }
+    reg_tmp0 = mul_s(uniforms.f[7].wzwz, vs_in_reg5);
+    vs_out_attr5.xz = (reg_tmp0.xzzz).xz;
+    vs_out_attr5.yw = (uniforms.f[90].zzzz + -reg_tmp0.yyww).yw;
+    if (uniforms.b[1]) {
+        sub_7();
+    } else {
+        sub_12();
+    }
+    vs_out_attr6.y = (uniforms.f[95].wwww).y;
+    vs_out_attr6.z = (uniforms.f[5].yyyy).z;
+    vs_out_attr7 = uniforms.f[8].wzyx;
+    vs_out_attr8 = uniforms.f[9].wzyx;
+    vs_out_attr9 = uniforms.f[12].wzyx;
+    return true;
+}
+bool sub_1() {
+    if (!conditional_code.x) {
+        sub_2();
+    } else {
+        sub_3();
+    }
+    vs_out_attr6.x = (uniforms.f[95].wwww).x;
+    return false;
+}
+bool sub_2() {
+    reg_tmp0 = uniforms.f[93].wzyx;
+    vs_out_attr1 = mul_s(uniforms.f[6].wzyx, reg_tmp0);
+    vs_out_attr2 = mul_s(uniforms.f[6].wzyx, reg_tmp0);
+    vs_out_attr3 = mul_s(uniforms.f[6].wzyx, reg_tmp0);
+    vs_out_attr4 = mul_s(uniforms.f[6].wzyx, reg_tmp0);
+    return false;
+}
+bool sub_3() {
+    vs_out_attr1 = uniforms.f[6].wzyx;
+    vs_out_attr2 = uniforms.f[6].wzyx;
+    vs_out_attr3 = uniforms.f[6].wzyx;
+    vs_out_attr4 = uniforms.f[6].wzyx;
+    return false;
+}
+bool sub_4() {
+    if (!conditional_code.x) {
+        sub_5();
+    } else {
+        sub_6();
+    }
+    vs_out_attr6.x = (vs_in_reg6.xxxx).x;
+    return false;
+}
+bool sub_5() {
+    vs_out_attr1 = mul_s(uniforms.f[92].wzyx, vs_in_reg1);
+    vs_out_attr2 = mul_s(uniforms.f[92].wzyx, vs_in_reg2);
+    vs_out_attr3 = mul_s(uniforms.f[92].wzyx, vs_in_reg3);
+    vs_out_attr4 = mul_s(uniforms.f[92].wzyx, vs_in_reg4);
+    return false;
+}
+bool sub_6() {
+    vs_out_attr1 = mul_s(uniforms.f[91].wzyx, vs_in_reg1);
+    vs_out_attr2 = mul_s(uniforms.f[91].wzyx, vs_in_reg2);
+    vs_out_attr3 = mul_s(uniforms.f[91].wzyx, vs_in_reg3);
+    vs_out_attr4 = mul_s(uniforms.f[91].wzyx, vs_in_reg4);
+    return false;
+}
+bool sub_7() {
+    reg_tmp4 = uniforms.f[90].wzyx;
+    conditional_code = equal(uniforms.f[4].wz, reg_tmp4.xy);
+    if (conditional_code.x) {
+        sub_8();
+    } else {
+        sub_9();
+    }
+    return false;
+}
+bool sub_8() {
+    vs_out_attr6.w = (uniforms.f[95].wwww).w;
+    return false;
+}
+bool sub_9() {
+    if (!conditional_code.y) {
+        sub_10();
+    } else {
+        sub_11();
+    }
+    return false;
+}
+bool sub_10() {
+    vs_out_attr6.w = (-uniforms.f[5].zzzz).w;
+    return false;
+}
+bool sub_11() {
+    vs_out_attr6.w = (uniforms.f[5].zzzz).w;
+    return false;
+}
+bool sub_12() {
+    vs_out_attr6.w = (uniforms.f[95].wwww).w;
+    return false;
+}
+// reference: 11B5E2195FBBFB0C, A226445F0A79E9EE
+// program: A226445F0A79E9EE, 23B87C5B1F79AE3C, FAE775F74BE89F7B
+// reference: FFD94EEE17C4AB90, 3AB14680080BE202
+// reference: 80D0425FBCFCBF76, F910B80DE3D8A6F4
+// program: A226445F0A79E9EE, 23B87C5B1F79AE3C, DEF6C0B1A85FD48E
+// program: A226445F0A79E9EE, 23B87C5B1F79AE3C, 2B53AD27A2B515F0
+// reference: 8A2DA5208889CBBC, 22186AF454C341E4
+// reference: D07428F494C33EF2, 62717CCBAEE1596E
+// reference: 0515C1CC64C6047E, 270E94B55796EDB7
+// reference: 65D82EDF5BA70EEA, 2E087FB340C37151
+// reference: FEB574DB55FF2CAC, 79B4E5D7AC154F19
+// reference: E48CD0A4ACA459CD, 618378764C54D2BC
+// reference: 3232E311FC98E414, B7CC05B4C0A6559A
+// reference: 8C55E46D30EE6011, 2A2E1A8AA22599BA
+// shader: 8DD9, E18E490F66C65161
+
+#define mul_s(x, y) (x * y)
+#define fma_s(x, y, z) fma(x, y, z)
+#define rcp_s(x) (1.0 / x)
+#define rsq_s(x) inversesqrt(x)
+#define dot_s(x, y) dot(x, y)
+#define dot_3(x, y) dot(x, y)
+layout(points) in;
+layout(triangle_strip, max_vertices = 30) out;
+out vec4 primary_color;
+out vec2 texcoord0;
+out vec2 texcoord1;
+out vec2 texcoord2;
+out float texcoord0_w;
+out vec4 normquat;
+out vec3 view;
+
+#define NUM_TEV_STAGES 6
+layout (std140) uniform shader_data {
+    int alphatest_ref;
+    float depth_scale;
+    float depth_offset;
+    float shadow_bias_constant;
+    float shadow_bias_linear;
+    int scissor_x1;
+    int scissor_y1;
+    int scissor_x2;
+    int scissor_y2;
+    int fog_lut_offset;
+    int proctex_noise_lut_offset;
+    int proctex_color_map_offset;
+    int proctex_alpha_map_offset;
+    int proctex_lut_offset;
+    int proctex_diff_lut_offset;
+    float proctex_bias;
+    vec3 fog_color;
+    vec2 proctex_noise_f;
+    vec2 proctex_noise_a;
+    vec2 proctex_noise_p;
+    vec4 const_color[NUM_TEV_STAGES];
+    vec4 tev_combiner_buffer_color;
+    vec4 clip_coef;
+};
+
+in vec4 vs_out_attr0[];
+in vec4 vs_out_attr1[];
+in vec4 vs_out_attr2[];
+in vec4 vs_out_attr3[];
+in vec4 vs_out_attr4[];
+in vec4 vs_out_attr5[];
+in vec4 vs_out_attr6[];
+in vec4 vs_out_attr7[];
+
+struct pica_uniforms {
+    bool b[16];
+    uvec4 i[4];
+    vec4 f[96];
+};
+
+bool exec_shader();
+
+#define uniforms gs_uniforms
+layout (std140) uniform gs_config {
+    pica_uniforms uniforms;
+};
+struct Vertex {
+    vec4 attributes[3];
+};
+
+vec4 GetVertexQuaternion(Vertex vtx) {
+    return vec4(0.0, 0.0, 0.0, 0.0);
+}
+
+void EmitVtx(Vertex vtx, bool quats_opposite) {
+    vec4 vtx_pos = vec4(vtx.attributes[0].x, vtx.attributes[0].y, vtx.attributes[0].z, vtx.attributes[0].w);
+    gl_Position = vtx_pos;
+#if !defined(CITRA_GLES) || defined(GL_EXT_clip_cull_distance)
+    gl_ClipDistance[0] = -vtx_pos.z;
+    gl_ClipDistance[1] = dot(clip_coef, vtx_pos);
+#endif // !defined(CITRA_GLES) || defined(GL_EXT_clip_cull_distance)
+
+    vec4 vtx_quat = GetVertexQuaternion(vtx);
+    normquat = mix(vtx_quat, -vtx_quat, bvec4(quats_opposite));
+
+    vec4 vtx_color = vec4(vtx.attributes[1].x, vtx.attributes[1].y, vtx.attributes[1].z, vtx.attributes[1].w);
+    primary_color = min(abs(vtx_color), vec4(1.0));
+
+    texcoord0 = vec2(vtx.attributes[2].x, vtx.attributes[2].y);
+    texcoord1 = vec2(0.0, 0.0);
+
+    texcoord0_w = 0.0;
+    view = vec3(0.0, 0.0, 0.0);
+    texcoord2 = vec2(0.0, 0.0);
+
+    EmitVertex();
+}
+
+bool AreQuaternionsOpposite(vec4 qa, vec4 qb) {
+    return (dot(qa, qb) < 0.0);
+}
+
+void EmitPrim(Vertex vtx0, Vertex vtx1, Vertex vtx2) {
+    EmitVtx(vtx0, false);
+    EmitVtx(vtx1, AreQuaternionsOpposite(GetVertexQuaternion(vtx0), GetVertexQuaternion(vtx1)));
+    EmitVtx(vtx2, AreQuaternionsOpposite(GetVertexQuaternion(vtx0), GetVertexQuaternion(vtx2)));
+    EndPrimitive();
+}
+
+Vertex output_buffer;
+Vertex prim_buffer[3];
+uint vertex_id = 0u;
+bool prim_emit = false;
+bool winding = false;
+void setemit(uint vertex_id_, bool prim_emit_, bool winding_);
+void emit();
+void main() {
+    output_buffer.attributes[0] = vec4(0.0, 0.0, 0.0, 1.0);
+    output_buffer.attributes[1] = vec4(0.0, 0.0, 0.0, 1.0);
+    output_buffer.attributes[2] = vec4(0.0, 0.0, 0.0, 1.0);
+    exec_shader();
+}
+
+void setemit(uint vertex_id_, bool prim_emit_, bool winding_) {
+    vertex_id = vertex_id_;
+    prim_emit = prim_emit_;
+    winding = winding_;
+}
+void emit() {
+    prim_buffer[vertex_id] = output_buffer;
+    if (prim_emit) {
+        if (winding) {
+            EmitPrim(prim_buffer[1], prim_buffer[0], prim_buffer[2]);
+            winding = false;
+        } else {
+            EmitPrim(prim_buffer[0], prim_buffer[1], prim_buffer[2]);
+        }
+    }
+}
+bvec2 conditional_code = bvec2(false);
+ivec3 address_registers = ivec3(0);
+vec4 reg_tmp0 = vec4(0.0, 0.0, 0.0, 1.0);
+vec4 reg_tmp1 = vec4(0.0, 0.0, 0.0, 1.0);
+vec4 reg_tmp2 = vec4(0.0, 0.0, 0.0, 1.0);
+vec4 reg_tmp3 = vec4(0.0, 0.0, 0.0, 1.0);
+vec4 reg_tmp4 = vec4(0.0, 0.0, 0.0, 1.0);
+vec4 reg_tmp5 = vec4(0.0, 0.0, 0.0, 1.0);
+vec4 reg_tmp6 = vec4(0.0, 0.0, 0.0, 1.0);
+vec4 reg_tmp7 = vec4(0.0, 0.0, 0.0, 1.0);
+vec4 reg_tmp8 = vec4(0.0, 0.0, 0.0, 1.0);
+vec4 reg_tmp9 = vec4(0.0, 0.0, 0.0, 1.0);
+vec4 reg_tmp10 = vec4(0.0, 0.0, 0.0, 1.0);
+vec4 reg_tmp11 = vec4(0.0, 0.0, 0.0, 1.0);
+vec4 reg_tmp12 = vec4(0.0, 0.0, 0.0, 1.0);
+vec4 reg_tmp13 = vec4(0.0, 0.0, 0.0, 1.0);
+vec4 reg_tmp14 = vec4(0.0, 0.0, 0.0, 1.0);
+vec4 reg_tmp15 = vec4(0.0, 0.0, 0.0, 1.0);
+
+bool sub_0();
+bool sub_1();
+bool sub_2();
+bool sub_3();
+bool sub_4();
+bool sub_5();
+bool sub_9();
+bool sub_10();
+bool sub_6();
+bool sub_7();
+bool sub_8();
+
+bool exec_shader() {
+    sub_0();
+    return true;
+}
+
+bool sub_0() {
+    uint jmp_to = 88u;
+    while (true) {
+        switch (jmp_to) {
+        case 88u: {
+            conditional_code = lessThan(uniforms.f[82].zz, vs_out_attr3[0].ww);
+            if (conditional_code.x) {
+                { jmp_to = 298u; break; }
+            }
+            reg_tmp8.x = (vs_out_attr3[0].wwww).x;
+            reg_tmp9.x = (mul_s(uniforms.f[80].zzzz, reg_tmp8.xxxx)).x;
+            reg_tmp9.x = (floor(reg_tmp9.xxxx)).x;
+            reg_tmp9.x = (mul_s(uniforms.f[82].yyyy, reg_tmp9.xxxx)).x;
+            reg_tmp8.x = (reg_tmp8.xxxx + -reg_tmp9.xxxx).x;
+            reg_tmp9.y = (mul_s(uniforms.f[81].yyyy, reg_tmp8.xxxx)).y;
+            reg_tmp9.y = (floor(reg_tmp9.yyyy)).y;
+            reg_tmp9.y = (mul_s(uniforms.f[81].wwww, reg_tmp9.yyyy)).y;
+            reg_tmp8.x = (reg_tmp8.xxxx + -reg_tmp9.yyyy).x;
+            reg_tmp7.x = (reg_tmp8.xxxx).x;
+            reg_tmp7.y = (uniforms.f[81].zzzz).y;
+            reg_tmp2.xy = (vs_out_attr2[0].xyyy).xy;
+            reg_tmp3.xy = (vs_out_attr2[0].zyyy).xy;
+            reg_tmp4.xy = (vs_out_attr2[0].xwww).xy;
+            reg_tmp5.xy = (vs_out_attr2[0].zwww).xy;
+            conditional_code = lessThan(uniforms.f[81].xx, reg_tmp7.xy);
+            if (conditional_code.x) {
+                sub_1();
+            }
+            conditional_code = lessThan(uniforms.f[81].xx, reg_tmp9.xy);
+            if (conditional_code.y) {
+                sub_2();
+            }
+            if (conditional_code.x) {
+                sub_3();
+            }
+            reg_tmp7.xy = (reg_tmp2.xyyy).xy;
+            reg_tmp7.z = (reg_tmp3.xxxx).z;
+            reg_tmp7.w = (reg_tmp3.yyyy).w;
+            reg_tmp8.xy = (reg_tmp4.xyyy).xy;
+            reg_tmp8.z = (reg_tmp5.xxxx).z;
+            reg_tmp8.w = (reg_tmp5.yyyy).w;
+            reg_tmp6.xy = (reg_tmp15.zwww).xy;
+            conditional_code = lessThan(uniforms.f[81].xx, reg_tmp6.xy);
+            if (conditional_code.y) {
+                { jmp_to = 224u; break; }
+            }
+            reg_tmp1.xy = (vs_out_attr3[0].xyyy).xy;
+            reg_tmp1.z = (mul_s(uniforms.f[81].yyyy, vs_out_attr3[0].xxxx)).z;
+            reg_tmp1.w = (mul_s(uniforms.f[81].yyyy, vs_out_attr3[0].yyyy)).w;
+            reg_tmp0.x = (vs_out_attr5[0].zzzz).x;
+            reg_tmp0.y = (vs_out_attr6[0].zzzz).y;
+            reg_tmp0.z = (vs_out_attr7[0].zzzz).z;
+            reg_tmp9.x = (mul_s(reg_tmp0.xxxx, vs_out_attr0[0].wwww)).x;
+            reg_tmp9.y = (mul_s(reg_tmp0.yyyy, vs_out_attr0[0].wwww)).y;
+            reg_tmp9.z = (mul_s(reg_tmp0.zzzz, vs_out_attr0[0].wwww)).z;
+            reg_tmp2.x = (vs_out_attr4[0].xxxx).x;
+            reg_tmp2.y = (vs_out_attr3[0].zzzz).y;
+            reg_tmp2.y = (reg_tmp2.yyyy + vs_out_attr4[0].zzzz).y;
+            reg_tmp3.x = rcp_s(uniforms.f[80].x);
+            reg_tmp3.x = (mul_s(reg_tmp2.yyyy, reg_tmp3.xxxx)).x;
+            reg_tmp3.x = (floor(reg_tmp3.xxxx)).x;
+            reg_tmp3.x = (mul_s(uniforms.f[80].xxxx, reg_tmp3.xxxx)).x;
+            reg_tmp2.y = (reg_tmp2.yyyy + -reg_tmp3.xxxx).y;
+            reg_tmp2.y = (uniforms.f[80].xxxx + -reg_tmp2.yyyy).y;
+            reg_tmp2.y = (-uniforms.f[80].yyyy + reg_tmp2.yyyy).y;
+            reg_tmp3 = uniforms.f[95];
+            reg_tmp4 = uniforms.f[94];
+            reg_tmp0.z = (mul_s(reg_tmp2.yyyy, reg_tmp2.yyyy)).z;
+            reg_tmp0.xy = (fma_s(reg_tmp0.zzzz, reg_tmp3.xyyy, reg_tmp3.zwww)).xy;
+            reg_tmp0.xy = (fma_s(reg_tmp0.zzzz, reg_tmp0.xyyy, reg_tmp4.xyyy)).xy;
+            reg_tmp0.xy = (fma_s(reg_tmp0.zzzz, reg_tmp0.xyyy, reg_tmp4.zwww)).xy;
+            reg_tmp3 = uniforms.f[93];
+            reg_tmp0.xy = (fma_s(reg_tmp0.zzzz, reg_tmp0.xyyy, reg_tmp3.xyyy)).xy;
+            reg_tmp0.xy = (fma_s(reg_tmp0.zzzz, reg_tmp0.xyyy, reg_tmp3.zwww)).xy;
+            reg_tmp0.y = (mul_s(reg_tmp0.yyyy, reg_tmp2.yyyy)).y;
+            conditional_code = lessThan(uniforms.f[81].xx, reg_tmp10.zz);
+            if (conditional_code.x) {
+                sub_4();
+            } else {
+                sub_5();
+            }
+            reg_tmp10 = reg_tmp0.xyxy;
+            reg_tmp2 = -reg_tmp3.xwxw;
+            reg_tmp4 = mul_s(reg_tmp2, reg_tmp10.xxyy);
+            reg_tmp2.x = (reg_tmp4.zzzz + -reg_tmp4.yyyy).x;
+            reg_tmp2.y = (reg_tmp4.xxxx + reg_tmp4.wwww).y;
+            reg_tmp2.zw = (uniforms.f[81].xxxx).zw;
+            {
+                sub_6();
+            }
+            output_buffer.attributes[1] = vs_out_attr1[0];
+            output_buffer.attributes[2].xy = (reg_tmp7.xyyy).xy;
+            setemit(0u, false, false);
+            emit();
+            reg_tmp2.xz = (reg_tmp3.zzzz).xz;
+            reg_tmp2.yw = (-reg_tmp3.wwww).yw;
+            reg_tmp4 = mul_s(reg_tmp2, reg_tmp10.xxyy);
+            reg_tmp2.x = (reg_tmp4.zzzz + -reg_tmp4.yyyy).x;
+            reg_tmp2.y = (reg_tmp4.xxxx + reg_tmp4.wwww).y;
+            reg_tmp2.zw = (uniforms.f[81].xxxx).zw;
+            {
+                sub_6();
+            }
+            output_buffer.attributes[1] = vs_out_attr1[0];
+            output_buffer.attributes[2].xy = (reg_tmp7.zwww).xy;
+            setemit(1u, false, false);
+            emit();
+            reg_tmp2.xz = (-reg_tmp3.xxxx).xz;
+            reg_tmp2.yw = (reg_tmp3.yyyy).yw;
+            reg_tmp4 = mul_s(reg_tmp2, reg_tmp10.xxyy);
+            reg_tmp2.x = (reg_tmp4.zzzz + -reg_tmp4.yyyy).x;
+            reg_tmp2.y = (reg_tmp4.xxxx + reg_tmp4.wwww).y;
+            reg_tmp2.zw = (uniforms.f[81].xxxx).zw;
+            {
+                sub_6();
+            }
+            output_buffer.attributes[1] = vs_out_attr1[0];
+            output_buffer.attributes[2].xy = (reg_tmp8.xyyy).xy;
+            setemit(2u, true, false);
+            emit();
+            reg_tmp2 = reg_tmp3.zyzy;
+            reg_tmp4 = mul_s(reg_tmp2, reg_tmp10.xxyy);
+            reg_tmp2.x = (reg_tmp4.zzzz + -reg_tmp4.yyyy).x;
+            reg_tmp2.y = (reg_tmp4.xxxx + reg_tmp4.wwww).y;
+            reg_tmp2.zw = (uniforms.f[81].xxxx).zw;
+            {
+                sub_6();
+            }
+            output_buffer.attributes[1] = vs_out_attr1[0];
+            output_buffer.attributes[2].xy = (reg_tmp8.zwww).xy;
+            setemit(0u, true, true);
+            emit();
+            return true;
+        }
+        case 224u: {
+            reg_tmp1.xy = (-reg_tmp10.xyyy).xy;
+            reg_tmp1.z = (reg_tmp15.xxxx + -reg_tmp10.xxxx).z;
+            reg_tmp1.w = (reg_tmp15.yyyy + -reg_tmp10.yyyy).w;
+            reg_tmp9.x = (reg_tmp10.wwww).x;
+            reg_tmp2.y = (reg_tmp15.zzzz).y;
+            reg_tmp2.y = (reg_tmp2.yyyy + vs_out_attr4[0].zzzz).y;
+            reg_tmp3.x = rcp_s(uniforms.f[80].x);
+            reg_tmp3.x = (mul_s(reg_tmp2.yyyy, reg_tmp3.xxxx)).x;
+            reg_tmp3.x = (floor(reg_tmp3.xxxx)).x;
+            reg_tmp3.x = (mul_s(uniforms.f[80].xxxx, reg_tmp3.xxxx)).x;
+            reg_tmp2.y = (reg_tmp2.yyyy + -reg_tmp3.xxxx).y;
+            reg_tmp2.y = (-uniforms.f[80].yyyy + reg_tmp2.yyyy).y;
+            reg_tmp3 = uniforms.f[95];
+            reg_tmp4 = uniforms.f[94];
+            reg_tmp0.z = (mul_s(reg_tmp2.yyyy, reg_tmp2.yyyy)).z;
+            reg_tmp0.xy = (fma_s(reg_tmp0.zzzz, reg_tmp3.xyyy, reg_tmp3.zwww)).xy;
+            reg_tmp0.xy = (fma_s(reg_tmp0.zzzz, reg_tmp0.xyyy, reg_tmp4.xyyy)).xy;
+            reg_tmp0.xy = (fma_s(reg_tmp0.zzzz, reg_tmp0.xyyy, reg_tmp4.zwww)).xy;
+            reg_tmp3 = uniforms.f[93];
+            reg_tmp0.xy = (fma_s(reg_tmp0.zzzz, reg_tmp0.xyyy, reg_tmp3.xyyy)).xy;
+            reg_tmp0.xy = (fma_s(reg_tmp0.zzzz, reg_tmp0.xyyy, reg_tmp3.zwww)).xy;
+            reg_tmp0.y = (mul_s(reg_tmp0.yyyy, reg_tmp2.yyyy)).y;
+            reg_tmp0.xy = (mul_s(-uniforms.f[81].zzzz, reg_tmp0.xyyy)).xy;
+            reg_tmp10 = reg_tmp0.xyxy;
+            reg_tmp0 = mul_s(reg_tmp1.xwxw, reg_tmp10.xxyy);
+            reg_tmp6.x = (reg_tmp0.zzzz + -reg_tmp0.yyyy).x;
+            reg_tmp6.y = (reg_tmp0.xxxx + reg_tmp0.wwww).y;
+            reg_tmp6 = mul_s(reg_tmp6, reg_tmp9.xxxx);
+            reg_tmp3.xyz = (vs_out_attr0[0].xyzz).xyz;
+            reg_tmp3.xy = (reg_tmp3.xyyy + reg_tmp6.xyyy).xy;
+            reg_tmp3.w = (uniforms.f[81].zzzz).w;
+            {
+                sub_6();
+            }
+            output_buffer.attributes[1] = vs_out_attr1[0];
+            output_buffer.attributes[2].xy = (reg_tmp7.xyyy).xy;
+            setemit(0u, false, false);
+            emit();
+            reg_tmp0 = mul_s(reg_tmp1.zwzw, reg_tmp10.xxyy);
+            reg_tmp6.x = (reg_tmp0.zzzz + -reg_tmp0.yyyy).x;
+            reg_tmp6.y = (reg_tmp0.xxxx + reg_tmp0.wwww).y;
+            reg_tmp6 = mul_s(reg_tmp6, reg_tmp9.xxxx);
+            reg_tmp3.xyz = (vs_out_attr0[0].xyzz).xyz;
+            reg_tmp3.xy = (reg_tmp3.xyyy + reg_tmp6.xyyy).xy;
+            reg_tmp3.w = (uniforms.f[81].zzzz).w;
+            {
+                sub_6();
+            }
+            output_buffer.attributes[1] = vs_out_attr1[0];
+            output_buffer.attributes[2].xy = (reg_tmp7.zwww).xy;
+            setemit(1u, false, false);
+            emit();
+            reg_tmp0 = mul_s(reg_tmp1.xyxy, reg_tmp10.xxyy);
+            reg_tmp6.x = (reg_tmp0.zzzz + -reg_tmp0.yyyy).x;
+            reg_tmp6.y = (reg_tmp0.xxxx + reg_tmp0.wwww).y;
+            reg_tmp6 = mul_s(reg_tmp6, reg_tmp9.xxxx);
+            reg_tmp3.xyz = (vs_out_attr0[0].xyzz).xyz;
+            reg_tmp3.xy = (reg_tmp3.xyyy + reg_tmp6.xyyy).xy;
+            reg_tmp3.w = (uniforms.f[81].zzzz).w;
+            {
+                sub_6();
+            }
+            output_buffer.attributes[1] = vs_out_attr1[0];
+            output_buffer.attributes[2].xy = (reg_tmp8.xyyy).xy;
+            setemit(2u, true, false);
+            emit();
+            reg_tmp0 = mul_s(reg_tmp1.zyzy, reg_tmp10.xxyy);
+            reg_tmp6.x = (reg_tmp0.zzzz + -reg_tmp0.yyyy).x;
+            reg_tmp6.y = (reg_tmp0.xxxx + reg_tmp0.wwww).y;
+            reg_tmp6 = mul_s(reg_tmp6, reg_tmp9.xxxx);
+            reg_tmp3.xyz = (vs_out_attr0[0].xyzz).xyz;
+            reg_tmp3.xy = (reg_tmp3.xyyy + reg_tmp6.xyyy).xy;
+            reg_tmp3.w = (uniforms.f[81].zzzz).w;
+            {
+                sub_6();
+            }
+            output_buffer.attributes[1] = vs_out_attr1[0];
+            output_buffer.attributes[2].xy = (reg_tmp8.zwww).xy;
+            setemit(0u, true, true);
+            emit();
+            return true;
+        }
+        case 298u: {
+            reg_tmp10 = vs_out_attr0[0].xyzz;
+            reg_tmp11 = vs_out_attr4[0];
+            reg_tmp12 = vs_out_attr5[0];
+            reg_tmp13 = vs_out_attr6[0];
+            reg_tmp14 = vs_out_attr7[0];
+            reg_tmp0.xy = (vs_out_attr3[0].zzzz).xy;
+            conditional_code = lessThan(uniforms.f[81].xx, reg_tmp0.xy);
+            if (conditional_code.x) {
+                sub_9();
+            } else {
+                sub_10();
+            }
+            return true;
+        }
+        default: return false;
+        }
+    }
+    return false;
+}
+bool sub_1() {
+    reg_tmp0.xy = (reg_tmp2.xyyy).xy;
+    reg_tmp2.xy = (reg_tmp3.xyyy).xy;
+    reg_tmp3.xy = (reg_tmp0.xyyy).xy;
+    reg_tmp0.xy = (reg_tmp4.xyyy).xy;
+    reg_tmp4.xy = (reg_tmp5.xyyy).xy;
+    reg_tmp5.xy = (reg_tmp0.xyyy).xy;
+    return false;
+}
+bool sub_2() {
+    reg_tmp0.xy = (reg_tmp2.xyyy).xy;
+    reg_tmp2.xy = (reg_tmp4.xyyy).xy;
+    reg_tmp4.xy = (reg_tmp0.xyyy).xy;
+    reg_tmp0.xy = (reg_tmp3.xyyy).xy;
+    reg_tmp3.xy = (reg_tmp5.xyyy).xy;
+    reg_tmp5.xy = (reg_tmp0.xyyy).xy;
+    return false;
+}
+bool sub_3() {
+    reg_tmp0.xy = (reg_tmp2.xyyy).xy;
+    reg_tmp2.xy = (reg_tmp4.xyyy).xy;
+    reg_tmp4.xy = (reg_tmp5.xyyy).xy;
+    reg_tmp5.xy = (reg_tmp3.xyyy).xy;
+    reg_tmp3.xy = (reg_tmp0.xyyy).xy;
+    return false;
+}
+bool sub_4() {
+    reg_tmp3.xy = (reg_tmp10.xyyy).xy;
+    reg_tmp3.z = (reg_tmp1.xxxx + -reg_tmp10.xxxx).z;
+    reg_tmp3.w = (reg_tmp1.yyyy + -reg_tmp10.yyyy).w;
+    reg_tmp3 = mul_s(reg_tmp3, reg_tmp2.xxxx);
+    reg_tmp3.x = (mul_s(reg_tmp3.xxxx, vs_out_attr4[0].yyyy)).x;
+    reg_tmp3.z = (mul_s(reg_tmp3.zzzz, vs_out_attr4[0].yyyy)).z;
+    return false;
+}
+bool sub_5() {
+    reg_tmp3.x = (reg_tmp1.zzzz).x;
+    reg_tmp3.y = (reg_tmp1.wwww).y;
+    reg_tmp3.z = (reg_tmp1.zzzz).z;
+    reg_tmp3.w = (reg_tmp1.wwww).w;
+    reg_tmp3 = mul_s(reg_tmp3, reg_tmp2.xxxx);
+    reg_tmp3.xz = (mul_s(reg_tmp3.xzzz, vs_out_attr4[0].yyyy)).xz;
+    return false;
+}
+bool sub_9() {
+    reg_tmp10.w = (vs_out_attr0[0].wwww).w;
+    reg_tmp15.xy = (vs_out_attr3[0].xyyy).xy;
+    reg_tmp15.z = (vs_out_attr0[0].zzzz).z;
+    reg_tmp15.w = (uniforms.f[81].zzzz).w;
+    return false;
+}
+bool sub_10() {
+    reg_tmp15 = uniforms.f[81].xxxx;
+    return false;
+}
+bool sub_6() {
+    reg_tmp6.xy = (reg_tmp15.zwww).xy;
+    conditional_code = lessThan(uniforms.f[81].xx, reg_tmp6.xy);
+    if (conditional_code.y) {
+        sub_7();
+    } else {
+        sub_8();
+    }
+    return false;
+}
+bool sub_7() {
+    output_buffer.attributes[0].x = dot_s(reg_tmp3, reg_tmp11);
+    output_buffer.attributes[0].y = dot_s(reg_tmp3, reg_tmp12);
+    output_buffer.attributes[0].z = dot_s(reg_tmp3, reg_tmp13);
+    output_buffer.attributes[0].w = dot_s(reg_tmp3, reg_tmp14);
+    return false;
+}
+bool sub_8() {
+    reg_tmp6.x = dot_s(reg_tmp2, vs_out_attr5[0]);
+    reg_tmp6.y = dot_s(reg_tmp2, vs_out_attr6[0]);
+    reg_tmp6.z = dot_s(reg_tmp2, vs_out_attr7[0]);
+    reg_tmp6.xyz = (reg_tmp6.xyzz + vs_out_attr0[0].xyzz).xyz;
+    reg_tmp6.w = (uniforms.f[81].zzzz).w;
+    output_buffer.attributes[0].x = dot_s(reg_tmp6, reg_tmp11);
+    output_buffer.attributes[0].y = dot_s(reg_tmp6, reg_tmp12);
+    reg_tmp4.w = dot_s(reg_tmp6, reg_tmp14);
+    reg_tmp0.xyz = (reg_tmp9.xyzz + reg_tmp6.xyzz).xyz;
+    reg_tmp0.w = (uniforms.f[81].zzzz).w;
+    reg_tmp6.w = dot_s(reg_tmp0, reg_tmp14);
+    reg_tmp6.z = dot_s(reg_tmp0, -reg_tmp13);
+    reg_tmp6.z = (mul_s(reg_tmp4.wwww, reg_tmp6.zzzz)).z;
+    reg_tmp2 = vec4(rcp_s(reg_tmp6.w));
+    output_buffer.attributes[0].z = (mul_s(reg_tmp6.zzzz, reg_tmp2.zzzz)).z;
+    output_buffer.attributes[0].w = (reg_tmp4.wwww).w;
+    return false;
+}
+// reference: 97BA61588FC7E3C7, E18E490F66C65161
+// shader: 8B31, 7418C0EF6FBAFE92
+
+#define mul_s(x, y) (x * y)
+#define fma_s(x, y, z) fma(x, y, z)
+#define rcp_s(x) (1.0 / x)
+#define rsq_s(x) inversesqrt(x)
+#define dot_s(x, y) dot(x, y)
+#define dot_3(x, y) dot(x, y)
+
+struct pica_uniforms {
+    bool b[16];
+    uvec4 i[4];
+    vec4 f[96];
+};
+
+bool exec_shader();
+
+#define uniforms vs_uniforms
+layout (std140) uniform vs_config {
+    pica_uniforms uniforms;
+};
+layout(location = 0) in vec4 vs_in_reg0;
+layout(location = 1) in vec4 vs_in_reg1;
+layout(location = 2) in vec4 vs_in_reg2;
+layout(location = 3) in vec4 vs_in_reg3;
+layout(location = 4) in vec4 vs_in_reg4;
+
+out vec4 vs_out_attr0;
+out vec4 vs_out_attr1;
+out vec4 vs_out_attr2;
+out vec4 vs_out_attr3;
+out vec4 vs_out_attr4;
+out vec4 vs_out_attr5;
+out vec4 vs_out_attr6;
+out vec4 vs_out_attr7;
+
+void main() {
+    vs_out_attr0 = vec4(0.0, 0.0, 0.0, 1.0);
+    vs_out_attr1 = vec4(0.0, 0.0, 0.0, 1.0);
+    vs_out_attr2 = vec4(0.0, 0.0, 0.0, 1.0);
+    vs_out_attr3 = vec4(0.0, 0.0, 0.0, 1.0);
+    vs_out_attr4 = vec4(0.0, 0.0, 0.0, 1.0);
+    vs_out_attr5 = vec4(0.0, 0.0, 0.0, 1.0);
+    vs_out_attr6 = vec4(0.0, 0.0, 0.0, 1.0);
+    vs_out_attr7 = vec4(0.0, 0.0, 0.0, 1.0);
+    exec_shader();
+}
+bvec2 conditional_code = bvec2(false);
+ivec3 address_registers = ivec3(0);
+vec4 reg_tmp0 = vec4(0.0, 0.0, 0.0, 1.0);
+vec4 reg_tmp1 = vec4(0.0, 0.0, 0.0, 1.0);
+vec4 reg_tmp2 = vec4(0.0, 0.0, 0.0, 1.0);
+vec4 reg_tmp3 = vec4(0.0, 0.0, 0.0, 1.0);
+vec4 reg_tmp4 = vec4(0.0, 0.0, 0.0, 1.0);
+vec4 reg_tmp5 = vec4(0.0, 0.0, 0.0, 1.0);
+vec4 reg_tmp6 = vec4(0.0, 0.0, 0.0, 1.0);
+vec4 reg_tmp7 = vec4(0.0, 0.0, 0.0, 1.0);
+vec4 reg_tmp8 = vec4(0.0, 0.0, 0.0, 1.0);
+vec4 reg_tmp9 = vec4(0.0, 0.0, 0.0, 1.0);
+vec4 reg_tmp10 = vec4(0.0, 0.0, 0.0, 1.0);
+vec4 reg_tmp11 = vec4(0.0, 0.0, 0.0, 1.0);
+vec4 reg_tmp12 = vec4(0.0, 0.0, 0.0, 1.0);
+vec4 reg_tmp13 = vec4(0.0, 0.0, 0.0, 1.0);
+vec4 reg_tmp14 = vec4(0.0, 0.0, 0.0, 1.0);
+vec4 reg_tmp15 = vec4(0.0, 0.0, 0.0, 1.0);
+
+bool sub_0();
+bool sub_1();
+bool sub_2();
+
+bool exec_shader() {
+    sub_0();
+    return true;
+}
+
+bool sub_0() {
+    uint jmp_to = 0u;
+    while (true) {
+        switch (jmp_to) {
+        case 0u: {
+            reg_tmp15 = uniforms.f[5].wzyx;
+            conditional_code = greaterThan(uniforms.f[6].wz, reg_tmp15.xy);
+            if (conditional_code.y) {
+                { jmp_to = 30u; break; }
+            }
+            reg_tmp1.xy = (vs_in_reg4.wwww).xy;
+            conditional_code = lessThan(uniforms.f[89].ww, reg_tmp1.xy);
+            if (conditional_code.x) {
+                { jmp_to = 68u; break; }
+            }
+            vs_out_attr0.xyz = (vs_in_reg0.xyzz).xyz;
+            vs_out_attr0.w = (mul_s(uniforms.f[7].wwww, vs_in_reg2.zzzz)).w;
+            vs_out_attr1 = mul_s(uniforms.f[90].yyyy, vs_in_reg1);
+            reg_tmp0.z = (vs_in_reg3.xxxx).z;
+            reg_tmp0.w = (vs_in_reg3.yyyy).w;
+            reg_tmp1.x = (uniforms.f[8].xxxx + -vs_in_reg2.yyyy).x;
+            reg_tmp0.y = (reg_tmp1.xxxx + -reg_tmp0.wwww).y;
+            reg_tmp0.x = (vs_in_reg2.xxxx).x;
+            reg_tmp0.xy = (mul_s(uniforms.f[8].wzzz, reg_tmp0.xyyy)).xy;
+            vs_out_attr2.xy = (reg_tmp0.xyyy).xy;
+            reg_tmp1.xy = (-uniforms.f[90].xxxx + reg_tmp0.zwww).xy;
+            reg_tmp1.xy = (mul_s(uniforms.f[8].wzzz, reg_tmp1.xyyy)).xy;
+            vs_out_attr2.z = (reg_tmp0.xxxx + reg_tmp1.xxxx).z;
+            vs_out_attr2.w = (reg_tmp0.yyyy + reg_tmp1.yyyy).w;
+            vs_out_attr3.xy = (uniforms.f[90].wwww).xy;
+            vs_out_attr3.z = (vs_in_reg4.zzzz).z;
+            vs_out_attr3.w = (vs_in_reg4.wwww).w;
+            vs_out_attr4.z = (uniforms.f[89].zzzz).z;
+            vs_out_attr4.xyw = (uniforms.f[90].wwww).xyw;
+            vs_out_attr5 = uniforms.f[90].wwww;
+            vs_out_attr6 = uniforms.f[90].wwww;
+            vs_out_attr7 = uniforms.f[90].wwww;
+            return true;
+        }
+        case 30u: {
+            vs_out_attr0.xyz = (vs_in_reg0.xyzz).xyz;
+            vs_out_attr0.w = (mul_s(uniforms.f[7].wwww, vs_in_reg2.zzzz)).w;
+            vs_out_attr1 = mul_s(uniforms.f[90].yyyy, vs_in_reg1);
+            reg_tmp1.xy = (vs_in_reg4.wwww).xy;
+            conditional_code = lessThan(uniforms.f[89].ww, reg_tmp1.xy);
+            if (conditional_code.x) {
+                { jmp_to = 59u; break; }
+            }
+            reg_tmp0.z = (mul_s(uniforms.f[89].wwww, vs_in_reg4.xxxx)).z;
+            reg_tmp0.w = (mul_s(uniforms.f[89].wwww, vs_in_reg4.yyyy)).w;
+            reg_tmp1.x = (uniforms.f[8].xxxx + -vs_in_reg2.yyyy).x;
+            reg_tmp0.y = (reg_tmp1.xxxx + -reg_tmp0.wwww).y;
+            reg_tmp0.x = (vs_in_reg2.xxxx).x;
+            reg_tmp0.xy = (mul_s(uniforms.f[8].wzzz, reg_tmp0.xyyy)).xy;
+            vs_out_attr2.xy = (reg_tmp0.xyyy).xy;
+            reg_tmp1.xy = (-uniforms.f[90].xxxx + reg_tmp0.zwww).xy;
+            reg_tmp1.xy = (mul_s(uniforms.f[8].wzzz, reg_tmp1.xyyy)).xy;
+            vs_out_attr2.z = (reg_tmp0.xxxx + reg_tmp1.xxxx).z;
+            vs_out_attr2.w = (reg_tmp0.yyyy + reg_tmp1.yyyy).w;
+            vs_out_attr3.xy = (reg_tmp0.zwww).xy;
+            vs_out_attr3.z = (mul_s(uniforms.f[90].zzzz, vs_in_reg3.yyyy)).z;
+            vs_out_attr3.w = (vs_in_reg4.wwww).w;
+            vs_out_attr4.x = (mul_s(uniforms.f[89].yyyy, vs_in_reg3.xxxx)).x;
+            vs_out_attr4.y = (mul_s(uniforms.f[91].yyyy, vs_in_reg4.zzzz)).y;
+            vs_out_attr4.z = (uniforms.f[89].zzzz).z;
+            vs_out_attr4.w = (uniforms.f[90].wwww).w;
+            vs_out_attr5 = uniforms.f[9].wzyx;
+            vs_out_attr6 = uniforms.f[10].wzyx;
+            vs_out_attr7 = uniforms.f[11].wzyx;
+            return true;
+        }
+        case 59u: {
+            vs_out_attr2 = uniforms.f[90].wwww;
+            vs_out_attr3.xyz = (uniforms.f[90].wwww).xyz;
+            vs_out_attr3.w = (vs_in_reg4.wwww).w;
+            vs_out_attr4 = uniforms.f[0].wzyx;
+            vs_out_attr5 = uniforms.f[1].wzyx;
+            vs_out_attr6 = uniforms.f[2].wzyx;
+            vs_out_attr7 = uniforms.f[3].wzyx;
+            return true;
+        }
+        case 68u: {
+            vs_out_attr0.xyz = (vs_in_reg0.xyzz).xyz;
+            vs_out_attr0.w = (mul_s(uniforms.f[89].yyyy, vs_in_reg2.wwww)).w;
+            vs_out_attr1 = uniforms.f[90].wwww;
+            vs_out_attr2 = uniforms.f[90].wwww;
+            vs_out_attr3.x = (vs_in_reg3.xxxx).x;
+            vs_out_attr3.y = (vs_in_reg3.yyyy).y;
+            vs_out_attr3.z = (uniforms.f[90].xxxx).z;
+            vs_out_attr3.w = (vs_in_reg4.wwww).w;
+            conditional_code = equal(uniforms.f[90].ww, vs_in_reg4.zz);
+            if (conditional_code.x) {
+                sub_1();
+            } else {
+                sub_2();
+            }
+            return true;
+        }
+        default: return false;
+        }
+    }
+    return false;
+}
+bool sub_1() {
+    vs_out_attr4 = uniforms.f[13].wzyx;
+    vs_out_attr5 = uniforms.f[14].wzyx;
+    vs_out_attr6 = uniforms.f[15].wzyx;
+    vs_out_attr7 = uniforms.f[16].wzyx;
+    return false;
+}
+bool sub_2() {
+    vs_out_attr4 = uniforms.f[17].wzyx;
+    vs_out_attr5 = uniforms.f[18].wzyx;
+    vs_out_attr6 = uniforms.f[19].wzyx;
+    vs_out_attr7 = uniforms.f[20].wzyx;
+    return false;
+}
+// reference: 5D68F1C9AA3BE71B, 7418C0EF6FBAFE92
+// program: 7418C0EF6FBAFE92, E18E490F66C65161, 44776903C2844A30
+// program: 22186AF454C341E4, A29BAEF5C1BA44F2, 2AA0D7A23616FE26
+// program: 22186AF454C341E4, A29BAEF5C1BA44F2, 426A1380800E53E0
+// program: 270E94B55796EDB7, B99A1F5927E7BF45, AB3DBBBC3829BB3F
+// program: 22186AF454C341E4, A29BAEF5C1BA44F2, 470B1F7A250D3334
+// program: A226445F0A79E9EE, 23B87C5B1F79AE3C, FAE775F74BE89F7B
+// program: A226445F0A79E9EE, 23B87C5B1F79AE3C, DEF6C0B1A85FD48E
+// program: A226445F0A79E9EE, 23B87C5B1F79AE3C, 2B53AD27A2B515F0
+// shader: 8B30, A8D4A56D265A63BC
+in vec4 primary_color;
+in vec2 texcoord0;
+in vec2 texcoord1;
+in vec2 texcoord2;
+in float texcoord0_w;
+in vec4 normquat;
+in vec3 view;
+
+#ifndef CITRA_GLES
+in vec4 gl_FragCoord;
+#endif // CITRA_GLES
+out vec4 color;
+
+uniform sampler2D tex0;
+uniform sampler2D tex1;
+uniform sampler2D tex2;
+uniform samplerCube tex_cube;
+uniform samplerBuffer texture_buffer_lut_lf;
+uniform samplerBuffer texture_buffer_lut_rg;
+uniform samplerBuffer texture_buffer_lut_rgba;
+
+layout(r32ui) uniform readonly uimage2D shadow_texture_px;
+layout(r32ui) uniform readonly uimage2D shadow_texture_nx;
+layout(r32ui) uniform readonly uimage2D shadow_texture_py;
+layout(r32ui) uniform readonly uimage2D shadow_texture_ny;
+layout(r32ui) uniform readonly uimage2D shadow_texture_pz;
+layout(r32ui) uniform readonly uimage2D shadow_texture_nz;
+layout(r32ui) uniform uimage2D shadow_buffer;
+
+#define NUM_TEV_STAGES 6
+layout (std140) uniform shader_data {
+    int alphatest_ref;
+    float depth_scale;
+    float depth_offset;
+    float shadow_bias_constant;
+    float shadow_bias_linear;
+    int scissor_x1;
+    int scissor_y1;
+    int scissor_x2;
+    int scissor_y2;
+    int fog_lut_offset;
+    int proctex_noise_lut_offset;
+    int proctex_color_map_offset;
+    int proctex_alpha_map_offset;
+    int proctex_lut_offset;
+    int proctex_diff_lut_offset;
+    float proctex_bias;
+    vec3 fog_color;
+    vec2 proctex_noise_f;
+    vec2 proctex_noise_a;
+    vec2 proctex_noise_p;
+    vec4 const_color[NUM_TEV_STAGES];
+    vec4 tev_combiner_buffer_color;
+    vec4 clip_coef;
+};
+
+#define NUM_LIGHTS 8
+#define NUM_LIGHTING_SAMPLERS 24
+struct LightSrc {
+    vec3 specular_0;
+    vec3 specular_1;
+    vec3 diffuse;
+    vec3 ambient;
+    vec3 position;
+    vec3 spot_direction;
+    float dist_atten_bias;
+    float dist_atten_scale;
+};
+layout (std140) uniform shader_light_data {
+    ivec4 lighting_lut_offset[NUM_LIGHTING_SAMPLERS / 4];
+    vec3 lighting_global_ambient;
+    LightSrc light_src[NUM_LIGHTS];
+    float lut_scale_d0;
+    float lut_scale_d1;
+    float lut_scale_sp;
+    float lut_scale_fr;
+    float lut_scale_rb;
+    float lut_scale_rg;
+    float lut_scale_rr;
+    int shadow_texture_bias;
+};
+
+// Rotate the vector v by the quaternion q
+vec3 quaternion_rotate(vec4 q, vec3 v) {
+    return v + 2.0 * cross(q.xyz, cross(q.xyz, v) + q.w * v);
+}
+
+float LookupLightingLUT(int lut_index, int index, float delta) {
+    vec2 entry = texelFetch(texture_buffer_lut_lf, lighting_lut_offset[lut_index >> 2][lut_index & 3] + index).rg;
+    return entry.r + entry.g * delta;
+}
+
+float LookupLightingLUTUnsigned(int lut_index, float pos) {
+    int index = clamp(int(pos * 256.0), 0, 255);
+    float delta = pos * 256.0 - float(index);
+    return LookupLightingLUT(lut_index, index, delta);
+}
+
+float LookupLightingLUTSigned(int lut_index, float pos) {
+    int index = clamp(int(pos * 128.0), -128, 127);
+    float delta = pos * 128.0 - float(index);
+    if (index < 0) index += 256;
+    return LookupLightingLUT(lut_index, index, delta);
+}
+
+float byteround(float x) {
+    return round(x * 255.0) * (1.0 / 255.0);
+}
+
+vec2 byteround(vec2 x) {
+    return round(x * 255.0) * (1.0 / 255.0);
+}
+
+vec3 byteround(vec3 x) {
+    return round(x * 255.0) * (1.0 / 255.0);
+}
+
+vec4 byteround(vec4 x) {
+    return round(x * 255.0) * (1.0 / 255.0);
+}
+
+float getLod(vec2 coord) {
+    vec2 d = max(abs(dFdx(coord)), abs(dFdy(coord)));
+    return log2(max(d.x, d.y));
+}
+
+uvec2 DecodeShadow(uint pixel) {
+    return uvec2(pixel >> 8, pixel & 255u);
+}
+
+uint EncodeShadow(uvec2 pixel) {
+    return (pixel.x << 8) | pixel.y;
+}
+
+float CompareShadow(uint pixel, uint z) {
+    uvec2 p = DecodeShadow(pixel);
+    return mix(float(p.y) * (1.0 / 255.0), 0.0, p.x <= z);
+}
+
+float SampleShadow2D(ivec2 uv, uint z) {
+    if (any(bvec4( lessThan(uv, ivec2(0)), greaterThanEqual(uv, imageSize(shadow_texture_px)) )))
+        return 1.0;
+    return CompareShadow(imageLoad(shadow_texture_px, uv).x, z);
+}
+
+float mix2(vec4 s, vec2 a) {
+    vec2 t = mix(s.xy, s.zw, a.yy);
+    return mix(t.x, t.y, a.x);
+}
+
+vec4 shadowTexture(vec2 uv, float w) {
+uint z = uint(max(0, int(min(abs(w), 1.0) * (exp2(24.0) - 1.0)) - shadow_texture_bias));
+    vec2 coord = vec2(imageSize(shadow_texture_px)) * uv - vec2(0.5);
+    vec2 coord_floor = floor(coord);
+    vec2 f = coord - coord_floor;
+    ivec2 i = ivec2(coord_floor);
+    vec4 s = vec4(
+        SampleShadow2D(i              , z),
+        SampleShadow2D(i + ivec2(1, 0), z),
+        SampleShadow2D(i + ivec2(0, 1), z),
+        SampleShadow2D(i + ivec2(1, 1), z));
+    return vec4(mix2(s, f));
+}
+
+vec4 shadowTextureCube(vec2 uv, float w) {
+    ivec2 size = imageSize(shadow_texture_px);
+    vec3 c = vec3(uv, w);
+    vec3 a = abs(c);
+    if (a.x > a.y && a.x > a.z) {
+        w = a.x;
+        uv = -c.zy;
+        if (c.x < 0.0) uv.x = -uv.x;
+    } else if (a.y > a.z) {
+        w = a.y;
+        uv = c.xz;
+        if (c.y < 0.0) uv.y = -uv.y;
+    } else {
+        w = a.z;
+        uv = -c.xy;
+        if (c.z > 0.0) uv.x = -uv.x;
+    }
+uint z = uint(max(0, int(min(w, 1.0) * (exp2(24.0) - 1.0)) - shadow_texture_bias));
+    vec2 coord = vec2(size) * (uv / w * vec2(0.5) + vec2(0.5)) - vec2(0.5);
+    vec2 coord_floor = floor(coord);
+    vec2 f = coord - coord_floor;
+    ivec2 i00 = ivec2(coord_floor);
+    ivec2 i10 = i00 + ivec2(1, 0);
+    ivec2 i01 = i00 + ivec2(0, 1);
+    ivec2 i11 = i00 + ivec2(1, 1);
+    ivec2 cmin = ivec2(0), cmax = size - ivec2(1, 1);
+    i00 = clamp(i00, cmin, cmax);
+    i10 = clamp(i10, cmin, cmax);
+    i01 = clamp(i01, cmin, cmax);
+    i11 = clamp(i11, cmin, cmax);
+    uvec4 pixels;
+    // This part should have been refactored into functions,
+    // but many drivers don't like passing uimage2D as parameters
+    if (a.x > a.y && a.x > a.z) {
+        if (c.x > 0.0)
+            pixels = uvec4(
+                imageLoad(shadow_texture_px, i00).r,
+                imageLoad(shadow_texture_px, i10).r,
+                imageLoad(shadow_texture_px, i01).r,
+                imageLoad(shadow_texture_px, i11).r);
+        else
+            pixels = uvec4(
+                imageLoad(shadow_texture_nx, i00).r,
+                imageLoad(shadow_texture_nx, i10).r,
+                imageLoad(shadow_texture_nx, i01).r,
+                imageLoad(shadow_texture_nx, i11).r);
+    } else if (a.y > a.z) {
+        if (c.y > 0.0)
+            pixels = uvec4(
+                imageLoad(shadow_texture_py, i00).r,
+                imageLoad(shadow_texture_py, i10).r,
+                imageLoad(shadow_texture_py, i01).r,
+                imageLoad(shadow_texture_py, i11).r);
+        else
+            pixels = uvec4(
+                imageLoad(shadow_texture_ny, i00).r,
+                imageLoad(shadow_texture_ny, i10).r,
+                imageLoad(shadow_texture_ny, i01).r,
+                imageLoad(shadow_texture_ny, i11).r);
+    } else {
+        if (c.z > 0.0)
+            pixels = uvec4(
+                imageLoad(shadow_texture_pz, i00).r,
+                imageLoad(shadow_texture_pz, i10).r,
+                imageLoad(shadow_texture_pz, i01).r,
+                imageLoad(shadow_texture_pz, i11).r);
+        else
+            pixels = uvec4(
+                imageLoad(shadow_texture_nz, i00).r,
+                imageLoad(shadow_texture_nz, i10).r,
+                imageLoad(shadow_texture_nz, i01).r,
+                imageLoad(shadow_texture_nz, i11).r);
+    }
+    vec4 s = vec4(
+        CompareShadow(pixels.x, z),
+        CompareShadow(pixels.y, z),
+        CompareShadow(pixels.z, z),
+        CompareShadow(pixels.w, z));
+    return vec4(mix2(s, f));
+}
+
+void main() {
+vec4 rounded_primary_color = byteround(primary_color);
+vec4 primary_fragment_color = vec4(0.0);
+vec4 secondary_fragment_color = vec4(0.0);
+if (!(gl_FragCoord.x >= float(scissor_x1) && gl_FragCoord.y >= float(scissor_y1) && gl_FragCoord.x < float(scissor_x2) && gl_FragCoord.y < float(scissor_y2))) discard;
+float z_over_w = 2.0 * gl_FragCoord.z - 1.0;
+float depth = z_over_w * depth_scale + depth_offset;
+vec4 combiner_buffer = vec4(0.0);
+vec4 next_combiner_buffer = tev_combiner_buffer_color;
+vec4 last_tex_env_out = vec4(0.0);
+vec3 color_output_0 = (const_color[0].rgb);
+float alpha_output_0 = (const_color[0].a);
+last_tex_env_out = vec4(color_output_0, alpha_output_0);
+last_tex_env_out = clamp(last_tex_env_out, vec4(0.0), vec4(1.0));
+combiner_buffer = next_combiner_buffer;
+
+combiner_buffer = next_combiner_buffer;
+
+combiner_buffer = next_combiner_buffer;
+
+combiner_buffer = next_combiner_buffer;
+
+combiner_buffer = next_combiner_buffer;
+
+combiner_buffer = next_combiner_buffer;
+
+
+uint d = uint(clamp(depth, 0.0, 1.0) * (exp2(24.0) - 1.0));
+uint s = uint(last_tex_env_out.g * 255.0);
+ivec2 image_coord = ivec2(gl_FragCoord.xy);
+
+uint old = imageLoad(shadow_buffer, image_coord).x;
+uint new;
+uint old2;
+do {
+    old2 = old;
+
+    uvec2 ref = DecodeShadow(old);
+    if (d < ref.x) {
+        if (s == 0u) {
+            ref.x = d;
+        } else {
+            s = uint(float(s) / (shadow_bias_constant + shadow_bias_linear * float(d) / float(ref.x)));
+            ref.y = min(s, ref.y);
+        }
+    }
+    new = EncodeShadow(ref);
+
+} while ((old = imageAtomicCompSwap(shadow_buffer, image_coord, old, new)) != old2);
+}
+// reference: 65F46C58C4CC3B8C, A8D4A56D265A63BC
+// program: 2A2E1A8AA22599BA, B08A1382F46AA708, A8D4A56D265A63BC
+// program: 7418C0EF6FBAFE92, E18E490F66C65161, 44776903C2844A30
+// reference: E6B9C0088335342A, A8D4A56D265A63BC
+// reference: CFE320FE04C33B81, 23B87C5B1F79AE3C
+// program: A226445F0A79E9EE, 23B87C5B1F79AE3C, FAE775F74BE89F7B
+// program: A226445F0A79E9EE, 23B87C5B1F79AE3C, FAE775F74BE89F7B
+// program: A226445F0A79E9EE, 23B87C5B1F79AE3C, 2B53AD27A2B515F0
+// program: A226445F0A79E9EE, 23B87C5B1F79AE3C, DEF6C0B1A85FD48E
+// program: A226445F0A79E9EE, 23B87C5B1F79AE3C, FAE775F74BE89F7B
+// program: A226445F0A79E9EE, 23B87C5B1F79AE3C, 2B53AD27A2B515F0
+// program: A226445F0A79E9EE, 23B87C5B1F79AE3C, DEF6C0B1A85FD48E
+// program: A226445F0A79E9EE, 23B87C5B1F79AE3C, FAE775F74BE89F7B
+// program: A226445F0A79E9EE, 23B87C5B1F79AE3C, 2B53AD27A2B515F0
+// program: A226445F0A79E9EE, 23B87C5B1F79AE3C, DEF6C0B1A85FD48E
+// program: A226445F0A79E9EE, 23B87C5B1F79AE3C, FAE775F74BE89F7B
+// program: A226445F0A79E9EE, 23B87C5B1F79AE3C, 2B53AD27A2B515F0
+// program: A226445F0A79E9EE, 23B87C5B1F79AE3C, DEF6C0B1A85FD48E
+// reference: 03004DF75FBBFB0C, A226445F0A79E9EE
+// program: A226445F0A79E9EE, 23B87C5B1F79AE3C, FAE775F74BE89F7B
+// program: A226445F0A79E9EE, 23B87C5B1F79AE3C, 2B53AD27A2B515F0
+// program: A226445F0A79E9EE, 23B87C5B1F79AE3C, DEF6C0B1A85FD48E
+// reference: 3291C2458889CBBC, 22186AF454C341E4
+// reference: BDA9A6A964C6047E, 270E94B55796EDB7
+// reference: 798B2D9504C33B81, 23B87C5B1F79AE3C
+// program: A226445F0A79E9EE, 23B87C5B1F79AE3C, FAE775F74BE89F7B
+// program: A226445F0A79E9EE, 23B87C5B1F79AE3C, 2B53AD27A2B515F0
+// program: A226445F0A79E9EE, 23B87C5B1F79AE3C, DEF6C0B1A85FD48E
+// program: A226445F0A79E9EE, 23B87C5B1F79AE3C, FAE775F74BE89F7B
+// program: A226445F0A79E9EE, 23B87C5B1F79AE3C, 2B53AD27A2B515F0
+// program: A226445F0A79E9EE, 23B87C5B1F79AE3C, DEF6C0B1A85FD48E
+// program: A226445F0A79E9EE, 23B87C5B1F79AE3C, FAE775F74BE89F7B
+// program: A226445F0A79E9EE, 23B87C5B1F79AE3C, 2B53AD27A2B515F0
+// program: A226445F0A79E9EE, 23B87C5B1F79AE3C, DEF6C0B1A85FD48E
+// program: A226445F0A79E9EE, 23B87C5B1F79AE3C, FAE775F74BE89F7B
+// program: A226445F0A79E9EE, 23B87C5B1F79AE3C, 2B53AD27A2B515F0
+// program: A226445F0A79E9EE, 23B87C5B1F79AE3C, DEF6C0B1A85FD48E
+// program: A226445F0A79E9EE, 23B87C5B1F79AE3C, FAE775F74BE89F7B
+// program: A226445F0A79E9EE, 23B87C5B1F79AE3C, 2B53AD27A2B515F0
+// program: A226445F0A79E9EE, 23B87C5B1F79AE3C, DEF6C0B1A85FD48E
+// reference: DD6449BA5BA70EEA, 2E087FB340C37151
+// reference: 5C30B7C1ACA459CD, 618378764C54D2BC
+// reference: 8A8E8474FC98E414, B7CC05B4C0A6559A
+// reference: 9EE04B8330EE6011, 2A2E1A8AA22599BA
+// program: A226445F0A79E9EE, 23B87C5B1F79AE3C, FAE775F74BE89F7B
+// program: A226445F0A79E9EE, 23B87C5B1F79AE3C, 2B53AD27A2B515F0
+// program: A226445F0A79E9EE, 23B87C5B1F79AE3C, DEF6C0B1A85FD48E
+// reference: EAE0C7A58FC7E3C7, E18E490F66C65161
+// reference: 4FDD5E27AA3BE71B, 7418C0EF6FBAFE92
+// program: 7418C0EF6FBAFE92, E18E490F66C65161, 44776903C2844A30
+// program: 22186AF454C341E4, A29BAEF5C1BA44F2, 426A1380800E53E0
+// program: 270E94B55796EDB7, B99A1F5927E7BF45, AB3DBBBC3829BB3F
+// program: 270E94B55796EDB7, B99A1F5927E7BF45, 3C4BFB839BFA6723
+// program: 2E087FB340C37151, B99A1F5927E7BF45, 03135BF29768B71F
+// program: 270E94B55796EDB7, B99A1F5927E7BF45, 4ED73E7A76B7BF4A
+// program: 270E94B55796EDB7, B99A1F5927E7BF45, A465F49DB5A5715A
+// program: 270E94B55796EDB7, B99A1F5927E7BF45, 4397B804D112188A
+// program: 62717CCBAEE1596E, 36482B4E295C6EDF, 0AA4BF712DACA503
+// program: 62717CCBAEE1596E, 36482B4E295C6EDF, A67039B44C511A38
+// program: 22186AF454C341E4, A29BAEF5C1BA44F2, 555B87B582458AD7
+// program: 22186AF454C341E4, A29BAEF5C1BA44F2, B02EDE96885DB80A
+// program: 22186AF454C341E4, A29BAEF5C1BA44F2, 544D57582CF1D435
+// program: 22186AF454C341E4, A29BAEF5C1BA44F2, EAE6B64F82CD29E7
+// program: 22186AF454C341E4, A29BAEF5C1BA44F2, EF555E8FF9613DAC
+// program: 22186AF454C341E4, A29BAEF5C1BA44F2, 79EC0C63A3EA88D7
+// program: 22186AF454C341E4, A29BAEF5C1BA44F2, 97F9CEE046EF954B
+// reference: E11E134EB4F347AF, 80D1D7D314667808
+// program: 80D1D7D314667808, 6B49BF5FD5349480, 07E09BEA5420C264
+// program: 270E94B55796EDB7, B99A1F5927E7BF45, 7755B3EE6BBF3372
+// program: 270E94B55796EDB7, B99A1F5927E7BF45, 9523794674EE04C1
+// program: 270E94B55796EDB7, B99A1F5927E7BF45, 7D2CCE5F4DD17FFF
+// program: 2E087FB340C37151, B99A1F5927E7BF45, 2A362A6BD5D4803C
+// program: 22186AF454C341E4, A29BAEF5C1BA44F2, ED02481408D1A08D
+// program: 22186AF454C341E4, A29BAEF5C1BA44F2, 343F2B1835B28DF1
+// program: 22186AF454C341E4, A29BAEF5C1BA44F2, AFCFC16C8BA50181
+// program: 22186AF454C341E4, A29BAEF5C1BA44F2, 31BF22EFAFE7961A
+// program: 22186AF454C341E4, A29BAEF5C1BA44F2, F8B7D9EE28205072
+// program: 22186AF454C341E4, A29BAEF5C1BA44F2, A232CB8346C67C03
+// program: 22186AF454C341E4, A29BAEF5C1BA44F2, 9A86C7C598BB0609
+// program: 270E94B55796EDB7, B99A1F5927E7BF45, CB65AC04CC77B70C
+// program: 270E94B55796EDB7, B99A1F5927E7BF45, 1B8AE513BBEBC6FA
+// program: 22186AF454C341E4, A29BAEF5C1BA44F2, 782C5BE0EA453B0E
+// program: 22186AF454C341E4, A29BAEF5C1BA44F2, B1800A6CA75EEB8B
+// program: 22186AF454C341E4, A29BAEF5C1BA44F2, 1C26EE83F667EF9B
+// program: 270E94B55796EDB7, B99A1F5927E7BF45, 16B8264845387C35
+// program: 270E94B55796EDB7, B99A1F5927E7BF45, 71DBA48A30815B8C
+// program: 270E94B55796EDB7, B99A1F5927E7BF45, 725FC46D3A7E60B6
+// program: 7418C0EF6FBAFE92, E18E490F66C65161, 5FD2A68F151699CA
+// program: A226445F0A79E9EE, 23B87C5B1F79AE3C, FAE775F74BE89F7B
+// program: A226445F0A79E9EE, 23B87C5B1F79AE3C, 2B53AD27A2B515F0
+// program: A226445F0A79E9EE, 23B87C5B1F79AE3C, DEF6C0B1A85FD48E
+// program: 7418C0EF6FBAFE92, E18E490F66C65161, 44776903C2844A30
+// program: 270E94B55796EDB7, B99A1F5927E7BF45, 98CAF1B03EAF2563
+// program: 270E94B55796EDB7, B99A1F5927E7BF45, 3C4BFB839BFA6723
+// program: 2E087FB340C37151, B99A1F5927E7BF45, 03135BF29768B71F
+// program: 270E94B55796EDB7, B99A1F5927E7BF45, 4ED73E7A76B7BF4A
+// program: 270E94B55796EDB7, B99A1F5927E7BF45, A465F49DB5A5715A
+// program: 270E94B55796EDB7, B99A1F5927E7BF45, 4397B804D112188A
+// program: 62717CCBAEE1596E, 36482B4E295C6EDF, 0AA4BF712DACA503
+// program: 62717CCBAEE1596E, 36482B4E295C6EDF, A67039B44C511A38
+// program: 22186AF454C341E4, A29BAEF5C1BA44F2, 555B87B582458AD7
+// program: 22186AF454C341E4, A29BAEF5C1BA44F2, B02EDE96885DB80A
+// program: 22186AF454C341E4, A29BAEF5C1BA44F2, 544D57582CF1D435
+// program: 22186AF454C341E4, A29BAEF5C1BA44F2, EAE6B64F82CD29E7
+// program: 22186AF454C341E4, A29BAEF5C1BA44F2, EF555E8FF9613DAC
+// program: 22186AF454C341E4, A29BAEF5C1BA44F2, 79EC0C63A3EA88D7
+// program: 22186AF454C341E4, A29BAEF5C1BA44F2, 97F9CEE046EF954B
+// program: 80D1D7D314667808, 6B49BF5FD5349480, 07E09BEA5420C264
+// program: 270E94B55796EDB7, B99A1F5927E7BF45, 7755B3EE6BBF3372
+// program: 270E94B55796EDB7, B99A1F5927E7BF45, 9523794674EE04C1
+// program: 270E94B55796EDB7, B99A1F5927E7BF45, 7D2CCE5F4DD17FFF
+// program: 2E087FB340C37151, B99A1F5927E7BF45, 2A362A6BD5D4803C
+// program: 22186AF454C341E4, A29BAEF5C1BA44F2, ED02481408D1A08D
+// program: 22186AF454C341E4, A29BAEF5C1BA44F2, 343F2B1835B28DF1
+// program: 22186AF454C341E4, A29BAEF5C1BA44F2, AFCFC16C8BA50181
+// program: 22186AF454C341E4, A29BAEF5C1BA44F2, 31BF22EFAFE7961A
+// program: 22186AF454C341E4, A29BAEF5C1BA44F2, F8B7D9EE28205072
+// program: 22186AF454C341E4, A29BAEF5C1BA44F2, A232CB8346C67C03
+// program: 22186AF454C341E4, A29BAEF5C1BA44F2, 9A86C7C598BB0609
+// program: 270E94B55796EDB7, B99A1F5927E7BF45, CB65AC04CC77B70C
+// program: 270E94B55796EDB7, B99A1F5927E7BF45, 1B8AE513BBEBC6FA
+// program: 22186AF454C341E4, A29BAEF5C1BA44F2, 782C5BE0EA453B0E
+// program: 22186AF454C341E4, A29BAEF5C1BA44F2, B1800A6CA75EEB8B
+// program: 22186AF454C341E4, A29BAEF5C1BA44F2, 1C26EE83F667EF9B
+// program: 270E94B55796EDB7, B99A1F5927E7BF45, 16B8264845387C35
+// program: 270E94B55796EDB7, B99A1F5927E7BF45, 71DBA48A30815B8C
+// program: 270E94B55796EDB7, B99A1F5927E7BF45, 725FC46D3A7E60B6
+// program: 7418C0EF6FBAFE92, E18E490F66C65161, 5FD2A68F151699CA
+// program: 22186AF454C341E4, A29BAEF5C1BA44F2, 426A1380800E53E0
+// program: 270E94B55796EDB7, B99A1F5927E7BF45, AB3DBBBC3829BB3F
+// program: 270E94B55796EDB7, B99A1F5927E7BF45, DA4EC051850122A7
+// program: A226445F0A79E9EE, 23B87C5B1F79AE3C, FAE775F74BE89F7B
+// program: A226445F0A79E9EE, 23B87C5B1F79AE3C, 2B53AD27A2B515F0
+// program: A226445F0A79E9EE, 23B87C5B1F79AE3C, DEF6C0B1A85FD48E
+// reference: 5C88CACE8FC7E3C7, E18E490F66C65161
+// program: 7418C0EF6FBAFE92, E18E490F66C65161, 44776903C2844A30
+// program: 22186AF454C341E4, A29BAEF5C1BA44F2, 426A1380800E53E0
+// program: A226445F0A79E9EE, 23B87C5B1F79AE3C, FAE775F74BE89F7B
+// program: A226445F0A79E9EE, 23B87C5B1F79AE3C, 2B53AD27A2B515F0
+// program: A226445F0A79E9EE, 23B87C5B1F79AE3C, DEF6C0B1A85FD48E
+// program: 270E94B55796EDB7, B99A1F5927E7BF45, 98CAF1B03EAF2563

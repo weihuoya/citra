@@ -87,6 +87,9 @@ extern const ConfigInfo<std::string> CIRCLE_PAD_X;
 extern const ConfigInfo<std::string> CIRCLE_PAD_Y;
 extern const ConfigInfo<std::string> C_STICK_X;
 extern const ConfigInfo<std::string> C_STICK_Y;
+extern const ConfigInfo<std::string> COMBO_KEY_0;
+extern const ConfigInfo<std::string> COMBO_KEY_1;
+extern const ConfigInfo<std::string> COMBO_KEY_2;
 
 // custom layout
 extern const ConfigInfo<bool> USE_CUSTOM_LAYOUT;
