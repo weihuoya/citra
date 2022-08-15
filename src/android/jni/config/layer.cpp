@@ -25,14 +25,17 @@ bool Layer::Exists(const ConfigLocation& location) const {
 }
 
 bool Layer::DeleteKey(const ConfigLocation& location) {
-    m_is_dirty = true;
-    bool had_value = m_map[location].has_value();
-    m_map[location].reset();
-    return had_value;
+    auto iter = m_map.find(location);
+    if (iter != m_map.end() && iter->second) {
+        iter->second.reset();
+        m_dirty = true;
+        return true;
+    }
+    return false;
 }
 
 void Layer::DeleteAllKeys() {
-    m_is_dirty = true;
+    m_dirty = true;
     for (auto& pair : m_map) {
         pair.second.reset();
     }
@@ -51,15 +54,15 @@ ConstSection Layer::GetSection(const std::string& section) const {
 void Layer::Load() {
     if (m_loader)
         m_loader->Load(this);
-    m_is_dirty = false;
+    m_dirty = false;
 }
 
 void Layer::Save() {
-    if (!m_loader || !m_is_dirty)
+    if (!m_loader || !m_dirty)
         return;
 
     m_loader->Save(this);
-    m_is_dirty = false;
+    m_dirty = false;
 }
 
 void Layer::Clear() {

@@ -4,9 +4,6 @@
 
 #include <algorithm>
 #include <chrono>
-#include <mutex>
-#include <thread>
-#include <fmt/chrono.h>
 #include "core.h"
 #include "core/hw/gpu.h"
 #include "core/perf_stats.h"
@@ -24,7 +21,6 @@ void PerfStats::BeginSystemFrame() {
 }
 
 void PerfStats::EndSystemFrame() {
-    std::lock_guard lock{object_mutex};
     auto frame_end = Clock::now();
     previous_frame_length = frame_end - previous_frame_end;
     previous_frame_end = frame_end;
@@ -32,13 +28,10 @@ void PerfStats::EndSystemFrame() {
 }
 
 void PerfStats::EndGameFrame() {
-    std::lock_guard lock{object_mutex};
     game_frames += 1;
 }
 
 PerfStats::Results PerfStats::GetAndResetStats(microseconds current_system_time_us) {
-    std::lock_guard lock(object_mutex);
-
     const auto now = Clock::now();
     // Walltime elapsed since stats were reset
     const auto interval = duration_cast<DoubleSecs>(now - reset_point).count();
@@ -58,8 +51,7 @@ PerfStats::Results PerfStats::GetAndResetStats(microseconds current_system_time_
     return results;
 }
 
-double PerfStats::GetLastFrameTimeScale() {
-    std::lock_guard lock{object_mutex};
+double PerfStats::GetLastFrameTimeScale() const {
     return duration_cast<DoubleSecs>(previous_frame_length).count() * GPU::SCREEN_REFRESH_RATE;
 }
 

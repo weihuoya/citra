@@ -32,8 +32,8 @@ public:
 
         const std::list<IniFile::Section>& system_sections = ini.GetSections();
         for (const auto& section : system_sections) {
-            const std::string& section_name = section.GetName();
-            const IniFile::Section::SectionMap& section_map = section.GetValues();
+            const auto& section_name = section.GetName();
+            const auto& section_map = section.GetValues();
             for (const auto& value : section_map) {
                 layer->Set({section_name, value.first}, value.second);
             }
@@ -45,8 +45,8 @@ public:
         std::string ini_path = FileUtil::GetUserPath(FileUtil::UserPath::ConfigDir) + CONFIG_FILE;
         ini.Load(ini_path);
         for (const auto& config : layer->GetLayerMap()) {
-            const Config::ConfigLocation& location = config.first;
-            const std::optional<std::string>& value = config.second;
+            const auto& location = config.first;
+            const auto& value = config.second;
             if (value) {
                 IniFile::Section* ini_section = ini.GetOrCreateSection(location.section);
                 ini_section->Set(location.key, *value);

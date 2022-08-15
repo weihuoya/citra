@@ -4,10 +4,8 @@
 
 #pragma once
 
-#include <atomic>
 #include <chrono>
 #include <cstddef>
-#include <mutex>
 #include "common/common_types.h"
 #include "common/thread.h"
 
@@ -56,11 +54,9 @@ public:
      * Gets the ratio between walltime and the emulated time of the previous system frame. This is
      * useful for scaling inputs or outputs moving between the two time domains.
      */
-    double GetLastFrameTimeScale();
+    double GetLastFrameTimeScale() const;
 
 private:
-    std::mutex object_mutex;
-
     FrameLimiter frame_limiter;
 
     /// Point when the cumulative counters were reset

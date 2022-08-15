@@ -95,20 +95,29 @@ public:
     void DeleteAllKeys();
 
     template <typename T>
-    T Get(const ConfigInfo<T>& config_info) {
+    T Get(const ConfigInfo<T>& config_info) const {
         return Get<T>(config_info.location).value_or(config_info.default_value);
     }
 
     template <typename T>
-    std::optional<T> Get(const ConfigLocation& location) {
-        const std::optional<std::string>& str_value = m_map[location];
-        if (!str_value)
+    std::optional<T> Get(const ConfigLocation& location) const {
+        auto iter = m_map.find(location);
+        if (iter == m_map.end() || !iter->second) {
             return std::nullopt;
-        return detail::TryParse<T>(*str_value);
+        }
+        return detail::TryParse<T>(*iter->second);
     }
 
     template <typename T>
     void Set(const ConfigInfo<T>& config_info, const std::common_type_t<T>& value) {
+        if (config_info.default_value == value) {
+            auto iter = m_map.find(config_info.location);
+            if (iter != m_map.end() && iter->second) {
+                iter->second.reset();
+                m_dirty = true;
+            }
+            return;
+        }
         Set(config_info.location, value);
     }
 
@@ -118,11 +127,11 @@ public:
     }
 
     void Set(const ConfigLocation& location, const std::string& new_value) {
-        std::optional<std::string>& current_value = m_map[location];
-        if (current_value == new_value)
-            return;
-        m_is_dirty = true;
-        current_value = new_value;
+        auto& current_value = m_map[location];
+        if (current_value != new_value) {
+            current_value = new_value;
+            m_dirty = true;
+        }
     }
 
     Section GetSection(const std::string& section);
@@ -136,7 +145,7 @@ public:
     const LayerMap& GetLayerMap() const;
 
 protected:
-    bool m_is_dirty = false;
+    bool m_dirty = false;
     LayerMap m_map;
     std::unique_ptr<ConfigLayerLoader> m_loader;
 };

@@ -36,7 +36,6 @@ enum class AccurateMul {
     OFF = 0,
     FAST = 1,
     SAFE = 2,
-    SLOW = 3,
 };
 
 enum class SharedFontType {
