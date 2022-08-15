@@ -90,6 +90,11 @@ extern const ConfigInfo<std::string> C_STICK_Y;
 extern const ConfigInfo<std::string> COMBO_KEY_0;
 extern const ConfigInfo<std::string> COMBO_KEY_1;
 extern const ConfigInfo<std::string> COMBO_KEY_2;
+extern const ConfigInfo<u16> INPUT_OVERLAY_ALPHA;
+extern const ConfigInfo<u16> INPUT_OVERLAY_SCALE;
+extern const ConfigInfo<bool> INPUT_OVERLAY_FEEDBACK;
+extern const ConfigInfo<bool> INPUT_OVERLAY_HIDE;
+extern const ConfigInfo<bool> INPUT_JOYSTICK_RELATIVE;
 
 // custom layout
 extern const ConfigInfo<bool> USE_CUSTOM_LAYOUT;

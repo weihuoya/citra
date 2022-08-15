@@ -88,6 +88,11 @@ const ConfigInfo<std::string> C_STICK_Y{{"Controls", "c_stick_y"}, "code:14"};
 const ConfigInfo<std::string> COMBO_KEY_0{{"Controls", "combo_key_0"}, ""};
 const ConfigInfo<std::string> COMBO_KEY_1{{"Controls", "combo_key_1"}, ""};
 const ConfigInfo<std::string> COMBO_KEY_2{{"Controls", "combo_key_2"}, ""};
+const ConfigInfo<u16> INPUT_OVERLAY_ALPHA{{"Controls", "input_overlay_alpha"}, 100};
+const ConfigInfo<u16> INPUT_OVERLAY_SCALE{{"Controls", "input_overlay_scale"}, 40};
+const ConfigInfo<bool> INPUT_OVERLAY_FEEDBACK{{"Controls", "input_overlay_feedback"}, true};
+const ConfigInfo<bool> INPUT_OVERLAY_HIDE{{"Controls", "input_overlay_hide"}, false};
+const ConfigInfo<bool> INPUT_JOYSTICK_RELATIVE{{"Controls", "input_joystick_relative"}, true};
 
 // custom layout
 const ConfigInfo<bool> USE_CUSTOM_LAYOUT{{"Layout", "custom_layout"}, false};

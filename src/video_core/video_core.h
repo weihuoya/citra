@@ -32,6 +32,7 @@ extern std::function<void(u32 width, u32 height, const std::vector<u32>& pixels)
 
 enum class ResultStatus {
     Success,
+    ErrorWindow,
     ErrorGenericDrivers,
     ErrorBelowGL33,
 };
