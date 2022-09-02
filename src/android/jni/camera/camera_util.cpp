@@ -5,7 +5,6 @@
 #include <algorithm>
 #include <cstring>
 #include <android/log.h>
-#include "citra_qt/camera/camera_util.h"
 #include "core/frontend/camera/factory.h"
 #include "core/frontend/camera/interface.h"
 
