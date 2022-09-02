@@ -442,6 +442,8 @@ JNIEXPORT void JNICALL Java_org_citra_emu_NativeLibrary_Run(JNIEnv* env, jclass 
     Settings::values.shared_font_type = Config::Get(Config::SHARED_FONT_TYPE);
     // renderer
     Settings::values.use_direct_display = true;
+    Settings::values.accurate_max_min = false;
+    Settings::values.accurate_rcp_rsq = false;
     Settings::values.use_hw_gs = Config::Get(Config::USE_HW_GS);
     Settings::values.use_gles = Config::Get(Config::USE_GLES);
     Settings::values.show_fps = Config::Get(Config::SHOW_FPS);
@@ -479,7 +481,7 @@ JNIEXPORT void JNICALL Java_org_citra_emu_NativeLibrary_Run(JNIEnv* env, jclass 
         Settings::values.use_shader_cache = true;
     } else {
         Settings::values.use_separable_shader = true;
-        Settings::values.use_shader_cache = false;
+        Settings::values.use_shader_cache = true;
     }
     Settings::SetLLEModules(Config::Get(Config::LLE_MODULES));
     // custom layout

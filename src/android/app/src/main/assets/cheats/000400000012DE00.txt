@@ -1,7 +1,7 @@
 * Fire Emblem: If
 
-[60fps]
+[60 FPS]
 006DBA84 00000001
 
-[30fps]
+[30 FPS]
 006DBA84 00000002
