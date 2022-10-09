@@ -7,6 +7,7 @@
 #include <memory>
 #include "common/common_types.h"
 #include "common/file_util.h"
+#include "common/string_util.h"
 #include "common/logging/log.h"
 #include "core/file_sys/disk_archive.h"
 #include "core/file_sys/errors.h"
@@ -64,16 +65,17 @@ u32 DiskDirectory::Read(const u32 count, Entry* entries) {
     u32 entries_read = 0;
 
     while (entries_read < count && children_iterator != directory.children.cend()) {
-        const FileUtil::FSTEntry& file = *children_iterator;
-        const std::string& filename = file.virtualName;
-        Entry& entry = entries[entries_read];
+        const auto& file = *children_iterator;
+        const auto& filename = file.virtualName;
+        const auto& filename16 = Common::UTF8ToUTF16(filename);
+        auto& entry = entries[entries_read];
 
         LOG_TRACE(Service_FS, "File {}: size={} dir={}", filename, file.size, file.isDirectory);
 
         // TODO(Link Mauve): use a proper conversion to UTF-16.
         for (std::size_t j = 0; j < FILENAME_LENGTH; ++j) {
-            entry.filename[j] = filename[j];
-            if (!filename[j])
+            entry.filename[j] = filename16[j];
+            if (!filename16[j])
                 break;
         }
 

@@ -207,6 +207,8 @@ struct Values {
     bool skip_slow_draw;
     bool skip_cpu_write;
     bool skip_texture_copy;
+    bool skip_load_buffer;
+    bool merge_framebuffer;
     bool disable_clip_coef;
     bool display_transfer_hack;
     bool stream_buffer_hack;

@@ -22,6 +22,8 @@
             android:id="@+id/tabs_main"
             android:background="?attr/colorPrimary"
             app:tabBackground="?attr/colorPrimary"
+            app:tabMaxWidth="0dp"
+            app:tabGravity="fill"
             android:layout_width="match_parent"
             android:layout_height="wrap_content" />
 

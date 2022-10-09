@@ -114,7 +114,7 @@
                 android:resource="@xml/nnf_provider_paths" />
         </provider>
         <provider
-            android:name="org.citra.emu.UserPathProvider"
+            android:name=".UserPathProvider"
             android:authorities="${applicationId}.userpathprovider"
             android:exported="true"
             android:grantUriPermissions="true"
