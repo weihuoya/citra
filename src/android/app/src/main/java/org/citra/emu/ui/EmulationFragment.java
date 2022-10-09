@@ -169,6 +169,7 @@ public final class EmulationFragment extends Fragment implements SurfaceHolder.C
         mBtnDone.setOnClickListener(v -> {
             stopConfiguringControls();
             stopConfiguringLayout();
+            mInputOverlay.onPressedFeedback();
         });
 
         mChatLayout = contents.findViewById(R.id.chat_input);

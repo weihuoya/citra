@@ -31,8 +31,7 @@
 
         <LinearLayout
             android:orientation="horizontal"
-            android:paddingTop="6dp"
-            android:paddingBottom="4dp"
+            android:paddingTop="10dp"
             android:layout_width="match_parent"
             android:layout_height="wrap_content">
 
@@ -60,28 +59,26 @@
             <TextView
                 android:text="@string/memory_region_start"
                 android:textSize="16sp"
-                android:layout_weight="4"
                 android:paddingStart="4dp"
-                android:layout_width="match_parent"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"/>
 
             <EditText
                 android:id="@+id/edit_region_start"
-                android:layout_weight="3"
+                android:layout_weight="1"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"/>
 
             <TextView
                 android:text="@string/memory_region_stop"
                 android:textSize="16sp"
-                android:layout_weight="4"
-                android:paddingStart="4dp"
-                android:layout_width="match_parent"
+                android:paddingStart="8dp"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"/>
 
             <EditText
                 android:id="@+id/edit_region_stop"
-                android:layout_weight="3"
+                android:layout_weight="1"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"/>
 
@@ -89,8 +86,6 @@
 
         <LinearLayout
             android:orientation="horizontal"
-            android:paddingTop="10dp"
-            android:paddingBottom="10dp"
             android:layout_width="match_parent"
             android:layout_height="wrap_content">
 
@@ -113,7 +108,6 @@
         <LinearLayout
             android:orientation="horizontal"
             android:paddingTop="10dp"
-            android:paddingBottom="10dp"
             android:layout_width="match_parent"
             android:layout_height="wrap_content">
 
@@ -157,7 +151,6 @@
 
         <LinearLayout
             android:orientation="horizontal"
-            android:paddingTop="6dp"
             android:layout_width="match_parent"
             android:layout_height="wrap_content">
 
@@ -187,7 +180,6 @@
 
         <LinearLayout
             android:orientation="horizontal"
-            android:paddingTop="6dp"
             android:layout_width="match_parent"
             android:layout_height="wrap_content">
 
