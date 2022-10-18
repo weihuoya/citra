@@ -471,9 +471,17 @@ public final class EmulationActivity extends AppCompatActivity {
     }
 
     public Bitmap getInputBitmap(int id, float scale) {
+        Bitmap origin = BitmapFactory.decodeResource(getResources(), id);
+        float oriWidth = origin.getWidth();
+        // theme
         Bitmap bitmap = mBitmaps.get(id);
-        int dstWidth = (int)(bitmap.getWidth() * scale);
-        int dstHeight = (int)(bitmap.getHeight() * scale);
-        return Bitmap.createScaledBitmap(mBitmaps.get(id), dstWidth, dstHeight, true);
+        int dstWidth = bitmap.getWidth();
+        int dstHeight = bitmap.getHeight();
+        // adjust scale by default theme bitmap width
+        scale *= oriWidth / dstWidth;
+        dstWidth = (int)(dstWidth * scale);
+        dstHeight = (int)(dstHeight * scale);
+        origin.recycle();
+        return Bitmap.createScaledBitmap(bitmap, dstWidth, dstHeight, true);
     }
 }
