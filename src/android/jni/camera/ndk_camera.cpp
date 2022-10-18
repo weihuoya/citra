@@ -223,14 +223,14 @@ struct CaptureSession {
     }
 
     std::vector<u16> GetOutput(const Service::CAM::Resolution& resolution, bool mirror, bool invert,
-                               bool rgb565) {
+                               bool rgb565, bool using_front_camera) {
         {
             std::lock_guard lock{image_mutex};
             out_image.Swap(yuv_image);
         }
 
         libyuv::RotationMode rotation_mode{};
-        if (NativeLibrary::using_front_camera) {
+        if (using_front_camera) {
             switch (NativeLibrary::current_display_rotation) {
             case 0:
                 rotation_mode = libyuv::RotationMode::kRotate270;
@@ -454,6 +454,7 @@ struct CaptureSession {
 class NDKCameraInterface::Impl {
 public:
     Impl(const std::string& config, const Service::CAM::Flip& flip) {
+        using_front_camera = config == "1";
         manager = ACameraManager_create();
         mirror = base_mirror =
             flip == Service::CAM::Flip::Horizontal || flip == Service::CAM::Flip::Reverse;
@@ -539,7 +540,7 @@ public:
     }
 
     CaptureSession& GetCurrentSession() {
-        return capture_sessions[NativeLibrary::using_front_camera];
+        return capture_sessions[using_front_camera];
     }
 
     void StartCapture() {
@@ -566,7 +567,7 @@ public:
     }
 
     std::vector<u16> ReceiveFrame() {
-        return GetCurrentSession().GetOutput(resolution, mirror, invert, rgb565);
+        return GetCurrentSession().GetOutput(resolution, mirror, invert, rgb565, using_front_camera);
     }
 
     bool IsPreviewAvailable() {
@@ -585,6 +586,7 @@ private:
     bool mirror;
     bool invert;
     bool rgb565;
+    bool using_front_camera;
 };
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////

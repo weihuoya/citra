@@ -1,7 +1,6 @@
 #include "jni_common.h"
 
 std::atomic<int> NativeLibrary::current_display_rotation = 0;
-std::atomic<bool> NativeLibrary::using_front_camera = false;
 
 static constexpr char* CLASS = "org/citra/emu/NativeLibrary";
 static NativeLibrary::ImageLoadedHandler s_image_loaded_callback;

@@ -509,11 +509,12 @@ JNIEXPORT void JNICALL Java_org_citra_emu_NativeLibrary_Run(JNIEnv* env, jclass 
     InputManager::GetInstance().Init();
 
     // camera
-    Settings::values.camera_name[Service::CAM::OuterRightCamera] =
-        Config::Get(Config::CAMERA_DEVICE);
+    Settings::values.camera_name[Service::CAM::OuterRightCamera] = Config::Get(Config::CAMERA_DEVICE);
     Settings::values.camera_name[Service::CAM::InnerCamera] = Config::Get(Config::CAMERA_DEVICE);
-    Settings::values.camera_name[Service::CAM::OuterLeftCamera] =
-        Config::Get(Config::CAMERA_DEVICE);
+    Settings::values.camera_name[Service::CAM::OuterLeftCamera] = Config::Get(Config::CAMERA_DEVICE);
+    Settings::values.camera_config[Service::CAM::OuterRightCamera] = "0";
+    Settings::values.camera_config[Service::CAM::InnerCamera] = "1";
+    Settings::values.camera_config[Service::CAM::OuterLeftCamera] = "2";
 
     // play coin
     Service::PTM::Module::SetPlayCoins(99);
@@ -618,7 +619,7 @@ JNIEXPORT void JNICALL Java_org_citra_emu_NativeLibrary_setRunningSettings(JNIEn
     Config::Set(Config::USE_CUSTOM_LAYOUT, Settings::values.custom_layout);
 
     // Frame Limit
-    Settings::values.frame_limit = settings[i++];
+    Settings::values.frame_limit = std::max(settings[i++], 1);
 
     VideoCore::SettingUpdate();
 

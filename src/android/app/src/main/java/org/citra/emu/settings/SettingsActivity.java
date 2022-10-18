@@ -77,8 +77,8 @@ public final class SettingsActivity extends AppCompatActivity {
 
         if (mSettings.isEmpty()) {
             mSettings.loadSettings(mGameId);
+            showSettingsFragment(mMenuTag, null, false, mGameId);
         }
-        showSettingsFragment(mMenuTag, null, false, mGameId);
     }
 
     @Override
