@@ -42,5 +42,4 @@ public:
     static void ImageLoadedCallback(u32* jpixels, u32 width, u32 height);
 
     static std::atomic<int> current_display_rotation;
-    static std::atomic<bool> using_front_camera;
 };
