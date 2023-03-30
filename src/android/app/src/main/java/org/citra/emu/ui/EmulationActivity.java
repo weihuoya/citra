@@ -158,7 +158,7 @@ public final class EmulationActivity extends AppCompatActivity {
     public void showRunningSetting() {
         mEmulationFragment.stopConfiguringLayout();
         mEmulationFragment.stopConfiguringControls();
-        RunningSettingDialog dialog = RunningSettingDialog.newInstance();
+        RunningSettingDialog dialog = RunningSettingDialog.newInstance(RunningSettingDialog.MENU_MAIN);
         dialog.show(getSupportFragmentManager(), "RunningSettingDialog");
         dialog.setOnDismissListener(v -> {
             mMenuVisible = false;

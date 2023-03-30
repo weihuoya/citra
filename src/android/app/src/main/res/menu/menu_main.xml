@@ -30,6 +30,11 @@
         app:showAsAction="never"/>
 
     <item
+        android:id="@+id/menu_multiplayer"
+        android:title="@string/multiplayer"
+        app:showAsAction="never"/>
+
+    <item
         android:id="@+id/menu_refresh"
         android:title="@string/grid_menu_refresh"
         app:showAsAction="never"/>

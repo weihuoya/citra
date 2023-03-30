@@ -33,7 +33,9 @@
     <string name="setting_skip_cpu_write">Skip CPU Access</string>
     <string name="setting_skip_texture_copy">Skip Texture Copy</string>
     <string name="setting_use_linear_filter">Use Linear Filter</string>
+    <string name="setting_force_texture_filter">Force Texture Filter</string>
     <string name="setting_use_hw_gs">Enable Geometry Shader</string>
+    <string name="setting_async_shader_compile">Asynchronous Shader Compilation</string>
     <string name="use_haptic_feedback">Haptic Feedback (Vibration)</string>
     <string name="joystick_relative_center">Joystick use relative center</string>
     <string name="hide_input_overlay">Hide Input Buttons</string>
@@ -210,6 +212,8 @@
     <string name="default_value">Default</string>
     <string name="auto">Auto</string>
     <string name="off">Off</string>
+    <string name="nearest">Nearest</string>
+    <string name="linear">Linear</string>
     <string name="real_device">Real Device</string>
     <string name="static_noise">Static Noise</string>
     <string name="clear_input_binding">Clear</string>
@@ -249,6 +253,7 @@
     <string name="cheat_list">Cheat List</string>
     <string name="edit_cheat">Edit Cheat</string>
     <string name="reset_setting">Reset Setting</string>
+    <string name="reset_cache">Clear Cache</string>
     <string name="installed_app">Installed: %1$s</string>
     <string name="playtime_desc">Play Time: %1$s</string>
     <string name="playtime_minutes">%1$s minutes</string>

@@ -6,6 +6,7 @@ import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
+import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
@@ -115,6 +116,10 @@ public final class SettingsActivity extends AppCompatActivity {
                 fragment.showSettingsList(mSettings);
             }
             return true;
+        } else if (item.getItemId() == R.id.menu_reset_cache) {
+            if (CitraDirectory.deleteAllFiles(CitraDirectory.getCacheDirectory())) {
+                Toast.makeText(this, R.string.delete_success, Toast.LENGTH_SHORT).show();
+            }
         }
         return false;
     }

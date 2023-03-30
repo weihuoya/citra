@@ -456,26 +456,26 @@ public final class EditorActivity extends AppCompatActivity {
             if (pid.equals("00040010") || pid.equals("00040030")) {
                 String system = CitraDirectory.getSystemTitleDirectory();
                 String path = String.format("%s/%s/%s", system, pid, subid);
-                deleteContents(new File(path));
+                CitraDirectory.deleteAllFiles(path);
             } else if (pid.equals("00040000")) {
                 // App
                 String root = CitraDirectory.getApplicationDirectory();
                 String path = String.format("%s/%s/%s/content", root, pid, subid);
-                deleteContents(new File(path));
+                CitraDirectory.deleteAllFiles(path);
                 // Updates
                 path = String.format("%s/0004000e/%s/content", root, subid);
-                deleteContents(new File(path));
+                CitraDirectory.deleteAllFiles(path);
                 // DLCs
                 path = String.format("%s/0004008c/%s/content", root, subid);
-                deleteContents(new File(path));
+                CitraDirectory.deleteAllFiles(path);
             } else if (pid.equals("0004000e") || pid.equals("0004008c")) {
                 // Updates
                 String root = CitraDirectory.getApplicationDirectory();
                 String path = String.format("%s/0004000e/%s/content", root, subid);
-                deleteContents(new File(path));
+                CitraDirectory.deleteAllFiles(path);
                 // DLCs
                 path = String.format("%s/0004008c/%s/content", root, subid);
-                deleteContents(new File(path));
+                CitraDirectory.deleteAllFiles(path);
             }
             Toast.makeText(this, "Delete Success!", Toast.LENGTH_LONG).show();
         });
@@ -621,21 +621,5 @@ public final class EditorActivity extends AppCompatActivity {
                 //
             }
         }
-    }
-
-    public static boolean deleteContents(File dir) {
-        File[] files = dir.listFiles();
-        boolean success = true;
-        if (files != null) {
-            for (File file : files) {
-                if (file.isDirectory()) {
-                    success &= deleteContents(file);
-                }
-                if (!file.delete()) {
-                    success = false;
-                }
-            }
-        }
-        return success;
     }
 }

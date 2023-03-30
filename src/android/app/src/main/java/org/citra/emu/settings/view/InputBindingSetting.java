@@ -42,8 +42,7 @@ public class InputBindingSetting extends SettingsItem {
      * @param keyEvent KeyEvent of this key press.
      */
     public void onKeyInput(KeyEvent keyEvent) {
-        String bindStr = "code:" + keyEvent.getKeyCode();
-        setValue(bindStr);
+        setValue(String.format("code:%d", keyEvent.getKeyCode()));
     }
 
     /**
@@ -56,8 +55,7 @@ public class InputBindingSetting extends SettingsItem {
      */
     public void onMotionInput(InputDevice device, InputDevice.MotionRange motionRange,
                               char axisDir) {
-        String bindStr = "code:" + motionRange.getAxis() + ",dir:" + axisDir;
-        setValue(bindStr);
+        setValue(String.format("code:%d,dir:%c", motionRange.getAxis(), axisDir));
     }
 
     public void clearValue() {

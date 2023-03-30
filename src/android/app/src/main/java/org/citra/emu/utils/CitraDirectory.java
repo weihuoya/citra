@@ -153,6 +153,26 @@ public final class CitraDirectory {
         }
     }
 
+    private static boolean deleteFilesRecursive(File dir) {
+        File[] files = dir.listFiles();
+        boolean success = true;
+        if (files != null) {
+            for (File file : files) {
+                if (file.isDirectory()) {
+                    success &= deleteFilesRecursive(file);
+                }
+                if (!file.delete()) {
+                    success = false;
+                }
+            }
+        }
+        return success;
+    }
+
+    public static boolean deleteAllFiles(String dir) {
+        return deleteFilesRecursive(new File(dir));
+    }
+
     public static boolean isInitialized() {
         return sInitState == INIT_LEGACY || sInitState == INIT_SAF;
     }
@@ -163,6 +183,10 @@ public final class CitraDirectory {
 
     public static void clearIconCache() {
         mIconCache.clearCache();
+    }
+
+    public static String getTitleName(String id) {
+        return mTitleDB.get(id);
     }
 
     private static void initializeExternalStorage(Context context) {
@@ -205,6 +229,10 @@ public final class CitraDirectory {
 
     public static String getConfigDirectory() {
         return getUserDirectory() + File.separator + "config";
+    }
+
+    public static String getCacheDirectory() {
+        return getUserDirectory() + File.separator + "cache";
     }
 
     public static String getShadersDirectory() {

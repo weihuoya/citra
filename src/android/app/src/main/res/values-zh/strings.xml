@@ -33,7 +33,9 @@
     <string name="setting_skip_cpu_write">跳过CPU访问</string>
     <string name="setting_skip_texture_copy">跳过纹理复制</string>
     <string name="setting_use_linear_filter">使用线性过滤</string>
+    <string name="setting_force_texture_filter">强制纹理过滤</string>
     <string name="setting_use_hw_gs">启用几何着色器</string>
+    <string name="setting_async_shader_compile">着色器异步编译</string>
     <string name="use_haptic_feedback">按键反馈（震动）</string>
     <string name="joystick_relative_center">摇杆使用相对位置</string>
     <string name="hide_input_overlay">隐藏屏幕按键</string>
@@ -210,6 +212,8 @@
     <string name="default_value">默认</string>
     <string name="auto">自动</string>
     <string name="off">关闭</string>
+    <string name="nearest">临近</string>
+    <string name="linear">线性</string>
     <string name="real_device">实体设备</string>
     <string name="static_noise">静态噪音</string>
     <string name="clear_input_binding">清除</string>
@@ -249,6 +253,7 @@
     <string name="cheat_list">金手指列表</string>
     <string name="edit_cheat">编辑金手指</string>
     <string name="reset_setting">重置设置</string>
+    <string name="reset_cache">清除缓存</string>
     <string name="installed_app">已安装：%1$s</string>
     <string name="playtime_desc">游戏时长：%1$s</string>
     <string name="playtime_minutes">%1$s 分钟</string>
