@@ -163,13 +163,9 @@ public class NetPlayManager {
         MainActivity activity2 = MainActivity.get();
 
         if (activity1 != null) {
-            activity1.runOnUiThread(() -> {
-                activity1.addNetPlayMessage(FormatNetPlayStatus(activity1, type, msg));
-            });
+            activity1.runOnUiThread(() -> activity1.addNetPlayMessage(FormatNetPlayStatus(activity1, type, msg)));
         } else if (activity2 != null) {
-            activity2.runOnUiThread(() -> {
-                activity2.addNetPlayMessage(FormatNetPlayStatus(activity2, type, msg));
-            });
+            activity2.runOnUiThread(() -> activity2.addNetPlayMessage(FormatNetPlayStatus(activity2, type, msg)));
         }
     }
 

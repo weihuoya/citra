@@ -28,7 +28,6 @@ void SaveDefault() {
 
     // renderer
     s_layer.Set(USE_GLES, USE_GLES.default_value);
-    s_layer.Set(USE_HW_RENDERER, USE_HW_RENDERER.default_value);
     s_layer.Set(USE_HW_SHADER, USE_HW_SHADER.default_value);
     s_layer.Set(USE_SHADER_JIT, USE_SHADER_JIT.default_value);
     s_layer.Set(SHADERS_ACCURATE_MUL, SHADERS_ACCURATE_MUL.default_value);
@@ -57,7 +56,6 @@ void SaveDefault() {
     s_layer.Set(CAMERA_DEVICE, CAMERA_DEVICE.default_value);
 
     // debug
-    s_layer.Set(ALLOW_SHADOW, ALLOW_SHADOW.default_value);
     s_layer.Set(SHADER_TYPE, SHADER_TYPE.default_value);
     s_layer.Set(USE_PRESENT_THREAD, USE_PRESENT_THREAD.default_value);
     s_layer.Set(CPU_USAGE_LIMIT, CPU_USAGE_LIMIT.default_value);

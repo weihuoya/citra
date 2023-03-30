@@ -226,6 +226,7 @@ public final class NativeLibrary {
         int[] pixels = new int[width * height];
         bitmap.getPixels(pixels, 0, width, 0, 0, width, height);
         HandleImage(pixels, width, height);
+        bitmap.recycle();
     }
 
     public static void updateProgress(String name, long written, long total) {

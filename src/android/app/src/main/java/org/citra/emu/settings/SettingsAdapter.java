@@ -240,8 +240,6 @@ public final class SettingsAdapter extends RecyclerView.Adapter<SettingViewHolde
         dialog.setButton(AlertDialog.BUTTON_NEUTRAL,
                          mActivity.getString(R.string.clear_input_binding),
                          (dialogInterface, i) -> {
-                             SharedPreferences preferences =
-                                 PreferenceManager.getDefaultSharedPreferences(mActivity);
                              item.clearValue();
                          });
         dialog.setOnDismissListener(dialog1 -> {

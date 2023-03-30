@@ -11,13 +11,12 @@ const ConfigInfo<bool> USE_VIRTUAL_SD{{"Core", "use_virtual_sd"}, true};
 const ConfigInfo<int> SYSTEM_REGION{{"Core", "region_value"}, Settings::REGION_VALUE_AUTO_SELECT};
 const ConfigInfo<Service::CFG::SystemLanguage> SYSTEM_LANGUAGE{
     {"Core", "language"}, Service::CFG::SystemLanguage::LANGUAGE_EN};
-const ConfigInfo<Settings::SharedFontType> SHARED_FONT_TYPE{
-    {"Core", "shared_font_type"}, Settings::SharedFontType::Auto};
+const ConfigInfo<Settings::SharedFontType> SHARED_FONT_TYPE{{"Core", "shared_font_type"},
+                                                            Settings::SharedFontType::Auto};
 
 // renderer
 const ConfigInfo<bool> USE_GLES{{"Renderer", "use_gles"}, true};
 const ConfigInfo<bool> SHOW_FPS{{"Renderer", "show_fps"}, true};
-const ConfigInfo<bool> USE_HW_RENDERER{{"Renderer", "use_hw_renderer"}, true};
 const ConfigInfo<bool> USE_HW_SHADER{{"Renderer", "use_hw_shader"}, true};
 const ConfigInfo<bool> USE_SHADER_JIT{{"Renderer", "use_shader_jit"}, false};
 const ConfigInfo<Settings::AccurateMul> SHADERS_ACCURATE_MUL{{"Renderer", "accurate_mul_type"},
@@ -39,7 +38,7 @@ const ConfigInfo<std::string> REMOTE_SHADER_HOST{
 
 // audio
 const ConfigInfo<bool> ENABLE_DSP_LLE{{"Audio", "enable_dsp_lle"}, false};
-const ConfigInfo<bool> DSP_LLE_MULTITHREAD{{"Audio", "enable_dsp_lle_multithread"}, true};
+const ConfigInfo<bool> DSP_LLE_MULTITHREAD{{"Audio", "dsp_lle_multithread"}, true};
 const ConfigInfo<bool> AUDIO_STRETCHING{{"Audio", "enable_audio_stretching"}, false};
 const ConfigInfo<float> AUDIO_VOLUME{{"Audio", "volume"}, 1.0F};
 const ConfigInfo<std::string> AUDIO_ENGINE{{"Audio", "output_engine"}, "auto"};
@@ -54,9 +53,9 @@ const ConfigInfo<std::string> MIC_INPUT_DEVICE{{"Audio", "mic_input_device"}, "D
 const ConfigInfo<std::string> CAMERA_DEVICE{{"Camera", "camera_type"}, "blank"};
 
 // debug
-const ConfigInfo<bool> ALLOW_SHADOW{{"Debug", "allow_shadow"}, false};
 const ConfigInfo<bool> USE_HW_GS{{"Debug", "use_hw_gs"}, false};
 const ConfigInfo<u8> SHADER_TYPE{{"Debug", "shader_type"}, 1};
+const ConfigInfo<bool> ASYNC_SHADER_COMPILE{{"Debug", "async_shader_compile"}, false};
 const ConfigInfo<bool> USE_PRESENT_THREAD{{"Debug", "use_present_thread"}, true};
 const ConfigInfo<bool> CPU_USAGE_LIMIT{{"Debug", "cpu_usage_limit"}, false};
 const ConfigInfo<std::string> LLE_MODULES{{"Debug", "lle_modules"}, ""};
@@ -81,10 +80,14 @@ const ConfigInfo<std::string> BUTTON_GPIO14{{"Controls", "button_gpio14"}, "code
 const ConfigInfo<std::string> BUTTON_ZL{{"Controls", "button_zl"}, "code:104"};
 const ConfigInfo<std::string> BUTTON_ZR{{"Controls", "button_zr"}, "code:105"};
 const ConfigInfo<std::string> BUTTON_HOME{{"Controls", "button_home"}, "code:113"};
-const ConfigInfo<std::string> CIRCLE_PAD_X{{"Controls", "circle_pad_x"}, "code:0"};
-const ConfigInfo<std::string> CIRCLE_PAD_Y{{"Controls", "circle_pad_y"}, "code:1"};
-const ConfigInfo<std::string> C_STICK_X{{"Controls", "c_stick_x"}, "code:11"};
-const ConfigInfo<std::string> C_STICK_Y{{"Controls", "c_stick_y"}, "code:14"};
+const ConfigInfo<std::string> CIRCLE_PAD_UP{{"Controls", "circle_pad_up"}, "code:1,dir:-"};
+const ConfigInfo<std::string> CIRCLE_PAD_DOWN{{"Controls", "circle_pad_down"}, "code:1,dir:+"};
+const ConfigInfo<std::string> CIRCLE_PAD_LEFT{{"Controls", "circle_pad_left"}, "code:0,dir:-"};
+const ConfigInfo<std::string> CIRCLE_PAD_RIGHT{{"Controls", "circle_pad_right"}, "code:0,dir:+"};
+const ConfigInfo<std::string> C_STICK_UP{{"Controls", "c_stick_up"}, "code:14,dir:-"};
+const ConfigInfo<std::string> C_STICK_DOWN{{"Controls", "c_stick_down"}, "code:14,dir:+"};
+const ConfigInfo<std::string> C_STICK_LEFT{{"Controls", "c_stick_left"}, "code:11,dir:-"};
+const ConfigInfo<std::string> C_STICK_RIGHT{{"Controls", "c_stick_right"}, "code:11,dir:+"};
 const ConfigInfo<std::string> COMBO_KEY_0{{"Controls", "combo_key_0"}, ""};
 const ConfigInfo<std::string> COMBO_KEY_1{{"Controls", "combo_key_1"}, ""};
 const ConfigInfo<std::string> COMBO_KEY_2{{"Controls", "combo_key_2"}, ""};

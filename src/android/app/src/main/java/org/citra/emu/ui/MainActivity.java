@@ -415,6 +415,11 @@ public final class MainActivity extends AppCompatActivity {
                     FileBrowserHelper.openFilePicker(this);
                     return true;
 
+                case R.id.menu_multiplayer:
+                    RunningSettingDialog dialog = RunningSettingDialog.newInstance(RunningSettingDialog.MENU_MULTIPLAYER);
+                    dialog.show(getSupportFragmentManager(), "RunningSettingDialog");
+                    return true;
+
                 case R.id.menu_refresh:
                     refreshLibrary();
                     return true;

@@ -84,7 +84,7 @@ constexpr int NUM_BUTTONS_HID = BUTTON_HID_END - BUTTON_HID_BEGIN;
 constexpr int NUM_BUTTONS_IR = BUTTON_IR_END - BUTTON_IR_BEGIN;
 constexpr int NUM_BUTTONS_NS = BUTTON_NS_END - BUTTON_NS_BEGIN;
 
-static const std::array<const char*, NumButtons> mapping = {{
+const std::array mapping = {
     "button_a",
     "button_b",
     "button_x",
@@ -102,7 +102,7 @@ static const std::array<const char*, NumButtons> mapping = {{
     "button_zl",
     "button_zr",
     "button_home",
-}};
+};
 } // namespace NativeButton
 
 namespace NativeAnalog {
@@ -113,10 +113,10 @@ enum Values {
     NumAnalogs,
 };
 
-static const std::array<const char*, NumAnalogs> mapping = {{
+const std::array mapping = {
     "circle_pad",
     "c_stick",
-}};
+};
 } // namespace NativeAnalog
 
 struct InputProfile {
@@ -180,7 +180,7 @@ struct Values {
 
     // Audio
     bool enable_dsp_lle;
-    bool enable_dsp_lle_multithread;
+    bool dsp_lle_multithread;
     std::string sink_id;
     bool enable_audio_stretching;
     std::string audio_device_id;
@@ -201,7 +201,7 @@ struct Values {
 
     s64 core_ticks_hack;
     bool core_downcount_hack;
-    bool allow_shadow;
+    bool async_shader_compile;
     bool use_separable_shader;
     bool use_shader_cache;
     bool skip_slow_draw;
@@ -214,7 +214,6 @@ struct Values {
     bool stream_buffer_hack;
     bool y2r_perform_hack;
     bool y2r_event_delay;
-    bool use_linear_filter;
     bool use_present_thread;
     bool use_direct_display;
     bool use_fence_sync;
@@ -224,9 +223,9 @@ struct Values {
     SharedFontType shared_font_type;
     AccurateMul shaders_accurate_mul;
     std::string remote_shader_host;
+    u8 force_texture_filter;
 
     // WebService
-    bool enable_telemetry;
     std::string web_api_url;
     std::string citra_username;
     std::string citra_token;

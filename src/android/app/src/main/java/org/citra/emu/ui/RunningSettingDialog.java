@@ -34,6 +34,7 @@ import org.citra.emu.utils.NetPlayManager;
 import org.citra.emu.utils.TranslateHelper;
 
 public class RunningSettingDialog extends DialogFragment {
+    private static String KEY_MENU = "menu";
     public static final int MENU_MAIN = 0;
     public static final int MENU_SETTINGS = 1;
     public static final int MENU_TRANSLATE = 2;
@@ -46,8 +47,12 @@ public class RunningSettingDialog extends DialogFragment {
     private SettingsAdapter mAdapter;
     private DialogInterface.OnDismissListener mDismissListener;
 
-    public static RunningSettingDialog newInstance() {
-        return new RunningSettingDialog();
+    public static RunningSettingDialog newInstance(int menu) {
+        RunningSettingDialog dialog = new RunningSettingDialog();
+        Bundle args = new Bundle();
+        args.putInt(KEY_MENU, menu);
+        dialog.setArguments(args);
+        return dialog;
     }
 
     @NonNull
@@ -70,7 +75,7 @@ public class RunningSettingDialog extends DialogFragment {
         recyclerView.setAdapter(mAdapter);
         recyclerView.addItemDecoration(new DividerItemDecoration(lineDivider));
         builder.setView(contents);
-        loadSubMenu(MENU_MAIN);
+        loadSubMenu(getArguments().getInt(KEY_MENU));
         return builder.create();
     }
 
@@ -122,13 +127,14 @@ public class RunningSettingDialog extends DialogFragment {
         public static final int SETTING_SKIP_SLOW_DRAW = 1;
         public static final int SETTING_SKIP_CPU_WRITE = 2;
         public static final int SETTING_SKIP_TEXTURE_COPY = 3;
-        public static final int SETTING_USE_LINEAR_FILTER = 4;
+        public static final int SETTING_FORCE_TEXTURE_FILTER = 4;
         public static final int SETTING_USE_HW_GS = 5;
-        public static final int SETTING_SCALE_FACTOR = 6;
-        public static final int SETTING_SCREEN_LAYOUT = 7;
-        public static final int SETTING_ACCURATE_MUL = 8;
-        public static final int SETTING_CUSTOM_LAYOUT = 9;
-        public static final int SETTING_FRAME_LIMIT = 10;
+        public static final int SETTING_ASYNC_SHADER_COMPILE = 6;
+        public static final int SETTING_SCALE_FACTOR = 7;
+        public static final int SETTING_SCREEN_LAYOUT = 8;
+        public static final int SETTING_ACCURATE_MUL = 9;
+        public static final int SETTING_CUSTOM_LAYOUT = 10;
+        public static final int SETTING_FRAME_LIMIT = 11;
 
         // pref
         public static final int SETTING_JOYSTICK_RELATIVE = 100;
@@ -238,6 +244,11 @@ public class RunningSettingDialog extends DialogFragment {
         public void bind(SettingsItem item) {
             mItem = item;
             mName.setText(item.getName());
+            if (mItem.getSetting() == SettingsItem.SETTING_MULTIPLAYER_ROOM_MEMBER && mItem.getValue() != 0) {
+                mName.setTextColor(mName.getContext().getColor(R.color.citra_accent));
+            } else {
+                mName.setTextColor(mName.getContext().getColor(R.color.foreground_color));
+            }
         }
 
         @Override
@@ -273,7 +284,7 @@ public class RunningSettingDialog extends DialogFragment {
                 break;
             case SettingsItem.SETTING_EXIT_GAME:
                 NativeLibrary.StopEmulation();
-                activity.finish();
+                dismiss();
                 break;
             case SettingsItem.SETTING_MULTIPLAYER_CREATE_ROOM:
                 NetPlayManager.ShowCreateRoomDialog(getActivity());
@@ -317,7 +328,14 @@ public class RunningSettingDialog extends DialogFragment {
 
         @Override
         public void onClick(View clicked) {
-            NetPlayManager.NetPlayKickUser(mItem.getName());
+            if (mItem.getSetting() == SettingsItem.SETTING_MULTIPLAYER_ROOM_MEMBER) {
+                String text = mItem.getName();
+                int pos = text.indexOf('[');
+                if (pos > 0) {
+                    text = text.substring(0, pos - 1);
+                }
+                NetPlayManager.NetPlayKickUser(text);
+            }
         }
     }
 
@@ -448,6 +466,18 @@ public class RunningSettingDialog extends DialogFragment {
 
                 RadioButton radio2 = mRadioGroup.findViewById(R.id.radio2);
                 radio2.setText(R.string.accurate_mul_accurate);
+
+                RadioButton radio3 = mRadioGroup.findViewById(R.id.radio3);
+                radio3.setVisibility(View.GONE);
+            } else if (item.getSetting() == SettingsItem.SETTING_FORCE_TEXTURE_FILTER) {
+                RadioButton radio0 = mRadioGroup.findViewById(R.id.radio0);
+                radio0.setText(R.string.auto);
+
+                RadioButton radio1 = mRadioGroup.findViewById(R.id.radio1);
+                radio1.setText(R.string.nearest);
+
+                RadioButton radio2 = mRadioGroup.findViewById(R.id.radio2);
+                radio2.setText(R.string.linear);
 
                 RadioButton radio3 = mRadioGroup.findViewById(R.id.radio3);
                 radio3.setVisibility(View.GONE);
@@ -664,11 +694,14 @@ public class RunningSettingDialog extends DialogFragment {
             mSettings.add(new SettingsItem(SettingsItem.SETTING_SKIP_TEXTURE_COPY,
                     R.string.setting_skip_texture_copy,
                     SettingsItem.TYPE_CHECKBOX, mRunningSettings[i++]));
-            mSettings.add(new SettingsItem(SettingsItem.SETTING_USE_LINEAR_FILTER,
-                    R.string.setting_use_linear_filter,
-                    SettingsItem.TYPE_CHECKBOX, mRunningSettings[i++]));
+            mSettings.add(new SettingsItem(SettingsItem.SETTING_FORCE_TEXTURE_FILTER,
+                    R.string.setting_force_texture_filter,
+                    SettingsItem.TYPE_RADIO_GROUP, mRunningSettings[i++]));
             mSettings.add(new SettingsItem(SettingsItem.SETTING_USE_HW_GS,
                     R.string.setting_use_hw_gs,
+                    SettingsItem.TYPE_CHECKBOX, mRunningSettings[i++]));
+            mSettings.add(new SettingsItem(SettingsItem.SETTING_ASYNC_SHADER_COMPILE,
+                    R.string.setting_async_shader_compile,
                     SettingsItem.TYPE_CHECKBOX, mRunningSettings[i++]));
             mSettings.add(new SettingsItem(SettingsItem.SETTING_SCALE_FACTOR,
                     R.string.running_resolution, SettingsItem.TYPE_RADIO_GROUP,
