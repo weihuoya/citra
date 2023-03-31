@@ -471,7 +471,7 @@ JNIEXPORT void JNICALL Java_org_citra_emu_NativeLibrary_Run(JNIEnv* env, jclass 
     Settings::values.mic_input_type = Config::Get(Config::MIC_INPUT_TYPE);
     Settings::values.mic_input_device = Config::Get(Config::MIC_INPUT_DEVICE);
     // debug
-    Settings::values.allow_shadow = Config::Get(Config::ALLOW_SHADOW);
+    Settings::values.shadow_rendering = Config::Get(Config::SHADOW_RENDERING);
     Settings::values.use_present_thread = Config::Get(Config::USE_PRESENT_THREAD);
     Settings::values.core_downcount_hack = Config::Get(Config::CPU_USAGE_LIMIT);
     u8 shaderType = Config::Get(Config::SHADER_TYPE);
@@ -501,7 +501,7 @@ JNIEXPORT void JNICALL Java_org_citra_emu_NativeLibrary_Run(JNIEnv* env, jclass 
     Settings::values.disable_clip_coef = false;
     Settings::values.y2r_perform_hack = false;
     Settings::values.y2r_event_delay = false;
-    Settings::values.use_linear_filter = false;
+    Settings::values.force_texture_filter = 0;
     Settings::values.stream_buffer_hack = !Settings::values.use_present_thread;
     Settings::values.use_fence_sync = Config::Get(Config::USE_FENCE_SYNC);
 
@@ -555,15 +555,17 @@ JNIEXPORT void JNICALL Java_org_citra_emu_NativeLibrary_StopEmulation(JNIEnv* en
 JNIEXPORT jintArray JNICALL Java_org_citra_emu_NativeLibrary_getRunningSettings(JNIEnv* env,
                                                                                 jclass obj) {
     int i = 0;
-    int settings[11];
+    int settings[13];
 
     // get settings
     settings[i++] = Settings::values.core_ticks_hack > 0;
     settings[i++] = Settings::values.skip_slow_draw;
     settings[i++] = Settings::values.skip_cpu_write;
     settings[i++] = Settings::values.skip_texture_copy;
-    settings[i++] = Settings::values.use_linear_filter;
+    settings[i++] = Settings::values.force_texture_filter;
     settings[i++] = Settings::values.use_hw_gs;
+    settings[i++] = Settings::values.shadow_rendering;
+    settings[i++] = Settings::values.async_shader_compile;
     settings[i++] = std::min(std::max(Settings::values.resolution_factor - 1, 0), 3);
     settings[i++] = static_cast<int>(Settings::values.layout_option);
     settings[i++] = static_cast<int>(Settings::values.shaders_accurate_mul);
@@ -593,11 +595,19 @@ JNIEXPORT void JNICALL Java_org_citra_emu_NativeLibrary_setRunningSettings(JNIEn
     Settings::values.skip_texture_copy = settings[i++] > 0;
 
     // Use Linear Filter
-    Settings::values.use_linear_filter = settings[i++] > 0;
+    Settings::values.force_texture_filter = settings[i++];
 
     // Use HW GS
     Settings::values.use_hw_gs = settings[i++] > 0;
     Config::Set(Config::USE_HW_GS, Settings::values.use_hw_gs);
+
+    // Shadow Rendering
+    Settings::values.shadow_rendering = settings[i++] > 0;
+    Config::Set(Config::SHADOW_RENDERING, Settings::values.shadow_rendering);
+
+    // Async Shader Compile
+    Settings::values.async_shader_compile = settings[i++] > 0;
+    Config::Set(Config::ASYNC_SHADER_COMPILE, Settings::values.async_shader_compile);
 
     // Scale Factor
     Settings::values.resolution_factor = settings[i++] + 1;
