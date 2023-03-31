@@ -35,6 +35,7 @@
     <string name="setting_use_linear_filter">使用线性过滤</string>
     <string name="setting_force_texture_filter">强制纹理过滤</string>
     <string name="setting_use_hw_gs">启用几何着色器</string>
+    <string name="setting_shadow_rendering">启用阴影渲染</string>
     <string name="setting_async_shader_compile">着色器异步编译</string>
     <string name="use_haptic_feedback">按键反馈（震动）</string>
     <string name="joystick_relative_center">摇杆使用相对位置</string>

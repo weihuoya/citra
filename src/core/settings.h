@@ -203,6 +203,7 @@ struct Values {
     bool core_downcount_hack;
     bool async_shader_compile;
     bool use_separable_shader;
+    bool shadow_rendering;
     bool use_shader_cache;
     bool skip_slow_draw;
     bool skip_cpu_write;

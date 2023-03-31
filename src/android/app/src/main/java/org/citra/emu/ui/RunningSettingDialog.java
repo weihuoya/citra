@@ -129,12 +129,13 @@ public class RunningSettingDialog extends DialogFragment {
         public static final int SETTING_SKIP_TEXTURE_COPY = 3;
         public static final int SETTING_FORCE_TEXTURE_FILTER = 4;
         public static final int SETTING_USE_HW_GS = 5;
-        public static final int SETTING_ASYNC_SHADER_COMPILE = 6;
-        public static final int SETTING_SCALE_FACTOR = 7;
-        public static final int SETTING_SCREEN_LAYOUT = 8;
-        public static final int SETTING_ACCURATE_MUL = 9;
-        public static final int SETTING_CUSTOM_LAYOUT = 10;
-        public static final int SETTING_FRAME_LIMIT = 11;
+        public static final int SETTING_SHADOW_RENDERING = 6;
+        public static final int SETTING_ASYNC_SHADER_COMPILE = 7;
+        public static final int SETTING_SCALE_FACTOR = 8;
+        public static final int SETTING_SCREEN_LAYOUT = 9;
+        public static final int SETTING_ACCURATE_MUL = 10;
+        public static final int SETTING_CUSTOM_LAYOUT = 11;
+        public static final int SETTING_FRAME_LIMIT = 12;
 
         // pref
         public static final int SETTING_JOYSTICK_RELATIVE = 100;
@@ -699,6 +700,9 @@ public class RunningSettingDialog extends DialogFragment {
                     SettingsItem.TYPE_RADIO_GROUP, mRunningSettings[i++]));
             mSettings.add(new SettingsItem(SettingsItem.SETTING_USE_HW_GS,
                     R.string.setting_use_hw_gs,
+                    SettingsItem.TYPE_CHECKBOX, mRunningSettings[i++]));
+            mSettings.add(new SettingsItem(SettingsItem.SETTING_SHADOW_RENDERING,
+                    R.string.setting_shadow_rendering,
                     SettingsItem.TYPE_CHECKBOX, mRunningSettings[i++]));
             mSettings.add(new SettingsItem(SettingsItem.SETTING_ASYNC_SHADER_COMPILE,
                     R.string.setting_async_shader_compile,

@@ -35,6 +35,7 @@
     <string name="setting_use_linear_filter">Use Linear Filter</string>
     <string name="setting_force_texture_filter">Force Texture Filter</string>
     <string name="setting_use_hw_gs">Enable Geometry Shader</string>
+    <string name="setting_shadow_rendering">Enable Shadow Rendering</string>
     <string name="setting_async_shader_compile">Asynchronous Shader Compilation</string>
     <string name="use_haptic_feedback">Haptic Feedback (Vibration)</string>
     <string name="joystick_relative_center">Joystick use relative center</string>
