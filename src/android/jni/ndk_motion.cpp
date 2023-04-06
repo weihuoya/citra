@@ -10,8 +10,11 @@
 #include "jni_common.h"
 #include "ndk_motion.h"
 
-namespace {
 using Common::Vec3;
+
+template <typename T>
+static void loadSymbol(T*& pfn, const char *symbol) noexcept {
+    pfn = (T*)dlsym(RTLD_DEFAULT, symbol);
 }
 
 class NDKMotion final : public Input::MotionDevice {
@@ -21,7 +24,6 @@ class NDKMotion final : public Input::MotionDevice {
 
     GETINSTANCEFORPACKAGE GetInstanceForPackage = nullptr;
     REGISTERSENSOR RegisterSensor = nullptr;
-    void* lib_android = nullptr;
 
     ASensorManager* sensor_manager = nullptr;
     ALooper* looper = nullptr;
@@ -125,12 +127,8 @@ class NDKMotion final : public Input::MotionDevice {
 
 public:
     NDKMotion(std::chrono::microseconds update_period, bool asynchronous = false) {
-        void* lib_android = dlopen("android", RTLD_NOW);
-        GetInstanceForPackage = reinterpret_cast<GETINSTANCEFORPACKAGE>(
-            dlsym(lib_android, "ASensorManager_getInstanceForPackage"));
-        RegisterSensor = reinterpret_cast<REGISTERSENSOR>(
-            dlsym(lib_android, "ASensorEventQueue_registerSensor"));
-
+        loadSymbol(GetInstanceForPackage, "ASensorManager_getInstanceForPackage");
+        loadSymbol(RegisterSensor, "ASensorEventQueue_registerSensor");
         if (asynchronous) {
             poll_thread = std::thread([this, update_period] {
                 Construct(update_period);
@@ -146,14 +144,13 @@ public:
         }
     }
 
-    ~NDKMotion() {
+    ~NDKMotion() override {
         if (std::thread::id{} == poll_thread.get_id()) {
             Destruct();
         } else {
             stop_polling = true;
             poll_thread.join();
         }
-        dlclose(lib_android);
     }
 
     std::tuple<Vec3<float>, Vec3<float>> GetStatus() const override {
