@@ -15,8 +15,8 @@ public:
 
     static jobject RectObject(int left, int top, int right, int bottom);
 
-    static jstring Wrap(const std::string& str) {
-        return GetEnvForThread()->NewStringUTF(str.c_str());
+    static jstring Wrap(std::string_view str) {
+        return GetEnvForThread()->NewStringUTF(str.data());
     }
 
     static jbyteArray Wrap(const u8* data, std::size_t size) {
@@ -56,7 +56,8 @@ public:
     }
 
     template <typename... Ts>
-    static jobject CallStaticObjectMethod(const char* className, const char* methodName, const char* signature, Ts... xs) {
+    static jobject CallStaticObjectMethod(const char* className, const char* methodName,
+                                          const char* signature, Ts... xs) {
         jobject ret;
         std::vector<jobject> localRefs;
         JNIEnv* env = GetEnvForThread();
@@ -83,7 +84,7 @@ private:
             JNIEnv* env = GetEnvForThread();
             std::string signature = "(" + JniSignature(xs...) + ")V";
             jclass clazz = FindClass(className);
-            jmethodID method = env->GetStaticMethodID(clazz, methodName, signature.c_str());
+            jmethodID method = env->GetStaticMethodID(clazz, methodName, signature.data());
             env->CallStaticVoidMethod(clazz, method, JniWrap(env, localRefs, xs)...);
             DeleteLocalRefs(env, localRefs);
         }
@@ -97,7 +98,7 @@ private:
             JNIEnv* env = GetEnvForThread();
             std::string signature = "(" + JniSignature(xs...) + ")Z";
             jclass clazz = FindClass(className);
-            jmethodID method = env->GetStaticMethodID(clazz, methodName, signature.c_str());
+            jmethodID method = env->GetStaticMethodID(clazz, methodName, signature.data());
             ret = env->CallStaticBooleanMethod(clazz, method, JniWrap(env, localRefs, xs)...);
             DeleteLocalRefs(env, localRefs);
             return (ret == JNI_TRUE);
@@ -112,7 +113,7 @@ private:
             JNIEnv* env = GetEnvForThread();
             std::string signature = "(" + JniSignature(xs...) + ")I";
             jclass clazz = FindClass(className);
-            jmethodID method = env->GetStaticMethodID(clazz, methodName, signature.c_str());
+            jmethodID method = env->GetStaticMethodID(clazz, methodName, signature.data());
             ret = env->CallStaticIntMethod(clazz, method, JniWrap(env, localRefs, xs)...);
             DeleteLocalRefs(env, localRefs);
             return ret;
@@ -127,7 +128,7 @@ private:
             JNIEnv* env = GetEnvForThread();
             std::string signature = "(" + JniSignature(xs...) + ")J";
             jclass clazz = FindClass(className);
-            jmethodID method = env->GetStaticMethodID(clazz, methodName, signature.c_str());
+            jmethodID method = env->GetStaticMethodID(clazz, methodName, signature.data());
             ret = env->CallStaticLongMethod(clazz, method, JniWrap(env, localRefs, xs)...);
             DeleteLocalRefs(env, localRefs);
             return ret;
@@ -142,7 +143,7 @@ private:
             JNIEnv* env = GetEnvForThread();
             std::string signature = "(" + JniSignature(xs...) + ")F";
             jclass clazz = FindClass(className);
-            jmethodID method = env->GetStaticMethodID(clazz, methodName, signature.c_str());
+            jmethodID method = env->GetStaticMethodID(clazz, methodName, signature.data());
             ret = env->CallStaticFloatMethod(clazz, method, JniWrap(env, localRefs, xs)...);
             DeleteLocalRefs(env, localRefs);
             return ret;
@@ -155,7 +156,7 @@ private:
         const char* str = env->GetStringUTFChars(value, nullptr);
         result = str;
         env->ReleaseStringUTFChars(value, str);
-        //env->DeleteLocalRef(value);
+        // env->DeleteLocalRef(value);
         return result;
     }
 
@@ -186,7 +187,7 @@ private:
         jobjectArray array = env->NewObjectArray(value.size(), clazz, args);
         localRefs.push_back(args);
         for (int i = 0; i < value.size(); ++i) {
-            jstring element = env->NewStringUTF(value[i].c_str());
+            jstring element = env->NewStringUTF(value[i].data());
             env->SetObjectArrayElement(array, i, element);
             localRefs.push_back(element);
         }
@@ -208,7 +209,12 @@ private:
         return array;
     }
     static jstring JniWrap(JNIEnv* env, std::vector<jobject>& localRefs, const std::string& value) {
-        jstring str = env->NewStringUTF(value.c_str());
+        jstring str = env->NewStringUTF(value.data());
+        localRefs.push_back(str);
+        return str;
+    }
+    static jstring JniWrap(JNIEnv* env, std::vector<jobject>& localRefs, const std::string_view& value) {
+        jstring str = env->NewStringUTF(value.data());
         localRefs.push_back(str);
         return str;
     }
@@ -296,6 +302,10 @@ private:
     }
 
     static std::string JniSignature(const std::string&) {
+        return "Ljava/lang/String;";
+    }
+
+    static std::string JniSignature(const std::string_view&) {
         return "Ljava/lang/String;";
     }
 
