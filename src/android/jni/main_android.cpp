@@ -824,7 +824,6 @@ JNIEXPORT void JNICALL Java_org_citra_emu_NativeLibrary_loadAmiibo(JNIEnv* env, 
 }
 
 JNIEXPORT void JNICALL Java_org_citra_emu_NativeLibrary_ResetCamera(JNIEnv* env, jclass obj) {
-    NativeLibrary::using_front_camera = !NativeLibrary::using_front_camera;
     Settings::Apply();
 }
 
