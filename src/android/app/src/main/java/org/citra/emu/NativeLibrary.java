@@ -219,7 +219,8 @@ public final class NativeLibrary {
 
     public static void loadImageFromFile(String path) {
         BitmapFactory.Options options = new BitmapFactory.Options();
-        options.inPreferredConfig = Bitmap.Config.ARGB_8888;
+        options.inScaled = false;
+        options.inPremultiplied = false;
         Bitmap bitmap = BitmapFactory.decodeFile(path, options);
         int width = bitmap.getWidth();
         int height = bitmap.getHeight();
