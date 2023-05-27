@@ -58,6 +58,7 @@ extern const ConfigInfo<std::string> CAMERA_DEVICE;
 extern const ConfigInfo<bool> USE_HW_GS;
 extern const ConfigInfo<u8> SHADER_TYPE;
 extern const ConfigInfo<bool> ASYNC_SHADER_COMPILE;
+extern const ConfigInfo<bool> USE_COMPATIBLE_MODE;
 extern const ConfigInfo<bool> USE_PRESENT_THREAD;
 extern const ConfigInfo<bool> SHADOW_RENDERING;
 extern const ConfigInfo<bool> CPU_USAGE_LIMIT;
@@ -99,9 +100,15 @@ extern const ConfigInfo<u16> INPUT_OVERLAY_SCALE;
 extern const ConfigInfo<bool> INPUT_OVERLAY_FEEDBACK;
 extern const ConfigInfo<bool> INPUT_OVERLAY_HIDE;
 extern const ConfigInfo<bool> INPUT_JOYSTICK_RELATIVE;
+extern const ConfigInfo<u32> INPUT_JOYSTICK_RANGE;
+extern const ConfigInfo<u32> INPUT_JOYSTICK_DEADZONE;
 
 // custom layout
-extern const ConfigInfo<bool> USE_CUSTOM_LAYOUT;
+extern const ConfigInfo<bool> PORTRAIT_CUSTOM_LAYOUT;
+extern const ConfigInfo<bool> LANDSCAPE_CUSTOM_LAYOUT;
+
+extern const ConfigInfo<bool> PORTRAIT_SWAP_SCREEN;
+extern const ConfigInfo<bool> LANDSCAPE_SWAP_SCREEN;
 
 extern const ConfigInfo<u16> PORTRAIT_TOP_LEFT;
 extern const ConfigInfo<u16> PORTRAIT_TOP_TOP;

@@ -253,6 +253,8 @@ static void UpdateDisplayRotation() {
         Settings::values.custom_bottom_top = Config::Get(Config::PORTRAIT_BOTTOM_TOP);
         Settings::values.custom_bottom_right = Config::Get(Config::PORTRAIT_BOTTOM_RIGHT);
         Settings::values.custom_bottom_bottom = Config::Get(Config::PORTRAIT_BOTTOM_BOTTOM);
+        Settings::values.custom_layout = Config::Get(Config::PORTRAIT_CUSTOM_LAYOUT);
+        Settings::values.swap_screen = Config::Get(Config::PORTRAIT_SWAP_SCREEN);
     } else {
         Settings::values.layout_option = Config::Get(Config::LANDSCAPE_LAYOUT_OPTION);
         Settings::values.custom_top_left = Config::Get(Config::LANDSCAPE_TOP_LEFT);
@@ -263,6 +265,8 @@ static void UpdateDisplayRotation() {
         Settings::values.custom_bottom_top = Config::Get(Config::LANDSCAPE_BOTTOM_TOP);
         Settings::values.custom_bottom_right = Config::Get(Config::LANDSCAPE_BOTTOM_RIGHT);
         Settings::values.custom_bottom_bottom = Config::Get(Config::LANDSCAPE_BOTTOM_BOTTOM);
+        Settings::values.custom_layout = Config::Get(Config::LANDSCAPE_CUSTOM_LAYOUT);
+        Settings::values.swap_screen = Config::Get(Config::LANDSCAPE_SWAP_SCREEN);
     }
 }
 
@@ -641,7 +645,6 @@ JNIEXPORT void JNICALL Java_org_citra_emu_NativeLibrary_setCustomLayout(JNIEnv* 
                                                                         jint left, jint top,
                                                                         jint right, jint bottom) {
     Settings::values.custom_layout = true;
-    Config::Set(Config::USE_CUSTOM_LAYOUT, true);
     if (is_top_screen) {
         Settings::values.custom_top_left = left;
         Settings::values.custom_top_top = top;
@@ -653,11 +656,13 @@ JNIEXPORT void JNICALL Java_org_citra_emu_NativeLibrary_setCustomLayout(JNIEnv* 
             Config::Set(Config::PORTRAIT_TOP_TOP, top);
             Config::Set(Config::PORTRAIT_TOP_RIGHT, right);
             Config::Set(Config::PORTRAIT_TOP_BOTTOM, bottom);
+            Config::Set(Config::PORTRAIT_CUSTOM_LAYOUT, true);
         } else {
             Config::Set(Config::LANDSCAPE_TOP_LEFT, left);
             Config::Set(Config::LANDSCAPE_TOP_TOP, top);
             Config::Set(Config::LANDSCAPE_TOP_RIGHT, right);
             Config::Set(Config::LANDSCAPE_TOP_BOTTOM, bottom);
+            Config::Set(Config::LANDSCAPE_CUSTOM_LAYOUT, true);
         }
     } else {
         Settings::values.custom_bottom_left = left;
@@ -670,11 +675,13 @@ JNIEXPORT void JNICALL Java_org_citra_emu_NativeLibrary_setCustomLayout(JNIEnv* 
             Config::Set(Config::PORTRAIT_BOTTOM_TOP, top);
             Config::Set(Config::PORTRAIT_BOTTOM_RIGHT, right);
             Config::Set(Config::PORTRAIT_BOTTOM_BOTTOM, bottom);
+            Config::Set(Config::PORTRAIT_CUSTOM_LAYOUT, true);
         } else {
             Config::Set(Config::LANDSCAPE_BOTTOM_LEFT, left);
             Config::Set(Config::LANDSCAPE_BOTTOM_TOP, top);
             Config::Set(Config::LANDSCAPE_BOTTOM_RIGHT, right);
             Config::Set(Config::LANDSCAPE_BOTTOM_BOTTOM, bottom);
+            Config::Set(Config::LANDSCAPE_CUSTOM_LAYOUT, true);
         }
     }
     s_render_window->UpdateLayout();

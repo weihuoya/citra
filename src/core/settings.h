@@ -221,6 +221,7 @@ struct Values {
     bool use_hw_gs;
     bool accurate_max_min;
     bool accurate_rcp_rsq;
+    bool use_compatible_mode;
     SharedFontType shared_font_type;
     AccurateMul shaders_accurate_mul;
     std::string remote_shader_host;

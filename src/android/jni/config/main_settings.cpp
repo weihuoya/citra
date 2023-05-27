@@ -56,6 +56,7 @@ const ConfigInfo<std::string> CAMERA_DEVICE{{"Camera", "camera_type"}, "blank"};
 const ConfigInfo<bool> USE_HW_GS{{"Debug", "use_hw_gs"}, false};
 const ConfigInfo<u8> SHADER_TYPE{{"Debug", "shader_type"}, 1};
 const ConfigInfo<bool> ASYNC_SHADER_COMPILE{{"Debug", "async_shader_compile"}, false};
+const ConfigInfo<bool> USE_COMPATIBLE_MODE{{"Debug", "use_compatible_mode"}, false};
 const ConfigInfo<bool> USE_PRESENT_THREAD{{"Debug", "use_present_thread"}, true};
 const ConfigInfo<bool> SHADOW_RENDERING{{"Debug", "shadow_rendering"}, true};
 const ConfigInfo<bool> CPU_USAGE_LIMIT{{"Debug", "cpu_usage_limit"}, false};
@@ -97,9 +98,15 @@ const ConfigInfo<u16> INPUT_OVERLAY_SCALE{{"Controls", "input_overlay_scale"}, 4
 const ConfigInfo<bool> INPUT_OVERLAY_FEEDBACK{{"Controls", "input_overlay_feedback"}, true};
 const ConfigInfo<bool> INPUT_OVERLAY_HIDE{{"Controls", "input_overlay_hide"}, false};
 const ConfigInfo<bool> INPUT_JOYSTICK_RELATIVE{{"Controls", "input_joystick_relative"}, true};
+const ConfigInfo<u32> INPUT_JOYSTICK_RANGE{{"Controls", "input_joystick_range"}, 100};
+const ConfigInfo<u32> INPUT_JOYSTICK_DEADZONE{{"Controls", "input_joystick_deadzone"}, 0};
 
 // custom layout
-const ConfigInfo<bool> USE_CUSTOM_LAYOUT{{"Layout", "custom_layout"}, false};
+const ConfigInfo<bool> PORTRAIT_CUSTOM_LAYOUT{{"Layout", "portrait_custom_layout"}, false};
+const ConfigInfo<bool> LANDSCAPE_CUSTOM_LAYOUT{{"Layout", "landscape_custom_layout"}, false};
+
+const ConfigInfo<bool> PORTRAIT_SWAP_SCREEN{{"Layout", "portrait_swap_screen"}, false};
+const ConfigInfo<bool> LANDSCAPE_SWAP_SCREEN{{"Layout", "landscape_swap_screen"}, false};
 
 const ConfigInfo<u16> PORTRAIT_TOP_LEFT{{"Layout", "portrait_top_left"}, 0};
 const ConfigInfo<u16> PORTRAIT_TOP_TOP{{"Layout", "portrait_top_top"}, 0};
