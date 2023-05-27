@@ -37,6 +37,7 @@
     <string name="setting_use_hw_gs">Habilitar sombreador de geometría</string>
     <string name="setting_shadow_rendering">Enable Shadow Rendering</string>
     <string name="setting_async_shader_compile">Asynchronous Shader Compilation</string>
+    <string name="setting_use_compatible_mode">Use Compatible Mode</string>
     <string name="use_haptic_feedback">Retroalimentación háptica (vibración)</string>
     <string name="joystick_relative_center">Centro relativo de uso del joystick</string>
     <string name="hide_input_overlay">Ocultar botones virtuales</string>
@@ -266,6 +267,9 @@
     <string name="delete_shader_cache">Eliminar caché de sombreado</string>
     <string name="delete_confirm_notice">¿Estás seguro de eliminar el directorio de archivos del juego?</string>
 
+    <string name="controller_gamepad">Gamepad</string>
+    <string name="joystick_range">Joystick Range</string>
+    <string name="joystick_deadzone">Joystick Deadzone</string>
     <string name="controller_stick">Joystick principal</string>
     <string name="c_controller_stick">Joystick C</string>
     <string name="controller_dpad">D-Pad</string>

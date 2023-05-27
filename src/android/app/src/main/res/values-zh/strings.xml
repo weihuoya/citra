@@ -37,6 +37,7 @@
     <string name="setting_use_hw_gs">启用几何着色器</string>
     <string name="setting_shadow_rendering">启用阴影渲染</string>
     <string name="setting_async_shader_compile">着色器异步编译</string>
+    <string name="setting_use_compatible_mode">使用兼容模式</string>
     <string name="use_haptic_feedback">按键反馈（震动）</string>
     <string name="joystick_relative_center">摇杆使用相对位置</string>
     <string name="hide_input_overlay">隐藏屏幕按键</string>
@@ -266,6 +267,9 @@
     <string name="delete_shader_cache">删除着色器缓存</string>
     <string name="delete_confirm_notice">确定删除游戏安装目录？</string>
 
+    <string name="controller_gamepad">手柄</string>
+    <string name="joystick_range">摇杆范围</string>
+    <string name="joystick_deadzone">摇杆死区</string>
     <string name="controller_stick">主摇杆</string>
     <string name="c_controller_stick">C 摇杆</string>
     <string name="controller_dpad">方向键</string>

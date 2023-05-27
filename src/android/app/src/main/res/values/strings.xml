@@ -37,6 +37,7 @@
     <string name="setting_use_hw_gs">Enable Geometry Shader</string>
     <string name="setting_shadow_rendering">Enable Shadow Rendering</string>
     <string name="setting_async_shader_compile">Asynchronous Shader Compilation</string>
+    <string name="setting_use_compatible_mode">Use Compatible Mode</string>
     <string name="use_haptic_feedback">Haptic Feedback (Vibration)</string>
     <string name="joystick_relative_center">Joystick use relative center</string>
     <string name="hide_input_overlay">Hide Input Buttons</string>
@@ -266,6 +267,9 @@
     <string name="delete_shader_cache">Delete Shader Cache</string>
     <string name="delete_confirm_notice">Are you sure to delete the game install directory?</string>
 
+    <string name="controller_gamepad">Gamepad</string>
+    <string name="joystick_range">Joystick Range</string>
+    <string name="joystick_deadzone">Joystick Deadzone</string>
     <string name="controller_stick">Main Stick</string>
     <string name="c_controller_stick">C Stick</string>
     <string name="controller_dpad">D-Pad</string>
