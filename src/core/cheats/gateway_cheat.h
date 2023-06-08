@@ -41,6 +41,7 @@ public:
         AddOffset = 0xDC,
         Joker = 0xDD,
         Patch = 0xE,
+        ShowText= 0xF,
     };
 
     struct CheatLine {

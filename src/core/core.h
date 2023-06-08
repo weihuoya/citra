@@ -272,6 +272,8 @@ public:
     ///
     void SetCpuUsageLimit(bool enabled);
 
+    std::vector<std::string> cheat_texts;
+
 private:
     /**
      * Initialize the emulated system.

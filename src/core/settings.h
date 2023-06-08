@@ -226,6 +226,8 @@ struct Values {
     AccurateMul shaders_accurate_mul;
     std::string remote_shader_host;
     u8 force_texture_filter;
+    float joystick_range;
+    float joystick_deadzone;
 
     // WebService
     std::string web_api_url;
