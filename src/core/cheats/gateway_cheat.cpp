@@ -178,6 +178,31 @@ static inline void PatchOp(const GatewayCheat::CheatLine& line, State& state, Co
     }
 }
 
+static inline void ShowText(const GatewayCheat::CheatLine& line, State& state,
+                            Core::System& system) {
+    std::string result;
+    std::array<char, 7> texts;
+    texts[0] = (line.address >> 16) & 0xFF;
+    texts[1] = (line.address >>  8) & 0xFF;
+    texts[2] = (line.address >>  0) & 0xFF;
+
+    texts[3] = (line.value >> 24) & 0xFF;
+    texts[4] = (line.value >>  16) & 0xFF;
+    texts[5] = (line.value >>  8) & 0xFF;
+    texts[6] = (line.value >>  0) & 0xFF;
+
+    for (auto c : texts) {
+        if (c > 0) {
+            result += c;
+        } else {
+            break;
+        }
+    }
+
+    result += std::to_string(state.reg);
+    system.cheat_texts.emplace_back(std::move(result));
+}
+
 GatewayCheat::CheatLine::CheatLine(const std::string& line) {
     constexpr std::size_t cheat_length = 17;
     if (line.length() != cheat_length) {
@@ -230,6 +255,7 @@ GatewayCheat::~GatewayCheat() = default;
 void GatewayCheat::Execute(Core::System& system) const {
     State state;
 
+    system.cheat_texts.clear();
     Memory::MemorySystem& memory = system.Memory();
     auto Read8 = [&memory](VAddr addr) { return memory.Read8(addr); };
     auto Read16 = [&memory](VAddr addr) { return memory.Read16(addr); };
@@ -416,6 +442,11 @@ void GatewayCheat::Execute(Core::System& system) const {
             // EXXXXXXX YYYYYYYY
             // Copies YYYYYYYY bytes from (current code location + 8) to [XXXXXXXX + offset].
             PatchOp(line, state, system, cheat_lines);
+            break;
+        }
+        case CheatType::ShowText: {
+            // F0XXXXXX XXXXXXXX
+            ShowText(line, state, system);
             break;
         }
         }
