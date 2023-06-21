@@ -78,15 +78,14 @@ public:
     std::unique_ptr<Input::ButtonDevice> CreateButton(int button_id, float threshold,
                                                       bool trigger_if_greater) {
         std::lock_guard<std::mutex> guard(mutex);
-        std::unique_ptr<AnalogButton> button =
-            std::make_unique<AnalogButton>(this, button_id, threshold, trigger_if_greater);
+        auto button = std::make_unique<AnalogButton>(this, button_id, threshold, trigger_if_greater);
         buttons.push_back(button.get());
         return std::move(button);
     }
 
     void DestroyButton(AnalogButton* target) {
         std::lock_guard<std::mutex> guard(mutex);
-        buttons.erase(std::remove(buttons.begin(), buttons.end(), target), buttons.end());
+        std::erase(buttons, target);
     }
 
     bool ChangeButtonValue(int button_id, float value) {
@@ -156,14 +155,14 @@ private:
 public:
     std::unique_ptr<Input::AnalogDevice> CreateButton(int button_id) {
         std::lock_guard<std::mutex> guard(mutex);
-        std::unique_ptr<Joystick> analog = std::make_unique<Joystick>(this, button_id);
+        auto analog = std::make_unique<Joystick>(this, button_id);
         buttons.push_back(analog.get());
         return std::move(analog);
     }
 
     void DestroyButton(Joystick* target) {
         std::lock_guard<std::mutex> guard(mutex);
-        buttons.erase(std::remove(buttons.begin(), buttons.end(), target), buttons.end());
+        std::erase(buttons, target);
     }
 
     bool ChangeJoystickStatus(int button_id, float x, float y) {

@@ -214,6 +214,7 @@ public final class NativeLibrary {
             } catch (Exception e) {
                 Log.e("citra", "saveImageToFile error: " + path, e);
             }
+            bitmap.recycle();
         }
     }
 
