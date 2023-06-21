@@ -103,6 +103,7 @@ public final class EmulationFragment extends Fragment implements SurfaceHolder.C
                     error = TranslateHelper.RequestYeekit();
                 }
             }
+            image.recycle();
             return error;
         }
 
@@ -461,6 +462,7 @@ public final class EmulationFragment extends Fragment implements SurfaceHolder.C
                 BaiduOCRTask task = new BaiduOCRTask(this);
                 TranslateHelper.BaiduOCRLanguage = TranslateHelper.BaiduOCRLanguageJPN;
                 task.execute(image);
+                screenshot.recycle();
             });
         });
     }

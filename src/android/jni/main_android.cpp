@@ -114,6 +114,7 @@ void BootGame(const std::string& path) {
                                              "Error while loading ROM! An unknown error occured.");
             break;
         }
+        s_render_window.reset();
         return;
     }
 
@@ -627,6 +628,7 @@ JNIEXPORT void JNICALL Java_org_citra_emu_NativeLibrary_setRunningSettings(JNIEn
 
     // Accurate Mul
     Settings::values.shaders_accurate_mul = static_cast<Settings::AccurateMul>(settings[i++]);
+    Config::Set(Config::SHADERS_ACCURATE_MUL, Settings::values.shaders_accurate_mul);
 
     // Custom Layout
     Settings::values.custom_layout = settings[i++] > 0;
