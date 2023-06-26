@@ -57,6 +57,11 @@ extern const ConfigInfo<std::string> CAMERA_DEVICE;
 // debug
 extern const ConfigInfo<bool> USE_HW_GS;
 extern const ConfigInfo<u8> SHADER_TYPE;
+extern const ConfigInfo<bool> USE_FMV_HACK;
+extern const ConfigInfo<bool> SKIP_SLOW_DRAW;
+extern const ConfigInfo<bool> SKIP_CPU_WRITE;
+extern const ConfigInfo<bool> SKIP_TEXTURE_COPY;
+extern const ConfigInfo<u8> FORCE_TEXTURE_FILTER;
 extern const ConfigInfo<bool> ASYNC_SHADER_COMPILE;
 extern const ConfigInfo<bool> USE_COMPATIBLE_MODE;
 extern const ConfigInfo<bool> USE_PRESENT_THREAD;

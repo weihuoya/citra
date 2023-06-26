@@ -592,15 +592,19 @@ JNIEXPORT void JNICALL Java_org_citra_emu_NativeLibrary_setRunningSettings(JNIEn
 
     // Skip Slow Draw
     Settings::values.skip_slow_draw = settings[i++] > 0;
+    Config::Set(Config::SKIP_SLOW_DRAW, Settings::values.skip_slow_draw);
 
     // Skip CPU Write
     Settings::values.skip_cpu_write = settings[i++] > 0;
+    Config::Set(Config::SKIP_CPU_WRITE, Settings::values.skip_cpu_write);
 
     // Skip Texture Copy
     Settings::values.skip_texture_copy = settings[i++] > 0;
+    Config::Set(Config::SKIP_TEXTURE_COPY, Settings::values.skip_texture_copy);
 
     // Use Linear Filter
     Settings::values.force_texture_filter = settings[i++];
+    Config::Set(Config::FORCE_TEXTURE_FILTER, Settings::values.force_texture_filter);
 
     // Use HW GS
     Settings::values.use_hw_gs = settings[i++] > 0;
