@@ -55,6 +55,11 @@ const ConfigInfo<std::string> CAMERA_DEVICE{{"Camera", "camera_type"}, "blank"};
 // debug
 const ConfigInfo<bool> USE_HW_GS{{"Debug", "use_hw_gs"}, false};
 const ConfigInfo<u8> SHADER_TYPE{{"Debug", "shader_type"}, 1};
+const ConfigInfo<bool> USE_FMV_HACK{{"Debug", "use_fmv_hack"}, false};
+const ConfigInfo<bool> SKIP_SLOW_DRAW{{"Debug", "skip_slow_draw"}, false};
+const ConfigInfo<bool> SKIP_CPU_WRITE{{"Debug", "skip_cpu_write"}, false};
+const ConfigInfo<bool> SKIP_TEXTURE_COPY{{"Debug", "skip_texture_copy"}, false};
+const ConfigInfo<u8> FORCE_TEXTURE_FILTER{{"Debug", "force_texture_filter"}, 0};
 const ConfigInfo<bool> ASYNC_SHADER_COMPILE{{"Debug", "async_shader_compile"}, false};
 const ConfigInfo<bool> USE_COMPATIBLE_MODE{{"Debug", "use_compatible_mode"}, false};
 const ConfigInfo<bool> USE_PRESENT_THREAD{{"Debug", "use_present_thread"}, true};

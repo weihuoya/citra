@@ -50,6 +50,8 @@ import java.util.List;
 
 import org.citra.emu.R;
 import org.citra.emu.model.GameFile;
+import org.citra.emu.settings.MenuTag;
+import org.citra.emu.settings.SettingsActivity;
 import org.citra.emu.utils.CitraDirectory;
 
 public final class EditorActivity extends AppCompatActivity {
@@ -319,6 +321,10 @@ public final class EditorActivity extends AppCompatActivity {
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
+            case R.id.menu_settings_core:
+                SettingsActivity.launch(this, MenuTag.CONFIG, mGameId);
+                return true;
+
             case R.id.menu_open_archive:
                 jumpToExplore();
                 return true;
@@ -434,7 +440,7 @@ public final class EditorActivity extends AppCompatActivity {
     }
 
     private void deleteShaderCache() {
-        String dir = CitraDirectory.getUserDirectory() + "/Cache/";
+        String dir = CitraDirectory.getUserDirectory() + "/cache/";
         File cache = new File(dir + mGameId + ".cache");
         File shader = new File(dir + mGameId + ".shader");
         File meta = new File(dir + mGameId + ".shader.meta");

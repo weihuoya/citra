@@ -3,6 +3,12 @@
       xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <item
+        android:id="@+id/menu_settings_core"
+        android:title="@string/preferences_settings"
+        android:icon="@mipmap/ic_settings_core"
+        app:showAsAction="ifRoom"/>
+
+    <item
         android:id="@+id/menu_manage_cheats"
         android:title="@string/menu_manage_cheats"
         app:showAsAction="never"/>
