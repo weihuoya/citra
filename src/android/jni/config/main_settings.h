@@ -44,12 +44,12 @@ extern const ConfigInfo<bool> ENABLE_DSP_LLE;
 extern const ConfigInfo<bool> DSP_LLE_MULTITHREAD;
 extern const ConfigInfo<bool> AUDIO_STRETCHING;
 extern const ConfigInfo<float> AUDIO_VOLUME;
-extern const ConfigInfo<std::string> AUDIO_ENGINE;
-extern const ConfigInfo<std::string> AUDIO_DEVICE;
+extern const ConfigInfo<u8> AUDIO_OUTPUT_TYPE;
+extern const ConfigInfo<std::string> AUDIO_OUTPUT_DEVICE;
 
 // mic
-extern const ConfigInfo<Settings::MicInputType> MIC_INPUT_TYPE;
-extern const ConfigInfo<std::string> MIC_INPUT_DEVICE;
+extern const ConfigInfo<u8> AUDIO_INPUT_TYPE;
+extern const ConfigInfo<std::string> AUDIO_INPUT_DEVICE;
 
 // camera
 extern const ConfigInfo<std::string> CAMERA_DEVICE;

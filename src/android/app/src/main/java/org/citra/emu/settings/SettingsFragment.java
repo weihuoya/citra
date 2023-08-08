@@ -221,22 +221,20 @@ public final class SettingsFragment extends Fragment {
         // audio
         sl.add(new HeaderSetting(null, null, R.string.setting_header_audio, 0));
         SettingSection audioSection = mSettings.getSection(Settings.SECTION_INI_AUDIO);
-        Setting audioOutput = audioSection.getSetting(SettingsFile.KEY_AUDIO_ENGINE);
+        Setting audioOutput = audioSection.getSetting(SettingsFile.KEY_AUDIO_OUTPUT_TYPE);
         Setting audioStretching = audioSection.getSetting(SettingsFile.KEY_AUDIO_STRETCHING);
 
-        stringEntries = getResources().getStringArray(R.array.audioOuputEntries);
-        stringValues = getResources().getStringArray(R.array.audioOuputValues);
-        sl.add(new StringSingleChoiceSetting(
-            SettingsFile.KEY_AUDIO_ENGINE, Settings.SECTION_INI_AUDIO,
-            R.string.setting_audio_output, 0, stringEntries, stringValues, "auto", audioOutput));
+        sl.add(new SingleChoiceSetting(
+            SettingsFile.KEY_AUDIO_OUTPUT_TYPE, Settings.SECTION_INI_AUDIO,
+            R.string.setting_audio_output, 0, R.array.audioOuputEntries, R.array.audioOuputValues, 2, audioOutput));
         sl.add(new CheckBoxSetting(SettingsFile.KEY_AUDIO_STRETCHING, Settings.SECTION_INI_AUDIO,
                                    R.string.setting_audio_stretching, R.string.setting_audio_stretching_description, false, audioStretching));
 
         // mic
-        Setting micType = audioSection.getSetting(SettingsFile.KEY_MIC_INPUT_TYPE);
-        sl.add(new SingleChoiceSetting(SettingsFile.KEY_MIC_INPUT_TYPE, Settings.SECTION_INI_AUDIO,
+        Setting micType = audioSection.getSetting(SettingsFile.KEY_AUDIO_INPUT_TYPE);
+        sl.add(new SingleChoiceSetting(SettingsFile.KEY_AUDIO_INPUT_TYPE, Settings.SECTION_INI_AUDIO,
                                        R.string.setting_audio_mic_type, 0, R.array.micInputEntries,
-                                       R.array.micInputValues, 0, micType));
+                                       R.array.micInputValues, 1, micType));
         // camera
         sl.add(new HeaderSetting(null, null, R.string.setting_header_camera, 0));
         SettingSection cameraSection = mSettings.getSection(Settings.SECTION_INI_CAMERA);
@@ -290,6 +288,9 @@ public final class SettingsFragment extends Fragment {
         Setting buttonSelect = bindingsSection.getSetting(SettingsFile.KEY_BUTTON_SELECT);
         Setting buttonHome = bindingsSection.getSetting(SettingsFile.KEY_BUTTON_HOME);
         Setting debugHome = bindingsSection.getSetting(SettingsFile.KEY_BUTTON_DEBUG);
+
+        Setting joystickRange = bindingsSection.getSetting(SettingsFile.KEY_JOYSTICK_RANGE);
+        Setting deadzone = bindingsSection.getSetting(SettingsFile.KEY_JOYSTICK_DEADZONE);
 
         sl.add(new HeaderSetting(null, null, R.string.generic_buttons, 0));
         sl.add(new InputBindingSetting(SettingsFile.KEY_BUTTON_A, Settings.SECTION_INI_CONTROLS,
@@ -350,6 +351,12 @@ public final class SettingsFragment extends Fragment {
                 R.string.button_left, cstickLeft));
         sl.add(new InputBindingSetting(SettingsFile.KEY_C_STICK_RIGHT, Settings.SECTION_INI_CONTROLS,
                 R.string.button_right, cstickRight));
+
+        sl.add(new HeaderSetting(null, null, R.string.controller_gamepad, 0));
+        sl.add(new SliderSetting(SettingsFile.KEY_JOYSTICK_RANGE, Settings.SECTION_INI_CONTROLS,
+                R.string.joystick_range, 0, 200, "", 100, joystickRange));
+        sl.add(new SliderSetting(SettingsFile.KEY_JOYSTICK_DEADZONE, Settings.SECTION_INI_CONTROLS,
+                R.string.joystick_deadzone, 0, 100, "", 0, deadzone));
 
         return sl;
     }

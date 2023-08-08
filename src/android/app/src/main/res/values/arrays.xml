@@ -105,10 +105,10 @@
         <item>@string/off</item>
         <item>Cubeb</item>
     </string-array>
-    <string-array name="audioOuputValues">
-        <item>null</item>
-        <item>cubeb</item>
-    </string-array>
+    <integer-array name="audioOuputValues">
+        <item>1</item>
+        <item>2</item>
+    </integer-array>
 
     <!-- Camera Preference -->
     <string-array name="cameraEntries">
@@ -129,9 +129,9 @@
         <item>@string/real_device</item>
     </string-array>
     <integer-array name="micInputValues">
-        <item>0</item>
-        <item>2</item>
         <item>1</item>
+        <item>2</item>
+        <item>3</item>
     </integer-array>
 
     <!-- Shader Type Preference -->

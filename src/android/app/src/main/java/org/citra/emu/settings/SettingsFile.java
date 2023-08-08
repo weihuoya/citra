@@ -48,11 +48,11 @@ public final class SettingsFile {
     public static final String KEY_ENABLE_DSP_LLE = "enable_dsp_lle";
     public static final String KEY_AUDIO_STRETCHING = "enable_audio_stretching";
     public static final String KEY_AUDIO_VOLUME = "volume";
-    public static final String KEY_AUDIO_ENGINE = "output_engine";
-    public static final String KEY_AUDIO_DEVICE = "output_device";
+    public static final String KEY_AUDIO_OUTPUT_TYPE = "audio_output_type";
+    public static final String KEY_AUDIO_OUTPUT_DEVICE = "audio_output_device";
     // mic
-    public static final String KEY_MIC_INPUT_TYPE = "mic_input_type";
-    public static final String KEY_MIC_INPUT_DEVICE = "mic_input_device";
+    public static final String KEY_AUDIO_INPUT_TYPE = "audio_input_type";
+    public static final String KEY_AUDIO_INPUT_DEVICE = "audio_input_device";
     // camera
     public static final String KEY_CAMERA_TYPE = "camera_type";
     // ocr
@@ -86,6 +86,8 @@ public final class SettingsFile {
     public static final String KEY_C_STICK_DOWN = "c_stick_down";
     public static final String KEY_C_STICK_LEFT = "c_stick_left";
     public static final String KEY_C_STICK_RIGHT = "c_stick_right";
+    public static final String KEY_JOYSTICK_RANGE = "input_joystick_range";
+    public static final String KEY_JOYSTICK_DEADZONE = "input_joystick_deadzone";
 
     /**
      * Reads a given .ini file from disk and returns it as a HashMap of Settings, themselves

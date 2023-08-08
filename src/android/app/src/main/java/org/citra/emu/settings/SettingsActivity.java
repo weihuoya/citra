@@ -19,25 +19,24 @@ import org.citra.emu.utils.CitraDirectory;
 import java.io.File;
 
 public final class SettingsActivity extends AppCompatActivity {
-
-    private static final String ARG_MENU_TAG = "menu_tag";
-    private static final String ARG_GAME_ID = "game_id";
     private static final String FRAGMENT_TAG = "settings";
 
     private static final String KEY_SHOULD_SAVE = "should_save";
     private static final String KEY_MENU_TAG = "menu_tag";
     private static final String KEY_GAME_ID = "game_id";
+    private static final String KEY_GAME_NAME = "game_name";
 
     private Settings mSettings = new Settings();
-    private int mStackCount;
     private boolean mShouldSave;
     private MenuTag mMenuTag;
     private String mGameId;
+    private String mGameName;
 
-    public static void launch(Context context, MenuTag menuTag, String gameId) {
+    public static void launch(Context context, MenuTag menuTag, String gameId, String gameName) {
         Intent settings = new Intent(context, SettingsActivity.class);
-        settings.putExtra(ARG_MENU_TAG, menuTag.toString());
-        settings.putExtra(ARG_GAME_ID, gameId);
+        settings.putExtra(KEY_MENU_TAG, menuTag.toString());
+        settings.putExtra(KEY_GAME_ID, gameId);
+        settings.putExtra(KEY_GAME_NAME, gameName);
         context.startActivity(settings);
     }
 
@@ -51,14 +50,20 @@ public final class SettingsActivity extends AppCompatActivity {
 
         if (savedInstanceState == null) {
             Intent intent = getIntent();
-            String menuTagStr = intent.getStringExtra(ARG_MENU_TAG);
+            String menuTagStr = intent.getStringExtra(KEY_MENU_TAG);
             mMenuTag = MenuTag.getMenuTag(menuTagStr);
-            mGameId = intent.getStringExtra(ARG_GAME_ID);
+            mGameId = intent.getStringExtra(KEY_GAME_ID);
+            mGameName = intent.getStringExtra(KEY_GAME_NAME);
         } else {
             String menuTagStr = savedInstanceState.getString(KEY_MENU_TAG);
             mShouldSave = savedInstanceState.getBoolean(KEY_SHOULD_SAVE);
             mMenuTag = MenuTag.getMenuTag(menuTagStr);
             mGameId = savedInstanceState.getString(KEY_GAME_ID);
+            mGameName = savedInstanceState.getString(KEY_GAME_NAME);
+        }
+
+        if (!mGameName.isEmpty()) {
+            setTitle(mGameName);
         }
     }
 
@@ -70,6 +75,7 @@ public final class SettingsActivity extends AppCompatActivity {
         outState.putBoolean(KEY_SHOULD_SAVE, mShouldSave);
         outState.putString(KEY_MENU_TAG, mMenuTag.toString());
         outState.putString(KEY_GAME_ID, mGameId);
+        outState.putString(KEY_GAME_NAME, mGameName);
     }
 
     @Override
@@ -136,7 +142,6 @@ public final class SettingsActivity extends AppCompatActivity {
             }
 
             transaction.addToBackStack(null);
-            mStackCount++;
         }
         transaction.replace(R.id.frame_content,
                             SettingsFragment.newInstance(menuTag, gameID, extras), FRAGMENT_TAG);

@@ -41,13 +41,12 @@ const ConfigInfo<bool> ENABLE_DSP_LLE{{"Audio", "enable_dsp_lle"}, false};
 const ConfigInfo<bool> DSP_LLE_MULTITHREAD{{"Audio", "dsp_lle_multithread"}, true};
 const ConfigInfo<bool> AUDIO_STRETCHING{{"Audio", "enable_audio_stretching"}, false};
 const ConfigInfo<float> AUDIO_VOLUME{{"Audio", "volume"}, 1.0F};
-const ConfigInfo<std::string> AUDIO_ENGINE{{"Audio", "output_engine"}, "auto"};
-const ConfigInfo<std::string> AUDIO_DEVICE{{"Audio", "output_device"}, "auto"};
+const ConfigInfo<u8> AUDIO_OUTPUT_TYPE{{"Audio", "audio_output_type"}, 2};
+const ConfigInfo<std::string> AUDIO_OUTPUT_DEVICE{{"Audio", "audio_output_device"}, "auto"};
 
 // mic
-const ConfigInfo<Settings::MicInputType> MIC_INPUT_TYPE{{"Audio", "mic_input_type"},
-                                                        Settings::MicInputType::None};
-const ConfigInfo<std::string> MIC_INPUT_DEVICE{{"Audio", "mic_input_device"}, "Default"};
+const ConfigInfo<u8> AUDIO_INPUT_TYPE{{"Audio", "audio_input_type"}, 1};
+const ConfigInfo<std::string> AUDIO_INPUT_DEVICE{{"Audio", "audio_input_device"}, "auto"};
 
 // camera
 const ConfigInfo<std::string> CAMERA_DEVICE{{"Camera", "camera_type"}, "blank"};
