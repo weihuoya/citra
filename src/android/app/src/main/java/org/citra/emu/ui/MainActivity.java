@@ -400,11 +400,11 @@ public final class MainActivity extends AppCompatActivity {
                     return true;
 
                 case R.id.menu_settings_core:
-                    SettingsActivity.launch(this, MenuTag.CONFIG, "");
+                    SettingsActivity.launch(this, MenuTag.CONFIG, "", "");
                     return true;
 
                 case R.id.menu_input_binding:
-                    SettingsActivity.launch(this, MenuTag.INPUT, "");
+                    SettingsActivity.launch(this, MenuTag.INPUT, "", "");
                     return true;
 
                 case R.id.menu_combo_key:

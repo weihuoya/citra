@@ -265,8 +265,8 @@ public final class SettingsAdapter extends RecyclerView.Adapter<SettingViewHolde
             // Get the backing Setting, which may be null (if for example it was missing from the
             // file)
             IntSetting setting = scSetting.setSelectedValue(value);
-            if (scSetting.getSetting().getKey().equals(SettingsFile.KEY_MIC_INPUT_TYPE) &&
-                value == 1) {
+            if (scSetting.getSetting().getKey().equals(SettingsFile.KEY_AUDIO_INPUT_TYPE) &&
+                value == 3) {
                 PermissionsHandler.checkRecordPermission(mActivity);
             }
             if (setting != null) {
