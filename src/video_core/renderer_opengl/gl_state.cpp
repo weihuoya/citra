@@ -342,13 +342,6 @@ GLuint OpenGLState::BindVertexArray(GLuint array) {
     return previous;
 }
 
-GLuint OpenGLState::BindVertexBuffer(GLuint buffer) {
-    GLuint previous = cur_state.draw.vertex_buffer;
-    glBindBuffer(GL_ARRAY_BUFFER, buffer);
-    cur_state.draw.vertex_buffer = buffer;
-    return previous;
-}
-
 GLuint OpenGLState::BindUniformBuffer(GLuint buffer) {
     GLuint previous = cur_state.draw.uniform_buffer;
     glBindBuffer(GL_UNIFORM_BUFFER, buffer);
@@ -388,23 +381,18 @@ GLuint OpenGLState::BindReadFramebuffer(GLuint framebuffer) {
 
 GLuint OpenGLState::BindDrawFramebuffer(GLuint framebuffer) {
     GLuint previous = cur_state.draw.draw_framebuffer;
-    glBindFramebuffer(GL_DRAW_FRAMEBUFFER, framebuffer);
-    cur_state.draw.draw_framebuffer = framebuffer;
+    if (previous != framebuffer) {
+        glBindFramebuffer(GL_DRAW_FRAMEBUFFER, framebuffer);
+        cur_state.draw.draw_framebuffer = framebuffer;
+    }
     return previous;
 }
 
-GLuint OpenGLState::BindRenderbuffer(GLuint buffer) {
-    GLuint previous = cur_state.renderbuffer;
-    glBindRenderbuffer(GL_RENDERBUFFER, buffer);
-    cur_state.renderbuffer = buffer;
+GLuint OpenGLState::BindShaderProgram(GLuint program) {
+    GLuint previous = cur_state.draw.shader_program;
+    glUseProgram(program);
+    cur_state.draw.shader_program = program;
     return previous;
-}
-
-GLuint OpenGLState::BindShaderProgram(GLuint shader) {
-    GLuint previous_shader = cur_state.draw.shader_program;
-    glUseProgram(shader);
-    cur_state.draw.shader_program = shader;
-    return previous_shader;
 }
 
 void OpenGLState::ResetTexture(GLuint handle) {
@@ -514,13 +502,6 @@ void OpenGLState::ResetFramebuffer(GLuint handle) {
     if (cur_state.draw.draw_framebuffer == handle) {
         cur_state.draw.draw_framebuffer = 0;
         glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
-    }
-}
-
-void OpenGLState::ResetRenderbuffer(GLuint handle) {
-    if (cur_state.renderbuffer == handle) {
-        cur_state.renderbuffer = 0;
-        glBindRenderbuffer(GL_RENDERBUFFER, 0);
     }
 }
 

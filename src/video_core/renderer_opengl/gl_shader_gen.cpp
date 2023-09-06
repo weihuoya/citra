@@ -154,13 +154,17 @@ PicaFSConfig PicaFSConfig::BuildFromRegs(const Pica::Regs& regs) {
     // We don't sync const_color here because of the high variance, it is a
     // shader uniform instead.
     const auto& tev_stages = regs.texturing.GetTevStages();
-    DEBUG_ASSERT(state.tev_stages.size() == tev_stages.size());
     for (std::size_t i = 0; i < tev_stages.size(); i++) {
         const auto& tev_stage = tev_stages[i];
         state.tev_stages[i].sources_raw = tev_stage.sources_raw;
         state.tev_stages[i].modifiers_raw = tev_stage.modifiers_raw;
         state.tev_stages[i].ops_raw = tev_stage.ops_raw;
         state.tev_stages[i].scales_raw = tev_stage.scales_raw;
+        if (tev_stage.color_op == TevStageConfig::Operation::Dot3_RGBA) {
+            state.tev_stages[i].sources_raw &= 0xFFF;
+            state.tev_stages[i].modifiers_raw &= 0xFFF;
+            state.tev_stages[i].ops_raw &= 0xF;
+        }
     }
 
     state.fog_mode = regs.texturing.fog_mode;
