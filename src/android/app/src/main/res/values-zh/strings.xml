@@ -25,7 +25,10 @@
     <string name="copy_success">复制成功！</string>
     <string name="keyboard_please_input">请输入：</string>
     <string name="input_text_max_length">输入长度限制：%1$d.</string>
-    <string name="text_amiibo_hint">Amiibo 目录是空的！</string>
+    <string name="text_amiibo">Amiibo</string>
+    <string name="text_load_amiibo">加载</string>
+    <string name="text_remove_amiibo">移除</string>
+    <string name="text_amiibo_hint">Amiibo 目录是空的！(citra-emu/amiibo)</string>
     <string name="main_choose_directory">选择目录</string>
 
     <string name="setting_core_ticks_hack">FMV Hack</string>
@@ -34,7 +37,7 @@
     <string name="setting_skip_texture_copy">跳过纹理复制</string>
     <string name="setting_use_linear_filter">使用线性过滤</string>
     <string name="setting_force_texture_filter">强制纹理过滤</string>
-    <string name="setting_use_hw_gs">启用几何着色器</string>
+    <string name="setting_hw_gs_mode">几何着色器</string>
     <string name="setting_shadow_rendering">启用阴影渲染</string>
     <string name="setting_async_shader_compile">着色器异步编译</string>
     <string name="setting_use_compatible_mode">使用兼容模式</string>
@@ -213,6 +216,7 @@
     <string name="side_screen">并排显示</string>
     <string name="default_value">默认</string>
     <string name="auto">自动</string>
+    <string name="enable">启用</string>
     <string name="off">关闭</string>
     <string name="nearest">临近</string>
     <string name="linear">线性</string>

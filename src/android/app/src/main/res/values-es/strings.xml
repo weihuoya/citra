@@ -25,7 +25,10 @@
     <string name="copy_success">Copiado correctamente!</string>
     <string name="keyboard_please_input">Texto:</string>
     <string name="input_text_max_length">Longitud máxima de texto: %1$d.</string>
-    <string name="text_amiibo_hint">El directorio amiibo está vacío!</string>
+    <string name="text_amiibo">Amiibo</string>
+    <string name="text_load_amiibo">Load</string>
+    <string name="text_remove_amiibo">Remove</string>
+    <string name="text_amiibo_hint">El directorio amiibo está vacío! (citra-emu/amiibo)</string>
     <string name="main_choose_directory">Elegir directorio</string>
 
     <string name="setting_core_ticks_hack">Hack de FMV</string>
@@ -34,7 +37,7 @@
     <string name="setting_skip_texture_copy">Saltar copia de textura</string>
     <string name="setting_use_linear_filter">Usar filtro lineal</string>
     <string name="setting_force_texture_filter">Force Texture Filter</string>
-    <string name="setting_use_hw_gs">Habilitar sombreador de geometría</string>
+    <string name="setting_hw_gs_mode">Sombreador de geometría</string>
     <string name="setting_shadow_rendering">Enable Shadow Rendering</string>
     <string name="setting_async_shader_compile">Asynchronous Shader Compilation</string>
     <string name="setting_use_compatible_mode">Use Compatible Mode</string>
@@ -213,6 +216,7 @@
     <string name="side_screen">Dos pantallas</string>
     <string name="default_value">Por defecto</string>
     <string name="auto">Automático</string>
+    <string name="enable">Habilitar</string>
     <string name="off">Desactivado</string>
     <string name="nearest">Nearest</string>
     <string name="linear">Linear</string>

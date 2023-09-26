@@ -55,7 +55,7 @@ extern const ConfigInfo<std::string> AUDIO_INPUT_DEVICE;
 extern const ConfigInfo<std::string> CAMERA_DEVICE;
 
 // debug
-extern const ConfigInfo<bool> USE_HW_GS;
+extern const ConfigInfo<u8> HW_GS_MODE;
 extern const ConfigInfo<u8> SHADER_TYPE;
 extern const ConfigInfo<bool> USE_FMV_HACK;
 extern const ConfigInfo<bool> SKIP_SLOW_DRAW;
@@ -89,6 +89,7 @@ extern const ConfigInfo<std::string> BUTTON_GPIO14;
 extern const ConfigInfo<std::string> BUTTON_ZL;
 extern const ConfigInfo<std::string> BUTTON_ZR;
 extern const ConfigInfo<std::string> BUTTON_HOME;
+extern const ConfigInfo<std::string> BUTTON_POWER;
 extern const ConfigInfo<std::string> CIRCLE_PAD_UP;
 extern const ConfigInfo<std::string> CIRCLE_PAD_DOWN;
 extern const ConfigInfo<std::string> CIRCLE_PAD_LEFT;
