@@ -39,6 +39,7 @@ public class RunningSettingDialog extends DialogFragment {
     public static final int MENU_SETTINGS = 1;
     public static final int MENU_TRANSLATE = 2;
     public static final int MENU_MULTIPLAYER = 3;
+    public static final int MENU_AMIIBO = 4;
 
     private int mMenu;
     private TextView mTitle;
@@ -128,14 +129,15 @@ public class RunningSettingDialog extends DialogFragment {
         public static final int SETTING_SKIP_CPU_WRITE = 2;
         public static final int SETTING_SKIP_TEXTURE_COPY = 3;
         public static final int SETTING_FORCE_TEXTURE_FILTER = 4;
-        public static final int SETTING_USE_HW_GS = 5;
+        public static final int SETTING_HW_GS_MODE = 5;
         public static final int SETTING_SHADOW_RENDERING = 6;
         public static final int SETTING_ASYNC_SHADER_COMPILE = 7;
-        public static final int SETTING_SCALE_FACTOR = 8;
-        public static final int SETTING_SCREEN_LAYOUT = 9;
-        public static final int SETTING_ACCURATE_MUL = 10;
-        public static final int SETTING_CUSTOM_LAYOUT = 11;
-        public static final int SETTING_FRAME_LIMIT = 12;
+        public static final int SETTING_USE_COMPATIBLE_MODE = 8;
+        public static final int SETTING_SCALE_FACTOR = 9;
+        public static final int SETTING_SCREEN_LAYOUT = 10;
+        public static final int SETTING_ACCURATE_MUL = 11;
+        public static final int SETTING_CUSTOM_LAYOUT = 12;
+        public static final int SETTING_FRAME_LIMIT = 13;
 
         // pref
         public static final int SETTING_JOYSTICK_RELATIVE = 100;
@@ -482,6 +484,18 @@ public class RunningSettingDialog extends DialogFragment {
 
                 RadioButton radio3 = mRadioGroup.findViewById(R.id.radio3);
                 radio3.setVisibility(View.GONE);
+            } else if (item.getSetting() == SettingsItem.SETTING_HW_GS_MODE) {
+                RadioButton radio0 = mRadioGroup.findViewById(R.id.radio0);
+                radio0.setText(R.string.auto);
+
+                RadioButton radio1 = mRadioGroup.findViewById(R.id.radio1);
+                radio1.setText(R.string.enable);
+
+                RadioButton radio2 = mRadioGroup.findViewById(R.id.radio2);
+                radio2.setText(R.string.off);
+
+                RadioButton radio3 = mRadioGroup.findViewById(R.id.radio3);
+                radio3.setVisibility(View.GONE);
             }
         }
 
@@ -698,14 +712,17 @@ public class RunningSettingDialog extends DialogFragment {
             mSettings.add(new SettingsItem(SettingsItem.SETTING_FORCE_TEXTURE_FILTER,
                     R.string.setting_force_texture_filter,
                     SettingsItem.TYPE_RADIO_GROUP, mRunningSettings[i++]));
-            mSettings.add(new SettingsItem(SettingsItem.SETTING_USE_HW_GS,
-                    R.string.setting_use_hw_gs,
-                    SettingsItem.TYPE_CHECKBOX, mRunningSettings[i++]));
+            mSettings.add(new SettingsItem(SettingsItem.SETTING_HW_GS_MODE,
+                    R.string.setting_hw_gs_mode,
+                    SettingsItem.TYPE_RADIO_GROUP, mRunningSettings[i++]));
             mSettings.add(new SettingsItem(SettingsItem.SETTING_SHADOW_RENDERING,
                     R.string.setting_shadow_rendering,
                     SettingsItem.TYPE_CHECKBOX, mRunningSettings[i++]));
             mSettings.add(new SettingsItem(SettingsItem.SETTING_ASYNC_SHADER_COMPILE,
                     R.string.setting_async_shader_compile,
+                    SettingsItem.TYPE_CHECKBOX, mRunningSettings[i++]));
+            mSettings.add(new SettingsItem(SettingsItem.SETTING_USE_COMPATIBLE_MODE,
+                    R.string.setting_use_compatible_mode,
                     SettingsItem.TYPE_CHECKBOX, mRunningSettings[i++]));
             mSettings.add(new SettingsItem(SettingsItem.SETTING_SCALE_FACTOR,
                     R.string.running_resolution, SettingsItem.TYPE_RADIO_GROUP,

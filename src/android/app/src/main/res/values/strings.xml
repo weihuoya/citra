@@ -34,7 +34,7 @@
     <string name="setting_skip_texture_copy">Skip Texture Copy</string>
     <string name="setting_use_linear_filter">Use Linear Filter</string>
     <string name="setting_force_texture_filter">Force Texture Filter</string>
-    <string name="setting_use_hw_gs">Enable Geometry Shader</string>
+    <string name="setting_hw_gs_mode">Geometry Shader</string>
     <string name="setting_shadow_rendering">Enable Shadow Rendering</string>
     <string name="setting_async_shader_compile">Asynchronous Shader Compilation</string>
     <string name="setting_use_compatible_mode">Use Compatible Mode</string>
@@ -213,6 +213,7 @@
     <string name="side_screen">Side Screen</string>
     <string name="default_value">Default</string>
     <string name="auto">Auto</string>
+    <string name="enable">Enable</string>
     <string name="off">Off</string>
     <string name="nearest">Nearest</string>
     <string name="linear">Linear</string>

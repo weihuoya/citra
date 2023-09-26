@@ -52,7 +52,7 @@ const ConfigInfo<std::string> AUDIO_INPUT_DEVICE{{"Audio", "audio_input_device"}
 const ConfigInfo<std::string> CAMERA_DEVICE{{"Camera", "camera_type"}, "blank"};
 
 // debug
-const ConfigInfo<bool> USE_HW_GS{{"Debug", "use_hw_gs"}, false};
+const ConfigInfo<u8> HW_GS_MODE{{"Debug", "hw_gs_mode"}, 0};
 const ConfigInfo<u8> SHADER_TYPE{{"Debug", "shader_type"}, 1};
 const ConfigInfo<bool> USE_FMV_HACK{{"Debug", "use_fmv_hack"}, false};
 const ConfigInfo<bool> SKIP_SLOW_DRAW{{"Debug", "skip_slow_draw"}, false};
@@ -86,6 +86,7 @@ const ConfigInfo<std::string> BUTTON_GPIO14{{"Controls", "button_gpio14"}, "code
 const ConfigInfo<std::string> BUTTON_ZL{{"Controls", "button_zl"}, "code:104"};
 const ConfigInfo<std::string> BUTTON_ZR{{"Controls", "button_zr"}, "code:105"};
 const ConfigInfo<std::string> BUTTON_HOME{{"Controls", "button_home"}, "code:113"};
+const ConfigInfo<std::string> BUTTON_POWER{{"Controls", "button_home"}, "code:114"};
 const ConfigInfo<std::string> CIRCLE_PAD_UP{{"Controls", "circle_pad_up"}, "code:1,dir:-"};
 const ConfigInfo<std::string> CIRCLE_PAD_DOWN{{"Controls", "circle_pad_down"}, "code:1,dir:+"};
 const ConfigInfo<std::string> CIRCLE_PAD_LEFT{{"Controls", "circle_pad_left"}, "code:0,dir:-"};

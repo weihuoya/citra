@@ -68,6 +68,7 @@ enum Values {
     ZR,
 
     Home,
+    Power,
 
     NumButtons,
 };
@@ -211,20 +212,18 @@ struct Values {
     bool skip_load_buffer;
     bool merge_framebuffer;
     bool disable_clip_coef;
-    bool display_transfer_hack;
     bool stream_buffer_hack;
-    bool y2r_perform_hack;
     bool y2r_event_delay;
     bool use_present_thread;
     bool use_direct_display;
     bool use_fence_sync;
-    bool use_hw_gs;
     bool accurate_max_min;
     bool accurate_rcp_rsq;
     bool use_compatible_mode;
     SharedFontType shared_font_type;
     AccurateMul shaders_accurate_mul;
     std::string remote_shader_host;
+    u8 hw_gs_mode;
     u8 force_texture_filter;
     float joystick_range;
     float joystick_deadzone;
