@@ -271,7 +271,7 @@
     <string name="controller_gamepad">Геймпад</string>
     <string name="joystick_range">Диапазон джойстика</string>
     <string name="joystick_deadzone">Мёртвая зона джойстика</string>
-    <string name="controller_stick">Главный стик</string>
+    <string name="controller_stick">Основной стик</string>
     <string name="c_controller_stick">C-стик</string>
     <string name="controller_dpad">D-Pad</string>
     <string name="generic_buttons">Кнопки</string>
