@@ -122,12 +122,42 @@ void CubebInput::AdjustSampleRate(u32 sample_rate) {
     LOG_ERROR(Audio, "AdjustSampleRate unimplemented! sample_rate: {}", sample_rate);
 }
 
+// sample_size_in_bytes is 1 or 2
+void modifyVolume(Frontend::Mic::Samples* input, u8 sample_size_in_bytes) {
+    auto& samples = *input;
+    // FIXME: 4 times is an experience factor, better read from config file
+    const s16 VOLUME_MULTIPLY_FACTOR = 4;
+    if (sample_size_in_bytes == 1) {
+        for (std::size_t i = 0; i < samples.size(); i++) {
+            s16 new_val = static_cast<s8>(samples[i]) * VOLUME_MULTIPLY_FACTOR;
+            new_val = std::min(new_val, static_cast<s16>(127));
+            new_val = std::max(new_val, static_cast<s16>(-128));
+            samples[i] = static_cast<u8>(new_val);
+        }
+    } else {
+        for (std::size_t i = 0; i < samples.size() / 2; i++) {
+            s16 new_val = static_cast<s16>((samples[i * 2 + 1] << 8) | samples[i * 2]);
+            s32 tmp = new_val * VOLUME_MULTIPLY_FACTOR;
+            tmp = std::min(tmp, 32767);
+            tmp = std::max(tmp, -32768);
+            new_val = static_cast<s16>(tmp);
+            samples[i * 2] = static_cast<u8>(new_val & 0xFF);
+            samples[i * 2 + 1] = static_cast<u8>(new_val >> 8);
+        }
+    }
+}
+
 Frontend::Mic::Samples CubebInput::Read() {
     Frontend::Mic::Samples samples{};
     Frontend::Mic::Samples queue;
     while (impl->sample_queue->Pop(queue)) {
         samples.insert(samples.end(), queue.begin(), queue.end());
     }
+
+    // Optimizing for some device microphones, input volume is so small
+    // that cannot reach blowing detective threshold in some games
+    modifyVolume(&samples, impl->sample_size_in_bytes);
+
     return samples;
 }
 
