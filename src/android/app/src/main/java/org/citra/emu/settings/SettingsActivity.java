@@ -121,6 +121,7 @@ public final class SettingsActivity extends AppCompatActivity {
             if (fragment != null) {
                 fragment.showSettingsList(mSettings);
             }
+            Toast.makeText(this, R.string.reset_setting, Toast.LENGTH_SHORT).show();
             return true;
         } else if (item.getItemId() == R.id.menu_reset_cache) {
             if (CitraDirectory.deleteAllFiles(CitraDirectory.getCacheDirectory())) {

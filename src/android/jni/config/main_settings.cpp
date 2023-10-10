@@ -40,7 +40,8 @@ const ConfigInfo<std::string> REMOTE_SHADER_HOST{
 const ConfigInfo<bool> ENABLE_DSP_LLE{{"Audio", "enable_dsp_lle"}, false};
 const ConfigInfo<bool> DSP_LLE_MULTITHREAD{{"Audio", "dsp_lle_multithread"}, true};
 const ConfigInfo<bool> AUDIO_STRETCHING{{"Audio", "enable_audio_stretching"}, false};
-const ConfigInfo<float> AUDIO_VOLUME{{"Audio", "volume"}, 1.0F};
+const ConfigInfo<float> AUDIO_VOLUME{{"Audio", "audio_volume"}, 1.0F};
+const ConfigInfo<float> MIC_VOLUME{{"Audio", "mic_volume"}, 1.5F};
 const ConfigInfo<u8> AUDIO_OUTPUT_TYPE{{"Audio", "audio_output_type"}, 2};
 const ConfigInfo<std::string> AUDIO_OUTPUT_DEVICE{{"Audio", "audio_output_device"}, "auto"};
 
