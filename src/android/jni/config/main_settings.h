@@ -44,6 +44,7 @@ extern const ConfigInfo<bool> ENABLE_DSP_LLE;
 extern const ConfigInfo<bool> DSP_LLE_MULTITHREAD;
 extern const ConfigInfo<bool> AUDIO_STRETCHING;
 extern const ConfigInfo<float> AUDIO_VOLUME;
+extern const ConfigInfo<float> MIC_VOLUME;
 extern const ConfigInfo<u8> AUDIO_OUTPUT_TYPE;
 extern const ConfigInfo<std::string> AUDIO_OUTPUT_DEVICE;
 

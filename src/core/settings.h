@@ -185,7 +185,8 @@ struct Values {
     std::string sink_id;
     bool enable_audio_stretching;
     std::string audio_device_id;
-    float volume;
+    float audio_volume;
+    float mic_volume;
     MicInputType mic_input_type;
     std::string mic_input_device;
 
