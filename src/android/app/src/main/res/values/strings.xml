@@ -25,7 +25,10 @@
     <string name="copy_success">Copy Success!</string>
     <string name="keyboard_please_input">Please Input:</string>
     <string name="input_text_max_length">Max input length: %1$d.</string>
-    <string name="text_amiibo_hint">The amiibo directory is empty!</string>
+    <string name="text_amiibo">Amiibo</string>
+    <string name="text_load_amiibo">Load</string>
+    <string name="text_remove_amiibo">Remove</string>
+    <string name="text_amiibo_hint">The amiibo directory is empty! (citra-emu/amiibo)</string>
     <string name="main_choose_directory">Choose directory</string>
 
     <string name="setting_core_ticks_hack">FMV Hack</string>
@@ -161,6 +164,8 @@
     <string name="setting_header_audio">Audio</string>
     <string name="setting_header_camera">Camera</string>
 
+    <string name="setting_use_game_config">Enable Per-Game Settings</string>
+    <string name="setting_use_game_config_desc">Game independent settings will be saved in directory: citra-emu/load/configs/.</string>
     <string name="setting_is_new_3ds">New 3DS Mode</string>
     <string name="setting_is_new_3ds_desc">The New 3DS has different memory and processor, and some games can only start on the New 3DS.</string>
     <string name="setting_use_virtual_sd">Use Virtual SD</string>
