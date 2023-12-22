@@ -191,9 +191,13 @@ public final class SettingsFragment extends Fragment {
         Setting cpuJIT = coreSection.getSetting(SettingsFile.KEY_USE_CPU_JIT);
         Setting language = coreSection.getSetting(SettingsFile.KEY_SYSTEM_LANGUAGE);
         Setting font = coreSection.getSetting(SettingsFile.KEY_SHARED_FONT_TYPE);
-
         Setting theme = coreSection.getSetting(SettingsFile.KEY_THEME_PACKAGE);
 
+        if (mGameID.isEmpty()) {
+            Setting useGameConfig = coreSection.getSetting(SettingsFile.KEY_USE_GAME_CONFIG);
+            sl.add(new CheckBoxSetting(SettingsFile.KEY_USE_GAME_CONFIG, Settings.SECTION_INI_CORE,
+                    R.string.setting_use_game_config, R.string.setting_use_game_config_desc, false, useGameConfig));
+        }
         sl.add(new CheckBoxSetting(SettingsFile.KEY_IS_NEW_3DS, Settings.SECTION_INI_CORE,
                 R.string.setting_is_new_3ds, R.string.setting_is_new_3ds_desc, false, isNew3DS));
         sl.add(new CheckBoxSetting(SettingsFile.KEY_USE_CPU_JIT, Settings.SECTION_INI_CORE,

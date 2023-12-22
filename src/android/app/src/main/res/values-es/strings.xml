@@ -164,6 +164,8 @@
     <string name="setting_header_audio">Audio</string>
     <string name="setting_header_camera">Cámara</string>
 
+    <string name="setting_use_game_config">Enable Per-Game Settings</string>
+    <string name="setting_use_game_config_desc">Game independent settings will be saved in directory: citra-emu/load/configs/.</string>
     <string name="setting_is_new_3ds">Modo New 3DS</string>
     <string name="setting_is_new_3ds_desc">El New 3DS tiene una memoria y un procesador diferentes, y algunos juegos solo pueden iniciarse en el New 3DS.</string>
     <string name="setting_use_virtual_sd">Usar SD virtual</string>

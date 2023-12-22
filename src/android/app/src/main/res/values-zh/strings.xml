@@ -164,8 +164,10 @@
     <string name="setting_header_audio">声音设置</string>
     <string name="setting_header_camera">摄像头设置</string>
 
+    <string name="setting_use_game_config">启用游戏独立设置</string>
+    <string name="setting_use_game_config_desc">游戏的独立设置保存在以下目录：citra-emu/load/configs。</string>
     <string name="setting_is_new_3ds">New 3DS Mode</string>
-    <string name="setting_is_new_3ds_desc">新 3DS 的内存和处理器不一样，少数游戏只能在新 3DS 上才能启动。</string>
+    <string name="setting_is_new_3ds_desc">新 3DS 模式需要更好的处理器性能，占用更多的内存，少数游戏只能在新 3DS 上才能启动。</string>
     <string name="setting_use_virtual_sd">使用虚拟SD卡</string>
     <string name="setting_enable_cpu_jit">开启 CPU JIT</string>
     <string name="setting_region_value">模拟地区</string>
