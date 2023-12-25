@@ -17,7 +17,7 @@
     <string name="shortcut">Ярлык</string>
     <string name="create_shortcut">Поместить ярлык на рабочий стол</string>
     <string name="create">Создать</string>
-    <string name="grant_permission">Получить разрешение</string>
+    <string name="grant_permission">Выдать разрешение</string>
     <string name="create_success">Успешно создано!</string>
     <string name="create_failed">Ошибка при создании!</string>
     <string name="cia_install_success">Успешно установлено!</string>
@@ -26,24 +26,24 @@
     <string name="keyboard_please_input">Пожалуйста, введите:</string>
     <string name="input_text_max_length">Макс. длина текста: %1$d.</string>
     <string name="text_amiibo">Amiibo</string>
-    <string name="text_load_amiibo">Load</string>
-    <string name="text_remove_amiibo">Remove</string>
-    <string name="text_amiibo_hint">The amiibo directory is empty! (citra-emu/amiibo)</string>
+    <string name="text_load_amiibo">Загрузить</string>
+    <string name="text_remove_amiibo">Удалить</string>
+    <string name="text_amiibo_hint">Каталог amiibo пуст! (citra-emu/amiibo)</string>
     <string name="main_choose_directory">Выберите папку</string>
 
     <string name="setting_core_ticks_hack">Хак FMV</string>
     <string name="setting_skip_slow_draw">Пропуск медленнных эффектов</string>
     <string name="setting_skip_cpu_write">Пропуск доступа CPU</string>
     <string name="setting_skip_texture_copy">Пропуск копирования текстур</string>
-    <string name="setting_use_linear_filter">Исп. линейный фильтр</string>
+    <string name="setting_use_linear_filter">Использовать линейный фильтр</string>
     <string name="setting_force_texture_filter">Принуд. фильтр текстур</string>
-    <string name="setting_hw_gs_mode">Шейдеры геометрии</string>
-    <string name="setting_shadow_rendering">Вкл. рендеринг теней</string>
-    <string name="setting_async_shader_compile">Асинх. компиляция шейдеров</string>
-    <string name="setting_use_compatible_mode">Исп. совместимый режим</string>
+    <string name="setting_hw_gs_mode">Геометр. шейдеры</string>
+    <string name="setting_shadow_rendering">Включить отрисовку теней</string>
+    <string name="setting_async_shader_compile">Асинхронная компиляция шейдеров</string>
+    <string name="setting_use_compatible_mode">Использовать совместимый режим</string>
     <string name="use_haptic_feedback">Тактильная отдача (вибрация)</string>
-    <string name="joystick_relative_center">Относительная центровка джойстика</string>
-    <string name="hide_input_overlay">Скрывать кнопки ввода</string>
+    <string name="joystick_relative_center">Относительная центровка стика</string>
+    <string name="hide_input_overlay">Скрывать экранные кнопки</string>
     <string name="controller_scale">Масштаб контроллера</string>
     <string name="controller_alpha">Видимость контроллера</string>
 
@@ -60,7 +60,7 @@
     <string name="translate_service_youdao">Youdao</string>
     <string name="translate_service_yeekit">Yeekit</string>
 
-    <string name="translate_language_auto">Авто</string>
+    <string name="translate_language_auto">Автом.</string>
     <string name="translate_language_jpn">JPN</string>
     <string name="translate_language_eng">ENG</string>
     <string name="translate_language_kor">KOR</string>
@@ -145,69 +145,69 @@
     <string name="memory_btn_write">Запись</string>
     <string name="memory_hex_value">Шестн.:</string>
     <string name="memory_int_value">Целое:</string>
-    <string name="memory_float_value">С пл. точкой:</string>
+    <string name="memory_float_value">С плав. точкой:</string>
 
     <string name="emulation_screen_rotation">Повернуть экран</string>
     <string name="menu_emulation_camera">Сбросить камеру</string>
-    <string name="emulation_edit_layout">Изменить/выбрать кнопки</string>
+    <string name="emulation_edit_layout">Изменить кнопки</string>
     <string name="emulation_screen_layout">Кастомный макет</string>
     <string name="emulation_stop_running">Закрыть игру</string>
     <string name="emulation_done">Завершить</string>
     <string name="input_binding">Привязки ввода</string>
-    <string name="input_binding_description">Нажмите или отклоните орган управления для привязки к &lt;b>%1$s&lt;/b>.</string>
+    <string name="input_binding_description">Нажмите или отклоните элемент управления для привязки к &lt;b>%1$s&lt;/b>.</string>
     <string name="emulation_screenshot">Сделать скриншот</string>
     <string name="menu_switch_list">Переключить список</string>
     <string name="add_directory_title">Добавить папку в библиотеку</string>
 
     <string name="setting_header_core">Система</string>
-    <string name="setting_header_renderer">Рендер</string>
+    <string name="setting_header_renderer">Графика</string>
     <string name="setting_header_audio">Аудио</string>
     <string name="setting_header_camera">Камера</string>
 
-    <string name="setting_use_game_config">Enable Per-Game Settings</string>
-    <string name="setting_use_game_config_desc">Game independent settings will be saved in directory: citra-emu/load/configs/.</string>
-    <string name="setting_is_new_3ds">Режим обновлённой 3DS</string>
-    <string name="setting_is_new_3ds_desc">Новая версия 3DS имеет другую память и процессор и некоторые игры поддерживаются только на ней.</string>
-    <string name="setting_use_virtual_sd">Исп. виртуальную SD-карту</string>
-    <string name="setting_enable_cpu_jit">Вкл. CPU JIT</string>
+    <string name="setting_use_game_config">Включить профили настроек</string>
+    <string name="setting_use_game_config_desc">Индивидуальные игровые настройки будут сохраняться в папку: citra-emu/load/configs/.</string>
+    <string name="setting_is_new_3ds">Режим новой 3DS</string>
+    <string name="setting_is_new_3ds_desc">Новая модель 3DS имеет отличия памяти и процессора и часть игр запускается только на ней.</string>
+    <string name="setting_use_virtual_sd">Использовать виртуальную SD-карту</string>
+    <string name="setting_enable_cpu_jit">Включить CPU JIT</string>
     <string name="setting_region_value">Регион эмуляции</string>
-    <string name="setting_system_language">Язык системы</string>
-    <string name="setting_shared_font">Шрифт системы</string>
+    <string name="setting_system_language">Системный язык</string>
+    <string name="setting_shared_font">Системный шрифт</string>
     <string name="setting_theme_package">Тема</string>
 
     <string name="show_fps">Показывать FPS</string>
     <string name="layout_option">Макет экрана</string>
     <string name="internal_resolution">Внутреннее разрешение</string>
-    <string name="setting_hw_shader">Вкл. аппаратные шейдеры</string>
-    <string name="setting_hw_shader_desc">При включении улучшает производительность, но в некоторых 2D-играх может вызывать проблемы с графикой.</string>
+    <string name="setting_hw_shader">Аппаратные шейдеры</string>
+    <string name="setting_hw_shader_desc">Повышают производительность, но в некоторых 2D-играх могут вызывать проблемы с графикой.</string>
     <string name="setting_shaders_accurate_mul">Точное умножение</string>
-    <string name="setting_shaders_accurate_mul_desc">При включении исправляет часть графических багов, но может замедлять эмуляцию.</string>
+    <string name="setting_shaders_accurate_mul_desc">При включении исправляет часть графических багов, но может снизить скорость эмуляции.</string>
     <string name="post_processing_shader">Эффект постобработки</string>
-    <string name="setting_use_present_thread">Двухядерный режим</string>
-    <string name="setting_use_present_thread_desc">При включении даёт прирост скорости в большинстве игр.</string>
-    <string name="cpu_usage_limit">Вкл. ограничение времени CPU</string>
-    <string name="cpu_usage_limit_description">При включении ограничивает использование эмулируемого процессора меньшим отрезком времени.</string>
-    <string name="frame_limit_enable">Вкл. ограничение скорости</string>
-    <string name="frame_limit_enable_description">Если вкл., скорость эмуляции ограничивается на заданный процент от нормальной скорости.</string>
+    <string name="setting_use_present_thread">Двухъядерный режим</string>
+    <string name="setting_use_present_thread_desc">Обеспечивает прирост скорости в большинстве игр.</string>
+    <string name="cpu_usage_limit">Ограничение процессорного времени</string>
+    <string name="cpu_usage_limit_description">Ограничивает использование эмулируемого процессора меньшим отрезком времени.</string>
+    <string name="frame_limit_enable">Ограничение скорости</string>
+    <string name="frame_limit_enable_description">При включении скорость эмуляции будет ограничена заданным процентом от нормальной скорости.</string>
     <string name="frame_limit_slider">Процент ограничения скорости</string>
-    <string name="frame_limit_slider_description">Стандартное значение 100% соответствует нормальной скорости. Более высокие или низкие значения повышают или понижают лимит скорости.</string>
-    <string name="setting_use_fence_sync">Исп. память повторно</string>
-    <string name="setting_use_fence_sync_description">При включении повышает производительность, но может приводить к вылетам и проблемам с графикой в играх.</string>
-    <string name="setting_custom_textures">Исп. внешние текстуры</string>
+    <string name="frame_limit_slider_description">Стандартное значение 100% соответствует нормальной скорости. Более высокие или низкие значения повышают или уменьшают ограничение скорости.</string>
+    <string name="setting_use_fence_sync">Повторное использование памяти</string>
+    <string name="setting_use_fence_sync_description">Повышает производительность, но может вызывать вылеты и проблемы с графикой.</string>
+    <string name="setting_custom_textures">Использовать внешние текстуры</string>
     <string name="setting_custom_textures_description">Папка с текстурами: citra-emu/load/textures/\"ID игры\"/.</string>
     <string name="setting_shader_type">Тип шейдера</string>
-    <string name="setting_factor_3d">Коэффициент 3D (настройка глубины 3D)</string>
-    <string name="setting_camera_type">Тип камеры</string>
+    <string name="setting_factor_3d">Коэффициент 3D (настройка глубины)</string>
+    <string name="setting_camera_type">Источник камеры</string>
 
     <string name="setting_audio_output">Вывод звука</string>
-    <string name="setting_audio_stretching">Вкл. растяжение звука</string>
-    <string name="setting_audio_stretching_description">Растягивает звук для уменьшения лагов, но повышает задержку звука.</string>
-    <string name="setting_audio_mic_type">Тип микрофона</string>
+    <string name="setting_audio_stretching">Растяжение звука</string>
+    <string name="setting_audio_stretching_description">Растягивает звук для сглаживания неровностей, но повышает задержку звука.</string>
+    <string name="setting_audio_mic_type">Источник микрофона</string>
 
     <string name="running_frame_limit">Ограничение скорости</string>
     <string name="running_resolution">Разрешение</string>
-    <string name="running_custom_layout">Исп. кастомный макет</string>
-    <string name="running_accurate_mul">Точное умн.</string>
+    <string name="running_custom_layout">Использовать кастомный макет</string>
+    <string name="running_accurate_mul">Точное умножение</string>
     <string name="running_layout">Макет</string>
     <string name="single_screen_option">Один</string>
     <string name="large_screen_option">Большой</string>
@@ -216,13 +216,13 @@
     <string name="single_screen">Один экран</string>
     <string name="large_screen">Большой экран</string>
     <string name="side_screen">Бок о бок</string>
-    <string name="default_value">По умолчанию</string>
+    <string name="default_value">По умолч.</string>
     <string name="auto">Авто</string>
     <string name="enable">Вкл.</string>
     <string name="off">Откл.</string>
     <string name="nearest">Ближайший</string>
     <string name="linear">Линейный</string>
-    <string name="real_device">Реальное устройство</string>
+    <string name="real_device">Устройство</string>
     <string name="static_noise">Статический шум</string>
     <string name="clear_input_binding">Удалить</string>
     <string name="save">Сохранить</string>
@@ -234,9 +234,9 @@
 
     <string name="camera_blank">Пусто</string>
     <string name="camera_still_image">Статичная картинка</string>
-    <string name="camera_from_device">Исп. камеру</string>
+    <string name="camera_from_device">Устройство</string>
     <string name="shader_type_normal">Стандартный шейдер</string>
-    <string name="shader_type_normal_with_cache">Станд. шейдер с кэшем</string>
+    <string name="shader_type_normal_with_cache">Стандартный шейдер с кэшем</string>
     <string name="shader_type_separate">Отдельный шейдер (нестабильно)</string>
     <string name="accurate_mul_off">Откл.</string>
     <string name="accurate_mul_fast">Быстро</string>
@@ -252,9 +252,9 @@
     <string name="region_taiwan">Тайвань</string>
 
     <string name="system_font_jpn">Японский</string>
-    <string name="system_font_chn">Упрощённый китайский</string>
+    <string name="system_font_chn">Китайский упрощённый</string>
     <string name="system_font_kor">Корейский</string>
-    <string name="system_font_twn">Традиционный китайский</string>
+    <string name="system_font_twn">Китайский традиционный</string>
 
     <string name="game_emulation_info">Потяните для обновления\nДолгий тап для редактирования чит-кодов\nПоддерживаются файлы: .CCI, .CXI, .3DS, .3DSX</string>
     <string name="application_emulation_info">Потяните для обновления\nДолгий тап для редактирования чит-кодов\nПриложение будет установлено в \"citra-emu/sdmc\"</string>
@@ -270,7 +270,7 @@
     <string name="open_app_archive">Открыть архивную папку</string>
     <string name="current_directory">Текущий каталог</string>
     <string name="delete_app_sdmc">Удалить папку установки</string>
-    <string name="delete_shader_cache">Удалить кэш шейдеров</string>
+    <string name="delete_shader_cache">Очистить кэш шейдеров</string>
     <string name="delete_confirm_notice">Вы действительно хотите удалить папку установки игр?</string>
 
     <string name="controller_gamepad">Геймпад</string>
@@ -303,7 +303,7 @@
     <string name="nnf_create_folder_error">Не удалось создать папку</string>
     <string name="nnf_name">Имя</string>
     <string name="nnf_select_something_first">Пожалуйста, выберите элемент</string>
-    <string name="nnf_need_valid_filename">Пожалуйста, введите или выберите правильное имя файла</string>
+    <string name="nnf_need_valid_filename">Пожалуйста, введите или укажите правильное имя файла</string>
     <string name="nnf_permission_external_write_denied">Отказано в доступе к файловой системе</string>
     <string name="nnf_filename">Имя файла</string>
     <string name="nnf_list_ok">@android:string/ok</string>
