@@ -70,7 +70,9 @@
     <string name="grid_menu_install_cia">Install CIA</string>
     <string name="preferences_settings">Settings</string>
     <string name="combo_key_settings">Combo Key Settings</string>
-    <string name="combo_key_name">Combo Key %1$d</string>
+    <string name="combo_key_1">Combo Key 1</string>
+    <string name="combo_key_2">Combo Key 2</string>
+    <string name="combo_key_3">Combo Key 3</string>
     <string name="translate_settings">Screen Translation</string>
     <string name="multiplayer">Multiplayer</string>
     <string name="multiplayer_room_title">Room: %1$s</string>
@@ -272,6 +274,7 @@
     <string name="delete_app_sdmc">Delete Install Directory</string>
     <string name="delete_shader_cache">Delete Shader Cache</string>
     <string name="delete_confirm_notice">Are you sure to delete the game install directory?</string>
+    <string name="delete_files_confirm">Are you sure to delete the selected files and directories?</string>
 
     <string name="controller_gamepad">Gamepad</string>
     <string name="joystick_range">Joystick Range</string>
@@ -306,6 +309,8 @@
     <string name="nnf_need_valid_filename">Please enter or select a valid filename</string>
     <string name="nnf_permission_external_write_denied">Permission to access filesystem denied</string>
     <string name="nnf_filename">Filename</string>
+    <string name="nnf_list_import">Import files to current folder</string>
+    <string name="nnf_delete_selected">Delete Selected Item</string>
     <string name="nnf_list_ok">@android:string/ok</string>
     <string name="nnf_list_cancel">@android:string/cancel</string>
     <string name="nnf_new_folder_ok">@android:string/ok</string>

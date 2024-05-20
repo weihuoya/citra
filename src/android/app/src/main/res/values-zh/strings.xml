@@ -70,7 +70,9 @@
     <string name="grid_menu_install_cia">安装 CIA</string>
     <string name="preferences_settings">设置</string>
     <string name="combo_key_settings">组合键设置</string>
-    <string name="combo_key_name">组合键 %1$d</string>
+    <string name="combo_key_1">组合键 1</string>
+    <string name="combo_key_2">组合键 2</string>
+    <string name="combo_key_3">组合键 3</string>
     <string name="translate_settings">屏幕翻译</string>
     <string name="multiplayer">多人游戏</string>
     <string name="multiplayer_room_title">房间：%1$s</string>
@@ -272,6 +274,7 @@
     <string name="delete_app_sdmc">删除安装目录</string>
     <string name="delete_shader_cache">删除着色器缓存</string>
     <string name="delete_confirm_notice">确定删除游戏安装目录？</string>
+    <string name="delete_files_confirm">确定删除选中的文件和目录？</string>
 
     <string name="controller_gamepad">手柄</string>
     <string name="joystick_range">摇杆范围</string>
@@ -297,7 +300,7 @@
     <string name="button_start">START</string>
     <string name="button_select">SELECT</string>
     <string name="button_home">切换屏幕</string>
-    <string name="button_debug">设置/加速</string>
+    <string name="button_debug">设置/长按加速</string>
 
     <string name="nnf_new_folder">New folder</string>
     <string name="nnf_create_folder_error">Failed to create folder</string>
@@ -306,6 +309,8 @@
     <string name="nnf_need_valid_filename">请输入或选择一个有效的文件名</string>
     <string name="nnf_permission_external_write_denied">Permission to access filesystem denied</string>
     <string name="nnf_filename">Filename</string>
+    <string name="nnf_list_import">导入文件到当前文件夹</string>
+    <string name="nnf_delete_selected">删除选中项</string>
     <string name="nnf_list_ok">@android:string/ok</string>
     <string name="nnf_list_cancel">@android:string/cancel</string>
     <string name="nnf_new_folder_ok">@android:string/ok</string>
