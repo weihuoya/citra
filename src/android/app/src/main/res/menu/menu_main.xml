@@ -11,32 +11,43 @@
     <item
         android:id="@+id/menu_settings_core"
         android:title="@string/preferences_settings"
-        android:icon="@mipmap/ic_settings_core"
+        android:icon="@drawable/ic_memory"
         app:showAsAction="ifRoom"/>
 
     <item
         android:id="@+id/menu_input_binding"
+        android:icon="@drawable/ic_controller"
         android:title="@string/grid_menu_input_binding"
         app:showAsAction="never"/>
 
     <item
         android:id="@+id/menu_combo_key"
+        android:icon="@drawable/ic_workspaces"
         android:title="@string/combo_key_settings"
         app:showAsAction="never"/>
 
     <item
         android:id="@+id/menu_install_cia"
+        android:icon="@drawable/ic_deployed"
         android:title="@string/grid_menu_install_cia"
         app:showAsAction="never"/>
 
     <item
         android:id="@+id/menu_multiplayer"
+        android:icon="@drawable/ic_groups"
         android:title="@string/multiplayer"
         app:showAsAction="never"/>
 
     <item
         android:id="@+id/menu_refresh"
+        android:icon="@drawable/ic_refresh"
         android:title="@string/grid_menu_refresh"
+        app:showAsAction="never"/>
+
+    <item
+        android:id="@+id/menu_about"
+        android:icon="@drawable/ic_info"
+        android:title="@string/about"
         app:showAsAction="never"/>
 
 </menu>

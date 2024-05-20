@@ -3,6 +3,12 @@
       xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <item
+        android:id="@+id/menu_home_folder"
+        android:title="@string/app_name"
+        android:icon="@drawable/ic_home"
+        app:showAsAction="ifRoom"/>
+
+    <item
         android:id="@+id/menu_reset_setting"
         android:title="@string/reset_setting"
         android:icon="@drawable/ic_refresh"
