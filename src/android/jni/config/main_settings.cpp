@@ -7,6 +7,7 @@ namespace Config {
 // core
 const ConfigInfo<bool> USE_CPU_JIT{{"Core", "use_cpu_jit"}, true};
 const ConfigInfo<bool> IS_NEW_3DS{{"Core", "is_new_3ds"}, false};
+const ConfigInfo<bool> USE_GAME_CONFIG{{"Core", "use_game_config"}, false};
 const ConfigInfo<bool> USE_VIRTUAL_SD{{"Core", "use_virtual_sd"}, true};
 const ConfigInfo<int> SYSTEM_REGION{{"Core", "region_value"}, Settings::REGION_VALUE_AUTO_SELECT};
 const ConfigInfo<Service::CFG::SystemLanguage> SYSTEM_LANGUAGE{
@@ -31,6 +32,8 @@ const ConfigInfo<Settings::LayoutOption> LAYOUT_OPTION{{"Renderer", "layout_opti
                                                        Settings::LayoutOption::Default};
 const ConfigInfo<Settings::LayoutOption> LANDSCAPE_LAYOUT_OPTION{
     {"Renderer", "landscape_layout_option"}, Settings::LayoutOption::Default};
+const ConfigInfo<Settings::PresentationMode> SCREEN_PRESENTATION_MODE{
+        {"Renderer", "screen_presentation_mode"}, Settings::PresentationMode::Default};
 const ConfigInfo<std::string> POST_PROCESSING_SHADER{{"Renderer", "pp_shader_name"}, ""};
 const ConfigInfo<std::string> REMOTE_SHADER_HOST{
     {"Renderer", "remote_shader_host"},
@@ -53,7 +56,7 @@ const ConfigInfo<std::string> AUDIO_INPUT_DEVICE{{"Audio", "audio_input_device"}
 const ConfigInfo<std::string> CAMERA_DEVICE{{"Camera", "camera_type"}, "blank"};
 
 // debug
-const ConfigInfo<u8> HW_GS_MODE{{"Debug", "hw_gs_mode"}, 0};
+const ConfigInfo<u8> HW_GS_MODE{{"Debug", "hw_gs_mode"}, 2};
 const ConfigInfo<u8> SHADER_TYPE{{"Debug", "shader_type"}, 1};
 const ConfigInfo<bool> USE_FMV_HACK{{"Debug", "use_fmv_hack"}, false};
 const ConfigInfo<bool> SKIP_SLOW_DRAW{{"Debug", "skip_slow_draw"}, false};
@@ -87,7 +90,10 @@ const ConfigInfo<std::string> BUTTON_GPIO14{{"Controls", "button_gpio14"}, "code
 const ConfigInfo<std::string> BUTTON_ZL{{"Controls", "button_zl"}, "code:104"};
 const ConfigInfo<std::string> BUTTON_ZR{{"Controls", "button_zr"}, "code:105"};
 const ConfigInfo<std::string> BUTTON_HOME{{"Controls", "button_home"}, "code:113"};
-const ConfigInfo<std::string> BUTTON_POWER{{"Controls", "button_home"}, "code:114"};
+const ConfigInfo<std::string> BUTTON_POWER{{"Controls", "button_power"}, "code:114"};
+const ConfigInfo<std::string> BUTTON_COMBO_1{{"Controls", "button_combo_1"}, "code:115"};
+const ConfigInfo<std::string> BUTTON_COMBO_2{{"Controls", "button_combo_2"}, "code:116"};
+const ConfigInfo<std::string> BUTTON_COMBO_3{{"Controls", "button_combo_3"}, "code:117"};
 const ConfigInfo<std::string> CIRCLE_PAD_UP{{"Controls", "circle_pad_up"}, "code:1,dir:-"};
 const ConfigInfo<std::string> CIRCLE_PAD_DOWN{{"Controls", "circle_pad_down"}, "code:1,dir:+"};
 const ConfigInfo<std::string> CIRCLE_PAD_LEFT{{"Controls", "circle_pad_left"}, "code:0,dir:-"};

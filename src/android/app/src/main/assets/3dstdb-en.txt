@@ -4,5 +4,11 @@
 000400300000A102 = Home Menu
 000400300000A902 = Home Menu
 000400300000B102 = Home Menu
+000400300000C002 = Software Keyboard
+000400300000C802 = Software Keyboard
+000400300000D002 = Software Keyboard
+000400300000D802 = Software Keyboard
+000400300000DE02 = Software Keyboard
+000400300000E402 = Software Keyboard
 0004000000127900 = Super Robot Taisen BX
 00040000000F4000 = Little Battlers Wars

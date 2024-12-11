@@ -1,0 +1,163 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".ui.AboutActivity">
+
+    <androidx.appcompat.widget.Toolbar
+        android:id="@+id/toolbar"
+        android:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar"
+        app:popupTheme="@style/ThemeOverlay.AppCompat.DayNight"
+        android:background="?attr/colorPrimary"
+        android:layout_width="match_parent"
+        android:layout_height="?attr/actionBarSize"
+        android:layout_alignParentTop="true" />
+
+    <View
+        android:id="@+id/center_view"
+        android:layout_centerHorizontal="true"
+        android:layout_centerVertical="true"
+        android:layout_width="1px"
+        android:layout_height="1px"/>
+
+    <LinearLayout
+        android:orientation="vertical"
+        android:gravity="center"
+        android:layout_centerVertical="true"
+        android:layout_alignParentStart="true"
+        android:layout_toStartOf="@id/center_view"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <ImageView
+            android:id="@+id/banner"
+            android:src="@mipmap/ic_launcher_foreground"
+            android:scaleType="centerCrop"
+            android:layout_width="96dp"
+            android:layout_height="94dp"/>
+
+        <TextView
+            android:id="@+id/version"
+            android:text="2022/02/02T02:02:02"
+            style="@style/CitraTheme.Caption"
+            android:textSize="14sp"
+            android:gravity="center"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"/>
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/layout_group"
+        android:layout_marginStart="16dp"
+        android:layout_marginEnd="16dp"
+        android:background="@color/background_color"
+        android:elevation="2dp"
+        android:gravity="center"
+        android:layout_centerVertical="true"
+        android:layout_alignParentEnd="true"
+        android:layout_toEndOf="@id/center_view"
+        android:orientation="vertical"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <Button
+            android:id="@+id/btn_official_website"
+            android:text="@string/citra_official_website"
+            android:textAllCaps="false"
+            android:textStyle="normal"
+            android:layout_margin="0dp"
+            android:padding="16dp"
+            android:minWidth="0dp"
+            android:minHeight="0dp"
+            android:stateListAnimator="@null"
+            android:gravity="center_vertical"
+            style="@style/CitraTheme.Borderless"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"/>
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_marginStart="16dp"
+            android:layout_marginEnd="16dp"
+            android:layout_height="1dp"
+            android:background="@color/light_grey"/>
+
+        <Button
+            android:id="@+id/btn_open_weibo"
+            android:text="@string/open_weibo"
+            android:textAllCaps="false"
+            android:textStyle="normal"
+            android:layout_margin="0dp"
+            android:padding="16dp"
+            android:minWidth="0dp"
+            android:minHeight="0dp"
+            android:stateListAnimator="@null"
+            android:gravity="center_vertical"
+            style="@style/CitraTheme.Borderless"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"/>
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_marginStart="16dp"
+            android:layout_marginEnd="16dp"
+            android:layout_height="1dp"
+            android:background="@color/light_grey"/>
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+            <Button
+                android:id="@+id/btn_latest_version"
+                android:text="@string/latest_version"
+                android:textAllCaps="false"
+                android:textStyle="normal"
+                android:layout_margin="0dp"
+                android:padding="16dp"
+                android:minWidth="0dp"
+                android:minHeight="0dp"
+                android:stateListAnimator="@null"
+                android:gravity="center_vertical"
+                style="@style/CitraTheme.Borderless"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"/>
+
+            <ProgressBar
+                android:id="@+id/latest_version_progress"
+                style="?android:attr/progressBarStyleHorizontal"
+                android:layout_marginStart="16dp"
+                android:layout_marginEnd="16dp"
+                android:padding="0dp"
+                android:indeterminate="true"
+                android:visibility="invisible"
+                android:layout_alignBottom="@id/btn_latest_version"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"/>
+        </RelativeLayout>
+
+    </LinearLayout>
+
+    <TextView
+        android:id="@+id/device_info"
+        android:textAlignment="center"
+        android:gravity="center"
+        android:layout_margin="8dp"
+        android:textSize="12sp"
+        style="@style/CitraTheme.Caption"
+        android:layout_centerHorizontal="true"
+        android:layout_alignParentBottom="true"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"/>
+
+    <SurfaceView
+        android:id="@+id/surface_about"
+        android:layout_height="1dp"
+        android:layout_width="match_parent"
+        android:layout_alignParentBottom="true"
+        android:focusable="false"
+        android:focusableInTouchMode="false"/>
+
+</RelativeLayout>

@@ -6,6 +6,15 @@
         <item name="android:dropDownVerticalOffset">4dp</item>
     </style>
 
+    <style name="ModalBottomSheet" parent="Widget.MaterialComponents.BottomSheet.Modal">
+        <item name="android:maxWidth">-1px</item> <!-- match_parent -->
+    </style>
+
+    <style name="BottomSheetMenu" parent="ThemeOverlay.MaterialComponents.BottomSheetDialog">
+        <item name="android:colorControlHighlight">@color/citra_highlight</item>
+        <item name="bottomSheetStyle">@style/ModalBottomSheet</item>
+    </style>
+
     <style name="AlertDialog.Button" parent="Widget.AppCompat.Button.ButtonBar.AlertDialog">
         <item name="android:textColor">@color/citra_accent</item>
     </style>
@@ -16,7 +25,10 @@
         <item name="colorPrimary">@color/citra_orange</item>
         <item name="colorPrimaryDark">@color/citra_orange</item>
         <item name="colorAccent">@color/citra_accent</item>
+        <item name="colorSurface">@color/background_color</item>
+        <item name="android:colorControlHighlight">@color/citra_highlight</item>
         <item name="actionOverflowMenuStyle">@style/OverflowMenu</item>
+        <item name="bottomSheetDialogTheme">@style/BottomSheetMenu</item>
         <item name="android:buttonBarButtonStyle">@style/AlertDialog.Button</item>
     </style>
 
@@ -35,6 +47,7 @@
         <item name="android:windowTranslucentNavigation">true</item>
         <item name="android:windowBackground">@android:color/black</item>
         <item name="android:windowFullscreen">true</item>
+        <item name="android:colorControlHighlight">#00DDAA</item>
         <item name="android:windowLayoutInDisplayCutoutMode">shortEdges</item>
         <item name="android:buttonBarButtonStyle">@style/AlertDialog.Button</item>
     </style>

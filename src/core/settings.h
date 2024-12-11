@@ -32,6 +32,11 @@ enum class MicInputType {
     Static,
 };
 
+enum class PresentationMode {
+    Default,
+    SingleScreen,
+};
+
 enum class AccurateMul {
     OFF = 0,
     FAST = 1,

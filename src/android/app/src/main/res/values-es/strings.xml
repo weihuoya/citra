@@ -206,6 +206,7 @@
     <string name="setting_audio_stretching_description">Estira el audio para reducir la tartamudez, pero aumenta la latencia.</string>
     <string name="setting_audio_mic_type">Tipo de micrófono</string>
 
+    <string name="running_screen_cast">Screen Cast</string>
     <string name="running_frame_limit">Límite de velocidad</string>
     <string name="running_resolution">Resolución</string>
     <string name="running_custom_layout">Usar diseño personalizado</string>

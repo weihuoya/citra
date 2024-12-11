@@ -206,6 +206,7 @@
     <string name="setting_audio_stretching_description">Stretches audio to reduce stuttering, but increases latency.</string>
     <string name="setting_audio_mic_type">Microphone Type</string>
 
+    <string name="running_screen_cast">Screen Cast</string>
     <string name="running_frame_limit">Speed Limit</string>
     <string name="running_resolution">Resolution</string>
     <string name="running_custom_layout">Use Custom Layout</string>

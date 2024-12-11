@@ -206,6 +206,7 @@
     <string name="setting_audio_stretching_description">拉伸音频以减少声音不流畅的问题，但会增加延迟。</string>
     <string name="setting_audio_mic_type">麦克风类型</string>
 
+    <string name="running_screen_cast">投屏设置</string>
     <string name="running_frame_limit">速度限制</string>
     <string name="running_resolution">分辨率</string>
     <string name="running_custom_layout">启用自定义布局</string>

@@ -10,6 +10,7 @@ enum class LayoutOption;
 enum class MicInputType;
 enum class AccurateMul;
 enum class SharedFontType;
+enum class PresentationMode;
 } // namespace Settings
 
 namespace Config {
@@ -17,6 +18,7 @@ namespace Config {
 // core
 extern const ConfigInfo<bool> USE_CPU_JIT;
 extern const ConfigInfo<bool> IS_NEW_3DS;
+extern const ConfigInfo<bool> USE_GAME_CONFIG;
 extern const ConfigInfo<bool> USE_VIRTUAL_SD;
 extern const ConfigInfo<int> SYSTEM_REGION;
 extern const ConfigInfo<Service::CFG::SystemLanguage> SYSTEM_LANGUAGE;
@@ -36,6 +38,7 @@ extern const ConfigInfo<bool> USE_FENCE_SYNC;
 extern const ConfigInfo<bool> CUSTOM_TEXTURES;
 extern const ConfigInfo<Settings::LayoutOption> LAYOUT_OPTION;
 extern const ConfigInfo<Settings::LayoutOption> LANDSCAPE_LAYOUT_OPTION;
+extern const ConfigInfo<Settings::PresentationMode> SCREEN_PRESENTATION_MODE;
 extern const ConfigInfo<std::string> POST_PROCESSING_SHADER;
 extern const ConfigInfo<std::string> REMOTE_SHADER_HOST;
 
@@ -91,6 +94,9 @@ extern const ConfigInfo<std::string> BUTTON_ZL;
 extern const ConfigInfo<std::string> BUTTON_ZR;
 extern const ConfigInfo<std::string> BUTTON_HOME;
 extern const ConfigInfo<std::string> BUTTON_POWER;
+extern const ConfigInfo<std::string> BUTTON_COMBO_1;
+extern const ConfigInfo<std::string> BUTTON_COMBO_2;
+extern const ConfigInfo<std::string> BUTTON_COMBO_3;
 extern const ConfigInfo<std::string> CIRCLE_PAD_UP;
 extern const ConfigInfo<std::string> CIRCLE_PAD_DOWN;
 extern const ConfigInfo<std::string> CIRCLE_PAD_LEFT;
