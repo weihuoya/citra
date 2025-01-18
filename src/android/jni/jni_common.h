@@ -37,7 +37,6 @@ public:
     static int GetSafeInsetRight();
     static int GetSafeInsetBottom();
     static float GetScaleDensity();
-    static void SetupTranslater(const std::string& key, const std::string& secret);
     static void HandleNFCScanning(bool isScanning);
     static void ImageLoadedCallback(u32* jpixels, u32 width, u32 height);
 

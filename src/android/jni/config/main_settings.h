@@ -72,8 +72,6 @@ extern const ConfigInfo<bool> USE_PRESENT_THREAD;
 extern const ConfigInfo<bool> SHADOW_RENDERING;
 extern const ConfigInfo<bool> CPU_USAGE_LIMIT;
 extern const ConfigInfo<std::string> LLE_MODULES;
-extern const ConfigInfo<std::string> BAIDU_OCR_KEY;
-extern const ConfigInfo<std::string> BAIDU_OCR_SECRET;
 
 // controls
 extern const ConfigInfo<std::string> BUTTON_A;

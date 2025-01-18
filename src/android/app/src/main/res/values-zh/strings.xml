@@ -47,24 +47,6 @@
     <string name="controller_scale">按键缩放</string>
     <string name="controller_alpha">按键透明度</string>
 
-    <string name="translate_enabled">启用屏幕翻译</string>
-    <string name="translate_high_precision">高精度屏幕识别</string>
-    <string name="translate_vertical_text">竖排文字</string>
-    <string name="translate_show_ocr_results">显示原文</string>
-    <string name="translate_game_language">游戏语言</string>
-    <string name="translate_service">翻译服务</string>
-    <string name="baidu_ocr_key">百度文字识别 API Key</string>
-    <string name="baidu_ocr_secret">百度文字识别 Secret Key</string>
-
-    <string name="translate_service_google">谷歌</string>
-    <string name="translate_service_youdao">有道</string>
-    <string name="translate_service_yeekit">译库</string>
-
-    <string name="translate_language_auto">自动</string>
-    <string name="translate_language_jpn">日语</string>
-    <string name="translate_language_eng">英语</string>
-    <string name="translate_language_kor">韩语</string>
-
     <string name="grid_menu_refresh">刷新游戏库</string>
     <string name="grid_menu_input_binding">手柄绑定</string>
     <string name="grid_menu_install_cia">安装 CIA</string>
@@ -73,7 +55,6 @@
     <string name="combo_key_1">组合键 1</string>
     <string name="combo_key_2">组合键 2</string>
     <string name="combo_key_3">组合键 3</string>
-    <string name="translate_settings">屏幕翻译</string>
     <string name="multiplayer">多人游戏</string>
     <string name="multiplayer_room_title">房间：%1$s</string>
     <string name="multiplayer_console_id">设备 ID：%1$s</string>

@@ -121,10 +121,6 @@ float NativeLibrary::GetScaleDensity() {
     return JniHelper::CallStaticMethod<float>(CLASS, "getScaleDensity");
 }
 
-void NativeLibrary::SetupTranslater(const std::string& key, const std::string& secret) {
-    JniHelper::CallStaticMethod<void>(CLASS, "setupTranslater", key, secret);
-}
-
 void NativeLibrary::HandleNFCScanning(bool isScanning) {
     JniHelper::CallStaticMethod<void>(CLASS, "handleNFCScanning", isScanning);
 }
