@@ -21,7 +21,6 @@ import java.util.HashMap;
 import org.citra.emu.ui.EmulationActivity;
 import org.citra.emu.ui.MainActivity;
 import org.citra.emu.utils.NetPlayManager;
-import org.citra.emu.utils.TranslateHelper;
 import org.citra.emu.utils.WebRequestHandler;
 
 public final class NativeLibrary {
@@ -311,10 +310,6 @@ public final class NativeLibrary {
         } else {
             return 1;
         }
-    }
-
-    public static void setupTranslater(String key, String secret) {
-        TranslateHelper.Initialize(key, secret);
     }
 
     public static boolean isValidFile(String filename) {

@@ -31,15 +31,13 @@ import org.citra.emu.NativeLibrary;
 import org.citra.emu.R;
 import org.citra.emu.overlay.InputOverlay;
 import org.citra.emu.utils.NetPlayManager;
-import org.citra.emu.utils.TranslateHelper;
 
 public class RunningSettingDialog extends DialogFragment {
     private static String KEY_MENU = "menu";
     public static final int MENU_MAIN = 0;
     public static final int MENU_SETTINGS = 1;
-    public static final int MENU_TRANSLATE = 2;
-    public static final int MENU_MULTIPLAYER = 3;
-    public static final int MENU_AMIIBO = 4;
+    public static final int MENU_MULTIPLAYER = 2;
+    public static final int MENU_AMIIBO = 3;
 
     private int mMenu;
     private TextView mTitle;
@@ -85,8 +83,6 @@ public class RunningSettingDialog extends DialogFragment {
         super.onDismiss(dialog);
         if (mMenu == MENU_SETTINGS) {
             mAdapter.saveSettings();
-        } else if (mMenu == MENU_TRANSLATE) {
-            mAdapter.saveTranslate();
         }
         if (mDismissListener != null) {
             mDismissListener.onDismiss(dialog);
@@ -112,9 +108,6 @@ public class RunningSettingDialog extends DialogFragment {
         } else if (menu == MENU_SETTINGS) {
             mTitle.setText(R.string.preferences_settings);
             mAdapter.loadSettingsMenu();
-        } else if (menu == MENU_TRANSLATE) {
-            mTitle.setText(R.string.preferences_settings);
-            mAdapter.loadTranslateMenu();
         } else if (menu == MENU_MULTIPLAYER) {
             mTitle.setText(R.string.multiplayer);
             mAdapter.loadMultiplayerMenu();
@@ -155,12 +148,6 @@ public class RunningSettingDialog extends DialogFragment {
         public static final int SETTING_MEMORY_VIEWER = 206;
         public static final int SETTING_EDIT_SCREEN = 207;
         public static final int SETTING_EXIT_GAME = 208;
-
-        public static final int SETTING_TRANSLATE_ENABLED = 301;
-        public static final int SETTING_TRANSLATE_VERTICAL = 302;
-        public static final int SETTING_TRANSLATE_OCR_RESULTS = 303;
-        public static final int SETTING_TRANSLATE_LANGUAGE = 304;
-        public static final int SETTING_TRANSLATE_SERVICE = 305;
 
         public static final int SETTING_MULTIPLAYER_ROOM_TEXT = 400;
         public static final int SETTING_MULTIPLAYER_CREATE_ROOM = 401;
@@ -434,32 +421,6 @@ public class RunningSettingDialog extends DialogFragment {
                 RadioButton radio3 = mRadioGroup.findViewById(R.id.radio3);
                 radio3.setVisibility(View.VISIBLE);
                 radio3.setText("×4");
-            } else if (item.getSetting() == SettingsItem.SETTING_TRANSLATE_LANGUAGE) {
-                RadioButton radio0 = mRadioGroup.findViewById(R.id.radio0);
-                radio0.setText(R.string.translate_language_auto);
-
-                RadioButton radio1 = mRadioGroup.findViewById(R.id.radio1);
-                radio1.setText(R.string.translate_language_jpn);
-
-                RadioButton radio2 = mRadioGroup.findViewById(R.id.radio2);
-                radio2.setText(R.string.translate_language_eng);
-
-                RadioButton radio3 = mRadioGroup.findViewById(R.id.radio3);
-                radio3.setVisibility(View.VISIBLE);
-                radio3.setText(R.string.translate_language_kor);
-            } else if (item.getSetting() == SettingsItem.SETTING_TRANSLATE_SERVICE) {
-                RadioButton radio0 = mRadioGroup.findViewById(R.id.radio0);
-                radio0.setText(R.string.off);
-
-                RadioButton radio1 = mRadioGroup.findViewById(R.id.radio1);
-                radio1.setText(R.string.translate_service_google);
-
-                RadioButton radio2 = mRadioGroup.findViewById(R.id.radio2);
-                radio2.setText(R.string.translate_service_youdao);
-
-                RadioButton radio3 = mRadioGroup.findViewById(R.id.radio3);
-                radio3.setVisibility(View.VISIBLE);
-                radio3.setText(R.string.translate_service_yeekit);
             } else if (item.getSetting() == SettingsItem.SETTING_ACCURATE_MUL) {
                 RadioButton radio0 = mRadioGroup.findViewById(R.id.radio0);
                 radio0.setText(R.string.accurate_mul_off);
@@ -605,9 +566,6 @@ public class RunningSettingDialog extends DialogFragment {
             mSettings.add(new SettingsItem(SettingsItem.SETTING_MEMORY_VIEWER, R.string.emulation_memory_search, SettingsItem.TYPE_TEXT, 0));
             mSettings.add(new SettingsItem(SettingsItem.SETTING_LOAD_SUBMENU, R.string.multiplayer, SettingsItem.TYPE_TEXT, MENU_MULTIPLAYER));
             mSettings.add(new SettingsItem(SettingsItem.SETTING_EDIT_SCREEN, R.string.emulation_screen_layout, SettingsItem.TYPE_TEXT, 0));
-            if (TranslateHelper.BaiduOCRToken != null) {
-                mSettings.add(new SettingsItem(SettingsItem.SETTING_LOAD_SUBMENU, R.string.translate_settings, SettingsItem.TYPE_TEXT, MENU_TRANSLATE));
-            }
             mSettings.add(new SettingsItem(SettingsItem.SETTING_EXIT_GAME, R.string.emulation_stop_running, SettingsItem.TYPE_TEXT, 0));
             notifyDataSetChanged();
         }
@@ -635,33 +593,6 @@ public class RunningSettingDialog extends DialogFragment {
                 mSettings.add(new SettingsItem(SettingsItem.SETTING_MULTIPLAYER_CREATE_ROOM, R.string.multiplayer_create_room, SettingsItem.TYPE_TEXT, 0));
                 mSettings.add(new SettingsItem(SettingsItem.SETTING_MULTIPLAYER_JOIN_ROOM, R.string.multiplayer_join_room, SettingsItem.TYPE_TEXT, 0));
             }
-            notifyDataSetChanged();
-        }
-
-        public void loadTranslateMenu() {
-            EmulationActivity activity = (EmulationActivity)NativeLibrary.getEmulationContext();
-
-            mSettings = new ArrayList<>();
-            mSettings.add(new SettingsItem(SettingsItem.SETTING_TRANSLATE_ENABLED,
-                    R.string.translate_enabled,
-                    SettingsItem.TYPE_CHECKBOX, activity.isLassoOverlayEnabled() ? 1 : 0));
-
-            mSettings.add(new SettingsItem(SettingsItem.SETTING_TRANSLATE_VERTICAL,
-                    R.string.translate_vertical_text,
-                    SettingsItem.TYPE_CHECKBOX, TranslateHelper.BaiduOCRHighPrecision ? 1 : 0));
-
-            mSettings.add(new SettingsItem(SettingsItem.SETTING_TRANSLATE_OCR_RESULTS,
-                    R.string.translate_show_ocr_results,
-                    SettingsItem.TYPE_CHECKBOX, TranslateHelper.ShowOCRResults ? 1 : 0));
-
-            mSettings.add(new SettingsItem(SettingsItem.SETTING_TRANSLATE_LANGUAGE,
-                    R.string.translate_game_language, SettingsItem.TYPE_RADIO_GROUP,
-                    TranslateHelper.Language));
-
-            mSettings.add(new SettingsItem(SettingsItem.SETTING_TRANSLATE_SERVICE,
-                    R.string.translate_service, SettingsItem.TYPE_RADIO_GROUP,
-                    TranslateHelper.Service));
-
             notifyDataSetChanged();
         }
 
@@ -780,19 +711,6 @@ public class RunningSettingDialog extends DialogFragment {
         @Override
         public void onBindViewHolder(@NonNull SettingViewHolder holder, int position) {
             holder.bind(mSettings.get(position));
-        }
-
-        public void saveTranslate() {
-            if (mSettings == null) {
-                return;
-            }
-
-            EmulationActivity activity = (EmulationActivity)NativeLibrary.getEmulationContext();
-            activity.setLassoOverlay(mSettings.get(0).getValue() == 1);
-            TranslateHelper.BaiduOCRHighPrecision = mSettings.get(1).getValue() == 1;
-            TranslateHelper.ShowOCRResults = mSettings.get(2).getValue() == 1;
-            TranslateHelper.Language = mSettings.get(3).getValue();
-            TranslateHelper.Service = mSettings.get(4).getValue();
         }
 
         public void saveSettings() {

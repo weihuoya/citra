@@ -47,24 +47,6 @@
     <string name="controller_scale">Масштаб контроллера</string>
     <string name="controller_alpha">Видимость контроллера</string>
 
-    <string name="translate_enabled">Вкл. перевод экрана</string>
-    <string name="translate_high_precision">Высокая точность OCR</string>
-    <string name="translate_vertical_text">Вертикальный текст</string>
-    <string name="translate_show_ocr_results">Показать результаты OCR</string>
-    <string name="translate_game_language">Язык игры</string>
-    <string name="translate_service">Службы перевода</string>
-    <string name="baidu_ocr_key">Ключ Baidu OCR API</string>
-    <string name="baidu_ocr_secret">Секретный ключ Baidu OCR</string>
-
-    <string name="translate_service_google">Google</string>
-    <string name="translate_service_youdao">Youdao</string>
-    <string name="translate_service_yeekit">Yeekit</string>
-
-    <string name="translate_language_auto">Автом.</string>
-    <string name="translate_language_jpn">JPN</string>
-    <string name="translate_language_eng">ENG</string>
-    <string name="translate_language_kor">KOR</string>
-
     <string name="grid_menu_refresh">Обновить библиотеку</string>
     <string name="grid_menu_input_binding">Привязки ввода</string>
     <string name="grid_menu_install_cia">Установить CIA</string>
@@ -73,7 +55,6 @@
     <string name="combo_key_1">Комбо-кнопка 1</string>
     <string name="combo_key_2">Комбо-кнопка 2</string>
     <string name="combo_key_3">Комбо-кнопка 3</string>
-    <string name="translate_settings">Перевод экрана</string>
     <string name="multiplayer">Мультиплеер</string>
     <string name="multiplayer_room_title">Комната: %1$s</string>
     <string name="multiplayer_console_id">ID консоли：%1$s</string>

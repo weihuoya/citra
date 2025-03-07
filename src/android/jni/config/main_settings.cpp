@@ -69,8 +69,6 @@ const ConfigInfo<bool> USE_PRESENT_THREAD{{"Debug", "use_present_thread"}, true}
 const ConfigInfo<bool> SHADOW_RENDERING{{"Debug", "shadow_rendering"}, true};
 const ConfigInfo<bool> CPU_USAGE_LIMIT{{"Debug", "cpu_usage_limit"}, false};
 const ConfigInfo<std::string> LLE_MODULES{{"Debug", "lle_modules"}, ""};
-const ConfigInfo<std::string> BAIDU_OCR_KEY{{"Debug", "baidu_ocr_key"}, ""};
-const ConfigInfo<std::string> BAIDU_OCR_SECRET{{"Debug", "baidu_ocr_secret"}, ""};
 
 // controls
 const ConfigInfo<std::string> BUTTON_A{{"Controls", "button_a"}, "code:96"};

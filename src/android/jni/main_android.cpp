@@ -529,8 +529,6 @@ JNIEXPORT void JNICALL Java_org_citra_emu_NativeLibrary_Run(JNIEnv* env, jclass 
     cfg->SetSystemLanguage(Config::Get(Config::SYSTEM_LANGUAGE));
     cfg->UpdateConfigNANDSavegame();
 
-    NativeLibrary::SetupTranslater(Config::Get(Config::BAIDU_OCR_KEY), Config::Get(Config::BAIDU_OCR_SECRET));
-
     // run
     BootGame(JniHelper::Unwrap(jFile));
 
