@@ -4,13 +4,12 @@ import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
-import android.os.Build;
+import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.widget.Toast;
-import android.graphics.Rect;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
@@ -256,7 +255,7 @@ public final class SettingsActivity extends AppCompatActivity {
     }
 
     public void applyLargeScreenTopAutoFit() {
-        int[] size = getCurrentWindowSize();
+        int[] size = getCurrentDisplaySize();
         int portraitWidth = Math.min(size[0], size[1]);
         int portraitHeight = Math.max(size[0], size[1]);
         int landscapeWidth = portraitHeight;
@@ -270,11 +269,30 @@ public final class SettingsActivity extends AppCompatActivity {
                                              SettingsFile.KEY_LAYOUT_MARGIN_RIGHT, 0);
         int marginBottom = getIntSettingValue(Settings.SECTION_INI_RENDERER,
                                               SettingsFile.KEY_LAYOUT_MARGIN_BOTTOM, 0);
+        int landscapeMarginLeft = getIntSettingValue(Settings.SECTION_INI_RENDERER,
+                                                     SettingsFile.KEY_LANDSCAPE_LAYOUT_MARGIN_LEFT,
+                                                     marginLeft);
+        int landscapeMarginTop = getIntSettingValue(Settings.SECTION_INI_RENDERER,
+                                                    SettingsFile.KEY_LANDSCAPE_LAYOUT_MARGIN_TOP,
+                                                    marginTop);
+        int landscapeMarginRight = getIntSettingValue(Settings.SECTION_INI_RENDERER,
+                                                      SettingsFile.KEY_LANDSCAPE_LAYOUT_MARGIN_RIGHT,
+                                                      marginRight);
+        int landscapeMarginBottom = getIntSettingValue(Settings.SECTION_INI_RENDERER,
+                                                       SettingsFile.KEY_LANDSCAPE_LAYOUT_MARGIN_BOTTOM,
+                                                       marginBottom);
+        boolean portraitSwap = getIntSettingValue(Settings.SECTION_INI_RENDERER,
+                                                  SettingsFile.KEY_SWAP_SCREEN, 0) > 0;
+        boolean landscapeSwap = getIntSettingValue(Settings.SECTION_INI_RENDERER,
+                                                   SettingsFile.KEY_LANDSCAPE_SWAP_SCREEN,
+                                                   portraitSwap ? 1 : 0) > 0;
 
         int portraitAuto = NativeLibrary.getLargeScreenTopAutoFitProportionForDimensions(
-            portraitWidth, portraitHeight, marginLeft, marginTop, marginRight, marginBottom);
+            portraitWidth, portraitHeight, marginLeft, marginTop, marginRight, marginBottom,
+            portraitSwap);
         int landscapeAuto = NativeLibrary.getLargeScreenTopAutoFitProportionForDimensions(
-            landscapeWidth, landscapeHeight, marginLeft, marginTop, marginRight, marginBottom);
+            landscapeWidth, landscapeHeight, landscapeMarginLeft, landscapeMarginTop,
+            landscapeMarginRight, landscapeMarginBottom, landscapeSwap);
 
         putSetting(new IntSetting(SettingsFile.KEY_LARGE_SCREEN_PROPORTION,
                                   Settings.SECTION_INI_RENDERER, portraitAuto));
@@ -453,12 +471,8 @@ public final class SettingsActivity extends AppCompatActivity {
         }
     }
 
-    private int[] getCurrentWindowSize() {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-            Rect bounds = getWindowManager().getCurrentWindowMetrics().getBounds();
-            return new int[]{bounds.width(), bounds.height()};
-        }
-        android.util.DisplayMetrics metrics = new android.util.DisplayMetrics();
+    private int[] getCurrentDisplaySize() {
+        DisplayMetrics metrics = new DisplayMetrics();
         getWindowManager().getDefaultDisplay().getRealMetrics(metrics);
         return new int[]{metrics.widthPixels, metrics.heightPixels};
     }

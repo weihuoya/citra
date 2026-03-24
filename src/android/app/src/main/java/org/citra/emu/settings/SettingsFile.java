@@ -46,6 +46,8 @@ public final class SettingsFile {
     public static final String KEY_CUSTOM_TEXTURES = "custom_textures";
     public static final String KEY_LAYOUT_OPTION = "layout_option";
     public static final String KEY_LANDSCAPE_LAYOUT_OPTION = "landscape_layout_option";
+    public static final String KEY_SWAP_SCREEN = "portrait_swap_screen";
+    public static final String KEY_LANDSCAPE_SWAP_SCREEN = "landscape_swap_screen";
     public static final String KEY_LARGE_SCREEN_PROPORTION = "large_screen_proportion";
     public static final String KEY_LANDSCAPE_LARGE_SCREEN_PROPORTION =
         "landscape_large_screen_proportion";

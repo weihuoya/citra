@@ -815,7 +815,7 @@ JNIEXPORT void JNICALL Java_org_citra_emu_NativeLibrary_nativeStopEmulation(JNIE
 JNIEXPORT jintArray JNICALL Java_org_citra_emu_NativeLibrary_getRunningSettings(JNIEnv* env,
                                                                                 jclass obj) {
     int i = 0;
-    int settings[23];
+    int settings[24];
 
     // get settings
     settings[i++] = Settings::values.core_ticks_hack > 0;
@@ -829,6 +829,7 @@ JNIEXPORT jintArray JNICALL Java_org_citra_emu_NativeLibrary_getRunningSettings(
     settings[i++] = Settings::values.use_compatible_mode;
     settings[i++] = std::min(std::max(Settings::values.resolution_factor - 1, 0), 3);
     settings[i++] = static_cast<int>(Settings::values.layout_option);
+    settings[i++] = Settings::values.swap_screen;
     settings[i++] = Settings::values.large_screen_proportion;
     settings[i++] = Settings::values.large_screen_secondary_left;
     settings[i++] = Settings::values.large_screen_secondary_top;
@@ -867,11 +868,11 @@ JNIEXPORT jint JNICALL Java_org_citra_emu_NativeLibrary_getLargeScreenTopAutoFit
 JNIEXPORT jint JNICALL
 Java_org_citra_emu_NativeLibrary_getLargeScreenTopAutoFitProportionForDimensions(
     JNIEnv* env, jclass obj, jint width, jint height, jint margin_left, jint margin_top,
-    jint margin_right, jint margin_bottom) {
+    jint margin_right, jint margin_bottom, jboolean swapped) {
     const auto safe_width = std::max(width, 0);
     const auto safe_height = std::max(height, 0);
     return Layout::GetLargeFrameLayoutTopAndroidMaxFillProportion(
-        static_cast<u32>(safe_width), static_cast<u32>(safe_height), Settings::values.swap_screen,
+        static_cast<u32>(safe_width), static_cast<u32>(safe_height), swapped,
         static_cast<u32>(std::max(margin_left, 0)), static_cast<u32>(std::max(margin_top, 0)),
         static_cast<u32>(std::max(margin_right, 0)),
         static_cast<u32>(std::max(margin_bottom, 0)));
@@ -927,6 +928,14 @@ JNIEXPORT void JNICALL Java_org_citra_emu_NativeLibrary_setRunningSettings(JNIEn
         Config::Set(Config::LAYOUT_OPTION, Settings::values.layout_option);
     } else {
         Config::Set(Config::LANDSCAPE_LAYOUT_OPTION, Settings::values.layout_option);
+    }
+
+    // Swap top and bottom screens for automatic layouts
+    Settings::values.swap_screen = settings[i++] > 0;
+    if (NativeLibrary::IsPortrait()) {
+        Config::Set(Config::PORTRAIT_SWAP_SCREEN, Settings::values.swap_screen);
+    } else {
+        Config::Set(Config::LANDSCAPE_SWAP_SCREEN, Settings::values.swap_screen);
     }
 
     // Top-aligned large-screen secondary scale

@@ -309,6 +309,7 @@ public final class SettingsFragment extends Fragment {
 
         SettingSection rendererSection = mSettings.getSection(Settings.SECTION_INI_RENDERER);
         Setting layoutOption = rendererSection.getSetting(SettingsFile.KEY_LAYOUT_OPTION);
+        Setting swapScreen = rendererSection.getSetting(SettingsFile.KEY_SWAP_SCREEN);
         Setting largeScreenProportion =
             rendererSection.getSetting(SettingsFile.KEY_LARGE_SCREEN_PROPORTION);
         Setting largeScreenSecondaryLeft =
@@ -334,6 +335,8 @@ public final class SettingsFragment extends Fragment {
         sl.add(new SingleChoiceSetting(
             SettingsFile.KEY_LAYOUT_OPTION, Settings.SECTION_INI_RENDERER, R.string.layout_option,
             0, R.array.layoutOptionEntries, R.array.layoutOptionValues, 0, layoutOption));
+        sl.add(new CheckBoxSetting(SettingsFile.KEY_SWAP_SCREEN, Settings.SECTION_INI_RENDERER,
+                R.string.swap_screens, R.string.swap_screens_description, false, swapScreen));
 
         if (currentLayout == 4) {
             sl.add(new SliderSetting(SettingsFile.KEY_LARGE_SCREEN_PROPORTION,

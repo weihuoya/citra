@@ -484,7 +484,8 @@ public final class NativeLibrary {
     public static native void setRunningSettings(int[] settings);
     public static native int getLargeScreenTopAutoFitProportion();
     public static native int getLargeScreenTopAutoFitProportionForDimensions(
-        int width, int height, int marginLeft, int marginTop, int marginRight, int marginBottom);
+        int width, int height, int marginLeft, int marginTop, int marginRight, int marginBottom,
+        boolean swapped);
     public static native void setCustomLayout(boolean isTopScreen, int left, int top, int right, int bottom);
     public static native Rect getCustomLayout(boolean isTopScreen);
     public static native void SetBackgroundImage(int[] pixels, int width, int height);

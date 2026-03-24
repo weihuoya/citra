@@ -444,6 +444,8 @@ public final class SettingsAdapter extends RecyclerView.Adapter<SettingViewHolde
             landscapeKey = SettingsFile.KEY_LANDSCAPE_LARGE_SCREEN_SECONDARY_LEFT;
         } else if (SettingsFile.KEY_LARGE_SCREEN_SECONDARY_TOP.equals(key)) {
             landscapeKey = SettingsFile.KEY_LANDSCAPE_LARGE_SCREEN_SECONDARY_TOP;
+        } else if (SettingsFile.KEY_SWAP_SCREEN.equals(key)) {
+            landscapeKey = SettingsFile.KEY_LANDSCAPE_SWAP_SCREEN;
         } else if (SettingsFile.KEY_HYBRID_SIDE_COLUMN_LEFT.equals(key)) {
             landscapeKey = SettingsFile.KEY_LANDSCAPE_HYBRID_SIDE_COLUMN_LEFT;
         } else if (SettingsFile.KEY_HYBRID_SECONDARY_TOP.equals(key)) {

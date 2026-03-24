@@ -4,6 +4,7 @@ import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.DialogInterface;
 import android.content.SharedPreferences;
+import android.util.DisplayMetrics;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.os.Debug;
@@ -132,19 +133,20 @@ public class RunningSettingDialog extends DialogFragment {
         public static final int SETTING_USE_COMPATIBLE_MODE = 8;
         public static final int SETTING_SCALE_FACTOR = 9;
         public static final int SETTING_SCREEN_LAYOUT = 10;
-        public static final int SETTING_LARGE_SCREEN_PROPORTION = 11;
-        public static final int SETTING_LARGE_SCREEN_SECONDARY_LEFT = 12;
-        public static final int SETTING_LARGE_SCREEN_SECONDARY_TOP = 13;
-        public static final int SETTING_HYBRID_SIDE_COLUMN_LEFT = 14;
-        public static final int SETTING_HYBRID_SECONDARY_TOP = 15;
+        public static final int SETTING_SWAP_SCREEN = 11;
+        public static final int SETTING_LARGE_SCREEN_PROPORTION = 12;
+        public static final int SETTING_LARGE_SCREEN_SECONDARY_LEFT = 13;
+        public static final int SETTING_LARGE_SCREEN_SECONDARY_TOP = 14;
+        public static final int SETTING_HYBRID_SIDE_COLUMN_LEFT = 15;
+        public static final int SETTING_HYBRID_SECONDARY_TOP = 16;
         // Keep these indices aligned with NativeLibrary.getRunningSettings().
-        public static final int SETTING_LAYOUT_MARGIN_LEFT = 16;
-        public static final int SETTING_LAYOUT_MARGIN_TOP = 17;
-        public static final int SETTING_LAYOUT_MARGIN_RIGHT = 18;
-        public static final int SETTING_LAYOUT_MARGIN_BOTTOM = 19;
-        public static final int SETTING_ACCURATE_MUL = 20;
-        public static final int SETTING_CUSTOM_LAYOUT = 21;
-        public static final int SETTING_FRAME_LIMIT = 22;
+        public static final int SETTING_LAYOUT_MARGIN_LEFT = 17;
+        public static final int SETTING_LAYOUT_MARGIN_TOP = 18;
+        public static final int SETTING_LAYOUT_MARGIN_RIGHT = 19;
+        public static final int SETTING_LAYOUT_MARGIN_BOTTOM = 20;
+        public static final int SETTING_ACCURATE_MUL = 21;
+        public static final int SETTING_CUSTOM_LAYOUT = 22;
+        public static final int SETTING_FRAME_LIMIT = 23;
 
         // pref
         public static final int SETTING_JOYSTICK_RELATIVE = 100;
@@ -802,6 +804,9 @@ public class RunningSettingDialog extends DialogFragment {
             mSettings.add(new SettingsItem(SettingsItem.SETTING_SCREEN_LAYOUT,
                     R.string.running_layout, SettingsItem.TYPE_RADIO_GROUP,
                     currentLayout));
+            mSettings.add(new SettingsItem(SettingsItem.SETTING_SWAP_SCREEN,
+                    R.string.swap_screens, SettingsItem.TYPE_CHECKBOX,
+                    mRunningSettings[SettingsItem.SETTING_SWAP_SCREEN]));
 
             if (currentLayout == 4) {
                 mSettings.add(new SettingsItem(SettingsItem.SETTING_LARGE_SCREEN_PROPORTION,
@@ -935,6 +940,9 @@ public class RunningSettingDialog extends DialogFragment {
         public void updateWorkingValue(int setting, int value) {
             if (setting >= 0 && mRunningSettings != null && setting < mRunningSettings.length) {
                 mRunningSettings[setting] = value;
+                if (isLiveScreenLayoutSetting(setting)) {
+                    NativeLibrary.setRunningSettings(mRunningSettings);
+                }
                 return;
             }
 
@@ -959,19 +967,36 @@ public class RunningSettingDialog extends DialogFragment {
             }
         }
 
+        private boolean isLiveScreenLayoutSetting(int setting) {
+            return setting == SettingsItem.SETTING_SCREEN_LAYOUT ||
+                   setting == SettingsItem.SETTING_SWAP_SCREEN ||
+                   setting == SettingsItem.SETTING_LARGE_SCREEN_PROPORTION ||
+                   setting == SettingsItem.SETTING_LARGE_SCREEN_SECONDARY_LEFT ||
+                   setting == SettingsItem.SETTING_LARGE_SCREEN_SECONDARY_TOP ||
+                   setting == SettingsItem.SETTING_HYBRID_SIDE_COLUMN_LEFT ||
+                   setting == SettingsItem.SETTING_HYBRID_SECONDARY_TOP ||
+                   setting == SettingsItem.SETTING_LAYOUT_MARGIN_LEFT ||
+                   setting == SettingsItem.SETTING_LAYOUT_MARGIN_TOP ||
+                   setting == SettingsItem.SETTING_LAYOUT_MARGIN_RIGHT ||
+                   setting == SettingsItem.SETTING_LAYOUT_MARGIN_BOTTOM;
+        }
+
         public int getLargeScreenTopAutoFitForCurrentDisplay() {
-            EmulationActivity activity = (EmulationActivity)NativeLibrary.getEmulationContext();
-            if (activity == null) {
+            final EmulationActivity activity =
+                (EmulationActivity)NativeLibrary.getEmulationContext();
+            if (activity == null || mRunningSettings == null) {
                 return NativeLibrary.getLargeScreenTopAutoFitProportion();
             }
 
-            int width = activity.getResources().getDisplayMetrics().widthPixels;
-            int height = activity.getResources().getDisplayMetrics().heightPixels;
+            final DisplayMetrics metrics = new DisplayMetrics();
+            activity.getWindowManager().getDefaultDisplay().getRealMetrics(metrics);
             return NativeLibrary.getLargeScreenTopAutoFitProportionForDimensions(
-                width, height, mRunningSettings[SettingsItem.SETTING_LAYOUT_MARGIN_LEFT],
+                metrics.widthPixels, metrics.heightPixels,
+                mRunningSettings[SettingsItem.SETTING_LAYOUT_MARGIN_LEFT],
                 mRunningSettings[SettingsItem.SETTING_LAYOUT_MARGIN_TOP],
                 mRunningSettings[SettingsItem.SETTING_LAYOUT_MARGIN_RIGHT],
-                mRunningSettings[SettingsItem.SETTING_LAYOUT_MARGIN_BOTTOM]);
+                mRunningSettings[SettingsItem.SETTING_LAYOUT_MARGIN_BOTTOM],
+                mRunningSettings[SettingsItem.SETTING_SWAP_SCREEN] > 0);
         }
 
         private void ensureWorkingStateLoaded() {
