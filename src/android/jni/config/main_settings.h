@@ -40,6 +40,8 @@ extern const ConfigInfo<Settings::LayoutOption> LAYOUT_OPTION;
 extern const ConfigInfo<Settings::LayoutOption> LANDSCAPE_LAYOUT_OPTION;
 extern const ConfigInfo<u16> LARGE_SCREEN_PROPORTION;
 extern const ConfigInfo<u16> LANDSCAPE_LARGE_SCREEN_PROPORTION;
+extern const ConfigInfo<bool> LARGE_SCREEN_AUTO_FIT;
+extern const ConfigInfo<bool> LANDSCAPE_LARGE_SCREEN_AUTO_FIT;
 extern const ConfigInfo<bool> LARGE_SCREEN_SECONDARY_LEFT;
 extern const ConfigInfo<bool> LANDSCAPE_LARGE_SCREEN_SECONDARY_LEFT;
 extern const ConfigInfo<bool> LARGE_SCREEN_SECONDARY_TOP;

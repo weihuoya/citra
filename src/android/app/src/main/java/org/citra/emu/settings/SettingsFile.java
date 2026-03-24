@@ -51,6 +51,9 @@ public final class SettingsFile {
     public static final String KEY_LARGE_SCREEN_PROPORTION = "large_screen_proportion";
     public static final String KEY_LANDSCAPE_LARGE_SCREEN_PROPORTION =
         "landscape_large_screen_proportion";
+    public static final String KEY_LARGE_SCREEN_AUTO_FIT = "large_screen_auto_fit";
+    public static final String KEY_LANDSCAPE_LARGE_SCREEN_AUTO_FIT =
+        "landscape_large_screen_auto_fit";
     public static final String KEY_LARGE_SCREEN_SECONDARY_LEFT = "large_screen_secondary_left";
     public static final String KEY_LANDSCAPE_LARGE_SCREEN_SECONDARY_LEFT =
         "landscape_large_screen_secondary_left";

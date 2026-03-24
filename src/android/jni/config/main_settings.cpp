@@ -35,6 +35,9 @@ const ConfigInfo<Settings::LayoutOption> LANDSCAPE_LAYOUT_OPTION{
 const ConfigInfo<u16> LARGE_SCREEN_PROPORTION{{"Renderer", "large_screen_proportion"}, 75};
 const ConfigInfo<u16> LANDSCAPE_LARGE_SCREEN_PROPORTION{
     {"Renderer", "landscape_large_screen_proportion"}, 75};
+const ConfigInfo<bool> LARGE_SCREEN_AUTO_FIT{{"Renderer", "large_screen_auto_fit"}, false};
+const ConfigInfo<bool> LANDSCAPE_LARGE_SCREEN_AUTO_FIT{
+    {"Renderer", "landscape_large_screen_auto_fit"}, false};
 const ConfigInfo<bool> LARGE_SCREEN_SECONDARY_LEFT{
     {"Renderer", "large_screen_secondary_left"}, false};
 const ConfigInfo<bool> LANDSCAPE_LARGE_SCREEN_SECONDARY_LEFT{

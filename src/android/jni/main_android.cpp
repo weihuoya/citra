@@ -426,6 +426,7 @@ static void UpdateDisplayRotation() {
     if (NativeLibrary::IsPortrait()) {
         Settings::values.layout_option = Config::Get(Config::LAYOUT_OPTION);
         Settings::values.large_screen_proportion = Config::Get(Config::LARGE_SCREEN_PROPORTION);
+        Settings::values.large_screen_auto_fit = Config::Get(Config::LARGE_SCREEN_AUTO_FIT);
         Settings::values.large_screen_secondary_left =
             Config::Get(Config::LARGE_SCREEN_SECONDARY_LEFT);
         Settings::values.large_screen_secondary_top =
@@ -450,6 +451,8 @@ static void UpdateDisplayRotation() {
         Settings::values.layout_option = Config::Get(Config::LANDSCAPE_LAYOUT_OPTION);
         Settings::values.large_screen_proportion =
             Config::Get(Config::LANDSCAPE_LARGE_SCREEN_PROPORTION);
+        Settings::values.large_screen_auto_fit =
+            Config::Get(Config::LANDSCAPE_LARGE_SCREEN_AUTO_FIT);
         Settings::values.large_screen_secondary_left =
             Config::Get(Config::LANDSCAPE_LARGE_SCREEN_SECONDARY_LEFT);
         Settings::values.large_screen_secondary_top =
@@ -815,7 +818,7 @@ JNIEXPORT void JNICALL Java_org_citra_emu_NativeLibrary_nativeStopEmulation(JNIE
 JNIEXPORT jintArray JNICALL Java_org_citra_emu_NativeLibrary_getRunningSettings(JNIEnv* env,
                                                                                 jclass obj) {
     int i = 0;
-    int settings[24];
+    int settings[25];
 
     // get settings
     settings[i++] = Settings::values.core_ticks_hack > 0;
@@ -830,6 +833,7 @@ JNIEXPORT jintArray JNICALL Java_org_citra_emu_NativeLibrary_getRunningSettings(
     settings[i++] = std::min(std::max(Settings::values.resolution_factor - 1, 0), 3);
     settings[i++] = static_cast<int>(Settings::values.layout_option);
     settings[i++] = Settings::values.swap_screen;
+    settings[i++] = Settings::values.large_screen_auto_fit;
     settings[i++] = Settings::values.large_screen_proportion;
     settings[i++] = Settings::values.large_screen_secondary_left;
     settings[i++] = Settings::values.large_screen_secondary_top;
@@ -936,6 +940,14 @@ JNIEXPORT void JNICALL Java_org_citra_emu_NativeLibrary_setRunningSettings(JNIEn
         Config::Set(Config::PORTRAIT_SWAP_SCREEN, Settings::values.swap_screen);
     } else {
         Config::Set(Config::LANDSCAPE_SWAP_SCREEN, Settings::values.swap_screen);
+    }
+
+    Settings::values.large_screen_auto_fit = settings[i++] > 0;
+    if (NativeLibrary::IsPortrait()) {
+        Config::Set(Config::LARGE_SCREEN_AUTO_FIT, Settings::values.large_screen_auto_fit);
+    } else {
+        Config::Set(Config::LANDSCAPE_LARGE_SCREEN_AUTO_FIT,
+                    Settings::values.large_screen_auto_fit);
     }
 
     // Top-aligned large-screen secondary scale

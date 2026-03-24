@@ -18,6 +18,7 @@ import androidx.fragment.app.FragmentTransaction;
 import org.citra.emu.NativeLibrary;
 import org.citra.emu.R;
 import org.citra.emu.settings.model.Setting;
+import org.citra.emu.settings.model.BooleanSetting;
 import org.citra.emu.settings.model.IntSetting;
 import org.citra.emu.settings.model.StringSetting;
 import org.citra.emu.utils.CitraDirectory;
@@ -28,8 +29,6 @@ import org.citra.emu.utils.PermissionsHandler;
 import java.io.File;
 
 public final class SettingsActivity extends AppCompatActivity {
-    public static final String ACTION_SCREEN_LAYOUT_TOP_AUTO_FIT =
-        "action_screen_layout_top_auto_fit";
     private static final String FRAGMENT_TAG = "settings";
     private static final int REQUEST_CODE_STATES_DIRECTORY =
         FileBrowserHelper.REQUEST_OPEN_DIRECTORY;
@@ -302,6 +301,33 @@ public final class SettingsActivity extends AppCompatActivity {
         refreshSettingsList();
     }
 
+    public void handleScreenLayoutSettingChanged(String key) {
+        if (key == null) {
+            return;
+        }
+
+        if (SettingsFile.KEY_LAYOUT_OPTION.equals(key)) {
+            refreshSettingsList();
+            if (isLargeScreenTopAutoFitEnabled()) {
+                applyLargeScreenTopAutoFit();
+            }
+            return;
+        }
+
+        if (SettingsFile.KEY_LARGE_SCREEN_AUTO_FIT.equals(key)) {
+            if (isLargeScreenTopAutoFitEnabled()) {
+                applyLargeScreenTopAutoFit();
+            } else {
+                refreshSettingsList();
+            }
+            return;
+        }
+
+        if (isLargeScreenTopAutoFitEnabled() && isLargeScreenTopAutoFitRelevantKey(key)) {
+            applyLargeScreenTopAutoFit();
+        }
+    }
+
     public void openStoragePathPicker(String settingKey) {
         if (EsDeFrontendRegistration.KEY_ES_DE_CUSTOM_SYSTEMS_PATH.equals(settingKey)) {
             mPendingDirectorySettingKey = settingKey;
@@ -477,10 +503,36 @@ public final class SettingsActivity extends AppCompatActivity {
         return new int[]{metrics.widthPixels, metrics.heightPixels};
     }
 
+    private boolean isLargeScreenTopAutoFitEnabled() {
+        if (getIntSettingValue(Settings.SECTION_INI_RENDERER, SettingsFile.KEY_LAYOUT_OPTION, 0) != 4) {
+            return false;
+        }
+        return getBooleanSettingValue(Settings.SECTION_INI_RENDERER,
+                                      SettingsFile.KEY_LARGE_SCREEN_AUTO_FIT, false);
+    }
+
+    private boolean isLargeScreenTopAutoFitRelevantKey(String key) {
+        return SettingsFile.KEY_SWAP_SCREEN.equals(key) ||
+               SettingsFile.KEY_LARGE_SCREEN_SECONDARY_LEFT.equals(key) ||
+               SettingsFile.KEY_LARGE_SCREEN_SECONDARY_TOP.equals(key) ||
+               SettingsFile.KEY_LAYOUT_MARGIN_LEFT.equals(key) ||
+               SettingsFile.KEY_LAYOUT_MARGIN_TOP.equals(key) ||
+               SettingsFile.KEY_LAYOUT_MARGIN_RIGHT.equals(key) ||
+               SettingsFile.KEY_LAYOUT_MARGIN_BOTTOM.equals(key);
+    }
+
     private int getIntSettingValue(String sectionName, String key, int defaultValue) {
         Setting setting = mSettings.getSection(sectionName).getSetting(key);
         if (setting instanceof IntSetting) {
             return ((IntSetting)setting).getValue();
+        }
+        return defaultValue;
+    }
+
+    private boolean getBooleanSettingValue(String sectionName, String key, boolean defaultValue) {
+        Setting setting = mSettings.getSection(sectionName).getSetting(key);
+        if (setting instanceof BooleanSetting) {
+            return ((BooleanSetting)setting).getValue();
         }
         return defaultValue;
     }

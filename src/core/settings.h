@@ -190,6 +190,7 @@ struct Values {
     bool swap_screen;
     bool upright_screen;
     u16 large_screen_proportion;
+    bool large_screen_auto_fit;
     bool large_screen_secondary_left;
     bool large_screen_secondary_top;
     bool hybrid_side_column_left;

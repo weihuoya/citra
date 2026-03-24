@@ -70,6 +70,7 @@ void LogSettings() {
     LogSetting("Layout_LayoutOption", static_cast<int>(Settings::values.layout_option));
     LogSetting("Layout_SwapScreen", Settings::values.swap_screen);
     LogSetting("Layout_LargeScreenProportion", Settings::values.large_screen_proportion);
+    LogSetting("Layout_LargeScreenAutoFit", Settings::values.large_screen_auto_fit);
     LogSetting("Layout_LargeScreenSecondaryLeft", Settings::values.large_screen_secondary_left);
     LogSetting("Layout_LargeScreenSecondaryTop", Settings::values.large_screen_secondary_top);
     LogSetting("Layout_HybridSideColumnLeft", Settings::values.hybrid_side_column_left);

@@ -134,19 +134,20 @@ public class RunningSettingDialog extends DialogFragment {
         public static final int SETTING_SCALE_FACTOR = 9;
         public static final int SETTING_SCREEN_LAYOUT = 10;
         public static final int SETTING_SWAP_SCREEN = 11;
-        public static final int SETTING_LARGE_SCREEN_PROPORTION = 12;
-        public static final int SETTING_LARGE_SCREEN_SECONDARY_LEFT = 13;
-        public static final int SETTING_LARGE_SCREEN_SECONDARY_TOP = 14;
-        public static final int SETTING_HYBRID_SIDE_COLUMN_LEFT = 15;
-        public static final int SETTING_HYBRID_SECONDARY_TOP = 16;
+        public static final int SETTING_LARGE_SCREEN_AUTO_FIT = 12;
+        public static final int SETTING_LARGE_SCREEN_PROPORTION = 13;
+        public static final int SETTING_LARGE_SCREEN_SECONDARY_LEFT = 14;
+        public static final int SETTING_LARGE_SCREEN_SECONDARY_TOP = 15;
+        public static final int SETTING_HYBRID_SIDE_COLUMN_LEFT = 16;
+        public static final int SETTING_HYBRID_SECONDARY_TOP = 17;
         // Keep these indices aligned with NativeLibrary.getRunningSettings().
-        public static final int SETTING_LAYOUT_MARGIN_LEFT = 17;
-        public static final int SETTING_LAYOUT_MARGIN_TOP = 18;
-        public static final int SETTING_LAYOUT_MARGIN_RIGHT = 19;
-        public static final int SETTING_LAYOUT_MARGIN_BOTTOM = 20;
-        public static final int SETTING_ACCURATE_MUL = 21;
-        public static final int SETTING_CUSTOM_LAYOUT = 22;
-        public static final int SETTING_FRAME_LIMIT = 23;
+        public static final int SETTING_LAYOUT_MARGIN_LEFT = 18;
+        public static final int SETTING_LAYOUT_MARGIN_TOP = 19;
+        public static final int SETTING_LAYOUT_MARGIN_RIGHT = 20;
+        public static final int SETTING_LAYOUT_MARGIN_BOTTOM = 21;
+        public static final int SETTING_ACCURATE_MUL = 22;
+        public static final int SETTING_CUSTOM_LAYOUT = 23;
+        public static final int SETTING_FRAME_LIMIT = 24;
 
         // pref
         public static final int SETTING_JOYSTICK_RELATIVE = 100;
@@ -809,9 +810,16 @@ public class RunningSettingDialog extends DialogFragment {
                     mRunningSettings[SettingsItem.SETTING_SWAP_SCREEN]));
 
             if (currentLayout == 4) {
-                mSettings.add(new SettingsItem(SettingsItem.SETTING_LARGE_SCREEN_PROPORTION,
-                        R.string.running_large_screen_proportion, SettingsItem.TYPE_SEEK_BAR,
-                        mRunningSettings[SettingsItem.SETTING_LARGE_SCREEN_PROPORTION]));
+                final boolean autoFitEnabled =
+                    mRunningSettings[SettingsItem.SETTING_LARGE_SCREEN_AUTO_FIT] > 0;
+                mSettings.add(new SettingsItem(SettingsItem.SETTING_LARGE_SCREEN_AUTO_FIT,
+                        R.string.large_screen_auto_fit, SettingsItem.TYPE_CHECKBOX,
+                        mRunningSettings[SettingsItem.SETTING_LARGE_SCREEN_AUTO_FIT]));
+                if (!autoFitEnabled) {
+                    mSettings.add(new SettingsItem(SettingsItem.SETTING_LARGE_SCREEN_PROPORTION,
+                            R.string.running_large_screen_proportion, SettingsItem.TYPE_SEEK_BAR,
+                            mRunningSettings[SettingsItem.SETTING_LARGE_SCREEN_PROPORTION]));
+                }
                 mSettings.add(new SettingsItem(SettingsItem.SETTING_LARGE_SCREEN_SECONDARY_LEFT,
                         R.string.large_screen_secondary_left, SettingsItem.TYPE_CHECKBOX,
                         mRunningSettings[SettingsItem.SETTING_LARGE_SCREEN_SECONDARY_LEFT]));
@@ -940,8 +948,15 @@ public class RunningSettingDialog extends DialogFragment {
         public void updateWorkingValue(int setting, int value) {
             if (setting >= 0 && mRunningSettings != null && setting < mRunningSettings.length) {
                 mRunningSettings[setting] = value;
+                if (shouldApplyLargeScreenTopAutoFit(setting)) {
+                    mRunningSettings[SettingsItem.SETTING_LARGE_SCREEN_PROPORTION] =
+                        Math.max(25, Math.min(100, getLargeScreenTopAutoFitForCurrentDisplay()));
+                }
                 if (isLiveScreenLayoutSetting(setting)) {
                     NativeLibrary.setRunningSettings(mRunningSettings);
+                }
+                if (shouldReloadScreenLayoutMenu(setting)) {
+                    loadScreenLayoutMenu();
                 }
                 return;
             }
@@ -970,6 +985,7 @@ public class RunningSettingDialog extends DialogFragment {
         private boolean isLiveScreenLayoutSetting(int setting) {
             return setting == SettingsItem.SETTING_SCREEN_LAYOUT ||
                    setting == SettingsItem.SETTING_SWAP_SCREEN ||
+                   setting == SettingsItem.SETTING_LARGE_SCREEN_AUTO_FIT ||
                    setting == SettingsItem.SETTING_LARGE_SCREEN_PROPORTION ||
                    setting == SettingsItem.SETTING_LARGE_SCREEN_SECONDARY_LEFT ||
                    setting == SettingsItem.SETTING_LARGE_SCREEN_SECONDARY_TOP ||
@@ -979,6 +995,34 @@ public class RunningSettingDialog extends DialogFragment {
                    setting == SettingsItem.SETTING_LAYOUT_MARGIN_TOP ||
                    setting == SettingsItem.SETTING_LAYOUT_MARGIN_RIGHT ||
                    setting == SettingsItem.SETTING_LAYOUT_MARGIN_BOTTOM;
+        }
+
+        private boolean shouldApplyLargeScreenTopAutoFit(int setting) {
+            if (mRunningSettings == null ||
+                mRunningSettings[SettingsItem.SETTING_SCREEN_LAYOUT] != 4) {
+                return false;
+            }
+
+            if (setting == SettingsItem.SETTING_LARGE_SCREEN_AUTO_FIT) {
+                return mRunningSettings[SettingsItem.SETTING_LARGE_SCREEN_AUTO_FIT] > 0;
+            }
+
+            if (mRunningSettings[SettingsItem.SETTING_LARGE_SCREEN_AUTO_FIT] <= 0) {
+                return false;
+            }
+
+            return setting == SettingsItem.SETTING_SWAP_SCREEN ||
+                   setting == SettingsItem.SETTING_LARGE_SCREEN_SECONDARY_LEFT ||
+                   setting == SettingsItem.SETTING_LARGE_SCREEN_SECONDARY_TOP ||
+                   setting == SettingsItem.SETTING_LAYOUT_MARGIN_LEFT ||
+                   setting == SettingsItem.SETTING_LAYOUT_MARGIN_TOP ||
+                   setting == SettingsItem.SETTING_LAYOUT_MARGIN_RIGHT ||
+                   setting == SettingsItem.SETTING_LAYOUT_MARGIN_BOTTOM;
+        }
+
+        private boolean shouldReloadScreenLayoutMenu(int setting) {
+            return setting == SettingsItem.SETTING_SCREEN_LAYOUT ||
+                   setting == SettingsItem.SETTING_LARGE_SCREEN_AUTO_FIT;
         }
 
         public int getLargeScreenTopAutoFitForCurrentDisplay() {

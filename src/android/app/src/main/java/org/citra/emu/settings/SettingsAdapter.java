@@ -144,6 +144,7 @@ public final class SettingsAdapter extends RecyclerView.Adapter<SettingViewHolde
         }
         mirrorLandscapeBooleanIfNeeded(item.getKey(), item.getSection(), checked);
         mActivity.setSettingChanged();
+        mActivity.handleScreenLayoutSettingChanged(item.getKey());
     }
 
     public void onSingleChoiceClick(SingleChoiceSetting item, int position) {
@@ -268,8 +269,6 @@ public final class SettingsAdapter extends RecyclerView.Adapter<SettingViewHolde
     public void onActionClick(ActionSetting item) {
         if (EsDeFrontendRegistration.ACTION_REGISTER_ES_DE_FRONTEND.equals(item.getKey())) {
             mActivity.registerEsDeFrontend();
-        } else if (SettingsActivity.ACTION_SCREEN_LAYOUT_TOP_AUTO_FIT.equals(item.getKey())) {
-            mActivity.applyLargeScreenTopAutoFit();
         } else if (EsDeFrontendRegistration.ACTION_PICK_ES_DE_CUSTOM_SYSTEMS_FOLDER.equals(
                        item.getKey())) {
             mActivity.selectEsDeCustomSystemsFolder();
@@ -304,6 +303,7 @@ public final class SettingsAdapter extends RecyclerView.Adapter<SettingViewHolde
                 mActivity.putSetting(landscapeSetting);
                 mActivity.refreshSettingsList();
             }
+            mActivity.handleScreenLayoutSettingChanged(scSetting.getSetting().getKey());
 
             closeDialog();
         } else if (mClickedItem instanceof StringSingleChoiceSetting) {
@@ -334,6 +334,7 @@ public final class SettingsAdapter extends RecyclerView.Adapter<SettingViewHolde
                 mActivity.putSetting(setting);
             }
             mirrorLandscapeIntIfNeeded(sliderSetting.getKey(), sliderSetting.getSection(), value);
+            mActivity.handleScreenLayoutSettingChanged(sliderSetting.getKey());
 
             closeDialog();
         } else if (mClickedItem instanceof EditorSetting) {
@@ -444,6 +445,8 @@ public final class SettingsAdapter extends RecyclerView.Adapter<SettingViewHolde
             landscapeKey = SettingsFile.KEY_LANDSCAPE_LARGE_SCREEN_SECONDARY_LEFT;
         } else if (SettingsFile.KEY_LARGE_SCREEN_SECONDARY_TOP.equals(key)) {
             landscapeKey = SettingsFile.KEY_LANDSCAPE_LARGE_SCREEN_SECONDARY_TOP;
+        } else if (SettingsFile.KEY_LARGE_SCREEN_AUTO_FIT.equals(key)) {
+            landscapeKey = SettingsFile.KEY_LANDSCAPE_LARGE_SCREEN_AUTO_FIT;
         } else if (SettingsFile.KEY_SWAP_SCREEN.equals(key)) {
             landscapeKey = SettingsFile.KEY_LANDSCAPE_SWAP_SCREEN;
         } else if (SettingsFile.KEY_HYBRID_SIDE_COLUMN_LEFT.equals(key)) {

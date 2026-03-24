@@ -22,6 +22,7 @@ import java.util.Locale;
 import org.citra.emu.R;
 import org.citra.emu.settings.model.Setting;
 import org.citra.emu.settings.model.SettingSection;
+import org.citra.emu.settings.model.BooleanSetting;
 import org.citra.emu.settings.view.ActionSetting;
 import org.citra.emu.settings.view.CheckBoxSetting;
 import org.citra.emu.settings.view.EditorSetting;
@@ -310,6 +311,8 @@ public final class SettingsFragment extends Fragment {
         SettingSection rendererSection = mSettings.getSection(Settings.SECTION_INI_RENDERER);
         Setting layoutOption = rendererSection.getSetting(SettingsFile.KEY_LAYOUT_OPTION);
         Setting swapScreen = rendererSection.getSetting(SettingsFile.KEY_SWAP_SCREEN);
+        Setting largeScreenAutoFit =
+            rendererSection.getSetting(SettingsFile.KEY_LARGE_SCREEN_AUTO_FIT);
         Setting largeScreenProportion =
             rendererSection.getSetting(SettingsFile.KEY_LARGE_SCREEN_PROPORTION);
         Setting largeScreenSecondaryLeft =
@@ -339,13 +342,18 @@ public final class SettingsFragment extends Fragment {
                 R.string.swap_screens, R.string.swap_screens_description, false, swapScreen));
 
         if (currentLayout == 4) {
-            sl.add(new SliderSetting(SettingsFile.KEY_LARGE_SCREEN_PROPORTION,
-                    Settings.SECTION_INI_RENDERER, R.string.large_screen_proportion,
-                    R.string.large_screen_proportion_description, 25, 100, "%", 75,
-                    largeScreenProportion));
-            sl.add(new ActionSetting(SettingsActivity.ACTION_SCREEN_LAYOUT_TOP_AUTO_FIT,
-                    R.string.large_screen_auto_fit,
-                    R.string.large_screen_auto_fit_description, ""));
+            final boolean autoFitEnabled =
+                largeScreenAutoFit instanceof BooleanSetting &&
+                ((BooleanSetting)largeScreenAutoFit).getValue();
+            sl.add(new CheckBoxSetting(SettingsFile.KEY_LARGE_SCREEN_AUTO_FIT,
+                    Settings.SECTION_INI_RENDERER, R.string.large_screen_auto_fit,
+                    R.string.large_screen_auto_fit_description, false, largeScreenAutoFit));
+            if (!autoFitEnabled) {
+                sl.add(new SliderSetting(SettingsFile.KEY_LARGE_SCREEN_PROPORTION,
+                        Settings.SECTION_INI_RENDERER, R.string.large_screen_proportion,
+                        R.string.large_screen_proportion_description, 25, 100, "%", 75,
+                        largeScreenProportion));
+            }
             sl.add(new CheckBoxSetting(SettingsFile.KEY_LARGE_SCREEN_SECONDARY_LEFT,
                     Settings.SECTION_INI_RENDERER, R.string.large_screen_secondary_left,
                     R.string.large_screen_secondary_left_description, false,

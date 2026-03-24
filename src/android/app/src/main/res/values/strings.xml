@@ -203,7 +203,7 @@
     <string name="large_screen_proportion">Top-Aligned Secondary Screen Size</string>
     <string name="large_screen_proportion_description">Only applies to Large Screen (Top Aligned). Sets the secondary screen size as a percentage of the primary screen size.</string>
     <string name="large_screen_auto_fit">Auto Fit Top-Aligned Layout</string>
-    <string name="large_screen_auto_fit_description">Set the top-aligned secondary size to the recommended value for the current display.</string>
+    <string name="large_screen_auto_fit_description">Automatically keep the top-aligned secondary screen size fitted to the current display whenever relevant layout settings change.</string>
     <string name="swap_screens">Swap Screens</string>
     <string name="swap_screens_description">Use the bottom 3DS screen as the primary screen and the top 3DS screen as the secondary screen for automatic layouts.</string>
     <string name="large_screen_secondary_left">Secondary Screen on Left</string>
