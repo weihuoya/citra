@@ -433,7 +433,6 @@ static void UpdateDisplayRotation() {
             Config::Get(Config::LARGE_SCREEN_SECONDARY_TOP);
         Settings::values.hybrid_side_column_left = Config::Get(Config::HYBRID_SIDE_COLUMN_LEFT);
         Settings::values.hybrid_secondary_top = Config::Get(Config::HYBRID_SECONDARY_TOP);
-        Settings::values.hybrid_fit = Config::Get(Config::HYBRID_FIT);
         Settings::values.layout_margin_left = Config::Get(Config::LAYOUT_MARGIN_LEFT);
         Settings::values.layout_margin_top = Config::Get(Config::LAYOUT_MARGIN_TOP);
         Settings::values.layout_margin_right = Config::Get(Config::LAYOUT_MARGIN_RIGHT);
@@ -462,7 +461,6 @@ static void UpdateDisplayRotation() {
             Config::Get(Config::LANDSCAPE_HYBRID_SIDE_COLUMN_LEFT);
         Settings::values.hybrid_secondary_top =
             Config::Get(Config::LANDSCAPE_HYBRID_SECONDARY_TOP);
-        Settings::values.hybrid_fit = Config::Get(Config::LANDSCAPE_HYBRID_FIT);
         Settings::values.layout_margin_left = Config::Get(Config::LANDSCAPE_LAYOUT_MARGIN_LEFT);
         Settings::values.layout_margin_top = Config::Get(Config::LANDSCAPE_LAYOUT_MARGIN_TOP);
         Settings::values.layout_margin_right = Config::Get(Config::LANDSCAPE_LAYOUT_MARGIN_RIGHT);
@@ -820,7 +818,7 @@ JNIEXPORT void JNICALL Java_org_citra_emu_NativeLibrary_nativeStopEmulation(JNIE
 JNIEXPORT jintArray JNICALL Java_org_citra_emu_NativeLibrary_getRunningSettings(JNIEnv* env,
                                                                                 jclass obj) {
     int i = 0;
-    int settings[26];
+    int settings[25];
 
     // get settings
     settings[i++] = Settings::values.core_ticks_hack > 0;
@@ -839,7 +837,6 @@ JNIEXPORT jintArray JNICALL Java_org_citra_emu_NativeLibrary_getRunningSettings(
     settings[i++] = Settings::values.large_screen_proportion;
     settings[i++] = Settings::values.large_screen_secondary_left;
     settings[i++] = Settings::values.large_screen_secondary_top;
-    settings[i++] = static_cast<int>(Settings::values.hybrid_fit);
     settings[i++] = Settings::values.hybrid_side_column_left;
     settings[i++] = Settings::values.hybrid_secondary_top;
     settings[i++] = Settings::values.layout_margin_left;
@@ -978,13 +975,6 @@ JNIEXPORT void JNICALL Java_org_citra_emu_NativeLibrary_setRunningSettings(JNIEn
     } else {
         Config::Set(Config::LANDSCAPE_LARGE_SCREEN_SECONDARY_TOP,
                     Settings::values.large_screen_secondary_top);
-    }
-
-    Settings::values.hybrid_fit = static_cast<Settings::HybridFit>(std::clamp(settings[i++], 0, 1));
-    if (NativeLibrary::IsPortrait()) {
-        Config::Set(Config::HYBRID_FIT, Settings::values.hybrid_fit);
-    } else {
-        Config::Set(Config::LANDSCAPE_HYBRID_FIT, Settings::values.hybrid_fit);
     }
 
     // Hybrid side column placement

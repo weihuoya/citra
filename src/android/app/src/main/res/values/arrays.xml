@@ -39,16 +39,6 @@
         <item>1</item>
     </integer-array>
 
-    <string-array name="hybridFitEntries" translatable="false">
-        <item>@string/fit_horizontally</item>
-        <item>@string/fit_vertically</item>
-    </string-array>
-
-    <integer-array name="hybridFitValues" translatable="false">
-        <item>0</item>
-        <item>1</item>
-    </integer-array>
-
     <!-- Internal Resolution Preference -->
     <string-array name="internalResolutionEntries" translatable="false">
         <item>1× (400×240)</item>

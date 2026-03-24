@@ -6,10 +6,6 @@
 
 #include "common/math_util.h"
 
-namespace Settings {
-enum class HybridFit;
-}
-
 namespace Layout {
 
 /// Describes the layout of the window framebuffer (size and top/bottom screen positions)
@@ -107,8 +103,7 @@ FramebufferLayout LargeFrameLayoutTopAndroid(u32 width, u32 height, bool is_swap
  * @return Newly created FramebufferLayout object with hybrid screen regions initialized
  */
 FramebufferLayout HybridFrameLayout(u32 width, u32 height, bool is_swapped,
-                                    bool side_column_left, bool secondary_screen_top,
-                                    Settings::HybridFit fit_mode);
+                                    bool side_column_left, bool secondary_screen_top);
 
 /**
  * Calculates the top-aligned large-screen proportion at which the secondary screen exactly fills

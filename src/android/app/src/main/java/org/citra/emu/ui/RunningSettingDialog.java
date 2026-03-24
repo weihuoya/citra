@@ -138,17 +138,16 @@ public class RunningSettingDialog extends DialogFragment {
         public static final int SETTING_LARGE_SCREEN_PROPORTION = 13;
         public static final int SETTING_LARGE_SCREEN_SECONDARY_LEFT = 14;
         public static final int SETTING_LARGE_SCREEN_SECONDARY_TOP = 15;
-        public static final int SETTING_HYBRID_FIT_MODE = 16;
-        public static final int SETTING_HYBRID_SIDE_COLUMN_LEFT = 17;
-        public static final int SETTING_HYBRID_SECONDARY_TOP = 18;
+        public static final int SETTING_HYBRID_SIDE_COLUMN_LEFT = 16;
+        public static final int SETTING_HYBRID_SECONDARY_TOP = 17;
         // Keep these indices aligned with NativeLibrary.getRunningSettings().
-        public static final int SETTING_LAYOUT_MARGIN_LEFT = 19;
-        public static final int SETTING_LAYOUT_MARGIN_TOP = 20;
-        public static final int SETTING_LAYOUT_MARGIN_RIGHT = 21;
-        public static final int SETTING_LAYOUT_MARGIN_BOTTOM = 22;
-        public static final int SETTING_ACCURATE_MUL = 23;
-        public static final int SETTING_CUSTOM_LAYOUT = 24;
-        public static final int SETTING_FRAME_LIMIT = 25;
+        public static final int SETTING_LAYOUT_MARGIN_LEFT = 18;
+        public static final int SETTING_LAYOUT_MARGIN_TOP = 19;
+        public static final int SETTING_LAYOUT_MARGIN_RIGHT = 20;
+        public static final int SETTING_LAYOUT_MARGIN_BOTTOM = 21;
+        public static final int SETTING_ACCURATE_MUL = 22;
+        public static final int SETTING_CUSTOM_LAYOUT = 23;
+        public static final int SETTING_FRAME_LIMIT = 24;
 
         // pref
         public static final int SETTING_JOYSTICK_RELATIVE = 100;
@@ -420,10 +419,6 @@ public class RunningSettingDialog extends DialogFragment {
                        item.getSetting() == SettingsItem.SETTING_HYBRID_SECONDARY_TOP) {
                 configureRadioButton(radio0, View.VISIBLE, R.string.bottom);
                 configureRadioButton(radio1, View.VISIBLE, R.string.top);
-                hideExtraRadioButtons(radio2, radio3, radio4, radio5);
-            } else if (item.getSetting() == SettingsItem.SETTING_HYBRID_FIT_MODE) {
-                configureRadioButton(radio0, View.VISIBLE, R.string.fit_horizontally);
-                configureRadioButton(radio1, View.VISIBLE, R.string.fit_vertically);
                 hideExtraRadioButtons(radio2, radio3, radio4, radio5);
             }
 
@@ -847,9 +842,6 @@ public class RunningSettingDialog extends DialogFragment {
                         SettingsItem.TYPE_RADIO_GROUP,
                         mRunningSettings[SettingsItem.SETTING_LARGE_SCREEN_SECONDARY_TOP]));
             } else if (currentLayout == 5) {
-                mSettings.add(new SettingsItem(SettingsItem.SETTING_HYBRID_FIT_MODE,
-                        R.string.hybrid_fit_mode, SettingsItem.TYPE_RADIO_GROUP,
-                        mRunningSettings[SettingsItem.SETTING_HYBRID_FIT_MODE]));
                 mSettings.add(new SettingsItem(SettingsItem.SETTING_HYBRID_SIDE_COLUMN_LEFT,
                         R.string.hybrid_side_column_side, SettingsItem.TYPE_RADIO_GROUP,
                         mRunningSettings[SettingsItem.SETTING_HYBRID_SIDE_COLUMN_LEFT]));
@@ -1012,7 +1004,6 @@ public class RunningSettingDialog extends DialogFragment {
                    setting == SettingsItem.SETTING_LARGE_SCREEN_PROPORTION ||
                    setting == SettingsItem.SETTING_LARGE_SCREEN_SECONDARY_LEFT ||
                    setting == SettingsItem.SETTING_LARGE_SCREEN_SECONDARY_TOP ||
-                   setting == SettingsItem.SETTING_HYBRID_FIT_MODE ||
                    setting == SettingsItem.SETTING_HYBRID_SIDE_COLUMN_LEFT ||
                    setting == SettingsItem.SETTING_HYBRID_SECONDARY_TOP ||
                    setting == SettingsItem.SETTING_LAYOUT_MARGIN_LEFT ||

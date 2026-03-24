@@ -295,8 +295,7 @@ u16 GetLargeFrameLayoutTopAndroidMaxFillProportion(u32 width, u32 height, bool s
 }
 
 FramebufferLayout HybridFrameLayout(u32 width, u32 height, bool swapped,
-                                    bool side_column_left, bool secondary_screen_top,
-                                    Settings::HybridFit fit_mode) {
+                                    bool side_column_left, bool secondary_screen_top) {
     FramebufferLayout res{width, height, true, true, {}, {}, true, !swapped, {}};
 
     const float primary_width = swapped ? Core::kScreenBottomWidth : Core::kScreenTopWidth;
@@ -309,19 +308,8 @@ FramebufferLayout HybridFrameLayout(u32 width, u32 height, bool swapped,
     const float layout_height_units = primary_aspect_ratio + secondary_aspect_ratio;
     const float primary_width_units = layout_height_units / primary_aspect_ratio;
     const float layout_width_units = primary_width_units + 1.0f;
-    const float horizontal_scale =
-        layout_width_units > 0.0f ? static_cast<float>(width) / layout_width_units : 0.0f;
-    const float vertical_scale =
-        layout_height_units > 0.0f ? static_cast<float>(height) / layout_height_units : 0.0f;
-    float scale = fit_mode == Settings::HybridFit::Vertical ? vertical_scale : horizontal_scale;
-
-    if (fit_mode == Settings::HybridFit::Horizontal &&
-        scale * layout_height_units > static_cast<float>(height)) {
-        scale = vertical_scale;
-    } else if (fit_mode == Settings::HybridFit::Vertical &&
-               scale * layout_width_units > static_cast<float>(width)) {
-        scale = horizontal_scale;
-    }
+    const float scale = std::min(static_cast<float>(width) / layout_width_units,
+                                 static_cast<float>(height) / layout_height_units);
 
     if (width == 0 || height == 0 || scale < 1.0f) {
         return LargeFrameLayout(width, height, swapped);

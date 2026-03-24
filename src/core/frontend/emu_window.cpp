@@ -242,8 +242,7 @@ void EmuWindow::UpdateFramebufferLayout(u32 width, u32 height) {
         case Settings::LayoutOption::HybridScreen:
             layout = Layout::HybridFrameLayout(width, height, Settings::values.swap_screen,
                                                Settings::values.hybrid_side_column_left,
-                                               Settings::values.hybrid_secondary_top,
-                                               Settings::values.hybrid_fit);
+                                               Settings::values.hybrid_secondary_top);
 #ifdef ANDROID
             android_large_full_width = true;
             android_preserve_horizontal_center = true;

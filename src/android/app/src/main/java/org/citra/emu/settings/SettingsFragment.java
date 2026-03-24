@@ -329,7 +329,6 @@ public final class SettingsFragment extends Fragment {
             rendererSection.getSetting(SettingsFile.KEY_HYBRID_SIDE_COLUMN_LEFT);
         Setting hybridSecondaryTop =
             rendererSection.getSetting(SettingsFile.KEY_HYBRID_SECONDARY_TOP);
-        Setting hybridFitMode = rendererSection.getSetting(SettingsFile.KEY_HYBRID_FIT_MODE);
         Setting layoutMarginLeft = rendererSection.getSetting(SettingsFile.KEY_LAYOUT_MARGIN_LEFT);
         Setting layoutMarginTop = rendererSection.getSetting(SettingsFile.KEY_LAYOUT_MARGIN_TOP);
         Setting layoutMarginRight =
@@ -373,10 +372,6 @@ public final class SettingsFragment extends Fragment {
                     R.array.topBottomEntries, true,
                     largeScreenSecondaryTop));
         } else if (currentLayout == 5) {
-            sl.add(new SingleChoiceSetting(SettingsFile.KEY_HYBRID_FIT_MODE,
-                    Settings.SECTION_INI_RENDERER, R.string.hybrid_fit_mode,
-                    R.string.hybrid_fit_mode_description, R.array.hybridFitEntries,
-                    R.array.hybridFitValues, 0, hybridFitMode));
             sl.add(new BooleanSingleChoiceSetting(SettingsFile.KEY_HYBRID_SIDE_COLUMN_LEFT,
                     Settings.SECTION_INI_RENDERER, R.string.hybrid_side_column_side,
                     R.string.hybrid_side_column_side_description, R.array.leftRightEntries,
