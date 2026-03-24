@@ -11,6 +11,7 @@ enum class MicInputType;
 enum class AccurateMul;
 enum class SharedFontType;
 enum class PresentationMode;
+enum class HybridFit;
 } // namespace Settings
 
 namespace Config {
@@ -50,6 +51,8 @@ extern const ConfigInfo<bool> HYBRID_SIDE_COLUMN_LEFT;
 extern const ConfigInfo<bool> LANDSCAPE_HYBRID_SIDE_COLUMN_LEFT;
 extern const ConfigInfo<bool> HYBRID_SECONDARY_TOP;
 extern const ConfigInfo<bool> LANDSCAPE_HYBRID_SECONDARY_TOP;
+extern const ConfigInfo<Settings::HybridFit> HYBRID_FIT;
+extern const ConfigInfo<Settings::HybridFit> LANDSCAPE_HYBRID_FIT;
 extern const ConfigInfo<u16> LAYOUT_MARGIN_LEFT;
 extern const ConfigInfo<u16> LANDSCAPE_LAYOUT_MARGIN_LEFT;
 extern const ConfigInfo<u16> LAYOUT_MARGIN_TOP;

@@ -5,6 +5,7 @@ import android.view.View;
 import android.widget.TextView;
 import org.citra.emu.R;
 import org.citra.emu.settings.SettingsAdapter;
+import org.citra.emu.settings.view.BooleanSingleChoiceSetting;
 import org.citra.emu.settings.view.SettingsItem;
 import org.citra.emu.settings.view.SingleChoiceSetting;
 import org.citra.emu.settings.view.StringSingleChoiceSetting;
@@ -44,6 +45,12 @@ public final class SingleChoiceViewHolder extends SettingViewHolder {
                     mTextSettingDescription.setText(choices[i]);
                 }
             }
+        } else if (item instanceof BooleanSingleChoiceSetting) {
+            BooleanSingleChoiceSetting setting = (BooleanSingleChoiceSetting)item;
+            Resources resMgr = mTextSettingDescription.getContext().getResources();
+            String[] choices = resMgr.getStringArray(setting.getChoicesId());
+            int index = Math.max(0, Math.min(setting.getSelectedIndex(), choices.length - 1));
+            mTextSettingDescription.setText(choices[index]);
         } else if (item instanceof StringSingleChoiceSetting) {
             StringSingleChoiceSetting setting = (StringSingleChoiceSetting)item;
             String[] choices = setting.getChoicesId();
@@ -58,6 +65,8 @@ public final class SingleChoiceViewHolder extends SettingViewHolder {
         int position = getAdapterPosition();
         if (mItem instanceof SingleChoiceSetting) {
             getAdapter().onSingleChoiceClick((SingleChoiceSetting)mItem, position);
+        } else if (mItem instanceof BooleanSingleChoiceSetting) {
+            getAdapter().onBooleanSingleChoiceClick((BooleanSingleChoiceSetting)mItem, position);
         } else if (mItem instanceof StringSingleChoiceSetting) {
             getAdapter().onStringSingleChoiceClick((StringSingleChoiceSetting)mItem, position);
         }

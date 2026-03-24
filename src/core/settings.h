@@ -46,6 +46,11 @@ enum class PresentationMode {
     SingleScreen,
 };
 
+enum class HybridFit {
+    Horizontal = 0,
+    Vertical = 1,
+};
+
 enum class AccurateMul {
     OFF = 0,
     FAST = 1,
@@ -193,6 +198,7 @@ struct Values {
     bool large_screen_auto_fit;
     bool large_screen_secondary_left;
     bool large_screen_secondary_top;
+    HybridFit hybrid_fit;
     bool hybrid_side_column_left;
     bool hybrid_secondary_top;
     u16 layout_margin_left;

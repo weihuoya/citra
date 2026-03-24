@@ -199,6 +199,7 @@ void EmuWindow::TouchMoved(unsigned framebuffer_x, unsigned framebuffer_y) {
 void EmuWindow::UpdateFramebufferLayout(u32 width, u32 height) {
     Layout::FramebufferLayout layout;
     bool android_large_full_width = false;
+    bool android_preserve_horizontal_center = false;
     if (Settings::values.custom_layout) {
         layout = Layout::CustomFrameLayout(width, height);
         if (Settings::values.swap_screen) {
@@ -212,7 +213,11 @@ void EmuWindow::UpdateFramebufferLayout(u32 width, u32 height) {
             break;
         case Settings::LayoutOption::LargeScreen:
 #ifdef ANDROID
-            layout = Layout::LargeFrameLayoutAndroid(width, height, Settings::values.swap_screen);
+            layout = Layout::LargeFrameLayoutTopAndroid(
+                width, height, Settings::values.swap_screen,
+                Settings::values.large_screen_proportion / 100.0f,
+                Settings::values.large_screen_secondary_left,
+                Settings::values.large_screen_secondary_top);
             android_large_full_width = true;
 #else
             layout = Layout::LargeFrameLayout(width, height, Settings::values.swap_screen);
@@ -237,9 +242,11 @@ void EmuWindow::UpdateFramebufferLayout(u32 width, u32 height) {
         case Settings::LayoutOption::HybridScreen:
             layout = Layout::HybridFrameLayout(width, height, Settings::values.swap_screen,
                                                Settings::values.hybrid_side_column_left,
-                                               Settings::values.hybrid_secondary_top);
+                                               Settings::values.hybrid_secondary_top,
+                                               Settings::values.hybrid_fit);
 #ifdef ANDROID
             android_large_full_width = true;
+            android_preserve_horizontal_center = true;
 #endif
             break;
         case Settings::LayoutOption::SideScreen:
@@ -286,7 +293,7 @@ void EmuWindow::UpdateFramebufferLayout(u32 width, u32 height) {
             }
         }
 #ifdef ANDROID
-        if (android_large_full_width) {
+        if (android_large_full_width && !android_preserve_horizontal_center) {
             const u32 current_right =
                 std::max({layout.top_screen.right, layout.bottom_screen.right,
                           layout.additional_screen_enabled ? layout.additional_screen.right : 0u});

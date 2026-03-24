@@ -23,7 +23,9 @@ import org.citra.emu.R;
 import org.citra.emu.settings.model.Setting;
 import org.citra.emu.settings.model.SettingSection;
 import org.citra.emu.settings.model.BooleanSetting;
+import org.citra.emu.settings.model.IntSetting;
 import org.citra.emu.settings.view.ActionSetting;
+import org.citra.emu.settings.view.BooleanSingleChoiceSetting;
 import org.citra.emu.settings.view.CheckBoxSetting;
 import org.citra.emu.settings.view.EditorSetting;
 import org.citra.emu.settings.view.HeaderSetting;
@@ -310,6 +312,10 @@ public final class SettingsFragment extends Fragment {
 
         SettingSection rendererSection = mSettings.getSection(Settings.SECTION_INI_RENDERER);
         Setting layoutOption = rendererSection.getSetting(SettingsFile.KEY_LAYOUT_OPTION);
+        if (layoutOption instanceof IntSetting &&
+            ((IntSetting)layoutOption).getValue() == 4) {
+            ((IntSetting)layoutOption).setValue(2);
+        }
         Setting swapScreen = rendererSection.getSetting(SettingsFile.KEY_SWAP_SCREEN);
         Setting largeScreenAutoFit =
             rendererSection.getSetting(SettingsFile.KEY_LARGE_SCREEN_AUTO_FIT);
@@ -323,16 +329,15 @@ public final class SettingsFragment extends Fragment {
             rendererSection.getSetting(SettingsFile.KEY_HYBRID_SIDE_COLUMN_LEFT);
         Setting hybridSecondaryTop =
             rendererSection.getSetting(SettingsFile.KEY_HYBRID_SECONDARY_TOP);
+        Setting hybridFitMode = rendererSection.getSetting(SettingsFile.KEY_HYBRID_FIT_MODE);
         Setting layoutMarginLeft = rendererSection.getSetting(SettingsFile.KEY_LAYOUT_MARGIN_LEFT);
         Setting layoutMarginTop = rendererSection.getSetting(SettingsFile.KEY_LAYOUT_MARGIN_TOP);
         Setting layoutMarginRight =
             rendererSection.getSetting(SettingsFile.KEY_LAYOUT_MARGIN_RIGHT);
         Setting layoutMarginBottom =
             rendererSection.getSetting(SettingsFile.KEY_LAYOUT_MARGIN_BOTTOM);
-        final int currentLayout =
-            layoutOption instanceof org.citra.emu.settings.model.IntSetting
-                ? ((org.citra.emu.settings.model.IntSetting)layoutOption).getValue()
-                : 0;
+        final int currentLayout = normalizeLayoutOption(
+            layoutOption instanceof IntSetting ? ((IntSetting)layoutOption).getValue() : 0);
 
         sl.add(new HeaderSetting(null, null, R.string.setting_header_screen_layout, 0));
         sl.add(new SingleChoiceSetting(
@@ -341,7 +346,7 @@ public final class SettingsFragment extends Fragment {
         sl.add(new CheckBoxSetting(SettingsFile.KEY_SWAP_SCREEN, Settings.SECTION_INI_RENDERER,
                 R.string.swap_screens, R.string.swap_screens_description, false, swapScreen));
 
-        if (currentLayout == 4) {
+        if (currentLayout == 2) {
             final boolean autoFitEnabled =
                 largeScreenAutoFit instanceof BooleanSetting &&
                 ((BooleanSetting)largeScreenAutoFit).getValue();
@@ -354,21 +359,32 @@ public final class SettingsFragment extends Fragment {
                         R.string.large_screen_proportion_description, 25, 100, "%", 75,
                         largeScreenProportion));
             }
-            sl.add(new CheckBoxSetting(SettingsFile.KEY_LARGE_SCREEN_SECONDARY_LEFT,
-                    Settings.SECTION_INI_RENDERER, R.string.large_screen_secondary_left,
-                    R.string.large_screen_secondary_left_description, false,
+            sl.add(new BooleanSingleChoiceSetting(
+                    SettingsFile.KEY_LARGE_SCREEN_SECONDARY_LEFT,
+                    Settings.SECTION_INI_RENDERER, R.string.large_screen_secondary_side,
+                    R.string.large_screen_secondary_side_description,
+                    R.array.leftRightEntries, false,
                     largeScreenSecondaryLeft));
-            sl.add(new CheckBoxSetting(SettingsFile.KEY_LARGE_SCREEN_SECONDARY_TOP,
-                    Settings.SECTION_INI_RENDERER, R.string.large_screen_secondary_top,
-                    R.string.large_screen_secondary_top_description, true,
+            sl.add(new BooleanSingleChoiceSetting(
+                    SettingsFile.KEY_LARGE_SCREEN_SECONDARY_TOP,
+                    Settings.SECTION_INI_RENDERER,
+                    R.string.large_screen_secondary_vertical_alignment,
+                    R.string.large_screen_secondary_vertical_alignment_description,
+                    R.array.topBottomEntries, true,
                     largeScreenSecondaryTop));
         } else if (currentLayout == 5) {
-            sl.add(new CheckBoxSetting(SettingsFile.KEY_HYBRID_SIDE_COLUMN_LEFT,
-                    Settings.SECTION_INI_RENDERER, R.string.hybrid_side_column_left,
-                    R.string.hybrid_side_column_left_description, false, hybridSideColumnLeft));
-            sl.add(new CheckBoxSetting(SettingsFile.KEY_HYBRID_SECONDARY_TOP,
-                    Settings.SECTION_INI_RENDERER, R.string.hybrid_secondary_top,
-                    R.string.hybrid_secondary_top_description, false, hybridSecondaryTop));
+            sl.add(new SingleChoiceSetting(SettingsFile.KEY_HYBRID_FIT_MODE,
+                    Settings.SECTION_INI_RENDERER, R.string.hybrid_fit_mode,
+                    R.string.hybrid_fit_mode_description, R.array.hybridFitEntries,
+                    R.array.hybridFitValues, 0, hybridFitMode));
+            sl.add(new BooleanSingleChoiceSetting(SettingsFile.KEY_HYBRID_SIDE_COLUMN_LEFT,
+                    Settings.SECTION_INI_RENDERER, R.string.hybrid_side_column_side,
+                    R.string.hybrid_side_column_side_description, R.array.leftRightEntries,
+                    false, hybridSideColumnLeft));
+            sl.add(new BooleanSingleChoiceSetting(SettingsFile.KEY_HYBRID_SECONDARY_TOP,
+                    Settings.SECTION_INI_RENDERER, R.string.hybrid_secondary_vertical_order,
+                    R.string.hybrid_secondary_vertical_order_description,
+                    R.array.topBottomEntries, false, hybridSecondaryTop));
         }
 
         sl.add(new HeaderSetting(null, null, R.string.setting_header_layout_margins, 0));
@@ -386,6 +402,10 @@ public final class SettingsFragment extends Fragment {
                 R.string.layout_margin_description, 0, 500, "px", 0, layoutMarginBottom));
 
         return sl;
+    }
+
+    private int normalizeLayoutOption(int layoutOption) {
+        return layoutOption == 4 ? 2 : layoutOption;
     }
 
     private ArrayList<SettingsItem> loadBindingsList() {

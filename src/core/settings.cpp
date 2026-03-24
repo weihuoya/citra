@@ -73,6 +73,7 @@ void LogSettings() {
     LogSetting("Layout_LargeScreenAutoFit", Settings::values.large_screen_auto_fit);
     LogSetting("Layout_LargeScreenSecondaryLeft", Settings::values.large_screen_secondary_left);
     LogSetting("Layout_LargeScreenSecondaryTop", Settings::values.large_screen_secondary_top);
+    LogSetting("Layout_HybridFit", static_cast<int>(Settings::values.hybrid_fit));
     LogSetting("Layout_HybridSideColumnLeft", Settings::values.hybrid_side_column_left);
     LogSetting("Layout_HybridSecondaryTop", Settings::values.hybrid_secondary_top);
     LogSetting("Layout_MarginLeft", Settings::values.layout_margin_left);

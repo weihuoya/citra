@@ -23,6 +23,7 @@ import org.citra.emu.settings.model.IntSetting;
 import org.citra.emu.settings.model.Setting;
 import org.citra.emu.settings.model.StringSetting;
 import org.citra.emu.settings.view.ActionSetting;
+import org.citra.emu.settings.view.BooleanSingleChoiceSetting;
 import org.citra.emu.settings.view.CheckBoxSetting;
 import org.citra.emu.settings.view.EditorSetting;
 import org.citra.emu.settings.view.InputBindingSetting;
@@ -155,6 +156,16 @@ public final class SettingsAdapter extends RecyclerView.Adapter<SettingViewHolde
         AlertDialog.Builder builder = new AlertDialog.Builder(mActivity);
         builder.setTitle(item.getNameId());
         builder.setSingleChoiceItems(item.getChoicesId(), value, this);
+        mDialog = builder.show();
+    }
+
+    public void onBooleanSingleChoiceClick(BooleanSingleChoiceSetting item, int position) {
+        mClickedItem = item;
+        mClickedPosition = position;
+
+        AlertDialog.Builder builder = new AlertDialog.Builder(mActivity);
+        builder.setTitle(item.getNameId());
+        builder.setSingleChoiceItems(item.getChoicesId(), item.getSelectedIndex(), this);
         mDialog = builder.show();
     }
 
@@ -304,6 +315,22 @@ public final class SettingsAdapter extends RecyclerView.Adapter<SettingViewHolde
                 mActivity.refreshSettingsList();
             }
             mActivity.handleScreenLayoutSettingChanged(scSetting.getSetting().getKey());
+
+            closeDialog();
+        } else if (mClickedItem instanceof BooleanSingleChoiceSetting) {
+            BooleanSingleChoiceSetting scSetting = (BooleanSingleChoiceSetting)mClickedItem;
+            final boolean oldValue = scSetting.isChecked();
+            final boolean newValue = which > 0;
+            if (oldValue != newValue) {
+                mActivity.setSettingChanged();
+            }
+
+            BooleanSetting setting = scSetting.setSelectedIndex(which);
+            if (setting != null) {
+                mActivity.putSetting(setting);
+            }
+            mirrorLandscapeBooleanIfNeeded(scSetting.getKey(), scSetting.getSection(), newValue);
+            mActivity.handleScreenLayoutSettingChanged(scSetting.getKey());
 
             closeDialog();
         } else if (mClickedItem instanceof StringSingleChoiceSetting) {
@@ -463,6 +490,8 @@ public final class SettingsAdapter extends RecyclerView.Adapter<SettingViewHolde
         String landscapeKey = null;
         if (SettingsFile.KEY_LARGE_SCREEN_PROPORTION.equals(key)) {
             landscapeKey = SettingsFile.KEY_LANDSCAPE_LARGE_SCREEN_PROPORTION;
+        } else if (SettingsFile.KEY_HYBRID_FIT_MODE.equals(key)) {
+            landscapeKey = SettingsFile.KEY_LANDSCAPE_HYBRID_FIT_MODE;
         } else if (SettingsFile.KEY_LAYOUT_MARGIN_LEFT.equals(key)) {
             landscapeKey = SettingsFile.KEY_LANDSCAPE_LAYOUT_MARGIN_LEFT;
         } else if (SettingsFile.KEY_LAYOUT_MARGIN_TOP.equals(key)) {

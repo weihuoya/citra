@@ -66,6 +66,8 @@ public final class SettingsFile {
     public static final String KEY_HYBRID_SECONDARY_TOP = "hybrid_secondary_top";
     public static final String KEY_LANDSCAPE_HYBRID_SECONDARY_TOP =
         "landscape_hybrid_secondary_top";
+    public static final String KEY_HYBRID_FIT_MODE = "hybrid_fit_mode";
+    public static final String KEY_LANDSCAPE_HYBRID_FIT_MODE = "landscape_hybrid_fit_mode";
     public static final String KEY_LAYOUT_MARGIN_LEFT = "layout_margin_left";
     public static final String KEY_LANDSCAPE_LAYOUT_MARGIN_LEFT = "landscape_layout_margin_left";
     public static final String KEY_LAYOUT_MARGIN_TOP = "layout_margin_top";

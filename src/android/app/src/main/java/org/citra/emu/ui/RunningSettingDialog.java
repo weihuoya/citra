@@ -138,16 +138,17 @@ public class RunningSettingDialog extends DialogFragment {
         public static final int SETTING_LARGE_SCREEN_PROPORTION = 13;
         public static final int SETTING_LARGE_SCREEN_SECONDARY_LEFT = 14;
         public static final int SETTING_LARGE_SCREEN_SECONDARY_TOP = 15;
-        public static final int SETTING_HYBRID_SIDE_COLUMN_LEFT = 16;
-        public static final int SETTING_HYBRID_SECONDARY_TOP = 17;
+        public static final int SETTING_HYBRID_FIT_MODE = 16;
+        public static final int SETTING_HYBRID_SIDE_COLUMN_LEFT = 17;
+        public static final int SETTING_HYBRID_SECONDARY_TOP = 18;
         // Keep these indices aligned with NativeLibrary.getRunningSettings().
-        public static final int SETTING_LAYOUT_MARGIN_LEFT = 18;
-        public static final int SETTING_LAYOUT_MARGIN_TOP = 19;
-        public static final int SETTING_LAYOUT_MARGIN_RIGHT = 20;
-        public static final int SETTING_LAYOUT_MARGIN_BOTTOM = 21;
-        public static final int SETTING_ACCURATE_MUL = 22;
-        public static final int SETTING_CUSTOM_LAYOUT = 23;
-        public static final int SETTING_FRAME_LIMIT = 24;
+        public static final int SETTING_LAYOUT_MARGIN_LEFT = 19;
+        public static final int SETTING_LAYOUT_MARGIN_TOP = 20;
+        public static final int SETTING_LAYOUT_MARGIN_RIGHT = 21;
+        public static final int SETTING_LAYOUT_MARGIN_BOTTOM = 22;
+        public static final int SETTING_ACCURATE_MUL = 23;
+        public static final int SETTING_CUSTOM_LAYOUT = 24;
+        public static final int SETTING_FRAME_LIMIT = 25;
 
         // pref
         public static final int SETTING_JOYSTICK_RELATIVE = 100;
@@ -375,9 +376,9 @@ public class RunningSettingDialog extends DialogFragment {
                 configureRadioButton(radio0, View.VISIBLE, R.string.default_value);
                 configureRadioButton(radio1, View.VISIBLE, R.string.single_screen_option);
                 configureRadioButton(radio2, View.VISIBLE, R.string.large_screen_option);
-                configureRadioButton(radio3, View.VISIBLE, R.string.large_screen_top_option);
-                configureRadioButton(radio4, View.VISIBLE, R.string.side_screen_option);
-                configureRadioButton(radio5, View.VISIBLE, R.string.hybrid_screen_option);
+                configureRadioButton(radio3, View.VISIBLE, R.string.side_screen_option);
+                configureRadioButton(radio4, View.VISIBLE, R.string.hybrid_screen_option);
+                radio5.setVisibility(View.GONE);
             } else if (item.getSetting() == SettingsItem.SETTING_SCALE_FACTOR) {
                 radio0.setVisibility(View.VISIBLE);
                 radio0.setText("x1");
@@ -410,6 +411,20 @@ public class RunningSettingDialog extends DialogFragment {
                 radio3.setVisibility(View.GONE);
                 radio4.setVisibility(View.GONE);
                 radio5.setVisibility(View.GONE);
+            } else if (item.getSetting() == SettingsItem.SETTING_LARGE_SCREEN_SECONDARY_LEFT ||
+                       item.getSetting() == SettingsItem.SETTING_HYBRID_SIDE_COLUMN_LEFT) {
+                configureRadioButton(radio0, View.VISIBLE, R.string.right);
+                configureRadioButton(radio1, View.VISIBLE, R.string.left);
+                hideExtraRadioButtons(radio2, radio3, radio4, radio5);
+            } else if (item.getSetting() == SettingsItem.SETTING_LARGE_SCREEN_SECONDARY_TOP ||
+                       item.getSetting() == SettingsItem.SETTING_HYBRID_SECONDARY_TOP) {
+                configureRadioButton(radio0, View.VISIBLE, R.string.bottom);
+                configureRadioButton(radio1, View.VISIBLE, R.string.top);
+                hideExtraRadioButtons(radio2, radio3, radio4, radio5);
+            } else if (item.getSetting() == SettingsItem.SETTING_HYBRID_FIT_MODE) {
+                configureRadioButton(radio0, View.VISIBLE, R.string.fit_horizontally);
+                configureRadioButton(radio1, View.VISIBLE, R.string.fit_vertically);
+                hideExtraRadioButtons(radio2, radio3, radio4, radio5);
             }
 
             mRadioGroup.setOnCheckedChangeListener(null);
@@ -434,10 +449,8 @@ public class RunningSettingDialog extends DialogFragment {
                 } else if (checkedId == R.id.radio2) {
                     mItem.setValue(2);
                 } else if (checkedId == R.id.radio3) {
-                    mItem.setValue(4);
-                } else if (checkedId == R.id.radio4) {
                     mItem.setValue(3);
-                } else if (checkedId == R.id.radio5) {
+                } else if (checkedId == R.id.radio4) {
                     mItem.setValue(5);
                 } else {
                     mItem.setValue(0);
@@ -468,6 +481,12 @@ public class RunningSettingDialog extends DialogFragment {
             button.setText(textId);
         }
 
+        private void hideExtraRadioButtons(RadioButton... buttons) {
+            for (RadioButton button : buttons) {
+                button.setVisibility(View.GONE);
+            }
+        }
+
         private int getCheckedId(SettingsItem item) {
             if (item.getSetting() == SettingsItem.SETTING_SCREEN_LAYOUT) {
                 switch (item.getValue()) {
@@ -476,13 +495,12 @@ public class RunningSettingDialog extends DialogFragment {
                 case 1:
                     return R.id.radio1;
                 case 2:
-                    return R.id.radio2;
                 case 4:
-                    return R.id.radio3;
+                    return R.id.radio2;
                 case 3:
-                    return R.id.radio4;
+                    return R.id.radio3;
                 case 5:
-                    return R.id.radio5;
+                    return R.id.radio4;
                 default:
                     return R.id.radio0;
                 }
@@ -800,7 +818,8 @@ public class RunningSettingDialog extends DialogFragment {
         public void loadScreenLayoutMenu() {
             ensureWorkingStateLoaded();
             mSettings = new ArrayList<>();
-            final int currentLayout = mRunningSettings[SettingsItem.SETTING_SCREEN_LAYOUT];
+            final int currentLayout =
+                normalizeLayoutOption(mRunningSettings[SettingsItem.SETTING_SCREEN_LAYOUT]);
 
             mSettings.add(new SettingsItem(SettingsItem.SETTING_SCREEN_LAYOUT,
                     R.string.running_layout, SettingsItem.TYPE_RADIO_GROUP,
@@ -809,7 +828,7 @@ public class RunningSettingDialog extends DialogFragment {
                     R.string.swap_screens, SettingsItem.TYPE_CHECKBOX,
                     mRunningSettings[SettingsItem.SETTING_SWAP_SCREEN]));
 
-            if (currentLayout == 4) {
+            if (currentLayout == 2) {
                 final boolean autoFitEnabled =
                     mRunningSettings[SettingsItem.SETTING_LARGE_SCREEN_AUTO_FIT] > 0;
                 mSettings.add(new SettingsItem(SettingsItem.SETTING_LARGE_SCREEN_AUTO_FIT,
@@ -821,17 +840,21 @@ public class RunningSettingDialog extends DialogFragment {
                             mRunningSettings[SettingsItem.SETTING_LARGE_SCREEN_PROPORTION]));
                 }
                 mSettings.add(new SettingsItem(SettingsItem.SETTING_LARGE_SCREEN_SECONDARY_LEFT,
-                        R.string.large_screen_secondary_left, SettingsItem.TYPE_CHECKBOX,
+                        R.string.large_screen_secondary_side, SettingsItem.TYPE_RADIO_GROUP,
                         mRunningSettings[SettingsItem.SETTING_LARGE_SCREEN_SECONDARY_LEFT]));
                 mSettings.add(new SettingsItem(SettingsItem.SETTING_LARGE_SCREEN_SECONDARY_TOP,
-                        R.string.large_screen_secondary_top, SettingsItem.TYPE_CHECKBOX,
+                        R.string.large_screen_secondary_vertical_alignment,
+                        SettingsItem.TYPE_RADIO_GROUP,
                         mRunningSettings[SettingsItem.SETTING_LARGE_SCREEN_SECONDARY_TOP]));
             } else if (currentLayout == 5) {
+                mSettings.add(new SettingsItem(SettingsItem.SETTING_HYBRID_FIT_MODE,
+                        R.string.hybrid_fit_mode, SettingsItem.TYPE_RADIO_GROUP,
+                        mRunningSettings[SettingsItem.SETTING_HYBRID_FIT_MODE]));
                 mSettings.add(new SettingsItem(SettingsItem.SETTING_HYBRID_SIDE_COLUMN_LEFT,
-                        R.string.hybrid_side_column_left, SettingsItem.TYPE_CHECKBOX,
+                        R.string.hybrid_side_column_side, SettingsItem.TYPE_RADIO_GROUP,
                         mRunningSettings[SettingsItem.SETTING_HYBRID_SIDE_COLUMN_LEFT]));
                 mSettings.add(new SettingsItem(SettingsItem.SETTING_HYBRID_SECONDARY_TOP,
-                        R.string.hybrid_secondary_top, SettingsItem.TYPE_CHECKBOX,
+                        R.string.hybrid_secondary_vertical_order, SettingsItem.TYPE_RADIO_GROUP,
                         mRunningSettings[SettingsItem.SETTING_HYBRID_SECONDARY_TOP]));
             }
 
@@ -989,6 +1012,7 @@ public class RunningSettingDialog extends DialogFragment {
                    setting == SettingsItem.SETTING_LARGE_SCREEN_PROPORTION ||
                    setting == SettingsItem.SETTING_LARGE_SCREEN_SECONDARY_LEFT ||
                    setting == SettingsItem.SETTING_LARGE_SCREEN_SECONDARY_TOP ||
+                   setting == SettingsItem.SETTING_HYBRID_FIT_MODE ||
                    setting == SettingsItem.SETTING_HYBRID_SIDE_COLUMN_LEFT ||
                    setting == SettingsItem.SETTING_HYBRID_SECONDARY_TOP ||
                    setting == SettingsItem.SETTING_LAYOUT_MARGIN_LEFT ||
@@ -999,7 +1023,7 @@ public class RunningSettingDialog extends DialogFragment {
 
         private boolean shouldApplyLargeScreenTopAutoFit(int setting) {
             if (mRunningSettings == null ||
-                mRunningSettings[SettingsItem.SETTING_SCREEN_LAYOUT] != 4) {
+                normalizeLayoutOption(mRunningSettings[SettingsItem.SETTING_SCREEN_LAYOUT]) != 2) {
                 return false;
             }
 
@@ -1023,6 +1047,10 @@ public class RunningSettingDialog extends DialogFragment {
         private boolean shouldReloadScreenLayoutMenu(int setting) {
             return setting == SettingsItem.SETTING_SCREEN_LAYOUT ||
                    setting == SettingsItem.SETTING_LARGE_SCREEN_AUTO_FIT;
+        }
+
+        private int normalizeLayoutOption(int layoutOption) {
+            return layoutOption == 4 ? 2 : layoutOption;
         }
 
         public int getLargeScreenTopAutoFitForCurrentDisplay() {

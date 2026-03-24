@@ -504,7 +504,10 @@ public final class SettingsActivity extends AppCompatActivity {
     }
 
     private boolean isLargeScreenTopAutoFitEnabled() {
-        if (getIntSettingValue(Settings.SECTION_INI_RENDERER, SettingsFile.KEY_LAYOUT_OPTION, 0) != 4) {
+        final int layoutOption =
+            normalizeLayoutOption(
+                getIntSettingValue(Settings.SECTION_INI_RENDERER, SettingsFile.KEY_LAYOUT_OPTION, 0));
+        if (layoutOption != 2) {
             return false;
         }
         return getBooleanSettingValue(Settings.SECTION_INI_RENDERER,
@@ -519,6 +522,10 @@ public final class SettingsActivity extends AppCompatActivity {
                SettingsFile.KEY_LAYOUT_MARGIN_TOP.equals(key) ||
                SettingsFile.KEY_LAYOUT_MARGIN_RIGHT.equals(key) ||
                SettingsFile.KEY_LAYOUT_MARGIN_BOTTOM.equals(key);
+    }
+
+    private int normalizeLayoutOption(int layoutOption) {
+        return layoutOption == 4 ? 2 : layoutOption;
     }
 
     private int getIntSettingValue(String sectionName, String key, int defaultValue) {

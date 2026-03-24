@@ -52,6 +52,10 @@ const ConfigInfo<bool> LANDSCAPE_HYBRID_SIDE_COLUMN_LEFT{
 const ConfigInfo<bool> HYBRID_SECONDARY_TOP{{"Renderer", "hybrid_secondary_top"}, false};
 const ConfigInfo<bool> LANDSCAPE_HYBRID_SECONDARY_TOP{
     {"Renderer", "landscape_hybrid_secondary_top"}, false};
+const ConfigInfo<Settings::HybridFit> HYBRID_FIT{{"Renderer", "hybrid_fit_mode"},
+                                                 Settings::HybridFit::Horizontal};
+const ConfigInfo<Settings::HybridFit> LANDSCAPE_HYBRID_FIT{
+    {"Renderer", "landscape_hybrid_fit_mode"}, Settings::HybridFit::Horizontal};
 const ConfigInfo<u16> LAYOUT_MARGIN_LEFT{{"Renderer", "layout_margin_left"}, 0};
 const ConfigInfo<u16> LANDSCAPE_LAYOUT_MARGIN_LEFT{
     {"Renderer", "landscape_layout_margin_left"}, 0};

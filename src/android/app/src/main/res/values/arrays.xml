@@ -8,7 +8,6 @@
         <item>@string/default_value</item>
         <item>@string/single_screen</item>
         <item>@string/large_screen</item>
-        <item>@string/large_screen_top_aligned</item>
         <item>@string/side_screen</item>
         <item>@string/hybrid_screen</item>
     </string-array>
@@ -16,9 +15,38 @@
         <item>0</item>
         <item>1</item>
         <item>2</item>
-        <item>4</item>
         <item>3</item>
         <item>5</item>
+    </integer-array>
+
+    <string-array name="leftRightEntries" translatable="false">
+        <item>@string/right</item>
+        <item>@string/left</item>
+    </string-array>
+
+    <integer-array name="leftRightValues" translatable="false">
+        <item>0</item>
+        <item>1</item>
+    </integer-array>
+
+    <string-array name="topBottomEntries" translatable="false">
+        <item>@string/bottom</item>
+        <item>@string/top</item>
+    </string-array>
+
+    <integer-array name="topBottomValues" translatable="false">
+        <item>0</item>
+        <item>1</item>
+    </integer-array>
+
+    <string-array name="hybridFitEntries" translatable="false">
+        <item>@string/fit_horizontally</item>
+        <item>@string/fit_vertically</item>
+    </string-array>
+
+    <integer-array name="hybridFitValues" translatable="false">
+        <item>0</item>
+        <item>1</item>
     </integer-array>
 
     <!-- Internal Resolution Preference -->
