@@ -260,10 +260,11 @@ public:
                   const Pica::Shader::ProgramCode& program_code,
                   const Pica::Shader::SwizzleData& swizzle_data, u32 main_offset,
                   const RegGetter& inputreg_getter, const RegGetter& outputreg_getter,
-                  u8 sanitize_mul)
+                  u8 sanitize_mul, bool sanitize_rcp_rsq)
         : subroutines(subroutines), program_code(program_code), swizzle_data(swizzle_data),
           main_offset(main_offset), inputreg_getter(inputreg_getter),
-          outputreg_getter(outputreg_getter), sanitize_mul(sanitize_mul) {
+          outputreg_getter(outputreg_getter), sanitize_mul(sanitize_mul),
+          sanitize_rcp_rsq(sanitize_rcp_rsq) {
 
         Generate();
     }
@@ -796,11 +797,13 @@ private:
             // multiplication bugs
             mul_safe = "#define mul_safe(x, y) mix(x * y, vec4(0.0), isnan(x * y))";
             fma_safe = "#define fma_safe(x, y, z) (mul_safe(x, y) + z)";
-        } else if (sanitize_mul == 2) {
+        } else if (sanitize_mul == 2 || sanitize_rcp_rsq) {
             // On the PICA200, "infinity * 0 = 0" but in OpenGL "infinity * 0 = NaN"
             // infinity = 1.0 / 0.0;
-            mul_safe = "#define mul_safe(x, y) mix(x * y, vec4(0.0), isnan(x * y))";
-            fma_safe = "#define fma_safe(x, y, z) (mul_safe(x, y) + z)";
+            if (sanitize_mul == 2) {
+                mul_safe = "#define mul_safe(x, y) mix(x * y, vec4(0.0), isnan(x * y))";
+                fma_safe = "#define fma_safe(x, y, z) (mul_safe(x, y) + z)";
+            }
             // rcp_safe = "#define rcp_safe(x) mix(1.0f / x, 0.0f, x == 0.0f)";
             // rsq_safe = "#define rsq_safe(x) mix(inversesqrt(x), 0.0f, x == 0.0f)";
             rcp_safe = R"(
@@ -903,6 +906,7 @@ private:
     const RegGetter& inputreg_getter;
     const RegGetter& outputreg_getter;
     const u8 sanitize_mul;
+    const bool sanitize_rcp_rsq;
 
     ShaderWriter shader;
 };
@@ -923,12 +927,14 @@ bool exec_shader();
 std::optional<ProgramResult> DecompileProgram(const Pica::Shader::ProgramCode& program_code,
                                               const Pica::Shader::SwizzleData& swizzle_data,
                                               u32 main_offset, const RegGetter& inputreg_getter,
-                                              const RegGetter& outputreg_getter, u8 sanitize_mul) {
+                                              const RegGetter& outputreg_getter, u8 sanitize_mul,
+                                              bool sanitize_rcp_rsq) {
 
     try {
         auto subroutines = ControlFlowAnalyzer(program_code, main_offset).MoveSubroutines();
         GLSLGenerator generator(subroutines, program_code, swizzle_data, main_offset,
-                                inputreg_getter, outputreg_getter, sanitize_mul);
+                                inputreg_getter, outputreg_getter, sanitize_mul,
+                                sanitize_rcp_rsq);
         return {ProgramResult{generator.MoveShaderCode()}};
     } catch (const DecompileFail& exception) {
         LOG_INFO(HW_GPU, "Shader decompilation failed: {}", exception.what());

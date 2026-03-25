@@ -5,6 +5,7 @@
 #pragma once
 
 #include <memory>
+#include <utility>
 #include <glad/glad.h>
 #include "video_core/regs_lighting.h"
 #include "video_core/renderer_opengl/gl_resource_manager.h"
@@ -114,6 +115,8 @@ public:
     void UseFragmentShader(const Pica::Regs& regs);
 
     void ApplyTo(OpenGLState& state);
+
+    std::pair<u64, u64> GetCurrentVertexFragmentHashes() const;
 
 private:
     class Impl;

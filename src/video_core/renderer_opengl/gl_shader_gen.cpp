@@ -111,6 +111,7 @@ static std::string GetVertexInterfaceDeclaration(bool is_output, bool separable_
     append_variable("float texcoord0_w", ATTRIBUTE_TEXCOORD0_W);
     append_variable("vec4 normquat", ATTRIBUTE_NORMQUAT);
     append_variable("vec3 view", ATTRIBUTE_VIEW);
+    append_variable("float pica_depth", ATTRIBUTE_PICA_DEPTH);
 
     if (is_output && separable_shader) {
         // gl_PerVertex redeclaration is required for separate shader object
@@ -276,6 +277,7 @@ void PicaShaderConfigCommon::Init(const Pica::ShaderRegs& regs, Pica::Shader::Sh
     swizzle_hash = setup.GetSwizzleDataHash();
     main_offset = regs.main_offset;
     sanitize_mul = static_cast<u8>(Settings::values.shaders_accurate_mul);
+    sanitize_rcp_rsq = Settings::values.accurate_rcp_rsq;
 
     num_outputs = 0;
     output_map.fill(16);
@@ -1602,14 +1604,15 @@ vec4 secondary_fragment_color = vec4(0.0);
                "gl_FragCoord.y < float(scissor_y2))) discard;\n";
     }
 
-    // After perspective divide, OpenGL transform z_over_w from [-1, 1] to [near, far]. Here we use
-    // default near = 0 and far = 1, and undo the transformation to get the original z_over_w, then
-    // do our own transformation according to PICA specification.
-    out += "float z_over_w = 2.0 * gl_FragCoord.z - 1.0;\n"
+    // Carry the original clip-space z/w through the shader pipeline instead of reconstructing it
+    // from gl_FragCoord.z, which appears to be unstable in the affected Pokemon battle scene.
+    out += "float z_over_w = pica_depth;\n"
            "float depth = z_over_w * depth_scale + depth_offset;\n";
     if (state.depthmap_enable == RasterizerRegs::DepthBuffering::WBuffering) {
         out += "depth /= gl_FragCoord.w;\n";
     }
+    out += "depth = clamp(depth, 0.0, 1.0);\n";
+    out += "depth = floor(depth * (exp2(24.0) - 1.0) + 0.5) * (1.0 / (exp2(24.0) - 1.0));\n";
 
     // flags
     s_use_fragment_color = false;
@@ -1775,6 +1778,7 @@ void main() {
     normquat = vert_normquat;
     view = vert_view;
     gl_Position = vert_position;
+    pica_depth = vert_position.z / vert_position.w;
 #if !defined(CITRA_GLES) || defined(GL_EXT_clip_cull_distance)
     gl_ClipDistance[0] = -vert_position.z; // fixed PICA clipping plane z <= 0
     gl_ClipDistance[1] = dot(clip_coef, vert_position);
@@ -1811,7 +1815,7 @@ std::string GenerateVertexShader(const Pica::Shader::ShaderSetup& setup, const P
 
     auto program_source_opt = ShaderDecompiler::DecompileProgram(
         setup.program_code, setup.swizzle_data, config.state.main_offset, get_input_reg,
-        get_output_reg, config.state.sanitize_mul);
+        get_output_reg, config.state.sanitize_mul, config.state.sanitize_rcp_rsq);
 
     if (!program_source_opt)
         return {};
@@ -1889,6 +1893,7 @@ struct Vertex {
            semantic(VSOutputAttributes::POSITION_Z) + ", " +
            semantic(VSOutputAttributes::POSITION_W) + ");\n";
     out += "    gl_Position = vtx_pos;\n";
+    out += "    pica_depth = vtx_pos.z / vtx_pos.w;\n";
 
     if (!Settings::values.disable_clip_coef) {
         out += "#if !defined(CITRA_GLES) || defined(GL_EXT_clip_cull_distance)\n";

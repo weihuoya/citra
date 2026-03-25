@@ -276,6 +276,23 @@ static void LoadOverrides(u64 title_id) {
         }
     }
 
+    const std::array<u64, 8> accurate_rcp_rsq_ids = {
+        0x0004000000055D00, // Pokemon X
+        0x0004000000055E00, // Pokemon Y
+        0x000400000011C500, // Pokemon Alpha Sapphire
+        0x000400000011C400, // Pokemon Omega Ruby
+        0x00040000001B5000, // Pokemon Ultra Sun
+        0x00040000001B5100, // Pokemon Ultra Moon
+        0x0004000000164800, // Pokemon Sun
+        0x0004000000175E00, // Pokemon Moon
+    };
+    for (auto id : accurate_rcp_rsq_ids) {
+        if (title_id == id) {
+            Settings::values.accurate_rcp_rsq = true;
+            break;
+        }
+    }
+
     const std::array<u64, 30> new3ds_game_ids = {
         0x000400000F700000, // Xenoblade Chronicles 3D [JPN]
         0x000400000F700100, // Xenoblade Chronicles 3D [USA]
