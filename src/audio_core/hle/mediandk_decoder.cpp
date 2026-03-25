@@ -195,7 +195,9 @@ std::optional<BinaryResponse> MediaNDKDecoder::Impl::Decode(const BinaryRequest&
                 offset += sizeof(pcm_data);
             }
         }
-        AMediaCodec_releaseOutputBuffer(mDecoder.get(), buffer_index, info.size != 0);
+        // Audio decoders should not "render" released output buffers. Passing true here triggers
+        // MediaCodec rendering errors on Android because that flag is intended for video surfaces.
+        AMediaCodec_releaseOutputBuffer(mDecoder.get(), buffer_index, false);
     }
     }
 

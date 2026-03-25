@@ -56,6 +56,17 @@ namespace {
 using PerfClock = std::chrono::steady_clock;
 constexpr u64 PERF_LOG_INTERVAL_NS = 5'000'000'000ULL;
 
+Settings::AccurateMul NormalizeAccurateMul(Settings::AccurateMul value) {
+    switch (value) {
+    case Settings::AccurateMul::OFF:
+    case Settings::AccurateMul::FAST:
+    case Settings::AccurateMul::SAFE:
+        return value;
+    default:
+        return Settings::AccurateMul::OFF;
+    }
+}
+
 u64 PerfNowNs() {
     return std::chrono::duration_cast<std::chrono::nanoseconds>(
                PerfClock::now().time_since_epoch())
@@ -709,6 +720,14 @@ JNIEXPORT void JNICALL Java_org_citra_emu_NativeLibrary_Run(JNIEnv* env, jclass 
     Settings::values.use_hw_shader = Config::Get(Config::USE_HW_SHADER);
     Settings::values.use_shader_jit = Config::Get(Config::USE_SHADER_JIT);
     Settings::values.shaders_accurate_mul = Config::Get(Config::SHADERS_ACCURATE_MUL);
+    const auto normalized_accurate_mul =
+        NormalizeAccurateMul(Settings::values.shaders_accurate_mul);
+    if (normalized_accurate_mul != Settings::values.shaders_accurate_mul) {
+        LOG_WARNING(Frontend, "Invalid accurate_mul_type in config; resetting to Off");
+        Settings::values.shaders_accurate_mul = normalized_accurate_mul;
+        Config::Set(Config::SHADERS_ACCURATE_MUL, normalized_accurate_mul);
+        Config::Save();
+    }
     Settings::values.use_frame_limit = Config::Get(Config::USE_FRAME_LIMIT);
     Settings::values.frame_limit = Config::Get(Config::FRAME_LIMIT);
     Settings::values.resolution_factor = Config::Get(Config::RESOLUTION_FACTOR);
