@@ -513,6 +513,190 @@ void main() {
 }
 )";
 
+static const char border_fill_vertex_shader[] = R"(
+void main() {
+    vec2 rawpos = vec2(float(gl_VertexID & 1), float((gl_VertexID & 2) >> 1));
+    gl_Position = vec4(rawpos * 2.0 - 1.0, 0.0, 1.0);
+}
+)";
+
+static const char border_fill_fragment_shader[] = R"(
+out vec4 color;
+
+uniform vec2 framebuffer_size;
+uniform vec4 screen_rect_0;
+uniform vec4 screen_rect_1;
+uniform vec4 screen_rect_2;
+uniform vec4 screen_texcoords_0;
+uniform vec4 screen_texcoords_1;
+uniform vec4 screen_texcoords_2;
+uniform int screen_enabled_0;
+uniform int screen_enabled_1;
+uniform int screen_enabled_2;
+uniform sampler2D top_texture;
+uniform sampler2D bottom_texture;
+uniform sampler2D additional_texture;
+
+const float BORDER_FILL_BRIGHTNESS = 1.18;
+const float SCREEN_SAMPLE_INSET_FRACTION = 0.06;
+
+bool Contains(vec4 rect, vec2 pixel) {
+    return pixel.x >= rect.x && pixel.x < rect.z && pixel.y >= rect.y && pixel.y < rect.w;
+}
+
+vec2 ClosestRectPixel(vec4 rect, vec2 pixel) {
+    return clamp(pixel, rect.xy, rect.zw);
+}
+
+float RectArea(vec4 rect) {
+    vec2 size = max(rect.zw - rect.xy, vec2(0.0));
+    return size.x * size.y;
+}
+
+vec2 RectPixelToTexcoord(vec4 rect, vec4 texcoords, vec2 pixel) {
+    vec2 size = max(rect.zw - rect.xy, vec2(1.0));
+    vec2 local = clamp((pixel - rect.xy) / size, vec2(0.0), vec2(1.0));
+    float tex_y = mix(texcoords.w, texcoords.y, local.y);
+    float tex_x = mix(texcoords.x, texcoords.z, local.x);
+    return vec2(tex_y, tex_x);
+}
+
+vec4 SampleScreen(int screen_index, vec2 pixel) {
+    if (screen_index == 0) {
+        return texture(top_texture, RectPixelToTexcoord(screen_rect_0, screen_texcoords_0, pixel));
+    }
+    if (screen_index == 1) {
+        return texture(bottom_texture,
+                       RectPixelToTexcoord(screen_rect_1, screen_texcoords_1, pixel));
+    }
+    return texture(additional_texture,
+                   RectPixelToTexcoord(screen_rect_2, screen_texcoords_2, pixel));
+}
+
+vec4 GetScreenRect(int screen_index) {
+    if (screen_index == 0) {
+        return screen_rect_0;
+    }
+    if (screen_index == 1) {
+        return screen_rect_1;
+    }
+    return screen_rect_2;
+}
+
+vec2 InsetSamplePixel(vec4 rect, vec2 pixel) {
+    vec2 size = max(rect.zw - rect.xy, vec2(1.0));
+    vec2 inset = min(size * SCREEN_SAMPLE_INSET_FRACTION, size * 0.25);
+    vec2 min_pixel = min(rect.xy + inset, rect.zw - inset);
+    vec2 max_pixel = max(rect.xy + inset, rect.zw - inset);
+    return clamp(pixel, min_pixel, max_pixel);
+}
+
+vec2 SafeNormalize(vec2 delta, vec2 fallback) {
+    float len = length(delta);
+    if (len <= 0.0001) {
+        return fallback;
+    }
+    return delta / len;
+}
+
+vec2 GetPrimaryProjectedPixel(vec4 rect, vec2 pixel, float compression) {
+    vec2 center = (rect.xy + rect.zw) * 0.5;
+    vec2 half_size = max((rect.zw - rect.xy) * 0.5, vec2(1.0));
+    vec2 normalized = clamp((pixel - center) / half_size, vec2(-1.0), vec2(1.0));
+    return InsetSamplePixel(rect, center + normalized * (half_size * compression));
+}
+
+vec4 SampleScreenBlur5(int screen_index, vec2 base, vec2 blur_step) {
+    vec4 center = SampleScreen(screen_index, base) * 0.40;
+    vec4 left = SampleScreen(screen_index, base + vec2(-blur_step.x, 0.0)) * 0.15;
+    vec4 right = SampleScreen(screen_index, base + vec2(blur_step.x, 0.0)) * 0.15;
+    vec4 up = SampleScreen(screen_index, base + vec2(0.0, -blur_step.y)) * 0.15;
+    vec4 down = SampleScreen(screen_index, base + vec2(0.0, blur_step.y)) * 0.15;
+    return center + left + right + up + down;
+}
+
+vec4 SampleScreenBlur9(int screen_index, vec2 base, vec2 blur_step) {
+    vec4 color = SampleScreen(screen_index, base) * 0.28;
+    color += SampleScreen(screen_index, base + vec2(-blur_step.x, 0.0)) * 0.12;
+    color += SampleScreen(screen_index, base + vec2(blur_step.x, 0.0)) * 0.12;
+    color += SampleScreen(screen_index, base + vec2(0.0, -blur_step.y)) * 0.12;
+    color += SampleScreen(screen_index, base + vec2(0.0, blur_step.y)) * 0.12;
+    color += SampleScreen(screen_index, base + vec2(-blur_step.x, -blur_step.y)) * 0.06;
+    color += SampleScreen(screen_index, base + vec2(blur_step.x, -blur_step.y)) * 0.06;
+    color += SampleScreen(screen_index, base + vec2(-blur_step.x, blur_step.y)) * 0.06;
+    color += SampleScreen(screen_index, base + vec2(blur_step.x, blur_step.y)) * 0.06;
+    return color;
+}
+
+vec4 SampleScreenAmbient(int screen_index, vec2 pixel) {
+    vec4 rect = GetScreenRect(screen_index);
+    vec2 size = max(rect.zw - rect.xy, vec2(1.0));
+    vec2 closest = ClosestRectPixel(rect, pixel);
+    vec2 outward = SafeNormalize(pixel - closest, vec2(0.0, -1.0));
+    vec2 inward = -outward;
+    vec2 tangent = vec2(-outward.y, outward.x);
+
+    float max_inset = min(size.x, size.y) * 0.18;
+    vec2 anchor_near = InsetSamplePixel(rect, closest + inward * clamp(min(size.x, size.y) * 0.045, 4.0, max_inset));
+    vec2 anchor_mid = InsetSamplePixel(rect, closest + inward * clamp(min(size.x, size.y) * 0.10, 8.0, max_inset));
+    vec2 anchor_far = InsetSamplePixel(rect, closest + inward * clamp(min(size.x, size.y) * 0.17, 12.0, max_inset));
+
+    vec2 local_step = clamp(size * 0.018, vec2(3.0), vec2(10.0));
+    vec2 medium_step = clamp(size * 0.03, vec2(5.0), vec2(16.0));
+    vec2 wide_step = clamp(size * 0.042, vec2(8.0), vec2(24.0));
+
+    vec4 near_color = SampleScreenBlur5(screen_index, anchor_near, local_step) * 0.42;
+    vec4 mid_color = SampleScreenBlur9(screen_index, anchor_mid, medium_step) * 0.34;
+    vec4 far_color = SampleScreenBlur9(screen_index, anchor_far, wide_step) * 0.16;
+    vec4 tangent_soft =
+        (SampleScreen(screen_index, InsetSamplePixel(rect, anchor_mid - tangent * medium_step)) +
+         SampleScreen(screen_index, InsetSamplePixel(rect, anchor_mid + tangent * medium_step))) *
+        0.04;
+    return near_color + mid_color + far_color + tangent_soft;
+}
+
+void ConsiderPrimaryScreen(int screen_index, vec4 rect, inout float best_area,
+                           inout int best_index) {
+    float area = RectArea(rect);
+    if (area > best_area) {
+        best_area = area;
+        best_index = screen_index;
+    }
+}
+
+void main() {
+    vec2 pixel = vec2(gl_FragCoord.x, framebuffer_size.y - gl_FragCoord.y);
+
+    if ((screen_enabled_0 != 0 && Contains(screen_rect_0, pixel)) ||
+        (screen_enabled_1 != 0 && Contains(screen_rect_1, pixel)) ||
+        (screen_enabled_2 != 0 && Contains(screen_rect_2, pixel))) {
+        discard;
+    }
+
+    float best_area = -1.0;
+    int best_index = -1;
+
+    if (screen_enabled_0 != 0) {
+        ConsiderPrimaryScreen(0, screen_rect_0, best_area, best_index);
+    }
+    if (screen_enabled_1 != 0) {
+        ConsiderPrimaryScreen(1, screen_rect_1, best_area, best_index);
+    }
+    if (screen_enabled_2 != 0) {
+        ConsiderPrimaryScreen(2, screen_rect_2, best_area, best_index);
+    }
+
+    if (best_index < 0) {
+        discard;
+    }
+
+    vec4 fill_color = SampleScreenAmbient(best_index, pixel);
+
+    fill_color.rgb = clamp(fill_color.rgb * BORDER_FILL_BRIGHTNESS, vec3(0.0), vec3(1.0));
+    color = fill_color;
+}
+)";
+
 static const char post_processing_header[] = R"(
 // hlsl to glsl types
 #define float2 vec2
@@ -1024,6 +1208,13 @@ void RendererOpenGL::InitOpenGLObjects() {
         shader.Create(vertex_shader, frag_source.data());
     }
 
+    std::string border_fill_frag_source;
+    if (GLES) {
+        border_fill_frag_source += fragment_shader_precision_OES;
+    }
+    border_fill_frag_source += border_fill_fragment_shader;
+    border_fill_shader.Create(border_fill_vertex_shader, border_fill_frag_source.data());
+
     // sampler
     glSamplerParameteri(filter_sampler.handle, GL_TEXTURE_MAG_FILTER,
                         linear_mag_filter ? GL_LINEAR : GL_NEAREST);
@@ -1055,6 +1246,39 @@ void RendererOpenGL::InitOpenGLObjects() {
                           (GLvoid*)offsetof(ScreenRectVertex, tex_coord));
     glEnableVertexAttribArray(attrib_position);
     glEnableVertexAttribArray(attrib_tex_coord);
+
+    border_fill_uniform_framebuffer_size =
+        glGetUniformLocation(border_fill_shader.handle, "framebuffer_size");
+    border_fill_uniform_screen_rects[0] =
+        glGetUniformLocation(border_fill_shader.handle, "screen_rect_0");
+    border_fill_uniform_screen_rects[1] =
+        glGetUniformLocation(border_fill_shader.handle, "screen_rect_1");
+    border_fill_uniform_screen_rects[2] =
+        glGetUniformLocation(border_fill_shader.handle, "screen_rect_2");
+    border_fill_uniform_screen_texcoords[0] =
+        glGetUniformLocation(border_fill_shader.handle, "screen_texcoords_0");
+    border_fill_uniform_screen_texcoords[1] =
+        glGetUniformLocation(border_fill_shader.handle, "screen_texcoords_1");
+    border_fill_uniform_screen_texcoords[2] =
+        glGetUniformLocation(border_fill_shader.handle, "screen_texcoords_2");
+    border_fill_uniform_screen_enabled[0] =
+        glGetUniformLocation(border_fill_shader.handle, "screen_enabled_0");
+    border_fill_uniform_screen_enabled[1] =
+        glGetUniformLocation(border_fill_shader.handle, "screen_enabled_1");
+    border_fill_uniform_screen_enabled[2] =
+        glGetUniformLocation(border_fill_shader.handle, "screen_enabled_2");
+    border_fill_uniform_top_texture =
+        glGetUniformLocation(border_fill_shader.handle, "top_texture");
+    border_fill_uniform_bottom_texture =
+        glGetUniformLocation(border_fill_shader.handle, "bottom_texture");
+    border_fill_uniform_additional_texture =
+        glGetUniformLocation(border_fill_shader.handle, "additional_texture");
+
+    GLuint old_program = OpenGLState::BindShaderProgram(border_fill_shader.handle);
+    glUniform1i(border_fill_uniform_top_texture, 0);
+    glUniform1i(border_fill_uniform_bottom_texture, 1);
+    glUniform1i(border_fill_uniform_additional_texture, 2);
+    OpenGLState::BindShaderProgram(old_program);
 
     // Allocate textures for each screen
     for (auto& screen_info : screen_infos) {
@@ -1237,6 +1461,47 @@ void RendererOpenGL::DrawScreens(const Layout::FramebufferLayout& layout) {
         OpenGLState::BindTexture2D(0, bg_texture.handle);
         glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
         OpenGLState::BindShaderProgram(handle);
+    }
+
+    if (Settings::values.dynamic_screen_fill && border_fill_shader.handle) {
+        const auto set_rect_uniform = [&](GLuint uniform, const Common::Rectangle<u32>& rect) {
+            glUniform4f(uniform, static_cast<GLfloat>(rect.left), static_cast<GLfloat>(rect.top),
+                        static_cast<GLfloat>(rect.right), static_cast<GLfloat>(rect.bottom));
+        };
+        const auto set_texcoord_uniform = [&](GLuint uniform,
+                                              const Common::Rectangle<float>& texcoords) {
+            glUniform4f(uniform, texcoords.left, texcoords.top, texcoords.right,
+                        texcoords.bottom);
+        };
+
+        GLuint previous_program = OpenGLState::BindShaderProgram(border_fill_shader.handle);
+        glUniform2f(border_fill_uniform_framebuffer_size, static_cast<GLfloat>(layout.width),
+                    static_cast<GLfloat>(layout.height));
+
+        set_rect_uniform(border_fill_uniform_screen_rects[0], layout.top_screen);
+        set_rect_uniform(border_fill_uniform_screen_rects[1], layout.bottom_screen);
+        set_rect_uniform(border_fill_uniform_screen_rects[2], layout.additional_screen);
+        set_texcoord_uniform(border_fill_uniform_screen_texcoords[0],
+                             screen_infos[0].display_texcoords);
+        set_texcoord_uniform(border_fill_uniform_screen_texcoords[1],
+                             screen_infos[2].display_texcoords);
+        set_texcoord_uniform(border_fill_uniform_screen_texcoords[2],
+                             layout.additional_screen_top ? screen_infos[0].display_texcoords
+                                                          : screen_infos[2].display_texcoords);
+        glUniform1i(border_fill_uniform_screen_enabled[0], layout.top_screen_enabled);
+        glUniform1i(border_fill_uniform_screen_enabled[1], layout.bottom_screen_enabled);
+        glUniform1i(border_fill_uniform_screen_enabled[2], layout.additional_screen_enabled);
+
+        OpenGLState::BindTexture2D(0, screen_infos[0].display_texture);
+        OpenGLState::BindTexture2D(1, screen_infos[2].display_texture);
+        OpenGLState::BindTexture2D(2, layout.additional_screen_top ? screen_infos[0].display_texture
+                                                                   : screen_infos[2].display_texture);
+        OpenGLState::BindSampler(1, filter_sampler.handle);
+        OpenGLState::BindSampler(2, filter_sampler.handle);
+        glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
+        OpenGLState::BindSampler(1, 0);
+        OpenGLState::BindSampler(2, 0);
+        OpenGLState::BindShaderProgram(previous_program);
     }
 
     // Draws texture to the emulator window,

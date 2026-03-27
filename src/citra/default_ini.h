@@ -215,6 +215,10 @@ layout_margin_top =
 layout_margin_right =
 layout_margin_bottom =
 
+# Fill empty areas around the active 3DS screens by sampling colors from the live screen edges.
+# 0 (default): Off, 1: On
+dynamic_screen_fill =
+
 # Toggle upright orientation, for book style games.
 # 0 (default): Off, 1: On
 upright_screen =

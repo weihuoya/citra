@@ -171,6 +171,8 @@ void Config::ReadValues() {
         static_cast<u16>(sdl2_config->GetInteger("Layout", "layout_margin_right", 0));
     Settings::values.layout_margin_bottom =
         static_cast<u16>(sdl2_config->GetInteger("Layout", "layout_margin_bottom", 0));
+    Settings::values.dynamic_screen_fill =
+        sdl2_config->GetBoolean("Layout", "dynamic_screen_fill", false);
     Settings::values.upright_screen = sdl2_config->GetBoolean("Layout", "upright_screen", false);
     Settings::values.custom_layout = sdl2_config->GetBoolean("Layout", "custom_layout", false);
     Settings::values.custom_top_left =

@@ -8,9 +8,10 @@ def hasExplicitReleaseSigning = [releaseStoreFilePath, releaseStorePassword, rel
         .every { it != null && !it.trim().isEmpty() }
 def useDebugSigningForRelease = (System.getenv('ANDROID_LOCAL_RELEASE_USE_DEBUG_SIGNING') ?: 'false')
         .toBoolean()
+def androidApiLevel = 34
 
 android {
-    compileSdkVersion 31
+    compileSdkVersion androidApiLevel
 
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_1_8
@@ -21,7 +22,7 @@ android {
     defaultConfig {
         applicationId "org.citra.bjj"
         minSdkVersion 24
-        targetSdkVersion 31
+        targetSdkVersion androidApiLevel
         versionCode(getBuildVersionCode())
         versionName "${getVersion()}"
     }

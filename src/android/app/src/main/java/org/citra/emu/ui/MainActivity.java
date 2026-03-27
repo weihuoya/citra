@@ -400,6 +400,7 @@ public final class MainActivity extends AppCompatActivity {
     private final boolean[] mRunningHandlers = new boolean[] {false, false, false};
 
     private boolean mIsLoadGameList;
+    private boolean mAwaitingStorageAccessResult;
     private List<GameFile> mExternalGames = new ArrayList<>();
     private List<GameFile> mInstalledGames = new ArrayList<>();
     private List<GameFile> mInstalledContents = new ArrayList<>();
@@ -418,6 +419,9 @@ public final class MainActivity extends AppCompatActivity {
 
         if (PermissionsHandler.checkWritePermission(this)) {
             CitraDirectory.start(this);
+            mAwaitingStorageAccessResult = false;
+        } else {
+            mAwaitingStorageAccessResult = true;
         }
 
         MaterialToolbar toolbar = findViewById(R.id.top_appbar);
@@ -508,9 +512,15 @@ public final class MainActivity extends AppCompatActivity {
     @Override
     protected void onResume() {
         super.onResume();
-        if (!CitraDirectory.isInitialized() && PermissionsHandler.hasWriteAccess(this)) {
-            CitraDirectory.start(this);
-            showGameList();
+        if (!CitraDirectory.isInitialized()) {
+            if (PermissionsHandler.hasWriteAccess(this)) {
+                CitraDirectory.start(this);
+                mAwaitingStorageAccessResult = false;
+                showGameList();
+            } else if (!mAwaitingStorageAccessResult) {
+                mAwaitingStorageAccessResult = true;
+                PermissionsHandler.checkWritePermission(this);
+            }
         }
 
         if (mDirToAdd != null) {
@@ -548,6 +558,18 @@ public final class MainActivity extends AppCompatActivity {
         super.onActivityResult(requestCode, resultCode, result);
 
         switch (requestCode) {
+        case PermissionsHandler.REQUEST_CODE_ALL_FILES_ACCESS:
+            mAwaitingStorageAccessResult = false;
+            if (PermissionsHandler.hasWriteAccess(this)) {
+                CitraDirectory.start(this);
+                showGameList();
+            } else {
+                Toast.makeText(this, R.string.all_files_access_needed, Toast.LENGTH_SHORT).show();
+                refreshExternalGames();
+                refreshInstalledGames();
+                refreshInstalledContents();
+            }
+            break;
         case FileBrowserHelper.REQUEST_OPEN_DIRECTORY:
             // If the user picked a file, as opposed to just backing out.
             if (resultCode == RESULT_OK) {
@@ -631,6 +653,7 @@ public final class MainActivity extends AppCompatActivity {
                                            int[] grantResults) {
         switch (requestCode) {
         case PermissionsHandler.REQUEST_CODE_WRITE_PERMISSION:
+            mAwaitingStorageAccessResult = false;
             if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                 CitraDirectory.start(this);
                 showGameList();

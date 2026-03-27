@@ -141,13 +141,14 @@ public class RunningSettingDialog extends DialogFragment {
         public static final int SETTING_HYBRID_SIDE_COLUMN_LEFT = 16;
         public static final int SETTING_HYBRID_SECONDARY_TOP = 17;
         // Keep these indices aligned with NativeLibrary.getRunningSettings().
-        public static final int SETTING_LAYOUT_MARGIN_LEFT = 18;
-        public static final int SETTING_LAYOUT_MARGIN_TOP = 19;
-        public static final int SETTING_LAYOUT_MARGIN_RIGHT = 20;
-        public static final int SETTING_LAYOUT_MARGIN_BOTTOM = 21;
-        public static final int SETTING_ACCURATE_MUL = 22;
-        public static final int SETTING_CUSTOM_LAYOUT = 23;
-        public static final int SETTING_FRAME_LIMIT = 24;
+        public static final int SETTING_DYNAMIC_SCREEN_FILL = 18;
+        public static final int SETTING_LAYOUT_MARGIN_LEFT = 19;
+        public static final int SETTING_LAYOUT_MARGIN_TOP = 20;
+        public static final int SETTING_LAYOUT_MARGIN_RIGHT = 21;
+        public static final int SETTING_LAYOUT_MARGIN_BOTTOM = 22;
+        public static final int SETTING_ACCURATE_MUL = 23;
+        public static final int SETTING_CUSTOM_LAYOUT = 24;
+        public static final int SETTING_FRAME_LIMIT = 25;
 
         // pref
         public static final int SETTING_JOYSTICK_RELATIVE = 100;
@@ -822,6 +823,9 @@ public class RunningSettingDialog extends DialogFragment {
             mSettings.add(new SettingsItem(SettingsItem.SETTING_SWAP_SCREEN,
                     R.string.swap_screens, SettingsItem.TYPE_CHECKBOX,
                     mRunningSettings[SettingsItem.SETTING_SWAP_SCREEN]));
+            mSettings.add(new SettingsItem(SettingsItem.SETTING_DYNAMIC_SCREEN_FILL,
+                    R.string.dynamic_screen_fill, SettingsItem.TYPE_CHECKBOX,
+                    mRunningSettings[SettingsItem.SETTING_DYNAMIC_SCREEN_FILL]));
 
             if (currentLayout == 2) {
                 final boolean autoFitEnabled =
@@ -1000,6 +1004,7 @@ public class RunningSettingDialog extends DialogFragment {
         private boolean isLiveScreenLayoutSetting(int setting) {
             return setting == SettingsItem.SETTING_SCREEN_LAYOUT ||
                    setting == SettingsItem.SETTING_SWAP_SCREEN ||
+                   setting == SettingsItem.SETTING_DYNAMIC_SCREEN_FILL ||
                    setting == SettingsItem.SETTING_LARGE_SCREEN_AUTO_FIT ||
                    setting == SettingsItem.SETTING_LARGE_SCREEN_PROPORTION ||
                    setting == SettingsItem.SETTING_LARGE_SCREEN_SECONDARY_LEFT ||

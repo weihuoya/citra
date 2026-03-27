@@ -206,6 +206,8 @@
     <string name="large_screen_auto_fit_description">Automatically keep the large secondary screen size fitted to the current display whenever relevant layout settings change.</string>
     <string name="swap_screens">Swap Screens</string>
     <string name="swap_screens_description">Use the bottom 3DS screen as the primary screen and the top 3DS screen as the secondary screen for automatic layouts.</string>
+    <string name="dynamic_screen_fill">Dynamic Border Fill</string>
+    <string name="dynamic_screen_fill_description">Experimentally fills empty areas around the 3DS screens using ambient sampling from the largest active screen, so the background reads more like a continuation of the main view. Applies automatically to swapped and repositioned screen layouts.</string>
     <string name="large_screen_secondary_side">Secondary Screen Side</string>
     <string name="large_screen_secondary_side_description">Only applies to Large Screen. Chooses whether the secondary screen is placed to the left or right of the primary screen.</string>
     <string name="large_screen_secondary_vertical_alignment">Secondary Screen Vertical Alignment</string>

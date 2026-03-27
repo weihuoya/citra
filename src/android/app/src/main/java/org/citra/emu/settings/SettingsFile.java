@@ -76,6 +76,7 @@ public final class SettingsFile {
     public static final String KEY_LAYOUT_MARGIN_BOTTOM = "layout_margin_bottom";
     public static final String KEY_LANDSCAPE_LAYOUT_MARGIN_BOTTOM =
         "landscape_layout_margin_bottom";
+    public static final String KEY_DYNAMIC_SCREEN_FILL = "dynamic_screen_fill";
     public static final String KEY_SHADER_TYPE = "shader_type";
     public static final String KEY_POST_PROCESSING_SHADER = "pp_shader_name";
     // Audio

@@ -199,6 +199,7 @@ struct Values {
     u16 layout_margin_top;
     u16 layout_margin_right;
     u16 layout_margin_bottom;
+    bool dynamic_screen_fill;
     bool custom_layout;
     u16 custom_top_left;
     u16 custom_top_top;

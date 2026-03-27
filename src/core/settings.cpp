@@ -79,6 +79,7 @@ void LogSettings() {
     LogSetting("Layout_MarginTop", Settings::values.layout_margin_top);
     LogSetting("Layout_MarginRight", Settings::values.layout_margin_right);
     LogSetting("Layout_MarginBottom", Settings::values.layout_margin_bottom);
+    LogSetting("Layout_DynamicScreenFill", Settings::values.dynamic_screen_fill);
     LogSetting("Utility_CustomTextures", Settings::values.custom_textures);
     LogSetting("Audio_EnableDspLle", Settings::values.enable_dsp_lle);
     LogSetting("Audio_EnableDspLleMultithread", Settings::values.enable_dsp_lle_multithread);

@@ -733,6 +733,7 @@ JNIEXPORT void JNICALL Java_org_citra_emu_NativeLibrary_Run(JNIEnv* env, jclass 
     Settings::values.resolution_factor = Config::Get(Config::RESOLUTION_FACTOR);
     Settings::values.factor_3d = Config::Get(Config::FACTOR_3D);
     Settings::values.custom_textures = Config::Get(Config::CUSTOM_TEXTURES);
+    Settings::values.dynamic_screen_fill = Config::Get(Config::DYNAMIC_SCREEN_FILL);
     Settings::values.pp_shader_name = Config::Get(Config::POST_PROCESSING_SHADER);
     Settings::values.remote_shader_host = Config::Get(Config::REMOTE_SHADER_HOST);
     // audio
@@ -837,7 +838,7 @@ JNIEXPORT void JNICALL Java_org_citra_emu_NativeLibrary_nativeStopEmulation(JNIE
 JNIEXPORT jintArray JNICALL Java_org_citra_emu_NativeLibrary_getRunningSettings(JNIEnv* env,
                                                                                 jclass obj) {
     int i = 0;
-    int settings[25];
+    int settings[26];
 
     // get settings
     settings[i++] = Settings::values.core_ticks_hack > 0;
@@ -858,6 +859,7 @@ JNIEXPORT jintArray JNICALL Java_org_citra_emu_NativeLibrary_getRunningSettings(
     settings[i++] = Settings::values.large_screen_secondary_top;
     settings[i++] = Settings::values.hybrid_side_column_left;
     settings[i++] = Settings::values.hybrid_secondary_top;
+    settings[i++] = Settings::values.dynamic_screen_fill;
     settings[i++] = Settings::values.layout_margin_left;
     settings[i++] = Settings::values.layout_margin_top;
     settings[i++] = Settings::values.layout_margin_right;
@@ -1013,6 +1015,9 @@ JNIEXPORT void JNICALL Java_org_citra_emu_NativeLibrary_setRunningSettings(JNIEn
         Config::Set(Config::LANDSCAPE_HYBRID_SECONDARY_TOP,
                     Settings::values.hybrid_secondary_top);
     }
+
+    Settings::values.dynamic_screen_fill = settings[i++] > 0;
+    Config::Set(Config::DYNAMIC_SCREEN_FILL, Settings::values.dynamic_screen_fill);
 
     Settings::values.layout_margin_left =
         static_cast<u16>(std::clamp(settings[i++], 0, 1000));
