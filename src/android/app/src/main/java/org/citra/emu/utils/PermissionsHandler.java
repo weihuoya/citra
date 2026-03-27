@@ -24,6 +24,7 @@ public final class PermissionsHandler {
     public static final int REQUEST_CODE_WRITE_PERMISSION = 500;
     public static final int REQUEST_CODE_CAMERA_PERMISSION = 501;
     public static final int REQUEST_CODE_RECORD_PERMISSION = 502;
+    public static final int REQUEST_CODE_ALL_FILES_ACCESS = 503;
 
     public static boolean checkWritePermission(final Activity activity) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
@@ -113,9 +114,11 @@ public final class PermissionsHandler {
         Intent intent = new Intent(Settings.ACTION_MANAGE_APP_ALL_FILES_ACCESS_PERMISSION);
         intent.setData(Uri.parse("package:" + activity.getPackageName()));
         try {
-            activity.startActivity(intent);
+            activity.startActivityForResult(intent, REQUEST_CODE_ALL_FILES_ACCESS);
         } catch (Exception e) {
-            activity.startActivity(new Intent(Settings.ACTION_MANAGE_ALL_FILES_ACCESS_PERMISSION));
+            activity.startActivityForResult(
+                new Intent(Settings.ACTION_MANAGE_ALL_FILES_ACCESS_PERMISSION),
+                REQUEST_CODE_ALL_FILES_ACCESS);
         }
     }
 

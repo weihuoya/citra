@@ -65,6 +65,15 @@ public class FilePickerFragment extends AbstractFilePickerFragment<File> {
      */
     @Override
     protected boolean hasPermission(@NonNull File path) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+            return Environment.isExternalStorageManager();
+        }
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q &&
+            !Environment.isExternalStorageLegacy()) {
+            return true;
+        }
+
         return PackageManager.PERMISSION_GRANTED ==
             ContextCompat.checkSelfPermission(getContext(),
                                               Manifest.permission.WRITE_EXTERNAL_STORAGE);

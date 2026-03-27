@@ -544,6 +544,10 @@ bool Contains(vec4 rect, vec2 pixel) {
     return pixel.x >= rect.x && pixel.x < rect.z && pixel.y >= rect.y && pixel.y < rect.w;
 }
 
+vec2 ClosestRectPixel(vec4 rect, vec2 pixel) {
+    return clamp(pixel, rect.xy, rect.zw);
+}
+
 float RectArea(vec4 rect) {
     vec2 size = max(rect.zw - rect.xy, vec2(0.0));
     return size.x * size.y;
@@ -587,18 +591,68 @@ vec2 InsetSamplePixel(vec4 rect, vec2 pixel) {
     return clamp(pixel, min_pixel, max_pixel);
 }
 
-vec4 SampleScreenAmbient(int screen_index, vec2 pixel) {
-    vec4 rect = GetScreenRect(screen_index);
-    vec2 size = max(rect.zw - rect.xy, vec2(1.0));
-    vec2 base = InsetSamplePixel(rect, pixel);
-    vec2 blur_step = clamp(size * 0.0125, vec2(2.0), vec2(10.0));
+vec2 SafeNormalize(vec2 delta, vec2 fallback) {
+    float len = length(delta);
+    if (len <= 0.0001) {
+        return fallback;
+    }
+    return delta / len;
+}
 
+vec2 GetPrimaryProjectedPixel(vec4 rect, vec2 pixel, float compression) {
+    vec2 center = (rect.xy + rect.zw) * 0.5;
+    vec2 half_size = max((rect.zw - rect.xy) * 0.5, vec2(1.0));
+    vec2 normalized = clamp((pixel - center) / half_size, vec2(-1.0), vec2(1.0));
+    return InsetSamplePixel(rect, center + normalized * (half_size * compression));
+}
+
+vec4 SampleScreenBlur5(int screen_index, vec2 base, vec2 blur_step) {
     vec4 center = SampleScreen(screen_index, base) * 0.40;
     vec4 left = SampleScreen(screen_index, base + vec2(-blur_step.x, 0.0)) * 0.15;
     vec4 right = SampleScreen(screen_index, base + vec2(blur_step.x, 0.0)) * 0.15;
     vec4 up = SampleScreen(screen_index, base + vec2(0.0, -blur_step.y)) * 0.15;
     vec4 down = SampleScreen(screen_index, base + vec2(0.0, blur_step.y)) * 0.15;
     return center + left + right + up + down;
+}
+
+vec4 SampleScreenBlur9(int screen_index, vec2 base, vec2 blur_step) {
+    vec4 color = SampleScreen(screen_index, base) * 0.28;
+    color += SampleScreen(screen_index, base + vec2(-blur_step.x, 0.0)) * 0.12;
+    color += SampleScreen(screen_index, base + vec2(blur_step.x, 0.0)) * 0.12;
+    color += SampleScreen(screen_index, base + vec2(0.0, -blur_step.y)) * 0.12;
+    color += SampleScreen(screen_index, base + vec2(0.0, blur_step.y)) * 0.12;
+    color += SampleScreen(screen_index, base + vec2(-blur_step.x, -blur_step.y)) * 0.06;
+    color += SampleScreen(screen_index, base + vec2(blur_step.x, -blur_step.y)) * 0.06;
+    color += SampleScreen(screen_index, base + vec2(-blur_step.x, blur_step.y)) * 0.06;
+    color += SampleScreen(screen_index, base + vec2(blur_step.x, blur_step.y)) * 0.06;
+    return color;
+}
+
+vec4 SampleScreenAmbient(int screen_index, vec2 pixel) {
+    vec4 rect = GetScreenRect(screen_index);
+    vec2 size = max(rect.zw - rect.xy, vec2(1.0));
+    vec2 closest = ClosestRectPixel(rect, pixel);
+    vec2 outward = SafeNormalize(pixel - closest, vec2(0.0, -1.0));
+    vec2 inward = -outward;
+    vec2 tangent = vec2(-outward.y, outward.x);
+
+    float max_inset = min(size.x, size.y) * 0.18;
+    vec2 anchor_near = InsetSamplePixel(rect, closest + inward * clamp(min(size.x, size.y) * 0.045, 4.0, max_inset));
+    vec2 anchor_mid = InsetSamplePixel(rect, closest + inward * clamp(min(size.x, size.y) * 0.10, 8.0, max_inset));
+    vec2 anchor_far = InsetSamplePixel(rect, closest + inward * clamp(min(size.x, size.y) * 0.17, 12.0, max_inset));
+
+    vec2 local_step = clamp(size * 0.018, vec2(3.0), vec2(10.0));
+    vec2 medium_step = clamp(size * 0.03, vec2(5.0), vec2(16.0));
+    vec2 wide_step = clamp(size * 0.042, vec2(8.0), vec2(24.0));
+
+    vec4 near_color = SampleScreenBlur5(screen_index, anchor_near, local_step) * 0.42;
+    vec4 mid_color = SampleScreenBlur9(screen_index, anchor_mid, medium_step) * 0.34;
+    vec4 far_color = SampleScreenBlur9(screen_index, anchor_far, wide_step) * 0.16;
+    vec4 tangent_soft =
+        (SampleScreen(screen_index, InsetSamplePixel(rect, anchor_mid - tangent * medium_step)) +
+         SampleScreen(screen_index, InsetSamplePixel(rect, anchor_mid + tangent * medium_step))) *
+        0.04;
+    return near_color + mid_color + far_color + tangent_soft;
 }
 
 void ConsiderPrimaryScreen(int screen_index, vec4 rect, inout float best_area,
