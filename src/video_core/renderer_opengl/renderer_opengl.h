@@ -85,6 +85,7 @@ private:
 
     OGLProgram bg_shader;
     OGLTexture bg_texture;
+    OGLProgram border_fill_shader;
 
     /// Display information for top and bottom screens respectively
     std::array<ScreenInfo, 3> screen_infos;
@@ -92,6 +93,13 @@ private:
     // Shader uniform location indices
     GLuint uniform_modelview_matrix;
     GLuint uniform_resolution;
+    GLuint border_fill_uniform_framebuffer_size;
+    std::array<GLuint, 3> border_fill_uniform_screen_rects;
+    std::array<GLuint, 3> border_fill_uniform_screen_texcoords;
+    std::array<GLuint, 3> border_fill_uniform_screen_enabled;
+    GLuint border_fill_uniform_top_texture;
+    GLuint border_fill_uniform_bottom_texture;
+    GLuint border_fill_uniform_additional_texture;
 };
 
 } // namespace OpenGL

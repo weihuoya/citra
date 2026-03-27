@@ -335,6 +335,8 @@ public final class SettingsFragment extends Fragment {
             rendererSection.getSetting(SettingsFile.KEY_LAYOUT_MARGIN_RIGHT);
         Setting layoutMarginBottom =
             rendererSection.getSetting(SettingsFile.KEY_LAYOUT_MARGIN_BOTTOM);
+        Setting dynamicScreenFill =
+            rendererSection.getSetting(SettingsFile.KEY_DYNAMIC_SCREEN_FILL);
         final int currentLayout = normalizeLayoutOption(
             layoutOption instanceof IntSetting ? ((IntSetting)layoutOption).getValue() : 0);
 
@@ -344,6 +346,9 @@ public final class SettingsFragment extends Fragment {
             0, R.array.layoutOptionEntries, R.array.layoutOptionValues, 0, layoutOption));
         sl.add(new CheckBoxSetting(SettingsFile.KEY_SWAP_SCREEN, Settings.SECTION_INI_RENDERER,
                 R.string.swap_screens, R.string.swap_screens_description, false, swapScreen));
+        sl.add(new CheckBoxSetting(SettingsFile.KEY_DYNAMIC_SCREEN_FILL,
+                Settings.SECTION_INI_RENDERER, R.string.dynamic_screen_fill,
+                R.string.dynamic_screen_fill_description, false, dynamicScreenFill));
 
         if (currentLayout == 2) {
             final boolean autoFitEnabled =

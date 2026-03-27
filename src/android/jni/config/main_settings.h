@@ -58,6 +58,7 @@ extern const ConfigInfo<u16> LAYOUT_MARGIN_RIGHT;
 extern const ConfigInfo<u16> LANDSCAPE_LAYOUT_MARGIN_RIGHT;
 extern const ConfigInfo<u16> LAYOUT_MARGIN_BOTTOM;
 extern const ConfigInfo<u16> LANDSCAPE_LAYOUT_MARGIN_BOTTOM;
+extern const ConfigInfo<bool> DYNAMIC_SCREEN_FILL;
 extern const ConfigInfo<Settings::PresentationMode> SCREEN_PRESENTATION_MODE;
 extern const ConfigInfo<std::string> POST_PROCESSING_SHADER;
 extern const ConfigInfo<std::string> REMOTE_SHADER_HOST;

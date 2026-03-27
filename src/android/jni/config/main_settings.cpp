@@ -64,6 +64,7 @@ const ConfigInfo<u16> LANDSCAPE_LAYOUT_MARGIN_RIGHT{
 const ConfigInfo<u16> LAYOUT_MARGIN_BOTTOM{{"Renderer", "layout_margin_bottom"}, 0};
 const ConfigInfo<u16> LANDSCAPE_LAYOUT_MARGIN_BOTTOM{
     {"Renderer", "landscape_layout_margin_bottom"}, 0};
+const ConfigInfo<bool> DYNAMIC_SCREEN_FILL{{"Renderer", "dynamic_screen_fill"}, false};
 const ConfigInfo<Settings::PresentationMode> SCREEN_PRESENTATION_MODE{
         {"Renderer", "screen_presentation_mode"}, Settings::PresentationMode::Default};
 const ConfigInfo<std::string> POST_PROCESSING_SHADER{{"Renderer", "pp_shader_name"}, ""};
