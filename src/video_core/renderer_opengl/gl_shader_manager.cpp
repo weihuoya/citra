@@ -47,21 +47,6 @@ u64 GetCurrentTitleId() {
     return title_id;
 }
 
-bool ShouldDebugSkipPokemonFragDepthForKey(u64 title_id, u64 key_hash) {
-    if (!IsPokemonTitle(title_id)) {
-        return false;
-    }
-    switch (key_hash) {
-    case 0xD071D0AD10946707ull:
-    case 0x5DCCD2B31FBD5830ull:
-    case 0xE918A8FA8474610Full:
-    case 0x9786E2FC2AFEC0FDull:
-        return true;
-    default:
-        return false;
-    }
-}
-
 std::string GetPokemonShaderDumpDir(u64 title_id) {
     return fmt::format("{}pokemon_render/{:016X}/", FileUtil::GetUserPath(FileUtil::UserPath::DumpDir),
                        title_id);
@@ -374,14 +359,6 @@ public:
         auto iter_ref = shaders_ref.find(key_hash);
         if (iter_ref == shaders_ref.end()) {
             std::string fs_code = GenerateFragmentShader(key, separable);
-            const u64 title_id = GetCurrentTitleId();
-            if (ShouldDebugSkipPokemonFragDepthForKey(title_id, key_hash)) {
-                constexpr std::string_view needle = "gl_FragDepth = depth;\n";
-                const auto pos = fs_code.find(needle);
-                if (pos != std::string::npos) {
-                    fs_code.replace(pos, needle.size(), "// Pokemon debug: skip gl_FragDepth\n");
-                }
-            }
             current_shaders.fs = GetShaderStageRef(fs_code, GL_FRAGMENT_SHADER);
             if (current_shaders.fs) {
                 DumpPokemonShaderSource("fs", key_hash, current_shaders.fs->GetHash(),
