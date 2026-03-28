@@ -3,11 +3,9 @@
 // Refer to the license.txt file included.
 
 #include <algorithm>
-#include <fstream>
 #include <memory>
 #include <string>
 #include <tuple>
-#include <unordered_set>
 #include <utility>
 #include <glad/glad.h>
 #ifdef ARCHITECTURE_ARM64
@@ -16,7 +14,6 @@
 #endif
 #include "common/alignment.h"
 #include "common/assert.h"
-#include "common/hash.h"
 #include "common/logging/log.h"
 #include "common/math_util.h"
 #include "common/microprofile.h"
@@ -92,256 +89,14 @@ bool ShouldSuppressPokemonFeedbackTexture(u64 title_id, u64 vs_hash, u64 fs_hash
     case 0xD0E9E1CD22DEA6D1ull:
         return texture_phys_addr == draw_depth_addr;
     case 0xD375021927AD9455ull:
-        // Narrow diagnostic: this follow-up composite repeatedly samples a single offscreen
-        // battle surface while drawing the final main target. Nulling just that source tests
-        // whether the remaining left-side artifact is carried through this pass family.
+        // This battle composite samples a specific offscreen surface while drawing the final
+        // main target. Suppressing only that source avoids the remaining left-side corruption.
         return texture_phys_addr == 0x181BD000u;
     default:
         return false;
     }
 #else
     return false;
-#endif
-}
-
-void LogPokemonNullTextureFallback(std::size_t texture_index,
-                                   const Pica::TexturingRegs::FullTextureConfig& texture) {
-#ifdef ARCHITECTURE_ARM64
-    static u64 logged_title_id = 0;
-    static u32 null_texture_hits = 0;
-    static u32 unmapped_texture_hits = 0;
-
-    const u64 title_id = GetCurrentTitleId();
-    if (!IsPokemonTitle(title_id)) {
-        return;
-    }
-
-    if (logged_title_id != title_id) {
-        logged_title_id = title_id;
-        null_texture_hits = 0;
-        unmapped_texture_hits = 0;
-    }
-
-    ++null_texture_hits;
-    const u32 phys_addr = texture.config.GetPhysicalAddress();
-    if (phys_addr != 0) {
-        ++unmapped_texture_hits;
-    }
-
-    if (null_texture_hits <= 8 || (null_texture_hits % 256) == 0) {
-        LOG_WARNING(
-            Render_OpenGL,
-            "Pokemon null texture fallback hit={} unmapped={} unit={} addr=0x{:08X} w={} h={} fmt={}",
-            null_texture_hits, unmapped_texture_hits, texture_index, phys_addr,
-            texture.config.width.Value() + 1, texture.config.height.Value() + 1,
-            static_cast<u32>(texture.format));
-    }
-#endif
-}
-
-void LogPokemonTransfer(const char* label, u32 count, const GPU::Regs::DisplayTransferConfig& config,
-                        u32 extra0 = 0, u32 extra1 = 0) {
-#ifdef ARCHITECTURE_ARM64
-    const u64 title_id = GetCurrentTitleId();
-    if (!IsPokemonTitle(title_id)) {
-        return;
-    }
-
-    if (count <= 8 || (count % 128) == 0) {
-        LOG_WARNING(
-            Render_OpenGL,
-            "Pokemon {} #{} src=0x{:08X} dst=0x{:08X} in={}x{} out={}x{} in_fmt={} out_fmt={} "
-            "flip={} scale={} in_linear={} dont_swizzle={} extra0=0x{:X} extra1=0x{:X}",
-            label, count, config.GetPhysicalInputAddress(), config.GetPhysicalOutputAddress(),
-            config.input_width.Value(), config.input_height.Value(), config.output_width.Value(),
-            config.output_height.Value(), static_cast<u32>(config.input_format.Value()),
-            static_cast<u32>(config.output_format.Value()), config.flip_vertically.Value(),
-            config.scaling.Value(), config.input_linear.Value(), config.dont_swizzle.Value(),
-            extra0, extra1);
-    }
-#endif
-}
-
-void LogPokemonDrawState(u32 count, const Pica::Regs& regs,
-                         const Common::Rectangle<s32>& viewport_rect_unscaled, u32 res_scale) {
-#ifdef ARCHITECTURE_ARM64
-    static u64 logged_title_id = 0;
-    static std::unordered_set<u64> logged_state_hashes;
-
-    const u64 title_id = GetCurrentTitleId();
-    if (!IsPokemonTitle(title_id)) {
-        return;
-    }
-
-    if (logged_title_id != title_id) {
-        logged_title_id = title_id;
-        logged_state_hashes.clear();
-    }
-
-    const bool stencil_enabled =
-        regs.framebuffer.output_merger.stencil_test.enable &&
-        regs.framebuffer.framebuffer.depth_format == Pica::FramebufferRegs::DepthFormat::D24S8;
-    const auto alpha_test_func =
-        regs.framebuffer.output_merger.alpha_test.enable
-            ? regs.framebuffer.output_merger.alpha_test.func.Value()
-            : Pica::FramebufferRegs::CompareFunc::Always;
-    const auto depth_test_func =
-        regs.framebuffer.output_merger.depth_test_enable
-            ? regs.framebuffer.output_merger.depth_test_func.Value()
-            : Pica::FramebufferRegs::CompareFunc::Always;
-    const auto logic_op = regs.framebuffer.output_merger.logic_op.Value();
-    const auto scissor_mode = regs.rasterizer.scissor_test.mode.Value();
-    const bool shadow_rendering = regs.framebuffer.IsShadowRendering();
-    const auto color_format = regs.framebuffer.framebuffer.color_format.Value();
-    const auto depth_format = regs.framebuffer.framebuffer.depth_format.Value();
-    const u32 color_addr = static_cast<u32>(regs.framebuffer.framebuffer.GetColorBufferPhysicalAddress());
-    const u32 depth_addr = static_cast<u32>(regs.framebuffer.framebuffer.GetDepthBufferPhysicalAddress());
-
-    const std::array<u64, 26> state_key = {
-        static_cast<u64>(viewport_rect_unscaled.left),
-        static_cast<u64>(viewport_rect_unscaled.top),
-        static_cast<u64>(viewport_rect_unscaled.right),
-        static_cast<u64>(viewport_rect_unscaled.bottom),
-        static_cast<u64>(res_scale),
-        static_cast<u64>(regs.rasterizer.scissor_test.x1),
-        static_cast<u64>(regs.rasterizer.scissor_test.y1),
-        static_cast<u64>(regs.rasterizer.scissor_test.x2),
-        static_cast<u64>(regs.rasterizer.scissor_test.y2),
-        static_cast<u64>(scissor_mode),
-        static_cast<u64>(logic_op),
-        static_cast<u64>(alpha_test_func),
-        static_cast<u64>(depth_test_func),
-        static_cast<u64>(regs.framebuffer.output_merger.alpha_test.ref.Value()),
-        static_cast<u64>(regs.framebuffer.framebuffer.allow_color_write.Value()),
-        static_cast<u64>(regs.framebuffer.framebuffer.allow_depth_stencil_write.Value()),
-        static_cast<u64>(regs.framebuffer.output_merger.depth_write_enable.Value()),
-        static_cast<u64>(regs.framebuffer.output_merger.depth_test_enable.Value()),
-        static_cast<u64>(regs.framebuffer.output_merger.alphablend_enable.Value()),
-        static_cast<u64>(color_format),
-        static_cast<u64>(depth_format),
-        static_cast<u64>(color_addr),
-        static_cast<u64>(depth_addr),
-        static_cast<u64>(regs.rasterizer.viewport_depth_range),
-        static_cast<u64>(regs.rasterizer.viewport_depth_near_plane),
-        static_cast<u64>((stencil_enabled ? 1U : 0U) | (shadow_rendering ? 2U : 0U)),
-    };
-    const u64 state_hash = Common::ComputeHash64(state_key.data(), sizeof(state_key));
-    if (!logged_state_hashes.emplace(state_hash).second) {
-        return;
-    }
-    if (logged_state_hashes.size() > 64) {
-        return;
-    }
-
-    LOG_WARNING(
-        Render_OpenGL,
-        "Pokemon draw_state #{} hash={:016X} scissor_mode={} scissor=({},{})->({},{}) "
-        "viewport=({},{} {}x{}) res_scale={} stencil={} alpha_test={} alpha_ref={} "
-        "depth_func={} logic_op={} shadow={} color_write={} depth_stencil_write={} "
-        "depth_write={} depth_test={} blend={} color_fmt={} depth_fmt={} color_addr=0x{:08X} "
-        "depth_addr=0x{:08X} depth_range_raw=0x{:08X} depth_near_raw=0x{:08X}",
-        count, state_hash, scissor_mode, regs.rasterizer.scissor_test.x1,
-        regs.rasterizer.scissor_test.y1, regs.rasterizer.scissor_test.x2,
-        regs.rasterizer.scissor_test.y2, viewport_rect_unscaled.left, viewport_rect_unscaled.top,
-        viewport_rect_unscaled.GetWidth(), viewport_rect_unscaled.GetHeight(), res_scale,
-        stencil_enabled ? 1 : 0, static_cast<u32>(alpha_test_func),
-        regs.framebuffer.output_merger.alpha_test.ref.Value(), static_cast<u32>(depth_test_func),
-        static_cast<u32>(logic_op), shadow_rendering ? 1 : 0,
-        regs.framebuffer.framebuffer.allow_color_write.Value(),
-        regs.framebuffer.framebuffer.allow_depth_stencil_write.Value(),
-        regs.framebuffer.output_merger.depth_write_enable.Value(),
-        regs.framebuffer.output_merger.depth_test_enable.Value(),
-        regs.framebuffer.output_merger.alphablend_enable.Value(), static_cast<u32>(color_format),
-        static_cast<u32>(depth_format), color_addr, depth_addr, regs.rasterizer.viewport_depth_range,
-        regs.rasterizer.viewport_depth_near_plane);
-#endif
-}
-
-void AppendPokemonDrawEvent(u32 count, const Pica::Regs& regs,
-                            const Common::Rectangle<s32>& viewport_rect_unscaled, u32 res_scale,
-                            const ShaderProgramManager& shader_program_manager) {
-#ifdef ARCHITECTURE_ARM64
-    const u64 title_id = GetCurrentTitleId();
-    if (!IsPokemonTitle(title_id)) {
-        return;
-    }
-
-    const auto dump_dir = fmt::format("{}pokemon_render/{:016X}/",
-                                      FileUtil::GetUserPath(FileUtil::UserPath::DumpDir), title_id);
-    if (!FileUtil::CreateFullPath(dump_dir)) {
-        return;
-    }
-
-    const auto [vs_hash, fs_hash] = shader_program_manager.GetCurrentVertexFragmentHashes();
-    if (vs_hash == 0 || fs_hash == 0) {
-        return;
-    }
-
-    std::ofstream file(fmt::format("{}draw_events.log", dump_dir), std::ios::app);
-    if (!file.is_open()) {
-        return;
-    }
-
-    const bool stencil_enabled =
-        regs.framebuffer.output_merger.stencil_test.enable &&
-        regs.framebuffer.framebuffer.depth_format == Pica::FramebufferRegs::DepthFormat::D24S8;
-    const auto alpha_test_func =
-        regs.framebuffer.output_merger.alpha_test.enable
-            ? regs.framebuffer.output_merger.alpha_test.func.Value()
-            : Pica::FramebufferRegs::CompareFunc::Always;
-    const auto depth_test_func =
-        regs.framebuffer.output_merger.depth_test_enable
-            ? regs.framebuffer.output_merger.depth_test_func.Value()
-            : Pica::FramebufferRegs::CompareFunc::Always;
-    const auto logic_op = regs.framebuffer.output_merger.logic_op.Value();
-    const auto scissor_mode = regs.rasterizer.scissor_test.mode.Value();
-    const bool shadow_rendering = regs.framebuffer.IsShadowRendering();
-    const auto color_format = regs.framebuffer.framebuffer.color_format.Value();
-    const auto depth_format = regs.framebuffer.framebuffer.depth_format.Value();
-    const u32 color_addr = static_cast<u32>(regs.framebuffer.framebuffer.GetColorBufferPhysicalAddress());
-    const u32 depth_addr = static_cast<u32>(regs.framebuffer.framebuffer.GetDepthBufferPhysicalAddress());
-    const float depth_scale =
-        Pica::float24::FromRaw(regs.rasterizer.viewport_depth_range).ToFloat32();
-    const float depth_offset =
-        Pica::float24::FromRaw(regs.rasterizer.viewport_depth_near_plane).ToFloat32();
-    const auto textures = regs.texturing.GetTextures();
-
-    const auto tex0_addr = static_cast<u32>(textures[0].config.GetPhysicalAddress());
-    const auto tex1_addr = static_cast<u32>(textures[1].config.GetPhysicalAddress());
-    const auto tex2_addr = static_cast<u32>(textures[2].config.GetPhysicalAddress());
-
-    file << fmt::format(
-        "draw={} vs_code={:016X} fs_code={:016X} viewport={},{},{},{} res_scale={} "
-        "scissor={},{},{},{} scissor_mode={} logic_op={} alpha_func={} alpha_ref={} "
-        "depth_func={} color_write={} depth_stencil_write={} depth_write={} depth_test={} "
-        "blend={} stencil={} shadow={} color_fmt={} depth_fmt={} color_addr=0x{:08X} "
-        "depth_addr=0x{:08X} depth_scale_raw=0x{:08X} depth_offset_raw=0x{:08X} "
-        "depth_scale={} depth_offset={} tex0_en={} tex0_type={} tex0_fmt={} tex0_addr=0x{:08X} "
-        "tex0_size={}x{} tex1_en={} tex1_type={} tex1_fmt={} tex1_addr=0x{:08X} tex1_size={}x{} "
-        "tex2_en={} tex2_type={} tex2_fmt={} tex2_addr=0x{:08X} tex2_size={}x{}\n",
-        count, vs_hash, fs_hash, viewport_rect_unscaled.left, viewport_rect_unscaled.top,
-        viewport_rect_unscaled.right, viewport_rect_unscaled.bottom, res_scale,
-        regs.rasterizer.scissor_test.x1.Value(), regs.rasterizer.scissor_test.y1.Value(),
-        regs.rasterizer.scissor_test.x2.Value(), regs.rasterizer.scissor_test.y2.Value(),
-        static_cast<u32>(scissor_mode), static_cast<u32>(logic_op),
-        static_cast<u32>(alpha_test_func), regs.framebuffer.output_merger.alpha_test.ref.Value(),
-        static_cast<u32>(depth_test_func),
-        regs.framebuffer.framebuffer.allow_color_write.Value(),
-        regs.framebuffer.framebuffer.allow_depth_stencil_write.Value(),
-        regs.framebuffer.output_merger.depth_write_enable.Value(),
-        regs.framebuffer.output_merger.depth_test_enable.Value(),
-        regs.framebuffer.output_merger.alphablend_enable.Value(), stencil_enabled ? 1 : 0,
-        shadow_rendering ? 1 : 0, static_cast<u32>(color_format),
-        static_cast<u32>(depth_format), color_addr, depth_addr, regs.rasterizer.viewport_depth_range,
-        regs.rasterizer.viewport_depth_near_plane, depth_scale, depth_offset,
-        textures[0].enabled ? 1 : 0, static_cast<u32>(textures[0].config.type.Value()),
-        static_cast<u32>(textures[0].format), tex0_addr, textures[0].config.width.Value() + 1,
-        textures[0].config.height.Value() + 1, textures[1].enabled ? 1 : 0,
-        static_cast<u32>(textures[1].config.type.Value()), static_cast<u32>(textures[1].format),
-        tex1_addr, textures[1].config.width.Value() + 1, textures[1].config.height.Value() + 1,
-        textures[2].enabled ? 1 : 0, static_cast<u32>(textures[2].config.type.Value()),
-        static_cast<u32>(textures[2].format), tex2_addr, textures[2].config.width.Value() + 1,
-        textures[2].config.height.Value() + 1);
 #endif
 }
 
@@ -879,9 +634,7 @@ void RasterizerOpenGL::BindFramebufferDepth(OpenGLState& state, const Surface& s
 }
 
 bool RasterizerOpenGL::Draw(bool accelerate, bool is_indexed) {
-    static u32 pokemon_draw_state_count = 0;
     const auto& regs = Pica::g_state.regs;
-    ++pokemon_draw_state_count;
     const bool shadow_rendering = regs.framebuffer.IsShadowRendering();
     if (shadow_rendering && !AllowShadow) {
         return true;
@@ -922,9 +675,6 @@ bool RasterizerOpenGL::Draw(bool accelerate, bool is_indexed) {
     } else if (depth_surface) {
         res_scale = depth_surface->res_scale;
     }
-    LogPokemonDrawState(pokemon_draw_state_count, regs, viewport_rect_unscaled, res_scale);
-    AppendPokemonDrawEvent(pokemon_draw_state_count, regs, viewport_rect_unscaled, res_scale,
-                           *shader_program_manager);
     const auto [current_vs_hash, current_fs_hash] =
         shader_program_manager->GetCurrentVertexFragmentHashes();
     const u64 current_title_id = GetCurrentTitleId();
@@ -1033,7 +783,6 @@ bool RasterizerOpenGL::Draw(bool accelerate, bool is_indexed) {
                 // the geometry in question.
                 // For example: a bug in Pokemon X/Y causes NULL-texture squares to be drawn
                 // on the male character's face, which in the OpenGL default appear black.
-                LogPokemonNullTextureFallback(texture_index, texture);
                 state.texture_units[texture_index].texture_2d = texture_null.handle;
             }
         } else {
@@ -1626,10 +1375,6 @@ void RasterizerOpenGL::FlushAndInvalidateRegion(PAddr addr, u32 size) {
 }
 
 bool RasterizerOpenGL::AccelerateDisplayTransfer(const GPU::Regs::DisplayTransferConfig& config) {
-    static u32 pokemon_display_transfer_count = 0;
-    ++pokemon_display_transfer_count;
-    LogPokemonTransfer("display_transfer", pokemon_display_transfer_count, config);
-
     SurfaceParams src_params;
     src_params.addr = config.GetPhysicalInputAddress();
     src_params.width = config.output_width;
@@ -1700,11 +1445,6 @@ bool RasterizerOpenGL::AccelerateDisplayTransfer(const GPU::Regs::DisplayTransfe
 }
 
 bool RasterizerOpenGL::AccelerateTextureCopy(const GPU::Regs::DisplayTransferConfig& config) {
-    static u32 pokemon_texture_copy_count = 0;
-    ++pokemon_texture_copy_count;
-    LogPokemonTransfer("texture_copy", pokemon_texture_copy_count, config,
-                       config.texture_copy.size, config.texture_copy.input_width * 16);
-
     u32 copy_size = Common::AlignDown(config.texture_copy.size, 16);
     if (copy_size == 0) {
         return false;

@@ -25,7 +25,6 @@ enum Attributes {
     ATTRIBUTE_TEXCOORD0_W,
     ATTRIBUTE_NORMQUAT,
     ATTRIBUTE_VIEW,
-    ATTRIBUTE_PICA_DEPTH,
 };
 
 // Doesn't include const_color because we don't sync it, see comment in BuildFromRegs()
@@ -151,7 +150,6 @@ struct PicaShaderConfigCommon {
     u64 swizzle_hash;
     u32 main_offset;
     u8 sanitize_mul;
-    bool sanitize_rcp_rsq;
 
     u32 num_outputs;
 

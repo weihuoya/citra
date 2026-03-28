@@ -3,149 +3,13 @@
 // Refer to the license.txt file included.
 
 #include <algorithm>
-#include <fstream>
 #include <unordered_map>
-#include "common/file_util.h"
 #include "core/cache_file.h"
-#include "core/core.h"
-#include "core/hle/kernel/process.h"
 #include "core/settings.h"
 #include "video_core/renderer_opengl/gl_shader_manager.h"
 #include "video_core/renderer_opengl/on_screen_display.h"
 
 namespace OpenGL {
-
-namespace {
-
-bool IsPokemonTitle(u64 title_id) {
-    switch (title_id) {
-    case 0x0004000000055D00: // Pokemon X
-    case 0x0004000000055E00: // Pokemon Y
-    case 0x000400000011C500: // Pokemon Alpha Sapphire
-    case 0x000400000011C400: // Pokemon Omega Ruby
-    case 0x00040000001B5000: // Pokemon Ultra Sun
-    case 0x00040000001B5100: // Pokemon Ultra Moon
-    case 0x0004000000164800: // Pokemon Sun
-    case 0x0004000000175E00: // Pokemon Moon
-        return true;
-    default:
-        return false;
-    }
-}
-
-u64 GetCurrentTitleId() {
-    auto& system = Core::System::GetInstance();
-    const auto current_process = system.Kernel().GetCurrentProcess();
-    if (current_process && current_process->codeset) {
-        return current_process->codeset->program_id;
-    }
-
-    u64 title_id = 0;
-    if (system.GetAppLoader().ReadProgramId(title_id) != Loader::ResultStatus::Success) {
-        return 0;
-    }
-    return title_id;
-}
-
-std::string GetPokemonShaderDumpDir(u64 title_id) {
-    return fmt::format("{}pokemon_render/{:016X}/", FileUtil::GetUserPath(FileUtil::UserPath::DumpDir),
-                       title_id);
-}
-
-std::string BuildVertexSummary(const PicaVSConfig& key) {
-    std::string summary = fmt::format(
-        "// type=vertex\n// program_hash={:016X}\n// swizzle_hash={:016X}\n// main_offset={}\n"
-        "// sanitize_mul={}\n// sanitize_rcp_rsq={}\n// num_outputs={}\n// output_map=",
-        key.state.program_hash, key.state.swizzle_hash, key.state.main_offset,
-        key.state.sanitize_mul, key.state.sanitize_rcp_rsq ? 1 : 0, key.state.num_outputs);
-    for (std::size_t i = 0; i < key.state.output_map.size(); ++i) {
-        summary += fmt::format("{}{}", i == 0 ? "" : ",", key.state.output_map[i]);
-    }
-    summary += '\n';
-    return summary;
-}
-
-std::string BuildFragmentSummary(const PicaFSConfig& key) {
-    const auto& state = key.state;
-    return fmt::format(
-        "// type=fragment\n// logic_op={}\n// alpha_test_func={}\n// scissor_mode={}\n"
-        "// texture0_type={}\n// texture2_use_coord1={}\n// combiner_buffer_input=0x{:02X}\n"
-        "// depthmap_enable={}\n// fog_mode={}\n// fog_flip={}\n// lighting_enable={}\n"
-        "// lighting_src_num={}\n// lighting_enable_shadow={}\n// proctex_enable={}\n"
-        "// shadow_rendering={}\n// shadow_texture_orthographic={}\n",
-        static_cast<u32>(state.logic_op), static_cast<u32>(state.alpha_test_func),
-        static_cast<u32>(state.scissor_test_mode), static_cast<u32>(state.texture0_type),
-        state.texture2_use_coord1 ? 1 : 0, state.combiner_buffer_input,
-        static_cast<u32>(state.depthmap_enable), static_cast<u32>(state.fog_mode),
-        state.fog_flip ? 1 : 0, state.lighting.enable ? 1 : 0, state.lighting.src_num,
-        state.lighting.enable_shadow ? 1 : 0, state.proctex.enable ? 1 : 0,
-        state.shadow_rendering ? 1 : 0, state.shadow_texture_orthographic ? 1 : 0);
-}
-
-void DumpPokemonShaderSource(const char* stage_name, u64 key_hash, u64 code_hash,
-                             const std::string& summary, const std::string& shader_code) {
-    const u64 title_id = GetCurrentTitleId();
-    if (!IsPokemonTitle(title_id)) {
-        return;
-    }
-
-    const auto dump_dir = GetPokemonShaderDumpDir(title_id);
-    if (!FileUtil::CreateFullPath(dump_dir)) {
-        LOG_WARNING(Render_OpenGL, "Pokemon shader dump failed to create {}", dump_dir);
-        return;
-    }
-
-    const auto filepath =
-        fmt::format("{}{}_key_{:016X}_code_{:016X}.glsl.txt", dump_dir, stage_name, key_hash,
-                    code_hash);
-    if (FileUtil::Exists(filepath)) {
-        return;
-    }
-
-    std::string contents = fmt::format(
-        "// title_id={:016X}\n// key_hash={:016X}\n// code_hash={:016X}\n{}{}\n", title_id,
-        key_hash, code_hash, summary, shader_code);
-    FileUtil::WriteStringToFile(true, filepath, contents);
-    LOG_WARNING(Render_OpenGL, "Pokemon shader dump wrote {}", filepath);
-}
-
-void LogPokemonShaderPair(u64 vs_hash, u64 fs_hash) {
-    static u64 logged_title_id = 0;
-    static std::unordered_set<u64> logged_shader_pairs;
-
-    const u64 title_id = GetCurrentTitleId();
-    if (!IsPokemonTitle(title_id) || vs_hash == 0 || fs_hash == 0) {
-        return;
-    }
-
-    if (logged_title_id != title_id) {
-        logged_title_id = title_id;
-        logged_shader_pairs.clear();
-    }
-
-    const std::array<u64, 2> shader_pair{vs_hash, fs_hash};
-    const u64 pair_hash = Common::ComputeHash64(shader_pair.data(), sizeof(shader_pair));
-    if (!logged_shader_pairs.emplace(pair_hash).second) {
-        return;
-    }
-    if (logged_shader_pairs.size() > 128) {
-        return;
-    }
-
-    const auto dump_dir = GetPokemonShaderDumpDir(title_id);
-    if (!FileUtil::CreateFullPath(dump_dir)) {
-        return;
-    }
-    const auto filepath = fmt::format("{}shader_pairs.log", dump_dir);
-    std::ofstream file(filepath, std::ios::app);
-    if (!file.is_open()) {
-        return;
-    }
-    file << fmt::format("vs_code={:016X} fs_code={:016X} pair_hash={:016X}\n", vs_hash, fs_hash,
-                        pair_hash);
-}
-
-} // namespace
 
 static void SetShaderUniformBlockBinding(GLuint shader, const char* name, UniformBindings binding,
                                          std::size_t expected_size) {
@@ -327,8 +191,6 @@ public:
             } else {
                 current_shaders.vs = GetShaderStageRef(vs_code, GL_VERTEX_SHADER);
                 if (current_shaders.vs) {
-                    DumpPokemonShaderSource("vs", key_hash, current_shaders.vs->GetHash(),
-                                            BuildVertexSummary(key), vs_code);
                     shaders_ref[key_hash] = current_shaders.vs;
                     vertex_cache.emplace(current_shaders.vs->GetHash(), std::move(vs_code));
                     result = true;
@@ -361,8 +223,6 @@ public:
             std::string fs_code = GenerateFragmentShader(key, separable);
             current_shaders.fs = GetShaderStageRef(fs_code, GL_FRAGMENT_SHADER);
             if (current_shaders.fs) {
-                DumpPokemonShaderSource("fs", key_hash, current_shaders.fs->GetHash(),
-                                        BuildFragmentSummary(key), fs_code);
                 shaders_ref[key_hash] = current_shaders.fs;
                 fragment_cache.emplace(current_shaders.fs->GetHash(), std::move(fs_code));
             }
@@ -383,8 +243,6 @@ public:
         GLuint vs = current_shaders.vs->GetHandle();
         GLuint gs = current_shaders.gs->GetHandle();
         GLuint fs = current_shaders.fs->GetHandle();
-        LogPokemonShaderPair(current_shaders.vs ? current_shaders.vs->GetHash() : 0,
-                             current_shaders.fs ? current_shaders.fs->GetHash() : 0);
 
         if (separable) {
             glUseProgramStages(pipeline.handle, GL_VERTEX_SHADER_BIT, vs);

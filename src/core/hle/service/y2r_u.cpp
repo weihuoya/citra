@@ -6,7 +6,6 @@
 #include "common/common_funcs.h"
 #include "common/logging/log.h"
 #include "core/core.h"
-#include "core/loader/loader.h"
 #include "core/hle/ipc_helpers.h"
 #include "core/hle/kernel/event.h"
 #include "core/hle/kernel/process.h"
@@ -15,64 +14,6 @@
 #include "core/settings.h"
 
 namespace Service::Y2R {
-
-namespace {
-
-bool IsPokemonTitle(u64 title_id) {
-    switch (title_id) {
-    case 0x0004000000055D00: // Pokemon X
-    case 0x0004000000055E00: // Pokemon Y
-    case 0x000400000011C500: // Pokemon Alpha Sapphire
-    case 0x000400000011C400: // Pokemon Omega Ruby
-    case 0x00040000001B5000: // Pokemon Ultra Sun
-    case 0x00040000001B5100: // Pokemon Ultra Moon
-    case 0x0004000000164800: // Pokemon Sun
-    case 0x0004000000175E00: // Pokemon Moon
-        return true;
-    default:
-        return false;
-    }
-}
-
-u64 GetCurrentTitleId() {
-    auto& system = Core::System::GetInstance();
-    const auto current_process = system.Kernel().GetCurrentProcess();
-    if (current_process && current_process->codeset) {
-        return current_process->codeset->program_id;
-    }
-
-    u64 title_id = 0;
-    system.GetAppLoader().ReadProgramId(title_id);
-    return title_id;
-}
-
-void LogPokemonY2RConversion(const ConversionConfiguration& conversion, u32 total_output_size) {
-#ifdef ANDROID
-    if (!IsPokemonTitle(GetCurrentTitleId())) {
-        return;
-    }
-    static u32 conversion_count = 0;
-    ++conversion_count;
-    if (conversion_count <= 8 || conversion_count % 128 == 0) {
-        LOG_WARNING(
-            Service_Y2R,
-            "Pokemon Y2R conversion #{} input_format={} output_format={} rotation={} "
-            "alignment={} width={} lines={} alpha={} srcY=0x{:08X}/0x{:X} srcU=0x{:08X}/0x{:X} "
-            "srcV=0x{:08X}/0x{:X} srcYUYV=0x{:08X}/0x{:X} dst=0x{:08X}/0x{:X} "
-            "dst_unit={} dst_gap={} total_output=0x{:X}",
-            conversion_count, static_cast<u8>(conversion.input_format),
-            static_cast<u8>(conversion.output_format), static_cast<u8>(conversion.rotation),
-            static_cast<u8>(conversion.block_alignment), conversion.input_line_width,
-            conversion.input_lines, conversion.alpha, conversion.src_Y.address,
-            conversion.src_Y.image_size, conversion.src_U.address, conversion.src_U.image_size,
-            conversion.src_V.address, conversion.src_V.image_size, conversion.src_YUYV.address,
-            conversion.src_YUYV.image_size, conversion.dst.address, conversion.dst.image_size,
-            conversion.dst.transfer_unit, conversion.dst.gap, total_output_size);
-    }
-#endif
-}
-
-} // namespace
 
 static const CoefficientSet standard_coefficients[4] = {
     {{0x100, 0x166, 0xB6, 0x58, 0x1C5, -0x166F, 0x10EE, -0x1C5B}}, // ITU_Rec601
@@ -566,7 +507,6 @@ void Y2R_U::StartConversion(Kernel::HLERequestContext& ctx) {
     // dst_image_size would seem to be perfect for this, but it doesn't include the gap :(
     u32 total_output_size =
         conversion.input_lines * (conversion.dst.transfer_unit + conversion.dst.gap);
-    LogPokemonY2RConversion(conversion, total_output_size);
     Memory::RasterizerFlushVirtualRegion(conversion.dst.address, total_output_size,
                                          Memory::FlushMode::FlushAndInvalidate);
 
