@@ -83,11 +83,11 @@ bool ShouldSuppressPokemonFeedbackTexture(u64 title_id, u64 vs_hash, u64 fs_hash
         return false;
     }
 
+    if (texture_phys_addr == draw_depth_addr) {
+        return true;
+    }
+
     switch (fs_hash) {
-    case 0xA92D8650684558B8ull:
-    case 0xB51E75FF1F88D156ull:
-    case 0xD0E9E1CD22DEA6D1ull:
-        return texture_phys_addr == draw_depth_addr;
     case 0xD375021927AD9455ull:
         // This battle composite samples a specific offscreen surface while drawing the final
         // main target. Suppressing only that source avoids the remaining left-side corruption.
