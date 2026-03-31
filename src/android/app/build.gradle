@@ -1,5 +1,7 @@
 apply plugin: 'com.android.application'
 
+import java.util.Properties
+
 def releaseStoreFilePath = System.getenv('ANDROID_RELEASE_STORE_FILE')
 def releaseStorePassword = System.getenv('ANDROID_RELEASE_STORE_PASSWORD')
 def releaseKeyAlias = System.getenv('ANDROID_RELEASE_KEY_ALIAS')
@@ -9,6 +11,7 @@ def hasExplicitReleaseSigning = [releaseStoreFilePath, releaseStorePassword, rel
 def useDebugSigningForRelease = (System.getenv('ANDROID_LOCAL_RELEASE_USE_DEBUG_SIGNING') ?: 'false')
         .toBoolean()
 def androidApiLevel = 34
+def androidVersionProperties = loadAndroidVersionProperties()
 
 android {
     compileSdkVersion androidApiLevel
@@ -23,8 +26,8 @@ android {
         applicationId "org.citra.bjj"
         minSdkVersion 24
         targetSdkVersion androidApiLevel
-        versionCode(getBuildVersionCode())
-        versionName "${getVersion()}"
+        versionCode(getBuildVersionCode(androidVersionProperties))
+        versionName "${getVersionName(androidVersionProperties)}"
     }
 
     signingConfigs {
@@ -99,6 +102,7 @@ if (gradle.startParameter.taskNames.any { it.toLowerCase().contains('release') }
     } else {
         logger.lifecycle('Android release signing: no signing config provided, assembleRelease will produce an unsigned APK/AAB')
     }
+    logger.lifecycle("Android release version: code=${getBuildVersionCode(androidVersionProperties)} name=${getVersionName(androidVersionProperties)}")
 }
 
 dependencies {
@@ -112,29 +116,47 @@ dependencies {
     implementation 'androidx.documentfile:documentfile:1.0.1'
 }
 
-def getVersion() {
-    def versionNumber = '0.0'
+def loadAndroidVersionProperties() {
+    def properties = new Properties()
+    def propertiesFile = rootProject.file('version.properties')
 
     try {
-        versionNumber = 'git describe --always --long'.execute([], project.rootDir).text
-                .trim()
-                .replaceAll(/(-0)?-[^-]+$/, "")
+        propertiesFile.withInputStream { stream ->
+            properties.load(stream)
+        }
     } catch (Exception e) {
-        logger.error('Cannot find git, defaulting to dummy version number')
+        logger.error("Cannot read Android version properties from ${propertiesFile}, defaulting to 0.0.0-dev / 1")
     }
 
-    return versionNumber
+    return properties
 }
 
-
-def getBuildVersionCode() {
-    try {
-        def versionNumber = 'git rev-list --first-parent --count HEAD'.execute([], project.rootDir).text
-                .trim()
-        return Integer.valueOf(versionNumber)
-    } catch (Exception e) {
-        logger.error('Cannot find git, defaulting to dummy version number')
+def getVersionName(Properties versionProperties) {
+    def overrideVersionName = System.getenv('ANDROID_VERSION_NAME')
+    if (overrideVersionName != null && !overrideVersionName.trim().isEmpty()) {
+        return overrideVersionName.trim()
     }
 
-    return 0
+    def versionName = versionProperties.getProperty('VERSION_NAME', '0.0.0-dev').trim()
+    if (!versionName.isEmpty()) {
+        return versionName
+    }
+
+    return '0.0.0-dev'
+}
+
+def getBuildVersionCode(Properties versionProperties) {
+    def overrideVersionCode = System.getenv('ANDROID_VERSION_CODE')
+    if (overrideVersionCode != null && !overrideVersionCode.trim().isEmpty()) {
+        return Integer.parseInt(overrideVersionCode.trim())
+    }
+
+    try {
+        def versionCode = versionProperties.getProperty('VERSION_CODE', '1').trim()
+        return Integer.parseInt(versionCode)
+    } catch (Exception e) {
+        logger.error('Cannot parse Android VERSION_CODE, defaulting to 1')
+    }
+
+    return 1
 }

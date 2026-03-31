@@ -79,12 +79,23 @@ bool ShouldSuppressPokemonFeedbackTexture(u64 title_id, u64 vs_hash, u64 fs_hash
         return false;
     }
 
-    if (vs_hash != 0x76204850D3D31438ull) {
-        return false;
-    }
-
     if (texture_phys_addr == draw_depth_addr) {
-        return true;
+        switch (fs_hash) {
+        case 0x219E483FD9BC5C73ull:
+        case 0x69DD80CC605B4B8Full:
+        case 0x8A76329CB25030B1ull:
+        case 0x9F0AC915A32BAB2Cull:
+        case 0xD375021927AD9455ull:
+        case 0xEC68C55D9E1FD734ull:
+        case 0xFB2B5B4178346715ull:
+            // The problematic Pokemon battle composite changes vertex-shader hashes across
+            // accurate_mul modes, but this fragment-hash cluster still self-samples the live
+            // draw depth target. Suppress those reads by fragment family instead of one exact
+            // vertex hash so Off/Fast/Accurate all hit the same protection.
+            return true;
+        default:
+            return false;
+        }
     }
 
     switch (fs_hash) {
